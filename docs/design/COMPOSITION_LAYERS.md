@@ -1,0 +1,29 @@
+# 조합 레이어 원칙
+
+> 출처: `AGENTS.md`의 디자인 패턴 문서 기준에 따라 책임 단위로 분리.
+
+## 조합 레이어 원칙
+
+화면 제작 시 외부 문서의 `Atom` 분류는 직접 사용하지 않고, 이 repo의 구현 어휘인 `Component -> Pattern -> Organism -> Screen`으로 해석한다.
+
+| 레이어 | 역할 | 화면 route 직접 배치 |
+|---|---|---|
+| Component | `Button`, `Badge`, `Ico`, `RadioText`, `CheckboxText` 같은 기초 UI 어휘 | 원칙적으로 금지 |
+| Pattern | `SinglePrimaryAction`, `PageStackContents`, `FieldStack`, `PopupActionButton` 같은 반복 조합 | 가능 |
+| Organism | 정책 의미·도메인 모듈 ID·OGN을 담는 의미 단위 | 가능 |
+| Screen | `AppScreen` slot에 chrome/section/organism을 배치하는 지도 | 해당 |
+
+이 프로젝트의 생성 결과에서는 OGN을 대부분 섹션 단위로 해석한다. 따라서 `Screen`은 하위 `Organism` 섹션을 소유하고, 생성 DB에서는 `generated_screens -> generated_organisms -> components_json` 관계로 저장한다.
+
+기초 component는 독립 배치보다 pattern이나 organism의 이름 있는 slot 안에서 의미가 선명해진다. 예를 들어 primary `Button`은 콘텐츠 중간에 직접 배치하지 않고 `SinglePrimaryAction`, 카드 CTA slot, `PopupActionButton`, bottom sheet action slot 안에 둔다.
+
+### 컴포넌트 후보 분기
+
+화면 패턴을 정한 뒤 각 SB part는 바로 신규 component로 만들지 않고 `reuse` 또는 `new`로 분기한다.
+
+- `reuse`: 기존 `@pxds/cx-components/components/*`, `@pxds/cx-components/candidate/*`, `@pxds/cx-layout` pattern, 또는 도메인 `Organism` 조합으로 정책 의미와 상태를 표현할 수 있다.
+- `new`: 기존 vocabulary로 정책 의미, 선택지, 에러, slot, Figma bridge identity를 표현할 수 없어 신규 candidate가 필요하다.
+
+`new` candidate는 생성 가능하지만 반드시 `RQR` 식별자를 붙인다. React 이름은 `RQR{Name}`, 폴더와 `componentId`, `data-figma-component-id`는 `rqr-{name}`을 사용한다. 정식 component vocabulary로 승격할 때는 `RQR` prefix를 제거한다.
+
+---
