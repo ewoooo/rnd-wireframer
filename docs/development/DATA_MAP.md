@@ -4,7 +4,9 @@
 
 이 문서는 MVP 기준의 데이터 테이블, 각 테이블 책임, 스키마, 주요 관계만 정의한다.
 
-제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/MASTER_PLAN.md), 시스템 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md)를 따른다.
+DB 구조 검토와 ERD 산출물은 `drawdb`를 함께 사용한다. 이 문서가 텍스트 기준 SSOT이고, `drawdb` 파일은 테이블 관계와 컬럼 구조를 시각 검토하기 위한 보조 산출물로 관리한다.
+
+제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 시스템 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md)를 따른다.
 
 ## 2. 설계 원칙
 
@@ -18,8 +20,19 @@
 - Base Screen과 각 엣지 케이스 Variant는 모두 `generated_screens`의 row로 본다.
 - 생성된 OGN 섹션은 `generated_organisms`에 저장한다.
 - Puck 편집 결과는 internal wireframe JSON으로 역변환한 뒤 `generated_organisms.edited_json`에 저장한다.
+- 테이블/관계 변경 시 SQL 스키마와 `drawdb` ERD를 함께 갱신한다.
 
-## 3. MVP 테이블 책임
+## 3. drawdb 운영 기준
+
+- `drawdb`는 Supabase PostgreSQL 테이블의 ERD 검토 도구로 사용한다.
+- drawdb 원본 산출물은 `docs/drawdb/`에 둔다.
+- drawdb SQL import 원본은 `docs/drawdb/rnd-screen-generator.postgres.sql`로 관리한다.
+- 리뷰용 이미지 export는 `docs/drawdb/exports/`, 변경 시점별 보관본은 `docs/drawdb/snapshots/`에 둔다.
+- 테이블명, 컬럼명, nullable, primary key, foreign key는 이 문서의 SQL 스키마와 일치해야 한다.
+- JSONB 내부 구조는 `drawdb`에 과하게 펼치지 않고, 컬럼 단위로만 표현한다.
+- 최종 migration의 기준은 SQL이며, `drawdb`는 리뷰와 커뮤니케이션을 위한 시각 산출물이다.
+
+## 4. MVP 테이블 책임
 
 | 테이블 | 역할 |
 |---|---|
@@ -32,7 +45,7 @@
 | `generated_screens` | 생성된 개별 화면 |
 | `generated_organisms` | 생성된 화면 안의 OGN 섹션 |
 
-## 4. 관계 개요
+## 5. 관계 개요
 
 ```mermaid
 erDiagram
@@ -51,7 +64,7 @@ erDiagram
   organism_sources ||--o{ generated_organisms : source_of
 ```
 
-## 5. 공통 컬럼 규칙
+## 6. 공통 컬럼 규칙
 
 | 컬럼 | 규칙 |
 |---|---|
@@ -64,7 +77,7 @@ erDiagram
 | `normalized_json` | 시스템 내부 표준 JSON |
 | `raw_item` | 원천 JSON 배열의 특정 항목 보존 |
 
-## 6. 테이블별 스키마
+## 7. 테이블별 스키마
 
 ### projects
 
@@ -469,7 +482,7 @@ create index idx_generated_organisms_edited_json_gin
 on generated_organisms using gin(edited_json);
 ```
 
-## 7. 생성 결과 구조
+## 8. 생성 결과 구조
 
 생성 결과는 set, screen, organism row로 나뉜다.
 
@@ -536,7 +549,7 @@ internal wireframe JSON
 
 간격, 정렬, 노출 옵션은 자유 숫자 입력보다 디자인 토큰 기반 prop으로 제한한다.
 
-## 8. Import / Upsert 전략
+## 9. Import / Upsert 전략
 
 1. 입력 JSON의 `documentType`, `schemaVersion`, `module_kind`를 확인한다.
 2. `documentType = 'sb'`이면 `screen_sources`에 원본 JSON과 정규화 JSON을 upsert한다.
@@ -552,7 +565,7 @@ internal wireframe JSON
 - 해당 SB의 `screen_source_organisms`는 새 `composition[]` 기준으로 교체한다.
 - 생성 이력은 삭제하지 않는다.
 
-## 9. 주요 조회 패턴
+## 10. 주요 조회 패턴
 
 ### 모듈별 화면 목록
 
@@ -630,7 +643,7 @@ from generated_organisms
 where id = :generated_organism_id;
 ```
 
-## 10. 나중에 분리할 수 있는 테이블
+## 11. 나중에 분리할 수 있는 테이블
 
 MVP에서는 아래 데이터를 JSONB로 유지한다. 검색, 통계, 개별 상태 관리가 필요해지는 시점에 분리한다.
 
@@ -648,7 +661,7 @@ MVP에서는 아래 데이터를 JSONB로 유지한다. 검색, 통계, 개별 �
 | `generated_organism_reviews` | `generated_organisms.review_result` | OGN 섹션 검수 이력을 여러 번 남겨야 할 때 |
 | `generated_components` | `generated_organisms.components_json` | 컴포넌트별 재생성/편집/검수가 필요할 때 |
 
-## 11. RLS 권장 모델
+## 12. RLS 권장 모델
 
 MVP 초기에는 FastAPI가 service role로 쓰기를 담당해도 된다.
 

@@ -6,12 +6,14 @@
 
 제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 각 책임 문서를 참조한다.
 
+`MASTER_PLAN.md`, `AGENTS.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
+
 | 주제 | 기준 문서 |
 |---|---|
-| 제품 계획 | [MASTER_PLAN.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/MASTER_PLAN.md) |
-| 개발 아키텍처 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| 데이터 설계 | [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
-| 에이전트 운영 | [AGENTS.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/AGENTS.md) |
+| 제품 계획 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
+| 개발 아키텍처 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
+| 데이터 설계 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
+| 에이전트 운영 | [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md) |
 
 ## 2. 기록 형식
 
@@ -163,3 +165,87 @@
 - 이유: `generated_screens` 중심 설명과 Puck 블록 편집 표현이 `generated_organisms` 중심 구조와 일부 어긋날 수 있음
 - 검증: `MASTER_PLAN.md`, `AGENTS.md`, `DEVELOPMENT_ARCHITECTURE.md`, `DATA_MAP.md`, `COMPOSITION_LAYERS.md`를 갱신하고 오래된 현재 문서 참조를 검색함
 - 후속: 실제 구현 시작 시 migration, API schema, Puck 변환기 문서를 별도 작성 필요
+
+## 2026-05-19 - Documentation Agent
+
+- 변경: `rnd-screen-to-screen`의 `cx-components`, `cx-tokens`, `dxds-layout`을 개선판 기반 패키지로 가져오는 결정을 문서화
+- 이유: 새 프로젝트가 UI 어휘와 토큰/레이아웃 계약은 기존 검증 자산을 재사용하고, 생성/검수/편집 파이프라인을 새로 얹는 구조임을 명확히 하기 위함
+- 검증: `MASTER_PLAN.md`, `DEVELOPMENT_ARCHITECTURE.md`, `AGENTS.md`, `COMPOSITION_LAYERS.md`에 패키지 재사용과 `dxds-layout` -> `cx-layout` 명명 정책을 반영함
+- 후속: 실제 패키지 이전 시 import 경계, package name, build script, token build pipeline 확인 필요
+
+## 2026-05-19 - Documentation Agent
+
+- 변경: DB 관계 검토와 ERD 산출물 도구로 `drawdb` 사용 결정을 문서화
+- 이유: Supabase PostgreSQL 스키마를 SQL뿐 아니라 시각적인 ERD로 검토하고 공유하기 위함
+- 검증: `DATA_MAP.md`, `DEVELOPMENT_ARCHITECTURE.md`, `AGENTS.md`, `MASTER_PLAN.md`에 drawdb 운영 기준과 백로그를 반영함
+- 후속: 실제 구현 시작 시 `docs/drawdb/` 아래의 drawdb 산출물 저장 규칙을 파일명 수준으로 확정 필요
+
+## 2026-05-19 - Documentation Agent
+
+- 변경: 루트 전역 문서와 구현/문서 산출물 디렉토리 구조를 확정
+- 이유: `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 전역 문서로 루트에 두고, 구현 앱/패키지/API/Supabase/drawdb 산출물의 위치를 명확히 하기 위함
+- 검증: `apps/web`, `packages/cx-*`, `services/api`, `supabase`, `docs/drawdb` 디렉토리 골격을 만들고, `DEVELOPMENT_ARCHITECTURE.md`, `DATA_MAP.md`, `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`의 구조 설명과 경로 참조를 갱신함
+- 후속: 실제 구현 시작 시 각 `.gitkeep`을 실제 소스/설정 파일로 대체 필요
+
+## 2026-05-19 - Documentation Agent
+
+- 변경: 루트 운영 설정으로 `.env.example`, `.gitignore`, `biome.json` 추가
+- 이유: 구현 시작 전 환경 변수 예시, secret 제외 규칙, 포맷/린트 기준이 필요함
+- 검증: 환경 변수 파일은 예시만 커밋하고 `.gitignore`에서 실제 `.env*`를 제외하도록 설정함
+- 후속: 패키지 매니저와 Next/FastAPI 초기화 후 Biome 스크립트와 Python lint/test 설정 추가 필요
+
+## 2026-05-19 - Documentation Agent
+
+- 변경: 루트 `.gitignore` 제거
+- 이유: 사용자 요청에 따라 git ignore 설정을 현재 단계에서 두지 않기 위함
+- 검증: `.env.example`과 `biome.json`은 유지하고 `.gitignore`만 삭제함
+- 후속: 실제 구현 시작 시 ignore 정책을 다시 정할지 결정 필요
+
+## 2026-05-19 - Frontend Agent
+
+- 변경: `rnd-screen-to-screen`의 `useMemo`/`useCallback` 금지 정책과 검사 스크립트를 가져옴
+- 이유: React 코드에서 memoization hook을 기본 선택지로 쓰지 않고, 컴포넌트 경계와 데이터 흐름 정리를 우선하도록 강제하기 위함
+- 검증: `scripts/check-react-hooks-policy.mjs`와 루트 `package.json`의 `lint:hooks` 스크립트를 추가하고, `AGENTS.md` 운영 원칙에 금지 정책을 반영함
+- 후속: CI를 구성할 때 `npm run lint` 또는 `npm run lint:hooks`를 필수 체크로 연결 필요
+
+## 2026-05-19 - Data Agent
+
+- 변경: drawDB 초안 산출물로 PostgreSQL import SQL, DBML, ERD Mermaid, 운영 README를 추가
+- 이유: MVP 데이터 모델을 drawDB에서 먼저 검토할 수 있도록 import 가능한 기준 파일과 보조 표현이 필요함
+- 검증: `DATA_MAP.md`의 MVP 테이블과 관계를 `docs/drawdb/rnd-screen-generator.postgres.sql`과 DBML에 반영하고, drawDB 운영 위치를 문서화함
+- 후속: drawDB에서 SQL을 import한 뒤 시각 배치 결과를 `docs/drawdb/snapshots/`와 `docs/drawdb/exports/`에 저장 필요
+
+## 2026-05-19 - Data Agent
+
+- 변경: 로컬 브라우저 확인용 `docs/drawdb/preview.html` 추가
+- 이유: drawDB import 전에도 ERD 관계를 로컬 화면에서 빠르게 확인할 수 있어야 함
+- 검증: Mermaid 기반 preview HTML을 작성하고 로컬 정적 서버로 열 수 있게 함
+- 후속: drawDB에서 실제 배치한 결과와 preview 관계가 어긋나면 함께 갱신 필요
+
+## 2026-05-19 - Data Agent
+
+- 변경: 현재 MVP 테이블을 drawDB import용 DBML로 추가
+- 이유: SQL import 외에도 DBML 기반으로 관계와 컬럼을 검토할 수 있게 하기 위함
+- 검증: `docs/drawdb/rnd-screen-generator.postgres.sql`의 테이블, FK, unique/index, CHECK 메모를 `docs/drawdb/rnd-screen-generator.dbml`에 반영하고 README의 import 안내를 갱신함
+- 후속: drawDB에서 DBML import 결과를 확인한 뒤 배치 snapshot/export를 저장 필요
+
+## 2026-05-19 - Data Agent
+
+- 변경: drawDB 공식 repository를 sibling 경로 `/Users/plusx/Documents/drawdb-local`에 클론하고 local development 서버를 실행
+- 이유: drawDB를 온라인 서비스가 아니라 로컬 개발 도구로 사용하기 위함
+- 검증: `npm install` 후 `npm run dev -- --host 127.0.0.1 --port 5173`로 `http://127.0.0.1:5173/` 응답을 확인함
+- 후속: `docs/drawdb/rnd-screen-generator.postgres.sql`을 로컬 drawDB에 import하고 배치 결과를 snapshot/export로 저장 필요
+
+## 2026-05-19 - Frontend/Backend Agents
+
+- 변경: MASTER_PLAN 구현에 필요한 프론트엔드, 백엔드, AI, 테스트 라이브러리를 설치
+- 이유: Next.js/Puck/Supabase 기반 웹 UI와 FastAPI/SQLAlchemy/Alembic/Claude/OpenAI Agents 기반 API 구현 준비를 마치기 위함
+- 검증: `npm ls --depth=0`, `npm audit --omit=dev`, `npm run lint:hooks`, 외부 Python venv import/version 확인을 실행함
+- 후속: Python 가상환경은 `/Users/plusx/Documents/rnd-screen-generator-venv`에 있으므로 API 작업 시 해당 venv를 활성화하고, 실제 구현 시작 후 requirements pinning 여부를 결정 필요
+
+## 2026-05-19 - Backend Agent
+
+- 변경: `.gitignore`를 다시 추가하고 Python 가상환경을 프로젝트 내부 `.venv`로 구성
+- 이유: Python 의존성을 프로젝트 디렉토리 안에서 관리하되, 가상환경과 설치 산출물은 git에 포함하지 않기 위함
+- 검증: `.venv`에서 `services/api/requirements.txt` 설치와 주요 패키지 import/version 확인을 완료하고, `.gitignore`가 `.venv`, `node_modules`, `.env`를 제외하는 것을 확인함
+- 후속: 실제 API 구현 시작 후 requirements pinning 여부 결정 필요

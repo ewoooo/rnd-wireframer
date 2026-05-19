@@ -4,7 +4,7 @@
 
 이 문서는 기술 스택, 서비스 경계, 모듈 구조, API 표면만 정의한다.
 
-중복을 피하기 위해 상세 데이터 설계와 입력 JSON 예시는 [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 기준으로 한다.
+중복을 피하기 위해 상세 데이터 설계와 입력 JSON 예시는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 기준으로 한다.
 
 ## 2. 시스템 개요
 
@@ -30,7 +30,10 @@ FastAPI
 
 | 레이어 | 책임 |
 |---|---|
-| Next.js | 사용자 흐름, 화면 조회, 생성 요청, 모바일 미리보기, Puck 기반 OGN 섹션 편집 |
+| Next.js | 사용자 흐름, 화면 조회, 생성 요청, `cx-components`/`cx-layout` 기반 모바일 미리보기, Puck 기반 OGN 섹션 편집 |
+| `cx-tokens` | 색상, 타이포그래피, radius, spacing token SSOT |
+| `cx-components` | 모바일 미리보기와 Puck preview에서 사용하는 기초 UI 컴포넌트 어휘 |
+| `cx-layout` | `dxds-layout`을 rename해 가져오는 화면 chrome, rail, section, overlay layout primitive |
 | Puck | 생성된 OGN 섹션을 제한된 블록/prop 단위로 후편집 |
 | FastAPI | JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
@@ -38,21 +41,52 @@ FastAPI
 | Remote AI API | 로컬 세션이 없거나 실패할 때 fallback |
 | Supabase PostgreSQL | 관계형 데이터와 생성 이력 저장 |
 | Supabase Storage | 원본 JSON 파일과 선택적 산출물 저장 |
+| drawdb | Supabase PostgreSQL 스키마의 ERD 작성과 관계 검토 |
 | Claude API | 와이어프레임 JSON 생성과 재생성 |
 | Codex Review | Claude 생성 결과 검수 |
 
-DB 테이블과 컬럼 책임은 [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 참조한다.
+DB 테이블과 컬럼 책임은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 참조한다.
+DB 관계 시각화와 리뷰 산출물은 `drawdb`를 사용하되, 최종 migration 기준은 SQL 스키마로 둔다.
 
 ## 4. 권장 저장소 구조
 
 ```text
+AGENTS.md
+AGENTS_HISTORY.md
+MASTER_PLAN.md
 apps/
   web/
+    app/
+    components/
+      mobile-preview/
+      puck-editor/
+      wireframe-renderer/
+packages/
+  cx-tokens/
+  cx-components/
+  cx-layout/
 services/
   api/
-documents/
-  rnd-screen-generator/
+    app/
+      api/
+      services/
+      schemas/
+supabase/
+  migrations/
+  seed/
+docs/
+  development/
+    DEVELOPMENT_ARCHITECTURE.md
+    DATA_MAP.md
+  design/
+  drawdb/
+    exports/
+    snapshots/
 ```
+
+`packages/cx-tokens`, `packages/cx-components`, `packages/cx-layout`은 `rnd-screen-to-screen`에서 이전한다. 기존 `dxds-layout` 명칭은 새 저장소에서 `cx-layout`으로 정규화한다.
+
+`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 두고, drawdb 산출물은 `docs/drawdb/` 아래에서 관리한다.
 
 ## 5. FastAPI 모듈
 
@@ -108,14 +142,17 @@ apps/web/
   components/
     mobile-preview/
     puck-editor/
+    wireframe-renderer/
     source-import-panel/
     organism-source-list/
     generation-panel/
 ```
 
+`mobile-preview`와 `puck-editor`는 `wireframe-renderer`를 통해 같은 렌더링 어휘를 공유해야 한다. 화면 chrome과 section rail은 `cx-layout`, leaf component는 `cx-components`, 스타일 값은 `cx-tokens`를 우선 사용한다. 이 앱 내부 구조는 위의 전체 저장소 구조를 상세화한 것이다.
+
 ## 7. API 표면
 
-요청/응답의 상세 JSON 필드는 구현 스키마와 [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+요청/응답의 상세 JSON 필드는 구현 스키마와 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
 | Method | Path | 책임 |
 |---|---|---|
@@ -148,7 +185,9 @@ Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키�
 
 Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Agent SDK는 먼저 로컬 AI 세션을 탐색한다. 사용 가능한 로컬 세션이 있으면 해당 세션을 사용하고, 없거나 실패하면 원격 API로 fallback한다.
 
-와이어프레임 JSON 스키마의 최종 정의는 FastAPI `schemas/wireframe.py`에서 관리한다. 문서상 데이터 흐름과 저장 위치는 [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 생성 테이블을 참조한다.
+와이어프레임 JSON 스키마의 최종 정의는 FastAPI `schemas/wireframe.py`에서 관리한다. 문서상 데이터 흐름과 저장 위치는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 생성 테이블을 참조한다.
+
+생성 JSON의 `component.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `cx-components`, `cx-layout`, `cx-tokens`의 공개 어휘에 매핑한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
 ## 9. Puck OGN 섹션 편집 정책
 
@@ -172,6 +211,7 @@ Puck 편집 원칙:
 - 간격, 정렬, 노출 여부, 문구처럼 안전한 prop만 편집 가능하게 연다.
 - 간격 값은 자유 숫자가 아니라 `none`, `xs`, `sm`, `md`, `lg`, `xl` 같은 디자인 토큰으로 제한한다.
 - Puck block은 기본적으로 `generated_organisms`와 매핑하고, block 내부 props/children은 `components_json`과 매핑한다.
+- Puck preview는 `cx-components`, `cx-layout`, `cx-tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
 
 초기 Puck 컴포넌트 후보:
 
@@ -220,7 +260,7 @@ Codex 검수 기준:
 | 로컬 Codex CLI 사용 불가 | 설정된 Codex Review API 사용 |
 | 로컬 세션 실패 | 실패 사유 기록 후 원격 API fallback |
 
-로컬 세션 사용 여부는 생성 이력에 기록한다. 세부 저장 필드는 [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 생성 테이블을 따른다.
+로컬 세션 사용 여부는 생성 이력에 기록한다. 세부 저장 필드는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 생성 테이블을 따른다.
 
 주의할 점:
 

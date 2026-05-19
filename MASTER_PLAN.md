@@ -4,20 +4,24 @@
 
 이 문서는 제품 목표, 사용자 흐름, MVP 범위, 마일스톤만 정의한다.
 
+이 문서는 프로젝트 전역 문서로 루트에 둔다. 에이전트 운영은 [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), 변경 이력은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)를 따른다.
+
 상세 설계는 아래 문서를 참조한다.
 
 | 주제 | 참조 문서 |
 |---|---|
-| 시스템 구조와 API 경계 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| SB/OGN JSON과 관계형 DB 설계 | [DATA_MAP.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
-| 작업 역할과 운영 방식 | [AGENTS.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/AGENTS.md) |
-| 변경 이력 | [AGENTS_HISTORY.md](/Users/plusx/Documents/Codex/2026-05-18/next-js-fastapi/documents/rnd-screen-generator/AGENTS_HISTORY.md) |
+| 시스템 구조와 API 경계 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
+| SB/OGN JSON과 관계형 DB 설계 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
+| 작업 역할과 운영 방식 | [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md) |
+| 변경 이력 | [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md) |
 
 ## 2. 제품 비전
 
 RND Screen Generator는 JSON화된 SB와 OGN을 기반으로 모바일 앱 와이어프레임을 자동 생성하는 AI 화면 설계 서비스다.
 
 초기 목표는 완성형 UI 빌더가 아니다. 내부 설계 문서를 검토 가능한 모바일 화면 초안으로 빠르게 변환하고, Puck 기반 OGN 섹션 편집으로 필요한 수준의 후편집을 지원하는 것이 목표다.
+
+기존 `rnd-screen-to-screen`에서 검증한 `cx-components`, `cx-tokens`, `dxds-layout` 패키지를 기반 자산으로 가져온다. 단, 새 프로젝트에서는 layout 패키지명을 `cx-layout`으로 정규화해 컴포넌트, 토큰, 레이아웃 패턴의 이름 체계를 맞춘다.
 
 ## 3. 핵심 사용자 흐름
 
@@ -40,6 +44,7 @@ RND Screen Generator는 JSON화된 SB와 OGN을 기반으로 모바일 앱 와�
 - SB 기준 OGN 조합
 - 모바일 와이어프레임 생성
 - 와이어프레임 미리보기
+- `cx-components`, `cx-tokens`, `cx-layout` 기반 모바일 렌더링
 - Puck 기반 OGN 섹션 편집
 - 피드백 기반 Regenerate
 - 생성 버전 저장
@@ -57,7 +62,7 @@ RND Screen Generator는 JSON화된 SB와 OGN을 기반으로 모바일 앱 와�
 | 단계 | 목표 |
 |---|---|
 | Phase 0 | 문서, 데이터 모델, API 경계 확정 |
-| Phase 1 | SB/OGN JSON 검증과 DB 적재 |
+| Phase 1 | drawdb ERD, SB/OGN JSON 검증과 DB 적재 |
 | Phase 2 | 화면 지식 베이스와 OGN 연결 조회 |
 | Phase 3 | 와이어프레임 JSON 생성 |
 | Phase 4 | Codex 검수와 미리보기/재생성 버전 관리 |
