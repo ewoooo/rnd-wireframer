@@ -59,7 +59,6 @@ function getRegionClassName(node: ScreenRegionNode) {
 
 function getPositionClassName(node: ScreenRegionNode) {
 	if (node.type === "Screen.Contents") return undefined;
-	if (node.props.position === "fixed") return "fixed";
 	if (node.props.position === "sticky") return "sticky";
 	return "static";
 }

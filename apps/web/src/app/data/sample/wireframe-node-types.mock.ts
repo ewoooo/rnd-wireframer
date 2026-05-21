@@ -1,4 +1,4 @@
-import type { PropValue, WireframeEvents } from "../../../packages/wireframe/src/types";
+import type { PropValue, WireframeEvents } from "@cx/wireframe";
 
 export type CXUINode = ScreenNode | ScreenRegionNode | LayoutNode | OrganismNode | ComponentNode;
 

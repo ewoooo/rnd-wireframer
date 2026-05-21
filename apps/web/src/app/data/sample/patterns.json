@@ -1,0 +1,197 @@
+{
+	"patterns": [
+		{
+			"id": "term-agreement-screen",
+			"name": "약관 동의 화면",
+			"description": "상단 앱바, 스크롤 약관 콘텐츠, 선택적 하단 액션을 쓰는 약관 동의 화면 프리셋",
+			"targetHierarchy": "screen",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"screen": {
+						"regions": {
+							"header": {
+								"props": {
+									"position": "fixed",
+									"layout": {
+										"direction": "column",
+										"gap": 0
+									},
+									"height": 48,
+									"zIndex": 10
+								}
+							},
+							"contents": {
+								"props": {
+									"layout": {
+										"direction": "column",
+										"gap": 0,
+										"paddingX": 0,
+										"paddingY": 0
+									},
+									"scroll": true
+								},
+								"pageStack": {
+									"enabled": true,
+									"sectionPaddingX": 12,
+									"itemPaddingX": 20,
+									"paddingY": 28,
+									"divider": {
+										"type": "section"
+									}
+								}
+							},
+							"bottom": {
+								"props": {
+									"position": "fixed",
+									"layout": {
+										"direction": "column",
+										"gap": 0
+									},
+									"safeArea": true,
+									"zIndex": 10
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "form-screen",
+			"name": "입력 폼 화면",
+			"description": "상단 앱바, 스크롤 입력 콘텐츠, 하단 단일 CTA를 쓰는 폼 화면 프리셋",
+			"targetHierarchy": "screen",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"screen": {
+						"regions": {
+							"header": {
+								"props": {
+									"position": "fixed",
+									"layout": {
+										"direction": "column",
+										"gap": 0
+									},
+									"height": 48,
+									"zIndex": 10
+								}
+							},
+							"contents": {
+								"props": {
+									"layout": {
+										"direction": "column",
+										"gap": 0,
+										"paddingX": 0,
+										"paddingY": 0
+									},
+									"scroll": true
+								},
+								"pageStack": {
+									"enabled": true,
+									"sectionPaddingX": 12,
+									"itemPaddingX": 20,
+									"paddingY": 28,
+									"divider": {
+										"type": "section"
+									}
+								}
+							},
+							"bottom": {
+								"props": {
+									"position": "fixed",
+									"layout": {
+										"direction": "column",
+										"gap": 0,
+										"paddingX": 0,
+										"paddingY": 22
+									},
+									"height": 102,
+									"safeArea": true,
+									"zIndex": 10
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "term-list",
+			"name": "약관 목록",
+			"description": "약관 ListCell과 Accordion을 세로로 쌓는 OGN 프리셋",
+			"targetHierarchy": "organism",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"organism": {
+						"props": {
+							"flow": "vertical",
+							"titleGap": 8,
+							"componentGap": 8
+						},
+						"componentOrder": "explicit"
+					}
+				}
+			}
+		},
+		{
+			"id": "field-stack",
+			"name": "필드 스택",
+			"description": "TextField를 세로로 쌓는 입력 OGN 프리셋",
+			"targetHierarchy": "organism",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"organism": {
+						"props": {
+							"flow": "vertical",
+							"titleGap": 8,
+							"componentGap": 12
+						},
+						"componentOrder": "explicit"
+					}
+				}
+			}
+		},
+		{
+			"id": "message-stack",
+			"name": "상태 메시지 스택",
+			"description": "상태 안내 SectionMessage를 세로로 배치하는 OGN 프리셋",
+			"targetHierarchy": "organism",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"organism": {
+						"props": {
+							"flow": "vertical",
+							"titleGap": 8,
+							"componentGap": 12
+						},
+						"componentOrder": "explicit"
+					}
+				}
+			}
+		},
+		{
+			"id": "single-primary-action",
+			"name": "하단 단일 주요 액션",
+			"description": "하단 영역의 단일 primary CTA 컴포넌트 프리셋",
+			"targetHierarchy": "component",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"component": {
+						"type": "ActionArea",
+						"props": {
+							"variant": "primary",
+							"fullWidth": true,
+							"size": "xlarge"
+						}
+					}
+				}
+			}
+		}
+	]
+}

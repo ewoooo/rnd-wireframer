@@ -1,0 +1,104 @@
+{
+	"organisms": [
+		{
+			"id": "ogn-mbr-term-list",
+			"type": "OrganismSection",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-term-list",
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T00:00:00Z",
+				"updatedAt": "2026-05-21T00:00:00Z"
+			},
+			"props": {
+				"organismCode": "ogn-mbr-term-list",
+				"name": "약관 목록 조회"
+			},
+			"components": [
+				{
+					"componentId": "requiredTerm",
+					"order": 1
+				},
+				{
+					"componentId": "optionalTerm",
+					"order": 2
+				},
+				{
+					"componentId": "termDetail",
+					"order": 3
+				},
+				{
+					"componentId": "errorMessage",
+					"order": 4
+				}
+			],
+			"patternId": "term-list",
+			"patternVariant": "default"
+		},
+		{
+			"id": "ogn-mbr-member-input",
+			"type": "OrganismSection",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-member-input",
+				"title": "회원 정보 입력",
+				"author": "plus_x_author_1",
+				"createdAt": "2026-05-21T00:00:00Z",
+				"updatedAt": "2026-05-21T00:00:00Z"
+			},
+			"props": {
+				"organismCode": "ogn-mbr-member-input",
+				"name": "회원 정보 입력"
+			},
+			"components": [
+				{
+					"componentId": "text-field-user-id",
+					"order": 1
+				},
+				{
+					"componentId": "text-field-password",
+					"order": 2
+				},
+				{
+					"componentId": "text-field-email",
+					"order": 3
+				},
+				{
+					"componentId": "text-field-phone",
+					"order": 4
+				},
+				{
+					"componentId": "section-message-input-error",
+					"order": 5
+				}
+			],
+			"patternId": "field-stack",
+			"patternVariant": "default"
+		},
+		{
+			"id": "ogn-mbr-entry-check",
+			"type": "OrganismSection",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-entry-check",
+				"title": "가입 진입 조건 확인",
+				"author": "plus_x_author_1",
+				"createdAt": "2026-05-21T00:00:00Z",
+				"updatedAt": "2026-05-21T00:00:00Z"
+			},
+			"props": {
+				"organismCode": "ogn-mbr-entry-check",
+				"name": "가입 진입 조건 확인"
+			},
+			"components": [
+				{
+					"componentId": "section-message-entry-check",
+					"order": 1
+				}
+			],
+			"patternId": "message-stack",
+			"patternVariant": "default"
+		}
+	]
+}

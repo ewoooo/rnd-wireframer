@@ -1,0 +1,11 @@
+{
+	"screenRoutes": [
+		{
+			"code": "mbr-join",
+			"module": "mbr",
+			"name": "회원 가입",
+			"order": 1,
+			"processCode": "PR-MBR-CS-004-01"
+		}
+	]
+}

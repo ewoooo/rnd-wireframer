@@ -1,0 +1,12 @@
+{
+	"screenVariants": [
+		{
+			"code": "mbr-join-base",
+			"screenRouteCode": "mbr-join",
+			"name": "회원 가입 기본 흐름",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		}
+	]
+}
