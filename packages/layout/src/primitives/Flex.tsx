@@ -1,5 +1,5 @@
-import type { WireframeFlexLayoutProps, WireframeLayoutFlexNode } from "@cx/wireframe";
 import type { CSSProperties, ElementType, ReactNode } from "react";
+import type { FlexLayoutProps, LayoutFlexNode } from "../types";
 
 import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "./style";
 
@@ -7,8 +7,8 @@ export type FlexProps = {
 	as?: ElementType;
 	children?: ReactNode;
 	className?: string;
-	layout: WireframeFlexLayoutProps;
-	node?: WireframeLayoutFlexNode;
+	layout: FlexLayoutProps;
+	node?: LayoutFlexNode;
 	style?: CSSProperties;
 };
 

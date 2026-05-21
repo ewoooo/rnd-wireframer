@@ -1,12 +1,11 @@
-import type { WireframeScreenNode } from "@cx/wireframe";
 import type { CSSProperties, ReactNode } from "react";
-
 import { cx } from "../primitives";
+import type { ScreenNode } from "../types";
 
 export type AppScreenRootProps = {
 	children: ReactNode;
 	className?: string;
-	node?: WireframeScreenNode;
+	node?: ScreenNode;
 	style?: CSSProperties;
 };
 

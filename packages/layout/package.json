@@ -12,9 +12,6 @@
 			"default": "./src/styles.css"
 		}
 	},
-	"dependencies": {
-		"@cx/wireframe": "0.1.0"
-	},
 	"peerDependencies": {
 		"react": "^19.2.0"
 	}

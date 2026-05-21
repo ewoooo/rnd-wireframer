@@ -8,7 +8,7 @@ Project spec_inputs {
     - sql-screen-routes.json
     - sql-screen-source.json
     - sql-organism-source.json
-    - sql-component-entries.json
+    - sql-composite-entry.json
 
     process_refs and policy_refs are placeholders for references defined by
     docs/data-mockups/1-policy-inputs/.
@@ -100,30 +100,30 @@ Table organism_variants {
   }
 }
 
-Table organism_component_usages {
+Table organism_composite_usages {
   code text [pk, note: 'Unique usage id for component placed in organism']
   organism_code text [not null]
-  component_code text [not null]
-  sort_order integer [not null, note: 'components[].order']
-  policy_code text [note: 'components[].policyCode']
-  property jsonb [note: 'components[].property']
+  composite_code text [not null]
+  sort_order integer [not null, note: 'composites[].order']
+  policy_code text [note: 'composites[].policyCode']
+  property jsonb [note: 'composites[].property']
 
   indexes {
     organism_code
-    component_code
+    composite_code
     (organism_code, sort_order) [unique]
     policy_code
   }
 }
 
-Table organism_variant_visible_component_usages {
+Table organism_variant_visible_composite_usages {
   organism_code text [not null]
   variant_code text [not null]
-  organism_component_usage_code text [not null]
+  organism_composite_usage_code text [not null]
 
   indexes {
-    (organism_code, variant_code, organism_component_usage_code) [pk]
-    organism_component_usage_code
+    (organism_code, variant_code, organism_composite_usage_code) [pk]
+    organism_composite_usage_code
   }
 }
 
@@ -139,13 +139,13 @@ Table organism_notices {
   }
 }
 
-Table components {
-  code text [pk, note: 'components[].code']
-  component_type text [not null, note: 'components[].componentType']
-  property jsonb [not null, default: '{}', note: 'components[].property']
+Table composites {
+  code text [pk, note: 'composites[].code']
+  composite_type text [not null, note: 'composites[].compositeType']
+  property jsonb [not null, default: '{}', note: 'composites[].property']
 
   indexes {
-    component_type
+    composite_type
   }
 }
 
@@ -163,12 +163,12 @@ Ref: organism_sources.module_code > spec_modules.code
 
 Ref: organism_variants.organism_code > organism_sources.code
 
-Ref: organism_component_usages.organism_code > organism_sources.code
-Ref: organism_component_usages.component_code > components.code
-Ref: organism_component_usages.policy_code > policy_refs.code
+Ref: organism_composite_usages.organism_code > organism_sources.code
+Ref: organism_composite_usages.composite_code > composites.code
+Ref: organism_composite_usages.policy_code > policy_refs.code
 
-Ref: organism_variant_visible_component_usages.(organism_code, variant_code) > organism_variants.(organism_code, variant_code)
-Ref: organism_variant_visible_component_usages.organism_component_usage_code > organism_component_usages.code
+Ref: organism_variant_visible_composite_usages.(organism_code, variant_code) > organism_variants.(organism_code, variant_code)
+Ref: organism_variant_visible_composite_usages.organism_composite_usage_code > organism_composite_usages.code
 
 Ref: organism_notices.organism_code > organism_sources.code
 Ref: organism_notices.policy_code > policy_refs.code

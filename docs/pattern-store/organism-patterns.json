@@ -1,0 +1,112 @@
+{
+	"patterns": [
+		{
+			"id": "term-list",
+			"target": "organism",
+			"name": "약관 목록",
+			"description": "약관 ListCell과 Accordion을 세로로 쌓는 OGN 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"recipe": {
+						"organism": {
+							"props": {
+								"flow": "vertical",
+								"titleGap": 8,
+								"componentGap": 8
+							},
+							"compositeOrder": "explicit"
+						}
+					}
+				}
+			},
+			"guidance": {
+				"keywords": [
+					"organism",
+					"ogn",
+					"section",
+					"섹션",
+					"오가니즘",
+					"약관 목록"
+				],
+				"rules": [
+					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
+					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+				]
+			},
+			"examples": []
+		},
+		{
+			"id": "field-stack",
+			"target": "organism",
+			"name": "필드 스택",
+			"description": "TextField를 세로로 쌓는 입력 OGN 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"recipe": {
+						"organism": {
+							"props": {
+								"flow": "vertical",
+								"titleGap": 8,
+								"componentGap": 12
+							},
+							"compositeOrder": "explicit"
+						}
+					}
+				}
+			},
+			"guidance": {
+				"keywords": [
+					"organism",
+					"ogn",
+					"section",
+					"섹션",
+					"오가니즘",
+					"필드 스택"
+				],
+				"rules": [
+					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
+					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+				]
+			},
+			"examples": []
+		},
+		{
+			"id": "message-stack",
+			"target": "organism",
+			"name": "상태 메시지 스택",
+			"description": "상태 안내 SectionMessage를 세로로 배치하는 OGN 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"recipe": {
+						"organism": {
+							"props": {
+								"flow": "vertical",
+								"titleGap": 8,
+								"componentGap": 12
+							},
+							"compositeOrder": "explicit"
+						}
+					}
+				}
+			},
+			"guidance": {
+				"keywords": [
+					"organism",
+					"ogn",
+					"section",
+					"섹션",
+					"오가니즘",
+					"상태 메시지 스택"
+				],
+				"rules": [
+					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
+					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+				]
+			},
+			"examples": []
+		}
+	]
+}

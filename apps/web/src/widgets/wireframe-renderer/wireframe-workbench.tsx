@@ -1,35 +1,37 @@
 "use client";
 
+import type { AssetRegistry } from "@cx/agent";
 import { useEffect } from "react";
-
+import { SidebarProvider } from "@/components/ui/sidebar";
 import type {
 	WireframeWorkbenchOrganism,
 	WireframeWorkbenchScreen,
-} from "@/features/wireframe-renderer/generate-render-tree";
+} from "@/features/wireframe-renderer/tables-to-render-tree";
 import { useWorkbenchStore } from "./model/workbench-store";
-import { WorkbenchPanelCanvas } from "./ui/workbench-panel-canvas";
-import { WorkbenchPanelInspection } from "./ui/workbench-panel-inspection";
-import { WorkbenchPanelNavigation } from "./ui/workbench-panel-navigation";
+import { WorkBenchCanvas } from "./ui/WorkBenchCanvas";
+import { WorkBenchInspectionPanel } from "./ui/WorkBenchInspectionPanel";
+import { WorkBenchNavigationPanel } from "./ui/WorkBenchNavigationPanel";
 
 interface WireframeWorkbenchProps {
+	agentRegistry?: AssetRegistry;
 	organisms: WireframeWorkbenchOrganism[];
 	screens: WireframeWorkbenchScreen[];
 }
 
-export function WireframeWorkbench({ organisms, screens }: WireframeWorkbenchProps) {
+export function WireframeWorkbench({ agentRegistry, organisms, screens }: WireframeWorkbenchProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
 
 	useEffect(() => {
-		initializeWorkbench({ organisms, screens });
-	}, [initializeWorkbench, organisms, screens]);
+		initializeWorkbench({ agentRegistry, organisms, screens });
+	}, [agentRegistry, initializeWorkbench, organisms, screens]);
 
 	return (
-		<main className="min-h-screen bg-muted/40">
-			<div className="grid w-screen min-h-screen grid-cols-[320px_minmax(420px,1fr)_360px] gap-4 p-4">
-				<WorkbenchPanelNavigation />
-				<WorkbenchPanelCanvas />
-				<WorkbenchPanelInspection />
+		<SidebarProvider>
+			<div className="grid min-h-screen w-screen grid-cols-[380px_minmax(420px,1fr)_360px]">
+				<WorkBenchNavigationPanel />
+				<WorkBenchCanvas />
+				<WorkBenchInspectionPanel />
 			</div>
-		</main>
+		</SidebarProvider>
 	);
 }

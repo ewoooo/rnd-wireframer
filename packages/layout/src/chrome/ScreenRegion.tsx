@@ -1,17 +1,6 @@
-import type {
-	WireframeScreenBottomNode,
-	WireframeScreenContentsNode,
-	WireframeScreenHeaderNode,
-	WireframeScreenRegionType,
-} from "@cx/wireframe";
 import type { CSSProperties, ReactNode } from "react";
-
 import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../primitives";
-
-type ScreenRegionNode =
-	| WireframeScreenHeaderNode
-	| WireframeScreenContentsNode
-	| WireframeScreenBottomNode;
+import type { ScreenRegionNode } from "../types";
 
 export type ScreenRegionProps = {
 	children?: ReactNode;
@@ -32,7 +21,7 @@ export function ScreenRegion({ children, className, node, style }: ScreenRegionP
 			)}
 			data-node-id={node.metadata.id}
 			data-node-type={node.type}
-			data-region={node.type satisfies WireframeScreenRegionType}
+			data-region={node.type satisfies ScreenRegionNode["type"]}
 			data-position={getPosition(node)}
 			style={{
 				...flexLayoutFallbackStyle(node.props.layout),

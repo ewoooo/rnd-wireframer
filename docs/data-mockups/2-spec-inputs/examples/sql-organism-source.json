@@ -36,7 +36,7 @@
 		"children": [
 			{
 				"id": "requiredTerm",
-				"componentCode": "list-cell-term-required",
+				"compositeCode": "list-cell-term-required",
 				"slot": "terms",
 				"policyCode": "POL-MBR-TERM-001-01",
 				"events": {
@@ -48,7 +48,7 @@
 			},
 			{
 				"id": "optionalTerm",
-				"componentCode": "list-cell-term-optional",
+				"compositeCode": "list-cell-term-optional",
 				"slot": "terms",
 				"policyCode": "POL-MBR-TERM-001-02",
 				"events": {
@@ -60,7 +60,7 @@
 			},
 			{
 				"id": "termDetail",
-				"componentCode": "accordion-term-detail",
+				"compositeCode": "accordion-term-detail",
 				"slot": "detail",
 				"events": {
 					"onClick": {
@@ -71,7 +71,7 @@
 			},
 			{
 				"id": "errorMessage",
-				"componentCode": "section-message-term-error",
+				"compositeCode": "section-message-term-error",
 				"slot": "feedback"
 			}
 		]

@@ -134,7 +134,7 @@
 									}
 								},
 								{
-									"type": "OrganismSection",
+									"type": "Organism",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-term-list",
@@ -443,7 +443,7 @@
 									}
 								},
 								{
-									"type": "OrganismSection",
+									"type": "Organism",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-member-input",
@@ -597,7 +597,7 @@
 									]
 								},
 								{
-									"type": "OrganismSection",
+									"type": "Organism",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-entry-check",

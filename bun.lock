@@ -44,9 +44,17 @@
       "name": "@rnd-screen-generator/web",
       "version": "0.1.0",
       "dependencies": {
+        "@cx/agent": "0.1.0",
         "@cx/components": "0.1.0",
         "@cx/layout": "0.1.0",
-        "@cx/wireframe": "0.1.0",
+        "@cx/renderer": "0.1.0",
+      },
+    },
+    "packages/agent": {
+      "name": "@cx/agent",
+      "version": "0.1.0",
+      "dependencies": {
+        "@cx/renderer": "0.1.0",
       },
     },
     "packages/component": {
@@ -62,8 +70,17 @@
     "packages/layout": {
       "name": "@cx/layout",
       "version": "0.1.0",
+      "peerDependencies": {
+        "react": "^19.2.0",
+      },
+    },
+    "packages/renderer": {
+      "name": "@cx/renderer",
+      "version": "0.1.0",
       "dependencies": {
-        "@cx/wireframe": "0.1.0",
+        "@cx/components": "0.1.0",
+        "@cx/layout": "0.1.0",
+        "zod": "^4.4.3",
       },
       "peerDependencies": {
         "react": "^19.2.0",
@@ -72,13 +89,6 @@
     "packages/token": {
       "name": "@cx/tokens",
       "version": "0.1.0",
-    },
-    "packages/wireframe": {
-      "name": "@cx/wireframe",
-      "version": "0.1.0",
-      "dependencies": {
-        "zod": "^4.4.3",
-      },
     },
   },
   "overrides": {
@@ -135,13 +145,15 @@
 
     "@csstools/css-tokenizer": ["@csstools/css-tokenizer@4.0.0", "", {}, "sha512-QxULHAm7cNu72w97JUNCBFODFaXpbDg+dP8b/oWFAZ2MTRppA3U00Y2L1HqaS4J6yBqxwa/Y3nMBaxVKbB/NsA=="],
 
+    "@cx/agent": ["@cx/agent@workspace:packages/agent"],
+
     "@cx/components": ["@cx/components@workspace:packages/component"],
 
     "@cx/layout": ["@cx/layout@workspace:packages/layout"],
 
-    "@cx/tokens": ["@cx/tokens@workspace:packages/token"],
+    "@cx/renderer": ["@cx/renderer@workspace:packages/renderer"],
 
-    "@cx/wireframe": ["@cx/wireframe@workspace:packages/wireframe"],
+    "@cx/tokens": ["@cx/tokens@workspace:packages/token"],
 
     "@dnd-kit/abstract": ["@dnd-kit/abstract@0.1.21", "", { "dependencies": { "@dnd-kit/geometry": "^0.1.21", "@dnd-kit/state": "^0.1.21", "tslib": "^2.6.2" } }, "sha512-6sJut6/D21xPIK8EFMu+JJeF+fBCOmQKN1BRpeUYFi5m9P1CJpTYbBwfI107h7PHObI6a5bsckiKkRpF2orHpw=="],
 

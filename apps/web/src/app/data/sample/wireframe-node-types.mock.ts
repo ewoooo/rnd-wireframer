@@ -1,4 +1,4 @@
-import type { PropValue, WireframeEvents } from "@cx/wireframe";
+import type { PropValue, WireframeEvents } from "@cx/renderer";
 
 export type CXUINode = ScreenNode | ScreenRegionNode | LayoutNode | OrganismNode | ComponentNode;
 
@@ -87,13 +87,11 @@ export type LayoutGridNode = {
 	children: CXUINode[];
 };
 
-export type OrganismNode = OrganismSectionNode;
-
-export type OrganismSectionNode = {
-	type: "Organism.Section";
+export type OrganismNode = {
+	type: "Organism";
 	componentVersion: string;
 	metadata: CXUIMetadata;
-	props: OrganismSectionProps;
+	props: OrganismProps;
 	children: CXUINode[];
 };
 
@@ -218,7 +216,7 @@ export type GlobalNavigationProps = {
 	}>;
 };
 
-export type OrganismSectionProps = {
+export type OrganismProps = {
 	organismCode: string;
 	name: string;
 };
@@ -330,7 +328,7 @@ export const typedNodeTreeExample: ScreenNode = {
 			},
 			children: [
 				{
-					type: "Organism.Section",
+					type: "Organism",
 					componentVersion: "1.0.0",
 					metadata: nodeMetadata("ogn-mbr-term-list", "약관 목록 조회"),
 					props: {
@@ -387,7 +385,7 @@ export const typedNodeTreeExample: ScreenNode = {
 					],
 				},
 				{
-					type: "Organism.Section",
+					type: "Organism",
 					componentVersion: "1.0.0",
 					metadata: nodeMetadata("ogn-mbr-term-agree", "약관 동의 CTA"),
 					props: {

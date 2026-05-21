@@ -1,5 +1,5 @@
-import type { WireframeGridLayoutProps, WireframeLayoutGridNode } from "@cx/wireframe";
 import type { CSSProperties, ElementType, ReactNode } from "react";
+import type { GridLayoutProps, LayoutGridNode } from "../types";
 
 import { cx, gridLayoutClassName, gridLayoutFallbackStyle } from "./style";
 
@@ -7,8 +7,8 @@ export type GridProps = {
 	as?: ElementType;
 	children?: ReactNode;
 	className?: string;
-	layout: WireframeGridLayoutProps;
-	node?: WireframeLayoutGridNode;
+	layout: GridLayoutProps;
+	node?: LayoutGridNode;
 	style?: CSSProperties;
 };
 

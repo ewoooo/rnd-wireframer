@@ -1,11 +1,11 @@
-import type { WireframeFlexLayoutProps, WireframeGridLayoutProps } from "@cx/wireframe";
 import type { CSSProperties } from "react";
+import type { FlexLayoutProps, GridLayoutProps } from "../types";
 
-type FlexAlign = NonNullable<WireframeFlexLayoutProps["align"]>;
-type FlexJustify = NonNullable<WireframeFlexLayoutProps["justify"]>;
-type GridJustify = NonNullable<WireframeGridLayoutProps["justify"]>;
+type FlexAlign = NonNullable<FlexLayoutProps["align"]>;
+type FlexJustify = NonNullable<FlexLayoutProps["justify"]>;
+type GridJustify = NonNullable<GridLayoutProps["justify"]>;
 
-type SpacingValue = NonNullable<WireframeFlexLayoutProps["gap"]>;
+type SpacingValue = NonNullable<FlexLayoutProps["gap"]>;
 
 const spacingClass: Record<SpacingValue, string> = {
 	0: "0",
@@ -52,7 +52,7 @@ export function cx(...values: Array<string | false | null | undefined>): string 
 	return values.filter(Boolean).join(" ");
 }
 
-export function flexLayoutClassName(layout: WireframeFlexLayoutProps): string {
+export function flexLayoutClassName(layout: FlexLayoutProps): string {
 	return cx(
 		"flex",
 		layout.direction === "row" ? "flex-row" : "flex-col",
@@ -64,7 +64,7 @@ export function flexLayoutClassName(layout: WireframeFlexLayoutProps): string {
 	);
 }
 
-export function flexLayoutFallbackStyle(layout: WireframeFlexLayoutProps): CSSProperties {
+export function flexLayoutFallbackStyle(layout: FlexLayoutProps): CSSProperties {
 	return {
 		gap: needsSpacingFallback(layout.gap) ? layout.gap : undefined,
 		paddingInline: needsSpacingFallback(layout.paddingX) ? layout.paddingX : undefined,
@@ -72,7 +72,7 @@ export function flexLayoutFallbackStyle(layout: WireframeFlexLayoutProps): CSSPr
 	};
 }
 
-export function gridLayoutClassName(layout: WireframeGridLayoutProps): string {
+export function gridLayoutClassName(layout: GridLayoutProps): string {
 	return cx(
 		"grid",
 		toSpacingClass("gap", layout.gap),
@@ -83,7 +83,7 @@ export function gridLayoutClassName(layout: WireframeGridLayoutProps): string {
 	);
 }
 
-export function gridLayoutFallbackStyle(layout: WireframeGridLayoutProps): CSSProperties {
+export function gridLayoutFallbackStyle(layout: GridLayoutProps): CSSProperties {
 	return {
 		gridTemplateColumns: layout.columns,
 		gridTemplateRows: layout.rows,

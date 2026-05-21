@@ -1,5 +1,12 @@
-import type { WireframeNode, WireframeScreenNode } from "@cx/wireframe";
+import type { AssetRegistry } from "@cx/agent";
+import type { WireframeNode, WireframeScreenNode } from "@cx/renderer";
 import { create } from "zustand";
+import {
+	type AgentNodeSelection,
+	findSelectedAgentAsset,
+	getDefaultAgentSelection,
+	type SelectedAgentAsset,
+} from "@/features/agent-asset-pipeline/agent-registry-view";
 import {
 	getInitialScreenCode,
 	getScreenNode,
@@ -7,16 +14,38 @@ import {
 	getValidationStatus,
 	type WireframeWorkbenchOrganism,
 	type WireframeWorkbenchScreen,
-} from "@/features/wireframe-renderer/generate-render-tree";
+} from "@/features/wireframe-renderer/tables-to-render-tree";
 
-export type NavigatorTab = "comp" | "ogn" | "scn";
+export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 
-export interface WireframeWorkbenchComponent {
+export interface WireframeWorkbenchComposite {
 	code: string;
 	name: string;
 	parentOrganismCode?: string;
 	sourceScreenCode: string;
 	type: string;
+}
+
+export interface WireframeWorkbenchScreenRoute {
+	code: string;
+	module: string;
+	name: string;
+	screenVariants: WireframeWorkbenchScreenVariant[];
+	screenCount: number;
+}
+
+export interface WireframeWorkbenchScreenVariant {
+	name: string;
+	screenOrder: number;
+	options: WireframeWorkbenchScreenVariantOption[];
+}
+
+export interface WireframeWorkbenchScreenVariantOption {
+	code: string;
+	label: string;
+	name: string;
+	screenCode: string;
+	type: WireframeWorkbenchScreen["screenVariantType"];
 }
 
 export interface SelectedOrganismContext {
@@ -25,7 +54,7 @@ export interface SelectedOrganismContext {
 	screen: WireframeWorkbenchScreen;
 }
 
-export interface SelectedComponentContext {
+export interface SelectedCompositeContext {
 	code: string;
 	node: WireframeNode;
 	organism?: SelectedOrganismContext;
@@ -33,6 +62,7 @@ export interface SelectedComponentContext {
 }
 
 interface InitializeWorkbenchInput {
+	agentRegistry?: AssetRegistry;
 	organisms: WireframeWorkbenchOrganism[];
 	screens: WireframeWorkbenchScreen[];
 }
@@ -40,19 +70,35 @@ interface InitializeWorkbenchInput {
 interface WorkbenchState {
 	activeNavigatorTab: NavigatorTab;
 	activeScreen?: WireframeWorkbenchScreen;
-	components: WireframeWorkbenchComponent[];
+	agentGenerationMessage: string;
+	agentGenerationStatus: "error" | "idle" | "loading" | "success";
+	agentImports: AgentClientImport[];
+	agentRegistry?: AssetRegistry;
+	agentWarnings: string[];
+	composites: WireframeWorkbenchComposite[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
-	isComponentView: boolean;
+	isCompositeView: boolean;
 	isOrganismView: boolean;
 	organisms: WireframeWorkbenchOrganism[];
 	screenNode?: WireframeScreenNode;
+	screenRoutes: WireframeWorkbenchScreenRoute[];
 	screens: WireframeWorkbenchScreen[];
-	selectComponent: (componentCode: string) => void;
+	reorderScreenOrganisms: (screenCode: string, organismCodes: string[]) => void;
+	selectAgentNode: (node: AgentNodeSelection) => void;
+	selectComposite: (compositeCode: string) => void;
 	selectOrganism: (organismCode: string) => void;
+	selectScreenRoute: (screenRouteCode: string) => void;
+	selectScreenVariant: (screenCode: string) => void;
 	selectScreen: (screenCode: string) => void;
 	selectTab: (tab: NavigatorTab) => void;
-	selectedComponent?: SelectedComponentContext;
-	selectedComponentCode: string;
+	setAgentGenerationMessage: (message: string) => void;
+	setAgentGenerationStatus: (status: WorkbenchState["agentGenerationStatus"]) => void;
+	setAgentImports: (imports: AgentClientImport[]) => void;
+	setAgentRegistry: (registry?: AssetRegistry) => void;
+	selectedAgentAsset?: SelectedAgentAsset;
+	selectedAgentNode: AgentNodeSelection;
+	selectedComposite?: SelectedCompositeContext;
+	selectedCompositeCode: string;
 	selectedOrganism?: SelectedOrganismContext;
 	selectedOrganismCode: string;
 	selectedScreen?: WireframeWorkbenchScreen;
@@ -62,17 +108,34 @@ interface WorkbenchState {
 	validationSuccess: boolean;
 }
 
+export interface AgentClientImport {
+	id: string;
+	organismFiles: number;
+	screenFiles: number;
+}
+
 const initialWorkbenchState = {
 	activeNavigatorTab: "scn" as NavigatorTab,
 	activeScreen: undefined,
-	components: [],
-	isComponentView: false,
+	agentGenerationMessage: "",
+	agentGenerationStatus: "idle" as const,
+	agentImports: [],
+	agentRegistry: undefined,
+	agentWarnings: [],
+	composites: [],
+	isCompositeView: false,
 	isOrganismView: false,
 	organisms: [],
 	screenNode: undefined,
+	screenRoutes: [],
 	screens: [],
-	selectedComponent: undefined,
-	selectedComponentCode: "",
+	selectedAgentAsset: undefined,
+	selectedAgentNode: {
+		level: "screen" as const,
+		id: "",
+	},
+	selectedComposite: undefined,
+	selectedCompositeCode: "",
 	selectedOrganism: undefined,
 	selectedOrganismCode: "",
 	selectedScreen: undefined,
@@ -84,9 +147,14 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ organisms, screens }) => {
-		const components = getComponentCatalog(screens);
+	initializeWorkbench: ({ agentRegistry, organisms, screens }) => {
+		const composites = getCompositeCatalog(screens);
+		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
+		const selectedAgentNode =
+			agentRegistry && findSelectedAgentAsset(agentRegistry, state.selectedAgentNode)
+				? state.selectedAgentNode
+				: getDefaultAgentSelection(agentRegistry);
 		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
 			? state.selectedScreenCode
 			: getInitialScreenCode(screens);
@@ -95,18 +163,22 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		)
 			? state.selectedOrganismCode
 			: (organisms[0]?.code ?? "");
-		const selectedComponentCode = components.some(
-			(component) => component.code === state.selectedComponentCode,
+		const selectedCompositeCode = composites.some(
+			(composite) => composite.code === state.selectedCompositeCode,
 		)
-			? state.selectedComponentCode
-			: (components[0]?.code ?? "");
+			? state.selectedCompositeCode
+			: (composites[0]?.code ?? "");
 
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
-			components,
+			agentRegistry,
+			agentWarnings: agentRegistry?.warnings ?? [],
+			composites,
 			organisms,
+			screenRoutes,
 			screens,
-			selectedComponentCode,
+			selectedAgentNode,
+			selectedCompositeCode,
 			selectedOrganismCode,
 			selectedScreenCode,
 		};
@@ -116,17 +188,77 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
-	selectComponent: (componentCode) => {
+	selectAgentNode: (node) => {
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "comp",
-			selectedComponentCode: componentCode,
+			activeNavigatorTab: "agent",
+			selectedAgentNode: node,
 		} satisfies WorkbenchState;
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
-			selectedComponentCode: componentCode,
+			selectedAgentNode: node,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
+	reorderScreenOrganisms: (screenCode, organismCodes) => {
+		const state = get();
+		const nextScreens = state.screens.map((screen) => {
+			if (screen.code !== screenCode) return screen;
+			return reorderWorkbenchScreenOrganisms(screen, organismCodes);
+		});
+		const nextState = {
+			...state,
+			screens: nextScreens,
+		} satisfies WorkbenchState;
+
+		set({
+			screens: nextScreens,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
+	selectScreenRoute: (screenRouteCode) => {
+		const state = get();
+		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteCode);
+		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? state.selectedScreenCode;
+		const nextState = {
+			...state,
+			activeNavigatorTab: "scn",
+			selectedScreenCode: screenCode,
+		} satisfies WorkbenchState;
+
+		set({
+			activeNavigatorTab: nextState.activeNavigatorTab,
+			selectedScreenCode: screenCode,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
+	selectScreenVariant: (screenCode) => {
+		const state = get();
+		const nextState = {
+			...state,
+			activeNavigatorTab: "scn",
+			selectedScreenCode: screenCode,
+		} satisfies WorkbenchState;
+
+		set({
+			activeNavigatorTab: nextState.activeNavigatorTab,
+			selectedScreenCode: screenCode,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
+	selectComposite: (compositeCode) => {
+		const state = get();
+		const nextState = {
+			...state,
+			activeNavigatorTab: "comp",
+			selectedCompositeCode: compositeCode,
+		} satisfies WorkbenchState;
+
+		set({
+			activeNavigatorTab: nextState.activeNavigatorTab,
+			selectedCompositeCode: compositeCode,
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
@@ -170,25 +302,55 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
+	setAgentGenerationStatus: (status) => {
+		set({ agentGenerationStatus: status });
+	},
+	setAgentGenerationMessage: (message) => {
+		set({ agentGenerationMessage: message });
+	},
+	setAgentImports: (imports) => {
+		set({ agentImports: imports });
+	},
+	setAgentRegistry: (registry) => {
+		const state = get();
+		const selectedAgentNode = getDefaultAgentSelection(registry);
+		const nextState = {
+			...state,
+			agentGenerationStatus: "success",
+			agentRegistry: registry,
+			agentWarnings: registry?.warnings ?? [],
+			selectedAgentNode,
+		} satisfies WorkbenchState;
+
+		set({
+			agentGenerationStatus: nextState.agentGenerationStatus,
+			agentRegistry: registry,
+			agentWarnings: nextState.agentWarnings,
+			selectedAgentNode,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
 }));
 
 function getDerivedWorkbenchState(
 	state: Pick<
 		WorkbenchState,
+		| "agentRegistry"
 		| "activeNavigatorTab"
 		| "screens"
-		| "selectedComponentCode"
+		| "selectedAgentNode"
+		| "selectedCompositeCode"
 		| "selectedOrganismCode"
 		| "selectedScreenCode"
 	>,
 ) {
 	const selectedScreen = getSelectedScreen(state.screens, state.selectedScreenCode);
 	const selectedOrganism = getSelectedOrganismContext(state.screens, state.selectedOrganismCode);
-	const selectedComponent = getSelectedComponentContext(state.screens, state.selectedComponentCode);
+	const selectedComposite = getSelectedCompositeContext(state.screens, state.selectedCompositeCode);
 	const isOrganismView = state.activeNavigatorTab === "ogn" && Boolean(selectedOrganism);
-	const isComponentView = state.activeNavigatorTab === "comp" && Boolean(selectedComponent);
-	const activeScreen = isComponentView
-		? selectedComponent?.screen
+	const isCompositeView = state.activeNavigatorTab === "comp" && Boolean(selectedComposite);
+	const activeScreen = isCompositeView
+		? selectedComposite?.screen
 		: isOrganismView
 			? selectedOrganism?.screen
 			: selectedScreen;
@@ -196,10 +358,11 @@ function getDerivedWorkbenchState(
 
 	return {
 		activeScreen,
-		isComponentView,
+		isCompositeView,
 		isOrganismView,
 		screenNode: getScreenNode(selectedScreen),
-		selectedComponent: isComponentView ? selectedComponent : undefined,
+		selectedAgentAsset: findSelectedAgentAsset(state.agentRegistry, state.selectedAgentNode),
+		selectedComposite: isCompositeView ? selectedComposite : undefined,
 		selectedOrganism: isOrganismView ? selectedOrganism : undefined,
 		selectedScreen,
 		validationErrors: validationStatus.errors,
@@ -208,11 +371,83 @@ function getDerivedWorkbenchState(
 	};
 }
 
-function getComponentCatalog(screens: WireframeWorkbenchScreen[]): WireframeWorkbenchComponent[] {
-	const byCode = new Map<string, WireframeWorkbenchComponent>();
+function reorderWorkbenchScreenOrganisms(
+	screen: WireframeWorkbenchScreen,
+	organismCodes: string[],
+): WireframeWorkbenchScreen {
+	const organismByCode = new Map(
+		screen.organisms.map((organism) => [organism.organismCode, organism]),
+	);
+	const nextOrganisms = organismCodes.map((organismCode, index) => {
+		const organism = organismByCode.get(organismCode);
+		return {
+			...organism,
+			order: index + 1,
+			organismCode,
+		};
+	});
+	const schema = cloneSchema(screen.schema);
+	const screenNode = getScreenNode({ ...screen, schema });
+	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
+
+	if (contentsNode?.children) {
+		contentsNode.children = reorderOrganismContainers(contentsNode.children, organismCodes);
+	}
+
+	return {
+		...screen,
+		organisms: nextOrganisms,
+		schema,
+	};
+}
+
+function reorderOrganismContainers(nodes: WireframeNode[], organismCodes: string[]) {
+	const organismContainerByCode = new Map(
+		nodes
+			.map((node) => {
+				const organismCode = getContainedOrganismCode(node);
+				return organismCode ? ([organismCode, node] as const) : undefined;
+			})
+			.filter(isOrganismContainerEntry),
+	);
+	const nextOrganismContainers = organismCodes
+		.map((organismCode) => organismContainerByCode.get(organismCode))
+		.filter(isWireframeNode);
+	let nextOrganismIndex = 0;
+
+	return nodes.map((node) => {
+		if (!getContainedOrganismCode(node)) return node;
+		const nextNode = nextOrganismContainers[nextOrganismIndex];
+		nextOrganismIndex += 1;
+		return nextNode ?? node;
+	});
+}
+
+function getContainedOrganismCode(node: WireframeNode): string | undefined {
+	if (node.type === "Organism") return getOrganismCode(node);
+	const childOrganism = node.children?.find((child) => child.type === "Organism");
+	return childOrganism ? getOrganismCode(childOrganism) : undefined;
+}
+
+function cloneSchema<T>(schema: T): T {
+	return JSON.parse(JSON.stringify(schema)) as T;
+}
+
+function isOrganismContainerEntry(
+	entry: readonly [string, WireframeNode] | undefined,
+): entry is readonly [string, WireframeNode] {
+	return Boolean(entry);
+}
+
+function isWireframeNode(node: WireframeNode | undefined): node is WireframeNode {
+	return Boolean(node);
+}
+
+function getCompositeCatalog(screens: WireframeWorkbenchScreen[]): WireframeWorkbenchComposite[] {
+	const byCode = new Map<string, WireframeWorkbenchComposite>();
 
 	for (const screen of screens) {
-		forEachComponentNode(screen.schema.children, undefined, (node, parentOrganismCode) => {
+		forEachCompositeNode(screen.schema.children, undefined, (node, parentOrganismCode) => {
 			const code = node.metadata.id;
 			if (byCode.has(code)) return;
 
@@ -227,6 +462,87 @@ function getComponentCatalog(screens: WireframeWorkbenchScreen[]): WireframeWork
 	}
 
 	return Array.from(byCode.values());
+}
+
+function getScreenRouteCatalog(
+	screens: WireframeWorkbenchScreen[],
+): WireframeWorkbenchScreenRoute[] {
+	const byCode = new Map<string, WireframeWorkbenchScreenRoute>();
+
+	for (const screen of screens) {
+		const route = byCode.get(screen.screenRouteCode);
+		const screenVariantOption = {
+			code: screen.screenVariantId,
+			label: getScreenVariantLabel(screen),
+			name: screen.screenVariantName,
+			screenCode: screen.code,
+			type: screen.screenVariantType,
+		};
+
+		if (route) {
+			const screenVariant = route.screenVariants.find(
+				(candidate) => candidate.screenOrder === screen.screenOrder,
+			);
+			if (screenVariant) {
+				if (!screenVariant.options.some((option) => option.code === screenVariantOption.code)) {
+					screenVariant.options.push(screenVariantOption);
+				}
+			} else {
+				route.screenVariants.push({
+					name: screen.name,
+					screenOrder: screen.screenOrder,
+					options: [screenVariantOption],
+				});
+				route.screenCount = route.screenVariants.length;
+			}
+			continue;
+		}
+
+		byCode.set(screen.screenRouteCode, {
+			code: screen.screenRouteCode,
+			module: screen.module,
+			name: screen.screenRouteName,
+			screenCount: 1,
+			screenVariants: [
+				{
+					name: screen.name,
+					screenOrder: screen.screenOrder,
+					options: [screenVariantOption],
+				},
+			],
+		});
+	}
+
+	for (const route of byCode.values()) {
+		route.screenVariants.sort(
+			(left, right) => left.screenOrder - right.screenOrder || left.name.localeCompare(right.name),
+		);
+		for (const screenVariant of route.screenVariants) {
+			screenVariant.options.sort(
+				(left, right) =>
+					getScreenVariantLabelOrder(left.label) - getScreenVariantLabelOrder(right.label) ||
+					left.code.localeCompare(right.code),
+			);
+		}
+	}
+
+	return Array.from(byCode.values());
+}
+
+function getScreenVariantLabel(screen: WireframeWorkbenchScreen) {
+	if (screen.screenVariantType === "base") return "0";
+
+	const edgeCode = screen.screenVariantId.match(/(?:^|[-_])(e\d+)$/i)?.[1];
+	if (edgeCode) return edgeCode.toUpperCase();
+
+	return screen.screenVariantId.toUpperCase();
+}
+
+function getScreenVariantLabelOrder(label: string) {
+	if (label === "0") return 0;
+
+	const edgeNumber = label.match(/^E(\d+)$/)?.[1];
+	return edgeNumber ? Number(edgeNumber) : Number.MAX_SAFE_INTEGER;
 }
 
 function getSelectedOrganismContext(
@@ -246,15 +562,15 @@ function getSelectedOrganismContext(
 	return undefined;
 }
 
-function getSelectedComponentContext(
+function getSelectedCompositeContext(
 	screens: WireframeWorkbenchScreen[],
-	selectedComponentCode: string,
-): SelectedComponentContext | undefined {
+	selectedCompositeCode: string,
+): SelectedCompositeContext | undefined {
 	for (const screen of screens) {
-		const found = findComponentNode(screen.schema.children, selectedComponentCode);
+		const found = findCompositeNode(screen.schema.children, selectedCompositeCode);
 		if (found) {
 			return {
-				code: selectedComponentCode,
+				code: selectedCompositeCode,
 				node: found.node,
 				organism: found.parentOrganismCode
 					? getSelectedOrganismContext([screen], found.parentOrganismCode)
@@ -269,7 +585,7 @@ function getSelectedComponentContext(
 function findOrganismNode(nodes: WireframeNode[], organismCode: string): WireframeNode | undefined {
 	for (const node of nodes) {
 		if (
-			(node.type === "OrganismSection" || node.type === "Organism.Section") &&
+			node.type === "Organism" &&
 			String(node.props?.organismCode ?? node.metadata.id) === organismCode
 		) {
 			return node;
@@ -280,56 +596,55 @@ function findOrganismNode(nodes: WireframeNode[], organismCode: string): Wirefra
 	return undefined;
 }
 
-function findComponentNode(
+function findCompositeNode(
 	nodes: WireframeNode[],
-	componentCode: string,
+	compositeCode: string,
 	parentOrganismCode?: string,
 ): { node: WireframeNode; parentOrganismCode?: string } | undefined {
 	for (const node of nodes) {
 		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
-		if (isComponentNode(node) && node.metadata.id === componentCode) {
+		if (isCompositeNode(node) && node.metadata.id === compositeCode) {
 			return {
 				node,
 				parentOrganismCode,
 			};
 		}
 		const childMatch = node.children
-			? findComponentNode(node.children, componentCode, nextParentOrganismCode)
+			? findCompositeNode(node.children, compositeCode, nextParentOrganismCode)
 			: undefined;
 		if (childMatch) return childMatch;
 	}
 	return undefined;
 }
 
-function forEachComponentNode(
+function forEachCompositeNode(
 	nodes: WireframeNode[],
 	parentOrganismCode: string | undefined,
 	callback: (node: WireframeNode, parentOrganismCode?: string) => void,
 ) {
 	for (const node of nodes) {
 		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
-		if (isComponentNode(node)) {
+		if (isCompositeNode(node)) {
 			callback(node, parentOrganismCode);
 		}
 		if (node.children) {
-			forEachComponentNode(node.children, nextParentOrganismCode, callback);
+			forEachCompositeNode(node.children, nextParentOrganismCode, callback);
 		}
 	}
 }
 
 function getOrganismCode(node: WireframeNode) {
-	if (node.type !== "OrganismSection" && node.type !== "Organism.Section") return undefined;
+	if (node.type !== "Organism") return undefined;
 	return String(node.props?.organismCode ?? node.metadata.id);
 }
 
-function isComponentNode(node: WireframeNode) {
+function isCompositeNode(node: WireframeNode) {
 	return ![
 		"Screen",
 		"Screen.Header",
 		"Screen.Contents",
 		"Screen.Bottom",
-		"OrganismSection",
-		"Organism.Section",
+		"Organism",
 		"PageStack",
 	].includes(node.type);
 }

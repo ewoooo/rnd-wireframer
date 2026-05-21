@@ -1,0 +1,176 @@
+{
+	"routes": [
+		{
+			"id": "mbr-join",
+			"name": "회원 가입",
+			"order": 1,
+			"description": "회원 가입 화면 생성 route",
+			"variants": [
+				{
+					"id": "mbr-join-base",
+					"name": "회원 가입 기본 흐름",
+					"order": 1,
+					"screens": [
+						{
+							"id": "NOVA-MBR-FP-001-0",
+							"name": "약관 동의",
+							"order": 1,
+							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.",
+							"surface": "page",
+							"organisms": [
+								{
+									"organismId": "ogn-mbr-term-list",
+									"order": 1
+								},
+								{
+									"organismId": "ogn-mbr-term-agree",
+									"order": 2
+								},
+								{
+									"organismId": "ogn-mbr-guardian-input",
+									"order": 3
+								},
+								{
+									"organismId": "ogn-mbr-guardian-result",
+									"order": 4
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"organisms": [
+		{
+			"id": "ogn-mbr-term-list",
+			"name": "약관 목록 조회",
+			"order": 1,
+			"description": "회원 가입에 필요한 필수·선택 약관 목록 조회 및 표시",
+			"layout": "vertical",
+			"components": [
+				{
+					"componentId": "list-cell-term-required",
+					"order": 1
+				},
+				{
+					"componentId": "list-cell-term-optional",
+					"order": 2
+				},
+				{
+					"componentId": "accordion-term-detail",
+					"order": 3
+				},
+				{
+					"componentId": "section-message-term-error",
+					"order": 4
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-term-agree",
+			"name": "약관 동의",
+			"order": 2,
+			"description": "전체 동의 및 개별 약관 동의 처리",
+			"layout": "vertical",
+			"components": [
+				{
+					"componentId": "checkbox-all-terms",
+					"order": 1
+				},
+				{
+					"componentId": "button-next",
+					"order": 2
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-input",
+			"name": "법정대리인 정보 입력",
+			"order": 3,
+			"description": "미성년자 고객의 법정대리인 정보 입력 및 동의 요청 발송",
+			"layout": "vertical",
+			"components": [
+				{
+					"componentId": "text-field-guardian-name",
+					"order": 1
+				},
+				{
+					"componentId": "text-field-guardian-phone",
+					"order": 2
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-result",
+			"name": "법정대리인 동의 결과 확인",
+			"order": 4,
+			"description": "법정대리인 동의 완료 여부 확인 및 결과 안내",
+			"layout": "vertical",
+			"components": [
+				{
+					"componentId": "section-message-guardian-result",
+					"order": 1
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"id": "list-cell-term-required",
+			"name": "필수 약관 항목",
+			"order": 1,
+			"type": "list-cell",
+			"description": "회원 가입 필수 약관"
+		},
+		{
+			"id": "list-cell-term-optional",
+			"name": "선택 약관 항목",
+			"order": 2,
+			"type": "list-cell",
+			"description": "회원 가입 선택 약관"
+		},
+		{
+			"id": "accordion-term-detail",
+			"name": "약관 전문 펼치기",
+			"order": 3,
+			"type": "accordion"
+		},
+		{
+			"id": "section-message-term-error",
+			"name": "약관 조회 오류 안내",
+			"order": 4,
+			"type": "section-message"
+		},
+		{
+			"id": "checkbox-all-terms",
+			"name": "전체 약관 동의",
+			"order": 5,
+			"type": "checkbox"
+		},
+		{
+			"id": "button-next",
+			"name": "다음",
+			"order": 6,
+			"type": "button"
+		},
+		{
+			"id": "text-field-guardian-name",
+			"name": "법정대리인 이름",
+			"order": 7,
+			"type": "text-field"
+		},
+		{
+			"id": "text-field-guardian-phone",
+			"name": "법정대리인 휴대폰 번호",
+			"order": 8,
+			"type": "text-field"
+		},
+		{
+			"id": "section-message-guardian-result",
+			"name": "법정대리인 동의 결과 안내",
+			"order": 9,
+			"type": "section-message"
+		}
+	]
+}

@@ -44,6 +44,8 @@
 | BottomSheet | Handle 32px, Title 68px, ActionButton 102px |
 | Popup | card 361px, text inset 32px, PopupActionButton 361×60px |
 
+`StatusBar`는 wireframe 생성 데이터에 포함하지 않고 `@cx/layout`의 `AppScreen` chrome에서 항상 렌더링한다. `Screen.Header`는 AppBar, progress bar 등 앱 상단 콘텐츠 영역만 표현한다.
+
 ### Spacing 운영 원칙
 
 - 0-4px: 같은 원자적 요소 내부.

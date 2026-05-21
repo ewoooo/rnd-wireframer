@@ -1,0 +1,155 @@
+{
+	"patterns": [
+		{
+			"id": "term-agreement-screen",
+			"target": "screen",
+			"name": "약관 동의 화면",
+			"description": "상단 앱바, 스크롤 약관 콘텐츠, 선택적 하단 액션을 쓰는 약관 동의 화면 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"recipe": {
+						"screen": {
+							"regions": {
+								"header": {
+									"props": {
+										"position": "fixed",
+										"layout": {
+											"direction": "column",
+											"gap": 0
+										},
+										"height": 48,
+										"zIndex": 10
+									}
+								},
+								"contents": {
+									"props": {
+										"layout": {
+											"direction": "column",
+											"gap": 0,
+											"paddingX": 0,
+											"paddingY": 0
+										},
+										"scroll": true
+									},
+									"pageStack": {
+										"enabled": true,
+										"sectionPaddingX": 12,
+										"itemPaddingX": 20,
+										"paddingY": 28,
+										"divider": {
+											"type": "section"
+										}
+									}
+								},
+								"bottom": {
+									"props": {
+										"position": "fixed",
+										"layout": {
+											"direction": "column",
+											"gap": 0
+										},
+										"safeArea": true,
+										"zIndex": 10
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"guidance": {
+				"keywords": [
+					"screen",
+					"route",
+					"layout",
+					"화면",
+					"스크린",
+					"약관 동의 화면"
+				],
+				"rules": [
+					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
+					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+				]
+			},
+			"examples": []
+		},
+		{
+			"id": "form-screen",
+			"target": "screen",
+			"name": "입력 폼 화면",
+			"description": "상단 앱바, 스크롤 입력 콘텐츠, 하단 단일 CTA를 쓰는 폼 화면 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"recipe": {
+						"screen": {
+							"regions": {
+								"header": {
+									"props": {
+										"position": "fixed",
+										"layout": {
+											"direction": "column",
+											"gap": 0
+										},
+										"height": 48,
+										"zIndex": 10
+									}
+								},
+								"contents": {
+									"props": {
+										"layout": {
+											"direction": "column",
+											"gap": 0,
+											"paddingX": 0,
+											"paddingY": 0
+										},
+										"scroll": true
+									},
+									"pageStack": {
+										"enabled": true,
+										"sectionPaddingX": 12,
+										"itemPaddingX": 20,
+										"paddingY": 28,
+										"divider": {
+											"type": "section"
+										}
+									}
+								},
+								"bottom": {
+									"props": {
+										"position": "fixed",
+										"layout": {
+											"direction": "column",
+											"gap": 0,
+											"paddingX": 0,
+											"paddingY": 22
+										},
+										"height": 102,
+										"safeArea": true,
+										"zIndex": 10
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"guidance": {
+				"keywords": [
+					"screen",
+					"route",
+					"layout",
+					"화면",
+					"스크린",
+					"입력 폼 화면"
+				],
+				"rules": [
+					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
+					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+				]
+			},
+			"examples": []
+		}
+	]
+}

@@ -1,0 +1,94 @@
+{
+	"patterns": [
+		{
+			"id": "term-agreement-screen",
+			"target": "screen",
+			"name": "약관 동의 화면",
+			"description": "상단 앱바, 스크롤 약관 콘텐츠, 선택적 하단 액션을 쓰는 약관 동의 화면 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"screen",
+				"route",
+				"layout",
+				"화면",
+				"스크린",
+				"약관 동의 화면"
+			]
+		},
+		{
+			"id": "form-screen",
+			"target": "screen",
+			"name": "입력 폼 화면",
+			"description": "상단 앱바, 스크롤 입력 콘텐츠, 하단 단일 CTA를 쓰는 폼 화면 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"screen",
+				"route",
+				"layout",
+				"화면",
+				"스크린",
+				"입력 폼 화면"
+			]
+		},
+		{
+			"id": "term-list",
+			"target": "organism",
+			"name": "약관 목록",
+			"description": "약관 ListCell과 Accordion을 세로로 쌓는 OGN 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"organism",
+				"ogn",
+				"section",
+				"섹션",
+				"오가니즘",
+				"약관 목록"
+			]
+		},
+		{
+			"id": "field-stack",
+			"target": "organism",
+			"name": "필드 스택",
+			"description": "TextField를 세로로 쌓는 입력 OGN 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"organism",
+				"ogn",
+				"section",
+				"섹션",
+				"오가니즘",
+				"필드 스택"
+			]
+		},
+		{
+			"id": "message-stack",
+			"target": "organism",
+			"name": "상태 메시지 스택",
+			"description": "상태 안내 SectionMessage를 세로로 배치하는 OGN 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"organism",
+				"ogn",
+				"section",
+				"섹션",
+				"오가니즘",
+				"상태 메시지 스택"
+			]
+		},
+		{
+			"id": "single-primary-action",
+			"target": "composite",
+			"name": "하단 단일 주요 액션",
+			"description": "하단 영역의 단일 primary CTA 컴포넌트 프리셋",
+			"defaultVariant": "default",
+			"keywords": [
+				"composite",
+				"node",
+				"cta",
+				"컴포넌트",
+				"렌더노드",
+				"하단 단일 주요 액션"
+			]
+		}
+	]
+}

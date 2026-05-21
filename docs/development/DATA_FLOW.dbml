@@ -1,0 +1,343 @@
+Project rnd_screen_generator_data_flow {
+  database_type: "PostgreSQL"
+  Note: '''
+  Data flow map for RND Screen Generator.
+
+  This DBML is not a migration schema.
+  It describes how supply data is normalized into consumer data that the
+  workbench, @cx/renderer, and @cx/renderer can consume.
+  '''
+}
+
+Enum supply_source_type {
+  attachment_bundle
+  screen_markdown
+  organism_markdown
+  pattern_json
+  component_package
+  layout_package
+  token_package
+}
+
+Enum consumer_child_kind {
+  component
+  organism
+}
+
+Enum screen_region_type {
+  header
+  contents
+  bottom
+}
+
+Enum screen_variant_type {
+  base
+  edge
+}
+
+Enum validation_severity {
+  info
+  warning
+  error
+}
+
+Table supply_sources {
+  id varchar [pk]
+  source_type supply_source_type [not null]
+  name varchar [not null]
+  path varchar [not null]
+  version varchar
+  description text
+  metadata json
+
+  Note: '''
+  Supply data only provides source material, design/runtime vocabulary,
+  and traceability. The workbench should not consume this table directly.
+  '''
+}
+
+Table supply_screen_markdowns {
+  id varchar [pk]
+  supply_source_id varchar [not null]
+  screen_id varchar [not null]
+  screen_name varchar [not null]
+  description text
+  route_path varchar
+  implementation_type varchar
+  policy_group_refs json
+  feature_refs json
+  written_at date
+  author varchar
+  document_version varchar
+  raw_frontmatter json
+  raw_markdown_path varchar [not null]
+
+  Note: "Extracted from attached screen/*.md files."
+}
+
+Table supply_screen_composition_rows {
+  id varchar [pk]
+  supply_screen_markdown_id varchar [not null]
+  row_no varchar [not null]
+  area_type varchar
+  area_description text
+  area_layout varchar
+  organism_id varchar [not null]
+  organism_name varchar
+  organism_description text
+  server_controls json
+  min_count int
+  max_count int
+  priority int
+  error_handling text
+  raw_row json
+}
+
+Table supply_screen_transition_rows {
+  id varchar [pk]
+  supply_screen_markdown_id varchar [not null]
+  from_screen_id varchar [not null]
+  to_screen_id varchar [not null]
+  condition text
+  payload text
+  raw_row json
+
+  Note: "Used by future read models; not required for current render tree."
+}
+
+Table supply_screen_case_rows {
+  id varchar [pk]
+  supply_screen_markdown_id varchar [not null]
+  case_screen_id varchar [not null]
+  case_name varchar [not null]
+  case_description text
+  follow_up text
+  raw_row json
+
+  Note: "Normalized into edge screenVariants."
+}
+
+Table supply_organism_markdowns {
+  id varchar [pk]
+  supply_source_id varchar [not null]
+  organism_id varchar [not null]
+  organism_name varchar [not null]
+  description text
+  related_screen_ids json
+  used_screen_ids json
+  policy_refs json
+  policy_group_refs json
+  feature_refs json
+  written_at date
+  author varchar
+  document_version varchar
+  raw_frontmatter json
+  raw_markdown_path varchar [not null]
+
+  Note: "Extracted from attached organism/*.md files."
+}
+
+Table supply_organism_state_rows {
+  id varchar [pk]
+  supply_organism_markdown_id varchar [not null]
+  state varchar [not null]
+  trigger text
+  composite_change text
+  action varchar
+  raw_row json
+}
+
+Table supply_organism_composite_rows {
+  id varchar [pk]
+  supply_organism_markdown_id varchar [not null]
+  row_no int [not null]
+  composite_name varchar [not null]
+  composite_description text
+  composite_type varchar [not null]
+  variant varchar
+  event varchar
+  action varchar
+  action_params text
+  note text
+  raw_row json
+
+  Note: "composite_type is mapped to @cx/renderer composite node type candidates."
+}
+
+Table supply_patterns {
+  id varchar [pk]
+  supply_source_id varchar [not null]
+  pattern_id varchar [not null]
+  target_hierarchy varchar [not null]
+  default_variant varchar [not null]
+  variants json [not null]
+  raw_pattern json [not null]
+}
+
+Table supply_runtime_vocabularies {
+  id varchar [pk]
+  supply_source_id varchar [not null]
+  package_name varchar [not null]
+  vocabulary_type varchar [not null]
+  export_name varchar [not null]
+  node_type varchar
+  token_key varchar
+  metadata json
+
+  Note: '''
+  Represents @cx/components, @cx/layout, and @cx/tokens public vocabulary.
+  Consumer data should use node types, layout props, and token keys that can
+  be resolved through this vocabulary.
+  '''
+}
+
+Table consumer_screen_routes {
+  code varchar [pk]
+  module varchar [not null]
+  name varchar [not null]
+  sort_order int [not null]
+  process_code varchar
+  source_ref json
+}
+
+Table consumer_screen_variants {
+  code varchar [pk]
+  screen_route_code varchar [not null]
+  name varchar [not null]
+  sort_order int [not null]
+  variant_type screen_variant_type [not null]
+  base_variant_code varchar
+  trigger text
+  difference_from_base text
+  follow_up text
+  source_ref json
+}
+
+Table consumer_screens {
+  id varchar [pk]
+  screen_variant_code varchar [not null]
+  version varchar [not null]
+  min_renderer_version varchar [not null]
+  sort_order int
+  pattern_id varchar [not null]
+  pattern_variant varchar
+  metadata json [not null]
+  theme json
+  data json
+  screen_node json [not null]
+  source_ref json
+
+  Note: "Matches database/tables/screens.json entries."
+}
+
+Table consumer_screen_regions {
+  id varchar [pk]
+  screen_id varchar [not null]
+  region_type screen_region_type [not null]
+  node_type varchar [not null]
+  component_version varchar
+  metadata json [not null]
+  props json
+  sort_order int [not null]
+}
+
+Table consumer_screen_region_children {
+  id varchar [pk]
+  screen_region_id varchar [not null]
+  child_kind consumer_child_kind [not null]
+  composite_id varchar
+  organism_id varchar
+  sort_order int [not null]
+
+  Note: '''
+  Exactly one of composite_id or organism_id is set.
+  composite_id references consumer_composites.metadata_id.
+  organism_id references consumer_organisms.id.
+  '''
+}
+
+Table consumer_organisms {
+  id varchar [pk]
+  node_type varchar [not null]
+  component_version varchar [not null]
+  metadata json [not null]
+  organism_code varchar [not null]
+  name varchar
+  pattern_id varchar
+  pattern_variant varchar
+  states json
+  policy_refs json
+  feature_refs json
+  source_ref json
+
+  Note: "Matches database/tables/organisms.json entries."
+}
+
+Table consumer_organism_composite_usages {
+  id varchar [pk]
+  organism_id varchar [not null]
+  composite_id varchar [not null]
+  sort_order int [not null]
+  state_visibility json
+  source_ref json
+}
+
+Table consumer_composites {
+  metadata_id varchar [pk]
+  node_type varchar [not null]
+  component_version varchar [not null]
+  metadata json [not null]
+  props json
+  events json
+  display json
+  source_ref json
+
+  Note: "Matches database/tables/components.json entries."
+}
+
+Table consumer_validation_reports {
+  id varchar [pk]
+  target_type varchar [not null]
+  target_id varchar [not null]
+  severity validation_severity [not null]
+  code varchar [not null]
+  message text [not null]
+  source_ref json
+  created_at timestamp
+
+  Note: '''
+  Stores parser, reference integrity, renderer mapping, and @cx/renderer
+  validation findings for the consumer data set.
+  '''
+}
+
+Ref: supply_sources.id < supply_screen_markdowns.supply_source_id
+Ref: supply_sources.id < supply_organism_markdowns.supply_source_id
+Ref: supply_sources.id < supply_patterns.supply_source_id
+Ref: supply_sources.id < supply_runtime_vocabularies.supply_source_id
+
+Ref: supply_screen_markdowns.id < supply_screen_composition_rows.supply_screen_markdown_id
+Ref: supply_screen_markdowns.id < supply_screen_transition_rows.supply_screen_markdown_id
+Ref: supply_screen_markdowns.id < supply_screen_case_rows.supply_screen_markdown_id
+
+Ref: supply_organism_markdowns.id < supply_organism_state_rows.supply_organism_markdown_id
+Ref: supply_organism_markdowns.id < supply_organism_composite_rows.supply_organism_markdown_id
+
+Ref: consumer_screen_routes.code < consumer_screen_variants.screen_route_code
+Ref: consumer_screen_variants.code < consumer_screens.screen_variant_code
+Ref: consumer_screen_variants.code < consumer_screen_variants.base_variant_code
+Ref: consumer_screens.id < consumer_screen_regions.screen_id
+Ref: consumer_screen_regions.id < consumer_screen_region_children.screen_region_id
+Ref: consumer_organisms.id < consumer_screen_region_children.organism_id
+Ref: consumer_composites.metadata_id < consumer_screen_region_children.composite_id
+Ref: consumer_organisms.id < consumer_organism_composite_usages.organism_id
+Ref: consumer_composites.metadata_id < consumer_organism_composite_usages.composite_id
+
+Ref: supply_patterns.pattern_id < consumer_screens.pattern_id
+Ref: supply_patterns.pattern_id < consumer_organisms.pattern_id
+
+Ref: supply_screen_markdowns.screen_id < consumer_screens.id
+Ref: supply_screen_composition_rows.organism_id < consumer_organisms.id
+Ref: supply_screen_case_rows.case_screen_id < consumer_screen_variants.code
+Ref: supply_organism_markdowns.organism_id < consumer_organisms.id
+Ref: supply_organism_composite_rows.composite_name < consumer_composites.metadata_id

@@ -1,3 +1,4 @@
+import { mockAgentAssetRegistry } from "@/features/agent-asset-pipeline/mock-agent-assets";
 import {
 	organismCatalog,
 	wireframeWorkbenchData,
@@ -5,5 +6,11 @@ import {
 import { WireframeWorkbench } from "@/widgets/wireframe-renderer/wireframe-workbench";
 
 export default function Home() {
-	return <WireframeWorkbench organisms={organismCatalog} screens={wireframeWorkbenchData} />;
+	return (
+		<WireframeWorkbench
+			agentRegistry={mockAgentAssetRegistry}
+			organisms={organismCatalog}
+			screens={wireframeWorkbenchData}
+		/>
+	);
 }

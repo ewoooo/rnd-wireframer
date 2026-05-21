@@ -20,20 +20,19 @@
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
-- `cx-tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
+- `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
-- `sdui-renderer`의 schema, binding, registry, validation 패턴은 `wireframe` 패키지로 흡수하고 React 렌더러는 프로젝트 정책에 맞게 별도 구현한다.
+- `sdui-renderer`의 schema, binding, registry, validation, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
-- DB 관계 검토와 ERD 산출물은 `drawdb`를 사용한다.
-- drawdb 산출물은 `docs/drawdb/` 아래에 둔다.
 - 화면 생성용 mock 데이터와 단계별 JSON 샘플은 `docs/data-mockups/` 아래에 둔다.
-- `docs/data-mockups/`는 `1-design-specs`, `1-policy-inputs`, `2-spec-inputs`, `3-parsed-jsons`, `4-generation-contexts`, `5-feedback-loops` 순서로 운영한다.
+- 데이터는 공급 데이터와 소비 데이터로 나누고, AI import 산출물은 `database/ai-imports/`, 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
+- 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
 ## 3. Wireframe 변환 책임 분리
 
-첨부 screen/organism 명세 또는 DB read model을 `@cx/wireframe` 렌더 구조로 바꿀 때는 AI와 deterministic code의 책임을 분리한다.
+첨부 screen/organism 명세 또는 DB read model을 `@cx/renderer` 렌더 구조로 바꿀 때는 AI와 deterministic code의 책임을 분리한다.
 
 기본 흐름은 아래 순서를 따른다.
 
@@ -57,11 +56,11 @@ AI가 직접 판단하거나 보정하는 영역:
 - `screenSource.organisms` 순서 유지
 - `organismCode` 유지
 - `metadata.id`, `metadata.title`, `componentVersion`, schema version 생성
-- `@cx/wireframe` validation 실행
+- `@cx/renderer` validation 실행
 - component registry 존재 확인
 - 누락 참조 리포트 생성
 
-AI가 wireframe 트리 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 파서와 composer가 만든 구조화 결과를 보정하고, 최종 산출물은 항상 `@cx/wireframe` 검증을 통과해야 한다.
+AI가 wireframe 트리 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 파서와 database resolver가 만든 구조화 결과를 보정하고, 최종 산출물은 항상 `@cx/renderer` 검증을 통과해야 한다.
 
 ## 4. 디자인 패턴 문서
 
@@ -89,7 +88,7 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 - `AGENTS.md`에는 디자인 문서 목록과 운영 기준만 유지한다.
 - 레이아웃 수치나 컴포넌트 목록을 중복 기재하지 않는다.
 - 정식 디자인 토큰의 원천은 `DESIGN_FOUNDATION.md`를 따른다.
-- 구현 패키지 기준은 `cx-tokens`, `@cx/components`, `@cx/layout`을 따른다.
+- 구현 패키지 기준은 `@cx/tokens`, `@cx/components`, `@cx/layout`을 따른다.
 
 ## 5. 에이전트 역할
 
@@ -97,7 +96,7 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 |---|---|---|
 | Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
 | Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Data Agent | 입력 JSON, 생성 컨텍스트, 관계형 DB, drawdb ERD, 적재 전략 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
+| Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
 | Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Claude Generation Agent | Claude 기반 와이어프레임 JSON 생성 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
@@ -136,20 +135,15 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 - 구현 또는 문서 변경이 검증됐다.
 - 필요한 경우 변경 이력이 기록됐다.
 
-## 8. 초기 백로그
+## 8. 현재 백로그
 
 | 우선순위 | 담당 | 작업 |
 |---|---|---|
-| P0 | Data Agent | 정책/화면/디자인 입력 JSON과 generation context 스키마 확정 |
-| P0 | Data Agent | drawdb 기반 ERD 초안 작성 |
-| P0 | Data Agent | Supabase 마이그레이션 초안 작성 |
-| P0 | Backend Agent | JSON 검증/정규화 프로토타입 구현 |
-| P1 | Backend Agent | screen to organism 연결 프로토타입 구현 |
-| P1 | Frontend Agent | 화면 목록/상세/생성 흐름 구현 |
-| P1 | Frontend Agent | `cx-components`, `cx-tokens`, `@cx/layout` 패키지 이전 및 import 경계 정리 |
-| P1 | Frontend Agent | React hooks policy를 lint/CI 흐름에 연결 |
-| P1 | Claude Generation Agent | 첫 와이어프레임 JSON 생성 계약 구현 |
-| P1 | Codex Review Agent | 생성 결과 검수 기준 구현 |
-| P1 | Agent Runtime Agent | Agent SDK 로컬 세션 우선 실행 전략 구현 |
-| P2 | Frontend Agent | Puck 기반 Screen composition/OGN component 편집 프로토타입 구현 |
-| P2 | QA Agent | 샘플 문서 기반 인수 테스트 작성 |
+| P0 | Frontend Agent | `apps/web` workbench를 `docs/data-mockups` 샘플 또는 단일 mock 계약에서 로드하도록 정리 |
+| P0 | Frontend Agent | `@cx/renderer` composite mapping과 누락 renderer 리포트를 workbench 검증 패널에 연결 |
+| P0 | Design System Agent | `@cx/renderer`, `@cx/layout`, `@cx/tokens` spacing key 계약을 정리 |
+| P0 | Frontend Agent | `@cx/layout` legacy `styles.css` export와 잔여 CSS 책임 정리 |
+| P1 | Data Agent | 첨부 screen/organism markdown을 소비 데이터 초안으로 변환하는 parser/validator 설계 |
+| P1 | Backend Agent | 소비 데이터 계약 기준 FastAPI read model 초안 구현 |
+| P2 | Frontend Agent | Puck 기반 Screen composition/OGN composite 편집 프로토타입 구현 |
+| P2 | Agent Runtime Agent | Claude 생성/Codex 검수 local-first Agent SDK 실행 전략 구현 |

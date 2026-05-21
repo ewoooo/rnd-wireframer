@@ -9,8 +9,9 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@cx/agent": "0.1.0",
 		"@cx/components": "0.1.0",
 		"@cx/layout": "0.1.0",
-		"@cx/wireframe": "0.1.0"
+		"@cx/renderer": "0.1.0"
 	}
 }
