@@ -1,8 +1,9 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { getDatabaseDir } from "@/data/database-paths";
 
-const CLIENT_IMPORTS_DIR = path.join(process.cwd(), "..", "..", "database", "client-imports");
+const CLIENT_IMPORTS_DIR = path.join(getDatabaseDir(), "client-imports");
 
 export async function GET() {
 	const entries = await readdir(CLIENT_IMPORTS_DIR, { withFileTypes: true }).catch(() => []);

@@ -1,4 +1,5 @@
 export * from "./agent-sdk-runtime";
+export * from "./claude-asset-generator";
 export * from "./decorate-assets";
 export * from "./register-assets";
 export * from "./register-assets-to-tables";

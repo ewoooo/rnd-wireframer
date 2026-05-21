@@ -1,12 +1,12 @@
 "use client";
 
 import { AppScreen } from "@cx/layout/chrome";
-import type { WireframeNode, WireframeScreenNode } from "@cx/renderer";
 import type { ReactNode } from "react";
 
 import { defaultRendererDefinitions } from "./default-renderers";
 import { RendererRegistry, type WireframeRenderer } from "./registry";
 import { getRenderableWireframeNode, getScreenRegions, type WireframeNodeKind } from "./runtime";
+import type { WireframeNode, WireframeScreenNode } from "./schema";
 
 export const rendererRegistry = new RendererRegistry();
 rendererRegistry.registerAll(defaultRendererDefinitions);

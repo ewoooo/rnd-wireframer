@@ -1,9 +1,5 @@
-import {
-	resolveDisplayWhen,
-	resolveProps,
-	type WireframeNode,
-	type WireframeScreenNode,
-} from "@cx/renderer";
+import { resolveDisplayWhen, resolveProps } from "./bindings";
+import type { WireframeNode, WireframeScreenNode } from "./schema";
 
 export type WireframeNodeKind =
 	| "accordion"

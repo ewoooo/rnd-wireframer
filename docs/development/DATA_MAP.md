@@ -55,7 +55,7 @@ registerAssetsToTables
 @cx/renderer
         |
         v
-apps/web wireframe workbench
+apps/web
 ```
 
 ## 3. 공급 데이터

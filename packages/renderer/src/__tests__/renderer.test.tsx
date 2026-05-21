@@ -1,12 +1,9 @@
-import type { WireframeNode } from "@cx/renderer";
-import {
-	type RendererDefinition,
-	RendererRegistry,
-	rendererRegistry,
-	renderNode,
-} from "@cx/renderer";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { type RendererDefinition, RendererRegistry } from "../registry";
+import { rendererRegistry, renderNode } from "../renderer";
+import type { WireframeNode } from "../schema";
 
 function createNode(overrides: Partial<WireframeNode> = {}): WireframeNode {
 	return {

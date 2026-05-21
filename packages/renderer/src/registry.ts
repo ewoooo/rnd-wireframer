@@ -1,6 +1,6 @@
-import type { WireframeNode } from "@cx/renderer";
 import type { ReactNode } from "react";
 import type { RenderableWireframeNode, WireframeNodeKind } from "./runtime";
+import type { WireframeNode } from "./schema";
 
 export interface WireframeRenderContext {
 	data: Record<string, unknown>;

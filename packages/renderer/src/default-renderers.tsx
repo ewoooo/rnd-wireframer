@@ -1,15 +1,14 @@
 import { AppBar, Callout, Button as CxButton, Divider, ListText, TextField } from "@cx/components";
 import { Flex, Grid } from "@cx/layout/primitives";
+import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
+import type { RendererDefinition } from "./registry";
+import { toBoolean, toText } from "./runtime";
 import type {
 	WireframeFlexLayoutProps,
 	WireframeGridLayoutProps,
 	WireframeLayoutFlexNode,
 	WireframeLayoutGridNode,
-} from "@cx/renderer";
-
-import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
-import type { RendererDefinition } from "./registry";
-import { toBoolean, toText } from "./runtime";
+} from "./schema";
 
 export const defaultRendererDefinitions: RendererDefinition[] = [
 	{

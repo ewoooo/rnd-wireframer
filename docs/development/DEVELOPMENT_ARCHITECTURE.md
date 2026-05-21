@@ -68,22 +68,22 @@ apps/
   web/
     src/
       app/
+        api/
       components/
-      features/
-        wireframe-renderer/
-        mobile-preview/
-        puck-editor/
-        source-import-panel/
-        organism-source-list/
-        generation-panel/
-      widgets/
-        wireframe-renderer/
+        ui/
+        agent/
+        layout/
+        screen/
+      model/
+      data/
+      adapters/
+      agent/
 packages/
   token/
   component/
   layout/
   renderer/
-  wireframe/
+  agent/
 services/
   api/
     app/
@@ -105,7 +105,7 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/agent`는 spec/read model을 render node tree로 materialize하는 deterministic 변환을 담당한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/agent`는 Agent SDK runtime과 deterministic asset registration pipeline을 담당한다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
@@ -159,25 +159,25 @@ apps/web/
     app/
       page.tsx
       layout.tsx
-      data/
+      api/
     components/
       ui/
-    features/
-      wireframe-renderer/
-      mobile-preview/
-      puck-editor/
-      source-import-panel/
-      organism-source-list/
-      generation-panel/
-    widgets/
-      wireframe-renderer/
+      agent/
+      layout/
+      screen/
+      App.tsx
+    model/
+      store.ts
+    data/
+    adapters/
+    agent/
 ```
 
-`mobile-preview`와 `puck-editor`는 후속 구현 시 `@cx/renderer`를 통해 같은 렌더링 어휘를 공유해야 한다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱의 `wireframe-renderer` 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
+`apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/` 책임 디렉토리로 나눈다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
 
 Pattern은 앱 소비 데이터가 아니라 [docs/pattern-store](/Users/plusx/Documents/rnd-screen-generator/docs/pattern-store)의 reference store로 운영한다. AI는 `pattern-index.json`으로 후보를 좁힌 뒤 target별 pattern 파일의 guidance와 recipe를 확인한다. resolver/generator는 선택된 recipe를 `WireframeNode` 구조로 materialize하고, `@cx/renderer`는 pattern store를 직접 읽지 않는다.
 
-`wireframe-renderer` 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
+앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 
 1. 렌더된 스크린 화면: `@cx/renderer` schema를 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Organism`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
 2. 다른 screen 및 OGN 조회: 현재 화면을 유지한 채 다른 generated screen, screen source, organism source, generated organism을 탐색하거나 선택할 수 있는 목록/검색/탭 영역을 제공한다.

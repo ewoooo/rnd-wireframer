@@ -1,10 +1,12 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { NextResponse } from "next/server";
+import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator";
 import { registerAssets } from "@cx/agent/register-assets";
-import { generateRegisterFromClientImport } from "@/features/agent-asset-pipeline/generate-register-from-client-import";
+import { NextResponse } from "next/server";
+import { getDatabaseDir } from "@/data/database-paths";
 
-const DATABASE_DIR = path.join(process.cwd(), "..", "..", "database");
+const DATABASE_DIR = getDatabaseDir();
+const PROJECT_DIR = path.dirname(DATABASE_DIR);
 const CLIENT_IMPORTS_DIR = path.join(DATABASE_DIR, "client-imports");
 const AI_IMPORTS_DIR = path.join(DATABASE_DIR, "ai-imports");
 const GENERATED_REGISTER_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.generated.json");
@@ -30,11 +32,17 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const generated = generateRegisterFromClientImport({
-		importId,
-		organismFiles,
-		screenFiles,
-	});
+	const claudeResult = await generateAssetsWithLocalClaude(
+		{
+			importId,
+			organismFiles,
+			screenFiles,
+		},
+		{
+			cwd: PROJECT_DIR,
+		},
+	);
+	const generated = claudeResult.generated;
 	const registry = registerAssets(generated);
 
 	await mkdir(AI_IMPORTS_DIR, { recursive: true });
@@ -43,6 +51,10 @@ export async function POST(request: Request) {
 	return NextResponse.json({
 		generated,
 		registry,
+		runtime: {
+			provider: "claude",
+			sessionId: claudeResult.sessionId,
+		},
 		warnings: registry.warnings,
 		writtenPath: "database/ai-imports/agent-assets.generated.json",
 	});

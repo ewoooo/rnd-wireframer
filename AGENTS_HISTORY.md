@@ -610,6 +610,15 @@
 - 검증: `npx biome check packages/agent`, `npx tsc --noEmit`, `npm test -- --run packages/agent/src/__tests__/agent.test.ts`
 - 후속: 첨부 markdown 파서와 pattern resolver를 별도 단계로 붙여 `registerAssets` 입력을 생성해야 함
 
+## 2026-05-21 - Agent Phase 1 client import 생성 흐름
+
+- 변경: Workbench `AGT` 탭이 빈 registry로 시작하고, `database/client-imports`의 import 폴더 목록을 API로 읽어 표시하도록 변경함
+- 변경: `POST /api/agent/generate-register`를 추가해 선택한 client import의 `screen/*.md`, `organism/*.md`를 Phase 1 `agent-assets.generated.json` 구조로 변환하고 `registerAssets` 결과를 화면에 표시함
+- 변경: markdown parser는 현재 화면/오가니즘/컴포넌트 등록에 필요한 frontmatter와 표만 읽고, decorator/table persistence/mock data 생성은 실행하지 않음
+- 이유: DB 연결 전, 유저가 client import를 넣으면 AI 생성 산출물 형태를 만들고 등록 결과를 워크벤치에서 확인하는 최소 흐름부터 검증하기 위함
+- 검증: `npx biome check --write apps/web/src/features/agent-asset-pipeline apps/web/src/app/api/agent apps/web/src/widgets/wireframe-renderer/model/workbench-store.ts apps/web/src/widgets/wireframe-renderer/ui/agent apps/web/src/widgets/wireframe-renderer/ui/WorkBenchCanvas.tsx apps/web/src/app/page.tsx apps/web/src/widgets/wireframe-renderer/wireframe-workbench.tsx`, `npx tsc --noEmit --incremental false`, `jq empty database/ai-imports/*.json database/tables/*.json`, `npm test -- --run packages/agent/src/__tests__/agent.test.ts`, `npm run lint:hooks`, Playwright로 `http://localhost:3000` AGT 탭의 빈 `client-imports` 상태 확인
+- 후속: 실제 AI 호출 adapter를 parser 앞단에 붙이고, 생성된 bundle을 DB table persistence로 반영하는 단계를 별도 구현해야 함
+
 ## 2026-05-21 - Agent Registry 화면 임시 연결
 
 - 변경: DB 연결 전 테스트용 `database/agent-assets.json`을 추가하고, `apps/web`에서 `@cx/agent` pipeline을 실행해 workbench의 `AGT` 탭에 등록/장식 결과를 표시함
@@ -661,6 +670,21 @@
 - 검증: `npx biome check packages/layout/src/chrome/SystemHeader.tsx packages/layout/src/chrome/icons`, `npm test -- --run packages/layout`
 - 후속: `@cx/icons` 패키지를 흡수하면 `@cx/layout` 내부 복사본 대신 패키지 dependency로 전환 가능
 
+## 2026-05-21 - Frontend Agent
+
+- 변경: `apps/web/src/data/mock-wireframe-data.ts`를 `local-workbench-data-loader.ts`로 변경하고, 앱이 `loadLocalWorkbenchData()`를 통해 workbench 초기 데이터를 받도록 정리함
+- 변경: `apps/web/AGENTS.md`를 추가해 로컬 JSON loader와 후속 DB/API loader가 같은 소비 데이터 계약을 반환해야 한다는 앱 지침을 명시함
+- 이유: 현재 로컬 JSON은 단순 mock이 아니라 후속 DB read model과 같은 형태를 검증하는 loader이므로 파일명과 앱 지침에서 책임을 드러내기 위함
+- 검증: `npx biome check apps/web/src/data/local-workbench-data-loader.ts apps/web/src/components/App.tsx apps/web/AGENTS.md`, `npm run lint:hooks`
+
+## 2026-05-21 - Frontend Agent
+
+- 변경: `packages/renderer/src` 내부의 `@cx/renderer` 자기 import를 상대 경로 import로 정리하고 renderer 테스트도 내부 모듈을 직접 참조하도록 갱신함
+- 변경: repository 안에 남아 있던 `.DS_Store` 파일을 제거함. `.gitignore`에는 이미 `.DS_Store`가 등록되어 있어 재생성 파일은 추적되지 않음
+- 검토: 현재 기준 문서에서 legacy `features/wireframe-renderer`, `widgets/wireframe-renderer`, `mock-wireframe-data` 참조는 발견되지 않음
+- 검토: 앱 컴포넌트 디렉토리 재배치는 이번 범위에서 제외함
+- 검증: `npx biome check packages/renderer/src/registry.ts packages/renderer/src/renderer.tsx packages/renderer/src/runtime.ts packages/renderer/src/default-renderers.tsx packages/renderer/src/__tests__/renderer.test.tsx`, `npm test -- --run packages/renderer`, `npx tsc --noEmit`, `npm run lint:hooks`, `git diff --check`
+
 ## 2026-05-21 - Architecture Agent
 
 - 변경: 분리된 schema 패키지를 제거하고 schema/type, binding, component registry, validation을 `@cx/renderer` 내부로 흡수함
@@ -689,3 +713,36 @@
 - 이유: Agent SDK 의존성만 설치된 상태가 아니라 Claude 생성/Codex 검수 runner가 공통으로 사용할 최소 런타임 표면이 필요하기 때문
 - 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run packages/agent/src/__tests__/agent.test.ts`, `npx biome check packages/agent/src/agent-sdk-runtime.ts packages/agent/src/index.ts packages/agent/src/__tests__/agent.test.ts packages/agent/package.json`
 - 후속: Claude 생성/Codex 검수별 instructions, output schema, local-first fallback runner를 `agent-sdk-runtime` 위에 분리 구현해야 함
+
+## 2026-05-21 - Documentation Agent
+
+- 변경: `packages/agent/README.md`와 `packages/agent/AGENTS.md`를 추가해 패키지 공개 import, 현재 기능, 디렉토리 구조, 파일별 책임을 정리함
+- 이유: `@cx/agent`가 Agent SDK runtime과 deterministic asset pipeline을 함께 갖게 되어 패키지 내부 책임과 외부 사용법을 분명히 해야 하기 때문
+- 검증: `npx biome check packages/agent`, `npm test -- --run packages/agent`, `npx tsc --noEmit --incremental false`
+- 후속: Claude/Codex 역할별 runner가 추가되면 README의 현재 기능과 AGENTS의 파일별 기준을 함께 갱신해야 함
+
+## 2026-05-21 - Frontend Agent
+
+- 변경: `apps/web`을 단일 제품 앱 구조로 정리해 `features/`와 `widgets/`를 제거하고, `components/`, `model/`, `data/`, `adapters/`, `agent/` 책임 디렉토리로 재배치함
+- 변경: 진입 컴포넌트를 `components/App.tsx`로 단순화하고, Next.js `app/`은 route/API route만 소유하도록 정리함
+- 변경: renderer schema 타입 예제인 `wireframe-node-types.mock.ts`를 앱 data에서 `packages/renderer/fixtures`로 이동함
+- 변경: 임시 `sample-screens` API route와 `screen-source-crud` helper를 제거하고, Inspector의 OGN 정렬은 저장 API 없이 local order 변경만 수행하도록 정리함
+- 이유: `apps/web` 자체가 제품 경계이므로 `wireframer`, `features`, `widgets` 같은 추가 namespace가 오히려 책임을 흐리기 때문
+- 검증: `npx tsc --noEmit`, `npm test -- --run apps/web/src/adapters packages/renderer packages/layout packages/agent`, `npm run lint:hooks`, `npx biome check apps/web/src/app apps/web/src/components apps/web/src/model apps/web/src/data apps/web/src/adapters apps/web/src/agent packages/agent MASTER_PLAN.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/DATA_MAP.md AGENTS_HISTORY.md`
+
+## 2026-05-21 - Agent Phase 1 화면 업로드 시작점
+
+- 변경: Workbench `AGT` 탭에 `Upload Client Import Folder` 버튼을 추가해 화면에서 client import 폴더를 선택할 수 있게 함
+- 변경: `POST /api/agent/client-imports/upload`를 추가해 업로드된 markdown 파일을 `database/client-imports/{importId}` 아래에 저장하고, 같은 이름이 있으면 새 import id를 부여하도록 함
+- 이유: Phase 1 시나리오의 시작점을 파일 시스템에 미리 넣어둔 폴더가 아니라 워크벤치 화면의 업로드 액션으로 두기 위함
+- 검증: `npx biome check --write apps/web/src/app/api/agent/client-imports/upload/route.ts apps/web/src/components/agent/AgentRegistryNavigation.tsx`, `npx tsc --noEmit --incremental false`, `npm run lint:hooks`, Playwright로 `http://localhost:3000` AGT 탭의 업로드 버튼과 빈 상태 표시 확인
+- 후속: 업로드 완료 후 자동으로 `generate-register`까지 이어지는 원클릭 플로우는 UX 결정 후 추가 가능
+
+## 2026-05-21 - Claude Agent SDK asset generator 연결
+
+- 변경: `@cx/agent`에 `@anthropic-ai/claude-agent-sdk` 의존성과 `generateAssetsWithLocalClaude` runner를 추가함
+- 변경: `POST /api/agent/generate-register`가 deterministic parser 대신 업로드된 markdown 내용을 Claude Agent SDK local session에 전달해 `RegisterAssetsInput`을 생성하도록 변경함
+- 변경: Claude 출력은 JSON schema와 zod schema로 검증한 뒤 `registerAssets`에 전달하고, 결과 응답에 Claude session id를 포함함
+- 이유: Phase 1 생성 주체를 임시 parser가 아니라 프로젝트 원칙의 Claude Generation Agent local-first Agent SDK 흐름으로 맞추기 위함
+- 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run packages/agent/src/__tests__/agent.test.ts`, `npm run lint:hooks`, `npx biome check --write packages/agent/src/claude-asset-generator.ts packages/agent/src/index.ts packages/agent/package.json apps/web/src/app/api/agent/generate-register/route.ts apps/web/src/components/agent/AgentRegistryNavigation.tsx`
+- 후속: Claude local session 실패 시 원격 API fallback과 생성 이력 저장 필드를 확정해야 함
