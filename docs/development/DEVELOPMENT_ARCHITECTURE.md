@@ -30,11 +30,12 @@ FastAPI
 
 | 레이어 | 책임 |
 |---|---|
-| Next.js | 사용자 흐름, 화면 조회, 생성 요청, `cx-components`/`cx-layout` 기반 모바일 미리보기, Puck 기반 OGN 섹션 편집 |
-| `cx-tokens` | 색상, 타이포그래피, radius, spacing token SSOT |
-| `cx-components` | 모바일 미리보기와 Puck preview에서 사용하는 기초 UI 컴포넌트 어휘 |
-| `cx-layout` | `dxds-layout`을 rename해 가져오는 화면 chrome, rail, section, overlay layout primitive |
-| Puck | 생성된 OGN 섹션을 제한된 블록/prop 단위로 후편집 |
+| Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/components`/`@cx/layout` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
+| `cx-tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
+| `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
+| `@cx/layout` | 기존 `cx-layout`을 `@cx/wireframe` 타입에 맞춰 흡수한 화면 chrome, rail, section, overlay layout primitive |
+| `wireframe` | SDUI renderer에서 흡수한 wireframe schema, binding, registry, validation 코어 |
+| Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
 | FastAPI | JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
 | Local AI Session | 사용 가능한 로컬 AI 세션이 있을 때 우선 사용 |
@@ -63,8 +64,9 @@ apps/
       wireframe-renderer/
 packages/
   cx-tokens/
-  cx-components/
-  cx-layout/
+  component/
+  layout/
+  wireframe/
 services/
   api/
     app/
@@ -75,6 +77,13 @@ supabase/
   migrations/
   seed/
 docs/
+  data-mockups/
+    1-design-specs/
+    1-policy-inputs/
+    2-spec-inputs/
+    3-parsed-jsons/
+    4-generation-contexts/
+    5-feedback-loops/
   development/
     DEVELOPMENT_ARCHITECTURE.md
     DATA_MAP.md
@@ -84,9 +93,11 @@ docs/
     snapshots/
 ```
 
-`packages/cx-tokens`, `packages/cx-components`, `packages/cx-layout`은 `rnd-screen-to-screen`에서 이전한다. 기존 `dxds-layout` 명칭은 새 저장소에서 `cx-layout`으로 정규화한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수하되 `@cx/wireframe`의 `Screen.*`, `Layout.*` 노드 타입에 맞춘 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/wireframe`은 `sdui-renderer`의 schema, binding, registry, validation 패턴을 React 렌더러와 분리해 흡수한 런타임 코어로 둔다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 두고, drawdb 산출물은 `docs/drawdb/` 아래에서 관리한다.
+
+화면 생성용 mock 데이터와 관계 검토 샘플은 `docs/data-mockups/` 아래 단계별 디렉토리에 둔다. 상세 책임은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `data-mockups 운영 기준`을 따른다.
 
 ## 5. FastAPI 모듈
 
@@ -148,27 +159,39 @@ apps/web/
     generation-panel/
 ```
 
-`mobile-preview`와 `puck-editor`는 `wireframe-renderer`를 통해 같은 렌더링 어휘를 공유해야 한다. 화면 chrome과 section rail은 `cx-layout`, leaf component는 `cx-components`, 스타일 값은 `cx-tokens`를 우선 사용한다. 이 앱 내부 구조는 위의 전체 저장소 구조를 상세화한 것이다.
+`mobile-preview`와 `puck-editor`는 `wireframe-renderer`를 통해 같은 렌더링 어휘를 공유해야 한다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `cx-tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 이 앱 내부 구조는 위의 전체 저장소 구조를 상세화한 것이다.
+
+`wireframe-renderer` 기반 화면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
+
+1. 렌더된 스크린 화면: `@cx/wireframe` schema를 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Organism.Section`, component node를 실제 모바일 프리뷰로 렌더링한다.
+2. 다른 screen 및 OGN 조회: 현재 화면을 유지한 채 다른 generated screen, screen source, organism source, generated organism을 탐색하거나 선택할 수 있는 목록/검색/탭 영역을 제공한다.
+3. 렌더된 스크린 화면과 관련된 screen/OGN 정보: 현재 렌더 화면의 source screen, generated screen, 연결 OGN, OGN 상태, component 구성, 정책/기능 참조, 검증 경고를 함께 보여준다.
+
+이 3가지 기능은 별도 제품으로 분리하지 않고, 미리보기/검수/편집 진입 전 단계의 기본 작업면으로 본다. Puck 편집기는 이 작업면에서 선택한 screen 또는 OGN을 편집 모드로 여는 후속 레이어다.
 
 ## 7. API 표면
 
-요청/응답의 상세 JSON 필드는 구현 스키마와 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+요청/응답의 상세 JSON 필드는 구현 스키마와 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다. 디스플레이 프리뷰의 조회용 read model은 [DISPLAY_PREVIEW_SCHEMA.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DISPLAY_PREVIEW_SCHEMA.md)를 따른다.
 
 | Method | Path | 책임 |
 |---|---|---|
-| `POST` | `/source-imports` | SB/OGN JSON 검증 및 적재 |
-| `GET` | `/screen-sources` | SB 화면 소스 목록 조회 |
-| `GET` | `/screen-sources/{screen_code}` | SB 상세와 연결 OGN 조회 |
+| `POST` | `/source-imports` | 정책/화면/디자인 입력 JSON 검증 및 적재 |
+| `GET` | `/screen-sources` | 화면 소스 목록 조회 |
+| `GET` | `/screen-sources/{screen_code}` | 화면 상세와 연결 OGN 조회 |
 | `GET` | `/screen-sources/{screen_code}/organism-sources` | 생성 컨텍스트용 OGN 목록 조회 |
+| `GET` | `/display-preview/screens/{screen_code}` | 디스플레이 프리뷰용 화면 상세 read model 조회 |
 | `POST` | `/screen-sources/{screen_code}/generate` | 초기 와이어프레임 생성 |
 | `GET` | `/generation-jobs/{job_id}` | 생성 작업과 최신 생성 묶음 조회 |
 | `POST` | `/generation-jobs/{job_id}/regenerate` | 피드백 기반 생성 묶음 재생성 |
 | `GET` | `/generated-screen-sets/{set_id}` | 생성 묶음과 하위 화면/OGN 섹션 조회 |
 | `POST` | `/generated-screens/{generated_screen_id}/regenerate` | 특정 생성 화면 재생성 |
 | `GET` | `/generated-screens/{generated_screen_id}` | 생성 화면과 하위 OGN 섹션 조회 |
+| `PATCH` | `/generated-screens/{generated_screen_id}/composition` | Puck Screen 편집 결과를 screen composition draft로 저장 |
+| `POST` | `/generated-screens/{generated_screen_id}/composition/publish` | screen composition draft를 새 편집 버전으로 발행 |
 | `POST` | `/generated-organisms/{generated_organism_id}/regenerate` | 특정 OGN 섹션 재생성 |
 | `PATCH` | `/generated-organisms/{generated_organism_id}/edit` | Puck 편집 결과를 internal wireframe JSON으로 역변환해 임시 저장 |
 | `POST` | `/generated-organisms/{generated_organism_id}/publish` | 저장된 internal wireframe JSON 편집본 발행 |
+| `GET` | `/organism-sources/{organism_source_code}/versions` | 공유 OGN 편집 버전 이력 조회 |
 | `POST` | `/generated-screen-sets/{set_id}/review` | Codex 기반 생성 묶음 검수 |
 | `POST` | `/generated-screens/{generated_screen_id}/review` | Codex 기반 개별 화면 검수 |
 | `POST` | `/generated-organisms/{generated_organism_id}/review` | Codex 기반 개별 OGN 섹션 검수 |
@@ -179,39 +202,66 @@ Claude는 HTML이 아니라 `mobile-wireframe` JSON을 반환해야 한다.
 
 생성 결과는 `generated_screen_sets`를 묶음 단위로 하고, 실제 화면은 `generated_screens`의 개별 row로 저장한다. 화면 안의 OGN 섹션과 하위 component JSON은 `generated_organisms`에 저장한다.
 
-SB의 기본 화면은 `generated_screens.screen_type = 'base'`, SB `caseBranches[]`는 `generated_screens.screen_type = 'variant'`로 생성한다.
+`screen_variants`의 `variant_type = 'base'`는 기본 화면, `variant_type = 'edge'`는 케이스별 Screen Variant로 생성한다.
 
-Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키마 통과 여부, SB/OGN 근거 반영 여부, 디자인 패턴 문서 준수 여부, 재생성 필요 여부다.
+Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키마 통과 여부, 정책/화면/디자인 입력 근거 반영 여부, 디자인 패턴 문서 준수 여부, 재생성 필요 여부다.
 
 Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Agent SDK는 먼저 로컬 AI 세션을 탐색한다. 사용 가능한 로컬 세션이 있으면 해당 세션을 사용하고, 없거나 실패하면 원격 API로 fallback한다.
 
 와이어프레임 JSON 스키마의 최종 정의는 FastAPI `schemas/wireframe.py`에서 관리한다. 문서상 데이터 흐름과 저장 위치는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 생성 테이블을 참조한다.
 
-생성 JSON의 `component.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `cx-components`, `cx-layout`, `cx-tokens`의 공개 어휘에 매핑한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
+생성 JSON의 `component.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `cx-tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
-## 9. Puck OGN 섹션 편집 정책
+## 9. Puck Screen/OGN 편집 정책
 
-Puck은 생성 결과를 자유 배치형 디자인 툴로 바꾸기 위한 레이어가 아니다. Claude가 만든 `generated_organisms`를 사람이 검토하면서 OGN 섹션 블록 단위로 조정하기 위한 후편집 레이어다.
+Puck은 생성 결과를 자유 배치형 디자인 툴로 바꾸기 위한 레이어가 아니다. Claude가 만든 화면을 사람이 검토하면서 Screen composition과 OGN 내부 컴포넌트를 제한된 구조로 조정하기 위한 후편집 레이어다.
 
 공식 저장 포맷은 Puck 데이터가 아니라 internal wireframe JSON이다. Puck 데이터는 에디터 화면 안에서만 사용하는 임시 표현이다.
 
+편집 범위는 두 단계로 나눈다.
+
+| 편집 범위 | 대상 | 가능한 작업 | 저장 단위 |
+|---|---|---|---|
+| Screen editor | `generated_screens`의 composition | OGN 불러오기, 제거, 순서 변경 | `screen_edit_versions` |
+| OGN editor | 공유 `organism_sources` 기반 OGN | 내부 component 위치, 순서, Variant, Props 변경 | `organism_edit_versions` |
+
 ```text
-generated_organisms.layout_json + components_json
+generated_screens + generated_organisms
 -> internal wireframe JSON을 Puck data로 변환
 -> Puck에서 사용자 편집
 -> Puck data를 internal wireframe JSON으로 역변환
--> generated_organisms.edited_json 저장
+-> screen_edit_versions 또는 organism_edit_versions에 저장
 ```
 
 Puck 편집 원칙:
 
-- 편집 대상은 `generated_organisms`의 개별 OGN 섹션이다.
-- AI 생성 원본은 `layout_json`, `components_json`에 보존하고, 사용자 편집본은 internal wireframe JSON으로 `edited_json`에 저장한다.
-- OGN 섹션 렌더링은 `published edited_json`, `draft edited_json`, `layout_json + components_json` 순서로 선택한다.
-- 간격, 정렬, 노출 여부, 문구처럼 안전한 prop만 편집 가능하게 연다.
+- AI 생성 원본은 `generated_screens`, `generated_organisms`에 보존하고, 사용자 편집본은 별도 edit version으로 저장한다.
+- Screen editor는 OGN section의 추가, 제거, 순서 변경만 담당한다. OGN 내부 component prop은 수정하지 않는다.
+- OGN editor는 component의 위치, 순서, Variant, Props만 수정한다. 해당 OGN을 어느 화면에 배치할지는 수정하지 않는다.
+- OGN 편집본을 발행하면 같은 `organism_source_id` 또는 `organism_source_code`를 공유하는 다른 화면에도 최신 발행본이 반영된다.
+- 특정 화면에서 공유 OGN 반영을 막아야 하는 경우에는 후속 기능으로 version pinning을 검토한다. MVP 기본값은 최신 발행본 반영이다.
+- 간격, 정렬, 노출 여부, 문구, component Variant, Props처럼 안전한 prop만 편집 가능하게 연다.
 - 간격 값은 자유 숫자가 아니라 `none`, `xs`, `sm`, `md`, `lg`, `xl` 같은 디자인 토큰으로 제한한다.
-- Puck block은 기본적으로 `generated_organisms`와 매핑하고, block 내부 props/children은 `components_json`과 매핑한다.
-- Puck preview는 `cx-components`, `cx-layout`, `cx-tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
+- Puck Screen block은 `generated_organisms` 또는 공유 OGN edit version을 참조한다.
+- Puck OGN block 내부 props/children은 OGN internal wireframe JSON의 component tree와 매핑한다.
+- Puck preview는 `@cx/components`, `@cx/layout`, `cx-tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
+
+렌더링 우선순위:
+
+```text
+screen_edit_versions latest published composition
+-> generated_screens + generated_organisms composition
+
+organism_edit_versions latest published internal_json
+-> generated_organisms edited_json
+-> generated_organisms layout_json + components_json
+```
+
+재생성 원칙:
+
+- 화면 완성 후 사용자는 전체 화면, 특정 Screen Variant, 특정 OGN 단위로 재생성을 요청할 수 있다.
+- 재생성은 기존 생성/편집 버전을 덮어쓰지 않고 새 `generated_screen_sets` 또는 새 edit version을 만든다.
+- 재생성 prompt에는 현재 발행된 Screen composition과 공유 OGN edit version을 함께 넣는다.
 
 초기 Puck 컴포넌트 후보:
 
@@ -229,23 +279,23 @@ Puck 편집 원칙:
 
 ## 10. Screen Variant 생성 정책
 
-SB의 `caseBranches[]`는 별도 화면으로 누락하지 않고 Screen Variant로 생성한다.
+source screen은 `screen_routes -> screen_variants -> screen_sources` 관계로 관리하고, 각 `screen_variants` row는 별도 화면으로 누락하지 않고 생성한다.
 
 | 구분 | 생성 대상 | 저장 위치 |
 |---|---|---|
-| Base Screen | SB 기본 화면 | `generated_screens.screen_type = 'base'` |
-| Screen Variant | SB 케이스 분기 화면 | `generated_screens.screen_type = 'variant'` |
+| Base Screen | `screen_variants.variant_type = 'base'` | `generated_screens.screen_type = 'base'` |
+| Screen Variant | `screen_variants.variant_type = 'edge'` | `generated_screens.screen_type = 'variant'` |
 
 Variant 생성 원칙:
 
-- Variant의 `screen_code`는 SB `case_screen_code`와 일치해야 한다.
+- Variant의 `screen_code`는 source `screen_variants.code`와 추적 가능해야 한다.
 - Variant는 Base 전체를 새로 만드는 것이 아니라 케이스 조건에 필요한 차이만 반영한다.
 - Variant에는 `trigger`, `difference_from_base`, `follow_up`을 포함한다.
 - 특정 Variant만 재생성할 수 있어야 한다.
 
 Codex 검수 기준:
 
-- SB 케이스 분기 수와 생성된 Variant 수가 일치한다.
+- source screen 케이스 분기 수와 생성된 Variant 수가 일치한다.
 - 각 Variant의 `screen_code`가 원천 `case_screen_code`와 일치한다.
 - Variant의 차이가 케이스 설명과 후속 처리에 부합한다.
 - Variant가 Base 구조를 불필요하게 변경하지 않는다.

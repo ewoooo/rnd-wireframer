@@ -1,0 +1,16 @@
+{
+	"name": "@rnd-screen-generator/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@cx/components": "0.1.0",
+		"@cx/layout": "0.1.0",
+		"@cx/wireframe": "0.1.0"
+	}
+}

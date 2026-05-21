@@ -1,0 +1,79 @@
+{
+	"organism": {
+		"metadata": {
+			"module": "mbr",
+			"code": "ogn-mbr-term-list",
+			"name": "약관 목록 조회",
+			"type": "organism",
+			"usage": "section"
+		},
+		"layout": {
+			"flow": "vertical"
+		},
+		"data": {
+			"source": {
+				"type": "api",
+				"code": "getTerms"
+			}
+		},
+		"states": {
+			"default": {
+				"visible": [
+					"requiredTerm",
+					"optionalTerm",
+					"termDetail"
+				]
+			},
+			"loading": {
+				"visible": []
+			},
+			"error": {
+				"visible": [
+					"errorMessage"
+				]
+			}
+		},
+		"children": [
+			{
+				"id": "requiredTerm",
+				"componentCode": "list-cell-term-required",
+				"slot": "terms",
+				"policyCode": "POL-MBR-TERM-001-01",
+				"events": {
+					"onChange": {
+						"action": "setState",
+						"target": "checkedTerms"
+					}
+				}
+			},
+			{
+				"id": "optionalTerm",
+				"componentCode": "list-cell-term-optional",
+				"slot": "terms",
+				"policyCode": "POL-MBR-TERM-001-02",
+				"events": {
+					"onChange": {
+						"action": "setState",
+						"target": "checkedTerms"
+					}
+				}
+			},
+			{
+				"id": "termDetail",
+				"componentCode": "accordion-term-detail",
+				"slot": "detail",
+				"events": {
+					"onClick": {
+						"action": "setState",
+						"target": "expandedTermId"
+					}
+				}
+			},
+			{
+				"id": "errorMessage",
+				"componentCode": "section-message-term-error",
+				"slot": "feedback"
+			}
+		]
+	}
+}

@@ -1,0 +1,19 @@
+@theme {
+	--spacing-cx-none: var(--skt-spacing-none);
+	--spacing-cx-2: var(--skt-spacing-2);
+	--spacing-cx-4: var(--skt-spacing-4);
+	--spacing-cx-6: var(--skt-spacing-6);
+	--spacing-cx-8: var(--skt-spacing-8);
+	--spacing-cx-10: var(--skt-spacing-10);
+	--spacing-cx-12: var(--skt-spacing-12);
+	--spacing-cx-14: var(--skt-spacing-14);
+	--spacing-cx-16: var(--skt-spacing-16);
+	--spacing-cx-18: var(--skt-spacing-18);
+	--spacing-cx-20: var(--skt-spacing-20);
+	--spacing-cx-22: var(--skt-spacing-22);
+	--spacing-cx-24: var(--skt-spacing-24);
+	--spacing-cx-28: var(--skt-spacing-28);
+	--spacing-cx-32: var(--skt-spacing-32);
+	--spacing-cx-36: var(--skt-spacing-36);
+	--spacing-cx-40: var(--skt-spacing-40);
+}

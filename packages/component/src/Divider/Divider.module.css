@@ -1,0 +1,19 @@
+/* Figma: Divider Type=Contents h=1 / Type=Section h=4 */
+.divider {
+	border: none;
+	margin: 0;
+	width: 100%;
+	flex-shrink: 0;
+}
+
+/* 콘텐츠 구분선: 1px, gray-100 */
+.contents {
+	height: 1px;
+	background-color: #ebeef6;
+}
+
+/* 섹션 구분선: 4px, gray-100 */
+.section {
+	height: 4px;
+	background-color: #ebeef6;
+}

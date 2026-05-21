@@ -1,0 +1,12 @@
+{
+	"usecases": [
+		{
+			"code": "US-MBR-CS-004",
+			"module": "mbr",
+			"name": "재가입",
+			"actor": "고객",
+			"description": "기존 가입 이력이 있는 고객이 다시 회원으로 전환되기 위해 수행하는 유즈케이스",
+			"processDefinitionTarget": true
+		}
+	]
+}

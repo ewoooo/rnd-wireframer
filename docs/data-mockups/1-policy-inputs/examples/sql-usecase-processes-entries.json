@@ -1,0 +1,36 @@
+{
+	"module": "mbr",
+	"processes": [
+		{
+			"usecase": "US-MBR-CS-004",
+			"order": 1,
+			"code": "PR-MBR-CS-004-01",
+			"name": "본인인증",
+			"description": "재가입 대상 고객의 본인 여부를 확인한다.",
+			"actors": [
+				"고객",
+				"외부 인증기관"
+			],
+			"entryCondition": "재가입 요청 시작",
+			"exitCondition": "본인인증 결과 수신 완료",
+			"previousProcess": null,
+			"nextProcess": "PR-MBR-CS-004-02"
+		},
+		{
+			"usecase": "US-MBR-CS-004",
+			"order": 5,
+			"code": "PR-MBR-CS-004-05",
+			"name": "재가입 처리",
+			"description": "재가입을 처리하고 결과를 안내한다.",
+			"actors": [
+				"고객",
+				"회원 시스템",
+				"통지 시스템"
+			],
+			"entryCondition": "개인정보 입력 완료",
+			"exitCondition": "재가입 처리 및 안내 완료",
+			"previousProcess": "PR-MBR-CS-004-04",
+			"nextProcess": null
+		}
+	]
+}

@@ -1,0 +1,174 @@
+Project spec_inputs {
+  database_type: 'PostgreSQL'
+  Note: '''
+    DBML preview for docs/data-mockups/2-spec-inputs/examples/.
+    This is a review artifact for drawDB import, not a Supabase migration.
+
+    Source files:
+    - sql-screen-routes.json
+    - sql-screen-source.json
+    - sql-organism-source.json
+    - sql-component-entries.json
+
+    process_refs and policy_refs are placeholders for references defined by
+    docs/data-mockups/1-policy-inputs/.
+  '''
+}
+
+Table spec_modules {
+  code text [pk, note: 'Root-level module value in route, screen source, and organism source files']
+}
+
+Table process_refs {
+  code text [pk, note: 'External reference to policy_processes.code']
+}
+
+Table policy_refs {
+  code text [pk, note: 'External reference to policies.code']
+}
+
+Table screen_routes {
+  code text [pk, note: 'screenRoutes[].code']
+  module_code text [not null, note: 'Root-level module']
+  process_code text [not null, note: 'screenRoutes[].processCode']
+  name text [not null]
+
+  indexes {
+    module_code
+    process_code
+  }
+}
+
+Table screen_variants {
+  code text [pk, note: 'screenVariants[].code']
+  screen_route_code text [not null, note: 'screenVariants[].screenRouteCode']
+  sort_order integer [not null, note: 'screenVariants[].order']
+  variant_type text [not null, note: 'screenVariants[].variantType']
+  follow_up text [note: 'screenVariants[].followUp']
+
+  indexes {
+    screen_route_code
+    (screen_route_code, sort_order) [unique]
+  }
+}
+
+Table screen_sources {
+  code text [pk, note: 'screenSources[].meta.code']
+  screen_variant_code text [not null, note: 'screenSources[].screenVariantCode']
+  name text [not null, note: 'screenSources[].meta.name']
+  description text [note: 'screenSources[].meta.description']
+  surface text [note: 'screenSources[].meta.surface']
+
+  indexes {
+    screen_variant_code
+  }
+}
+
+Table screen_organism_usages {
+  code text [pk, note: 'Unique usage id for organism placed in screen']
+  screen_code text [not null]
+  organism_code text [not null]
+  sort_order integer [not null, note: 'screenSources[].organisms[].order']
+
+  indexes {
+    screen_code
+    organism_code
+    (screen_code, sort_order) [unique]
+  }
+}
+
+Table organism_sources {
+  code text [pk, note: 'meta.code']
+  module_code text [not null, note: 'meta.module']
+  name text [not null, note: 'meta.name']
+  description text [note: 'meta.description']
+  layout_flow text [note: 'layout.flow']
+
+  indexes {
+    module_code
+  }
+}
+
+Table organism_variants {
+  organism_code text [not null]
+  variant_code text [not null, note: 'variants[].code']
+  trigger text
+  action text
+
+  indexes {
+    (organism_code, variant_code) [pk]
+  }
+}
+
+Table organism_component_usages {
+  code text [pk, note: 'Unique usage id for component placed in organism']
+  organism_code text [not null]
+  component_code text [not null]
+  sort_order integer [not null, note: 'components[].order']
+  policy_code text [note: 'components[].policyCode']
+  property jsonb [note: 'components[].property']
+
+  indexes {
+    organism_code
+    component_code
+    (organism_code, sort_order) [unique]
+    policy_code
+  }
+}
+
+Table organism_variant_visible_component_usages {
+  organism_code text [not null]
+  variant_code text [not null]
+  organism_component_usage_code text [not null]
+
+  indexes {
+    (organism_code, variant_code, organism_component_usage_code) [pk]
+    organism_component_usage_code
+  }
+}
+
+Table organism_notices {
+  organism_code text [not null]
+  policy_code text [not null]
+  notice_type text [not null, note: 'notices[].noticeType']
+  description text
+
+  indexes {
+    (organism_code, policy_code, notice_type) [pk]
+    policy_code
+  }
+}
+
+Table components {
+  code text [pk, note: 'components[].code']
+  component_type text [not null, note: 'components[].componentType']
+  property jsonb [not null, default: '{}', note: 'components[].property']
+
+  indexes {
+    component_type
+  }
+}
+
+Ref: screen_routes.module_code > spec_modules.code
+Ref: screen_routes.process_code > process_refs.code
+
+Ref: screen_variants.screen_route_code > screen_routes.code
+
+Ref: screen_sources.screen_variant_code > screen_variants.code
+
+Ref: screen_organism_usages.screen_code > screen_sources.code
+Ref: screen_organism_usages.organism_code > organism_sources.code
+
+Ref: organism_sources.module_code > spec_modules.code
+
+Ref: organism_variants.organism_code > organism_sources.code
+
+Ref: organism_component_usages.organism_code > organism_sources.code
+Ref: organism_component_usages.component_code > components.code
+Ref: organism_component_usages.policy_code > policy_refs.code
+
+Ref: organism_variant_visible_component_usages.(organism_code, variant_code) > organism_variants.(organism_code, variant_code)
+Ref: organism_variant_visible_component_usages.organism_component_usage_code > organism_component_usages.code
+
+Ref: organism_notices.organism_code > organism_sources.code
+Ref: organism_notices.policy_code > policy_refs.code

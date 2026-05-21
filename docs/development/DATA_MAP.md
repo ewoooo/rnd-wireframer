@@ -12,17 +12,58 @@ DB 구조 검토와 ERD 산출물은 `drawdb`를 함께 사용한다. 이 문서
 
 - MVP는 JSONB 중심으로 단순하게 시작한다.
 - `kind.ts`의 `SPEC_KINDS`를 모듈 기준 데이터로 사용한다.
-- DB에는 모듈 식별자로 `module_kind`를 저장한다.
-- SB 원본 JSON은 `screen_sources.source_json`에 보존한다.
-- OGN 원본 JSON은 `organism_sources.source_json`에 보존한다.
+- DB에는 모듈 식별자로 `module`을 저장한다.
+- 원천 JSON의 모듈 식별자는 `module`로 통일한다. 외부 수급 데이터에 `moduleKind`가 있으면 import 단계에서만 `module`로 정규화한다.
+- 화면 생성용 mock 데이터는 `docs/data-mockups/` 아래 단계별 디렉토리로 관리한다.
+- screen source 원본 JSON은 `screen_sources.source_json`에 보존한다.
+- organism source 원본 JSON은 `organism_sources.source_json`에 보존한다.
 - 한 번의 생성 결과 묶음은 `generated_screen_sets`에 저장한다.
 - 실제 생성된 개별 화면은 `generated_screens`에 저장한다.
 - Base Screen과 각 엣지 케이스 Variant는 모두 `generated_screens`의 row로 본다.
 - 생성된 OGN 섹션은 `generated_organisms`에 저장한다.
-- Puck 편집 결과는 internal wireframe JSON으로 역변환한 뒤 `generated_organisms.edited_json`에 저장한다.
+- Puck Screen 편집 결과는 Screen composition 버전으로 `screen_edit_versions`에 저장한다.
+- Puck OGN 편집 결과는 공유 OGN 버전으로 `organism_edit_versions`에 저장한다.
+- 같은 `organism_source_id`를 공유하는 화면은 기본적으로 최신 발행 OGN 편집 버전을 렌더링한다.
 - 테이블/관계 변경 시 SQL 스키마와 `drawdb` ERD를 함께 갱신한다.
 
-## 3. drawdb 운영 기준
+## 3. data-mockups 운영 기준
+
+`docs/data-mockups/`는 실제 DB migration이 아니라 수급 문서, 디자인 명세, 정규화 JSON, 생성 컨텍스트의 샘플 계약을 검토하기 위한 mock 데이터 영역이다.
+
+| 디렉토리 | 책임 |
+|---|---|
+| `1-design-specs/` | 디자인 토큰, 컴포넌트, 레이아웃 helper 등 생성에 필요한 디자인 입력 |
+| `1-policy-inputs/` | 유즈케이스, 프로세스, function, 정책 그룹, 정책 항목 등 정책서 기반 입력 |
+| `2-spec-inputs/` | screen route, screen, organism, component 등 화면 명세 입력 |
+| `3-parsed-jsons/` | 프론트엔드가 직접 쓰기 좋은 join/parse 결과와 display preview read model 샘플 |
+| `4-generation-contexts/` | Claude 화면 생성을 위한 최종 컨텍스트 샘플 |
+| `5-feedback-loops/` | 생성 결과 검수, 피드백, 재생성 입력 샘플 |
+
+mock JSON 관계는 아래 방향을 기준으로 한다.
+
+```text
+module
+└─ usecase
+   └─ process
+      ├─ function
+      │  └─ functionPolicyGroup -> policyGroup
+      └─ screenRoute
+         └─ screenVariant
+            └─ screen
+               └─ organism
+                  └─ componentUsage -> component
+
+policyGroup
+└─ policy
+```
+
+하위 row가 상위 code를 명시적으로 바라본다. 예를 들어 `functions[].processCode`, `screenRoutes[].processCode`, `screenVariants[].screenRouteCode`, `screenSources[].screenVariantCode`, `screenSources[].organisms[].organismCode`, `organism.components[].componentCode`를 사용한다.
+
+mock JSON에서 배열 FK가 필요해 보이는 경우에도 먼저 별도 사용/연결 엔티티로 분리한다. 예를 들어 `functionPolicyGroups[]`, `screenSources[].organisms[]`, `organism.variants[].visibleComponents[]`처럼 표현한다.
+
+디스플레이 프리뷰에서 사용하는 화면 상세 JSON은 SQL 적재 대상이 아니라 `screen`, `organism`, `component`, `function`, `policy` 관계를 조합한 조회용 read model이다. 스키마 기준은 [DISPLAY_PREVIEW_SCHEMA.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DISPLAY_PREVIEW_SCHEMA.md)를 따르고, 샘플은 `docs/data-mockups/3-parsed-jsons/display-preview-screen.json`에 둔다.
+
+## 4. drawdb 운영 기준
 
 - `drawdb`는 Supabase PostgreSQL 테이블의 ERD 검토 도구로 사용한다.
 - drawdb 원본 산출물은 `docs/drawdb/`에 둔다.
@@ -32,20 +73,22 @@ DB 구조 검토와 ERD 산출물은 `drawdb`를 함께 사용한다. 이 문서
 - JSONB 내부 구조는 `drawdb`에 과하게 펼치지 않고, 컬럼 단위로만 표현한다.
 - 최종 migration의 기준은 SQL이며, `drawdb`는 리뷰와 커뮤니케이션을 위한 시각 산출물이다.
 
-## 4. MVP 테이블 책임
+## 5. MVP 테이블 책임
 
 | 테이블 | 역할 |
 |---|---|
 | `projects` | 작업 공간 단위 |
-| `screen_sources` | 입력 SB JSON과 화면 소스 인덱스 |
-| `organism_sources` | 입력 OGN JSON과 오가니즘 소스 인덱스 |
-| `screen_source_organisms` | SB 소스와 OGN 소스 연결 |
+| `screen_sources` | 입력 화면 JSON과 화면 소스 인덱스 |
+| `organism_sources` | 입력 organism JSON과 organism 소스 인덱스 |
+| `screen_source_organisms` | screen source와 organism source 연결 |
 | `screen_generation_jobs` | 생성 작업 |
 | `generated_screen_sets` | 생성/재생성 화면 묶음 |
 | `generated_screens` | 생성된 개별 화면 |
 | `generated_organisms` | 생성된 화면 안의 OGN 섹션 |
+| `screen_edit_versions` | Screen에서 OGN 추가/제거/순서 변경한 편집 버전 |
+| `organism_edit_versions` | 공유 OGN 내부 컴포넌트 위치/순서/Variant/Props 편집 버전 |
 
-## 5. 관계 개요
+## 6. 관계 개요
 
 ```mermaid
 erDiagram
@@ -60,16 +103,19 @@ erDiagram
   screen_generation_jobs ||--o{ generated_screen_sets : versions
   generated_screen_sets ||--o{ generated_screens : contains
   generated_screens ||--o{ generated_organisms : composed_of
+  generated_screens ||--o{ screen_edit_versions : edited_as
   screen_source_organisms ||--o{ generated_organisms : generated_from
   organism_sources ||--o{ generated_organisms : source_of
+  organism_sources ||--o{ organism_edit_versions : edited_as
+  generated_organisms ||--o{ organism_edit_versions : seeded_from
 ```
 
-## 6. 공통 컬럼 규칙
+## 7. 공통 컬럼 규칙
 
 | 컬럼 | 규칙 |
 |---|---|
 | `id` | `uuid primary key default gen_random_uuid()` |
-| `module_kind` | `kind.ts`의 `kind` 값. 예: `mbr`, `pay`, `join` |
+| `module` | `kind.ts`의 `kind` 값. 예: `mbr`, `pay`, `join` |
 | `created_at` | `timestamptz not null default now()` |
 | `updated_at` | 변경 가능한 테이블에만 사용 |
 | `metadata` | 자주 조회하지 않는 확장 필드 보관 |
@@ -77,7 +123,7 @@ erDiagram
 | `normalized_json` | 시스템 내부 표준 JSON |
 | `raw_item` | 원천 JSON 배열의 특정 항목 보존 |
 
-## 7. 테이블별 스키마
+## 8. 테이블별 스키마
 
 ### projects
 
@@ -96,16 +142,16 @@ create table projects (
 
 ### screen_sources
 
-SB 입력 JSON과 화면 단위 정보를 저장한다.
+화면 입력 JSON과 화면 단위 정보를 저장한다.
 
-`case_branches`, `transitions`, `policy_groups`, `features`는 MVP에서 JSONB로 유지한다.
+`transitions`, `policy_groups`, `features`는 MVP에서 JSONB로 유지한다. 화면별 base/edge 케이스는 `screen_variants` 관계로 분리한다.
 
 ```sql
 create table screen_sources (
   id uuid primary key default gen_random_uuid(),
 
   project_id uuid not null references projects(id) on delete cascade,
-  module_kind text not null,
+  module text not null,
 
   screen_code text not null,
   name text not null,
@@ -116,7 +162,6 @@ create table screen_sources (
   policy_groups jsonb not null default '[]'::jsonb,
   features jsonb not null default '[]'::jsonb,
   transitions jsonb not null default '[]'::jsonb,
-  case_branches jsonb not null default '[]'::jsonb,
 
   source_name text,
   source_hash text,
@@ -135,7 +180,7 @@ create table screen_sources (
   updated_at timestamptz not null default now(),
 
   constraint uq_screen_sources_project_module_code
-    unique (project_id, module_kind, screen_code),
+    unique (project_id, module, screen_code),
   constraint chk_screen_sources_validation_status
     check (validation_status in ('valid', 'warning', 'failed'))
 );
@@ -145,10 +190,7 @@ create table screen_sources (
 
 ```sql
 create index idx_screen_sources_project_module
-on screen_sources(project_id, module_kind);
-
-create index idx_screen_sources_case_branches_gin
-on screen_sources using gin(case_branches);
+on screen_sources(project_id, module);
 
 create index idx_screen_sources_source_json_gin
 on screen_sources using gin(source_json);
@@ -156,7 +198,7 @@ on screen_sources using gin(source_json);
 
 ### organism_sources
 
-OGN 입력 JSON과 OGN 내부 정보를 저장한다.
+organism 입력 JSON과 organism 내부 정보를 저장한다.
 
 `components`, `case_branches`, `policies`, `policy_groups`, `features`는 MVP에서 JSONB로 유지한다.
 
@@ -165,7 +207,7 @@ create table organism_sources (
   id uuid primary key default gen_random_uuid(),
 
   project_id uuid not null references projects(id) on delete cascade,
-  module_kind text not null,
+  module text not null,
 
   organism_source_code text not null,
   name text not null,
@@ -197,7 +239,7 @@ create table organism_sources (
   updated_at timestamptz not null default now(),
 
   constraint uq_organism_sources_project_module_code
-    unique (project_id, module_kind, organism_source_code),
+    unique (project_id, module, organism_source_code),
   constraint chk_organism_sources_validation_status
     check (validation_status in ('valid', 'warning', 'failed'))
 );
@@ -207,7 +249,7 @@ create table organism_sources (
 
 ```sql
 create index idx_organism_sources_project_module
-on organism_sources(project_id, module_kind);
+on organism_sources(project_id, module);
 
 create index idx_organism_sources_components_gin
 on organism_sources using gin(components);
@@ -218,9 +260,9 @@ on organism_sources using gin(source_json);
 
 ### screen_source_organisms
 
-특정 화면이 어떤 OGN으로 구성되는지 저장한다.
+특정 화면이 어떤 organism으로 구성되는지 저장한다.
 
-연결 대상 OGN JSON이 아직 없거나 해석되지 않은 경우를 위해 `organism_source_id`는 nullable이다.
+연결 대상 organism JSON이 아직 없거나 해석되지 않은 경우를 위해 `organism_source_id`는 nullable이다.
 
 ```sql
 create table screen_source_organisms (
@@ -229,7 +271,7 @@ create table screen_source_organisms (
   project_id uuid not null references projects(id) on delete cascade,
   screen_source_id uuid not null references screen_sources(id) on delete cascade,
   organism_source_id uuid references organism_sources(id) on delete set null,
-  module_kind text not null,
+  module text not null,
 
   organism_source_code text not null,
   section_no text not null,
@@ -266,7 +308,7 @@ create index idx_screen_source_organisms_screen_organism_source_code
 on screen_source_organisms(screen_source_id, organism_source_code);
 
 create index idx_screen_source_organisms_project_module
-on screen_source_organisms(project_id, module_kind);
+on screen_source_organisms(project_id, module);
 ```
 
 ### screen_generation_jobs
@@ -281,7 +323,7 @@ create table screen_generation_jobs (
 
   project_id uuid not null references projects(id) on delete cascade,
   screen_source_id uuid not null references screen_sources(id) on delete cascade,
-  module_kind text not null,
+  module text not null,
 
   status text not null,
 
@@ -318,7 +360,7 @@ create index idx_screen_generation_jobs_screen
 on screen_generation_jobs(screen_source_id, created_at desc);
 
 create index idx_screen_generation_jobs_project_module
-on screen_generation_jobs(project_id, module_kind, created_at desc);
+on screen_generation_jobs(project_id, module, created_at desc);
 ```
 
 ### generated_screen_sets
@@ -380,7 +422,7 @@ create table generated_screens (
   screen_type text not null,
   screen_code text not null,
   source_screen_code text,
-  source_case_code text,
+  source_variant_code text,
 
   title text,
   trigger text,
@@ -424,7 +466,9 @@ on generated_screens using gin(chrome_json);
 
 OGN은 대부분 화면 섹션에 해당하므로, 이 테이블이 섹션 layout과 하위 component JSON을 함께 소유한다.
 
-`screen_source_organism_id`는 생성된 OGN 섹션이 원천 SB composition의 어느 row에서 왔는지 추적하기 위한 선택적 연결이다.
+`screen_source_organism_id`는 생성된 OGN 섹션이 원천 screen-organism 구성의 어느 row에서 왔는지 추적하기 위한 선택적 연결이다.
+
+이 테이블은 AI 생성 시점의 화면별 OGN snapshot이다. 사용자가 발행한 공유 OGN 편집본은 `organism_edit_versions`에 저장하고, 같은 `organism_source_id`를 쓰는 다른 화면에도 적용한다.
 
 ```sql
 create table generated_organisms (
@@ -482,7 +526,106 @@ create index idx_generated_organisms_edited_json_gin
 on generated_organisms using gin(edited_json);
 ```
 
-## 8. 생성 결과 구조
+### screen_edit_versions
+
+Puck Screen editor에서 OGN을 불러오거나 제거하거나 순서를 바꾼 결과를 버전으로 저장한다.
+
+Screen 편집은 특정 `generated_screen_id`에만 적용된다. OGN 내부 컴포넌트의 위치, 순서, Variant, Props는 이 테이블에 저장하지 않고 `organism_edit_versions`에 저장한다.
+
+`composition_json`은 화면에 배치된 OGN 목록을 순서대로 가진다. 각 항목은 `organism_source_id`, `organism_source_code`, `generated_organism_id`, `section_no`, `sort_order`, 표시 옵션을 포함할 수 있다.
+
+```sql
+create table screen_edit_versions (
+  id uuid primary key default gen_random_uuid(),
+
+  generated_screen_id uuid not null references generated_screens(id) on delete cascade,
+  parent_version_id uuid references screen_edit_versions(id) on delete set null,
+
+  version_number integer not null,
+  status text not null,
+
+  composition_json jsonb not null default '[]'::jsonb,
+  change_summary text,
+
+  created_by uuid,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  constraint uq_screen_edit_versions_number
+    unique (generated_screen_id, version_number),
+  constraint chk_screen_edit_versions_status
+    check (status in ('draft', 'published', 'archived'))
+);
+```
+
+추천 인덱스:
+
+```sql
+create index idx_screen_edit_versions_screen
+on screen_edit_versions(generated_screen_id, version_number desc);
+
+create index idx_screen_edit_versions_status
+on screen_edit_versions(generated_screen_id, status, published_at desc);
+
+create index idx_screen_edit_versions_composition_json_gin
+on screen_edit_versions using gin(composition_json);
+```
+
+### organism_edit_versions
+
+Puck OGN editor에서 OGN 내부 component의 위치, 순서, Variant, Props를 수정한 결과를 공유 OGN 버전으로 저장한다.
+
+이 테이블은 `generated_screen_id`가 아니라 `organism_source_id`를 기준으로 버전이 쌓인다. 따라서 같은 `organism_source_id`를 공유하는 다른 화면은 최신 발행 OGN 편집본을 렌더링한다.
+
+`base_generated_organism_id`는 최초 편집이 어떤 AI 생성 snapshot에서 시작됐는지 추적하기 위한 선택 값이다.
+
+```sql
+create table organism_edit_versions (
+  id uuid primary key default gen_random_uuid(),
+
+  organism_source_id uuid not null references organism_sources(id) on delete cascade,
+  base_generated_organism_id uuid references generated_organisms(id) on delete set null,
+  parent_version_id uuid references organism_edit_versions(id) on delete set null,
+
+  version_number integer not null,
+  status text not null,
+
+  internal_json jsonb not null,
+  component_tree_json jsonb not null default '[]'::jsonb,
+  change_summary text,
+
+  created_by uuid,
+  published_at timestamptz,
+  metadata jsonb not null default '{}'::jsonb,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  constraint uq_organism_edit_versions_number
+    unique (organism_source_id, version_number),
+  constraint chk_organism_edit_versions_status
+    check (status in ('draft', 'published', 'archived'))
+);
+```
+
+추천 인덱스:
+
+```sql
+create index idx_organism_edit_versions_source
+on organism_edit_versions(organism_source_id, version_number desc);
+
+create index idx_organism_edit_versions_status
+on organism_edit_versions(organism_source_id, status, published_at desc);
+
+create index idx_organism_edit_versions_internal_json_gin
+on organism_edit_versions using gin(internal_json);
+
+create index idx_organism_edit_versions_component_tree_json_gin
+on organism_edit_versions using gin(component_tree_json);
+```
+
+## 9. 생성 결과 구조
 
 생성 결과는 set, screen, organism row로 나뉜다.
 
@@ -495,6 +638,18 @@ generated_screen_sets
   │  └─ generated_organisms: ...
   └─ generated_screens: variant E2
      └─ generated_organisms: ...
+```
+
+편집 결과는 생성 snapshot을 덮어쓰지 않고 별도 버전으로 쌓는다.
+
+```text
+generated_screens
+  └─ screen_edit_versions
+     └─ composition_json: ordered OGN refs
+
+organism_sources
+  └─ organism_edit_versions
+     └─ internal_json: shared OGN component tree
 ```
 
 `generated_screens`는 화면 레벨 JSON만 가진다.
@@ -526,17 +681,26 @@ generated_screen_sets
 }
 ```
 
-Variant 화면은 `generated_screens.screen_type = 'variant'`와 `source_case_code`를 사용한다.
+Variant 화면은 `generated_screens.screen_type = 'variant'`와 `source_variant_code`를 사용한다.
 
-Puck 편집 결과는 internal wireframe JSON으로 역변환해 `generated_organisms.edited_json`에 저장한다. OGN 섹션 렌더링 시 우선순위는 아래와 같다.
+Puck Screen 편집 결과는 internal wireframe JSON의 composition으로 역변환해 `screen_edit_versions.composition_json`에 저장한다. Screen composition 렌더링 우선순위는 아래와 같다.
 
 ```text
-published edited_json
--> draft edited_json
--> layout_json + components_json
+latest published screen_edit_versions.composition_json
+-> latest draft screen_edit_versions.composition_json
+-> generated_screens + generated_organisms
 ```
 
-`edited_json`은 Puck 전용 데이터가 아니라 서비스의 공식 OGN 섹션 포맷인 internal wireframe JSON이다. Puck 데이터는 편집기 내부의 임시 포맷으로만 사용한다.
+Puck OGN 편집 결과는 internal wireframe JSON으로 역변환해 `organism_edit_versions.internal_json`에 저장한다. OGN 렌더링 우선순위는 아래와 같다.
+
+```text
+latest published organism_edit_versions.internal_json
+-> latest draft organism_edit_versions.internal_json
+-> generated_organisms.edited_json
+-> generated_organisms.layout_json + components_json
+```
+
+`screen_edit_versions`와 `organism_edit_versions`의 JSON은 Puck 전용 데이터가 아니라 서비스의 공식 internal wireframe JSON이다. Puck 데이터는 편집기 내부의 임시 포맷으로만 사용한다.
 
 ```text
 internal wireframe JSON
@@ -544,28 +708,30 @@ internal wireframe JSON
 -> 사용자 편집
 -> Puck data
 -> internal wireframe JSON
--> edited_json 저장
+-> edit version 저장
 ```
 
-간격, 정렬, 노출 옵션은 자유 숫자 입력보다 디자인 토큰 기반 prop으로 제한한다.
+간격, 정렬, 노출 옵션, component Variant, Props는 자유 입력보다 디자인 토큰과 component schema 기반 prop으로 제한한다.
 
-## 9. Import / Upsert 전략
+## 10. Import / Upsert 전략
 
-1. 입력 JSON의 `documentType`, `schemaVersion`, `module_kind`를 확인한다.
-2. `documentType = 'sb'`이면 `screen_sources`에 원본 JSON과 정규화 JSON을 upsert한다.
-3. `documentType = 'ogn'`이면 `organism_sources`에 원본 JSON과 정규화 JSON을 upsert한다.
-4. SB `composition[]`을 기준으로 `screen_source_organisms`를 교체한다.
-5. `project_id + module_kind + organism_source_code` 기준으로 `screen_source_organisms.organism_source_id`를 해결한다.
-6. 해결되지 않은 OGN 참조는 `organism_source_id = null`로 유지하고 검증 경고에 기록한다.
+1. 입력 JSON의 `module`을 확인한다. 외부 원천에 `moduleKind`가 있으면 import 단계에서만 `module`로 정규화한다.
+2. 정책 입력은 `usecase -> process -> function -> policyGroup -> policy` 관계를 검증한다.
+3. 화면 명세 입력은 `process -> screenRoute -> screenVariant -> screen -> organism -> component` 관계를 검증한다.
+4. 화면 원본은 `screen_sources`에 원본 JSON과 정규화 JSON을 upsert한다.
+5. organism 원본은 `organism_sources`에 원본 JSON과 정규화 JSON을 upsert한다.
+6. 원천 `composition[]` 또는 mock `screen.organisms[]`를 기준으로 `screen_source_organisms`를 교체한다.
+7. `project_id + module + organism_source_code` 기준으로 `screen_source_organisms.organism_source_id`를 해결한다.
+8. 해결되지 않은 process, function, policy, screen route, OGN, component 참조는 검증 경고에 기록한다.
 
 재가져오기 기준:
 
 - `screen_code`가 같으면 기존 `screen_sources.id`를 유지한다.
 - `organism_source_code`가 같으면 기존 `organism_sources.id`를 유지한다.
-- 해당 SB의 `screen_source_organisms`는 새 `composition[]` 기준으로 교체한다.
+- 해당 screen source의 `screen_source_organisms`는 새 `composition[]` 기준으로 교체한다.
 - 생성 이력은 삭제하지 않는다.
 
-## 10. 주요 조회 패턴
+## 11. 주요 조회 패턴
 
 ### 모듈별 화면 목록
 
@@ -573,7 +739,7 @@ internal wireframe JSON
 select *
 from screen_sources
 where project_id = :project_id
-  and module_kind = :module_kind
+  and module = :module
 order by screen_code;
 ```
 
@@ -588,7 +754,7 @@ from screen_sources s
 join screen_source_organisms so on so.screen_source_id = s.id
 left join organism_sources o on o.id = so.organism_source_id
 where s.project_id = :project_id
-  and s.module_kind = :module_kind
+  and s.module = :module
   and s.screen_code = :screen_code
 order by so.priority nulls last, so.section_no;
 ```
@@ -625,6 +791,32 @@ where gs.id = :generated_screen_id
 order by go.sort_order, go.section_no;
 ```
 
+### 생성 화면 렌더링용 최신 Screen 편집 버전
+
+```sql
+select *
+from screen_edit_versions
+where generated_screen_id = :generated_screen_id
+  and status = 'published'
+order by version_number desc
+limit 1;
+```
+
+published 버전이 없으면 `status = 'draft'` 중 최신 버전을 편집 화면에서만 사용한다. 일반 미리보기는 draft를 자동 반영하지 않는다.
+
+### 공유 OGN 렌더링용 최신 편집 버전
+
+```sql
+select *
+from organism_edit_versions
+where organism_source_id = :organism_source_id
+  and status = 'published'
+order by version_number desc
+limit 1;
+```
+
+published OGN 편집 버전이 있으면 같은 `organism_source_id`를 참조하는 다른 화면도 해당 버전을 사용한다.
+
 ### 특정 Variant 조회
 
 ```sql
@@ -643,16 +835,24 @@ from generated_organisms
 where id = :generated_organism_id;
 ```
 
-## 11. 나중에 분리할 수 있는 테이블
+## 12. 나중에 분리할 수 있는 테이블
 
 MVP에서는 아래 데이터를 JSONB로 유지한다. 검색, 통계, 개별 상태 관리가 필요해지는 시점에 분리한다.
 
 | 후보 테이블 | 현재 위치 | 분리 시점 |
 |---|---|---|
 | `documents` | 없음 | 원본 JSON import 이력, batch, audit trail이 필요할 때 |
+| `usecases` | `docs/data-mockups/1-policy-inputs/sql-usecase-entries.json` | 정책 입력을 DB에서 직접 조회해야 할 때 |
+| `processes` | `docs/data-mockups/1-policy-inputs/sql-usecase-processes-entries.json` | process 기준 생성 컨텍스트와 화면 route 조회가 필요할 때 |
+| `functions` | `docs/data-mockups/1-policy-inputs/sql-functions-source.json` | function별 화면 생성 힌트와 정책 그룹 연결을 검색해야 할 때 |
+| `function_policy_groups` | `docs/data-mockups/1-policy-inputs/sql-function-policy-groups-source.json` | function-policy group 연결을 정규 조회해야 할 때 |
+| `policy_groups` / `policies` | `docs/data-mockups/1-policy-inputs/` | 정책 항목을 generation context에 선택적으로 주입해야 할 때 |
+| `screen_routes` | `docs/data-mockups/2-spec-inputs/examples/sql-screen-routes.json` | process별 화면 흐름을 DB에서 직접 관리해야 할 때 |
+| `screen_variants` | `docs/data-mockups/2-spec-inputs/examples/sql-screen-routes.json` | route 아래 base/edge 화면 생성 단위를 개별 row로 관리해야 할 때 |
 | `screen_transitions` | `screen_sources.transitions` | 화면 플로우 그래프가 필요할 때 |
-| `screen_case_branches` | `screen_sources.case_branches` | 케이스별 통계/상태 관리가 필요할 때 |
-| `organism_components` | `organism_sources.components` | 컴포넌트 단위 검색이 필요할 때 |
+| `component_entries` | `docs/data-mockups/2-spec-inputs/examples/sql-component-entries.json` | 디자인 컴포넌트 정의를 DB에서 직접 검색해야 할 때 |
+| `organism_variants` | `organism_sources.normalized_json.variants` | OGN 상태/variant별 노출 컴포넌트를 개별 row로 관리해야 할 때 |
+| `organism_components` | `organism_sources.normalized_json.components` | OGN 내 컴포넌트 순서/상호작용/정책 연결을 개별 row로 관리해야 할 때 |
 | `organism_case_branches` | `organism_sources.case_branches` | OGN 상태별 품질 분석이 필요할 때 |
 | `screen_policy_groups` | `screen_sources.policy_groups` | 정책 코드 기반 필터링이 중요할 때 |
 | `screen_features` | `screen_sources.features` | 기능 코드 기반 필터링이 중요할 때 |
@@ -661,14 +861,14 @@ MVP에서는 아래 데이터를 JSONB로 유지한다. 검색, 통계, 개별 �
 | `generated_organism_reviews` | `generated_organisms.review_result` | OGN 섹션 검수 이력을 여러 번 남겨야 할 때 |
 | `generated_components` | `generated_organisms.components_json` | 컴포넌트별 재생성/편집/검수가 필요할 때 |
 
-## 12. RLS 권장 모델
+## 13. RLS 권장 모델
 
 MVP 초기에는 FastAPI가 service role로 쓰기를 담당해도 된다.
 
 RLS를 적용할 때는 다음 기준을 사용한다.
 
 - 사용자는 자신이 속한 프로젝트만 읽을 수 있다.
-- 관리자만 SB/OGN JSON을 가져올 수 있다.
+- 관리자만 정책/화면/디자인 입력 JSON을 가져올 수 있다.
 - 프로젝트 멤버는 와이어프레임을 생성할 수 있다.
 - 프로젝트 멤버는 같은 프로젝트의 생성 버전을 읽을 수 있다.
 - 클라이언트에서 정규화 테이블에 직접 쓰는 것은 차단한다.

@@ -1,0 +1,316 @@
+{
+	"screens": [
+		{
+			"version": "1.0.0",
+			"minRendererVersion": "0.1.0",
+			"minComponentsVersion": "0.1.0",
+			"metadata": {
+				"id": "NOVA-MBR-FP-001-0",
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T00:00:00Z",
+				"updatedAt": "2026-05-21T00:00:00Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"data": {
+				"termList": {
+					"isError": false,
+					"requiredTerm": {
+						"title": "[필수] 서비스 이용약관",
+						"description": "회원 가입을 위해 반드시 동의해야 합니다.",
+						"checked": false
+					},
+					"optionalTerm": {
+						"title": "[선택] 마케팅 정보 수신 동의",
+						"description": "혜택과 이벤트 안내를 받을 수 있습니다.",
+						"checked": false
+					},
+					"termDetail": {
+						"title": "약관 전문 보기",
+						"description": "약관 내용을 펼쳐서 확인합니다."
+					},
+					"errorMessage": {
+						"title": "약관을 불러오지 못했습니다",
+						"description": "잠시 후 다시 시도해 주세요.",
+						"variant": "negative"
+					}
+				}
+			},
+			"children": [
+				{
+					"type": "Screen",
+					"componentVersion": "1.0.0",
+					"metadata": {
+						"id": "screen-root",
+						"title": "약관 동의 화면",
+						"author": "plus_x_athor_1",
+						"createdAt": "2026-05-21T00:00:00Z",
+						"updatedAt": "2026-05-21T00:00:00Z"
+					},
+					"props": {
+						"surface": "page",
+						"safeArea": true
+					},
+					"children": [
+						{
+							"type": "Screen.Header",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "screen-header",
+								"title": "고정 상단 영역",
+								"author": "plus_x_athor_1",
+								"createdAt": "2026-05-21T00:00:00Z",
+								"updatedAt": "2026-05-21T00:00:00Z"
+							},
+							"props": {
+								"position": "fixed",
+								"layout": {
+									"direction": "column",
+									"gap": 0
+								},
+								"height": 96,
+								"zIndex": 10
+							},
+							"children": [
+								{
+									"type": "HeaderBase",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "top-navigation",
+										"title": "상단 내비게이션",
+										"author": "plus_x_athor_1",
+										"createdAt": "2026-05-21T00:00:00Z",
+										"updatedAt": "2026-05-21T00:00:00Z"
+									},
+									"props": {
+										"titleContent": "약관 동의",
+										"titleSize": "title3",
+										"showBackButton": true
+									},
+									"events": {
+										"onClick": {
+											"action": "custom",
+											"handler": "goBack"
+										}
+									}
+								}
+							]
+						},
+						{
+							"type": "Screen.Contents",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "screen-contents",
+								"title": "스크롤 콘텐츠 영역",
+								"author": "plus_x_athor_1",
+								"createdAt": "2026-05-21T00:00:00Z",
+								"updatedAt": "2026-05-21T00:00:00Z"
+							},
+							"props": {
+								"layout": {
+									"direction": "column",
+									"gap": 4,
+									"paddingX": 5,
+									"paddingY": 4
+								},
+								"scroll": true
+							},
+							"children": [
+								{
+									"type": "SectionHeader",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "screen-intro",
+										"title": "약관 동의 안내 문구",
+										"author": "plus_x_athor_1",
+										"createdAt": "2026-05-21T00:00:00Z",
+										"updatedAt": "2026-05-21T00:00:00Z"
+									},
+									"props": {
+										"title": "회원 가입 약관에 동의해 주세요",
+										"description": "필수 약관과 선택 약관을 확인한 뒤 동의 상태를 선택합니다."
+									}
+								},
+								{
+									"type": "OrganismSection",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "ogn-mbr-term-list",
+										"title": "약관 동의",
+										"author": "plus_x_athor_1",
+										"createdAt": "2026-05-21T00:00:00Z",
+										"updatedAt": "2026-05-21T00:00:00Z"
+									},
+									"props": {
+										"organismCode": "ogn-mbr-term-list",
+										"name": "약관 목록 조회",
+										"flow": "vertical"
+									},
+									"children": [
+										{
+											"type": "ListCell",
+											"componentVersion": "1.0.0",
+											"metadata": {
+												"id": "requiredTerm",
+												"title": "필수 약관 항목",
+												"author": "plus_x_athor_1",
+												"createdAt": "2026-05-21T00:00:00Z",
+												"updatedAt": "2026-05-21T00:00:00Z"
+											},
+											"display": {
+												"when": true
+											},
+											"props": {
+												"title": {
+													"bind": "termList.requiredTerm.title",
+													"default": "필수 약관 항목"
+												},
+												"description": {
+													"bind": "termList.requiredTerm.description",
+													"default": "필수 약관 항목"
+												},
+												"required": true,
+												"checked": {
+													"bind": "termList.requiredTerm.checked",
+													"default": false
+												}
+											},
+											"events": {
+												"onChange": {
+													"action": "setState",
+													"key": "checkedTerms",
+													"value": "requiredTerm"
+												}
+											}
+										},
+										{
+											"type": "ListCell",
+											"componentVersion": "1.0.0",
+											"metadata": {
+												"id": "optionalTerm",
+												"title": "선택 약관 항목",
+												"author": "plus_x_athor_1",
+												"createdAt": "2026-05-21T00:00:00Z",
+												"updatedAt": "2026-05-21T00:00:00Z"
+											},
+											"display": {
+												"when": true
+											},
+											"props": {
+												"title": {
+													"bind": "termList.optionalTerm.title",
+													"default": "선택 약관 항목"
+												},
+												"description": {
+													"bind": "termList.optionalTerm.description",
+													"default": "선택 약관 항목"
+												},
+												"required": false,
+												"checked": {
+													"bind": "termList.optionalTerm.checked",
+													"default": false
+												}
+											},
+											"events": {
+												"onChange": {
+													"action": "setState",
+													"key": "checkedTerms",
+													"value": "optionalTerm"
+												}
+											}
+										},
+										{
+											"type": "Accordion",
+											"componentVersion": "1.0.0",
+											"metadata": {
+												"id": "termDetail",
+												"title": "약관 전문 펼치기",
+												"author": "plus_x_athor_1",
+												"createdAt": "2026-05-21T00:00:00Z",
+												"updatedAt": "2026-05-21T00:00:00Z"
+											},
+											"display": {
+												"when": true
+											},
+											"props": {
+												"title": {
+													"bind": "termList.termDetail.title",
+													"default": "약관 전문 펼치기"
+												},
+												"description": {
+													"bind": "termList.termDetail.description",
+													"default": "약관 전문 펼치기"
+												}
+											},
+											"events": {
+												"onClick": {
+													"action": "setState",
+													"key": "expandedTermId",
+													"value": "termDetail"
+												}
+											}
+										},
+										{
+											"type": "SectionMessage",
+											"componentVersion": "1.0.0",
+											"metadata": {
+												"id": "errorMessage",
+												"title": "약관 조회 오류 안내",
+												"author": "plus_x_athor_1",
+												"createdAt": "2026-05-21T00:00:00Z",
+												"updatedAt": "2026-05-21T00:00:00Z"
+											},
+											"display": {
+												"when": {
+													"bind": "termList.isError",
+													"default": false
+												}
+											},
+											"props": {
+												"variant": {
+													"bind": "termList.errorMessage.variant",
+													"default": "negative"
+												},
+												"title": {
+													"bind": "termList.errorMessage.title",
+													"default": "약관 조회 오류 안내"
+												},
+												"description": {
+													"bind": "termList.errorMessage.description",
+													"default": "약관 조회 오류 안내"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"type": "Screen.Bottom",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "screen-bottom",
+								"title": "고정 하단 영역",
+								"author": "plus_x_athor_1",
+								"createdAt": "2026-05-21T00:00:00Z",
+								"updatedAt": "2026-05-21T00:00:00Z"
+							},
+							"props": {
+								"position": "fixed",
+								"layout": {
+									"direction": "column",
+									"gap": 0
+								},
+								"safeArea": true,
+								"zIndex": 10
+							},
+							"children": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,63 @@
+/* Figma: Tab — node 9508:56855, h=47, border-bottom 1px #ebeef6 */
+/* Container: pl=20, pt=12, gap=30 between items */
+.tab {
+	height: 47px;
+	display: flex;
+	align-items: flex-end;
+	gap: 30px;
+	padding-left: 20px;
+	padding-top: 12px;
+	border-bottom: 1px solid #ebeef6;
+	overflow-x: auto;
+	scrollbar-width: none;
+	box-sizing: border-box;
+}
+
+.tab::-webkit-scrollbar {
+	display: none;
+}
+
+.tabItem {
+	flex-shrink: 0;
+	padding: 0;
+	height: 100%;
+	background: none;
+	border: none;
+	cursor: pointer;
+	position: relative;
+	letter-spacing: -0.05em;
+	font-family: var(--skt-typography-font-family-base);
+	font-size: 15px;
+}
+
+.tabItem::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	border-radius: 2px 2px 0 0;
+	transition: opacity 0.15s;
+}
+
+/* Active: fontWeight=700, color=#3617ce, indicator visible */
+.active {
+	font-weight: 700;
+	color: #3617ce;
+}
+
+.active::after {
+	background-color: #3617ce;
+	opacity: 1;
+}
+
+/* Inactive: fontWeight=500, color=#05001a */
+.inactive {
+	font-weight: 500;
+	color: #05001a;
+}
+
+.inactive::after {
+	opacity: 0;
+}

@@ -1,0 +1,59 @@
+/* Figma: BottomNavigation — h=88, pad 12 top / 36 bottom, 3 items each w=96 gap=2 */
+.bottomNav {
+	height: 88px;
+	padding: 12px 0 36px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	background-color: rgba(235, 238, 246, 0.95);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border-top: 1px solid #f4f5fa;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+/* NavItem: w=96, gap=2 between icon and label */
+.navItem {
+	width: 96px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+}
+
+.icon {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Label: fontSize=11, fontWeight=600 (SemiBold) */
+.label {
+	font-family: var(--skt-typography-font-family-base);
+	font-size: 11px;
+	letter-spacing: -0.04em;
+	font-weight: 600;
+}
+
+.active .label {
+	color: #3617ce;
+}
+
+.inactive .label {
+	color: rgba(6, 12, 31, 0.4);
+}
+
+.active .icon {
+	color: #3617ce;
+}
+
+.inactive .icon {
+	color: rgba(6, 12, 31, 0.4);
+}

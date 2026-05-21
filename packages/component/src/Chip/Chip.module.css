@@ -1,0 +1,29 @@
+/* Figma: .ChipItem — h=37, padding 10/12, radius=999 */
+.chip {
+	display: inline-flex;
+	align-items: center;
+	height: 37px;
+	padding: 10px 12px;
+	border-radius: 999px;
+	border: none;
+	cursor: pointer;
+	font-family: var(--skt-typography-font-family-base);
+	font-size: 13px;
+	letter-spacing: -0.04em;
+	white-space: nowrap;
+	transition: background-color 0.15s ease;
+}
+
+/* Selected=Off: fill=gray-1000@5%, text=#05001a, fontWeight=500 */
+.unselected {
+	background-color: rgba(6, 12, 31, 0.05);
+	color: #05001a;
+	font-weight: 500;
+}
+
+/* Selected=On: fill=blue-800, text=white, fontWeight=600 */
+.selected {
+	background-color: #3617ce;
+	color: #ffffff;
+	font-weight: 600;
+}

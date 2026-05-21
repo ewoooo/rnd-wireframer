@@ -1,0 +1,21 @@
+{
+	"module": "mbr",
+	"functionPolicyGroups": [
+		{
+			"functionCode": "FN-MBR-COM-002",
+			"policyGroupCode": "PG-MBR-AUTH-001"
+		},
+		{
+			"functionCode": "FN-MBR-COM-002",
+			"policyGroupCode": "PG-MBR-AUTH-002"
+		},
+		{
+			"functionCode": "FN-MBR-COM-002",
+			"policyGroupCode": "PG-MBR-AUTH-005"
+		},
+		{
+			"functionCode": "FN-MBR-REJOIN-005",
+			"policyGroupCode": "PG-MBR-REJOIN-005"
+		}
+	]
+}

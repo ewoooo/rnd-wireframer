@@ -1,0 +1,21 @@
+{
+	"name": "@cx/layout",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./chrome": "./src/chrome/index.ts",
+		"./primitives": "./src/primitives/index.ts",
+		"./styles.css": {
+			"style": "./src/styles.css",
+			"default": "./src/styles.css"
+		}
+	},
+	"dependencies": {
+		"@cx/wireframe": "0.1.0"
+	},
+	"peerDependencies": {
+		"react": "^19.2.0"
+	}
+}

@@ -1,0 +1,119 @@
+Project policy_inputs {
+  database_type: 'PostgreSQL'
+  Note: '''
+    DBML preview for docs/data-mockups/1-policy-inputs/.
+    This is a review artifact for drawDB import, not a Supabase migration.
+
+    Source files:
+    - sql-module-entries.json
+    - sql-usecase-entries.json
+    - sql-usecase-processes-entries.json
+    - sql-functions-source.json
+    - sql-function-policy-groups-source.json
+    - sql-policy-source.json
+    - sql-policy-entries.json
+  '''
+}
+
+Table policy_modules {
+  code text [pk, note: 'module_entries[].code']
+  name text [not null]
+  description text
+}
+
+Table policy_usecases {
+  code text [pk, note: 'usecases[].code']
+  module text [not null]
+  name text [not null]
+  actor text
+  description text
+  process_definition_target boolean [not null, default: false]
+
+  indexes {
+    module
+  }
+}
+
+Table policy_processes {
+  code text [pk, note: 'processes[].code']
+  module text [not null]
+  usecase_code text [not null, note: 'processes[].usecase']
+  sort_order integer [not null, note: 'processes[].order']
+  name text [not null]
+  description text
+  actors jsonb [not null, default: '[]']
+  entry_condition text
+  exit_condition text
+  previous_process_code text
+  next_process_code text
+
+  indexes {
+    module
+    usecase_code
+    (usecase_code, sort_order) [unique]
+  }
+}
+
+Table policy_functions {
+  code text [pk, note: 'functions[].code']
+  module text [not null]
+  process_code text [not null]
+  sort_order integer [not null, note: 'functions[].order']
+  name text [not null]
+  description text
+  screen_generation_context jsonb [not null, default: '{}']
+
+  indexes {
+    module
+    process_code
+    (process_code, sort_order) [unique]
+  }
+}
+
+Table policy_groups {
+  code text [pk, note: 'policyGroups[].code']
+  module text [not null]
+  title text [not null]
+  description text
+
+  indexes {
+    module
+  }
+}
+
+Table function_policy_groups {
+  function_code text [not null]
+  policy_group_code text [not null]
+  module text [not null]
+
+  indexes {
+    (function_code, policy_group_code) [pk]
+    policy_group_code
+    module
+  }
+}
+
+Table policies {
+  code text [pk, note: 'policies[].code']
+  policy_group_code text [not null, note: 'policies[].policyGroup']
+  title text [not null]
+  requirement_copy text [note: 'policies[].copy.requirement']
+  error_copy text [note: 'policies[].copy.error']
+
+  indexes {
+    policy_group_code
+  }
+}
+
+Ref: policy_usecases.module > policy_modules.code
+Ref: policy_processes.module > policy_modules.code
+Ref: policy_processes.usecase_code > policy_usecases.code
+Ref: policy_processes.previous_process_code > policy_processes.code
+Ref: policy_processes.next_process_code > policy_processes.code
+Ref: policy_functions.module > policy_modules.code
+Ref: policy_functions.process_code > policy_processes.code
+Ref: policy_groups.module > policy_modules.code
+Ref: function_policy_groups.module > policy_modules.code
+Ref: function_policy_groups.function_code > policy_functions.code
+Ref: function_policy_groups.policy_group_code > policy_groups.code
+Ref: policies.policy_group_code > policy_groups.code

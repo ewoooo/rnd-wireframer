@@ -1,0 +1,40 @@
+{
+	"policyGroups": [
+		{
+			"module": "mbr",
+			"code": "PG-MBR-AUTH-001",
+			"title": "본인인증 적용 정책",
+			"description": "회원 업무별 본인인증 필수 여부, 적용 시점, 인증 재사용 가능 범위를 정의하는 정책 그룹이다."
+		},
+		{
+			"module": "mbr",
+			"code": "PG-MBR-AUTH-002",
+			"title": "인증수단 정책",
+			"description": "업무별 허용 인증수단, 기본 인증수단, 대체 인증수단, 고객 유형별 제한을 정의하는 정책 그룹이다."
+		},
+		{
+			"module": "mbr",
+			"code": "PG-MBR-AUTH-005",
+			"title": "인증 실패 제한 정책",
+			"description": "인증 실패 시 재시도 허용 범위, 입력 실패 제한, 잠금 기준을 정의하는 정책 그룹이다."
+		},
+		{
+			"module": "mbr",
+			"code": "PG-MBR-INFO-002",
+			"title": "회원 정보 입력 정책",
+			"description": "회원 정보 입력값의 형식, 길이, 필수 여부를 정의하는 정책 그룹이다."
+		},
+		{
+			"module": "mbr",
+			"code": "PG-MBR-TERM-001",
+			"title": "회원 약관 노출 정책",
+			"description": "회원 가입 약관의 필수·선택 구분과 버전 적용 기준을 정의하는 정책 그룹이다."
+		},
+		{
+			"module": "mbr",
+			"code": "PG-MBR-REJOIN-005",
+			"title": "재가입 완료 안내 및 통지 정책",
+			"description": "재가입 완료 결과, 이용 가능 상태, 후속 안내, 통지 채널과 문구 기준을 정의하는 정책 그룹이다."
+		}
+	]
+}

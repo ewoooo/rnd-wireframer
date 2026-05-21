@@ -11,22 +11,59 @@
 ## 2. 운영 원칙
 
 - 담당 문서의 책임 범위를 넘는 상세 내용은 참조 링크로 연결한다.
-- SB/OGN 원본 JSON은 파괴적으로 수정하지 않는다.
+- 수급 원본 JSON과 mock 입력 JSON은 파괴적으로 수정하지 않는다.
 - 생성 결과는 버전 있는 산출물로 취급한다.
 - 와이어프레임 생성 AI는 Claude를 사용한다.
 - 생성 결과 검수 AI는 Codex를 사용한다.
 - AI 실행은 Agent SDK를 통해 호출한다.
 - Claude는 로컬 세션 재개를 우선 사용하고, Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
-- `rnd-screen-to-screen`의 `cx-components`, `cx-tokens`, `dxds-layout`은 새 프로젝트의 기반 패키지로 가져온다.
-- 가져온 `dxds-layout`은 새 프로젝트에서 `cx-layout`으로 이름을 정규화한다.
+- 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
+- spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
+- `cx-tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
+- 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
+- `sdui-renderer`의 schema, binding, registry, validation 패턴은 `wireframe` 패키지로 흡수하고 React 렌더러는 프로젝트 정책에 맞게 별도 구현한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - DB 관계 검토와 ERD 산출물은 `drawdb`를 사용한다.
 - drawdb 산출물은 `docs/drawdb/` 아래에 둔다.
+- 화면 생성용 mock 데이터와 단계별 JSON 샘플은 `docs/data-mockups/` 아래에 둔다.
+- `docs/data-mockups/`는 `1-design-specs`, `1-policy-inputs`, `2-spec-inputs`, `3-parsed-jsons`, `4-generation-contexts`, `5-feedback-loops` 순서로 운영한다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
-## 3. 디자인 패턴 문서
+## 3. Wireframe 변환 책임 분리
+
+첨부 screen/organism 명세 또는 DB read model을 `@cx/wireframe` 렌더 구조로 바꿀 때는 AI와 deterministic code의 책임을 분리한다.
+
+기본 흐름은 아래 순서를 따른다.
+
+```text
+코드가 기본 트리를 만든다
+-> AI가 props/data binding/상태/표현을 보정한다
+-> 코드가 다시 검증한다
+```
+
+AI가 직접 판단하거나 보정하는 영역:
+
+- 어떤 OGN을 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 중 어디에 놓을지 애매한 경우 판단
+- component props 기본값 생성
+- data binding path 추천
+- 상태별 visible children 정리
+- “약관 목록 조회” 같은 설명을 실제 렌더 노드 `title`/`description`으로 풀기
+
+코드가 deterministic하게 처리해야 하는 영역:
+
+- `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성
+- `screenSource.organisms` 순서 유지
+- `organismCode` 유지
+- `metadata.id`, `metadata.title`, `componentVersion`, schema version 생성
+- `@cx/wireframe` validation 실행
+- component registry 존재 확인
+- 누락 참조 리포트 생성
+
+AI가 wireframe 트리 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 파서와 composer가 만든 구조화 결과를 보정하고, 최종 산출물은 항상 `@cx/wireframe` 검증을 통과해야 한다.
+
+## 4. 디자인 패턴 문서
 
 SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 
@@ -52,17 +89,17 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 - `AGENTS.md`에는 디자인 문서 목록과 운영 기준만 유지한다.
 - 레이아웃 수치나 컴포넌트 목록을 중복 기재하지 않는다.
 - 정식 디자인 토큰의 원천은 `DESIGN_FOUNDATION.md`를 따른다.
-- 구현 패키지 기준은 `cx-tokens`, `cx-components`, `cx-layout`을 따른다.
+- 구현 패키지 기준은 `cx-tokens`, `@cx/components`, `@cx/layout`을 따른다.
 
-## 4. 에이전트 역할
+## 5. 에이전트 역할
 
 | 에이전트 | 책임 | 기준 문서 |
 |---|---|---|
 | Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
 | Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Data Agent | SB/OGN JSON, 관계형 DB, drawdb ERD, 적재 전략 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
+| Data Agent | 입력 JSON, 생성 컨텍스트, 관계형 DB, drawdb ERD, 적재 전략 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
 | Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 OGN 섹션 편집, 재생성 흐름 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
+| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Claude Generation Agent | Claude 기반 와이어프레임 JSON 생성 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Codex Review Agent | Codex 기반 생성 결과 검수 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Agent Runtime Agent | Agent SDK, 로컬 세션 우선 실행, API fallback 관리 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
@@ -70,7 +107,7 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 | Documentation Agent | 문서 책임 분리와 변경 기록 관리 | 현재 문서와 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md) |
 | Design System Agent | SDUI 패턴, spacing, component inventory 관리 | 현재 문서의 디자인 패턴 문서 목록 |
 
-## 5. 작업 인계 형식
+## 6. 작업 인계 형식
 
 작업을 다른 에이전트나 사람에게 넘길 때 아래 형식을 사용한다.
 
@@ -92,27 +129,27 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 ## 열린 이슈
 ```
 
-## 6. 완료 기준
+## 7. 완료 기준
 
 - 결과가 기준 문서와 충돌하지 않는다.
 - 중복 설명이 생기면 상세 문서 하나에만 남기고 나머지는 참조한다.
 - 구현 또는 문서 변경이 검증됐다.
 - 필요한 경우 변경 이력이 기록됐다.
 
-## 7. 초기 백로그
+## 8. 초기 백로그
 
 | 우선순위 | 담당 | 작업 |
 |---|---|---|
-| P0 | Data Agent | SB/OGN JSON Schema 확정 |
+| P0 | Data Agent | 정책/화면/디자인 입력 JSON과 generation context 스키마 확정 |
 | P0 | Data Agent | drawdb 기반 ERD 초안 작성 |
 | P0 | Data Agent | Supabase 마이그레이션 초안 작성 |
 | P0 | Backend Agent | JSON 검증/정규화 프로토타입 구현 |
-| P1 | Backend Agent | SB to OGN 연결 프로토타입 구현 |
+| P1 | Backend Agent | screen to organism 연결 프로토타입 구현 |
 | P1 | Frontend Agent | 화면 목록/상세/생성 흐름 구현 |
-| P1 | Frontend Agent | `cx-components`, `cx-tokens`, `cx-layout` 패키지 이전 및 import 경계 정리 |
+| P1 | Frontend Agent | `cx-components`, `cx-tokens`, `@cx/layout` 패키지 이전 및 import 경계 정리 |
 | P1 | Frontend Agent | React hooks policy를 lint/CI 흐름에 연결 |
 | P1 | Claude Generation Agent | 첫 와이어프레임 JSON 생성 계약 구현 |
 | P1 | Codex Review Agent | 생성 결과 검수 기준 구현 |
 | P1 | Agent Runtime Agent | Agent SDK 로컬 세션 우선 실행 전략 구현 |
-| P2 | Frontend Agent | Puck 기반 `generated_organisms` 섹션 편집 프로토타입 구현 |
+| P2 | Frontend Agent | Puck 기반 Screen composition/OGN component 편집 프로토타입 구현 |
 | P2 | QA Agent | 샘플 문서 기반 인수 테스트 작성 |
