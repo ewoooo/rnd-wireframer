@@ -182,7 +182,16 @@ export interface ValidationResult<T = WireframeSchema> {
 	success: boolean;
 	errors: string[];
 	warnings: string[];
+	stats?: WireframeValidationStats;
 	data?: T;
+}
+
+export interface WireframeValidationStats {
+	componentTypes: string[];
+	fallbackTypes: string[];
+	maxDepth: number;
+	rendererKinds: string[];
+	totalNodes: number;
 }
 
 export function isBindingValue(value: PropValue): value is PropBinding {

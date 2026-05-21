@@ -685,6 +685,12 @@
 - 검토: 앱 컴포넌트 디렉토리 재배치는 이번 범위에서 제외함
 - 검증: `npx biome check packages/renderer/src/registry.ts packages/renderer/src/renderer.tsx packages/renderer/src/runtime.ts packages/renderer/src/default-renderers.tsx packages/renderer/src/__tests__/renderer.test.tsx`, `npm test -- --run packages/renderer`, `npx tsc --noEmit`, `npm run lint:hooks`, `git diff --check`
 
+## 2026-05-21 - Frontend Agent
+
+- 변경: `@cx/agent` 루트 export에서 `agent-sdk-runtime`과 `claude-asset-generator`를 제거하고, Node.js 전용 Agent SDK 기능은 subpath import로만 사용하도록 README/AGENTS 지침을 갱신함
+- 이유: Next.js 클라이언트 번들이 `@cx/agent` 루트를 통해 `@anthropic-ai/claude-agent-sdk`를 따라가면서 브라우저에서 `async_hooks`를 resolve하려고 해 build가 실패했기 때문
+- 검증: `npx biome check packages/agent/src/index.ts packages/agent/README.md packages/agent/AGENTS.md`, `npx tsc --noEmit`, `npm run build`
+
 ## 2026-05-21 - Architecture Agent
 
 - 변경: 분리된 schema 패키지를 제거하고 schema/type, binding, component registry, validation을 `@cx/renderer` 내부로 흡수함
@@ -746,3 +752,12 @@
 - 이유: Phase 1 생성 주체를 임시 parser가 아니라 프로젝트 원칙의 Claude Generation Agent local-first Agent SDK 흐름으로 맞추기 위함
 - 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run packages/agent/src/__tests__/agent.test.ts`, `npm run lint:hooks`, `npx biome check --write packages/agent/src/claude-asset-generator.ts packages/agent/src/index.ts packages/agent/package.json apps/web/src/app/api/agent/generate-register/route.ts apps/web/src/components/agent/AgentRegistryNavigation.tsx`
 - 후속: Claude local session 실패 시 원격 API fallback과 생성 이력 저장 필드를 확정해야 함
+
+## 2026-05-21 - Renderer Contract 검증 강화
+
+- 변경: `@cx/renderer` validation 결과에 node stats, fallback renderer type, version compatibility 경고/오류를 추가함
+- 변경: unknown node type이 fallback으로 렌더링되는 경우 기본은 warning, `strictRendererCoverage` 옵션에서는 error로 판정하도록 함
+- 변경: workbench Inspection 패널이 validation warning과 node/type/depth/fallback 통계를 표시하도록 연결함
+- 이유: AI 생성, Puck 편집, DB/read model 입력이 모두 같은 renderer 계약을 통과해야 하므로 검증 결과가 화면 검수의 중심 정보가 되어야 하기 때문
+- 검증: `npm test`, `npx tsc --noEmit`, `npm run lint:hooks`, `npx biome lint packages/renderer/src/runtime.ts packages/renderer/src/index.ts packages/renderer/src/schema.ts packages/renderer/src/validation.ts packages/renderer/src/__tests__/schema-runtime.test.ts apps/web/src/adapters/tables-to-render-tree.ts apps/web/src/data/local-workbench-data-loader.ts apps/web/src/model/store.ts apps/web/src/components/layout/InspectionPanel.tsx`
+- 참고: 전체 `npm run lint`는 기존 빈 JSON 파일 `docs/data-mockups/4-generation-contexts/generation-context.json` parse error로 중단됨

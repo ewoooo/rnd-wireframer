@@ -55,7 +55,7 @@ export function toBoolean(value: unknown, fallback = false) {
 	return Boolean(value);
 }
 
-function getWireframeNodeKind(node: WireframeNode): WireframeNodeKind {
+export function getWireframeNodeKind(node: WireframeNode): WireframeNodeKind {
 	if (node.type === "HeaderBase") return "header";
 	if (node.type === "Layout.Flex") return "layout-flex";
 	if (node.type === "Layout.Grid") return "layout-grid";

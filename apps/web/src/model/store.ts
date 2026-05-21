@@ -1,5 +1,5 @@
 import type { AssetRegistry } from "@cx/agent";
-import type { WireframeNode, WireframeScreenNode } from "@cx/renderer";
+import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
 	type AppOrganism,
@@ -105,7 +105,9 @@ interface WorkbenchState {
 	selectedScreenCode: string;
 	validationErrors: string[];
 	validationLabel: string;
+	validationStats?: WireframeValidationStats;
 	validationSuccess: boolean;
+	validationWarnings: string[];
 }
 
 export interface AgentClientImport {
@@ -142,7 +144,9 @@ const initialWorkbenchState = {
 	selectedScreenCode: "",
 	validationErrors: [],
 	validationLabel: "screen source + render tree valid",
+	validationStats: undefined,
 	validationSuccess: true,
+	validationWarnings: [],
 };
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
@@ -367,7 +371,9 @@ function getDerivedWorkbenchState(
 		selectedScreen,
 		validationErrors: validationStatus.errors,
 		validationLabel: validationStatus.label,
+		validationStats: validationStatus.stats ?? activeScreen?.validationStats,
 		validationSuccess: validationStatus.success,
+		validationWarnings: validationStatus.warnings,
 	};
 }
 

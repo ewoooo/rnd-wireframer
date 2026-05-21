@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
 	ComponentRegistry,
+	collectWireframeStats,
+	findFallbackRendererTypes,
 	findDuplicateNodeIds,
 	resolveDisplayWhen,
 	resolveProps,
@@ -105,6 +107,7 @@ describe("wireframe", () => {
 
 		expect(result.success).toBe(true);
 		expect(result.errors).toEqual([]);
+		expect(result.stats?.totalNodes).toBe(5);
 	});
 
 	it("resolves template and bind props", () => {
@@ -211,5 +214,37 @@ describe("wireframe", () => {
 		});
 
 		expect(result.success).toBe(true);
+	});
+
+	it("reports fallback renderer coverage without failing by default", () => {
+		const result = validateWireframeSchemaFull(validSchema);
+
+		expect(result.success).toBe(true);
+		expect(result.warnings).toContain("Missing renderer mapping for node types: HeroSection");
+		expect(findFallbackRendererTypes(validSchema)).toEqual(["HeroSection"]);
+		expect(collectWireframeStats(validSchema).fallbackTypes).toEqual(["HeroSection"]);
+	});
+
+	it("can fail on fallback renderer coverage when strict", () => {
+		const result = validateWireframeSchemaFull(validSchema, {
+			strictRendererCoverage: true,
+		});
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toContain("Missing renderer mapping for node types: HeroSection");
+	});
+
+	it("checks renderer version compatibility", () => {
+		const futureSchema = {
+			...validSchema,
+			minRendererVersion: "99.0.0",
+		};
+
+		const result = validateWireframeSchemaFull(futureSchema);
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toContain(
+			"Renderer 0.1.0 does not satisfy minRendererVersion 99.0.0",
+		);
 	});
 });

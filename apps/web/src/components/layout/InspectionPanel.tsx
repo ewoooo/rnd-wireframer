@@ -19,7 +19,9 @@ export function InspectionPanel() {
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const validationErrors = useWorkbenchStore((state) => state.validationErrors);
 	const validationLabel = useWorkbenchStore((state) => state.validationLabel);
+	const validationStats = useWorkbenchStore((state) => state.validationStats);
 	const validationSuccess = useWorkbenchStore((state) => state.validationSuccess);
+	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
 	const reorderScreenOrganisms = useWorkbenchStore((state) => state.reorderScreenOrganisms);
 
 	if (activeTab === "agent") {
@@ -89,11 +91,29 @@ export function InspectionPanel() {
 						<Separator />
 						<div className="flex flex-col gap-2">
 							<h2 className="text-sm font-semibold">검증 상태</h2>
-							{validationSuccess ? (
-								<Badge>{validationLabel}</Badge>
-							) : (
+							<div className="flex flex-wrap gap-2">
+								<Badge variant={validationSuccess ? "default" : "outline"}>
+									{validationLabel}
+								</Badge>
+								{validationWarnings.length > 0 ? (
+									<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
+								) : null}
+							</div>
+							{validationStats ? <ValidationStats stats={validationStats} /> : null}
+							{validationWarnings.length > 0 ? (
 								<div className="flex flex-col gap-2">
-									<Badge variant="outline">{validationLabel}</Badge>
+									{validationWarnings.map((warning) => (
+										<div
+											key={warning}
+											className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+										>
+											{warning}
+										</div>
+									))}
+								</div>
+							) : null}
+							{validationSuccess ? null : (
+								<div className="flex flex-col gap-2">
 									{validationErrors.map((error) => (
 										<div key={error} className="rounded-lg border bg-background p-3 text-sm">
 											{error}
@@ -106,6 +126,27 @@ export function InspectionPanel() {
 				</ScrollArea>
 			</SidebarContent>
 		</Sidebar>
+	);
+}
+
+function ValidationStats({
+	stats,
+}: {
+	stats: {
+		componentTypes: string[];
+		fallbackTypes: string[];
+		maxDepth: number;
+		rendererKinds: string[];
+		totalNodes: number;
+	};
+}) {
+	return (
+		<div className="grid grid-cols-2 gap-2">
+			<InfoRow label="Nodes" value={String(stats.totalNodes)} />
+			<InfoRow label="Depth" value={String(stats.maxDepth)} />
+			<InfoRow label="Types" value={String(stats.componentTypes.length)} />
+			<InfoRow label="Fallbacks" value={String(stats.fallbackTypes.length)} />
+		</div>
 	);
 }
 

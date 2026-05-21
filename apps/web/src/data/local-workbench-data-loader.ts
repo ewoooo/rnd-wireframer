@@ -1,4 +1,4 @@
-import type { WireframeNode, WireframeSchema } from "@cx/renderer";
+import { type WireframeNode, type WireframeSchema, validateWireframeSchemaFull } from "@cx/renderer";
 import {
 	type PatternStore,
 	type SampleCompositeSet,
@@ -61,6 +61,7 @@ const sampleScreens = tablesToRenderTrees({
 
 const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	const sampleScreen = orderedSampleScreens[index];
+	const validation = validateWireframeSchemaFull(schema);
 	const variant = sampleVariantSet.screenVariants.find(
 		(candidate) => candidate.code === sampleScreen.screenVariantCode,
 	);
@@ -83,6 +84,7 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 		screenVariantName: variant?.name ?? schema.metadata.title,
 		screenVariantType: variant?.variantType ?? "base",
 		sourceValidationErrors: validateSampleScreenSource(sampleScreen),
+		validationStats: validation.stats,
 		warnings: [],
 	};
 });

@@ -5,6 +5,7 @@ import {
 	type WireframeNode,
 	type WireframeSchema,
 	type WireframeScreenNode,
+	type WireframeValidationStats,
 } from "@cx/renderer";
 
 export const DEFAULT_WIREFRAME_SCREEN_CODE = "NOVA-MBR-FP-002-0";
@@ -26,6 +27,7 @@ export interface AppScreen {
 	screenVariantName: string;
 	screenVariantType: "base" | "edge";
 	sourceValidationErrors: string[];
+	validationStats?: WireframeValidationStats;
 	warnings: string[];
 }
 
@@ -301,19 +303,38 @@ export function getScreenNode(screen?: AppScreen) {
 
 export function getValidationErrors(screen?: AppScreen) {
 	if (!screen) return [];
+	const validation = validateWireframeSchemaFull(screen.schema);
 	return [
 		...screen.sourceValidationErrors,
-		...validateWireframeSchemaFull(screen.schema).errors.map((error) => `render tree: ${error}`),
+		...validation.errors.map((error) => `render tree: ${error}`),
 	];
 }
 
 export function getValidationStatus(screen?: AppScreen) {
 	const errors = getValidationErrors(screen);
+	const warnings = getValidationWarnings(screen);
+	const stats = screen ? validateWireframeSchemaFull(screen.schema).stats : undefined;
 	return {
 		errors,
-		label: errors.length === 0 ? "screen source + render tree valid" : "validation failed",
+		label:
+			errors.length === 0
+				? warnings.length === 0
+					? "screen source + render tree valid"
+					: "valid with warnings"
+				: "validation failed",
+		stats,
 		success: errors.length === 0,
+		warnings,
 	};
+}
+
+export function getValidationWarnings(screen?: AppScreen) {
+	if (!screen) return [];
+	const validation = validateWireframeSchemaFull(screen.schema);
+	return [
+		...screen.warnings,
+		...validation.warnings.map((warning) => `render tree: ${warning}`),
+	];
 }
 
 export function validateSampleScreenSource(screen: SampleScreen) {

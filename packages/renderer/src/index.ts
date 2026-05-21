@@ -14,6 +14,7 @@ export {
 } from "./renderer";
 export {
 	getRenderableWireframeNode,
+	getWireframeNodeKind,
 	getScreenRegions,
 	type RenderableWireframeNode,
 	toBoolean,
