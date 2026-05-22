@@ -14,7 +14,7 @@
 				"name": "약관 목록 조회"
 			},
 			"pattern": {
-				"id": "list-stack",
+				"id": "accordion-list",
 				"variant": "default"
 			},
 			"children": [

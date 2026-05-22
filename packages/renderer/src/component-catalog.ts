@@ -35,7 +35,7 @@ export interface ComponentCatalogEntry {
 	description?: string;
 	aliases?: readonly string[];
 	/**
-	 * Renderer kind. Catalog가 type→kind 매핑의 단일 진실 원천.
+	 * Renderer kind. 분기 신호가 아니라 그룹 태그.
 	 * 미지정 시 runtime이 "fallback" kind로 처리.
 	 */
 	kind?: WireframeNodeKind;
