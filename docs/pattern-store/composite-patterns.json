@@ -8,15 +8,11 @@
 			"defaultVariant": "default",
 			"variants": {
 				"default": {
-					"recipe": {
-						"composite": {
-							"type": "ActionArea",
-							"props": {
-								"variant": "primary",
-								"fullWidth": true,
-								"size": "xlarge"
-							}
-						}
+					"type": "ActionArea",
+					"props": {
+						"variant": "primary",
+						"fullWidth": true,
+						"size": "xlarge"
 					}
 				}
 			},
@@ -30,8 +26,8 @@
 					"하단 단일 주요 액션"
 				],
 				"rules": [
-					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
-					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
+					"소비 데이터에는 pattern id와 variant만 저장하고 variant 본문은 pattern store에서 조회한다.",
+					"resolver/generator가 variant를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
 				]
 			},
 			"examples": []

@@ -31,7 +31,7 @@ export function ScreenRouteCard({
 				<legend className="sr-only">{route.name} screen variants</legend>
 				{route.screenVariants.map((variant) => (
 					<ScreenVariantCard
-						key={`${route.code}-${variant.screenOrder}`}
+						key={variant.id}
 						onSelect={onSelectVariant}
 						screenVariant={variant}
 						selectedScreenCode={selectedScreenCode}

@@ -1,0 +1,4780 @@
+{
+	"screenRoutes": [
+		{
+			"code": "sb-mbr-uc01_02-0513",
+			"module": "mbr",
+			"name": "회원 가입 및 휴면 해제",
+			"order": 1,
+			"processCode": null
+		}
+	],
+	"screenVariants": [
+		{
+			"code": "nova-mbr-fp-001",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "약관 동의",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-002",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "개인정보 입력",
+			"order": 2,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-003",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "본인인증",
+			"order": 3,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-004",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "회원 검증",
+			"order": 4,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-005",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "가입 완료",
+			"order": 5,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-006",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "로그인",
+			"order": 6,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-007",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "휴면 여부 확인",
+			"order": 7,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-008",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "본인인증",
+			"order": 8,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-009",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "약관 동의",
+			"order": 9,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-010",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "휴면 해제 처리",
+			"order": 10,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"code": "nova-mbr-fp-011",
+			"screenRouteCode": "sb-mbr-uc01_02-0513",
+			"name": "휴면 해제 완료",
+			"order": 11,
+			"variantType": "base",
+			"followUp": null
+		}
+	],
+	"screens": [
+		{
+			"id": "NOVA-MBR-FP-001-0",
+			"screenVariantId": "nova-mbr-fp-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-001-0",
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-term-agree"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-guardian-input"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-guardian-result"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-001-E1",
+			"screenVariantId": "nova-mbr-fp-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-001-E1",
+				"title": "약관 동의-약관 버전 불일치",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-약관 버전 불일치 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-001-E2",
+			"screenVariantId": "nova-mbr-fp-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-001-E2",
+				"title": "약관 동의-필수 약관 미동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-필수 약관 미동의 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-001-E3",
+			"screenVariantId": "nova-mbr-fp-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-001-E3",
+				"title": "약관 동의-동의 저장 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-동의 저장 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-0",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-0",
+				"title": "개인정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-entry-check"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-E1",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-E1",
+				"title": "개인정보 입력-필수값 누락",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력-필수값 누락 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-E2",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-E2",
+				"title": "개인정보 입력-입력 형식 오류",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력-입력 형식 오류 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-E3",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-E3",
+				"title": "개인정보 입력-아이디 중복",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력-아이디 중복 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-E4",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-E4",
+				"title": "개인정보 입력-휴대폰번호 중복",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력-휴대폰번호 중복 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-002-E5",
+			"screenVariantId": "nova-mbr-fp-002",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 6,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-002-E5",
+				"title": "개인정보 입력-이메일 중복",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "개인정보 입력-이메일 중복 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-003-0",
+			"screenVariantId": "nova-mbr-fp-003",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-003-0",
+				"title": "본인인증",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-auth-request"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-003-E1",
+			"screenVariantId": "nova-mbr-fp-003",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-003-E1",
+				"title": "본인인증-인증번호 만료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증번호 만료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-003-E2",
+			"screenVariantId": "nova-mbr-fp-003",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-003-E2",
+				"title": "본인인증-인증번호 불일치",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증번호 불일치 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-003-E3",
+			"screenVariantId": "nova-mbr-fp-003",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-003-E3",
+				"title": "본인인증-인증 실패 한도 초과",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증 실패 한도 초과 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-003-E4",
+			"screenVariantId": "nova-mbr-fp-003",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-003-E4",
+				"title": "본인인증-외부 인증기관 오류",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-외부 인증기관 오류 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-0",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-0",
+				"title": "회원 검증",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-join-path"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E1",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E1",
+				"title": "회원 검증-이미 가입된 회원",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-이미 가입된 회원 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E2",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E2",
+				"title": "회원 검증-휴면 회원",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-휴면 회원 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E3",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E3",
+				"title": "회원 검증-재가입 제한 대상",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-재가입 제한 대상 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E4",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E4",
+				"title": "회원 검증-가입 제한 고객",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-가입 제한 고객 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E5",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 6,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E5",
+				"title": "회원 검증-법정대리인 동의 유효시간 만료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-법정대리인 동의 유효시간 만료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-004-E6",
+			"screenVariantId": "nova-mbr-fp-004",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 7,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-004-E6",
+				"title": "회원 검증-조회 시스템 오류",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "회원 검증-조회 시스템 오류 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-005-0",
+			"screenVariantId": "nova-mbr-fp-005",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-005-0",
+				"title": "가입 완료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "가입 완료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-join-complete"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-005-E1",
+			"screenVariantId": "nova-mbr-fp-005",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-005-E1",
+				"title": "가입 완료-계정 생성 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "가입 완료-계정 생성 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-005-E2",
+			"screenVariantId": "nova-mbr-fp-005",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-005-E2",
+				"title": "가입 완료-동의 이력 누락",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "가입 완료-동의 이력 누락 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-005-E3",
+			"screenVariantId": "nova-mbr-fp-005",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-005-E3",
+				"title": "가입 완료-세션 생성 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "가입 완료-세션 생성 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-0",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-0",
+				"title": "로그인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-dormant-detect"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-E1",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-E1",
+				"title": "로그인-로그인 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인-로그인 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-E2",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-E2",
+				"title": "로그인-계정 미존재",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인-계정 미존재 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-E3",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-E3",
+				"title": "로그인-탈퇴 회원",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인-탈퇴 회원 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-E4",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-E4",
+				"title": "로그인-가입제한 회원",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인-가입제한 회원 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-006-E5",
+			"screenVariantId": "nova-mbr-fp-006",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 6,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-006-E5",
+				"title": "로그인-상태 조회 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "로그인-상태 조회 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-007-0",
+			"screenVariantId": "nova-mbr-fp-007",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-007-0",
+				"title": "휴면 여부 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 여부 확인 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-dormant-eligibility"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-007-E1",
+			"screenVariantId": "nova-mbr-fp-007",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-007-E1",
+				"title": "휴면 여부 확인-휴면 해제 불가 상태",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 여부 확인-휴면 해제 불가 상태 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-007-E2",
+			"screenVariantId": "nova-mbr-fp-007",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-007-E2",
+				"title": "휴면 여부 확인-식별정보 불일치",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 여부 확인-식별정보 불일치 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-007-E3",
+			"screenVariantId": "nova-mbr-fp-007",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-007-E3",
+				"title": "휴면 여부 확인-판정 시스템 오류",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 여부 확인-판정 시스템 오류 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-008-0",
+			"screenVariantId": "nova-mbr-fp-008",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-008-0",
+				"title": "본인인증",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-auth-request"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-008-E1",
+			"screenVariantId": "nova-mbr-fp-008",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-008-E1",
+				"title": "본인인증-인증번호 만료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증번호 만료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-008-E2",
+			"screenVariantId": "nova-mbr-fp-008",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-008-E2",
+				"title": "본인인증-인증번호 불일치",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증번호 불일치 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-008-E3",
+			"screenVariantId": "nova-mbr-fp-008",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-008-E3",
+				"title": "본인인증-인증 실패 한도 초과",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-인증 실패 한도 초과 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-008-E4",
+			"screenVariantId": "nova-mbr-fp-008",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-008-E4",
+				"title": "본인인증-외부 인증기관 오류",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "본인인증-외부 인증기관 오류 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-009-0",
+			"screenVariantId": "nova-mbr-fp-009",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-009-0",
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-term-agree"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-009-E1",
+			"screenVariantId": "nova-mbr-fp-009",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-009-E1",
+				"title": "약관 동의-약관 버전 불일치",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-약관 버전 불일치 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-009-E2",
+			"screenVariantId": "nova-mbr-fp-009",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-009-E2",
+				"title": "약관 동의-필수 약관 미동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-필수 약관 미동의 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-009-E3",
+			"screenVariantId": "nova-mbr-fp-009",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-009-E3",
+				"title": "약관 동의-동의 저장 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "약관 동의-동의 저장 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-010-0",
+			"screenVariantId": "nova-mbr-fp-010",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-010-0",
+				"title": "휴면 해제 처리",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 처리 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-dormant-release"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-010-E1",
+			"screenVariantId": "nova-mbr-fp-010",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-010-E1",
+				"title": "휴면 해제 처리-상태 전환 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 처리-상태 전환 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-010-E2",
+			"screenVariantId": "nova-mbr-fp-010",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-010-E2",
+				"title": "휴면 해제 처리-데이터 복원 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 처리-데이터 복원 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-010-E3",
+			"screenVariantId": "nova-mbr-fp-010",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 4,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-010-E3",
+				"title": "휴면 해제 처리-인증 세션 만료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 처리-인증 세션 만료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-010-E4",
+			"screenVariantId": "nova-mbr-fp-010",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 5,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-010-E4",
+				"title": "휴면 해제 처리-세션 생성 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 처리-세션 생성 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-011-0",
+			"screenVariantId": "nova-mbr-fp-011",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-011-0",
+				"title": "휴면 해제 완료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 완료 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "organism",
+								"organismId": "ogn-mbr-dormant-complete"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-011-E1",
+			"screenVariantId": "nova-mbr-fp-011",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-011-E1",
+				"title": "휴면 해제 완료-알림 발송 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 완료-알림 발송 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-MBR-FP-011-E2",
+			"screenVariantId": "nova-mbr-fp-011",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "__pending__",
+				"variant": "default"
+			},
+			"metadata": {
+				"id": "NOVA-MBR-FP-011-E2",
+				"title": "휴면 해제 완료-결과 조회 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "Screen",
+				"componentVersion": "1.0.0",
+				"metadata": {
+					"id": "screen-root",
+					"title": "휴면 해제 완료-결과 조회 실패 화면",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-21T11:32:32.007Z",
+					"updatedAt": "2026-05-21T11:32:32.007Z"
+				},
+				"props": {
+					"surface": "page"
+				},
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"id": "screen-header",
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"id": "screen-contents",
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": []
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"id": "screen-bottom",
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		}
+	],
+	"organisms": [
+		{
+			"id": "ogn-mbr-term-list",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-term-list",
+				"title": "약관 목록 조회",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "약관 목록 조회"
+			},
+			"patternId": "term-list",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "list-cell-term-required",
+					"order": 1
+				},
+				{
+					"compositeId": "list-cell-term-optional",
+					"order": 2
+				},
+				{
+					"compositeId": "accordion-term-detail",
+					"order": 3
+				},
+				{
+					"compositeId": "section-message-term-error",
+					"order": 4
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-term-agree",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-term-agree",
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "약관 동의"
+			},
+			"patternId": "term-agree",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "checkbox-all-agree",
+					"order": 1
+				},
+				{
+					"compositeId": "checkbox-term-required",
+					"order": 2
+				},
+				{
+					"compositeId": "checkbox-term-optional",
+					"order": 3
+				},
+				{
+					"compositeId": "section-message-required-error",
+					"order": 4
+				},
+				{
+					"compositeId": "action-area-next",
+					"order": 5
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-input",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-guardian-input",
+				"title": "법정대리인 정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "법정대리인 정보 입력"
+			},
+			"patternId": "guardian-input",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "text-field-guardian-name",
+					"order": 1
+				},
+				{
+					"compositeId": "text-field-guardian-phone",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-guardian-info",
+					"order": 3
+				},
+				{
+					"compositeId": "section-message-guardian-error",
+					"order": 4
+				},
+				{
+					"compositeId": "action-area-guardian-request",
+					"order": 5
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-result",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-guardian-result",
+				"title": "법정대리인 동의 결과 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "법정대리인 동의 결과 확인"
+			},
+			"patternId": "guardian-result",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-guardian-wait",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-guardian-expire",
+					"order": 2
+				},
+				{
+					"compositeId": "button-guardian-retry",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-member-input",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-member-input",
+				"title": "회원 정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "회원 정보 입력"
+			},
+			"patternId": "member-input",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "text-field-user-id",
+					"order": 1
+				},
+				{
+					"compositeId": "text-field-password",
+					"order": 2
+				},
+				{
+					"compositeId": "text-field-email",
+					"order": 3
+				},
+				{
+					"compositeId": "text-field-phone",
+					"order": 4
+				},
+				{
+					"compositeId": "section-message-input-error",
+					"order": 5
+				},
+				{
+					"compositeId": "action-area-next",
+					"order": 6
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-entry-check",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-entry-check",
+				"title": "가입 진입 조건 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "가입 진입 조건 확인"
+			},
+			"patternId": "entry-check",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-entry-existing",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-entry-dormant",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-entry-withdrawn",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-select",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-auth-select",
+				"title": "인증수단 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "인증수단 선택"
+			},
+			"patternId": "auth-select",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "list-cell-auth-phone",
+					"order": 1
+				},
+				{
+					"compositeId": "list-cell-auth-pass",
+					"order": 2
+				},
+				{
+					"compositeId": "list-cell-auth-cert",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-request",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-auth-request",
+				"title": "본인인증 요청",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "본인인증 요청"
+			},
+			"patternId": "auth-request",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "text-field-auth-code",
+					"order": 1
+				},
+				{
+					"compositeId": "text-field-auth-timer",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-auth-error",
+					"order": 3
+				},
+				{
+					"compositeId": "section-message-auth-expire",
+					"order": 4
+				},
+				{
+					"compositeId": "button-auth-retry",
+					"order": 5
+				},
+				{
+					"compositeId": "action-area-auth-confirm",
+					"order": 6
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-member-status",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-member-status",
+				"title": "회원 상태 조회",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "회원 상태 조회"
+			},
+			"patternId": "member-status",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-status-dormant",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-status-withdrawn",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-status-error",
+					"order": 3
+				},
+				{
+					"compositeId": "button-status-retry",
+					"order": 4
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-path",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-join-path",
+				"title": "가입 경로 분기",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "가입 경로 분기"
+			},
+			"patternId": "join-path",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-join-available",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-join-dormant",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-join-blocked",
+					"order": 3
+				},
+				{
+					"compositeId": "action-area-join-proceed",
+					"order": 4
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-complete",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-join-complete",
+				"title": "가입 완료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "가입 완료"
+			},
+			"patternId": "join-complete",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-join-success",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-session-error",
+					"order": 2
+				},
+				{
+					"compositeId": "action-area-join-done",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-detect",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-dormant-detect",
+				"title": "휴면 감지 및 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "휴면 감지 및 안내"
+			},
+			"patternId": "dormant-detect",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-dormant-guide",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-dormant-error",
+					"order": 2
+				},
+				{
+					"compositeId": "action-area-dormant-release",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-eligibility",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-dormant-eligibility",
+				"title": "휴면 해제 가능 여부 판정",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "휴면 해제 가능 여부 판정"
+			},
+			"patternId": "dormant-eligibility",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-eligibility-guide",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-eligibility-block",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-eligibility-error",
+					"order": 3
+				},
+				{
+					"compositeId": "action-area-eligibility-proceed",
+					"order": 4
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-release",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-dormant-release",
+				"title": "휴면 해제 처리",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "휴면 해제 처리"
+			},
+			"patternId": "dormant-release",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-release-progress",
+					"order": 1
+				},
+				{
+					"compositeId": "section-message-release-error",
+					"order": 2
+				},
+				{
+					"compositeId": "section-message-release-session-error",
+					"order": 3
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-complete",
+			"type": "Organism",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "ogn-mbr-dormant-complete",
+				"title": "휴면 해제 완료 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"name": "휴면 해제 완료 안내"
+			},
+			"patternId": "dormant-complete",
+			"patternVariant": "default",
+			"composites": [
+				{
+					"compositeId": "section-message-complete-result",
+					"order": 1
+				},
+				{
+					"compositeId": "action-area-complete-home",
+					"order": 2
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"type": "list-cell",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "list-cell-term-required",
+				"title": "필수 약관 항목",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "list-cell",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "list-cell-term-optional",
+				"title": "선택 약관 항목",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "accordion",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "accordion-term-detail",
+				"title": "약관 전문 펼치기",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-term-error",
+				"title": "약관 조회 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "checkbox",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "checkbox-all-agree",
+				"title": "전체 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "medium"
+			},
+			"events": {}
+		},
+		{
+			"type": "checkbox",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "checkbox-term-required",
+				"title": "필수 약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "medium"
+			},
+			"events": {}
+		},
+		{
+			"type": "checkbox",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "checkbox-term-optional",
+				"title": "선택 약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "small"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-required-error",
+				"title": "필수 약관 미동의 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-next",
+				"title": "다음 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-guardian-name",
+				"title": "법정대리인 이름 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-guardian-phone",
+				"title": "법정대리인 연락처 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-guardian-info",
+				"title": "법정대리인 동의 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-guardian-error",
+				"title": "법정대리인 정보 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-guardian-request",
+				"title": "동의 요청 발송 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-guardian-wait",
+				"title": "법정대리인 동의 대기 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-guardian-expire",
+				"title": "동의 유효시간 만료 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "button",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "button-guardian-retry",
+				"title": "동의 재요청 버튼",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "solid"
+			},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-user-id",
+				"title": "아이디 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-password",
+				"title": "비밀번호 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-email",
+				"title": "이메일 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-phone",
+				"title": "연락처 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-input-error",
+				"title": "입력 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-entry-existing",
+				"title": "기존 정상 회원 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-entry-dormant",
+				"title": "휴면 회원 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-entry-withdrawn",
+				"title": "탈퇴 회원 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "list-cell",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "list-cell-auth-phone",
+				"title": "휴대폰 본인인증 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "list-cell",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "list-cell-auth-pass",
+				"title": "PASS 인증 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "list-cell",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "list-cell-auth-cert",
+				"title": "공동인증서 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-auth-code",
+				"title": "인증번호 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "text-field",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "text-field-auth-timer",
+				"title": "인증번호 유효시간 타이머",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-auth-error",
+				"title": "인증 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-auth-expire",
+				"title": "인증번호 만료 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "button",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "button-auth-retry",
+				"title": "인증번호 재요청 버튼",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "outlined"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-auth-confirm",
+				"title": "인증 확인 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-status-dormant",
+				"title": "휴면 회원 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-status-withdrawn",
+				"title": "탈퇴 회원 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-status-error",
+				"title": "조회 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "button",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "button-status-retry",
+				"title": "재시도 버튼",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "outlined"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-join-available",
+				"title": "신규 가입 가능 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "positive"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-join-dormant",
+				"title": "휴면 해제 유도 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-join-blocked",
+				"title": "가입 제한 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-join-proceed",
+				"title": "가입 진행 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-join-success",
+				"title": "가입 완료 안내 메시지",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "positive"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-session-error",
+				"title": "세션 생성 실패 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-join-done",
+				"title": "홈으로 이동 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-dormant-guide",
+				"title": "휴면 상태 안내 메시지",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-dormant-error",
+				"title": "조회 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-dormant-release",
+				"title": "휴면 해제하기 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-eligibility-guide",
+				"title": "휴면 해제 가능 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-eligibility-block",
+				"title": "해제 불가 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-eligibility-error",
+				"title": "판정 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-eligibility-proceed",
+				"title": "본인인증 진행 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-release-progress",
+				"title": "휴면 해제 처리 중 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "info"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-release-error",
+				"title": "처리 오류 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "negative"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-release-session-error",
+				"title": "세션 복구 실패 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "cautionary"
+			},
+			"events": {}
+		},
+		{
+			"type": "section-message",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "section-message-complete-result",
+				"title": "휴면 해제 완료 안내 메시지",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "positive"
+			},
+			"events": {}
+		},
+		{
+			"type": "action-area",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "action-area-complete-home",
+				"title": "홈으로 이동 버튼 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-21T11:32:32.007Z",
+				"updatedAt": "2026-05-21T11:32:32.007Z"
+			},
+			"props": {
+				"variant": "strong"
+			},
+			"events": {}
+		}
+	],
+	"warnings": []
+}

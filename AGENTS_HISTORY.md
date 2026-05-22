@@ -26,6 +26,17 @@
 - 후속:
 ```
 
+## 2026-05-22 - Composer 단계 신설
+
+- 변경: `packages/agent/src/compose-assets.ts`를 신설해 Register 산출물의 `component.raw`에서 `component.props`를 합성하는 결정적 함수 `composeAssetContents`를 추가함. text-field/list-cell/accordion/section-message/action-area 등 component type별 label/title/message 키 매핑과 `note`의 `max: NN` 패턴에서 `maxLength` 추출 규칙을 구현함
+- 변경: `types.ts`에 `ComponentRawInput` / `ScreenRawInput`을 추가하고 `ComponentAssetInput` / `ScreenAssetInput` / `RegisteredComponentAsset` / `RegisteredScreenAsset`에 `raw?` 필드를 부착함. `register-assets.ts`가 `raw`를 그대로 보존하도록 갱신함
+- 변경: `claude-asset-generator.ts`의 zod 스키마와 JSON schema에 `raw` 필드를 추가하고, 프롬프트에 "Raw field extraction (verbatim, no interpretation)" 섹션을 추가해 markdown 표 셀을 그대로 박도록 지시함. 의미 해석은 Composer가 담당함
+- 변경: `generate-register` API의 파이프라인을 `Claude SDK → Composer → Register → Decorator → DB` 순서로 정렬하고, Composer 실행 로그를 추가함
+- 변경: `packages/agent/AGENTS.md` / `README.md` / 메모리의 4단계 정의를 canonical 한 줄 정의로 통일함: Register=Parse user input, Composer=Place props/bindings, Decorator=Place patterns via pattern-store, DB=Materialize rows
+- 이유: 데코레이터에 "빈 props 채우기"를 묶어두면 콘텐츠와 스타일 책임이 흐려져 AI 호출 비용/품질 평가/marketplace fallback 범위가 모두 모호해지기 때문. 또한 markdown 파싱이 여러 단계에 흩어지면 입력 형식 교체가 어려워지므로 Register만 markdown을 읽고 Composer/Decorator/DB는 이전 단계 산출물 + 카탈로그만 참조하도록 의존 경계를 좁힘
+- 검증: `npm test -- --run packages/agent` 14/14 통과 (Composer 단위 테스트 9개 포함), `npx tsc --noEmit --incremental false` clean, `npx biome check` clean
+- 후속: 워크벤치에서 53 screens 재생성해 composite props 채워진 비율 확인. Composer B안(빈 props에 대한 variant 단위 AI 보강) 추가. `screen.raw.cases`를 edge screen에 propagate해 분기 케이스 텍스트 활용
+
 ## 2026-05-18 - Documentation Agent
 
 - 변경: 초기 문서 세트 생성
@@ -691,6 +702,20 @@
 - 이유: Next.js 클라이언트 번들이 `@cx/agent` 루트를 통해 `@anthropic-ai/claude-agent-sdk`를 따라가면서 브라우저에서 `async_hooks`를 resolve하려고 해 build가 실패했기 때문
 - 검증: `npx biome check packages/agent/src/index.ts packages/agent/README.md packages/agent/AGENTS.md`, `npx tsc --noEmit`, `npm run build`
 
+## 2026-05-21 - Agent Runtime Agent
+
+- 변경: Claude Agent SDK 생성 호출의 기본값을 이전 세션 이어가기에서 새 세션 시작으로 바꾸고, generate-register API에서 Node.js 런타임과 `continueSession: false`를 명시함
+- 변경: Claude SDK debug 로그에 경과 시간, 직전 메시지 이후 시간, message type별 누적 카운트, 실패 시 SDK errors/numTurns를 추가함
+- 이유: 업로드 import별 register 생성은 독립 산출물이므로 최근 Claude 세션을 자동으로 이어가면 이전 대화/훅 상태가 섞일 수 있고, 결과 대기 중 어디서 멈췄는지 판단하기 어려웠기 때문
+- 검증: `npx biome check packages/agent/src/claude-asset-generator.ts apps/web/src/app/api/agent/generate-register/route.ts packages/agent/README.md packages/agent/AGENTS.md AGENTS_HISTORY.md`, `npx tsc --noEmit`, `npm run build`
+
+## 2026-05-21 - Agent Runtime Agent
+
+- 변경: `generateAssetsWithLocalClaude`에 `debug`/`logger` 옵션을 추가하고, `/api/agent/generate-register`에서 Claude 입력 파일 요약, SDK message 흐름, 파싱 결과, write 경로를 서버 콘솔에 출력하도록 연결함
+- 변경: generate-register API를 try/catch로 감싸 실패 시에도 JSON error를 반환하도록 보강함
+- 이유: 업로드 후 AI SDK 입출력과 처리 과정을 터미널에서 확인할 수 없어 생성 흐름이 블랙박스처럼 보였기 때문
+- 검증: `npx biome check packages/agent/src/claude-asset-generator.ts apps/web/src/app/api/agent/generate-register/route.ts packages/agent/README.md packages/agent/AGENTS.md`, `npx tsc --noEmit`, `npm run build`
+
 ## 2026-05-21 - Architecture Agent
 
 - 변경: 분리된 schema 패키지를 제거하고 schema/type, binding, component registry, validation을 `@cx/renderer` 내부로 흡수함
@@ -761,3 +786,10 @@
 - 이유: AI 생성, Puck 편집, DB/read model 입력이 모두 같은 renderer 계약을 통과해야 하므로 검증 결과가 화면 검수의 중심 정보가 되어야 하기 때문
 - 검증: `npm test`, `npx tsc --noEmit`, `npm run lint:hooks`, `npx biome lint packages/renderer/src/runtime.ts packages/renderer/src/index.ts packages/renderer/src/schema.ts packages/renderer/src/validation.ts packages/renderer/src/__tests__/schema-runtime.test.ts apps/web/src/adapters/tables-to-render-tree.ts apps/web/src/data/local-workbench-data-loader.ts apps/web/src/model/store.ts apps/web/src/components/layout/InspectionPanel.tsx`
 - 참고: 전체 `npm run lint`는 기존 빈 JSON 파일 `docs/data-mockups/4-generation-contexts/generation-context.json` parse error로 중단됨
+
+## 2026-05-21 - Documentation Agent
+
+- 변경: 문서 간 기준을 `database/tables` 소비 데이터 중심으로 정리하고, Claude 실행 정책을 로컬 실행 우선/세션 재개 옵션으로 통일함
+- 이유: `docs/data-mockups` 직접 소비 여부, Claude 세션 재개 기본값, `components`와 `composite` 용어가 문서마다 다르게 표현되어 후속 구현 기준이 흔들릴 수 있음
+- 검증: `AGENTS.md`, `MASTER_PLAN.md`, `DEVELOPMENT_ARCHITECTURE.md`, `DATA_MAP.md`, `DISPLAY_PREVIEW_SCHEMA.md`의 관련 문구를 대조해 같은 방향으로 갱신함
+- 후속: `docs/data-mockups/3-parsed-jsons/display-preview-screen.json` fixture 추가와 legacy `styles.css` export 정리 필요

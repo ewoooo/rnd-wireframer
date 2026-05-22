@@ -20,11 +20,12 @@ export interface AppScreen {
 		organismCode: string;
 	}>;
 	screenOrder: number;
-	screenRouteCode: string;
+	screenRouteId: string;
 	screenRouteName: string;
 	schema: WireframeSchema;
 	screenVariantId: string;
 	screenVariantName: string;
+	screenVariantOrder: number;
 	screenVariantType: "base" | "edge";
 	sourceValidationErrors: string[];
 	validationStats?: WireframeValidationStats;
@@ -40,87 +41,57 @@ export interface AppOrganism {
 }
 
 export type SampleRenderEntry =
-	| {
-			compositeId: string;
-			kind: "composite";
-	  }
-	| {
-			kind: "organism";
-			organismId: string;
-	  };
+	| { kind: "composite"; id: string }
+	| { kind: "organism"; id: string };
 
 export interface SampleScreenRegion {
 	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
 	componentVersion?: string;
-	metadata: Pick<WireframeMetadata, "id" | "title"> & Partial<WireframeMetadata>;
+	metadata: { title: string } & Partial<WireframeMetadata>;
 	props?: Record<string, PropValue>;
 	children?: SampleRenderEntry[];
 }
 
-export type PatternStoreTarget = "composite" | "organism" | "screen";
+import {
+	type CompositeVariant,
+	type OrganismVariant,
+	type PatternStore,
+	type PatternStorePageStack as SamplePageStackPattern,
+	type PatternStorePattern,
+	type PatternStoreTarget,
+	type ScreenVariant,
+} from "@cx/agent/pattern-store";
+export {
+	findPattern as findPatternStorePattern,
+	listPatterns as listPatternStorePatterns,
+	loadPatternStore,
+} from "@cx/agent/pattern-store";
+export type {
+	CompositeVariant,
+	OrganismVariant,
+	PatternStore,
+	PatternStorePattern,
+	PatternStoreTarget,
+	SamplePageStackPattern,
+	ScreenVariant,
+};
 
-export interface PatternStoreRecipe {
-	composite?: {
-		props?: Record<string, PropValue>;
-		type?: string;
-	};
-	organism?: {
-		compositeOrder?: "explicit";
-		props?: Record<string, PropValue>;
-	};
-	screen?: {
-		regions?: Partial<
-			Record<
-				"bottom" | "contents" | "header",
-				{
-					pageStack?: SamplePageStackPattern;
-					props?: Record<string, PropValue>;
-				}
-			>
-		>;
-	};
-}
-
-export interface PatternStoreVariant {
-	recipe: PatternStoreRecipe;
-}
-
-export interface SamplePageStackPattern {
-	enabled: boolean;
-	divider?: {
-		type: "contents" | "section";
-	};
-	itemPaddingX?: number;
-	paddingY?: number;
-	sectionPaddingX?: number;
-}
-
-export interface PatternStorePattern {
-	defaultVariant: string;
-	id: string;
-	name: string;
-	target: PatternStoreTarget;
+export interface SampleScreenMetadata {
+	title: string;
+	author: string;
+	createdAt: string;
+	updatedAt: string;
 	description?: string;
-	variants: Record<string, PatternStoreVariant>;
-	guidance?: {
-		keywords?: string[];
-		rules?: string[];
-	};
-	examples?: Array<Record<string, unknown>>;
-}
-
-export interface PatternStore {
-	patterns: PatternStorePattern[];
 }
 
 export interface SampleScreen {
 	id?: string;
 	order?: number;
-	screenVariantCode?: string;
+	screenVariantId?: string;
 	version: string;
 	minRendererVersion?: string;
 	minComponentsVersion?: string;
-	metadata: WireframeSchema["metadata"];
+	metadata: SampleScreenMetadata;
 	pattern?: {
 		id: string;
 		variant?: string;
@@ -130,10 +101,7 @@ export interface SampleScreen {
 	theme?: WireframeSchema["theme"];
 	data?: Record<string, unknown>;
 	screen: {
-		type: "Screen";
-		componentVersion: string;
-		metadata: WireframeNode["metadata"];
-		props?: Record<string, PropValue>;
+		type: SampleScreenSurface;
 		regions: {
 			bottom: SampleScreenRegion;
 			contents: SampleScreenRegion;
@@ -142,22 +110,54 @@ export interface SampleScreen {
 	};
 }
 
+export type SampleScreenSurface = "page" | "bottomsheet" | "popup";
+
+export interface SampleOrganismMetadata {
+	title: string;
+	author: string;
+	createdAt: string;
+	updatedAt: string;
+	description?: string;
+}
+
 export interface SampleOrganism {
 	id: string;
 	type: "Organism";
-	componentVersion: string;
-	metadata: WireframeNode["metadata"];
-	patternId?: string;
-	patternVariant?: string;
+	version: string;
+	metadata: SampleOrganismMetadata;
+	pattern?: {
+		id: string;
+		variant?: string;
+	};
 	props?: Record<string, PropValue>;
-	composites: Array<{
-		compositeId: string;
-		order: number;
-	}>;
+	children: Array<{ kind: "composite"; id: string }>;
+}
+
+export interface SampleCompositeChildEntry {
+	component: { type?: string } & Record<string, unknown>;
+	props: Record<string, PropValue>;
+}
+
+export interface SampleCompositeMetadata {
+	title: string;
+	author: string;
+	createdAt: string;
+	updatedAt: string;
+	description?: string;
+}
+
+export interface SampleComposite {
+	id: string;
+	type: string;
+	version: string;
+	metadata: SampleCompositeMetadata;
+	pattern?: { id: string; variant?: string };
+	children: SampleCompositeChildEntry[];
+	events?: Record<string, unknown>;
 }
 
 export interface SampleCompositeSet {
-	composites: WireframeNode[];
+	composites: SampleComposite[];
 }
 
 export interface SampleOrganismSet {
@@ -169,11 +169,11 @@ export interface SampleScreenSet {
 }
 
 export interface SampleScreenRoute {
-	code: string;
-	module: string;
+	id: string;
+	moduleId: string;
 	name: string;
 	order: number;
-	processCode?: string;
+	processId?: string | null;
 }
 
 export interface SampleScreenRouteSet {
@@ -181,11 +181,11 @@ export interface SampleScreenRouteSet {
 }
 
 export interface SampleScreenVariant {
-	code: string;
+	id: string;
 	followUp?: string | null;
 	name: string;
 	order: number;
-	screenRouteCode: string;
+	screenRouteId: string;
 	variantType: "base" | "edge";
 }
 
@@ -199,12 +199,12 @@ export function tablesToRenderTrees({
 	patternStore,
 	screens,
 }: {
-	composites: WireframeNode[];
+	composites: SampleComposite[];
 	organisms: SampleOrganism[];
 	patternStore?: PatternStore;
 	screens: SampleScreen[];
 }) {
-	const compositeById = new Map(composites.map((composite) => [composite.metadata.id, composite]));
+	const compositeById = new Map(composites.map((composite) => [composite.id, composite]));
 	const organismById = new Map(organisms.map((organism) => [organism.id, organism]));
 	const patternById = new Map(
 		(patternStore?.patterns ?? []).map((pattern) => [pattern.id, pattern]),
@@ -220,13 +220,27 @@ export function tablesToRenderTrees({
 	);
 }
 
+export const SCREEN_NODE_COMPONENT_VERSION = "1.0.0";
+
+function deriveSchemaMetadata(screen: SampleScreen): WireframeMetadata {
+	const id = screen.id ?? screen.metadata.title;
+	return {
+		id,
+		title: screen.metadata.title,
+		author: screen.metadata.author,
+		createdAt: screen.metadata.createdAt,
+		updatedAt: screen.metadata.updatedAt,
+		description: screen.metadata.description,
+	};
+}
+
 export function tablesToRenderTree({
 	compositeById,
 	organismById,
 	patternById = new Map(),
 	screen,
 }: {
-	compositeById: Map<string, WireframeNode>;
+	compositeById: Map<string, SampleComposite>;
 	organismById: Map<string, SampleOrganism>;
 	patternById?: Map<string, PatternStorePattern>;
 	screen: SampleScreen;
@@ -234,26 +248,32 @@ export function tablesToRenderTree({
 	const patternId = screen.pattern?.id ?? screen.patternId;
 	const patternVariant = screen.pattern?.variant ?? screen.patternVariant;
 	const screenPattern = getPatternPreset(patternById, patternId, patternVariant, "screen");
-	const screenNode = screen.screen;
+	const screenBody = screen.screen;
+	const schemaMetadata = deriveSchemaMetadata(screen);
+	const screenNodeMetadata: WireframeMetadata = {
+		...schemaMetadata,
+		id: `${schemaMetadata.id}-screen-root`,
+		title: `${schemaMetadata.title} 화면`,
+	};
 
 	return {
 		version: screen.version,
 		minRendererVersion: screen.minRendererVersion,
 		minComponentsVersion: screen.minComponentsVersion,
-		metadata: screen.metadata,
+		metadata: schemaMetadata,
 		theme: screen.theme,
 		data: screen.data,
 		children: [
 			{
 				type: "Screen",
-				componentVersion: screenNode.componentVersion,
-				metadata: screenNode.metadata,
-				props: screenNode.props,
+				componentVersion: SCREEN_NODE_COMPONENT_VERSION,
+				metadata: screenNodeMetadata,
+				props: { surface: screenBody.type },
 				children: [
 					tableRegionToRenderNode(
 						"header",
-						screenNode,
-						screenNode.regions.header,
+						schemaMetadata,
+						screenBody.regions.header,
 						compositeById,
 						organismById,
 						patternById,
@@ -261,8 +281,8 @@ export function tablesToRenderTree({
 					),
 					tableRegionToRenderNode(
 						"contents",
-						screenNode,
-						screenNode.regions.contents,
+						schemaMetadata,
+						screenBody.regions.contents,
 						compositeById,
 						organismById,
 						patternById,
@@ -270,8 +290,8 @@ export function tablesToRenderTree({
 					),
 					tableRegionToRenderNode(
 						"bottom",
-						screenNode,
-						screenNode.regions.bottom,
+						schemaMetadata,
+						screenBody.regions.bottom,
 						compositeById,
 						organismById,
 						patternById,
@@ -339,28 +359,29 @@ export function getValidationWarnings(screen?: AppScreen) {
 
 export function validateSampleScreenSource(screen: SampleScreen) {
 	const errors: string[] = [];
+	const label = screen.id ?? screen.metadata.title;
 
 	if (!screen.id) {
-		errors.push(`${screen.metadata.id}: id is required`);
+		errors.push(`${label}: id is required`);
 	}
-	if (screen.id && screen.id !== screen.metadata.id) {
-		errors.push(`${screen.metadata.id}: id must match metadata.id`);
+	if (!screen.metadata.title) {
+		errors.push(`${label}: metadata.title is required`);
 	}
-	if (!screen.screenVariantCode) {
-		errors.push(`${screen.metadata.id}: screenVariantCode is required`);
+	if (!screen.screenVariantId) {
+		errors.push(`${label}: screenVariantId is required`);
 	}
 	if (!screen.minRendererVersion) {
-		errors.push(`${screen.metadata.id}: minRendererVersion is required`);
+		errors.push(`${label}: minRendererVersion is required`);
 	}
 	if (screen.minComponentsVersion) {
-		errors.push(`${screen.metadata.id}: minComponentsVersion is deprecated in screen source`);
+		errors.push(`${label}: minComponentsVersion is deprecated in screen source`);
 	}
 	if (!screen.pattern?.id) {
-		errors.push(`${screen.metadata.id}: pattern.id is required`);
+		errors.push(`${label}: pattern.id is required`);
 	}
 	if (screen.patternId || screen.patternVariant) {
 		errors.push(
-			`${screen.metadata.id}: use pattern.id / pattern.variant instead of patternId / patternVariant`,
+			`${label}: use pattern.id / pattern.variant instead of patternId / patternVariant`,
 		);
 	}
 
@@ -371,23 +392,30 @@ export function validateSampleScreenSource(screen: SampleScreen) {
 	return errors;
 }
 
+const REGION_ID_BY_KEY = {
+	header: "screen-header",
+	contents: "screen-contents",
+	bottom: "screen-bottom",
+} as const;
+
 function tableRegionToRenderNode(
 	regionKey: "bottom" | "contents" | "header",
-	screenNode: SampleScreen["screen"],
+	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
-	compositeById: Map<string, WireframeNode>,
+	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-	screenPattern?: PatternStoreRecipe,
+	screenPattern?: ScreenVariant,
 ): WireframeNode {
+	const regionId = REGION_ID_BY_KEY[regionKey];
 	return {
 		type: region.type,
-		componentVersion: region.componentVersion ?? screenNode.componentVersion,
-		metadata: completeMetadata(region.metadata, screenNode.metadata),
-		props: getPatternOwnedProps(screenPattern?.screen?.regions?.[regionKey]?.props, region.props),
+		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
+		metadata: completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
+		props: getPatternOwnedProps(screenPattern?.regions?.[regionKey]?.props, region.props),
 		children: tableRegionChildrenToRenderNodes(
 			regionKey,
-			screenNode,
+			schemaMetadata,
 			region,
 			compositeById,
 			organismById,
@@ -399,29 +427,31 @@ function tableRegionToRenderNode(
 
 function tableRegionChildrenToRenderNodes(
 	regionKey: "bottom" | "contents" | "header",
-	screenNode: SampleScreen["screen"],
+	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
-	compositeById: Map<string, WireframeNode>,
+	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-	screenPattern?: PatternStoreRecipe,
+	screenPattern?: ScreenVariant,
 ) {
 	const entries = region.children ?? [];
-	const pageStack = screenPattern?.screen?.regions?.[regionKey]?.pageStack;
+	const pageStack = screenPattern?.regions?.[regionKey]?.pageStack;
 	if (regionKey !== "contents" || !pageStack?.enabled) {
 		return entries.map((entry) =>
 			tableEntryToRenderNode(entry, compositeById, organismById, patternById),
 		);
 	}
 
+	const regionId = REGION_ID_BY_KEY[regionKey];
 	const nodes: WireframeNode[] = [];
 	entries.forEach((entry, index) => {
 		if (index > 0) {
-			nodes.push(createDividerNode(screenNode, region, pageStack, index));
+			nodes.push(createDividerNode(regionId, schemaMetadata, region, pageStack, index));
 		}
 		nodes.push(
 			createPageStackNode(
-				screenNode,
+				regionId,
+				schemaMetadata,
 				region,
 				pageStack,
 				index,
@@ -433,7 +463,8 @@ function tableRegionChildrenToRenderNodes(
 }
 
 function createPageStackNode(
-	screenNode: SampleScreen["screen"],
+	regionId: string,
+	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
 	pageStack: SamplePageStackPattern,
 	index: number,
@@ -441,10 +472,10 @@ function createPageStackNode(
 ): WireframeNode {
 	return {
 		type: "PageStack",
-		componentVersion: region.componentVersion ?? screenNode.componentVersion,
+		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: {
-			...completeMetadata(region.metadata, screenNode.metadata),
-			id: `${region.metadata.id}-pagestack-${index + 1}`,
+			...completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
+			id: `${regionId}-pagestack-${index + 1}`,
 			title: `Pagestack ${index + 1}`,
 		},
 		props: {
@@ -457,7 +488,8 @@ function createPageStackNode(
 }
 
 function createDividerNode(
-	screenNode: SampleScreen["screen"],
+	regionId: string,
+	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
 	pageStack: SamplePageStackPattern,
 	index: number,
@@ -466,8 +498,8 @@ function createDividerNode(
 		type: "Divider",
 		componentVersion: "1.0.0",
 		metadata: {
-			...completeMetadata(region.metadata, screenNode.metadata),
-			id: `${region.metadata.id}-divider-${index}`,
+			...completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
+			id: `${regionId}-divider-${index}`,
 			title: `섹션 구분선 ${index}`,
 		},
 		props: {
@@ -496,55 +528,52 @@ function validateScreenSourceRegion(
 ) {
 	const region = screen.screen.regions[regionKey];
 	if (!region) {
-		errors.push(`${screen.metadata.id}: screen.regions.${regionKey} is required`);
+		errors.push(`${screen.id ?? screen.metadata.title}: screen.regions.${regionKey} is required`);
 		return;
 	}
 	if (region.type !== expectedType) {
-		errors.push(`${screen.metadata.id}: screen.regions.${regionKey}.type must be ${expectedType}`);
+		errors.push(`${screen.id ?? screen.metadata.title}: screen.regions.${regionKey}.type must be ${expectedType}`);
 	}
-	if (!region.metadata?.id || !region.metadata?.title) {
+	if (!region.metadata?.title) {
 		errors.push(
-			`${screen.metadata.id}: screen.regions.${regionKey}.metadata.id/title are required`,
+			`${screen.id ?? screen.metadata.title}: screen.regions.${regionKey}.metadata.title is required`,
 		);
 	}
 	for (const child of region.children ?? []) {
-		if (child.kind === "composite" && !child.compositeId) {
-			errors.push(`${screen.metadata.id}: ${regionKey} composite child requires compositeId`);
-		}
-		if (child.kind === "organism" && !child.organismId) {
-			errors.push(`${screen.metadata.id}: ${regionKey} organism child requires organismId`);
+		if (!child.id) {
+			errors.push(`${screen.id ?? screen.metadata.title}: ${regionKey} ${child.kind} child requires id`);
 		}
 	}
 }
 
 function tableEntryToRenderNode(
 	entry: SampleRenderEntry,
-	compositeById: Map<string, WireframeNode>,
+	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	if (entry.kind === "composite") {
 		return tableCompositeToRenderNode(
-			requireComposite(compositeById, entry.compositeId),
+			requireComposite(compositeById, entry.id),
 			patternById,
 		);
 	}
 
-	const organism = organismById.get(entry.organismId);
+	const organism = organismById.get(entry.id);
 	if (!organism) {
 		return {
 			type: "Organism",
 			componentVersion: "1.0.0",
 			metadata: {
-				id: entry.organismId,
-				title: entry.organismId,
+				id: entry.id,
+				title: entry.id,
 				author: "system",
 				createdAt: "2026-05-21T00:00:00Z",
 				updatedAt: "2026-05-21T00:00:00Z",
 			},
 			props: {
-				organismCode: entry.organismId,
-				name: entry.organismId,
+				organismCode: entry.id,
+				name: entry.id,
 				sourceStatus: "missing",
 			},
 			children: [],
@@ -553,45 +582,64 @@ function tableEntryToRenderNode(
 
 	const organismPattern = getPatternPreset(
 		patternById,
-		organism.patternId,
-		organism.patternVariant,
+		organism.pattern?.id,
+		organism.pattern?.variant,
 		"organism",
 	);
 
 	return {
 		type: organism.type,
-		componentVersion: organism.componentVersion,
-		metadata: organism.metadata,
-		props: mergeProps(mergeProps(organismPattern?.organism?.props, organism.props), {
+		componentVersion: organism.version,
+		metadata: {
+			id: organism.id,
+			title: organism.metadata.title,
+			author: organism.metadata.author,
+			createdAt: organism.metadata.createdAt,
+			updatedAt: organism.metadata.updatedAt,
+			description: organism.metadata.description,
+		},
+		props: mergeProps(mergeProps(organismPattern?.props, organism.props), {
 			organismCode: organism.id,
 		}),
-		children: [...organism.composites]
-			.sort((a, b) => a.order - b.order)
-			.map((compositeRef) =>
-				tableCompositeToRenderNode(
-					requireComposite(compositeById, compositeRef.compositeId),
-					patternById,
-				),
+		children: organism.children.map((compositeRef) =>
+			tableCompositeToRenderNode(
+				requireComposite(compositeById, compositeRef.id),
+				patternById,
 			),
+		),
 	};
 }
 
 function tableCompositeToRenderNode(
-	composite: WireframeNode & { patternId?: string },
+	composite: SampleComposite,
 	patternById: Map<string, PatternStorePattern>,
-) {
+): WireframeNode {
 	const compositePattern = getPatternPreset(
 		patternById,
-		composite.patternId,
-		undefined,
+		composite.pattern?.id,
+		composite.pattern?.variant,
 		"composite",
 	);
-	const node = cloneNode(composite);
-	node.props = mergeProps(compositePattern?.composite?.props, node.props);
-	return node;
+	const firstChild = composite.children[0];
+	const childType = firstChild?.component?.type ?? composite.type;
+	const childProps = (firstChild?.props ?? {}) as Record<string, PropValue>;
+	return {
+		type: childType,
+		componentVersion: composite.version,
+		metadata: {
+			id: composite.id,
+			title: composite.metadata.title,
+			author: composite.metadata.author,
+			createdAt: composite.metadata.createdAt,
+			updatedAt: composite.metadata.updatedAt,
+			description: composite.metadata.description,
+		},
+		props: mergeProps(compositePattern?.props, childProps),
+		events: composite.events as WireframeNode["events"],
+	};
 }
 
-function requireComposite(compositeById: Map<string, WireframeNode>, compositeId: string) {
+function requireComposite(compositeById: Map<string, SampleComposite>, compositeId: string) {
 	const composite = compositeById.get(compositeId);
 	if (!composite) {
 		throw new Error(`Missing composite sample: ${compositeId}`);
@@ -599,32 +647,27 @@ function requireComposite(compositeById: Map<string, WireframeNode>, compositeId
 	return composite;
 }
 
-function cloneNode(node: WireframeNode): WireframeNode {
-	return JSON.parse(JSON.stringify(node)) as WireframeNode;
-}
+type VariantByTarget<T extends PatternStoreTarget> = T extends "screen"
+	? ScreenVariant
+	: T extends "organism"
+		? OrganismVariant
+		: CompositeVariant;
 
-function getPatternPreset(
+function getPatternPreset<T extends PatternStoreTarget>(
 	patternById: Map<string, PatternStorePattern>,
 	patternId: string | undefined,
 	patternVariant: string | undefined,
-	target: PatternStoreTarget,
-) {
+	target: T,
+): VariantByTarget<T> | undefined {
 	if (!patternId) return undefined;
 
 	const pattern = patternById.get(patternId);
-	if (!pattern) {
-		throw new Error(`Missing ${target} pattern sample: ${patternId}`);
-	}
-	if (pattern.target !== target) {
-		throw new Error(`Pattern ${patternId} target must be ${target}, got ${pattern.target}`);
-	}
+	if (!pattern || pattern.target !== target) return undefined;
 
 	const variant = patternVariant ?? pattern.defaultVariant;
 	const variantEntry = pattern.variants[variant];
-	if (!variantEntry) {
-		throw new Error(`Missing pattern variant: ${patternId}.${variant}`);
-	}
-	return variantEntry.recipe;
+	if (!variantEntry) return undefined;
+	return variantEntry as VariantByTarget<T>;
 }
 
 function mergeProps(

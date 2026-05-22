@@ -3,9 +3,8 @@
 		{
 			"id": "ogn-mbr-term-list",
 			"type": "Organism",
-			"componentVersion": "1.0.0",
+			"version": "1.0.0",
 			"metadata": {
-				"id": "ogn-mbr-term-list",
 				"title": "약관 동의",
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-21T00:00:00Z",
@@ -14,33 +13,34 @@
 			"props": {
 				"name": "약관 목록 조회"
 			},
-			"patternId": "term-list",
-			"patternVariant": "default",
-			"composites": [
+			"pattern": {
+				"id": "term-list",
+				"variant": "default"
+			},
+			"children": [
 				{
-					"compositeId": "requiredTerm",
-					"order": 1
+					"kind": "composite",
+					"id": "requiredTerm"
 				},
 				{
-					"compositeId": "optionalTerm",
-					"order": 2
+					"kind": "composite",
+					"id": "optionalTerm"
 				},
 				{
-					"compositeId": "termDetail",
-					"order": 3
+					"kind": "composite",
+					"id": "termDetail"
 				},
 				{
-					"compositeId": "errorMessage",
-					"order": 4
+					"kind": "composite",
+					"id": "errorMessage"
 				}
 			]
 		},
 		{
 			"id": "ogn-mbr-member-input",
 			"type": "Organism",
-			"componentVersion": "1.0.0",
+			"version": "1.0.0",
 			"metadata": {
-				"id": "ogn-mbr-member-input",
 				"title": "회원 정보 입력",
 				"author": "plus_x_author_1",
 				"createdAt": "2026-05-21T00:00:00Z",
@@ -49,37 +49,38 @@
 			"props": {
 				"name": "회원 정보 입력"
 			},
-			"patternId": "field-stack",
-			"patternVariant": "default",
-			"composites": [
+			"pattern": {
+				"id": "field-stack",
+				"variant": "default"
+			},
+			"children": [
 				{
-					"compositeId": "text-field-user-id",
-					"order": 1
+					"kind": "composite",
+					"id": "text-field-user-id"
 				},
 				{
-					"compositeId": "text-field-password",
-					"order": 2
+					"kind": "composite",
+					"id": "text-field-password"
 				},
 				{
-					"compositeId": "text-field-email",
-					"order": 3
+					"kind": "composite",
+					"id": "text-field-email"
 				},
 				{
-					"compositeId": "text-field-phone",
-					"order": 4
+					"kind": "composite",
+					"id": "text-field-phone"
 				},
 				{
-					"compositeId": "section-message-input-error",
-					"order": 5
+					"kind": "composite",
+					"id": "section-message-input-error"
 				}
 			]
 		},
 		{
 			"id": "ogn-mbr-entry-check",
 			"type": "Organism",
-			"componentVersion": "1.0.0",
+			"version": "1.0.0",
 			"metadata": {
-				"id": "ogn-mbr-entry-check",
 				"title": "가입 진입 조건 확인",
 				"author": "plus_x_author_1",
 				"createdAt": "2026-05-21T00:00:00Z",
@@ -88,12 +89,14 @@
 			"props": {
 				"name": "가입 진입 조건 확인"
 			},
-			"patternId": "message-stack",
-			"patternVariant": "default",
-			"composites": [
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
 				{
-					"compositeId": "section-message-entry-check",
-					"order": 1
+					"kind": "composite",
+					"id": "section-message-entry-check"
 				}
 			]
 		}

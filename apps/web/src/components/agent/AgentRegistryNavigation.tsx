@@ -32,12 +32,12 @@ export function AgentRegistryNavigation({
 
 	async function loadImports() {
 		const response = await fetch("/api/agent/client-imports");
-		const payload = (await response.json()) as {
+		const payload = await readJsonResponse<{
 			imports?: Array<{ id: string; organismFiles: number; screenFiles: number }>;
-		};
+		}>(response, "Failed to load client imports.");
 
 		if (!response.ok) {
-			throw new Error("Failed to load client imports.");
+			throw new Error(payload.error ?? "Failed to load client imports.");
 		}
 
 		const nextImports = payload.imports ?? [];
@@ -96,11 +96,11 @@ export function AgentRegistryNavigation({
 				method: "POST",
 				body: formData,
 			});
-			const payload = (await response.json()) as {
+			const payload = await readJsonResponse<{
 				error?: string;
 				import?: { id: string; organismFiles: number; screenFiles: number };
 				writtenFiles?: number;
-			};
+			}>(response, "Failed to upload client import.");
 
 			if (!response.ok || !payload.import) {
 				throw new Error(payload.error ?? "Failed to upload client import.");
@@ -138,12 +138,12 @@ export function AgentRegistryNavigation({
 				},
 				body: JSON.stringify({ importId: selectedImportId }),
 			});
-			const payload = (await response.json()) as {
+			const payload = await readJsonResponse<{
 				error?: string;
 				registry?: AssetRegistry;
 				runtime?: { provider: string; sessionId?: string };
 				writtenPath?: string;
-			};
+			}>(response, "Failed to generate register JSON.");
 
 			if (!response.ok || !payload.registry) {
 				throw new Error(payload.error ?? "Failed to generate register JSON.");
@@ -285,6 +285,26 @@ function getUploadPath(file: File) {
 	return "webkitRelativePath" in file && typeof file.webkitRelativePath === "string"
 		? file.webkitRelativePath
 		: file.name;
+}
+
+async function readJsonResponse<TPayload>(
+	response: Response,
+	fallbackMessage: string,
+): Promise<TPayload & { error?: string }> {
+	const text = await response.text();
+	if (!text.trim()) {
+		return {
+			error: `${fallbackMessage} Empty response from ${response.url || "API"}.`,
+		} as TPayload & { error?: string };
+	}
+
+	try {
+		return JSON.parse(text) as TPayload & { error?: string };
+	} catch {
+		return {
+			error: `${fallbackMessage} Non-JSON response (${response.status} ${response.statusText}).`,
+		} as TPayload & { error?: string };
+	}
 }
 
 function AgentNodeButton({

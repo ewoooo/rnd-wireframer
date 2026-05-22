@@ -133,8 +133,8 @@ function parseComponents(content: string): ComponentAssetInput[] {
 }
 
 function parseFrontmatter(content: string) {
-	const match = content.match(/^---\n(?<body>[\s\S]*?)\n---/);
-	const body = match?.groups?.body ?? "";
+	const match = content.match(/^---\n([\s\S]*?)\n---/);
+	const body = match?.[1] ?? "";
 	const entries = body
 		.split("\n")
 		.map((line) => line.trim())

@@ -26,7 +26,6 @@ export function Canvas() {
 		<SidebarInset>
 			<SidebarHeader className="border-b border-sidebar-border">
 				<h1 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-					<Smartphone data-icon="inline-start" />
 					{getCanvasTitle({
 						activeTab,
 						isCompositeView,
@@ -36,17 +35,6 @@ export function Canvas() {
 						selectedOrganism,
 					})}
 				</h1>
-				<p className="text-sm text-muted-foreground">
-					{getCanvasDescription({
-						activeTab,
-						isCompositeView,
-						isOrganismView,
-						selectedAgentAsset,
-						selectedComposite,
-						selectedOrganism,
-						selectedScreen,
-					})}
-				</p>
 			</SidebarHeader>
 			<SidebarContent className="items-center justify-center bg-secondary/50 p-6">
 				{activeTab === "agent" ? (

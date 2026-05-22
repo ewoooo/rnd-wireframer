@@ -18,6 +18,8 @@ export interface ClaudeAssetGeneratorOptions {
 	claudeExecutablePath?: string;
 	continueSession?: boolean;
 	cwd?: string;
+	debug?: boolean;
+	logger?: Pick<Console, "error" | "info" | "warn">;
 	maxTurns?: number;
 	model?: string;
 }
@@ -32,6 +34,13 @@ const assetRefSchema = z.object({
 	order: z.number().optional(),
 });
 
+const componentRawSchema = z.object({
+	description: z.string().optional(),
+	variant: z.string().optional(),
+	note: z.string().optional(),
+	events: z.string().optional(),
+});
+
 const componentSchema = z.object({
 	id: z.string().min(1),
 	name: z.string().optional(),
@@ -39,6 +48,7 @@ const componentSchema = z.object({
 	description: z.string().optional(),
 	type: z.string().optional(),
 	props: z.record(z.string(), z.unknown()).optional(),
+	raw: componentRawSchema.optional(),
 });
 
 const organismSchema = z.object({
@@ -51,6 +61,30 @@ const organismSchema = z.object({
 		.array(
 			assetRefSchema.extend({
 				componentId: z.string().min(1),
+			}),
+		)
+		.optional(),
+});
+
+const screenRawSchema = z.object({
+	description: z.string().optional(),
+	transitions: z
+		.array(
+			z.object({
+				from: z.string().optional(),
+				to: z.string().optional(),
+				condition: z.string().optional(),
+				payload: z.string().optional(),
+			}),
+		)
+		.optional(),
+	cases: z
+		.array(
+			z.object({
+				id: z.string().optional(),
+				name: z.string().optional(),
+				description: z.string().optional(),
+				followUp: z.string().optional(),
 			}),
 		)
 		.optional(),
@@ -69,6 +103,7 @@ const screenSchema = z.object({
 			}),
 		)
 		.optional(),
+	raw: screenRawSchema.optional(),
 });
 
 const registerAssetsInputSchema = z.object({
@@ -100,45 +135,151 @@ export async function generateAssetsWithLocalClaude(
 	options: ClaudeAssetGeneratorOptions = {},
 ): Promise<ClaudeAssetGeneratorOutput> {
 	let resultMessage: SDKResultMessage | undefined;
+	const debug = options.debug ?? false;
+	const logger = options.logger ?? console;
+	const prompt = buildPrompt(input);
+	const claudeExecutablePath = options.claudeExecutablePath ?? resolveClaudeExecutablePath();
+	const continueSession = options.continueSession ?? false;
+	const maxTurns = options.maxTurns ?? 5;
+	const startedAt = Date.now();
+	let lastMessageAt = startedAt;
+	const messageCounts = new Map<string, number>();
+
+	logDebug(logger, debug, "input", {
+		importId: input.importId,
+		organismFiles: summarizeFiles(input.organismFiles),
+		promptLength: prompt.length,
+		screenFiles: summarizeFiles(input.screenFiles),
+	});
+	logDebug(logger, debug, "query-options", {
+		continueSession,
+		cwd: options.cwd,
+		hasClaudeExecutablePath: Boolean(claudeExecutablePath),
+		maxTurns,
+		model: options.model ?? "default",
+	});
 
 	for await (const message of query({
-		prompt: buildPrompt(input),
+		prompt,
 		options: {
-			continue: options.continueSession ?? true,
+			continue: continueSession,
 			cwd: options.cwd,
 			disallowedTools: ["Bash", "Edit", "Write", "NotebookEdit", "WebFetch", "WebSearch"],
-			maxTurns: options.maxTurns ?? 1,
+			maxTurns,
 			model: options.model,
 			outputFormat: {
 				type: "json_schema",
 				schema: registerAssetsJsonSchema,
 			},
-			pathToClaudeCodeExecutable: options.claudeExecutablePath ?? resolveClaudeExecutablePath(),
+			pathToClaudeCodeExecutable: claudeExecutablePath,
 			permissionMode: "dontAsk",
 			tools: [],
 		},
 	})) {
+		const now = Date.now();
+		const messageSummary = summarizeSdkMessage(message);
+		recordMessageCount(messageCounts, messageSummary);
+		logDebug(logger, debug, "sdk-message", {
+			...messageSummary,
+			elapsedMs: now - startedAt,
+			messageCounts: Object.fromEntries(messageCounts),
+			sinceLastMs: now - lastMessageAt,
+		});
+		lastMessageAt = now;
 		if (message.type === "result") {
 			resultMessage = message;
 		}
 	}
 
 	if (!resultMessage) {
+		logDebug(logger, debug, "error", {
+			elapsedMs: Date.now() - startedAt,
+			messageCounts: Object.fromEntries(messageCounts),
+			message: "Claude Agent SDK finished without a result message.",
+		});
 		throw new Error("Claude Agent SDK finished without a result message.");
 	}
 
 	if (resultMessage.subtype !== "success" || resultMessage.is_error) {
+		logDebug(logger, debug, "error", {
+			elapsedMs: Date.now() - startedAt,
+			errors: "errors" in resultMessage ? resultMessage.errors : undefined,
+			isError: resultMessage.is_error,
+			messageCounts: Object.fromEntries(messageCounts),
+			numTurns: resultMessage.num_turns,
+			rawResultLength: "result" in resultMessage ? resultMessage.result.length : undefined,
+			subtype: resultMessage.subtype,
+		});
 		throw new Error(`Claude Agent SDK failed: ${resultMessage.subtype}`);
 	}
 
 	const structuredOutput = resultMessage.structured_output ?? resultMessage.result;
 	const generated = parseClaudeRegisterOutput(structuredOutput);
+	logDebug(logger, debug, "parsed-output", {
+		componentCount: generated.components?.length ?? 0,
+		elapsedMs: Date.now() - startedAt,
+		messageCounts: Object.fromEntries(messageCounts),
+		numTurns: resultMessage.num_turns,
+		organismCount: generated.organisms?.length ?? 0,
+		rawResultLength: resultMessage.result.length,
+		routeCount: generated.routes.length,
+		screenCount: generated.routes.reduce((count, route) => {
+			return count + route.variants.reduce((sum, variant) => sum + variant.screens.length, 0);
+		}, 0),
+		sessionId: resultMessage.session_id,
+		structuredOutputType: typeof resultMessage.structured_output,
+	});
 
 	return {
 		generated,
 		rawResult: resultMessage.result,
 		sessionId: resultMessage.session_id,
 	};
+}
+
+function logDebug(
+	logger: Pick<Console, "error" | "info" | "warn">,
+	enabled: boolean,
+	event: string,
+	payload: unknown,
+) {
+	if (!enabled) return;
+	logger.info(`[cx-agent:claude] ${event}`, payload);
+}
+
+function summarizeFiles(files: ClaudeAssetMarkdownFile[]) {
+	return files.map((file) => ({
+		name: file.name,
+		characters: file.content.length,
+		lines: file.content.split("\n").length,
+	}));
+}
+
+function summarizeSdkMessage(message: unknown) {
+	if (!message || typeof message !== "object") {
+		return { type: typeof message };
+	}
+
+	const record = message as Record<string, unknown>;
+	return {
+		type: record.type,
+		subtype: record.subtype,
+		isError: record.is_error,
+		sessionId: record.session_id,
+		hasResult: typeof record.result === "string" && record.result.length > 0,
+		resultLength: typeof record.result === "string" ? record.result.length : undefined,
+		hasStructuredOutput: record.structured_output !== undefined,
+	};
+}
+
+function recordMessageCount(
+	messageCounts: Map<string, number>,
+	summary: ReturnType<typeof summarizeSdkMessage>,
+) {
+	const type = typeof summary.type === "string" ? summary.type : "unknown";
+	const subtype = typeof summary.subtype === "string" ? summary.subtype : "";
+	const key = subtype ? `${type}:${subtype}` : type;
+	messageCounts.set(key, (messageCounts.get(key) ?? 0) + 1);
 }
 
 function parseClaudeRegisterOutput(output: unknown): RegisterAssetsInput {
@@ -150,8 +291,8 @@ function extractJson(output: string) {
 	const trimmed = output.trim();
 	if (trimmed.startsWith("{")) return trimmed;
 
-	const fenced = trimmed.match(/```(?:json)?\s*(?<json>[\s\S]*?)```/);
-	if (fenced?.groups?.json) return fenced.groups.json.trim();
+	const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+	if (fenced?.[1]) return fenced[1].trim();
 
 	return trimmed;
 }
@@ -163,12 +304,40 @@ function buildPrompt(input: ClaudeAssetGeneratorInput) {
 		"Return only data matching the provided JSON schema.",
 		"",
 		"Phase 1 scope:",
-		"- Register Screen Route and Screen Variant.",
-		"- Register Screens under the variant in screen order.",
-		"- Register Organisms and Components.",
+		"- Register one Screen Route covering all provided screens.",
+		"- Register one Screen Variant per main-flow screen markdown file.",
+		'  The variant id is the main screen\'s base id with the trailing "-0" stripped',
+		"  (e.g. file NOVA-MBR-FP-001-0.md → variant id NOVA-MBR-FP-001).",
+		"  The variant name and description come from the main screen's 화면 명 / 화면 설명.",
+		"- Under each variant, register the main screen first, then its edge screens.",
+		"  Main screen: use the file's full id (e.g. NOVA-MBR-FP-001-0).",
+		'  Edge screens: read the "## 케이스 분기" table in that same file and',
+		"  register every row as a screen under the same variant using the row's",
+		"  화면 ID (e.g. NOVA-MBR-FP-001-E1) as the screen id and 화면 명 / 화면 설명",
+		"  as name / description. Edge-case screens have no organisms unless the",
+		"  markdown explicitly lists them.",
+		"- Order screens within a variant: main screen first (order 1),",
+		"  then edge screens in the order they appear in 케이스 분기 (order 2, 3, ...).",
+		"- Register Organisms and Components referenced by the screens.",
 		"- Preserve IDs from the source markdown whenever present.",
-		"- Do not generate mock screen data, visual decoration, or table rows.",
+		"- Do not invent screens that are not declared in the markdown.",
 		"- Do not invent copy text that is not needed for registration.",
+		"",
+		"Raw field extraction (verbatim, no interpretation):",
+		'- For each component (a row in an organism\'s "## 컴포넌트 상세" table),',
+		"  populate component.raw with the table cells:",
+		'    raw.description = "컴포넌트 설명" cell verbatim',
+		'    raw.variant     = "variant" cell verbatim (use empty string or omit if "-")',
+		'    raw.note        = "비고" cell verbatim',
+		'    raw.events      = combine "이벤트" / "액션" / "액션 파라미터" cells as "이벤트=...; 액션=...; 파라미터=..."',
+		'  Do NOT translate, summarize, or guess. Leave a field omitted if the cell is empty or "-".',
+		"- For each screen, populate screen.raw with:",
+		"    raw.description = the screen markdown's 화면 설명 verbatim",
+		'    raw.transitions = rows of "## 화면 전환" table as {from,to,condition,payload}',
+		'    raw.cases       = rows of "## 케이스 분기" table as {id,name,description,followUp}',
+		"  These are the unprocessed source rows. Downstream stages will interpret them.",
+		"- component.props and screen-level computed fields should remain empty;",
+		"  Composer (a later stage) will fill them from raw.",
 		"",
 		`Import ID: ${input.importId}`,
 		"",
@@ -262,6 +431,39 @@ const registerAssetsJsonSchema = {
 													},
 												},
 											},
+											raw: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													description: { type: "string" },
+													transitions: {
+														type: "array",
+														items: {
+															type: "object",
+															additionalProperties: false,
+															properties: {
+																from: { type: "string" },
+																to: { type: "string" },
+																condition: { type: "string" },
+																payload: { type: "string" },
+															},
+														},
+													},
+													cases: {
+														type: "array",
+														items: {
+															type: "object",
+															additionalProperties: false,
+															properties: {
+																id: { type: "string" },
+																name: { type: "string" },
+																description: { type: "string" },
+																followUp: { type: "string" },
+															},
+														},
+													},
+												},
+											},
 										},
 									},
 								},
@@ -311,6 +513,16 @@ const registerAssetsJsonSchema = {
 					description: { type: "string" },
 					type: { type: "string" },
 					props: { type: "object" },
+					raw: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							description: { type: "string" },
+							variant: { type: "string" },
+							note: { type: "string" },
+							events: { type: "string" },
+						},
+					},
 				},
 			},
 		},

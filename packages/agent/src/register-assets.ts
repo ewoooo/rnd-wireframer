@@ -84,6 +84,7 @@ function registerScreen(
 		order: normalizeOrder(screen.order, index),
 		...(screen.description ? { description: screen.description } : {}),
 		...(screen.surface ? { surface: screen.surface } : {}),
+		...(screen.raw ? { raw: screen.raw } : {}),
 		organisms: orderRefs(screen.organisms ?? [], "organismId").map((ref, refIndex) => {
 			const organism = organismById.get(ref.organismId);
 			if (!organism) {
@@ -143,6 +144,7 @@ function registerComponent(
 		type: component.type ?? "Unknown",
 		...(component.description ? { description: component.description } : {}),
 		props: { ...(component.props ?? {}) },
+		...(component.raw ? { raw: component.raw } : {}),
 	};
 }
 

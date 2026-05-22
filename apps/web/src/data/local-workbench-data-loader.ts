@@ -1,6 +1,6 @@
+import { loadPatternStore } from "@cx/agent/pattern-store";
 import { type WireframeNode, type WireframeSchema, validateWireframeSchemaFull } from "@cx/renderer";
 import {
-	type PatternStore,
 	type SampleCompositeSet,
 	type SampleOrganismSet,
 	type SampleScreenRouteSet,
@@ -9,15 +9,13 @@ import {
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
+import decoratedTablesSet from "../../../../database/ai-imports/decorated-tables.generated.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
 import organismSampleSet from "../../../../database/tables/organisms.json";
 import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
 import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
 import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
 import screenSampleSet from "../../../../database/tables/screens.json";
-import compositePatternSet from "../../../../docs/pattern-store/composite-patterns.json";
-import organismPatternSet from "../../../../docs/pattern-store/organism-patterns.json";
-import screenPatternSet from "../../../../docs/pattern-store/screen-patterns.json";
 
 type WireframeScreenSet = {
 	screens: WireframeSchema[];
@@ -35,18 +33,48 @@ type ScreenMockDataSet = {
 	}>;
 };
 
-const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
-const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
-const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
+const decoratedTables = decoratedTablesSet as unknown as {
+	screenRoutes: SampleScreenRouteSet["screenRoutes"];
+	screenVariants: SampleScreenVariantSet["screenVariants"];
+	screens: SampleScreenSet["screens"];
+	organisms: SampleOrganismSet["organisms"];
+	components: ComponentTableSet["components"];
+};
+
+const sampleRouteSet: SampleScreenRouteSet = {
+	screenRoutes: [
+		...(screenRouteSampleSet as unknown as SampleScreenRouteSet).screenRoutes,
+		...decoratedTables.screenRoutes,
+	],
+};
+const sampleVariantSet: SampleScreenVariantSet = {
+	screenVariants: [
+		...(screenVariantSampleSet as unknown as SampleScreenVariantSet).screenVariants,
+		...decoratedTables.screenVariants,
+	],
+};
+const componentTableSet: ComponentTableSet = {
+	components: [
+		...(compositeSampleSet as unknown as ComponentTableSet).components,
+		...decoratedTables.components,
+	],
+};
+const organisms = [
+	...(organismSampleSet as unknown as SampleOrganismSet).organisms,
+	...decoratedTables.organisms,
+];
 const mockDataByScreenId = new Map(
 	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
 		.filter((entry) => entry.scenario === "default")
 		.map((entry) => [entry.screenId, entry.data]),
 );
 const orderedSampleScreens = getOrderedSampleScreens(
-	(screenSampleSet as unknown as SampleScreenSet).screens.map((screen) => ({
+	[
+		...(screenSampleSet as unknown as SampleScreenSet).screens,
+		...decoratedTables.screens,
+	].map((screen) => ({
 		...screen,
-		data: mockDataByScreenId.get(screen.id ?? screen.metadata.id),
+		data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
 	})),
 	sampleVariantSet,
 	sampleRouteSet,
@@ -54,19 +82,19 @@ const orderedSampleScreens = getOrderedSampleScreens(
 
 const sampleScreens = tablesToRenderTrees({
 	screens: orderedSampleScreens,
-	organisms: (organismSampleSet as unknown as SampleOrganismSet).organisms,
+	organisms,
 	composites: componentTableSet.components,
-	patternStore: getPatternStore(),
+	patternStore: loadPatternStore(),
 }) satisfies WireframeScreenSet["screens"];
 
 const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	const sampleScreen = orderedSampleScreens[index];
 	const validation = validateWireframeSchemaFull(schema);
 	const variant = sampleVariantSet.screenVariants.find(
-		(candidate) => candidate.code === sampleScreen.screenVariantCode,
+		(candidate) => candidate.id === sampleScreen.screenVariantId,
 	);
 	const route = sampleRouteSet.screenRoutes.find(
-		(candidate) => candidate.code === variant?.screenRouteCode,
+		(candidate) => candidate.id === variant?.screenRouteId,
 	);
 	const organisms = extractOrganisms(schema);
 
@@ -74,14 +102,15 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 		code: schema.metadata.id,
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
-		module: route?.module ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
+		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
 		organisms,
 		screenOrder: sampleScreen.order ?? index + 1,
-		screenRouteCode: route?.code ?? "unknown-route",
+		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
 		schema,
-		screenVariantId: variant?.code ?? sampleScreen.screenVariantCode ?? schema.metadata.id,
+		screenVariantId: variant?.id ?? sampleScreen.screenVariantId ?? schema.metadata.id,
 		screenVariantName: variant?.name ?? schema.metadata.title,
+		screenVariantOrder: variant?.order ?? sampleScreen.order ?? index + 1,
 		screenVariantType: variant?.variantType ?? "base",
 		sourceValidationErrors: validateSampleScreenSource(sampleScreen),
 		validationStats: validation.stats,
@@ -98,15 +127,6 @@ export function loadLocalWorkbenchData() {
 	};
 }
 
-function getPatternStore(): PatternStore {
-	return {
-		patterns: [
-			...(screenPatternSet as unknown as PatternStore).patterns,
-			...(organismPatternSet as unknown as PatternStore).patterns,
-			...(compositePatternSet as unknown as PatternStore).patterns,
-		],
-	};
-}
 
 function extractOrganisms(schema: WireframeSchema) {
 	const organisms: Array<{ order: number; organismCode: string }> = [];
@@ -158,21 +178,21 @@ function getOrderedSampleScreens(
 	variants: SampleScreenVariantSet,
 	routes: SampleScreenRouteSet,
 ) {
-	const routeOrderByCode = new Map(routes.screenRoutes.map((route) => [route.code, route.order]));
-	const variantByCode = new Map(variants.screenVariants.map((variant) => [variant.code, variant]));
+	const routeOrderByCode = new Map(routes.screenRoutes.map((route) => [route.id, route.order]));
+	const variantByCode = new Map(variants.screenVariants.map((variant) => [variant.id, variant]));
 
 	return [...screens].sort((left, right) => {
-		const leftVariant = left.screenVariantCode
-			? variantByCode.get(left.screenVariantCode)
+		const leftVariant = left.screenVariantId
+			? variantByCode.get(left.screenVariantId)
 			: undefined;
-		const rightVariant = right.screenVariantCode
-			? variantByCode.get(right.screenVariantCode)
+		const rightVariant = right.screenVariantId
+			? variantByCode.get(right.screenVariantId)
 			: undefined;
 		const leftRouteOrder = leftVariant
-			? (routeOrderByCode.get(leftVariant.screenRouteCode) ?? Number.MAX_SAFE_INTEGER)
+			? (routeOrderByCode.get(leftVariant.screenRouteId) ?? Number.MAX_SAFE_INTEGER)
 			: Number.MAX_SAFE_INTEGER;
 		const rightRouteOrder = rightVariant
-			? (routeOrderByCode.get(rightVariant.screenRouteCode) ?? Number.MAX_SAFE_INTEGER)
+			? (routeOrderByCode.get(rightVariant.screenRouteId) ?? Number.MAX_SAFE_INTEGER)
 			: Number.MAX_SAFE_INTEGER;
 
 		return (
@@ -180,7 +200,7 @@ function getOrderedSampleScreens(
 			(leftVariant?.order ?? Number.MAX_SAFE_INTEGER) -
 				(rightVariant?.order ?? Number.MAX_SAFE_INTEGER) ||
 			(left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
-			left.metadata.id.localeCompare(right.metadata.id)
+			(left.id ?? "").localeCompare(right.id ?? "")
 		);
 	});
 }

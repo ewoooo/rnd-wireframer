@@ -48,7 +48,7 @@ FastAPI
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
 | FastAPI | 후속 JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | 후속 Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
-| Local AI Session | 후속 로컬 AI 세션 우선 실행 |
+| Local AI Session | 후속 로컬 AI 실행과 선택적 세션 재개 |
 | Remote AI API | 후속 로컬 세션 실패 시 fallback |
 | Supabase PostgreSQL | 후속 관계형 데이터와 생성 이력 저장 |
 | Supabase Storage | 후속 원본 JSON 파일과 선택적 산출물 저장 |
@@ -97,6 +97,7 @@ docs/
   data-mockups/
     1-policy-inputs/
     2-spec-inputs/
+    3-parsed-jsons/
     4-generation-contexts/
     5-feedback-loops/
   development/
@@ -105,11 +106,11 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/agent`는 Agent SDK runtime과 deterministic asset registration pipeline을 담당한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 `@cx/components/styles.css`와 `@cx/layout/styles.css` legacy style export도 import한다. 정리 목표는 Tailwind v4 `@theme` 산출물을 `@cx/tokens/tailwind.css`로 모으고, layout/component의 legacy `styles.css` 책임을 최소화하는 것이다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/agent`는 Agent SDK runtime과 deterministic asset registration pipeline을 담당한다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
-화면 생성용 mock 데이터와 관계 검토 샘플은 `docs/data-mockups/`, `database/ai-imports/`, `database/tables/` 아래에 둔다. `database/ai-imports`는 AI 생성 bundle, `database/tables`의 각 JSON 파일은 이후 실제 테이블로 전환될 임시 테이블 덤프다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+화면 생성용 mock 데이터와 관계 검토 샘플은 `docs/data-mockups/`, `database/ai-imports/`, `database/tables/` 아래에 둔다. `docs/data-mockups`는 원천 입력과 단계별 fixture를 보관한다. `database/ai-imports`는 AI 생성 bundle, `database/tables`의 각 JSON 파일은 이후 실제 테이블로 전환될 임시 테이블 덤프다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
 ## 5. FastAPI 모듈
 
@@ -222,7 +223,7 @@ Claude는 HTML이 아니라 `mobile-wireframe` JSON을 반환해야 한다.
 
 Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키마 통과 여부, 정책/화면/디자인 입력 근거 반영 여부, 디자인 패턴 문서 준수 여부, 재생성 필요 여부다.
 
-Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Agent SDK는 먼저 로컬 AI 세션을 탐색한다. 사용 가능한 로컬 세션이 있으면 해당 세션을 사용하고, 없거나 실패하면 원격 API로 fallback한다.
+Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로컬 실행을 우선 사용하되, 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다. Codex 검수는 로컬 CLI 또는 로컬 런타임 실행기를 우선 사용한다. 로컬 실행이 없거나 실패하면 원격 API로 fallback한다.
 
 현재 와이어프레임 JSON 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. FastAPI 구현이 붙으면 이 계약을 Python schema로 mirrored contract 형태로 옮긴다.
 
@@ -320,17 +321,18 @@ Codex 검수 기준:
 
 | 상황 | 실행 방식 |
 |---|---|
-| 로컬 Claude 세션 있음 | Claude Agent SDK의 `resume` 또는 `continue`로 생성 세션 재사용 |
-| 로컬 Claude 세션 없음 | Claude API 사용 |
+| 로컬 Claude 실행 가능 | 기본 생성 요청은 새 세션으로 실행 |
+| 명시적 재시도/검수 반영/이어쓰기 | Claude Agent SDK의 `resume` 또는 `continue`로 기존 세션 재사용 |
+| 로컬 Claude 실행 불가 | Claude API 사용 |
 | 로컬 Codex CLI 사용 가능 | Codex CLI 또는 OpenAI 로컬 런타임을 검수 실행기로 사용 |
 | 로컬 Codex CLI 사용 불가 | 설정된 Codex Review API 사용 |
-| 로컬 세션 실패 | 실패 사유 기록 후 원격 API fallback |
+| 로컬 실행 실패 | 실패 사유 기록 후 원격 API fallback |
 
-로컬 세션 사용 여부는 생성 이력에 기록한다. 세부 저장 필드는 소비 데이터 계약이 안정화된 뒤 DB 설계에서 확정한다.
+로컬 실행 여부와 세션 재개 여부는 생성 이력에 기록한다. 세부 저장 필드는 소비 데이터 계약이 안정화된 뒤 DB 설계에서 확정한다.
 
 주의할 점:
 
-- Claude는 Claude Agent SDK에서 세션 파일을 로컬에 저장하고 `resume`, `continue`, `fork`를 지원하므로, 생성 작업의 이전 세션을 재사용할 수 있다.
+- Claude는 Claude Agent SDK에서 세션 파일을 로컬에 저장하고 `resume`, `continue`, `fork`를 지원하므로, 필요한 재시도나 이어쓰기 흐름에서 이전 세션을 재사용할 수 있다.
 - Codex는 OpenAI Agents SDK가 Codex 앱의 기존 대화 세션에 직접 attach하는 방식으로 보지 않는다.
 - Codex 검수의 로컬 우선 실행은 `codex` CLI 실행 또는 OpenAI Agents SDK의 로컬 런타임/쉘 실행 루프를 감싼 adapter로 구현한다.
 - 따라서 구현체는 `local_session_resolver.py`에서 `claude` 세션과 `codex` 실행 가능 여부를 서로 다른 방식으로 감지해야 한다.

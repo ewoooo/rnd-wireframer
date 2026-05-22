@@ -35,8 +35,9 @@ export interface AppScreenRoute {
 }
 
 export interface AppScreenVariant {
+	id: string;
 	name: string;
-	screenOrder: number;
+	order: number;
 	options: AppScreenVariantOption[];
 }
 
@@ -87,7 +88,7 @@ interface WorkbenchState {
 	selectAgentNode: (node: AgentNodeSelection) => void;
 	selectComposite: (compositeCode: string) => void;
 	selectOrganism: (organismCode: string) => void;
-	selectScreenRoute: (screenRouteCode: string) => void;
+	selectScreenRoute: (screenRouteId: string) => void;
 	selectScreenVariant: (screenCode: string) => void;
 	selectScreen: (screenCode: string) => void;
 	selectTab: (tab: NavigatorTab) => void;
@@ -222,9 +223,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
-	selectScreenRoute: (screenRouteCode) => {
+	selectScreenRoute: (screenRouteId) => {
 		const state = get();
-		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteCode);
+		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteId);
 		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? state.selectedScreenCode;
 		const nextState = {
 			...state,
@@ -471,52 +472,47 @@ function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
 	const byCode = new Map<string, AppScreenRoute>();
 
 	for (const screen of screens) {
-		const route = byCode.get(screen.screenRouteCode);
-		const screenVariantOption = {
-			code: screen.screenVariantId,
+		const screenOption: AppScreenVariantOption = {
+			code: screen.code,
 			label: getScreenVariantLabel(screen),
-			name: screen.screenVariantName,
+			name: screen.name,
 			screenCode: screen.code,
 			type: screen.screenVariantType,
 		};
 
-		if (route) {
-			const screenVariant = route.screenVariants.find(
-				(candidate) => candidate.screenOrder === screen.screenOrder,
-			);
-			if (screenVariant) {
-				if (!screenVariant.options.some((option) => option.code === screenVariantOption.code)) {
-					screenVariant.options.push(screenVariantOption);
-				}
-			} else {
-				route.screenVariants.push({
-					name: screen.name,
-					screenOrder: screen.screenOrder,
-					options: [screenVariantOption],
-				});
-				route.screenCount = route.screenVariants.length;
-			}
-			continue;
+		let route = byCode.get(screen.screenRouteId);
+		if (!route) {
+			route = {
+				code: screen.screenRouteId,
+				module: screen.module,
+				name: screen.screenRouteName,
+				screenCount: 0,
+				screenVariants: [],
+			};
+			byCode.set(screen.screenRouteId, route);
 		}
 
-		byCode.set(screen.screenRouteCode, {
-			code: screen.screenRouteCode,
-			module: screen.module,
-			name: screen.screenRouteName,
-			screenCount: 1,
-			screenVariants: [
-				{
-					name: screen.name,
-					screenOrder: screen.screenOrder,
-					options: [screenVariantOption],
-				},
-			],
-		});
+		let variant = route.screenVariants.find(
+			(candidate) => candidate.id === screen.screenVariantId,
+		);
+		if (!variant) {
+			variant = {
+				id: screen.screenVariantId,
+				name: screen.screenVariantName,
+				order: screen.screenVariantOrder,
+				options: [],
+			};
+			route.screenVariants.push(variant);
+		}
+		if (!variant.options.some((option) => option.screenCode === screenOption.screenCode)) {
+			variant.options.push(screenOption);
+		}
+		route.screenCount += 1;
 	}
 
 	for (const route of byCode.values()) {
 		route.screenVariants.sort(
-			(left, right) => left.screenOrder - right.screenOrder || left.name.localeCompare(right.name),
+			(left, right) => left.order - right.order || left.name.localeCompare(right.name),
 		);
 		for (const screenVariant of route.screenVariants) {
 			screenVariant.options.sort(
@@ -531,12 +527,9 @@ function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
 }
 
 function getScreenVariantLabel(screen: AppScreen) {
-	if (screen.screenVariantType === "base") return "0";
-
-	const edgeCode = screen.screenVariantId.match(/(?:^|[-_])(e\d+)$/i)?.[1];
-	if (edgeCode) return edgeCode.toUpperCase();
-
-	return screen.screenVariantId.toUpperCase();
+	const suffix = screen.code.match(/(?:^|[-_])(0|e\d+)$/i)?.[1];
+	if (suffix) return suffix.toUpperCase();
+	return screen.code;
 }
 
 function getScreenVariantLabelOrder(label: string) {

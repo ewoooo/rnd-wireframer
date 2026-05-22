@@ -7,9 +7,17 @@ export interface OrderedAsset {
 	description?: string;
 }
 
+export interface ComponentRawInput {
+	description?: string;
+	variant?: string;
+	note?: string;
+	events?: string;
+}
+
 export interface ComponentAssetInput extends OrderedAsset {
 	type?: string;
 	props?: Record<string, unknown>;
+	raw?: ComponentRawInput;
 }
 
 export interface OrganismComponentRefInput {
@@ -27,9 +35,30 @@ export interface ScreenOrganismRefInput {
 	order?: number;
 }
 
+export interface ScreenRawTransitionInput {
+	from?: string;
+	to?: string;
+	condition?: string;
+	payload?: string;
+}
+
+export interface ScreenRawCaseInput {
+	id?: string;
+	name?: string;
+	description?: string;
+	followUp?: string;
+}
+
+export interface ScreenRawInput {
+	description?: string;
+	transitions?: ScreenRawTransitionInput[];
+	cases?: ScreenRawCaseInput[];
+}
+
 export interface ScreenAssetInput extends OrderedAsset {
 	surface?: string;
 	organisms?: ScreenOrganismRefInput[];
+	raw?: ScreenRawInput;
 }
 
 export interface ScreenVariantAssetInput extends OrderedAsset {
@@ -52,6 +81,7 @@ export interface RegisteredComponentAsset extends Required<Pick<OrderedAsset, "i
 	type: string;
 	description?: string;
 	props: Record<string, unknown>;
+	raw?: ComponentRawInput;
 }
 
 export interface RegisteredOrganismComponentRef {
@@ -80,6 +110,7 @@ export interface RegisteredScreenAsset extends Required<Pick<OrderedAsset, "id" 
 	description?: string;
 	surface?: string;
 	organisms: RegisteredScreenOrganismRef[];
+	raw?: ScreenRawInput;
 }
 
 export interface RegisteredScreenVariantAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
@@ -171,7 +202,7 @@ export interface ScreenVariantTableRow {
 
 export interface ScreenTableRow {
 	id: string;
-	screenVariantCode: string;
+	screenVariantId: string;
 	name: string;
 	order: number;
 	description?: string;

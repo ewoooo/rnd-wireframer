@@ -15,6 +15,7 @@
 | 소비 데이터 | workbench, resolver, renderer가 실제 화면 단위로 소비하는 정규화 입력이다. | [database/tables](/Users/plusx/Documents/rnd-screen-generator/database/tables) |
 
 우선순위는 소비 데이터 강화다. 공급 데이터는 소비 데이터를 만들기 위한 근거와 어휘로 쓰되, workbench가 직접 공급 원본을 해석하도록 만들지 않는다.
+`docs/data-mockups`는 원천 입력과 단계별 fixture를 보관한다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다.
 
 데이터 흐름 관계를 시각 검토할 때는 [DATA_FLOW.dbml](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_FLOW.dbml)을 사용한다. 이 DBML은 migration 스키마가 아니라 공급 데이터가 소비 데이터로 정규화되는 흐름과 참조 관계를 표현한 산출물이다.
 
@@ -65,9 +66,9 @@ apps/web
 | 공급원 | 책임 | 소비 데이터 반영 방식 |
 |---|---|---|
 | 첨부 screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
-| 첨부 organism markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | `organisms`, `composites`, organism/composite metadata |
+| 첨부 organism markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | `organisms`, `components`, organism/composite metadata |
 | `docs/pattern-store/*.json` | screen/organism/composite preset, layout recipe, pageStack/divider 규칙 | `screens[].pattern`, `organisms[].patternId`, pattern-owned props |
-| `packages/component` | 실제 leaf component 구현 어휘 | `composites[].type`, renderer mapping |
+| `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
 
@@ -92,6 +93,12 @@ apps/web
 | [organisms.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/organisms.json) | `organisms` | 화면 region에 배치되는 OGN 섹션 |
 | [components.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/components.json) | `components` | OGN 또는 screen region에서 참조하는 concrete render node |
 
+용어 기준:
+
+- `components`는 `database/tables/components.json`의 파일명과 최상위 키다.
+- `composite`는 renderer가 소비하는 concrete render node 개념이다.
+- 따라서 `components[]`의 각 row는 composite node를 저장하며, `compositeId`는 `components[].metadata.id`를 참조한다.
+
 소비 데이터 관계는 아래 방향만 허용한다.
 
 ```text
@@ -99,9 +106,9 @@ screenRoute
 └─ screenVariant.screenRouteCode
       └─ screen.screenVariantCode
          └─ screen.regions.{header,contents,bottom}.children[]
-         ├─ compositeId -> composites[].metadata.id
+         ├─ compositeId -> components[].metadata.id
          └─ organismId -> organisms[].id
-            └─ organism.composites[].compositeId -> composites[].metadata.id
+            └─ organism.composites[].compositeId -> components[].metadata.id
 ```
 
 역방향 배열 FK는 기본으로 두지 않는다. 예를 들어 route가 screen 목록을 직접 들고 있지 않고, `screen.screenVariantCode`가 variant를 바라본다.
@@ -221,11 +228,11 @@ region child entry는 두 종류만 허용한다.
 | `policyRefs` | 관련 정책 코드 |
 | `featureRefs` | 관련 기능 코드 |
 
-`composites[].compositeId`는 [components.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/components.json)의 `components[].metadata.id`를 바라본다.
+`organisms[].composites[].compositeId`는 [components.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/components.json)의 `components[].metadata.id`를 바라본다.
 
-### composites
+### components
 
-`composites`는 renderer가 실제 leaf node 또는 작은 render subtree로 렌더링할 concrete node다.
+`components`는 renderer가 실제 leaf node 또는 작은 render subtree로 렌더링할 concrete composite node다.
 
 필수 필드:
 
@@ -244,7 +251,7 @@ region child entry는 두 종류만 허용한다.
 | `display` | 상태별 노출 조건 |
 | `sourceRef` | 첨부 organism markdown의 컴포넌트 상세 row 추적 정보 |
 
-composite의 `type`은 `@cx/renderer` mapping 또는 fallback renderer로 해석 가능해야 한다.
+component row의 `type`은 `@cx/renderer` mapping 또는 fallback renderer로 해석 가능해야 한다.
 
 ## 6. 첨부 명세 변환 규칙
 
@@ -279,7 +286,7 @@ organism markdown은 아래처럼 소비 데이터로 변환한다.
 | frontmatter `관련 기능` | `organisms[].featureRefs` |
 | `오가니즘 정보` table | OGN metadata, layout, visibility summary |
 | `케이스 분기` table | `organisms[].states`와 composite `display` 후보 |
-| `컴포넌트 상세` table | `composites[]` concrete node와 `organisms[].composites[]` usage |
+| `컴포넌트 상세` table | `components[]` concrete composite node와 `organisms[].composites[]` usage |
 
 `컴포넌트 상세`의 `컴포넌트 ID`는 공급 component package의 구현 타입 후보로 해석한다. row의 `컴포넌트 명`은 concrete composite `metadata.id` 후보로 사용한다.
 
@@ -292,9 +299,9 @@ organism markdown은 아래처럼 소비 데이터로 변환한다.
 - `screens[].id`는 `screens[].metadata.id`와 일치해야 한다.
 - `screens[].screenVariantCode`는 존재하는 `screenVariants[].code`를 참조한다.
 - `screens[].screen.regions`는 `header`, `contents`, `bottom` 3개를 모두 가진다.
-- region child의 `compositeId`는 존재하는 `composites[].metadata.id`를 참조한다.
+- region child의 `compositeId`는 존재하는 `components[].metadata.id`를 참조한다.
 - region child의 `organismId`는 존재하는 `organisms[].id`를 참조한다.
-- `organisms[].composites[].compositeId`는 존재하는 `composites[].metadata.id`를 참조한다.
+- `organisms[].composites[].compositeId`는 존재하는 `components[].metadata.id`를 참조한다.
 - `screens[].pattern.id`는 공급 `docs/pattern-store/*.json`의 `patterns[].id`를 참조한다.
 - 모든 `metadata.id`는 같은 렌더 트리 안에서 중복되지 않아야 한다.
 - `tablesToRenderTree` 결과는 `@cx/renderer` validation을 통과해야 한다.
@@ -303,7 +310,7 @@ organism markdown은 아래처럼 소비 데이터로 변환한다.
 
 | 우선순위 | 작업 | 완료 기준 |
 |---|---|---|
-| P0 | 첨부 screen/organism markdown을 소비 데이터 초안으로 변환하는 parser 추가 | `screen_routes`, `screen_variants`, `screens`, `organisms`, `composites` 초안 생성 |
+| P0 | 첨부 screen/organism markdown을 소비 데이터 초안으로 변환하는 parser 추가 | `screen_routes`, `screen_variants`, `screens`, `organisms`, `components` 초안 생성 |
 | P0 | 소비 데이터 참조 무결성 validator 추가 | 누락 route/variant/screen/organism/composite/pattern을 리포트 |
 | P0 | sample 데이터를 소비 계약 기준으로 정리 | `sourceRef`, state, edge variant 후보가 표현됨 |
 | P1 | 공급 `docs/pattern-store/*.json`과 소비 `pattern.id` 관계 검사 | 누락 pattern warning 표시 |

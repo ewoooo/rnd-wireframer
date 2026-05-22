@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { renderTreeToTables } from "./render-tree-to-tables";
 import {
 	type PatternStorePattern,
+	type SampleComposite,
 	type SampleOrganism,
 	type SampleScreen,
 	tablesToRenderTree,
@@ -47,43 +48,51 @@ const termDetail: WireframeNode = {
 const organism: SampleOrganism = {
 	id: "ogn-mbr-term-list",
 	type: "Organism",
-	componentVersion: "1.0.0",
-	metadata: metadata("ogn-mbr-term-list", "약관 목록"),
+	version: "1.0.0",
+	metadata: {
+		title: "약관 목록",
+		author: "test-author",
+		createdAt: "2026-05-21T00:00:00Z",
+		updatedAt: "2026-05-21T00:00:00Z",
+	},
 	props: { name: "약관 목록 조회" },
-	composites: [
-		{ compositeId: "requiredTerm", order: 1 },
-		{ compositeId: "termDetail", order: 2 },
+	children: [
+		{ kind: "composite", id: "requiredTerm" },
+		{ kind: "composite", id: "termDetail" },
 	],
 };
 
 const screen: SampleScreen = {
 	id: "NOVA-MBR-FP-001-0",
-	screenVariantCode: "mbr-join-base",
+	screenVariantId: "mbr-join-base",
 	version: "1.0.0",
 	minRendererVersion: "0.1.0",
-	metadata: metadata("NOVA-MBR-FP-001-0", "약관 동의"),
+	metadata: {
+		title: "약관 동의",
+		author: "test-author",
+		createdAt: "2026-05-21T00:00:00Z",
+		updatedAt: "2026-05-21T00:00:00Z",
+	},
 	pattern: { id: "term-agreement-screen", variant: "default" },
 	screen: {
-		type: "Screen",
-		componentVersion: "1.0.0",
-		metadata: metadata("screen-root", "약관 동의 화면"),
+		type: "page",
 		regions: {
 			header: {
 				type: "Screen.Header",
-				metadata: metadata("screen-header", "고정 상단 영역"),
-				children: [{ kind: "composite", compositeId: "top-navigation" }],
+				metadata: { title: "고정 상단 영역" },
+				children: [{ kind: "composite", id: "top-navigation" }],
 			},
 			contents: {
 				type: "Screen.Contents",
-				metadata: metadata("screen-contents", "스크롤 콘텐츠 영역"),
+				metadata: { title: "스크롤 콘텐츠 영역" },
 				children: [
-					{ kind: "composite", compositeId: "screen-intro" },
-					{ kind: "organism", organismId: "ogn-mbr-term-list" },
+					{ kind: "composite", id: "screen-intro" },
+					{ kind: "organism", id: "ogn-mbr-term-list" },
 				],
 			},
 			bottom: {
 				type: "Screen.Bottom",
-				metadata: metadata("screen-bottom", "고정 하단 영역"),
+				metadata: { title: "고정 하단 영역" },
 				children: [],
 			},
 		},
@@ -97,15 +106,11 @@ const screenPattern: PatternStorePattern = {
 	defaultVariant: "default",
 	variants: {
 		default: {
-			recipe: {
-				screen: {
-					regions: {
-						contents: {
-							pageStack: {
-								enabled: true,
-								divider: { type: "section" },
-							},
-						},
+			regions: {
+				contents: {
+					pageStack: {
+						enabled: true,
+						divider: { type: "section" },
 					},
 				},
 			},
@@ -115,36 +120,53 @@ const screenPattern: PatternStorePattern = {
 
 describe("renderTreeToTables", () => {
 	it("extracts database table rows from a resolved render tree", () => {
+		const toSampleComposite = (node: WireframeNode): SampleComposite => ({
+			id: node.metadata.id,
+			type: node.type,
+			version: node.componentVersion,
+			metadata: {
+				title: node.metadata.title,
+				author: node.metadata.author,
+				createdAt: node.metadata.createdAt,
+				updatedAt: node.metadata.updatedAt,
+			},
+			pattern: { id: "default", variant: "default" },
+			children: [{ component: { type: node.type }, props: (node.props ?? {}) as Record<string, never> }],
+			events: {},
+		});
 		const schema = tablesToRenderTree({
 			screen,
 			compositeById: new Map(
-				[topNavigation, intro, requiredTerm, termDetail].map((node) => [node.metadata.id, node]),
+				[topNavigation, intro, requiredTerm, termDetail].map((node) => [
+					node.metadata.id,
+					toSampleComposite(node),
+				]),
 			),
 			organismById: new Map([[organism.id, organism]]),
 			patternById: new Map([[screenPattern.id, screenPattern]]),
 		});
 
 		const result = renderTreeToTables(schema, {
-			screenVariantCode: "mbr-join-base",
+			screenVariantId: "mbr-join-base",
 			pattern: screen.pattern,
 		});
 
 		expect(result.screens.screens[0].screen.regions.header.children).toEqual([
-			{ kind: "composite", compositeId: "top-navigation" },
+			{ kind: "composite", id: "top-navigation" },
 		]);
 		expect(result.screens.screens[0].screen.regions.contents.children).toEqual([
-			{ kind: "composite", compositeId: "screen-intro" },
-			{ kind: "organism", organismId: "ogn-mbr-term-list" },
+			{ kind: "composite", id: "screen-intro" },
+			{ kind: "organism", id: "ogn-mbr-term-list" },
 		]);
 		expect(result.organisms.organisms[0]).toMatchObject({
 			id: "ogn-mbr-term-list",
 			props: { name: "약관 목록 조회" },
-			composites: [
-				{ compositeId: "requiredTerm", order: 1 },
-				{ compositeId: "termDetail", order: 2 },
+			children: [
+				{ kind: "composite", id: "requiredTerm" },
+				{ kind: "composite", id: "termDetail" },
 			],
 		});
-		expect(result.composites.composites.map((node) => node.metadata.id).sort()).toEqual([
+		expect(result.composites.composites.map((c) => c.id).sort()).toEqual([
 			"requiredTerm",
 			"screen-intro",
 			"termDetail",

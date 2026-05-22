@@ -257,7 +257,7 @@ describe("@cx/agent asset pipeline", () => {
 		]);
 		expect(tables.screens[0]).toMatchObject({
 			id: "NOVA-MBR-FP-001-0",
-			screenVariantCode: "mbr-join-base",
+			screenVariantId: "mbr-join-base",
 			surface: "page",
 			organisms: [{ organismId: "ogn-mbr-term-list", order: 1 }],
 		});

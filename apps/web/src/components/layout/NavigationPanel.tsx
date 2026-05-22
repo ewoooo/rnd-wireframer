@@ -36,7 +36,7 @@ export function NavigationPanel() {
 								{screenRoutes.map((route) => (
 									<ScreenRouteCard
 										key={route.code}
-										isSelected={route.code === selectedScreen?.screenRouteCode}
+										isSelected={route.code === selectedScreen?.screenRouteId}
 										onSelectRoute={selectScreenRoute}
 										onSelectVariant={selectScreenVariant}
 										route={route}

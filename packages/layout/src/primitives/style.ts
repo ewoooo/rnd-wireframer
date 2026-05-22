@@ -52,7 +52,8 @@ export function cx(...values: Array<string | false | null | undefined>): string 
 	return values.filter(Boolean).join(" ");
 }
 
-export function flexLayoutClassName(layout: FlexLayoutProps): string {
+export function flexLayoutClassName(layout: FlexLayoutProps | undefined): string {
+	if (!layout) return "flex flex-col";
 	return cx(
 		"flex",
 		layout.direction === "row" ? "flex-row" : "flex-col",
@@ -64,7 +65,8 @@ export function flexLayoutClassName(layout: FlexLayoutProps): string {
 	);
 }
 
-export function flexLayoutFallbackStyle(layout: FlexLayoutProps): CSSProperties {
+export function flexLayoutFallbackStyle(layout: FlexLayoutProps | undefined): CSSProperties {
+	if (!layout) return {};
 	return {
 		gap: needsSpacingFallback(layout.gap) ? layout.gap : undefined,
 		paddingInline: needsSpacingFallback(layout.paddingX) ? layout.paddingX : undefined,
@@ -72,7 +74,8 @@ export function flexLayoutFallbackStyle(layout: FlexLayoutProps): CSSProperties 
 	};
 }
 
-export function gridLayoutClassName(layout: GridLayoutProps): string {
+export function gridLayoutClassName(layout: GridLayoutProps | undefined): string {
+	if (!layout) return "grid";
 	return cx(
 		"grid",
 		toSpacingClass("gap", layout.gap),
@@ -83,7 +86,8 @@ export function gridLayoutClassName(layout: GridLayoutProps): string {
 	);
 }
 
-export function gridLayoutFallbackStyle(layout: GridLayoutProps): CSSProperties {
+export function gridLayoutFallbackStyle(layout: GridLayoutProps | undefined): CSSProperties {
+	if (!layout) return {};
 	return {
 		gridTemplateColumns: layout.columns,
 		gridTemplateRows: layout.rows,

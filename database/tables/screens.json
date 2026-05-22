@@ -2,7 +2,7 @@
 	"screens": [
 		{
 			"id": "NOVA-MBR-FP-001-0",
-			"screenVariantCode": "mbr-join-base",
+			"screenVariantId": "mbr-join-base",
 			"minRendererVersion": "0.1.0",
 			"version": "1.0.0",
 			"order": 1,
@@ -11,7 +11,6 @@
 				"variant": "default"
 			},
 			"metadata": {
-				"id": "NOVA-MBR-FP-001-0",
 				"title": "약관 동의",
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-21T00:00:00Z",
@@ -21,53 +20,39 @@
 				"mode": "light"
 			},
 			"screen": {
-				"type": "Screen",
-				"componentVersion": "1.0.0",
-				"metadata": {
-					"id": "screen-root",
-					"title": "약관 동의 화면",
-					"author": "plus_x_athor_1",
-					"createdAt": "2026-05-21T00:00:00Z",
-					"updatedAt": "2026-05-21T00:00:00Z"
-				},
-				"props": {
-					"surface": "page"
-				},
+				"type": "page",
 				"regions": {
 					"header": {
 						"type": "Screen.Header",
 						"metadata": {
-							"id": "screen-header",
 							"title": "고정 상단 영역"
 						},
 						"children": [
 							{
 								"kind": "composite",
-								"compositeId": "top-navigation"
+								"id": "top-navigation"
 							}
 						]
 					},
 					"contents": {
 						"type": "Screen.Contents",
 						"metadata": {
-							"id": "screen-contents",
 							"title": "스크롤 콘텐츠 영역"
 						},
 						"children": [
 							{
 								"kind": "composite",
-								"compositeId": "screen-intro"
+								"id": "screen-intro"
 							},
 							{
 								"kind": "organism",
-								"organismId": "ogn-mbr-term-list"
+								"id": "ogn-mbr-term-list"
 							}
 						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
-							"id": "screen-bottom",
 							"title": "고정 하단 영역"
 						},
 						"children": []
@@ -77,7 +62,7 @@
 		},
 		{
 			"id": "NOVA-MBR-FP-002-0",
-			"screenVariantCode": "mbr-join-base",
+			"screenVariantId": "mbr-join-base",
 			"minRendererVersion": "0.1.0",
 			"version": "1.0.0",
 			"order": 2,
@@ -86,7 +71,6 @@
 				"variant": "default"
 			},
 			"metadata": {
-				"id": "NOVA-MBR-FP-002-0",
 				"title": "개인정보 입력",
 				"description": "가입에 필요한 기본 정보를 입력한다.",
 				"author": "plus_x_author_1",
@@ -97,63 +81,49 @@
 				"mode": "light"
 			},
 			"screen": {
-				"type": "Screen",
-				"componentVersion": "1.0.0",
-				"metadata": {
-					"id": "screen-root-mbr-fp-002",
-					"title": "개인정보 입력 화면",
-					"author": "plus_x_author_1",
-					"createdAt": "2026-05-21T00:00:00Z",
-					"updatedAt": "2026-05-21T00:00:00Z"
-				},
-				"props": {
-					"surface": "page"
-				},
+				"type": "page",
 				"regions": {
 					"header": {
 						"type": "Screen.Header",
 						"metadata": {
-							"id": "screen-header-mbr-fp-002",
 							"title": "고정 상단 영역"
 						},
 						"children": [
 							{
 								"kind": "composite",
-								"compositeId": "top-navigation-mbr-fp-002"
+								"id": "top-navigation-mbr-fp-002"
 							}
 						]
 					},
 					"contents": {
 						"type": "Screen.Contents",
 						"metadata": {
-							"id": "screen-contents-mbr-fp-002",
 							"title": "스크롤 콘텐츠 영역"
 						},
 						"children": [
 							{
 								"kind": "composite",
-								"compositeId": "screen-intro-mbr-fp-002"
+								"id": "screen-intro-mbr-fp-002"
 							},
 							{
 								"kind": "organism",
-								"organismId": "ogn-mbr-member-input"
+								"id": "ogn-mbr-member-input"
 							},
 							{
 								"kind": "organism",
-								"organismId": "ogn-mbr-entry-check"
+								"id": "ogn-mbr-entry-check"
 							}
 						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
-							"id": "screen-bottom-mbr-fp-002",
 							"title": "고정 하단 영역"
 						},
 						"children": [
 							{
 								"kind": "composite",
-								"compositeId": "action-area-next"
+								"id": "action-area-next"
 							}
 						]
 					}

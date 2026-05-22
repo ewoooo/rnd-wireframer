@@ -17,14 +17,14 @@ export function ScreenVariantCard({
 		<div className="flex min-w-0 justify-between gap-2 border-t bg-background/80 p-2">
 			<div className="flex min-w-0 items-center gap-2">
 				<span className="shrink-0 text-xs text-muted-foreground">
-					{String(screenVariant.screenOrder)}
+					{String(screenVariant.order)}
 				</span>
 				<span className="truncate text-xs font-medium">{screenVariant.name}</span>
 			</div>
 			<div className="flex flex-wrap gap-1.5">
 				{screenVariant.options.map((option) => (
 					<ScreenVariantOptionChip
-						key={`${option.code}-${option.screenCode}`}
+						key={option.screenCode}
 						isSelected={option.screenCode === selectedScreenCode}
 						onSelect={onSelect}
 						option={option}

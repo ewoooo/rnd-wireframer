@@ -16,7 +16,8 @@
 - 와이어프레임 생성 AI는 Claude를 사용한다.
 - 생성 결과 검수 AI는 Codex를 사용한다.
 - AI 실행은 Agent SDK를 통해 호출한다.
-- Claude는 로컬 세션 재개를 우선 사용하고, Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
+- Claude는 로컬 실행을 우선 사용하되 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다.
+- Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
@@ -25,7 +26,7 @@
 - `sdui-renderer`의 schema, binding, registry, validation, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
-- 화면 생성용 mock 데이터와 단계별 JSON 샘플은 `docs/data-mockups/` 아래에 둔다.
+- 화면 생성용 mock 데이터와 단계별 JSON 샘플은 `docs/data-mockups/` 아래에 둔다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다.
 - 데이터는 공급 데이터와 소비 데이터로 나누고, AI import 산출물은 `database/ai-imports/`, 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
@@ -101,7 +102,7 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 | Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Claude Generation Agent | Claude 기반 와이어프레임 JSON 생성 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | Codex Review Agent | Codex 기반 생성 결과 검수 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Agent Runtime Agent | Agent SDK, 로컬 세션 우선 실행, API fallback 관리 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
+| Agent Runtime Agent | Agent SDK, 로컬 실행 우선, API fallback 관리 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
 | QA Agent | 인수 조건, 회귀 검증, 생성 결과 검증 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
 | Documentation Agent | 문서 책임 분리와 변경 기록 관리 | 현재 문서와 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md) |
 | Design System Agent | SDUI 패턴, spacing, component inventory 관리 | 현재 문서의 디자인 패턴 문서 목록 |
@@ -139,7 +140,7 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 
 | 우선순위 | 담당 | 작업 |
 |---|---|---|
-| P0 | Frontend Agent | `apps/web` workbench를 `docs/data-mockups` 샘플 또는 단일 mock 계약에서 로드하도록 정리 |
+| P0 | Frontend Agent | `apps/web` workbench를 `database/tables` 계약 또는 동일 shape의 loader 결과에서 로드하도록 정리 |
 | P0 | Frontend Agent | `@cx/renderer` composite mapping과 누락 renderer 리포트를 workbench 검증 패널에 연결 |
 | P0 | Design System Agent | `@cx/renderer`, `@cx/layout`, `@cx/tokens` spacing key 계약을 정리 |
 | P0 | Frontend Agent | `@cx/layout` legacy `styles.css` export와 잔여 CSS 책임 정리 |

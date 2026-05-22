@@ -78,7 +78,7 @@ function mapVariantRow(route: RegisteredScreenRouteAsset, variant: RegisteredScr
 function mapScreenRow(variant: RegisteredScreenVariantAsset, screen: RegisteredScreenAsset) {
 	return {
 		id: screen.id,
-		screenVariantCode: variant.id,
+		screenVariantId: variant.id,
 		name: screen.name,
 		order: screen.order,
 		...(screen.description ? { description: screen.description } : {}),

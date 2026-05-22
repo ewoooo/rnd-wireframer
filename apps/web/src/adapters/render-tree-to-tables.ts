@@ -1,6 +1,7 @@
 import type { PropValue, WireframeNode, WireframeSchema, WireframeScreenNode } from "@cx/renderer";
 
 import type {
+	SampleComposite,
 	SampleCompositeSet,
 	SampleOrganism,
 	SampleOrganismSet,
@@ -14,7 +15,7 @@ export interface RenderTreeToTablesOptions {
 	order?: number;
 	pattern?: SampleScreen["pattern"];
 	screenId?: string;
-	screenVariantCode: string;
+	screenVariantId: string;
 }
 
 export interface RenderTreeToTablesResult {
@@ -38,24 +39,27 @@ export function renderTreeToTables(
 ): RenderTreeToTablesResult {
 	const warnings: string[] = [];
 	const screenNode = getSingleScreenNode(schema, warnings);
-	const compositesById = new Map<string, WireframeNode>();
+	const compositesById = new Map<string, SampleComposite>();
 	const organismsById = new Map<string, SampleOrganism>();
 
 	const screen: SampleScreen = {
 		id: options.screenId ?? schema.metadata.id,
 		order: options.order,
-		screenVariantCode: options.screenVariantCode,
+		screenVariantId: options.screenVariantId,
 		version: schema.version,
 		minRendererVersion: schema.minRendererVersion,
-		metadata: schema.metadata,
+		metadata: {
+			title: schema.metadata.title,
+			author: schema.metadata.author,
+			createdAt: schema.metadata.createdAt,
+			updatedAt: schema.metadata.updatedAt,
+			description: schema.metadata.description,
+		},
 		pattern: options.pattern,
 		theme: schema.theme,
 		data: schema.data,
 		screen: {
-			type: "Screen",
-			componentVersion: screenNode.componentVersion,
-			metadata: screenNode.metadata,
-			props: screenNode.props,
+			type: "page",
 			regions: {
 				header: extractRegion(screenNode, "header", compositesById, organismsById, warnings),
 				contents: extractRegion(screenNode, "contents", compositesById, organismsById, warnings),
@@ -86,7 +90,7 @@ function getSingleScreenNode(schema: WireframeSchema, warnings: string[]): Wiref
 function extractRegion(
 	screenNode: WireframeScreenNode,
 	regionKey: RegionKey,
-	compositesById: Map<string, WireframeNode>,
+	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
 	warnings: string[],
 ): SampleScreenRegion {
@@ -99,7 +103,7 @@ function extractRegion(
 		type: region.type as SampleScreenRegion["type"],
 		componentVersion:
 			region.componentVersion === screenNode.componentVersion ? undefined : region.componentVersion,
-		metadata: region.metadata,
+		metadata: { title: region.metadata.title },
 		props: region.props,
 		children: extractRegionEntries(region.children ?? [], compositesById, organismsById, warnings),
 	};
@@ -107,7 +111,7 @@ function extractRegion(
 
 function extractRegionEntries(
 	nodes: WireframeNode[],
-	compositesById: Map<string, WireframeNode>,
+	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
 	warnings: string[],
 ): SampleRenderEntry[] {
@@ -116,7 +120,7 @@ function extractRegionEntries(
 
 function extractRegionEntry(
 	node: WireframeNode,
-	compositesById: Map<string, WireframeNode>,
+	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
 	warnings: string[],
 ): SampleRenderEntry[] {
@@ -132,17 +136,17 @@ function extractRegionEntry(
 	if (node.type === "Organism") {
 		const organismId = getOrganismId(node);
 		organismsById.set(organismId, extractOrganism(node, organismId, compositesById, warnings));
-		return [{ kind: "organism", organismId }];
+		return [{ kind: "organism", id: organismId }];
 	}
 
-	compositesById.set(node.metadata.id, cloneNode(node));
-	return [{ kind: "composite", compositeId: node.metadata.id }];
+	compositesById.set(node.metadata.id, nodeToComposite(node));
+	return [{ kind: "composite", id: node.metadata.id }];
 }
 
 function extractOrganism(
 	node: WireframeNode,
 	organismId: string,
-	compositesById: Map<string, WireframeNode>,
+	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
 ): SampleOrganism {
 	if (!node.props || !("organismCode" in node.props)) {
@@ -154,23 +158,52 @@ function extractOrganism(
 	return {
 		id: organismId,
 		type: "Organism",
-		componentVersion: node.componentVersion,
-		metadata: node.metadata,
+		version: node.componentVersion,
+		metadata: {
+			title: node.metadata.title,
+			author: node.metadata.author,
+			createdAt: node.metadata.createdAt,
+			updatedAt: node.metadata.updatedAt,
+			description: node.metadata.description,
+		},
 		props: Object.keys(props).length > 0 ? (props as Record<string, PropValue>) : undefined,
-		composites: extractOrganismComposites(node.children ?? [], compositesById, warnings),
+		children: extractOrganismChildren(node.children ?? [], compositesById, warnings),
 	};
 }
 
-function extractOrganismComposites(
+function nodeToComposite(node: WireframeNode): SampleComposite {
+	return {
+		id: node.metadata.id,
+		type: node.type,
+		version: node.componentVersion,
+		metadata: {
+			title: node.metadata.title,
+			author: node.metadata.author,
+			createdAt: node.metadata.createdAt,
+			updatedAt: node.metadata.updatedAt,
+			description: node.metadata.description,
+		},
+		pattern: { id: "default", variant: "default" },
+		children: [
+			{
+				component: { type: node.type },
+				props: (node.props ?? {}) as Record<string, PropValue>,
+			},
+		],
+		events: node.events as Record<string, unknown> | undefined,
+	};
+}
+
+function extractOrganismChildren(
 	nodes: WireframeNode[],
-	compositesById: Map<string, WireframeNode>,
+	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
 ) {
-	const composites: SampleOrganism["composites"] = [];
+	const composites: SampleOrganism["children"] = [];
 
 	for (const node of nodes) {
 		if (isGeneratedPageStack(node)) {
-			composites.push(...extractOrganismComposites(node.children ?? [], compositesById, warnings));
+			composites.push(...extractOrganismChildren(node.children ?? [], compositesById, warnings));
 			continue;
 		}
 		if (isGeneratedDivider(node)) {
@@ -183,8 +216,8 @@ function extractOrganismComposites(
 			);
 			continue;
 		}
-		compositesById.set(node.metadata.id, cloneNode(node));
-		composites.push({ compositeId: node.metadata.id, order: composites.length + 1 });
+		compositesById.set(node.metadata.id, nodeToComposite(node));
+		composites.push({ kind: "composite", id: node.metadata.id });
 	}
 
 	return composites;
@@ -205,6 +238,3 @@ function isGeneratedDivider(node: WireframeNode) {
 	return node.type === "Divider" && /-divider-\d+$/.test(node.metadata.id);
 }
 
-function cloneNode(node: WireframeNode): WireframeNode {
-	return JSON.parse(JSON.stringify(node)) as WireframeNode;
-}

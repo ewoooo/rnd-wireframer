@@ -8,31 +8,29 @@
 			"defaultVariant": "default",
 			"variants": {
 				"default": {
-					"recipe": {
-						"organism": {
-							"props": {
-								"flow": "vertical",
-								"titleGap": 8,
-								"componentGap": 8
-							},
-							"compositeOrder": "explicit"
-						}
-					}
+					"props": {
+						"flow": "vertical",
+						"titleGap": 8,
+						"componentGap": 8
+					},
+					"compositeOrder": "explicit"
 				}
 			},
+			"expects": {
+				"composites": {
+					"types": ["list-cell", "accordion", "section-message"]
+				}
+			},
+			"resolution": {
+				"compositeTypes": {
+					"allOf": ["list-cell"]
+				},
+				"idPatterns": ["term"],
+				"nameKeywords": ["약관", "term"],
+				"priority": 100
+			},
 			"guidance": {
-				"keywords": [
-					"organism",
-					"ogn",
-					"section",
-					"섹션",
-					"오가니즘",
-					"약관 목록"
-				],
-				"rules": [
-					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
-					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
-				]
+				"keywords": ["organism", "ogn", "section", "섹션", "오가니즘", "약관 목록"]
 			},
 			"examples": []
 		},
@@ -44,31 +42,95 @@
 			"defaultVariant": "default",
 			"variants": {
 				"default": {
-					"recipe": {
-						"organism": {
-							"props": {
-								"flow": "vertical",
-								"titleGap": 8,
-								"componentGap": 12
-							},
-							"compositeOrder": "explicit"
-						}
-					}
+					"props": {
+						"flow": "vertical",
+						"titleGap": 8,
+						"componentGap": 12
+					},
+					"compositeOrder": "explicit"
 				}
 			},
+			"expects": {
+				"composites": {
+					"types": ["text-field", "section-message", "action-area"]
+				}
+			},
+			"resolution": {
+				"compositeTypes": {
+					"allOf": ["text-field"]
+				},
+				"nameKeywords": ["입력", "정보", "field", "form"],
+				"priority": 80
+			},
 			"guidance": {
-				"keywords": [
-					"organism",
-					"ogn",
-					"section",
-					"섹션",
-					"오가니즘",
-					"필드 스택"
-				],
-				"rules": [
-					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
-					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
-				]
+				"keywords": ["organism", "ogn", "section", "섹션", "오가니즘", "필드 스택"]
+			},
+			"examples": []
+		},
+		{
+			"id": "auth-select",
+			"target": "organism",
+			"name": "인증수단 선택",
+			"description": "인증수단 ListCell을 세로로 쌓는 OGN 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"props": {
+						"flow": "vertical",
+						"titleGap": 8,
+						"componentGap": 8
+					},
+					"compositeOrder": "explicit"
+				}
+			},
+			"expects": {
+				"composites": {
+					"types": ["list-cell"]
+				}
+			},
+			"resolution": {
+				"compositeTypes": {
+					"allOf": ["list-cell"]
+				},
+				"idPatterns": ["auth-select"],
+				"nameKeywords": ["인증수단", "auth"],
+				"priority": 110
+			},
+			"guidance": {
+				"keywords": ["organism", "인증수단 선택"]
+			},
+			"examples": []
+		},
+		{
+			"id": "agreement-stack",
+			"target": "organism",
+			"name": "동의 항목 스택",
+			"description": "체크박스와 안내 메시지로 구성된 동의 처리 OGN 프리셋",
+			"defaultVariant": "default",
+			"variants": {
+				"default": {
+					"props": {
+						"flow": "vertical",
+						"titleGap": 8,
+						"componentGap": 12
+					},
+					"compositeOrder": "explicit"
+				}
+			},
+			"expects": {
+				"composites": {
+					"types": ["checkbox", "section-message", "action-area"]
+				}
+			},
+			"resolution": {
+				"compositeTypes": {
+					"allOf": ["checkbox"]
+				},
+				"nameKeywords": ["동의", "agree"],
+				"priority": 100
+			},
+			"guidance": {
+				"keywords": ["organism", "동의"]
 			},
 			"examples": []
 		},
@@ -80,31 +142,29 @@
 			"defaultVariant": "default",
 			"variants": {
 				"default": {
-					"recipe": {
-						"organism": {
-							"props": {
-								"flow": "vertical",
-								"titleGap": 8,
-								"componentGap": 12
-							},
-							"compositeOrder": "explicit"
-						}
-					}
+					"props": {
+						"flow": "vertical",
+						"titleGap": 8,
+						"componentGap": 12
+					},
+					"compositeOrder": "explicit"
 				}
 			},
+			"expects": {
+				"composites": {
+					"types": ["section-message", "button"]
+				}
+			},
+			"resolution": {
+				"compositeTypes": {
+					"allOf": ["section-message"],
+					"noneOf": ["text-field", "list-cell", "checkbox"]
+				},
+				"nameKeywords": ["메시지", "안내", "상태", "결과"],
+				"priority": 60
+			},
 			"guidance": {
-				"keywords": [
-					"organism",
-					"ogn",
-					"section",
-					"섹션",
-					"오가니즘",
-					"상태 메시지 스택"
-				],
-				"rules": [
-					"소비 데이터에는 pattern id와 variant만 저장하고 recipe는 pattern store에서 조회한다.",
-					"resolver/generator가 recipe를 WireframeNode 구조로 materialize하며 renderer는 pattern store를 직접 읽지 않는다."
-				]
+				"keywords": ["organism", "ogn", "section", "섹션", "오가니즘", "상태 메시지 스택"]
 			},
 			"examples": []
 		}

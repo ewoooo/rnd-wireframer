@@ -71,7 +71,7 @@ export function InspectionPanel() {
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
 								label="Route"
-								value={`${screen.screenRouteName} (${screen.screenRouteCode})`}
+								value={`${screen.screenRouteName} (${screen.screenRouteId})`}
 							/>
 							<InfoRow
 								label="Variant"
