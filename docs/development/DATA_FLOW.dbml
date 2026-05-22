@@ -12,7 +12,7 @@ Project rnd_screen_generator_data_flow {
 Enum supply_source_type {
   attachment_bundle
   screen_markdown
-  organism_markdown
+  area_markdown
   pattern_json
   component_package
   layout_package
@@ -21,7 +21,7 @@ Enum supply_source_type {
 
 Enum consumer_child_kind {
   component
-  organism
+  area
 }
 
 Enum screen_region_type {
@@ -82,9 +82,9 @@ Table supply_screen_composition_rows {
   area_type varchar
   area_description text
   area_layout varchar
-  organism_id varchar [not null]
-  organism_name varchar
-  organism_description text
+  area_id varchar [not null]
+  area_name varchar
+  area_description text
   server_controls json
   min_count int
   max_count int
@@ -117,11 +117,11 @@ Table supply_screen_case_rows {
   Note: "Normalized into edge screenVariants."
 }
 
-Table supply_organism_markdowns {
+Table supply_area_markdowns {
   id varchar [pk]
   supply_source_id varchar [not null]
-  organism_id varchar [not null]
-  organism_name varchar [not null]
+  area_id varchar [not null]
+  area_name varchar [not null]
   description text
   related_screen_ids json
   used_screen_ids json
@@ -134,12 +134,12 @@ Table supply_organism_markdowns {
   raw_frontmatter json
   raw_markdown_path varchar [not null]
 
-  Note: "Extracted from attached organism/*.md files."
+  Note: "Extracted from attached area/*.md files."
 }
 
-Table supply_organism_state_rows {
+Table supply_area_state_rows {
   id varchar [pk]
-  supply_organism_markdown_id varchar [not null]
+  supply_area_markdown_id varchar [not null]
   state varchar [not null]
   trigger text
   composite_change text
@@ -147,9 +147,9 @@ Table supply_organism_state_rows {
   raw_row json
 }
 
-Table supply_organism_composite_rows {
+Table supply_area_composite_rows {
   id varchar [pk]
-  supply_organism_markdown_id varchar [not null]
+  supply_area_markdown_id varchar [not null]
   row_no int [not null]
   composite_name varchar [not null]
   composite_description text
@@ -192,21 +192,21 @@ Table supply_runtime_vocabularies {
 }
 
 Table consumer_screen_routes {
-  code varchar [pk]
-  module varchar [not null]
+  id varchar [pk]
+  module_id varchar [not null]
   name varchar [not null]
   sort_order int [not null]
-  process_code varchar
+  process_id varchar
   source_ref json
 }
 
 Table consumer_screen_variants {
-  code varchar [pk]
-  screen_route_code varchar [not null]
+  id varchar [pk]
+  screen_route_id varchar [not null]
   name varchar [not null]
   sort_order int [not null]
   variant_type screen_variant_type [not null]
-  base_variant_code varchar
+  base_variant_id varchar
   trigger text
   difference_from_base text
   follow_up text
@@ -215,7 +215,7 @@ Table consumer_screen_variants {
 
 Table consumer_screens {
   id varchar [pk]
-  screen_variant_code varchar [not null]
+  screen_variant_id varchar [not null]
   version varchar [not null]
   min_renderer_version varchar [not null]
   sort_order int
@@ -245,23 +245,21 @@ Table consumer_screen_region_children {
   id varchar [pk]
   screen_region_id varchar [not null]
   child_kind consumer_child_kind [not null]
-  composite_id varchar
-  organism_id varchar
+  child_id varchar [not null]
   sort_order int [not null]
 
   Note: '''
-  Exactly one of composite_id or organism_id is set.
-  composite_id references consumer_composites.metadata_id.
-  organism_id references consumer_organisms.id.
+  child_kind determines whether child_id references consumer_components.id
+  or consumer_areas.id.
   '''
 }
 
-Table consumer_organisms {
+Table consumer_areas {
   id varchar [pk]
   node_type varchar [not null]
   component_version varchar [not null]
   metadata json [not null]
-  organism_code varchar [not null]
+  area_code varchar [not null]
   name varchar
   pattern_id varchar
   pattern_variant varchar
@@ -270,25 +268,28 @@ Table consumer_organisms {
   feature_refs json
   source_ref json
 
-  Note: "Matches database/tables/organisms.json entries."
+  Note: "Matches database/tables/areas.json entries."
 }
 
-Table consumer_organism_composite_usages {
+Table consumer_area_composite_usages {
   id varchar [pk]
-  organism_id varchar [not null]
-  composite_id varchar [not null]
+  area_id varchar [not null]
+  component_id varchar [not null]
   sort_order int [not null]
   state_visibility json
   source_ref json
 }
 
-Table consumer_composites {
-  metadata_id varchar [pk]
+Table consumer_components {
+  id varchar [pk]
   node_type varchar [not null]
-  component_version varchar [not null]
+  version varchar [not null]
   metadata json [not null]
+  pattern_id varchar
+  pattern_variant varchar
   props json
-  events json
+  hooks json
+  children json
   display json
   source_ref json
 
@@ -312,7 +313,7 @@ Table consumer_validation_reports {
 }
 
 Ref: supply_sources.id < supply_screen_markdowns.supply_source_id
-Ref: supply_sources.id < supply_organism_markdowns.supply_source_id
+Ref: supply_sources.id < supply_area_markdowns.supply_source_id
 Ref: supply_sources.id < supply_patterns.supply_source_id
 Ref: supply_sources.id < supply_runtime_vocabularies.supply_source_id
 
@@ -320,24 +321,22 @@ Ref: supply_screen_markdowns.id < supply_screen_composition_rows.supply_screen_m
 Ref: supply_screen_markdowns.id < supply_screen_transition_rows.supply_screen_markdown_id
 Ref: supply_screen_markdowns.id < supply_screen_case_rows.supply_screen_markdown_id
 
-Ref: supply_organism_markdowns.id < supply_organism_state_rows.supply_organism_markdown_id
-Ref: supply_organism_markdowns.id < supply_organism_composite_rows.supply_organism_markdown_id
+Ref: supply_area_markdowns.id < supply_area_state_rows.supply_area_markdown_id
+Ref: supply_area_markdowns.id < supply_area_composite_rows.supply_area_markdown_id
 
-Ref: consumer_screen_routes.code < consumer_screen_variants.screen_route_code
-Ref: consumer_screen_variants.code < consumer_screens.screen_variant_code
-Ref: consumer_screen_variants.code < consumer_screen_variants.base_variant_code
+Ref: consumer_screen_routes.id < consumer_screen_variants.screen_route_id
+Ref: consumer_screen_variants.id < consumer_screens.screen_variant_id
+Ref: consumer_screen_variants.id < consumer_screen_variants.base_variant_id
 Ref: consumer_screens.id < consumer_screen_regions.screen_id
 Ref: consumer_screen_regions.id < consumer_screen_region_children.screen_region_id
-Ref: consumer_organisms.id < consumer_screen_region_children.organism_id
-Ref: consumer_composites.metadata_id < consumer_screen_region_children.composite_id
-Ref: consumer_organisms.id < consumer_organism_composite_usages.organism_id
-Ref: consumer_composites.metadata_id < consumer_organism_composite_usages.composite_id
+Ref: consumer_areas.id < consumer_area_composite_usages.area_id
+Ref: consumer_components.id < consumer_area_composite_usages.component_id
 
 Ref: supply_patterns.pattern_id < consumer_screens.pattern_id
-Ref: supply_patterns.pattern_id < consumer_organisms.pattern_id
+Ref: supply_patterns.pattern_id < consumer_areas.pattern_id
 
 Ref: supply_screen_markdowns.screen_id < consumer_screens.id
-Ref: supply_screen_composition_rows.organism_id < consumer_organisms.id
-Ref: supply_screen_case_rows.case_screen_id < consumer_screen_variants.code
-Ref: supply_organism_markdowns.organism_id < consumer_organisms.id
-Ref: supply_organism_composite_rows.composite_name < consumer_composites.metadata_id
+Ref: supply_screen_composition_rows.area_id < consumer_areas.id
+Ref: supply_screen_case_rows.case_screen_id < consumer_screen_variants.id
+Ref: supply_area_markdowns.area_id < consumer_areas.id
+Ref: supply_area_composite_rows.composite_name < consumer_components.id

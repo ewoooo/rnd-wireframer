@@ -39,7 +39,7 @@
 
 4. **액션존 이분법**: 메인·브라우즈 화면 → `BottomNavigation` (88px) / 상세·폼 화면 → `ActionButton` (102px). 동시 사용 없음.
 
-5. **`Local_` 컴포넌트**: 화면 특화 조합 컴포넌트. CX component vocabulary와 layout pattern을 조합한 페이지 맥락 중심 organism 후보. 재사용성보다 정책/화면 맥락에 최적화.
+5. **`Local_` 컴포넌트**: 화면 특화 조합 컴포넌트. CX component vocabulary와 layout pattern을 조합한 페이지 맥락 중심 area 후보. 재사용성보다 정책/화면 맥락에 최적화.
 
 6. **섹션 구분 패턴**: `Pagestack + Divider(393×4px)` 반복. 상세/폼 화면의 기본 구조.
 

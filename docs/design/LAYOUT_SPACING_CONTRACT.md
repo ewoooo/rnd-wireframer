@@ -35,7 +35,7 @@
 
 | Component | Contract |
 |---|---|
-| Button | Small 28px, Medium 36px, Large 48px, XLarge 56px; 버튼은 action pattern 또는 organism slot 안에서 사용 |
+| Button | Small 28px, Medium 36px, Large 48px, XLarge 56px; 버튼은 action pattern 또는 area slot 안에서 사용 |
 | TextField | input 48px, field gap 12px, group title gap 8px, group vertical rhythm 24px |
 | Chip | ChipItem 37px, row 57px, icon-text gap 2px, row gap 4px |
 | CardSection | outer width 369px, inner padding 28px, inner gap 24px |

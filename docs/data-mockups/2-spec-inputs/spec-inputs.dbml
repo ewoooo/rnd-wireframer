@@ -7,7 +7,7 @@ Project spec_inputs {
     Source files:
     - sql-screen-routes.json
     - sql-screen-source.json
-    - sql-organism-source.json
+    - sql-area-source.json
     - sql-composite-entry.json
 
     process_refs and policy_refs are placeholders for references defined by
@@ -16,7 +16,7 @@ Project spec_inputs {
 }
 
 Table spec_modules {
-  code text [pk, note: 'Root-level module value in route, screen source, and organism source files']
+  code text [pk, note: 'Root-level module value in route, screen source, and area source files']
 }
 
 Table process_refs {
@@ -64,20 +64,20 @@ Table screen_sources {
   }
 }
 
-Table screen_organism_usages {
-  code text [pk, note: 'Unique usage id for organism placed in screen']
+Table screen_area_usages {
+  code text [pk, note: 'Unique usage id for area placed in screen']
   screen_code text [not null]
-  organism_code text [not null]
-  sort_order integer [not null, note: 'screenSources[].organisms[].order']
+  area_code text [not null]
+  sort_order integer [not null, note: 'screenSources[].areas[].order']
 
   indexes {
     screen_code
-    organism_code
+    area_code
     (screen_code, sort_order) [unique]
   }
 }
 
-Table organism_sources {
+Table area_sources {
   code text [pk, note: 'meta.code']
   module_code text [not null, note: 'meta.module']
   name text [not null, note: 'meta.name']
@@ -89,52 +89,52 @@ Table organism_sources {
   }
 }
 
-Table organism_variants {
-  organism_code text [not null]
+Table area_variants {
+  area_code text [not null]
   variant_code text [not null, note: 'variants[].code']
   trigger text
   action text
 
   indexes {
-    (organism_code, variant_code) [pk]
+    (area_code, variant_code) [pk]
   }
 }
 
-Table organism_composite_usages {
-  code text [pk, note: 'Unique usage id for component placed in organism']
-  organism_code text [not null]
+Table area_composite_usages {
+  code text [pk, note: 'Unique usage id for component placed in area']
+  area_code text [not null]
   composite_code text [not null]
   sort_order integer [not null, note: 'composites[].order']
   policy_code text [note: 'composites[].policyCode']
   property jsonb [note: 'composites[].property']
 
   indexes {
-    organism_code
+    area_code
     composite_code
-    (organism_code, sort_order) [unique]
+    (area_code, sort_order) [unique]
     policy_code
   }
 }
 
-Table organism_variant_visible_composite_usages {
-  organism_code text [not null]
+Table area_variant_visible_composite_usages {
+  area_code text [not null]
   variant_code text [not null]
-  organism_composite_usage_code text [not null]
+  area_composite_usage_code text [not null]
 
   indexes {
-    (organism_code, variant_code, organism_composite_usage_code) [pk]
-    organism_composite_usage_code
+    (area_code, variant_code, area_composite_usage_code) [pk]
+    area_composite_usage_code
   }
 }
 
-Table organism_notices {
-  organism_code text [not null]
+Table area_notices {
+  area_code text [not null]
   policy_code text [not null]
   notice_type text [not null, note: 'notices[].noticeType']
   description text
 
   indexes {
-    (organism_code, policy_code, notice_type) [pk]
+    (area_code, policy_code, notice_type) [pk]
     policy_code
   }
 }
@@ -156,19 +156,19 @@ Ref: screen_variants.screen_route_code > screen_routes.code
 
 Ref: screen_sources.screen_variant_code > screen_variants.code
 
-Ref: screen_organism_usages.screen_code > screen_sources.code
-Ref: screen_organism_usages.organism_code > organism_sources.code
+Ref: screen_area_usages.screen_code > screen_sources.code
+Ref: screen_area_usages.area_code > area_sources.code
 
-Ref: organism_sources.module_code > spec_modules.code
+Ref: area_sources.module_code > spec_modules.code
 
-Ref: organism_variants.organism_code > organism_sources.code
+Ref: area_variants.area_code > area_sources.code
 
-Ref: organism_composite_usages.organism_code > organism_sources.code
-Ref: organism_composite_usages.composite_code > composites.code
-Ref: organism_composite_usages.policy_code > policy_refs.code
+Ref: area_composite_usages.area_code > area_sources.code
+Ref: area_composite_usages.composite_code > composites.code
+Ref: area_composite_usages.policy_code > policy_refs.code
 
-Ref: organism_variant_visible_composite_usages.(organism_code, variant_code) > organism_variants.(organism_code, variant_code)
-Ref: organism_variant_visible_composite_usages.organism_composite_usage_code > organism_composite_usages.code
+Ref: area_variant_visible_composite_usages.(area_code, variant_code) > area_variants.(area_code, variant_code)
+Ref: area_variant_visible_composite_usages.area_composite_usage_code > area_composite_usages.code
 
-Ref: organism_notices.organism_code > organism_sources.code
-Ref: organism_notices.policy_code > policy_refs.code
+Ref: area_notices.area_code > area_sources.code
+Ref: area_notices.policy_code > policy_refs.code

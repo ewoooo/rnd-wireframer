@@ -6,7 +6,7 @@
 
 담당 범위는 4단계 파이프라인으로 분리한다. 각 단계의 한 줄 정의:
 
-- **Register**: Parse user input into canonical `RegisteredNodeTree`. (구조 추출: route/variant/screen/organism/component 골격, 참조 해소, 누락 warning)
+- **Register**: Parse user input into canonical `RegisteredNodeTree`. (구조 추출: route/variant/screen/area/component 골격, 참조 해소, 누락 warning)
 - **Composer**: Place props, hooks and data binding candidates into `ComposedNodeTree`. (콘텐츠 채움: label, title, placeholder, helperText, hook)
 - **Decorator**: Match content layout patterns from pattern-store into `DecoratedNodeTree`. (콘텐츠/OGN pattern 매칭, layout recipe 결정)
 - **DB transformer**: Materialize decorator decisions and content into `database/tables` row shape.
@@ -26,7 +26,7 @@ md (client-imports)
 세부 책임:
 
 - AI import bundle 등록과 정렬
-- route / variant / screen / organism / component 참조 해소
+- route / variant / screen / area / component 참조 해소
 - 누락 참조 warning 생성
 - component props/hooks 합성 (deterministic 추출 + AI 보강)
 - pattern decoration (콘텐츠/OGN 레이아웃 한정)

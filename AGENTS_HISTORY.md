@@ -36,10 +36,8 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-22 - Renderer Agent
+## 2026-05-22 - Documentation Agent
 
-- 변경: `packages/renderer/src/component-catalog.ts`를 추가해 compose/AI/editor가 참조할 component prop/variant 계약 레지스트리를 `component-catalog` 이름으로 신설함
-- 변경: 실제 `@cx/components` 구현 컴포넌트와 renderer composite node를 `source`로 구분하고, alias 조회와 prop contract 조회 helper를 `@cx/renderer` public export에 추가함
-- 이유: Compose 단계가 UI 라벨/설명/variant를 추론하려면 component별 허용 prop surface와 variant 값을 알아야 하며, 이 계약은 React 구현 패키지가 아니라 renderer/validation 경계에서 공유되어야 하기 때문
-- 검증: `npx biome check packages/renderer/src/component-catalog.ts packages/renderer/src/__tests__/component-catalog.test.ts packages/renderer/src/index.ts`, `npm test -- --run packages/renderer`, `npx tsc --noEmit --incremental false`
-- 후속: `packages/agent` compose 단계가 hardcoded prop key 매핑 대신 `component-catalog`를 참조하도록 연결 필요
+- 변경: NodeTree 산출물 흐름, `component-catalog`, `hooks: NodeHook[]`, agent 책임 디렉토리, AI import artifact 이름을 기준 문서에 반영함
+- 이유: 구현은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables`로 이동했는데 문서 일부가 기존 asset/events 표현을 유지하고 있었기 때문
+- 검증: `npx tsc --noEmit --incremental false`

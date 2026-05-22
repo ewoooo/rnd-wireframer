@@ -54,7 +54,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 ### 3.1 현재 우선 흐름
 
 1. 사용자가 `database/tables` 형태의 screen/OGN/composite JSON을 준비한다.
-2. `tablesToRenderTree`가 `database/tables`의 참조형 소비 데이터를 `Screen -> Screen.Header/Contents/Bottom -> Organism -> Composite` wireframe JSON으로 펼친다.
+2. `tablesToRenderTree`가 `database/tables`의 참조형 소비 데이터를 `Screen -> Screen.Header/Contents/Bottom -> Area -> Composite` wireframe JSON으로 펼친다.
 3. `@cx/renderer` validation이 schema, metadata, screen region 계약을 검증한다.
 4. `apps/web` 앱 작업면이 현재 screen, 다른 screen/OGN 목록, 관련 정보를 한 화면에 렌더링한다.
 5. `@cx/layout`이 화면 chrome과 region layout을 렌더링하고, `@cx/components`가 leaf node를 렌더링한다.
@@ -77,15 +77,15 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 ### 3.3 첨부 명세 변환 시나리오
 
-초기 수급 방식에서는 DB에 정규화된 screen/OGN 데이터가 없을 수 있으므로, 사용자가 screen/organism 파일 묶음을 첨부하면 이를 화면 명세 입력 JSON으로 변환하는 흐름을 지원한다.
+초기 수급 방식에서는 DB에 정규화된 screen/OGN 데이터가 없을 수 있으므로, 사용자가 screen/area 파일 묶음을 첨부하면 이를 화면 명세 입력 JSON으로 변환하는 흐름을 지원한다.
 
-1. 사용자가 추후 DB read model로 대체될 `screen/`, `organism/` 파일 묶음을 첨부한다.
+1. 사용자가 추후 DB read model로 대체될 `screen/`, `area/` 파일 묶음을 첨부한다.
 2. 시스템이 Markdown frontmatter와 표를 먼저 파싱해 화면, 화면 구성, 화면 전환, 케이스 분기, OGN, 상태, 컴포넌트 상세 후보 데이터를 추출한다.
 3. AI가 파싱 결과를 보정해 명명, 누락값, 관계, 상태명, 컴포넌트 코드, policy/function 참조를 정규화한다.
 4. 시스템이 보정 결과를 [2-spec-inputs examples](/Users/plusx/Documents/rnd-screen-generator/docs/data-mockups/2-spec-inputs/examples/)와 같은 구조로 변환한다.
 5. 변환된 JSON은 이후 DB 적재 또는 generation context 조합의 입력으로 사용한다.
 
-이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 보정하는 역할을 맡는다. 최종 산출물은 `sql-screen-routes.json`, `sql-screen-source.json`, `sql-organism-source.json`, `sql-component-entry.json` 형태를 기준으로 검증한다.
+이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 보정하는 역할을 맡는다. 최종 산출물은 `sql-screen-routes.json`, `sql-screen-source.json`, `sql-area-source.json`, `sql-component-entry.json` 형태를 기준으로 검증한다.
 
 ## 4. MVP 범위
 
@@ -103,7 +103,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 ### 다음 MVP 확장
 
-- 첨부된 screen/organism 파일 묶음을 `2-spec-inputs/examples` 구조로 변환
+- 첨부된 screen/area 파일 묶음을 `2-spec-inputs/examples` 구조로 변환
 - 정책/유즈케이스 기반 process/function/policy JSON을 generation context에 조합
 - 디자인 명세와 composite entry JSON을 renderer mapping에 반영
 - screen source 목록과 상세 조회를 mock data에서 API/read model로 교체
@@ -143,7 +143,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | 우선순위 | 작업 | 완료 기준 |
 |---|---|---|
 | P0 | `apps/web` workbench를 `database/tables` 계약 또는 동일 shape의 loader 결과에서 로드하는 구조로 정리 | 소비 데이터 JSON 변경이 화면 렌더 결과에 반영됨 |
-| P0 | 첨부 screen/organism markdown을 소비 데이터 초안으로 변환하는 parser/validator 설계 | `sample` 구조와 같은 route/variant/screen/organism/composite JSON 초안 생성 |
+| P0 | 첨부 screen/area markdown을 소비 데이터 초안으로 변환하는 parser/validator 설계 | `sample` 구조와 같은 route/variant/screen/area/composite JSON 초안 생성 |
 | P0 | `tablesToRenderTree`의 spacing 값을 `@cx/tokens` Tailwind spacing key와 맞춤 | layout fallback warning 없이 기본 샘플이 렌더링됨 |
 | P0 | `@cx/renderer` composite mapping을 registry 형태로 분리 | `@cx/renderer` 내부 hardcoded `renderNode`가 축소됨 |
 | P0 | `@cx/layout`의 legacy `styles.css` export와 잔여 CSS 파일 정리 | layout package가 Tailwind v4 class와 runtime fallback만 공개함 |
