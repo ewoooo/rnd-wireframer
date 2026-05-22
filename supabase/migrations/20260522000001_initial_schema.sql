@@ -1,4 +1,15 @@
 -- ============================================================
+-- 기존 테이블 정리 (재실행 안전)
+-- ============================================================
+drop table if exists component_renderer_kinds cascade;
+drop table if exists components cascade;
+drop table if exists organisms cascade;
+drop table if exists screens cascade;
+drop table if exists screen_variants cascade;
+drop table if exists screen_routes cascade;
+drop function if exists set_updated_at cascade;
+
+-- ============================================================
 -- screen_routes
 -- ============================================================
 create table screen_routes (
