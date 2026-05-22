@@ -21,7 +21,7 @@ export interface DatabaseScreenVariantRow {
 	screenRouteId: string;
 	name: string;
 	order: number;
-	variantType: string;
+	variantType: "base" | "edge";
 	followUp: string | null;
 }
 
@@ -37,7 +37,10 @@ export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
 export interface DatabaseScreenRegion {
 	type: string;
-	metadata: { title: string };
+	componentVersion?: string;
+	metadata: { title: string; description?: string };
+	pattern?: { id: string; variant?: string };
+	props?: Record<string, unknown>;
 	children: DatabaseRegionChild[];
 }
 
@@ -46,6 +49,7 @@ export interface DatabaseScreenRowMetadata {
 	author: string;
 	createdAt: string;
 	updatedAt: string;
+	description?: string;
 }
 
 export interface DatabaseScreenBody {
@@ -60,12 +64,18 @@ export interface DatabaseScreenBody {
 export interface DatabaseScreenRow {
 	id: string;
 	screenVariantId: string;
-	minRendererVersion: string;
+	minRendererVersion?: string;
+	minComponentsVersion?: string;
 	version: string;
-	order: number;
-	pattern: { id: string; variant: string };
+	/** JSON 영속 데이터엔 항상 존재하지만, in-flight 구성 중엔 미정일 수 있음. */
+	order?: number;
+	pattern?: { id: string; variant?: string };
+	patternId?: string;
+	patternVariant?: string;
 	metadata: DatabaseScreenRowMetadata;
-	theme: { mode: string };
+	theme?: { mode?: "light" | "dark" | "system"; primaryColor?: string; fontFamily?: string };
+	/** 워크벤치 mock data 주입용 optional 슬롯. JSON 영속 데이터엔 없음. */
+	data?: Record<string, unknown>;
 	screen: DatabaseScreenBody;
 }
 
@@ -74,6 +84,7 @@ export interface DatabaseAreaMetadata {
 	author: string;
 	createdAt: string;
 	updatedAt: string;
+	description?: string;
 }
 
 /**
@@ -88,8 +99,9 @@ export interface DatabaseAreaRow {
 	/** PRDD 영역 no. (legacy 출처일 때 undefined). */
 	key?: number;
 	metadata: DatabaseAreaMetadata;
-	props: {
-		name: string;
+	/** Legacy 출처는 비어있거나 name만, PRDD는 풍부한 메타. */
+	props?: {
+		name?: string;
 		layout?: string;
 		areaType?: string;
 		visibility?: string;
@@ -100,8 +112,9 @@ export interface DatabaseAreaRow {
 		policyAnchors?: string[];
 		/** Dynamic area trigger entity (PRDD pipeline 발행). */
 		trigger?: { type: "boolean-state"; source: string; defaultValue?: boolean };
+		[k: string]: unknown;
 	};
-	pattern: { id: string; variant: string };
+	pattern?: { id: string; variant?: string };
 	children: Array<{ kind: "composite"; id: string }>;
 }
 
@@ -115,6 +128,7 @@ export interface DatabaseCompositeMetadata {
 	author: string;
 	createdAt: string;
 	updatedAt: string;
+	description?: string;
 }
 
 export interface DatabaseComponentRow {
@@ -124,7 +138,8 @@ export interface DatabaseComponentRow {
 	metadata: DatabaseCompositeMetadata;
 	pattern: { id: string; variant: string };
 	children: DatabaseCompositeChildEntry[];
-	hooks: NodeHook[];
+	hooks?: NodeHook[];
+	events?: Record<string, unknown>;
 }
 
 export interface MaterializedDatabaseNodeTables {
@@ -286,7 +301,7 @@ function toScreenRow(
 			createdAt: ctx.timestamp,
 			updatedAt: ctx.timestamp,
 		},
-		theme: { mode: ctx.themeMode },
+		theme: { mode: ctx.themeMode as "light" | "dark" | "system" },
 		screen: {
 			type: "screen.page",
 			regions: {

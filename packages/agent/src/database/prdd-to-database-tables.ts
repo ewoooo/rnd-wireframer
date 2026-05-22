@@ -100,7 +100,7 @@ export function materializePrddScreenToTables(
 			createdAt: timestamp,
 			updatedAt: timestamp,
 		},
-		theme: { mode: themeMode },
+		theme: { mode: themeMode as "light" | "dark" | "system" },
 		screen: screenBody,
 	};
 

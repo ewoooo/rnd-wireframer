@@ -201,10 +201,10 @@ async function writeDbTable(filePath: string, content: Record<string, unknown>) 
 	await writeFile(filePath, `${JSON.stringify(content, null, "\t")}\n`, "utf8");
 }
 
-function countScreenShellIds(tables: { screens: Array<{ pattern: { id: string } }> }) {
+function countScreenShellIds(tables: { screens: Array<{ pattern?: { id: string } }> }) {
 	const counts: Record<string, number> = {};
 	for (const screen of tables.screens) {
-		const id = screen.pattern.id;
+		const id = screen.pattern?.id ?? "(none)";
 		counts[id] = (counts[id] ?? 0) + 1;
 	}
 	return counts;

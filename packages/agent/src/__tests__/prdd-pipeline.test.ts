@@ -86,10 +86,10 @@ describe("PRDD pipeline e2e (parse → register → compose → decorate → tab
 		const areaRow = tables.areas[0];
 		expect(areaRow?.type).toBe("area.dynamic");
 		expect(areaRow?.key).toBe(1);
-		expect(areaRow?.props.areaType).toBe("dynamic");
-		expect(areaRow?.props.layout).toBe("vertical");
-		expect(areaRow?.props.errorPolicy).toBe("영역 전체 숨김");
-		expect(areaRow?.props.policyAnchors).toEqual(["PI-PRDD-SAVE-001-04"]);
+		expect(areaRow?.props?.areaType).toBe("dynamic");
+		expect(areaRow?.props?.layout).toBe("vertical");
+		expect(areaRow?.props?.errorPolicy).toBe("영역 전체 숨김");
+		expect(areaRow?.props?.policyAnchors).toEqual(["PI-PRDD-SAVE-001-04"]);
 		expect(areaRow?.children).toEqual([
 			{ kind: "composite", id: "NOVA-PRDD-PG-011-5__a1-1" },
 		]);

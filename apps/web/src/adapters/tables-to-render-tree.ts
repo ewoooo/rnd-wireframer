@@ -41,21 +41,37 @@ export interface AppArea {
 	usage: string;
 }
 
-export type SampleRenderEntry =
-	| { kind: "composite"; id: string }
-	| { kind: "area"; id: string };
+// 모든 Database* row 타입은 @cx/agent에서 단일 정의. 이 adapter는 import만.
+export type {
+	DatabaseAreaMetadata,
+	DatabaseAreaRow,
+	DatabaseCompositeChildEntry,
+	DatabaseCompositeMetadata,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenRegion,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenRowMetadata,
+	DatabaseScreenVariantRow,
+} from "@cx/agent/register-assets-to-database-tables";
 
-export interface SampleScreenRegion {
-	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
-	componentVersion?: string;
-	metadata: { title: string } & Partial<WireframeMetadata>;
-	pattern?: {
-		id: string;
-		variant?: string;
-	};
-	children?: SampleRenderEntry[];
-	props?: Record<string, PropValue>;
-}
+import type {
+	DatabaseAreaRow,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenRegion,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenVariantRow,
+} from "@cx/agent/register-assets-to-database-tables";
+
+// JSON 묶음 wrapper — 단순 plural 컨테이너라 inline 타입 alias.
+export type DatabaseComponentSet = { composites: DatabaseComponentRow[] };
+export type DatabaseAreaSet = { areas: DatabaseAreaRow[] };
+export type DatabaseScreenSet = { screens: DatabaseScreenRow[] };
+export type DatabaseScreenRouteSet = { screenRoutes: DatabaseScreenRouteRow[] };
+export type DatabaseScreenVariantSet = { screenVariants: DatabaseScreenVariantRow[] };
 
 import type {
 	CompositeVariant,
@@ -80,132 +96,16 @@ export type {
 	RegionVariant,
 };
 
-export interface SampleScreenMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-export interface SampleScreen {
-	id?: string;
-	order?: number;
-	screenVariantId?: string;
-	version: string;
-	minRendererVersion?: string;
-	minComponentsVersion?: string;
-	metadata: SampleScreenMetadata;
-	pattern?: {
-		id: string;
-		variant?: string;
-	};
-	patternId?: string;
-	patternVariant?: string;
-	theme?: WireframeSchema["theme"];
-	data?: Record<string, unknown>;
-	screen: {
-		type: ScreenSurfaceType;
-		regions: {
-			bottom: SampleScreenRegion;
-			contents: SampleScreenRegion;
-			header: SampleScreenRegion;
-		};
-	};
-}
-
-
-export interface SampleAreaMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-export interface SampleArea {
-	id: string;
-	type: "area.static" | "area.dynamic";
-	version: string;
-	metadata: SampleAreaMetadata;
-	pattern?: {
-		id: string;
-		variant?: string;
-	};
-	props?: Record<string, PropValue>;
-	children: Array<{ kind: "composite"; id: string }>;
-}
-
-export interface SampleCompositeChildEntry {
-	component: { type?: string } & Record<string, unknown>;
-	props: Record<string, PropValue>;
-}
-
-export interface SampleCompositeMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-export interface SampleComposite {
-	id: string;
-	type: string;
-	version: string;
-	metadata: SampleCompositeMetadata;
-	pattern?: { id: string; variant?: string };
-	children: SampleCompositeChildEntry[];
-	events?: Record<string, unknown>;
-}
-
-export interface SampleCompositeSet {
-	composites: SampleComposite[];
-}
-
-export interface SampleAreaSet {
-	areas: SampleArea[];
-}
-
-export interface SampleScreenSet {
-	screens: SampleScreen[];
-}
-
-export interface SampleScreenRoute {
-	id: string;
-	moduleId: string;
-	name: string;
-	order: number;
-	processId?: string | null;
-}
-
-export interface SampleScreenRouteSet {
-	screenRoutes: SampleScreenRoute[];
-}
-
-export interface SampleScreenVariant {
-	id: string;
-	followUp?: string | null;
-	name: string;
-	order: number;
-	screenRouteId: string;
-	variantType: "base" | "edge";
-}
-
-export interface SampleScreenVariantSet {
-	screenVariants: SampleScreenVariant[];
-}
-
 export function tablesToRenderTrees({
 	composites,
 	areas,
 	patternStore,
 	screens,
 }: {
-	composites: SampleComposite[];
-	areas: SampleArea[];
+	composites: DatabaseComponentRow[];
+	areas: DatabaseAreaRow[];
 	patternStore?: PatternStore;
-	screens: SampleScreen[];
+	screens: DatabaseScreenRow[];
 }) {
 	const compositeById = new Map(composites.map((composite) => [composite.id, composite]));
 	const areaById = new Map(areas.map((area) => [area.id, area]));
@@ -225,7 +125,7 @@ export function tablesToRenderTrees({
 
 export const SCREEN_NODE_COMPONENT_VERSION = "1.0.0";
 
-function deriveSchemaMetadata(screen: SampleScreen): WireframeMetadata {
+function deriveSchemaMetadata(screen: DatabaseScreenRow): WireframeMetadata {
 	const id = screen.id ?? screen.metadata.title;
 	return {
 		id,
@@ -243,10 +143,10 @@ export function tablesToRenderTree({
 	patternById = new Map(),
 	screen,
 }: {
-	compositeById: Map<string, SampleComposite>;
-	areaById: Map<string, SampleArea>;
+	compositeById: Map<string, DatabaseComponentRow>;
+	areaById: Map<string, DatabaseAreaRow>;
 	patternById?: Map<string, PatternStorePattern>;
-	screen: SampleScreen;
+	screen: DatabaseScreenRow;
 }): WireframeSchema {
 	const screenBody = screen.screen;
 	const schemaMetadata = deriveSchemaMetadata(screen);
@@ -351,7 +251,7 @@ export function getValidationWarnings(screen?: AppScreen) {
 	return [...screen.warnings, ...validation.warnings.map((warning) => `render tree: ${warning}`)];
 }
 
-export function validateSampleScreenSource(screen: SampleScreen) {
+export function validateSampleScreenSource(screen: DatabaseScreenRow) {
 	const errors: string[] = [];
 	const label = screen.id ?? screen.metadata.title;
 
@@ -387,7 +287,7 @@ const REGION_ID_BY_KEY = {
 	bottom: "screen-bottom",
 } as const;
 
-const REGION_DEFAULT_PROPS: Record<SampleScreenRegion["type"], Record<string, PropValue>> = {
+const REGION_DEFAULT_PROPS: Record<DatabaseScreenRegion["type"], Record<string, PropValue>> = {
 	"Screen.Header": {
 		position: "sticky",
 		layout: { direction: "column", gap: 0 },
@@ -406,9 +306,9 @@ const REGION_DEFAULT_PROPS: Record<SampleScreenRegion["type"], Record<string, Pr
 function tableRegionToRenderNode(
 	regionKey: "bottom" | "contents" | "header",
 	schemaMetadata: WireframeMetadata,
-	region: SampleScreenRegion,
-	compositeById: Map<string, SampleComposite>,
-	areaById: Map<string, SampleArea>,
+	region: DatabaseScreenRegion,
+	compositeById: Map<string, DatabaseComponentRow>,
+	areaById: Map<string, DatabaseAreaRow>,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	const regionId = REGION_ID_BY_KEY[regionKey];
@@ -417,7 +317,7 @@ function tableRegionToRenderNode(
 		type: region.type,
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
-		props: { ...REGION_DEFAULT_PROPS[region.type], ...getPatternOwnedProps(undefined, region.props) },
+		props: { ...REGION_DEFAULT_PROPS[region.type], ...getPatternOwnedProps(undefined, region.props as Record<string, PropValue> | undefined) },
 		children: tableRegionChildrenToRenderNodes(
 			regionId,
 			schemaMetadata,
@@ -433,9 +333,9 @@ function tableRegionToRenderNode(
 function tableRegionChildrenToRenderNodes(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
-	region: SampleScreenRegion,
-	compositeById: Map<string, SampleComposite>,
-	areaById: Map<string, SampleArea>,
+	region: DatabaseScreenRegion,
+	compositeById: Map<string, DatabaseComponentRow>,
+	areaById: Map<string, DatabaseAreaRow>,
 	patternById: Map<string, PatternStorePattern>,
 	regionPattern: RegionVariant | undefined,
 ) {
@@ -448,7 +348,7 @@ function tableRegionChildrenToRenderNodes(
 
 function resolveRegionPattern(
 	regionKey: "bottom" | "contents" | "header",
-	region: SampleScreenRegion,
+	region: DatabaseScreenRegion,
 	patternById: Map<string, PatternStorePattern>,
 ) {
 	const fallbackPatternId = regionKey === "contents" ? "section-stack" : "plain-stack";
@@ -463,8 +363,8 @@ function resolveRegionPattern(
 function wrapRegionChildren(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
-	region: SampleScreenRegion,
-	entries: SampleRenderEntry[],
+	region: DatabaseScreenRegion,
+	entries: DatabaseRegionChild[],
 	children: WireframeNode[],
 	pattern: RegionVariant | undefined,
 ) {
@@ -492,7 +392,7 @@ function wrapRegionChildren(
 function createRegionPageStackNode(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
-	region: SampleScreenRegion,
+	region: DatabaseScreenRegion,
 	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
 	child: WireframeNode,
@@ -517,7 +417,7 @@ function createRegionPageStackNode(
 function createRegionDividerNode(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
-	region: SampleScreenRegion,
+	region: DatabaseScreenRegion,
 	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
 ): WireframeNode {
@@ -548,9 +448,9 @@ function completeMetadata(
 }
 
 function validateScreenSourceRegion(
-	screen: SampleScreen,
+	screen: DatabaseScreenRow,
 	regionKey: "bottom" | "contents" | "header",
-	expectedType: SampleScreenRegion["type"],
+	expectedType: DatabaseScreenRegion["type"],
 	errors: string[],
 ) {
 	const region = screen.screen.regions[regionKey];
@@ -578,9 +478,9 @@ function validateScreenSourceRegion(
 }
 
 function tableEntryToRenderNode(
-	entry: SampleRenderEntry,
-	compositeById: Map<string, SampleComposite>,
-	areaById: Map<string, SampleArea>,
+	entry: DatabaseRegionChild,
+	compositeById: Map<string, DatabaseComponentRow>,
+	areaById: Map<string, DatabaseAreaRow>,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	if (entry.kind === "composite") {
@@ -626,9 +526,10 @@ function tableEntryToRenderNode(
 			updatedAt: area.metadata.updatedAt,
 			description: area.metadata.description,
 		},
-		props: mergeProps(mergeProps(areaPattern?.props, area.props), {
-			areaCode: area.id,
-		}),
+		props: mergeProps(
+			mergeProps(areaPattern?.props, area.props as Record<string, PropValue> | undefined),
+			{ areaCode: area.id },
+		),
 		children: area.children.map((compositeRef) =>
 			tableCompositeToRenderNode(requireComposite(compositeById, compositeRef.id), patternById),
 		),
@@ -636,7 +537,7 @@ function tableEntryToRenderNode(
 }
 
 function tableCompositeToRenderNode(
-	composite: SampleComposite,
+	composite: DatabaseComponentRow,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	const compositePattern = getPatternPreset(
@@ -664,7 +565,7 @@ function tableCompositeToRenderNode(
 	};
 }
 
-function requireComposite(compositeById: Map<string, SampleComposite>, compositeId: string) {
+function requireComposite(compositeById: Map<string, DatabaseComponentRow>, compositeId: string) {
 	const composite = compositeById.get(compositeId);
 	if (!composite) {
 		throw new Error(`Missing composite sample: ${compositeId}`);

@@ -7,11 +7,11 @@ import {
 	type WireframeSchema,
 } from "@cx/renderer";
 import {
-	type SampleCompositeSet,
-	type SampleAreaSet,
-	type SampleScreenRouteSet,
-	type SampleScreenSet,
-	type SampleScreenVariantSet,
+	type DatabaseComponentSet,
+	type DatabaseAreaSet,
+	type DatabaseScreenRouteSet,
+	type DatabaseScreenSet,
+	type DatabaseScreenVariantSet,
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
@@ -27,7 +27,7 @@ type WireframeScreenSet = {
 };
 
 type ComponentTableSet = {
-	components: SampleCompositeSet["composites"];
+	components: DatabaseComponentSet["composites"];
 };
 
 registerWireframeNodeKinds(
@@ -35,12 +35,12 @@ registerWireframeNodeKinds(
 		.mappings,
 );
 
-const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
-const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
+const sampleRouteSet = screenRouteSampleSet as unknown as DatabaseScreenRouteSet;
+const sampleVariantSet = screenVariantSampleSet as unknown as DatabaseScreenVariantSet;
 const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
-const areas = (areaSampleSet as unknown as SampleAreaSet).areas;
+const areas = (areaSampleSet as unknown as DatabaseAreaSet).areas;
 const orderedSampleScreens = getOrderedSampleScreens(
-	(screenSampleSet as unknown as SampleScreenSet).screens,
+	(screenSampleSet as unknown as DatabaseScreenSet).screens,
 	sampleVariantSet,
 	sampleRouteSet,
 );
@@ -138,9 +138,9 @@ function getAreaCatalog(schemas: WireframeSchema[]) {
 }
 
 function getOrderedSampleScreens(
-	screens: SampleScreenSet["screens"],
-	variants: SampleScreenVariantSet,
-	routes: SampleScreenRouteSet,
+	screens: DatabaseScreenSet["screens"],
+	variants: DatabaseScreenVariantSet,
+	routes: DatabaseScreenRouteSet,
 ) {
 	const routeOrderByCode = new Map(routes.screenRoutes.map((route) => [route.id, route.order]));
 	const variantByCode = new Map(variants.screenVariants.map((variant) => [variant.id, variant]));

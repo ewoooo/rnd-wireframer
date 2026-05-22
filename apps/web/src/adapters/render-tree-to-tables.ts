@@ -1,31 +1,31 @@
 import type { PropValue, WireframeNode, WireframeSchema, WireframeScreenNode } from "@cx/renderer";
 
 import type {
-	SampleComposite,
-	SampleCompositeSet,
-	SampleArea,
-	SampleAreaSet,
-	SampleRenderEntry,
-	SampleScreen,
-	SampleScreenRegion,
-	SampleScreenSet,
+	DatabaseComponentRow,
+	DatabaseComponentSet,
+	DatabaseAreaRow,
+	DatabaseAreaSet,
+	DatabaseRegionChild,
+	DatabaseScreenRow,
+	DatabaseScreenRegion,
+	DatabaseScreenSet,
 } from "./tables-to-render-tree";
 
 export interface RenderTreeToTablesOptions {
 	order?: number;
-	pattern?: SampleScreen["pattern"];
+	pattern?: DatabaseScreenRow["pattern"];
 	screenId?: string;
 	screenVariantId: string;
 }
 
 export interface RenderTreeToTablesResult {
-	composites: SampleCompositeSet;
-	areas: SampleAreaSet;
-	screens: SampleScreenSet;
+	composites: DatabaseComponentSet;
+	areas: DatabaseAreaSet;
+	screens: DatabaseScreenSet;
 	warnings: string[];
 }
 
-type RegionKey = keyof SampleScreen["screen"]["regions"];
+type RegionKey = keyof DatabaseScreenRow["screen"]["regions"];
 
 const REGION_BY_TYPE: Record<string, RegionKey> = {
 	"Screen.Header": "header",
@@ -39,10 +39,10 @@ export function renderTreeToTables(
 ): RenderTreeToTablesResult {
 	const warnings: string[] = [];
 	const screenNode = getSingleScreenNode(schema, warnings);
-	const compositesById = new Map<string, SampleComposite>();
-	const areasById = new Map<string, SampleArea>();
+	const compositesById = new Map<string, DatabaseComponentRow>();
+	const areasById = new Map<string, DatabaseAreaRow>();
 
-	const screen: SampleScreen = {
+	const screen: DatabaseScreenRow = {
 		id: options.screenId ?? schema.metadata.id,
 		order: options.order,
 		screenVariantId: options.screenVariantId,
@@ -90,17 +90,17 @@ function getSingleScreenNode(schema: WireframeSchema, warnings: string[]): Wiref
 function extractRegion(
 	screenNode: WireframeScreenNode,
 	regionKey: RegionKey,
-	compositesById: Map<string, SampleComposite>,
-	areasById: Map<string, SampleArea>,
+	compositesById: Map<string, DatabaseComponentRow>,
+	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
-): SampleScreenRegion {
+): DatabaseScreenRegion {
 	const region = screenNode.children.find((child) => REGION_BY_TYPE[child.type] === regionKey);
 	if (!region) {
 		throw new Error(`Screen node must include ${regionKey} region`);
 	}
 
 	return {
-		type: region.type as SampleScreenRegion["type"],
+		type: region.type as DatabaseScreenRegion["type"],
 		componentVersion:
 			region.componentVersion === screenNode.componentVersion ? undefined : region.componentVersion,
 		metadata: { title: region.metadata.title },
@@ -111,19 +111,19 @@ function extractRegion(
 
 function extractRegionEntries(
 	nodes: WireframeNode[],
-	compositesById: Map<string, SampleComposite>,
-	areasById: Map<string, SampleArea>,
+	compositesById: Map<string, DatabaseComponentRow>,
+	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
-): SampleRenderEntry[] {
+): DatabaseRegionChild[] {
 	return nodes.flatMap((node) => extractRegionEntry(node, compositesById, areasById, warnings));
 }
 
 function extractRegionEntry(
 	node: WireframeNode,
-	compositesById: Map<string, SampleComposite>,
-	areasById: Map<string, SampleArea>,
+	compositesById: Map<string, DatabaseComponentRow>,
+	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
-): SampleRenderEntry[] {
+): DatabaseRegionChild[] {
 	if (isGeneratedPageStack(node)) {
 		return extractRegionEntries(node.children ?? [], compositesById, areasById, warnings);
 	}
@@ -146,9 +146,9 @@ function extractRegionEntry(
 function extractArea(
 	node: WireframeNode,
 	areaId: string,
-	compositesById: Map<string, SampleComposite>,
+	compositesById: Map<string, DatabaseComponentRow>,
 	warnings: string[],
-): SampleArea {
+): DatabaseAreaRow {
 	if (!node.props || !("areaCode" in node.props)) {
 		warnings.push(`Area node ${node.metadata.id} is missing props.areaCode`);
 	}
@@ -171,7 +171,7 @@ function extractArea(
 	};
 }
 
-function nodeToComposite(node: WireframeNode): SampleComposite {
+function nodeToComposite(node: WireframeNode): DatabaseComponentRow {
 	return {
 		id: node.metadata.id,
 		type: node.type,
@@ -196,10 +196,10 @@ function nodeToComposite(node: WireframeNode): SampleComposite {
 
 function extractAreaChildren(
 	nodes: WireframeNode[],
-	compositesById: Map<string, SampleComposite>,
+	compositesById: Map<string, DatabaseComponentRow>,
 	warnings: string[],
 ) {
-	const composites: SampleArea["children"] = [];
+	const composites: DatabaseAreaRow["children"] = [];
 
 	for (const node of nodes) {
 		if (isGeneratedPageStack(node)) {

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { renderTreeToTables } from "./render-tree-to-tables";
 import {
 	type PatternStorePattern,
-	type SampleComposite,
-	type SampleArea,
-	type SampleScreen,
+	type DatabaseComponentRow,
+	type DatabaseAreaRow,
+	type DatabaseScreenRow,
 	tablesToRenderTree,
 } from "./tables-to-render-tree";
 
@@ -45,7 +45,7 @@ const termDetail: WireframeNode = {
 	props: { title: { bind: "termList.termDetail.title" } },
 };
 
-const area: SampleArea = {
+const area: DatabaseAreaRow = {
 	id: "ogn-mbr-term-list",
 	type: "area.static",
 	version: "1.0.0",
@@ -63,7 +63,7 @@ const area: SampleArea = {
 	],
 };
 
-const screen: SampleScreen = {
+const screen: DatabaseScreenRow = {
 	id: "NOVA-MBR-FP-001-0",
 	screenVariantId: "mbr-join-base",
 	version: "1.0.0",
@@ -143,7 +143,7 @@ const sectionStackPattern: PatternStorePattern = {
 
 describe("renderTreeToTables", () => {
 	it("extracts database table rows from a resolved render tree", () => {
-		const toSampleComposite = (node: WireframeNode): SampleComposite => ({
+		const toSampleComposite = (node: WireframeNode): DatabaseComponentRow => ({
 			id: node.metadata.id,
 			type: node.type,
 			version: node.componentVersion,
