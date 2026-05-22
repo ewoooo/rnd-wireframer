@@ -669,10 +669,10 @@
 							},
 							"children": [
 								{
-									"type": "ActionArea",
+									"type": "ActionButton",
 									"componentVersion": "1.0.0",
 									"metadata": {
-										"id": "action-area-next",
+										"id": "single-primary-action",
 										"title": "다음",
 										"author": "plus_x_author_1",
 										"createdAt": "2026-05-21T00:00:00Z",

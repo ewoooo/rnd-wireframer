@@ -508,24 +508,27 @@
 			"version": "1.0.0"
 		},
 		{
-			"id": "action-area-next",
-			"type": "ActionArea",
+			"id": "single-primary-action",
+			"type": "ActionButton",
 			"metadata": {
-				"title": "Action Area",
-				"author": "plus_x_author_1",
+				"title": "하단 단일 주요 액션",
+				"author": "system",
 				"createdAt": "2026-05-21T00:00:00Z",
 				"updatedAt": "2026-05-21T00:00:00Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "single-primary-action",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "ActionArea"
+						"type": "ActionButton"
 					},
 					"props": {
+						"variant": "primary",
+						"fullWidth": true,
+						"size": "xlarge",
 						"title": "다음"
 					}
 				}

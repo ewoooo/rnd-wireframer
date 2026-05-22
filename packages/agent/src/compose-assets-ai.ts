@@ -54,7 +54,6 @@ const TYPE_REQUIRED_KEYS: Record<string, string[]> = {
 	"list-cell": ["title"],
 	accordion: ["title"],
 	"section-message": ["message"],
-	"action-area": ["label"],
 	button: ["label"],
 };
 
@@ -64,7 +63,6 @@ const TYPE_OPTIONAL_KEYS: Record<string, string[]> = {
 	"list-cell": ["description"],
 	accordion: ["description"],
 	"section-message": ["variant"],
-	"action-area": [],
 	button: [],
 };
 

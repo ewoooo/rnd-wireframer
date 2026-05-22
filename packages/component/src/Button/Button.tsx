@@ -2,12 +2,12 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import styles from "./Button.module.css";
 
 /** Figma: .Button — Size=XSmall|Small|Medium|Large × Type=Primary|Secondary|Solid */
-type Variant = "primary" | "secondary" | "solid";
-type Size = "xsmall" | "small" | "medium" | "large" | "xlarge";
+export type ButtonVariant = "primary" | "secondary" | "solid";
+export type ButtonSize = "xsmall" | "small" | "medium" | "large" | "xlarge";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-	variant?: Variant;
-	size?: Size;
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+	variant?: ButtonVariant;
+	size?: ButtonSize;
 	fullWidth?: boolean;
 	rightIcon?: ReactNode;
 	children: ReactNode;

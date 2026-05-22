@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { ActionButton } from "../ActionButton";
 import { Button } from "../Button";
 
 describe("@cx/components", () => {
@@ -10,6 +11,12 @@ describe("@cx/components", () => {
 		render(<Button>확인</Button>);
 
 		expect(screen.getByRole("button", { name: "확인" })).toBeInTheDocument();
+	});
+
+	it("renders ActionButton as the bottom CTA component", () => {
+		render(<ActionButton>다음</ActionButton>);
+
+		expect(screen.getByRole("button", { name: "다음" })).toBeInTheDocument();
 	});
 
 	it("maps SKT spacing tokens through generated Tailwind v4 theme variables", async () => {

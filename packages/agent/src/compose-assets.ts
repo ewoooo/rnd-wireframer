@@ -1,4 +1,10 @@
-import type { ComponentAssetInput, ComponentRawInput, RegisterAssetsInput } from "./types";
+import type {
+	ComponentAssetInput,
+	ComponentRawInput,
+	RegisterAssetsInput,
+	ScreenAssetInput,
+	ScreenVariantAssetInput,
+} from "./types";
 
 export interface ComposeAssetContentsOptions {
 	now?: () => string;
@@ -7,6 +13,7 @@ export interface ComposeAssetContentsOptions {
 export interface ComposeAssetContentsResult {
 	composed: RegisterAssetsInput;
 	filledComponentIds: string[];
+	inheritedEdgeScreenIds: string[];
 	skipped: Array<{ componentId: string; reason: string }>;
 	warnings: string[];
 }
@@ -24,12 +31,51 @@ export function composeAssetContents(
 		return next;
 	});
 
+	const inheritedEdgeScreenIds: string[] = [];
+	const routes = input.routes.map((route) => ({
+		...route,
+		variants: route.variants.map((variant) =>
+			propagateEdgeScreens(variant, inheritedEdgeScreenIds),
+		),
+	}));
+
 	const composed: RegisterAssetsInput = {
 		...input,
 		components,
+		routes,
 	};
 
-	return { composed, filledComponentIds, skipped, warnings };
+	return { composed, filledComponentIds, inheritedEdgeScreenIds, skipped, warnings };
+}
+
+function propagateEdgeScreens(
+	variant: ScreenVariantAssetInput,
+	inheritedEdgeScreenIds: string[],
+): ScreenVariantAssetInput {
+	const main = findMainScreen(variant.screens);
+	if (!main?.organisms || main.organisms.length === 0) {
+		return variant;
+	}
+
+	const screens = variant.screens.map((screen) => {
+		if (screen.id === main.id) return screen;
+		const hasOrganisms = screen.organisms && screen.organisms.length > 0;
+		if (hasOrganisms) return screen;
+
+		inheritedEdgeScreenIds.push(screen.id);
+		return {
+			...screen,
+			organisms: main.organisms?.map((ref) => ({ ...ref })),
+		};
+	});
+
+	return { ...variant, screens };
+}
+
+function findMainScreen(screens: ScreenAssetInput[]): ScreenAssetInput | undefined {
+	const explicit = screens.find((screen) => /-0$/i.test(screen.id));
+	if (explicit) return explicit;
+	return screens[0];
 }
 
 function composeComponent(
@@ -37,27 +83,35 @@ function composeComponent(
 	filledComponentIds: string[],
 	skipped: Array<{ componentId: string; reason: string }>,
 ): ComponentAssetInput {
+	const normalizedType = normalizeContentComponentType(component.type);
+	const typedComponent =
+		normalizedType === component.type ? component : { ...component, type: normalizedType };
 	const existing = component.props ?? {};
 	if (Object.keys(existing).length > 0) {
-		return component;
+		return typedComponent;
 	}
 
-	if (!component.raw) {
+	if (!typedComponent.raw) {
 		skipped.push({ componentId: component.id, reason: "no raw" });
-		return component;
+		return typedComponent;
 	}
 
-	const synthesized = synthesizePropsFromRaw(component.type, component.raw);
+	const synthesized = synthesizePropsFromRaw(typedComponent.type, typedComponent.raw);
 	if (Object.keys(synthesized).length === 0) {
 		skipped.push({ componentId: component.id, reason: "raw insufficient" });
-		return component;
+		return typedComponent;
 	}
 
 	filledComponentIds.push(component.id);
 	return {
-		...component,
+		...typedComponent,
 		props: synthesized,
 	};
+}
+
+function normalizeContentComponentType(type: string | undefined): string | undefined {
+	if ((type ?? "").toLowerCase() === "action-area") return "button";
+	return type;
 }
 
 function synthesizePropsFromRaw(
@@ -97,7 +151,6 @@ function labelKeyForType(type: string | undefined): string {
 			return "title";
 		case "section-message":
 			return "message";
-		case "action-area":
 		case "button":
 			return "label";
 		default:

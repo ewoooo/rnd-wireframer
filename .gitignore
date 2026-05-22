@@ -42,3 +42,4 @@ supabase/.temp/
 .codex-artifacts/
 *.tsbuildinfo
 
+.gstack/

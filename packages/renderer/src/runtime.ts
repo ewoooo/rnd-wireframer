@@ -68,6 +68,7 @@ const DEFAULT_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
 	["SectionMessage", "section-message"],
 	["TextField", "text-field"],
 	["Button", "action"],
+	["ActionButton", "action"],
 	["ActionArea", "action"],
 ];
 

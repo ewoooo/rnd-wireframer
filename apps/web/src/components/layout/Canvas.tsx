@@ -1,6 +1,4 @@
 import { WireframeNodeRenderer } from "@cx/renderer";
-import { Smartphone } from "lucide-react";
-import type { AppScreen } from "@/adapters/tables-to-render-tree";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
@@ -46,7 +44,7 @@ export function Canvas() {
 					/>
 				) : isCompositeView && selectedComposite ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
-						<div className="size-full overflow-y-auto bg-background p-7">
+						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 							<WireframeNodeRenderer
 								data={selectedComposite.screen.schema.data}
 								node={selectedComposite.node}
@@ -55,7 +53,7 @@ export function Canvas() {
 					</div>
 				) : isOrganismView && selectedOrganism ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
-						<div className="size-full overflow-y-auto bg-background p-7">
+						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 							<WireframeNodeRenderer
 								data={selectedOrganism.screen.schema.data}
 								node={selectedOrganism.node}
@@ -89,33 +87,4 @@ function getCanvasTitle({
 	if (isCompositeView) return selectedComposite?.node.metadata.title;
 	if (isOrganismView) return selectedOrganism?.node.metadata.title;
 	return null;
-}
-
-function getCanvasDescription({
-	activeTab,
-	isCompositeView,
-	isOrganismView,
-	selectedAgentAsset,
-	selectedComposite,
-	selectedOrganism,
-	selectedScreen,
-}: {
-	activeTab: string;
-	isCompositeView: boolean;
-	isOrganismView: boolean;
-	selectedAgentAsset?: SelectedAgentAsset;
-	selectedComposite?: SelectedCompositeContext;
-	selectedOrganism?: SelectedOrganismContext;
-	selectedScreen?: AppScreen;
-}) {
-	if (activeTab === "agent" && selectedAgentAsset) {
-		return `${selectedAgentAsset.level} · ${selectedAgentAsset.item.id}`;
-	}
-	if (isCompositeView && selectedComposite) {
-		return `${selectedComposite.code} · ${selectedComposite.node.type} · from ${selectedComposite.screen.code}`;
-	}
-	if (isOrganismView && selectedOrganism) {
-		return `${selectedOrganism.code} · from ${selectedOrganism.screen.code}`;
-	}
-	return selectedScreen?.description;
 }

@@ -52,7 +52,7 @@
 			},
 			"expects": {
 				"composites": {
-					"types": ["text-field", "section-message", "action-area"]
+					"types": ["text-field", "section-message", "button"]
 				}
 			},
 			"resolution": {
@@ -119,7 +119,7 @@
 			},
 			"expects": {
 				"composites": {
-					"types": ["checkbox", "section-message", "action-area"]
+					"types": ["checkbox", "section-message", "button"]
 				}
 			},
 			"resolution": {

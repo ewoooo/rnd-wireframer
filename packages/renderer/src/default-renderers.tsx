@@ -1,4 +1,12 @@
-import { AppBar, Callout, Button as CxButton, Divider, ListText, TextField } from "@cx/components";
+import {
+	ActionButton,
+	AppBar,
+	Button,
+	Callout,
+	Divider,
+	ListText,
+	TextField,
+} from "@cx/components";
 import { Flex, Grid } from "@cx/layout/primitives";
 import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
 import type { RendererDefinition } from "./registry";
@@ -103,11 +111,15 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			const componentGap = toNumber(props.componentGap, 12);
 
 			return (
-				<section key={node.metadata.id} className="flex flex-col" style={{ gap: titleGap }}>
-					<div className="flex flex-col">
+				<section
+					key={node.metadata.id}
+					className="flex w-full min-w-0 flex-col"
+					style={{ gap: titleGap }}
+				>
+					<div className="flex w-full min-w-0 flex-col">
 						<p className="text-base font-semibold">{toText(props.name, node.metadata.title)}</p>
 					</div>
-					<div className="flex flex-col" style={{ gap: componentGap }}>
+					<div className="flex w-full min-w-0 flex-col" style={{ gap: componentGap }}>
 						{renderChildren()}
 					</div>
 				</section>
@@ -119,7 +131,7 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		render: ({ node, renderable }) => {
 			const { props } = renderable;
 			return (
-				<div key={node.metadata.id} className="rounded-lg border bg-background">
+				<div key={node.metadata.id} className="w-full min-w-0 rounded-lg border bg-background">
 					<ListText table="off" title={toText(props.title, node.metadata.title)} showRightItem />
 					{props.description ? (
 						<p className="px-4 pb-3 text-xs leading-5 text-muted-foreground">
@@ -173,15 +185,30 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		kind: "action",
 		render: ({ node, renderable }) => {
 			const { props } = renderable;
+			const label = toText(props.title) || toText(props.label, node.metadata.title);
+			if (node.type === "ActionButton") {
+				return (
+					<div key={node.metadata.id} className="w-full min-w-0">
+						<ActionButton
+							fullWidth={toBoolean(props.fullWidth, true)}
+							size={toButtonSize(props.size)}
+							variant={toButtonVariant(props.variant)}
+						>
+							{label}
+						</ActionButton>
+					</div>
+				);
+			}
+
 			return (
-				<div key={node.metadata.id} className="px-5">
-					<CxButton
+				<div key={node.metadata.id} className="w-full min-w-0">
+					<Button
 						fullWidth={toBoolean(props.fullWidth, true)}
 						size={toButtonSize(props.size)}
 						variant={toButtonVariant(props.variant)}
 					>
-						{toText(props.title, node.metadata.title)}
-					</CxButton>
+						{label}
+					</Button>
 				</div>
 			);
 		},
@@ -198,16 +225,16 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 
 function getSectionMessageClassName(variant: string) {
 	if (variant === "negative") {
-		return "rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive";
+		return "w-full min-w-0 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive";
 	}
 
 	if (variant === "positive") {
-		return "rounded-lg border border-emerald-500/30 bg-emerald-50 p-4 text-emerald-900";
+		return "w-full min-w-0 rounded-lg border border-emerald-500/30 bg-emerald-50 p-4 text-emerald-900";
 	}
 
 	if (variant === "cautionary") {
-		return "rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-amber-900";
+		return "w-full min-w-0 rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-amber-900";
 	}
 
-	return "rounded-lg border border-primary/20 bg-primary/5 p-4 text-foreground";
+	return "w-full min-w-0 rounded-lg border border-primary/20 bg-primary/5 p-4 text-foreground";
 }

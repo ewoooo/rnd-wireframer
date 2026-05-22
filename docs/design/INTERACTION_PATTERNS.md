@@ -34,7 +34,7 @@
 
 | 화면 상황 | CTA 위치 | 원칙 |
 |---|---|---|
-| 단일 페이지 진행 | `Bottom`의 `SinglePrimaryAction` | 항상 접근 가능한 하단 action-area에 둔다 |
+| 단일 페이지 진행 | `Bottom`의 `SinglePrimaryAction` | 항상 접근 가능한 하단 `ActionButton`에 둔다 |
 | 카드에 종속된 부가 액션 | 카드/organism 내부 CTA slot | 해당 카드 의미 안에만 머문다 |
 | 섹션 더보기 | `TitleSection` 우측 링크 또는 낮은 강도 action | primary CTA로 올리지 않는다 |
 | 오버레이 확인 | BottomSheet/Popup 자체 action slot | 오버레이 문맥 밖으로 빼지 않는다 |

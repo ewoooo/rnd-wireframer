@@ -1,4 +1,4 @@
-import { findPattern, isScreenPattern, isCompositePattern } from "./pattern-store";
+import { findPattern, isCompositePattern, isScreenPattern } from "./pattern-store";
 import { registerAssets } from "./register-assets";
 import type {
 	AssetRegistry,
@@ -193,7 +193,10 @@ function applyChromeSlot(
 	timestamp: string,
 ): void {
 	if (!slots || slots.length === 0) return;
-	region.children = slots.map((slot) => ({ kind: "composite" as const, id: slot.compositePattern }));
+	region.children = slots.map((slot) => ({
+		kind: "composite" as const,
+		id: slot.compositePattern,
+	}));
 	for (const slot of slots) {
 		ensureCompositeFromPattern(tables, componentsById, slot.compositePattern, timestamp);
 	}
@@ -468,7 +471,7 @@ function toComponentRow(
 	component: RegisteredComponentAsset,
 	ctx: ComponentRowContext,
 ): DatabaseComponentRow {
-	const type = component.type || "Generic";
+	const type = normalizeContentComponentType(component.type || "Generic");
 	return {
 		id: component.id,
 		type,
@@ -485,21 +488,9 @@ function toComponentRow(
 	};
 }
 
-interface MetadataInput {
-	author: string;
-	id: string;
-	timestamp: string;
-	title: string;
-}
-
-function buildMetadata(input: MetadataInput): DatabaseAssetMetadata {
-	return {
-		id: input.id,
-		title: input.title,
-		author: input.author,
-		createdAt: input.timestamp,
-		updatedAt: input.timestamp,
-	};
+function normalizeContentComponentType(type: string): string {
+	if (type.toLowerCase() === "action-area") return "button";
+	return type;
 }
 
 function slugify(id: string): string {

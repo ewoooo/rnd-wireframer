@@ -3,7 +3,7 @@
 		{
 			"id": "sb-mbr-uc01_02-0513",
 			"moduleId": "mbr",
-			"name": "회원 가입 및 휴면 해제",
+			"name": "회원 가입 및 휴면 해제 플로우",
 			"order": 1,
 			"processId": null
 		}
@@ -112,8 +112,8 @@
 			"metadata": {
 				"title": "약관 동의",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -175,8 +175,8 @@
 			"metadata": {
 				"title": "약관 동의-약관 버전 불일치",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -196,7 +196,24 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-result"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -221,8 +238,8 @@
 			"metadata": {
 				"title": "약관 동의-필수 약관 미동의",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -242,7 +259,24 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-result"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -267,8 +301,8 @@
 			"metadata": {
 				"title": "약관 동의-동의 저장 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -288,7 +322,24 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-guardian-result"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -313,8 +364,8 @@
 			"metadata": {
 				"title": "개인정보 입력",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -368,8 +419,8 @@
 			"metadata": {
 				"title": "개인정보 입력-필수값 누락",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -389,7 +440,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-entry-check"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -414,8 +474,8 @@
 			"metadata": {
 				"title": "개인정보 입력-입력 형식 오류",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -435,7 +495,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-entry-check"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -460,8 +529,8 @@
 			"metadata": {
 				"title": "개인정보 입력-아이디 중복",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -481,7 +550,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-entry-check"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -506,8 +584,8 @@
 			"metadata": {
 				"title": "개인정보 입력-휴대폰번호 중복",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -527,7 +605,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-entry-check"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -552,8 +639,8 @@
 			"metadata": {
 				"title": "개인정보 입력-이메일 중복",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -573,7 +660,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-input"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-entry-check"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -598,8 +694,8 @@
 			"metadata": {
 				"title": "본인인증",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -653,8 +749,8 @@
 			"metadata": {
 				"title": "본인인증-인증번호 만료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -674,7 +770,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -699,8 +804,8 @@
 			"metadata": {
 				"title": "본인인증-인증번호 불일치",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -720,7 +825,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -745,8 +859,8 @@
 			"metadata": {
 				"title": "본인인증-인증 실패 한도 초과",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -766,7 +880,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -791,8 +914,8 @@
 			"metadata": {
 				"title": "본인인증-외부 인증기관 오류",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -812,7 +935,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -837,8 +969,8 @@
 			"metadata": {
 				"title": "회원 검증",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -892,8 +1024,8 @@
 			"metadata": {
 				"title": "회원 검증-이미 가입된 회원",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -913,7 +1045,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -938,8 +1079,8 @@
 			"metadata": {
 				"title": "회원 검증-휴면 회원",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -959,7 +1100,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -984,8 +1134,8 @@
 			"metadata": {
 				"title": "회원 검증-재가입 제한 대상",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1005,7 +1155,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1030,8 +1189,8 @@
 			"metadata": {
 				"title": "회원 검증-가입 제한 고객",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1051,7 +1210,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1076,8 +1244,8 @@
 			"metadata": {
 				"title": "회원 검증-법정대리인 동의 유효시간 만료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1097,7 +1265,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1122,8 +1299,8 @@
 			"metadata": {
 				"title": "회원 검증-조회 시스템 오류",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1143,7 +1320,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-path"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1168,8 +1354,8 @@
 			"metadata": {
 				"title": "가입 완료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1219,8 +1405,8 @@
 			"metadata": {
 				"title": "가입 완료-계정 생성 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1240,7 +1426,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-complete"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1265,8 +1456,8 @@
 			"metadata": {
 				"title": "가입 완료-동의 이력 누락",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1286,7 +1477,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-complete"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1311,8 +1507,8 @@
 			"metadata": {
 				"title": "가입 완료-세션 생성 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1332,7 +1528,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-join-complete"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1357,8 +1558,8 @@
 			"metadata": {
 				"title": "로그인",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1412,8 +1613,8 @@
 			"metadata": {
 				"title": "로그인-로그인 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1433,7 +1634,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-detect"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1458,8 +1668,8 @@
 			"metadata": {
 				"title": "로그인-계정 미존재",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1479,7 +1689,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-detect"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1504,8 +1723,8 @@
 			"metadata": {
 				"title": "로그인-탈퇴 회원",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1525,7 +1744,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-detect"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1550,8 +1778,8 @@
 			"metadata": {
 				"title": "로그인-가입제한 회원",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1571,7 +1799,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-detect"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1596,8 +1833,8 @@
 			"metadata": {
 				"title": "로그인-상태 조회 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1617,7 +1854,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-detect"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1642,8 +1888,8 @@
 			"metadata": {
 				"title": "휴면 여부 확인",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1697,8 +1943,8 @@
 			"metadata": {
 				"title": "휴면 여부 확인-휴면 해제 불가 상태",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1718,7 +1964,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-eligibility"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1743,8 +1998,8 @@
 			"metadata": {
 				"title": "휴면 여부 확인-식별정보 불일치",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1764,7 +2019,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-eligibility"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1789,8 +2053,8 @@
 			"metadata": {
 				"title": "휴면 여부 확인-판정 시스템 오류",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1810,7 +2074,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-member-status"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-eligibility"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1835,8 +2108,8 @@
 			"metadata": {
 				"title": "본인인증",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1890,8 +2163,8 @@
 			"metadata": {
 				"title": "본인인증-인증번호 만료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1911,7 +2184,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1936,8 +2218,8 @@
 			"metadata": {
 				"title": "본인인증-인증번호 불일치",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -1957,7 +2239,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1982,8 +2273,8 @@
 			"metadata": {
 				"title": "본인인증-인증 실패 한도 초과",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2003,7 +2294,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2028,8 +2328,8 @@
 			"metadata": {
 				"title": "본인인증-외부 인증기관 오류",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2049,7 +2349,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-select"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-auth-request"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2074,8 +2383,8 @@
 			"metadata": {
 				"title": "약관 동의",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2129,8 +2438,8 @@
 			"metadata": {
 				"title": "약관 동의-약관 버전 불일치",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2150,7 +2459,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2175,8 +2493,8 @@
 			"metadata": {
 				"title": "약관 동의-필수 약관 미동의",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2196,7 +2514,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2221,8 +2548,8 @@
 			"metadata": {
 				"title": "약관 동의-동의 저장 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2242,7 +2569,16 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-list"
+							},
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-term-agree"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2267,8 +2603,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2318,8 +2654,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리-상태 전환 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2339,7 +2675,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-release"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2364,8 +2705,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리-데이터 복원 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2385,7 +2726,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-release"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2410,8 +2756,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리-인증 세션 만료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2431,7 +2777,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-release"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2456,8 +2807,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리-세션 생성 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2477,7 +2828,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-release"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2502,8 +2858,8 @@
 			"metadata": {
 				"title": "휴면 해제 완료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2553,8 +2909,8 @@
 			"metadata": {
 				"title": "휴면 해제 완료-알림 발송 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2574,7 +2930,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-complete"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2599,8 +2960,8 @@
 			"metadata": {
 				"title": "휴면 해제 완료-결과 조회 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -2620,7 +2981,12 @@
 						"metadata": {
 							"title": "스크롤 콘텐츠 영역"
 						},
-						"children": []
+						"children": [
+							{
+								"kind": "organism",
+								"id": "ogn-mbr-dormant-complete"
+							}
+						]
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2641,8 +3007,8 @@
 			"metadata": {
 				"title": "약관 목록 조회",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "약관 목록 조회"
@@ -2654,19 +3020,19 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-list::list-cell-term-required"
+					"id": "ogn-mbr-term-list__list-cell-term-required"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-list::list-cell-term-optional"
+					"id": "ogn-mbr-term-list__list-cell-term-optional"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-list::accordion-term-detail"
+					"id": "ogn-mbr-term-list__accordion-term-detail"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-list::section-message-term-error"
+					"id": "ogn-mbr-term-list__section-message-term-error"
 				}
 			]
 		},
@@ -2677,8 +3043,8 @@
 			"metadata": {
 				"title": "약관 동의",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "약관 동의"
@@ -2690,23 +3056,23 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-agree::checkbox-all-agree"
+					"id": "ogn-mbr-term-agree__checkbox-all-agree"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-agree::checkbox-term-required"
+					"id": "ogn-mbr-term-agree__checkbox-term-required"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-agree::checkbox-term-optional"
+					"id": "ogn-mbr-term-agree__checkbox-term-optional"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-agree::section-message-required-error"
+					"id": "ogn-mbr-term-agree__section-message-required-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-term-agree::action-area-next"
+					"id": "ogn-mbr-term-agree__action-area-next"
 				}
 			]
 		},
@@ -2717,8 +3083,8 @@
 			"metadata": {
 				"title": "법정대리인 정보 입력",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "법정대리인 정보 입력"
@@ -2730,23 +3096,23 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-input::text-field-guardian-name"
+					"id": "ogn-mbr-guardian-input__text-field-guardian-name"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-input::text-field-guardian-phone"
+					"id": "ogn-mbr-guardian-input__text-field-guardian-phone"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-input::section-message-guardian-info"
+					"id": "ogn-mbr-guardian-input__section-message-guardian-info"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-input::section-message-guardian-error"
+					"id": "ogn-mbr-guardian-input__section-message-guardian-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-input::action-area-guardian-request"
+					"id": "ogn-mbr-guardian-input__action-area-guardian-request"
 				}
 			]
 		},
@@ -2757,8 +3123,8 @@
 			"metadata": {
 				"title": "법정대리인 동의 결과 확인",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "법정대리인 동의 결과 확인"
@@ -2770,15 +3136,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-result::section-message-guardian-wait"
+					"id": "ogn-mbr-guardian-result__section-message-guardian-wait"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-result::section-message-guardian-expire"
+					"id": "ogn-mbr-guardian-result__section-message-guardian-expire"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-guardian-result::button-guardian-retry"
+					"id": "ogn-mbr-guardian-result__button-guardian-retry"
 				}
 			]
 		},
@@ -2789,8 +3155,8 @@
 			"metadata": {
 				"title": "회원 정보 입력",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "회원 정보 입력"
@@ -2802,27 +3168,27 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::text-field-user-id"
+					"id": "ogn-mbr-member-input__text-field-user-id"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::text-field-password"
+					"id": "ogn-mbr-member-input__text-field-password"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::text-field-email"
+					"id": "ogn-mbr-member-input__text-field-email"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::text-field-phone"
+					"id": "ogn-mbr-member-input__text-field-phone"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::section-message-input-error"
+					"id": "ogn-mbr-member-input__section-message-input-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-input::action-area-next"
+					"id": "ogn-mbr-member-input__action-area-next"
 				}
 			]
 		},
@@ -2833,8 +3199,8 @@
 			"metadata": {
 				"title": "가입 진입 조건 확인",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "가입 진입 조건 확인"
@@ -2846,15 +3212,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-entry-check::section-message-entry-existing"
+					"id": "ogn-mbr-entry-check__section-message-entry-existing"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-entry-check::section-message-entry-dormant"
+					"id": "ogn-mbr-entry-check__section-message-entry-dormant"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-entry-check::section-message-entry-withdrawn"
+					"id": "ogn-mbr-entry-check__section-message-entry-withdrawn"
 				}
 			]
 		},
@@ -2865,8 +3231,8 @@
 			"metadata": {
 				"title": "인증수단 선택",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "인증수단 선택"
@@ -2878,15 +3244,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-select::list-cell-auth-phone"
+					"id": "ogn-mbr-auth-select__list-cell-auth-phone"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-select::list-cell-auth-pass"
+					"id": "ogn-mbr-auth-select__list-cell-auth-pass"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-select::list-cell-auth-cert"
+					"id": "ogn-mbr-auth-select__list-cell-auth-cert"
 				}
 			]
 		},
@@ -2897,8 +3263,8 @@
 			"metadata": {
 				"title": "본인인증 요청",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "본인인증 요청"
@@ -2910,27 +3276,27 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::text-field-auth-code"
+					"id": "ogn-mbr-auth-request__text-field-auth-code"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::text-field-auth-timer"
+					"id": "ogn-mbr-auth-request__text-field-auth-timer"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::section-message-auth-error"
+					"id": "ogn-mbr-auth-request__section-message-auth-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::section-message-auth-expire"
+					"id": "ogn-mbr-auth-request__section-message-auth-expire"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::button-auth-retry"
+					"id": "ogn-mbr-auth-request__button-auth-retry"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-auth-request::action-area-auth-confirm"
+					"id": "ogn-mbr-auth-request__action-area-auth-confirm"
 				}
 			]
 		},
@@ -2941,8 +3307,8 @@
 			"metadata": {
 				"title": "회원 상태 조회",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "회원 상태 조회"
@@ -2954,19 +3320,19 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-status::section-message-status-dormant"
+					"id": "ogn-mbr-member-status__section-message-status-dormant"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-status::section-message-status-withdrawn"
+					"id": "ogn-mbr-member-status__section-message-status-withdrawn"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-status::section-message-status-error"
+					"id": "ogn-mbr-member-status__section-message-status-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-member-status::button-status-retry"
+					"id": "ogn-mbr-member-status__button-status-retry"
 				}
 			]
 		},
@@ -2977,8 +3343,8 @@
 			"metadata": {
 				"title": "가입 경로 분기",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "가입 경로 분기"
@@ -2990,19 +3356,19 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-path::section-message-join-available"
+					"id": "ogn-mbr-join-path__section-message-join-available"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-path::section-message-join-dormant"
+					"id": "ogn-mbr-join-path__section-message-join-dormant"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-path::section-message-join-blocked"
+					"id": "ogn-mbr-join-path__section-message-join-blocked"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-path::action-area-join-proceed"
+					"id": "ogn-mbr-join-path__action-area-join-proceed"
 				}
 			]
 		},
@@ -3013,8 +3379,8 @@
 			"metadata": {
 				"title": "가입 완료",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "가입 완료"
@@ -3026,15 +3392,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-complete::section-message-join-success"
+					"id": "ogn-mbr-join-complete__section-message-join-success"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-complete::section-message-session-error"
+					"id": "ogn-mbr-join-complete__section-message-session-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-join-complete::action-area-join-done"
+					"id": "ogn-mbr-join-complete__action-area-join-done"
 				}
 			]
 		},
@@ -3045,8 +3411,8 @@
 			"metadata": {
 				"title": "휴면 감지 및 안내",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "휴면 감지 및 안내"
@@ -3058,15 +3424,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-detect::section-message-dormant-guide"
+					"id": "ogn-mbr-dormant-detect__section-message-dormant-guide"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-detect::section-message-dormant-error"
+					"id": "ogn-mbr-dormant-detect__section-message-dormant-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-detect::action-area-dormant-release"
+					"id": "ogn-mbr-dormant-detect__action-area-dormant-release"
 				}
 			]
 		},
@@ -3077,8 +3443,8 @@
 			"metadata": {
 				"title": "휴면 해제 가능 여부 판정",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "휴면 해제 가능 여부 판정"
@@ -3090,19 +3456,19 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide"
+					"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-guide"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-block"
+					"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-block"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-error"
+					"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed"
+					"id": "ogn-mbr-dormant-eligibility__action-area-eligibility-proceed"
 				}
 			]
 		},
@@ -3113,8 +3479,8 @@
 			"metadata": {
 				"title": "휴면 해제 처리",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "휴면 해제 처리"
@@ -3126,15 +3492,15 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-release::section-message-release-progress"
+					"id": "ogn-mbr-dormant-release__section-message-release-progress"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-release::section-message-release-error"
+					"id": "ogn-mbr-dormant-release__section-message-release-error"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-release::section-message-release-session-error"
+					"id": "ogn-mbr-dormant-release__section-message-release-session-error"
 				}
 			]
 		},
@@ -3145,8 +3511,8 @@
 			"metadata": {
 				"title": "휴면 해제 완료 안내",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"props": {
 				"name": "휴면 해제 완료 안내"
@@ -3158,25 +3524,25 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-complete::section-message-complete-result"
+					"id": "ogn-mbr-dormant-complete__section-message-complete-result"
 				},
 				{
 					"kind": "composite",
-					"id": "ogn-mbr-dormant-complete::action-area-complete-home"
+					"id": "ogn-mbr-dormant-complete__action-area-complete-home"
 				}
 			]
 		}
 	],
 	"components": [
 		{
-			"id": "ogn-mbr-term-list::list-cell-term-required",
+			"id": "ogn-mbr-term-list__list-cell-term-required",
 			"type": "list-cell",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "list-cell-term-required",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3195,14 +3561,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-list::list-cell-term-optional",
+			"id": "ogn-mbr-term-list__list-cell-term-optional",
 			"type": "list-cell",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "list-cell-term-optional",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3221,14 +3587,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-list::accordion-term-detail",
+			"id": "ogn-mbr-term-list__accordion-term-detail",
 			"type": "accordion",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "accordion-term-detail",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3247,14 +3613,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-list::section-message-term-error",
+			"id": "ogn-mbr-term-list__section-message-term-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-term-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3274,14 +3640,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-all-agree",
+			"id": "ogn-mbr-term-agree__checkbox-all-agree",
 			"type": "checkbox",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "checkbox-all-agree",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3301,14 +3667,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-term-required",
+			"id": "ogn-mbr-term-agree__checkbox-term-required",
 			"type": "checkbox",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "checkbox-term-required",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3328,14 +3694,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-term-optional",
+			"id": "ogn-mbr-term-agree__checkbox-term-optional",
 			"type": "checkbox",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "checkbox-term-optional",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3355,14 +3721,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-agree::section-message-required-error",
+			"id": "ogn-mbr-term-agree__section-message-required-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-required-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3382,14 +3748,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-term-agree::action-area-next",
-			"type": "action-area",
+			"id": "ogn-mbr-term-agree__action-area-next",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-next",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3398,7 +3764,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "다음 버튼 영역",
@@ -3409,14 +3775,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::text-field-guardian-name",
+			"id": "ogn-mbr-guardian-input__text-field-guardian-name",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-guardian-name",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3435,14 +3801,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::text-field-guardian-phone",
+			"id": "ogn-mbr-guardian-input__text-field-guardian-phone",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-guardian-phone",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3461,14 +3827,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::section-message-guardian-info",
+			"id": "ogn-mbr-guardian-input__section-message-guardian-info",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-guardian-info",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3488,14 +3854,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::section-message-guardian-error",
+			"id": "ogn-mbr-guardian-input__section-message-guardian-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-guardian-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3515,14 +3881,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::action-area-guardian-request",
-			"type": "action-area",
+			"id": "ogn-mbr-guardian-input__action-area-guardian-request",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-guardian-request",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3531,7 +3897,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "동의 요청 발송 버튼 영역",
@@ -3542,14 +3908,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::section-message-guardian-wait",
+			"id": "ogn-mbr-guardian-result__section-message-guardian-wait",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-guardian-wait",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3569,14 +3935,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::section-message-guardian-expire",
+			"id": "ogn-mbr-guardian-result__section-message-guardian-expire",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-guardian-expire",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3596,14 +3962,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::button-guardian-retry",
+			"id": "ogn-mbr-guardian-result__button-guardian-retry",
 			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "button-guardian-retry",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3623,14 +3989,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-user-id",
+			"id": "ogn-mbr-member-input__text-field-user-id",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-user-id",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3650,14 +4016,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-password",
+			"id": "ogn-mbr-member-input__text-field-password",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-password",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3677,14 +4043,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-email",
+			"id": "ogn-mbr-member-input__text-field-email",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-email",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3703,14 +4069,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-phone",
+			"id": "ogn-mbr-member-input__text-field-phone",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-phone",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3729,14 +4095,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::section-message-input-error",
+			"id": "ogn-mbr-member-input__section-message-input-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-input-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3756,14 +4122,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-input::action-area-next",
-			"type": "action-area",
+			"id": "ogn-mbr-member-input__action-area-next",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-next",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3772,7 +4138,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "다음 버튼 영역",
@@ -3783,14 +4149,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-existing",
+			"id": "ogn-mbr-entry-check__section-message-entry-existing",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-entry-existing",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3810,14 +4176,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-dormant",
+			"id": "ogn-mbr-entry-check__section-message-entry-dormant",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-entry-dormant",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3837,14 +4203,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-withdrawn",
+			"id": "ogn-mbr-entry-check__section-message-entry-withdrawn",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-entry-withdrawn",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3864,14 +4230,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-phone",
+			"id": "ogn-mbr-auth-select__list-cell-auth-phone",
 			"type": "list-cell",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "list-cell-auth-phone",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3890,14 +4256,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-pass",
+			"id": "ogn-mbr-auth-select__list-cell-auth-pass",
 			"type": "list-cell",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "list-cell-auth-pass",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3916,14 +4282,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-cert",
+			"id": "ogn-mbr-auth-select__list-cell-auth-cert",
 			"type": "list-cell",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "list-cell-auth-cert",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3942,14 +4308,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::text-field-auth-code",
+			"id": "ogn-mbr-auth-request__text-field-auth-code",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-auth-code",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3969,14 +4335,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::text-field-auth-timer",
+			"id": "ogn-mbr-auth-request__text-field-auth-timer",
 			"type": "text-field",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "text-field-auth-timer",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -3995,14 +4361,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::section-message-auth-error",
+			"id": "ogn-mbr-auth-request__section-message-auth-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-auth-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4022,14 +4388,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::section-message-auth-expire",
+			"id": "ogn-mbr-auth-request__section-message-auth-expire",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-auth-expire",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4049,14 +4415,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::button-auth-retry",
+			"id": "ogn-mbr-auth-request__button-auth-retry",
 			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "button-auth-retry",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4076,14 +4442,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-auth-request::action-area-auth-confirm",
-			"type": "action-area",
+			"id": "ogn-mbr-auth-request__action-area-auth-confirm",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-auth-confirm",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4092,7 +4458,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "인증 확인 버튼 영역",
@@ -4103,14 +4469,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-dormant",
+			"id": "ogn-mbr-member-status__section-message-status-dormant",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-status-dormant",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4130,14 +4496,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-withdrawn",
+			"id": "ogn-mbr-member-status__section-message-status-withdrawn",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-status-withdrawn",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4157,14 +4523,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-error",
+			"id": "ogn-mbr-member-status__section-message-status-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-status-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4184,14 +4550,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-member-status::button-status-retry",
+			"id": "ogn-mbr-member-status__button-status-retry",
 			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "button-status-retry",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4211,14 +4577,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-available",
+			"id": "ogn-mbr-join-path__section-message-join-available",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-join-available",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4238,14 +4604,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-dormant",
+			"id": "ogn-mbr-join-path__section-message-join-dormant",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-join-dormant",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4265,14 +4631,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-blocked",
+			"id": "ogn-mbr-join-path__section-message-join-blocked",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-join-blocked",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4292,14 +4658,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-path::action-area-join-proceed",
-			"type": "action-area",
+			"id": "ogn-mbr-join-path__action-area-join-proceed",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-join-proceed",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4308,7 +4674,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "가입 진행 버튼 영역",
@@ -4319,14 +4685,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-complete::section-message-join-success",
+			"id": "ogn-mbr-join-complete__section-message-join-success",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-join-success",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4346,14 +4712,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-complete::section-message-session-error",
+			"id": "ogn-mbr-join-complete__section-message-session-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-session-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4373,14 +4739,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-join-complete::action-area-join-done",
-			"type": "action-area",
+			"id": "ogn-mbr-join-complete__action-area-join-done",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-join-done",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4389,7 +4755,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "홈으로 이동 버튼 영역",
@@ -4400,14 +4766,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::section-message-dormant-guide",
+			"id": "ogn-mbr-dormant-detect__section-message-dormant-guide",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-dormant-guide",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4427,14 +4793,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::section-message-dormant-error",
+			"id": "ogn-mbr-dormant-detect__section-message-dormant-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-dormant-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4454,14 +4820,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::action-area-dormant-release",
-			"type": "action-area",
+			"id": "ogn-mbr-dormant-detect__action-area-dormant-release",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-dormant-release",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4470,7 +4836,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "휴면 해제하기 버튼 영역",
@@ -4481,14 +4847,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-guide",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-eligibility-guide",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4508,14 +4874,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-block",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-block",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-eligibility-block",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4535,14 +4901,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-error",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-eligibility-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4562,14 +4928,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed",
-			"type": "action-area",
+			"id": "ogn-mbr-dormant-eligibility__action-area-eligibility-proceed",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-eligibility-proceed",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4578,7 +4944,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "본인인증 진행 버튼 영역",
@@ -4589,14 +4955,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-progress",
+			"id": "ogn-mbr-dormant-release__section-message-release-progress",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-release-progress",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4616,14 +4982,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-error",
+			"id": "ogn-mbr-dormant-release__section-message-release-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-release-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4643,14 +5009,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-session-error",
+			"id": "ogn-mbr-dormant-release__section-message-release-session-error",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-release-session-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4670,14 +5036,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-complete::section-message-complete-result",
+			"id": "ogn-mbr-dormant-complete__section-message-complete-result",
 			"type": "section-message",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "section-message-complete-result",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4697,14 +5063,14 @@
 			"events": {}
 		},
 		{
-			"id": "ogn-mbr-dormant-complete::action-area-complete-home",
-			"type": "action-area",
+			"id": "ogn-mbr-dormant-complete__action-area-complete-home",
+			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "action-area-complete-home",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-22T01:41:27.232Z",
-				"updatedAt": "2026-05-22T01:41:27.232Z"
+				"createdAt": "2026-05-22T02:08:13.810Z",
+				"updatedAt": "2026-05-22T02:08:13.810Z"
 			},
 			"pattern": {
 				"id": "default",
@@ -4713,7 +5079,7 @@
 			"children": [
 				{
 					"component": {
-						"type": "action-area"
+						"type": "button"
 					},
 					"props": {
 						"label": "홈으로 이동 버튼 영역",

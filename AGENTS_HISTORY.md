@@ -793,3 +793,32 @@
 - 이유: `docs/data-mockups` 직접 소비 여부, Claude 세션 재개 기본값, `components`와 `composite` 용어가 문서마다 다르게 표현되어 후속 구현 기준이 흔들릴 수 있음
 - 검증: `AGENTS.md`, `MASTER_PLAN.md`, `DEVELOPMENT_ARCHITECTURE.md`, `DATA_MAP.md`, `DISPLAY_PREVIEW_SCHEMA.md`의 관련 문구를 대조해 같은 방향으로 갱신함
 - 후속: `docs/data-mockups/3-parsed-jsons/display-preview-screen.json` fixture 추가와 legacy `styles.css` export 정리 필요
+## 2026-05-22 - Design System Agent
+
+- 변경: `@cx/components`에 하단 CTA rail 전용 `ActionButton` 컴포넌트를 추가하고 공개 export함
+- 변경: renderer action kind가 `ActionButton`을 알도록 추가하고, 하단 CTA는 `single-primary-action` 패턴 composite가 `ActionButton`을 materialize하도록 정리함
+- 변경: 현재 소비 데이터의 `Screen.Bottom` 참조를 개별 액션 컴포넌트 id가 아니라 `single-primary-action` 패턴 composite로 맞춤
+- 이유: 디자인 문서의 정식 하단 CTA 컴포넌트명인 `ActionButton`을 유지하되, `ActionButton`은 Bottom 패턴을 통해서만 쓰이도록 계약을 좁히기 위함
+- 검증: `npm test -- --run packages/component packages/renderer packages/agent`
+
+## 2026-05-22 - Frontend Agent
+
+- 변경: 렌더된 `Screen.Contents` 영역의 스크롤 동작은 유지하되 브라우저 스크롤바가 보이지 않도록 CSS를 보강함
+- 변경: composite/organism 단독 미리보기 스크롤 컨테이너에도 스크롤바 숨김 규칙을 적용함
+- 이유: 모바일 화면 미리보기 내부 contents 영역은 실제 앱 화면처럼 스크롤바 없이 보여야 하기 때문
+- 검증: `npx biome check packages/layout/src/styles.css apps/web/src/components/layout/Canvas.tsx AGENTS_HISTORY.md`, `npx tsc --noEmit --incremental false`
+
+## 2026-05-22 - Design System Agent
+
+- 변경: `auth-screen`, `info-screen`, `completion-screen` 패턴의 `Screen.Contents` layout/pageStack 계약을 `term-agreement-screen`, `form-screen`과 동일한 full-width content rail로 정리함
+- 변경: renderer의 `Organism`, `list-cell`, `section-message`, `action` wrapper에 `w-full min-w-0` 폭 방어를 추가함
+- 이유: FP-001/002만 화면 폭에 맞고 FP-003 이후 화면에 오른쪽 여백이 생기던 원인이 screen pattern별 contents/pageStack 계약 불일치였기 때문
+- 검증: `npx biome check docs/pattern-store/screen-patterns.json packages/renderer/src/default-renderers.tsx AGENTS_HISTORY.md`, `npx tsc --noEmit --incremental false`, `npm test -- --run packages/renderer apps/web/src/adapters`
+
+## 2026-05-22 - Design System Agent
+
+- 변경: contents organism pattern의 액션 기대 타입을 `action-area`에서 `button`으로 정리하고, 하단 고정 CTA만 `single-primary-action`/`ActionButton`을 사용하도록 분리함
+- 변경: agent compose/register 단계에서 legacy `action-area` 입력을 `button` 타입으로 정규화하고, 현재 AI import 산출물의 contents 액션 타입도 `button`으로 갱신함
+- 변경: renderer action kind가 `ActionButton`은 하단 rail 컴포넌트로, 일반 `Button`/`button`은 콘텐츠 버튼으로 렌더링하도록 분기함
+- 이유: 콘텐츠 영역의 액션은 CTA rail이 아니라 일반 버튼으로 들어가야 하고, bottom region 전용 CTA와 렌더 컴포넌트 책임을 분리해야 하기 때문
+- 검증: `npx biome check --write docs/pattern-store/organism-patterns.json packages/agent/src/compose-assets.ts packages/agent/src/compose-assets-ai.ts packages/agent/src/register-assets-to-database-tables.ts packages/agent/src/__tests__/compose-assets.test.ts packages/renderer/src/default-renderers.tsx AGENTS_HISTORY.md database/ai-imports/agent-assets.generated.json database/ai-imports/agent-db-tables.generated.json database/ai-imports/decorated-tables.generated.json`, `npx tsc --noEmit --incremental false`, `npm test -- --run packages/agent packages/renderer apps/web/src/adapters`

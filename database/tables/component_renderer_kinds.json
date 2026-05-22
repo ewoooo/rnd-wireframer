@@ -22,7 +22,9 @@
 		{ "type": "text-area", "kind": "text-field" },
 
 		{ "type": "Button", "kind": "action" },
+		{ "type": "ActionButton", "kind": "action" },
 		{ "type": "ActionArea", "kind": "action" },
+		{ "type": "action-button", "kind": "action" },
 		{ "type": "action-area", "kind": "action" },
 		{ "type": "button", "kind": "action" },
 

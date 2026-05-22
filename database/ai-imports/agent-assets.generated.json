@@ -2,8 +2,7 @@
 	"routes": [
 		{
 			"id": "SB-MBR-UC01_02-0513",
-			"name": "회원 가입 및 휴면 해제",
-			"description": "회원 가입(약관 동의~가입 완료) 및 휴면 해제(로그인~휴면 해제 완료) 플로우",
+			"name": "회원 가입 및 휴면 해제 플로우",
 			"variants": [
 				{
 					"id": "NOVA-MBR-FP-001",
@@ -1031,19 +1030,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-term-list::list-cell-term-required"
+					"componentId": "ogn-mbr-term-list__list-cell-term-required"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-term-list::list-cell-term-optional"
+					"componentId": "ogn-mbr-term-list__list-cell-term-optional"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-term-list::accordion-term-detail"
+					"componentId": "ogn-mbr-term-list__accordion-term-detail"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-term-list::section-message-term-error"
+					"componentId": "ogn-mbr-term-list__section-message-term-error"
 				}
 			]
 		},
@@ -1055,23 +1054,23 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-term-agree::checkbox-all-agree"
+					"componentId": "ogn-mbr-term-agree__checkbox-all-agree"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-term-agree::checkbox-term-required"
+					"componentId": "ogn-mbr-term-agree__checkbox-term-required"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-term-agree::checkbox-term-optional"
+					"componentId": "ogn-mbr-term-agree__checkbox-term-optional"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-term-agree::section-message-required-error"
+					"componentId": "ogn-mbr-term-agree__section-message-required-error"
 				},
 				{
 					"order": 5,
-					"componentId": "ogn-mbr-term-agree::action-area-next"
+					"componentId": "ogn-mbr-term-agree__action-area-next"
 				}
 			]
 		},
@@ -1083,23 +1082,23 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-guardian-input::text-field-guardian-name"
+					"componentId": "ogn-mbr-guardian-input__text-field-guardian-name"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-guardian-input::text-field-guardian-phone"
+					"componentId": "ogn-mbr-guardian-input__text-field-guardian-phone"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-guardian-input::section-message-guardian-info"
+					"componentId": "ogn-mbr-guardian-input__section-message-guardian-info"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-guardian-input::section-message-guardian-error"
+					"componentId": "ogn-mbr-guardian-input__section-message-guardian-error"
 				},
 				{
 					"order": 5,
-					"componentId": "ogn-mbr-guardian-input::action-area-guardian-request"
+					"componentId": "ogn-mbr-guardian-input__action-area-guardian-request"
 				}
 			]
 		},
@@ -1111,15 +1110,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-guardian-result::section-message-guardian-wait"
+					"componentId": "ogn-mbr-guardian-result__section-message-guardian-wait"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-guardian-result::section-message-guardian-expire"
+					"componentId": "ogn-mbr-guardian-result__section-message-guardian-expire"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-guardian-result::button-guardian-retry"
+					"componentId": "ogn-mbr-guardian-result__button-guardian-retry"
 				}
 			]
 		},
@@ -1131,27 +1130,27 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-member-input::text-field-user-id"
+					"componentId": "ogn-mbr-member-input__text-field-user-id"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-member-input::text-field-password"
+					"componentId": "ogn-mbr-member-input__text-field-password"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-member-input::text-field-email"
+					"componentId": "ogn-mbr-member-input__text-field-email"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-member-input::text-field-phone"
+					"componentId": "ogn-mbr-member-input__text-field-phone"
 				},
 				{
 					"order": 5,
-					"componentId": "ogn-mbr-member-input::section-message-input-error"
+					"componentId": "ogn-mbr-member-input__section-message-input-error"
 				},
 				{
 					"order": 6,
-					"componentId": "ogn-mbr-member-input::action-area-next"
+					"componentId": "ogn-mbr-member-input__action-area-next"
 				}
 			]
 		},
@@ -1163,15 +1162,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-entry-check::section-message-entry-existing"
+					"componentId": "ogn-mbr-entry-check__section-message-entry-existing"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-entry-check::section-message-entry-dormant"
+					"componentId": "ogn-mbr-entry-check__section-message-entry-dormant"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-entry-check::section-message-entry-withdrawn"
+					"componentId": "ogn-mbr-entry-check__section-message-entry-withdrawn"
 				}
 			]
 		},
@@ -1183,15 +1182,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-auth-select::list-cell-auth-phone"
+					"componentId": "ogn-mbr-auth-select__list-cell-auth-phone"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-auth-select::list-cell-auth-pass"
+					"componentId": "ogn-mbr-auth-select__list-cell-auth-pass"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-auth-select::list-cell-auth-cert"
+					"componentId": "ogn-mbr-auth-select__list-cell-auth-cert"
 				}
 			]
 		},
@@ -1203,27 +1202,27 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-auth-request::text-field-auth-code"
+					"componentId": "ogn-mbr-auth-request__text-field-auth-code"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-auth-request::text-field-auth-timer"
+					"componentId": "ogn-mbr-auth-request__text-field-auth-timer"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-auth-request::section-message-auth-error"
+					"componentId": "ogn-mbr-auth-request__section-message-auth-error"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-auth-request::section-message-auth-expire"
+					"componentId": "ogn-mbr-auth-request__section-message-auth-expire"
 				},
 				{
 					"order": 5,
-					"componentId": "ogn-mbr-auth-request::button-auth-retry"
+					"componentId": "ogn-mbr-auth-request__button-auth-retry"
 				},
 				{
 					"order": 6,
-					"componentId": "ogn-mbr-auth-request::action-area-auth-confirm"
+					"componentId": "ogn-mbr-auth-request__action-area-auth-confirm"
 				}
 			]
 		},
@@ -1235,19 +1234,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-member-status::section-message-status-dormant"
+					"componentId": "ogn-mbr-member-status__section-message-status-dormant"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-member-status::section-message-status-withdrawn"
+					"componentId": "ogn-mbr-member-status__section-message-status-withdrawn"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-member-status::section-message-status-error"
+					"componentId": "ogn-mbr-member-status__section-message-status-error"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-member-status::button-status-retry"
+					"componentId": "ogn-mbr-member-status__button-status-retry"
 				}
 			]
 		},
@@ -1259,19 +1258,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-join-path::section-message-join-available"
+					"componentId": "ogn-mbr-join-path__section-message-join-available"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-join-path::section-message-join-dormant"
+					"componentId": "ogn-mbr-join-path__section-message-join-dormant"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-join-path::section-message-join-blocked"
+					"componentId": "ogn-mbr-join-path__section-message-join-blocked"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-join-path::action-area-join-proceed"
+					"componentId": "ogn-mbr-join-path__action-area-join-proceed"
 				}
 			]
 		},
@@ -1283,15 +1282,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-join-complete::section-message-join-success"
+					"componentId": "ogn-mbr-join-complete__section-message-join-success"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-join-complete::section-message-session-error"
+					"componentId": "ogn-mbr-join-complete__section-message-session-error"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-join-complete::action-area-join-done"
+					"componentId": "ogn-mbr-join-complete__action-area-join-done"
 				}
 			]
 		},
@@ -1303,15 +1302,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-dormant-detect::section-message-dormant-guide"
+					"componentId": "ogn-mbr-dormant-detect__section-message-dormant-guide"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-dormant-detect::section-message-dormant-error"
+					"componentId": "ogn-mbr-dormant-detect__section-message-dormant-error"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-dormant-detect::action-area-dormant-release"
+					"componentId": "ogn-mbr-dormant-detect__action-area-dormant-release"
 				}
 			]
 		},
@@ -1323,19 +1322,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide"
+					"componentId": "ogn-mbr-dormant-eligibility__section-message-eligibility-guide"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-block"
+					"componentId": "ogn-mbr-dormant-eligibility__section-message-eligibility-block"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-error"
+					"componentId": "ogn-mbr-dormant-eligibility__section-message-eligibility-error"
 				},
 				{
 					"order": 4,
-					"componentId": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed"
+					"componentId": "ogn-mbr-dormant-eligibility__action-area-eligibility-proceed"
 				}
 			]
 		},
@@ -1347,15 +1346,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-dormant-release::section-message-release-progress"
+					"componentId": "ogn-mbr-dormant-release__section-message-release-progress"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-dormant-release::section-message-release-error"
+					"componentId": "ogn-mbr-dormant-release__section-message-release-error"
 				},
 				{
 					"order": 3,
-					"componentId": "ogn-mbr-dormant-release::section-message-release-session-error"
+					"componentId": "ogn-mbr-dormant-release__section-message-release-session-error"
 				}
 			]
 		},
@@ -1367,19 +1366,20 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "ogn-mbr-dormant-complete::section-message-complete-result"
+					"componentId": "ogn-mbr-dormant-complete__section-message-complete-result"
 				},
 				{
 					"order": 2,
-					"componentId": "ogn-mbr-dormant-complete::action-area-complete-home"
+					"componentId": "ogn-mbr-dormant-complete__action-area-complete-home"
 				}
 			]
 		}
 	],
 	"components": [
 		{
-			"id": "ogn-mbr-term-list::list-cell-term-required",
+			"id": "ogn-mbr-term-list__list-cell-term-required",
 			"name": "list-cell-term-required",
+			"description": "필수 약관 항목",
 			"type": "list-cell",
 			"raw": {
 				"description": "필수 약관 항목",
@@ -1388,8 +1388,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-list::list-cell-term-optional",
+			"id": "ogn-mbr-term-list__list-cell-term-optional",
 			"name": "list-cell-term-optional",
+			"description": "선택 약관 항목",
 			"type": "list-cell",
 			"raw": {
 				"description": "선택 약관 항목",
@@ -1398,8 +1399,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-list::accordion-term-detail",
+			"id": "ogn-mbr-term-list__accordion-term-detail",
 			"name": "accordion-term-detail",
+			"description": "약관 전문 펼치기",
 			"type": "accordion",
 			"raw": {
 				"description": "약관 전문 펼치기",
@@ -1407,8 +1409,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-list::section-message-term-error",
+			"id": "ogn-mbr-term-list__section-message-term-error",
 			"name": "section-message-term-error",
+			"description": "약관 조회 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "약관 조회 오류 안내",
@@ -1417,8 +1420,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-all-agree",
+			"id": "ogn-mbr-term-agree__checkbox-all-agree",
 			"name": "checkbox-all-agree",
+			"description": "전체 동의",
 			"type": "checkbox",
 			"raw": {
 				"description": "전체 동의",
@@ -1427,8 +1431,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-term-required",
+			"id": "ogn-mbr-term-agree__checkbox-term-required",
 			"name": "checkbox-term-required",
+			"description": "필수 약관 동의",
 			"type": "checkbox",
 			"raw": {
 				"description": "필수 약관 동의",
@@ -1438,8 +1443,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-agree::checkbox-term-optional",
+			"id": "ogn-mbr-term-agree__checkbox-term-optional",
 			"name": "checkbox-term-optional",
+			"description": "선택 약관 동의",
 			"type": "checkbox",
 			"raw": {
 				"description": "선택 약관 동의",
@@ -1449,8 +1455,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-agree::section-message-required-error",
+			"id": "ogn-mbr-term-agree__section-message-required-error",
 			"name": "section-message-required-error",
+			"description": "필수 약관 미동의 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "필수 약관 미동의 오류 안내",
@@ -1459,9 +1466,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-term-agree::action-area-next",
+			"id": "ogn-mbr-term-agree__action-area-next",
 			"name": "action-area-next",
-			"type": "action-area",
+			"description": "다음 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "다음 버튼 영역",
 				"variant": "strong",
@@ -1469,8 +1477,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::text-field-guardian-name",
+			"id": "ogn-mbr-guardian-input__text-field-guardian-name",
 			"name": "text-field-guardian-name",
+			"description": "법정대리인 이름 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "법정대리인 이름 입력",
@@ -1478,8 +1487,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::text-field-guardian-phone",
+			"id": "ogn-mbr-guardian-input__text-field-guardian-phone",
 			"name": "text-field-guardian-phone",
+			"description": "법정대리인 연락처 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "법정대리인 연락처 입력",
@@ -1488,8 +1498,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::section-message-guardian-info",
+			"id": "ogn-mbr-guardian-input__section-message-guardian-info",
 			"name": "section-message-guardian-info",
+			"description": "법정대리인 동의 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "법정대리인 동의 안내",
@@ -1498,8 +1509,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::section-message-guardian-error",
+			"id": "ogn-mbr-guardian-input__section-message-guardian-error",
 			"name": "section-message-guardian-error",
+			"description": "법정대리인 정보 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "법정대리인 정보 오류 안내",
@@ -1508,9 +1520,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-input::action-area-guardian-request",
+			"id": "ogn-mbr-guardian-input__action-area-guardian-request",
 			"name": "action-area-guardian-request",
-			"type": "action-area",
+			"description": "동의 요청 발송 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "동의 요청 발송 버튼 영역",
 				"variant": "strong",
@@ -1518,8 +1531,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::section-message-guardian-wait",
+			"id": "ogn-mbr-guardian-result__section-message-guardian-wait",
 			"name": "section-message-guardian-wait",
+			"description": "법정대리인 동의 대기 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "법정대리인 동의 대기 안내",
@@ -1528,8 +1542,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::section-message-guardian-expire",
+			"id": "ogn-mbr-guardian-result__section-message-guardian-expire",
 			"name": "section-message-guardian-expire",
+			"description": "동의 유효시간 만료 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "동의 유효시간 만료 안내",
@@ -1538,8 +1553,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-guardian-result::button-guardian-retry",
+			"id": "ogn-mbr-guardian-result__button-guardian-retry",
 			"name": "button-guardian-retry",
+			"description": "동의 재요청 버튼",
 			"type": "button",
 			"raw": {
 				"description": "동의 재요청 버튼",
@@ -1549,8 +1565,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-user-id",
+			"id": "ogn-mbr-member-input__text-field-user-id",
 			"name": "text-field-user-id",
+			"description": "아이디 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "아이디 입력",
@@ -1559,8 +1576,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-password",
+			"id": "ogn-mbr-member-input__text-field-password",
 			"name": "text-field-password",
+			"description": "비밀번호 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "비밀번호 입력",
@@ -1569,8 +1587,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-email",
+			"id": "ogn-mbr-member-input__text-field-email",
 			"name": "text-field-email",
+			"description": "이메일 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "이메일 입력",
@@ -1579,8 +1598,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::text-field-phone",
+			"id": "ogn-mbr-member-input__text-field-phone",
 			"name": "text-field-phone",
+			"description": "연락처 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "연락처 입력",
@@ -1589,8 +1609,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::section-message-input-error",
+			"id": "ogn-mbr-member-input__section-message-input-error",
 			"name": "section-message-input-error",
+			"description": "입력 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "입력 오류 안내",
@@ -1599,9 +1620,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-input::action-area-next",
+			"id": "ogn-mbr-member-input__action-area-next",
 			"name": "action-area-next",
-			"type": "action-area",
+			"description": "다음 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "다음 버튼 영역",
 				"variant": "strong",
@@ -1609,8 +1631,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-existing",
+			"id": "ogn-mbr-entry-check__section-message-entry-existing",
 			"name": "section-message-entry-existing",
+			"description": "기존 정상 회원 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "기존 정상 회원 안내",
@@ -1619,8 +1642,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-dormant",
+			"id": "ogn-mbr-entry-check__section-message-entry-dormant",
 			"name": "section-message-entry-dormant",
+			"description": "휴면 회원 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 회원 안내",
@@ -1629,8 +1653,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-entry-check::section-message-entry-withdrawn",
+			"id": "ogn-mbr-entry-check__section-message-entry-withdrawn",
 			"name": "section-message-entry-withdrawn",
+			"description": "탈퇴 회원 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "탈퇴 회원 안내",
@@ -1639,8 +1664,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-phone",
+			"id": "ogn-mbr-auth-select__list-cell-auth-phone",
 			"name": "list-cell-auth-phone",
+			"description": "휴대폰 본인인증 선택",
 			"type": "list-cell",
 			"raw": {
 				"description": "휴대폰 본인인증 선택",
@@ -1649,8 +1675,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-pass",
+			"id": "ogn-mbr-auth-select__list-cell-auth-pass",
 			"name": "list-cell-auth-pass",
+			"description": "PASS 인증 선택",
 			"type": "list-cell",
 			"raw": {
 				"description": "PASS 인증 선택",
@@ -1659,8 +1686,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-select::list-cell-auth-cert",
+			"id": "ogn-mbr-auth-select__list-cell-auth-cert",
 			"name": "list-cell-auth-cert",
+			"description": "공동인증서 선택",
 			"type": "list-cell",
 			"raw": {
 				"description": "공동인증서 선택",
@@ -1669,8 +1697,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::text-field-auth-code",
+			"id": "ogn-mbr-auth-request__text-field-auth-code",
 			"name": "text-field-auth-code",
+			"description": "인증번호 입력",
 			"type": "text-field",
 			"raw": {
 				"description": "인증번호 입력",
@@ -1679,8 +1708,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::text-field-auth-timer",
+			"id": "ogn-mbr-auth-request__text-field-auth-timer",
 			"name": "text-field-auth-timer",
+			"description": "인증번호 유효시간 타이머",
 			"type": "text-field",
 			"raw": {
 				"description": "인증번호 유효시간 타이머",
@@ -1688,8 +1718,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::section-message-auth-error",
+			"id": "ogn-mbr-auth-request__section-message-auth-error",
 			"name": "section-message-auth-error",
+			"description": "인증 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "인증 오류 안내",
@@ -1698,8 +1729,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::section-message-auth-expire",
+			"id": "ogn-mbr-auth-request__section-message-auth-expire",
 			"name": "section-message-auth-expire",
+			"description": "인증번호 만료 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "인증번호 만료 안내",
@@ -1708,8 +1740,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::button-auth-retry",
+			"id": "ogn-mbr-auth-request__button-auth-retry",
 			"name": "button-auth-retry",
+			"description": "인증번호 재요청 버튼",
 			"type": "button",
 			"raw": {
 				"description": "인증번호 재요청 버튼",
@@ -1719,9 +1752,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-auth-request::action-area-auth-confirm",
+			"id": "ogn-mbr-auth-request__action-area-auth-confirm",
 			"name": "action-area-auth-confirm",
-			"type": "action-area",
+			"description": "인증 확인 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "인증 확인 버튼 영역",
 				"variant": "strong",
@@ -1729,8 +1763,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-dormant",
+			"id": "ogn-mbr-member-status__section-message-status-dormant",
 			"name": "section-message-status-dormant",
+			"description": "휴면 회원 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 회원 안내",
@@ -1739,8 +1774,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-withdrawn",
+			"id": "ogn-mbr-member-status__section-message-status-withdrawn",
 			"name": "section-message-status-withdrawn",
+			"description": "탈퇴 회원 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "탈퇴 회원 안내",
@@ -1749,8 +1785,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-status::section-message-status-error",
+			"id": "ogn-mbr-member-status__section-message-status-error",
 			"name": "section-message-status-error",
+			"description": "조회 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "조회 오류 안내",
@@ -1759,8 +1796,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-member-status::button-status-retry",
+			"id": "ogn-mbr-member-status__button-status-retry",
 			"name": "button-status-retry",
+			"description": "재시도 버튼",
 			"type": "button",
 			"raw": {
 				"description": "재시도 버튼",
@@ -1770,8 +1808,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-available",
+			"id": "ogn-mbr-join-path__section-message-join-available",
 			"name": "section-message-join-available",
+			"description": "신규 가입 가능 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "신규 가입 가능 안내",
@@ -1780,8 +1819,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-dormant",
+			"id": "ogn-mbr-join-path__section-message-join-dormant",
 			"name": "section-message-join-dormant",
+			"description": "휴면 해제 유도 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 해제 유도 안내",
@@ -1790,8 +1830,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-path::section-message-join-blocked",
+			"id": "ogn-mbr-join-path__section-message-join-blocked",
 			"name": "section-message-join-blocked",
+			"description": "가입 제한 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "가입 제한 안내",
@@ -1800,9 +1841,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-path::action-area-join-proceed",
+			"id": "ogn-mbr-join-path__action-area-join-proceed",
 			"name": "action-area-join-proceed",
-			"type": "action-area",
+			"description": "가입 진행 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "가입 진행 버튼 영역",
 				"variant": "strong",
@@ -1811,8 +1853,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-complete::section-message-join-success",
+			"id": "ogn-mbr-join-complete__section-message-join-success",
 			"name": "section-message-join-success",
+			"description": "가입 완료 안내 메시지",
 			"type": "section-message",
 			"raw": {
 				"description": "가입 완료 안내 메시지",
@@ -1820,8 +1863,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-complete::section-message-session-error",
+			"id": "ogn-mbr-join-complete__section-message-session-error",
 			"name": "section-message-session-error",
+			"description": "세션 생성 실패 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "세션 생성 실패 안내",
@@ -1830,9 +1874,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-join-complete::action-area-join-done",
+			"id": "ogn-mbr-join-complete__action-area-join-done",
 			"name": "action-area-join-done",
-			"type": "action-area",
+			"description": "홈으로 이동 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "홈으로 이동 버튼 영역",
 				"variant": "strong",
@@ -1840,8 +1885,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::section-message-dormant-guide",
+			"id": "ogn-mbr-dormant-detect__section-message-dormant-guide",
 			"name": "section-message-dormant-guide",
+			"description": "휴면 상태 안내 메시지",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 상태 안내 메시지",
@@ -1850,8 +1896,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::section-message-dormant-error",
+			"id": "ogn-mbr-dormant-detect__section-message-dormant-error",
 			"name": "section-message-dormant-error",
+			"description": "조회 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "조회 오류 안내",
@@ -1860,9 +1907,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-detect::action-area-dormant-release",
+			"id": "ogn-mbr-dormant-detect__action-area-dormant-release",
 			"name": "action-area-dormant-release",
-			"type": "action-area",
+			"description": "휴면 해제하기 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "휴면 해제하기 버튼 영역",
 				"variant": "strong",
@@ -1871,8 +1919,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-guide",
 			"name": "section-message-eligibility-guide",
+			"description": "휴면 해제 가능 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 해제 가능 안내",
@@ -1881,8 +1930,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-block",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-block",
 			"name": "section-message-eligibility-block",
+			"description": "해제 불가 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "해제 불가 안내",
@@ -1891,8 +1941,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-error",
+			"id": "ogn-mbr-dormant-eligibility__section-message-eligibility-error",
 			"name": "section-message-eligibility-error",
+			"description": "판정 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "판정 오류 안내",
@@ -1901,9 +1952,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed",
+			"id": "ogn-mbr-dormant-eligibility__action-area-eligibility-proceed",
 			"name": "action-area-eligibility-proceed",
-			"type": "action-area",
+			"description": "본인인증 진행 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "본인인증 진행 버튼 영역",
 				"variant": "strong",
@@ -1912,8 +1964,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-progress",
+			"id": "ogn-mbr-dormant-release__section-message-release-progress",
 			"name": "section-message-release-progress",
+			"description": "휴면 해제 처리 중 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 해제 처리 중 안내",
@@ -1922,8 +1975,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-error",
+			"id": "ogn-mbr-dormant-release__section-message-release-error",
 			"name": "section-message-release-error",
+			"description": "처리 오류 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "처리 오류 안내",
@@ -1932,8 +1986,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-release::section-message-release-session-error",
+			"id": "ogn-mbr-dormant-release__section-message-release-session-error",
 			"name": "section-message-release-session-error",
+			"description": "세션 복구 실패 안내",
 			"type": "section-message",
 			"raw": {
 				"description": "세션 복구 실패 안내",
@@ -1942,8 +1997,9 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-complete::section-message-complete-result",
+			"id": "ogn-mbr-dormant-complete__section-message-complete-result",
 			"name": "section-message-complete-result",
+			"description": "휴면 해제 완료 안내 메시지",
 			"type": "section-message",
 			"raw": {
 				"description": "휴면 해제 완료 안내 메시지",
@@ -1952,9 +2008,10 @@
 			}
 		},
 		{
-			"id": "ogn-mbr-dormant-complete::action-area-complete-home",
+			"id": "ogn-mbr-dormant-complete__action-area-complete-home",
 			"name": "action-area-complete-home",
-			"type": "action-area",
+			"description": "홈으로 이동 버튼 영역",
+			"type": "button",
 			"raw": {
 				"description": "홈으로 이동 버튼 영역",
 				"variant": "strong",
