@@ -14,14 +14,14 @@ export function ScreenVariantCard({
 	selectedScreenCode,
 }: ScreenVariantCardProps) {
 	return (
-		<div className="flex min-w-0 justify-between gap-2 border-t bg-background/80 p-2">
+		<div className="flex flex-col min-w-0 justify-between gap-2 border-t bg-background/80 p-2">
 			<div className="flex min-w-0 items-center gap-2">
 				<span className="shrink-0 text-xs text-muted-foreground">
 					{String(screenVariant.order)}
 				</span>
 				<span className="truncate text-xs font-medium">{screenVariant.name}</span>
 			</div>
-			<div className="flex flex-wrap gap-1.5">
+			<div className="flex flex-wrap gap-1">
 				{screenVariant.options.map((option) => (
 					<ScreenVariantOptionChip
 						key={option.screenCode}
@@ -52,7 +52,7 @@ function ScreenVariantOptionChip({
 		<Badge
 			variant={isSelected ? "default" : "outline"}
 			className={cn(
-				"h-5 min-w-6 cursor-pointer justify-center rounded-full px-2.5 text-xs outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+				"h-4 min-w-3 font-mono cursor-pointer justify-center rounded-full px-2 text-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 				isSelected && "hover:bg-primary hover:text-primary-foreground",
 			)}
 			role="button"

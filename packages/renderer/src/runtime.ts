@@ -55,24 +55,33 @@ export function toBoolean(value: unknown, fallback = false) {
 	return Boolean(value);
 }
 
-const DEFAULT_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
-	["HeaderBase", "header"],
+import { componentCatalog, componentCatalogAliases, type ComponentCatalogEntry } from "./component-catalog";
+
+// Catalog 외 layout primitive / Area 등 카탈로그에 없는 type은 여기서 추가.
+const EXTRA_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
 	["Layout.Flex", "layout-flex"],
 	["Layout.Grid", "layout-grid"],
 	["PageStack", "page-stack"],
-	["Divider", "divider"],
-	["SectionHeader", "section-header"],
 	["Area", "area"],
-	["ListCell", "list-cell"],
 	["Accordion", "accordion"],
-	["SectionMessage", "section-message"],
-	["TextField", "text-field"],
-	["Button", "action"],
-	["ActionButton", "action"],
 	["ActionArea", "action"],
 ];
 
-const kindByType = new Map<string, WireframeNodeKind>(DEFAULT_KIND_MAPPINGS);
+const kindByType = new Map<string, WireframeNodeKind>(EXTRA_KIND_MAPPINGS);
+
+// Catalog의 kind 필드를 자동 등록 (alias 포함)
+for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
+	if (!entry.kind) continue;
+	kindByType.set(entry.type, entry.kind);
+	for (const alias of entry.aliases ?? []) {
+		kindByType.set(alias, entry.kind);
+	}
+}
+// Alias 맵에 정의된 추가 alias도 흡수
+for (const [alias, type] of Object.entries(componentCatalogAliases)) {
+	const entry = (componentCatalog as Record<string, ComponentCatalogEntry>)[type];
+	if (entry?.kind && !kindByType.has(alias)) kindByType.set(alias, entry.kind);
+}
 
 export function registerWireframeNodeKinds(
 	mappings: Array<{ type: string; kind: WireframeNodeKind }>,
@@ -84,8 +93,13 @@ export function registerWireframeNodeKinds(
 
 export function clearWireframeNodeKindRegistry(): void {
 	kindByType.clear();
-	for (const [type, kind] of DEFAULT_KIND_MAPPINGS) {
+	for (const [type, kind] of EXTRA_KIND_MAPPINGS) {
 		kindByType.set(type, kind);
+	}
+	for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
+		if (!entry.kind) continue;
+		kindByType.set(entry.type, entry.kind);
+		for (const alias of entry.aliases ?? []) kindByType.set(alias, entry.kind);
 	}
 }
 

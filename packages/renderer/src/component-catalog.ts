@@ -1,3 +1,5 @@
+import type { WireframeNodeKind } from "./runtime";
+
 export type ComponentCatalogSource = "react-component" | "renderer-composite" | "layout-primitive";
 
 export type ComponentPropType = "array" | "boolean" | "enum" | "node" | "number" | "string";
@@ -32,6 +34,11 @@ export interface ComponentCatalogEntry {
 	version: string;
 	description?: string;
 	aliases?: readonly string[];
+	/**
+	 * Renderer kind. Catalog가 type→kind 매핑의 단일 진실 원천.
+	 * 미지정 시 runtime이 "fallback" kind로 처리.
+	 */
+	kind?: WireframeNodeKind;
 	props: Record<string, ComponentPropContract>;
 }
 
@@ -40,6 +47,7 @@ export type ComponentCatalog = Record<string, ComponentCatalogEntry>;
 export const componentCatalog = {
 	ActionButton: {
 		type: "ActionButton",
+		kind: "action",
 		source: "react-component",
 		version: "1.0.0",
 		description: "Bottom action rail button backed by @cx/components ActionButton.",
@@ -64,6 +72,7 @@ export const componentCatalog = {
 	},
 	AppBar: {
 		type: "AppBar",
+		kind: "header",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -98,6 +107,7 @@ export const componentCatalog = {
 	},
 	Button: {
 		type: "Button",
+		kind: "action",
 		source: "react-component",
 		version: "1.0.0",
 		aliases: ["button"],
@@ -121,6 +131,7 @@ export const componentCatalog = {
 	},
 	Callout: {
 		type: "Callout",
+		kind: "section-message",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -149,6 +160,7 @@ export const componentCatalog = {
 	},
 	Divider: {
 		type: "Divider",
+		kind: "divider",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -162,6 +174,7 @@ export const componentCatalog = {
 	},
 	HeaderBase: {
 		type: "HeaderBase",
+		kind: "header",
 		source: "renderer-composite",
 		version: "1.0.0",
 		description: "Renderer header node mapped to AppBar.",
@@ -175,6 +188,7 @@ export const componentCatalog = {
 	},
 	InfoTextList: {
 		type: "InfoTextList",
+		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -187,6 +201,7 @@ export const componentCatalog = {
 	},
 	ListCell: {
 		type: "ListCell",
+		kind: "list-cell",
 		source: "renderer-composite",
 		version: "1.0.0",
 		aliases: ["list-cell"],
@@ -199,6 +214,7 @@ export const componentCatalog = {
 	},
 	ListSelected: {
 		type: "ListSelected",
+		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -218,6 +234,7 @@ export const componentCatalog = {
 	},
 	ListSelectedRightItem: {
 		type: "ListSelectedRightItem",
+		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -232,6 +249,7 @@ export const componentCatalog = {
 	},
 	ListText: {
 		type: "ListText",
+		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -259,6 +277,7 @@ export const componentCatalog = {
 	},
 	SectionHeader: {
 		type: "SectionHeader",
+		kind: "section-header",
 		source: "renderer-composite",
 		version: "1.0.0",
 		props: {
@@ -268,6 +287,7 @@ export const componentCatalog = {
 	},
 	SectionMessage: {
 		type: "SectionMessage",
+		kind: "section-message",
 		source: "renderer-composite",
 		version: "1.0.0",
 		aliases: ["section-message"],
@@ -294,6 +314,7 @@ export const componentCatalog = {
 	},
 	TextField: {
 		type: "TextField",
+		kind: "text-field",
 		source: "react-component",
 		version: "1.0.0",
 		aliases: ["text-field", "text-area"],

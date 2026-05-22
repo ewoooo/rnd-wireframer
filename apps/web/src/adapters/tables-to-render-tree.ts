@@ -387,6 +387,22 @@ const REGION_ID_BY_KEY = {
 	bottom: "screen-bottom",
 } as const;
 
+const REGION_DEFAULT_PROPS: Record<SampleScreenRegion["type"], Record<string, PropValue>> = {
+	"Screen.Header": {
+		position: "sticky",
+		layout: { direction: "column", gap: 0 },
+	},
+	"Screen.Contents": {
+		layout: { direction: "column", gap: 0 },
+		scroll: true,
+	},
+	"Screen.Bottom": {
+		position: "sticky",
+		layout: { direction: "column", gap: 0 },
+		safeArea: true,
+	},
+};
+
 function tableRegionToRenderNode(
 	regionKey: "bottom" | "contents" | "header",
 	schemaMetadata: WireframeMetadata,
@@ -401,7 +417,7 @@ function tableRegionToRenderNode(
 		type: region.type,
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
-		props: getPatternOwnedProps(undefined, region.props),
+		props: { ...REGION_DEFAULT_PROPS[region.type], ...getPatternOwnedProps(undefined, region.props) },
 		children: tableRegionChildrenToRenderNodes(
 			regionId,
 			schemaMetadata,
