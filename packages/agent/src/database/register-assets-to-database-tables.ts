@@ -31,6 +31,7 @@ export interface DatabaseRegionChild {
 }
 
 import type { ScreenSurfaceType } from "../types";
+import { normalizeComponentType } from "../normalize-component-type";
 import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
 export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
@@ -342,7 +343,7 @@ function toComponentRow(
 	component: DecoratedComponentNode,
 	ctx: ComponentRowContext,
 ): DatabaseComponentRow {
-	const type = normalizeContentComponentType(component.type || "Generic");
+	const type = normalizeComponentType(component.type || "Generic") ?? "Generic";
 	return {
 		id: component.id,
 		type,
@@ -359,10 +360,6 @@ function toComponentRow(
 	};
 }
 
-function normalizeContentComponentType(type: string): string {
-	if (type.toLowerCase() === "action-area") return "button";
-	return type;
-}
 
 function slugify(id: string): string {
 	return id.toLowerCase();

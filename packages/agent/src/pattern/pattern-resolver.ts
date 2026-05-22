@@ -7,6 +7,19 @@ import type {
 
 const DEFAULT_VARIANT = "default";
 
+/**
+ * Fallback pattern ID 상수. Resolver가 매칭에 실패했을 때 반환하는 기본값.
+ * pattern-store에 별도 등록되어 있지 않은 deterministic 값.
+ */
+const FALLBACK_PATTERN_ID = {
+	screen: "screen-shell",
+	variant: "screen-variant",
+	route: "screen-route",
+	areaWithoutLayout: "area-section",
+	areaWithLayout: (layout: string) => `area-${layout}`,
+	region: (slot: string) => `region-${slot}`,
+} as const;
+
 export interface AreaResolutionInput extends ComposedAreaNode {
 	__compositeTypes?: ReadonlySet<string>;
 }
@@ -56,7 +69,9 @@ export function createPatternResolver(
 			const area = node as AreaResolutionInput;
 			return (
 				resolveArea(area, areaPatterns) ?? {
-					id: area.layout ? `area-${area.layout}` : "area-section",
+					id: area.layout
+						? FALLBACK_PATTERN_ID.areaWithLayout(area.layout)
+						: FALLBACK_PATTERN_ID.areaWithoutLayout,
 					variant: DEFAULT_VARIANT,
 					reasons: area.layout ? [`layout: ${area.layout}`] : ["default area pattern"],
 				}
@@ -64,7 +79,7 @@ export function createPatternResolver(
 		}
 		if (level === "screen") {
 			return {
-				id: "screen-shell",
+				id: FALLBACK_PATTERN_ID.screen,
 				variant: DEFAULT_VARIANT,
 				reasons: ["deterministic screen shell"],
 			};
@@ -73,21 +88,21 @@ export function createPatternResolver(
 			const region = node as { slot?: string };
 			const slot = region.slot ?? "contents";
 			return {
-				id: `region-${slot}`,
+				id: FALLBACK_PATTERN_ID.region(slot),
 				variant: DEFAULT_VARIANT,
 				reasons: [`region slot: ${slot}`],
 			};
 		}
 		if (level === "variant") {
 			return {
-				id: "screen-variant",
+				id: FALLBACK_PATTERN_ID.variant,
 				variant: DEFAULT_VARIANT,
 				reasons: ["default variant pattern"],
 			};
 		}
 		if (level === "route") {
 			return {
-				id: "screen-route",
+				id: FALLBACK_PATTERN_ID.route,
 				variant: DEFAULT_VARIANT,
 				reasons: ["default route pattern"],
 			};

@@ -1,4 +1,5 @@
 import { getComponentCatalogEntry } from "@cx/renderer";
+import { normalizeComponentType } from "../normalize-component-type";
 import type {
 	ComponentRawInput,
 	ComposedComponentNode,
@@ -143,11 +144,6 @@ function composeComponent(
 		props: { ...existing, ...synthesized },
 		...(hooks.length > 0 ? { hooks } : {}),
 	};
-}
-
-function normalizeComponentType(type: string | undefined): string | undefined {
-	if (type?.toLowerCase() === "action-area") return "button";
-	return type;
 }
 
 function composeArea(
