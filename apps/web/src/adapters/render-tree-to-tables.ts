@@ -59,7 +59,7 @@ export function renderTreeToTables(
 		theme: schema.theme,
 		data: schema.data,
 		screen: {
-			type: "page",
+			type: "screen.page",
 			regions: {
 				header: extractRegion(screenNode, "header", compositesById, areasById, warnings),
 				contents: extractRegion(screenNode, "contents", compositesById, areasById, warnings),
@@ -157,7 +157,7 @@ function extractArea(
 
 	return {
 		id: areaId,
-		type: "Area",
+		type: "area.static",
 		version: node.componentVersion,
 		metadata: {
 			title: node.metadata.title,

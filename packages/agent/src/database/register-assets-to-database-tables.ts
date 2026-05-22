@@ -26,9 +26,12 @@ export interface DatabaseScreenVariantRow {
 }
 
 export interface DatabaseRegionChild {
-	kind: "composite" | "area" | "area";
+	kind: "composite" | "area";
 	id: string;
 }
+
+export type ScreenSurfaceType = "screen.page" | "screen.bottomSheet" | "screen.popup";
+export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
 export interface DatabaseScreenRegion {
 	type: string;
@@ -44,7 +47,7 @@ export interface DatabaseScreenRowMetadata {
 }
 
 export interface DatabaseScreenBody {
-	type: "page" | "bottomsheet" | "popup";
+	type: ScreenSurfaceType;
 	regions: {
 		header: DatabaseScreenRegion;
 		contents: DatabaseScreenRegion;
@@ -73,7 +76,7 @@ export interface DatabaseAreaMetadata {
 
 export interface DatabaseAreaRow {
 	id: string;
-	type: "Area";
+	type: AreaTypeLiteral;
 	version: string;
 	metadata: DatabaseAreaMetadata;
 	props: { name: string };
@@ -264,7 +267,7 @@ function toScreenRow(
 		},
 		theme: { mode: ctx.themeMode },
 		screen: {
-			type: "page",
+			type: "screen.page",
 			regions: {
 				header: {
 					type: "Screen.Header",
@@ -308,7 +311,8 @@ function toAreaRow(
 ): DatabaseAreaRow {
 	return {
 		id: area.id,
-		type: "Area",
+		// Legacy organism path — area.dynamic 정보가 없으므로 static으로 강제.
+		type: "area.static",
 		version: ctx.componentVersion,
 		metadata: {
 			title: area.name ?? area.id,

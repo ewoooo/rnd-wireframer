@@ -9,7 +9,7 @@ import {
 } from "@cx/components";
 import { Flex, Grid } from "@cx/layout/primitives";
 import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
-import { areaRendererDefinition } from "./renderers/area";
+import { areaRendererDefinitions } from "./renderers/area";
 import type { RendererDefinition } from "./registry";
 import { toBoolean, toText } from "./runtime";
 import type {
@@ -104,7 +104,7 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			);
 		},
 	},
-	areaRendererDefinition,
+	...areaRendererDefinitions,
 	{
 		kind: "list-cell",
 		render: ({ node, renderable }) => {

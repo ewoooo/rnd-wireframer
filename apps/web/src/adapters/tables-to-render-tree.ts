@@ -113,7 +113,7 @@ export interface SampleScreen {
 	};
 }
 
-export type SampleScreenSurface = "page" | "bottomsheet" | "popup";
+export type SampleScreenSurface = "screen.page" | "screen.bottomSheet" | "screen.popup";
 
 export interface SampleAreaMetadata {
 	title: string;
@@ -125,7 +125,7 @@ export interface SampleAreaMetadata {
 
 export interface SampleArea {
 	id: string;
-	type: "Area";
+	type: "area.static" | "area.dynamic";
 	version: string;
 	metadata: SampleAreaMetadata;
 	pattern?: {

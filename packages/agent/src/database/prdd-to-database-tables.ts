@@ -22,7 +22,7 @@ export interface DatabaseAreaMetadata {
 
 export interface DatabaseAreaRow {
 	id: string;
-	type: "Area";
+	type: "area.static" | "area.dynamic";
 	version: string;
 	/** PRDD 영역 no. (legacy 호환 시 undefined). */
 	key?: number;
@@ -89,7 +89,7 @@ export function materializePrddScreenToTables(
 	);
 
 	const screenBody: DatabaseScreenBody = {
-		type: "page",
+		type: "screen.page",
 		regions: {
 			header: toRegion(
 				"Screen.Header",
@@ -155,9 +155,11 @@ interface AreaRowContext {
 }
 
 function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRow {
+	const type: "area.static" | "area.dynamic" =
+		area.areaType === "dynamic" ? "area.dynamic" : "area.static";
 	return {
 		id: area.id,
-		type: "Area",
+		type,
 		version: ctx.componentVersion,
 		key: area.key,
 		metadata: {

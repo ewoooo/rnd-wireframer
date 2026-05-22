@@ -47,7 +47,7 @@ const termDetail: WireframeNode = {
 
 const area: SampleArea = {
 	id: "ogn-mbr-term-list",
-	type: "Area",
+	type: "area.static",
 	version: "1.0.0",
 	metadata: {
 		title: "약관 목록",
@@ -76,7 +76,7 @@ const screen: SampleScreen = {
 	},
 	pattern: { id: "term-agreement-screen", variant: "default" },
 	screen: {
-		type: "page",
+		type: "screen.page",
 		regions: {
 			header: {
 				type: "Screen.Header",

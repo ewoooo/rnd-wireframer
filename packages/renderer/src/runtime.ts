@@ -10,7 +10,8 @@ export type WireframeNodeKind =
 	| "layout-flex"
 	| "layout-grid"
 	| "list-cell"
-	| "area"
+	| "area.static"
+	| "area.dynamic"
 	| "page-stack"
 	| "section-header"
 	| "section-message"
@@ -62,7 +63,8 @@ const EXTRA_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
 	["Layout.Flex", "layout-flex"],
 	["Layout.Grid", "layout-grid"],
 	["PageStack", "page-stack"],
-	["Area", "area"],
+	["area.static", "area.static"],
+	["area.dynamic", "area.dynamic"],
 	["Accordion", "accordion"],
 	["ActionArea", "action"],
 ];
