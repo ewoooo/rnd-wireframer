@@ -18,7 +18,6 @@ import {
 import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
 import areaSampleSet from "../../../../database/tables/areas.json";
-import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
 import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
 import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
 import screenSampleSet from "../../../../database/tables/screens.json";
@@ -31,14 +30,6 @@ type ComponentTableSet = {
 	components: SampleCompositeSet["composites"];
 };
 
-type ScreenMockDataSet = {
-	screenMockData: Array<{
-		screenId: string;
-		scenario: string;
-		data: Record<string, unknown>;
-	}>;
-};
-
 registerWireframeNodeKinds(
 	(componentRendererKindsSet as { mappings: Array<{ type: string; kind: WireframeNodeKind }> })
 		.mappings,
@@ -48,16 +39,8 @@ const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
 const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
 const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
 const areas = (areaSampleSet as unknown as SampleAreaSet).areas;
-const mockDataByScreenId = new Map(
-	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
-		.filter((entry) => entry.scenario === "default")
-		.map((entry) => [entry.screenId, entry.data]),
-);
 const orderedSampleScreens = getOrderedSampleScreens(
-	(screenSampleSet as unknown as SampleScreenSet).screens.map((screen) => ({
-		...screen,
-		data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
-	})),
+	(screenSampleSet as unknown as SampleScreenSet).screens,
 	sampleVariantSet,
 	sampleRouteSet,
 );
