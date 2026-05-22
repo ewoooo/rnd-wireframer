@@ -84,7 +84,7 @@ describe("PRDD pipeline e2e (parse → register → compose → decorate → tab
 	it("DB area row preserves PRDD metadata", () => {
 		expect(tables.areas).toHaveLength(1);
 		const areaRow = tables.areas[0];
-		expect(areaRow?.type).toBe("Area");
+		expect(areaRow?.type).toBe("area.dynamic");
 		expect(areaRow?.key).toBe(1);
 		expect(areaRow?.props.areaType).toBe("dynamic");
 		expect(areaRow?.props.layout).toBe("vertical");

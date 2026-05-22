@@ -6,8 +6,45 @@ import type {
 	RegisteredContentsRegion,
 	RegisteredHeaderRegion,
 	RegisteredScreenNode,
+	ScreenSurfaceType,
 } from "../types";
 import type { ParsedAreaRow, ParsedComponentRow, ParsedPrddDocument } from "./prdd-parser";
+
+/**
+ * Screen type → header 필수 여부 contract. [[feedback_no_hardcoded_switch]]에 따라
+ * 분기 로직 대신 테이블로 표현. 새 screen type 추가 시 이 표만 갱신.
+ */
+const HEADER_REQUIRED_BY_SCREEN_TYPE: Record<ScreenSurfaceType, boolean> = {
+	"screen.page": true,
+	"screen.bottomSheet": false,
+	"screen.popup": false,
+};
+
+/** 향후 PRDD frontmatter "구현 유형" 등으로 결정 가능. 지금은 단일 기본값. */
+function decideScreenType(_parsed: ParsedPrddDocument): ScreenSurfaceType {
+	return "screen.page";
+}
+
+/**
+ * screen.page 같은 header 필수 type일 때 header가 비어있으면 default AppBar 합성.
+ * AGENTS.md "Screen 아래 Screen.Header/Contents/Bottom 3영역 생성" deterministic 책임.
+ */
+function synthesizeDefaultHeader(
+	screenId: string,
+	screenName: string,
+): RegisteredComponentNode {
+	return {
+		level: "component",
+		id: `${screenId}__synthesized-header`,
+		name: screenName,
+		order: 1,
+		type: "AppBar",
+		props: {
+			titleContent: screenName,
+			showBackButton: true,
+		},
+	};
+}
 
 /**
  * PRDD 영역 번호 → Region/Area 분류 contract.
@@ -88,7 +125,17 @@ export function registerPrddDocument(parsed: ParsedPrddDocument): RegisteredPrdd
 		}
 	}
 
-	// 5) Screen 노드 조립
+	// 5) Screen type 결정 + header 추론 (deterministic code 책임)
+	const screenType = decideScreenType(parsed);
+	const screenName = parsed.meta.screenName ?? stableScreenId;
+	if (HEADER_REQUIRED_BY_SCREEN_TYPE[screenType] && headerChildren.length === 0) {
+		const defaultHeader = synthesizeDefaultHeader(stableScreenId, screenName);
+		allComponents.push(defaultHeader);
+		headerChildren.push(toChildRef(defaultHeader));
+		warnings.push(`header inferred for ${screenType}: ${stableScreenId}`);
+	}
+
+	// 6) Screen 노드 조립
 	const header: RegisteredHeaderRegion = {
 		level: "region",
 		slot: "header",
@@ -108,8 +155,9 @@ export function registerPrddDocument(parsed: ParsedPrddDocument): RegisteredPrdd
 	const screen: RegisteredScreenNode = {
 		level: "screen",
 		id: stableScreenId,
-		name: parsed.meta.screenName ?? stableScreenId,
+		name: screenName,
 		order: 1,
+		screenType,
 		...(parsed.meta.description ? { description: parsed.meta.description } : {}),
 		...(parsed.meta.route ? { surface: parsed.meta.route } : {}),
 		areas: [], // deprecated; PRDD 입력은 region 구조만 채움

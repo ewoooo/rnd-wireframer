@@ -5,6 +5,7 @@ import type {
 	GeneratedRouteNode,
 	GeneratedScreenNode,
 	GeneratedVariantNode,
+	RegionSlot,
 	RegisteredComponentNode,
 	RegisteredNodeTree,
 	RegisteredAreaChildRef,
@@ -14,6 +15,28 @@ import type {
 	RegisteredScreenAreaRef,
 	RegisteredVariantNode,
 } from "../types";
+
+/**
+ * Legacy area slot 추론 contract. 자연어 키워드 기반이지만 분기 코드 대신
+ * 테이블 형태로 표현. PRDD pipeline은 영역 번호로 결정하므로 이 표 안 씀.
+ *
+ * [[feedback_no_hardcoded_switch]]에 따라 분기 로직 대신 lookup으로 처리.
+ */
+const SLOT_KEYWORD_PATTERNS: Array<{ slot: RegionSlot; pattern: RegExp }> = [
+	{ slot: "header", pattern: /header|top|app-?bar|navigation|nav|상단|헤더/ },
+	{ slot: "bottom", pattern: /bottom|footer|cta|action|button|하단|버튼|완료|다음/ },
+];
+
+function inferAreaSlot(
+	ref: { areaId: string },
+	area: RegisteredAreaNode | undefined,
+): RegionSlot {
+	const haystack = `${ref.areaId} ${area?.name ?? ""} ${area?.description ?? ""}`.toLowerCase();
+	for (const { slot, pattern } of SLOT_KEYWORD_PATTERNS) {
+		if (pattern.test(haystack)) return slot;
+	}
+	return "contents";
+}
 
 export function registerAssets(input: GeneratedNodeTree): RegisteredNodeTree {
 	const warnings: string[] = [];
@@ -84,6 +107,8 @@ function registerScreen(
 		id: screen.id,
 		name: screen.name ?? screen.id,
 		order: normalizeOrder(screen.order, index),
+		// Legacy organism path: screen type 정보 없음. Register 책임에 따라 기본값 강제.
+		screenType: "screen.page",
 		...(screen.description ? { description: screen.description } : {}),
 		...(screen.surface ? { surface: screen.surface } : {}),
 		areas: orderRefs(screen.areas ?? [], "areaId").map((ref, refIndex) => {
@@ -95,6 +120,7 @@ function registerScreen(
 			const registeredRef: RegisteredScreenAreaRef = {
 				areaId: ref.areaId,
 				order: normalizeOrder(ref.order, refIndex),
+				slot: inferAreaSlot(ref, area),
 				...(area ? { area } : {}),
 			};
 

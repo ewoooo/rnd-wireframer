@@ -133,7 +133,7 @@ function extractRegionEntry(
 		return [];
 	}
 
-	if (node.type === "Area") {
+	if (isAreaNode(node)) {
 		const areaId = getAreaId(node);
 		areasById.set(areaId, extractArea(node, areaId, compositesById, warnings));
 		return [{ kind: "area", id: areaId }];
@@ -210,7 +210,7 @@ function extractAreaChildren(
 			warnings.push(`Dropped generated divider wrapper: ${node.metadata.id}`);
 			continue;
 		}
-		if (node.type === "Area") {
+		if (isAreaNode(node)) {
 			warnings.push(
 				`Nested Area node was not extracted as an area table row: ${node.metadata.id}`,
 			);
@@ -228,6 +228,12 @@ function getAreaId(node: WireframeNode) {
 	return typeof areaCode === "string" && areaCode.length > 0
 		? areaCode
 		: node.metadata.id;
+}
+
+/** 정규 area type 인지 판정. legacy "Area"와 canonical "area.static"/"area.dynamic" 모두 인식. */
+function isAreaNode(node: WireframeNode): boolean {
+	const t = node.type;
+	return t === "Area" || t === "area.static" || t === "area.dynamic";
 }
 
 function isGeneratedPageStack(node: WireframeNode) {

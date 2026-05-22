@@ -198,7 +198,7 @@ function composeScreen(
 	areaById: Map<string, ComposedAreaNode>,
 	warnings: string[],
 ): ComposedScreenNode {
-	const regions = partitionScreenAreas(screen.areas, areaById);
+	const regions = partitionScreenAreas(screen.areas);
 	for (const ref of screen.areas) {
 		if (!areaById.has(ref.areaId)) {
 			warnings.push(`Missing composed area: ${ref.areaId}`);
@@ -216,20 +216,19 @@ function composeScreen(
 	};
 }
 
-function partitionScreenAreas(
-	refs: RegisteredScreenAreaRef[],
-	areaById: Map<string, ComposedAreaNode>,
-) {
+/**
+ * Register가 결정한 ref.slot으로 bucketing. 휴리스틱 없음.
+ */
+function partitionScreenAreas(refs: RegisteredScreenAreaRef[]) {
 	const header: ScreenAreaRefInput[] = [];
 	const contents: ScreenAreaRefInput[] = [];
 	const bottom: ScreenAreaRefInput[] = [];
 
 	for (const ref of refs) {
 		const child = { areaId: ref.areaId, order: ref.order };
-		const area = areaById.get(ref.areaId);
-		const target = resolveScreenRegion(ref, area);
-		if (target === "header") header.push(child);
-		else if (target === "bottom") bottom.push(child);
+		const slot = ref.slot ?? "contents";
+		if (slot === "header") header.push(child);
+		else if (slot === "bottom") bottom.push(child);
 		else contents.push(child);
 	}
 
@@ -238,17 +237,6 @@ function partitionScreenAreas(
 		contents,
 		...(bottom.length > 0 ? { bottom } : {}),
 	};
-}
-
-function resolveScreenRegion(
-	ref: RegisteredScreenAreaRef,
-	area: ComposedAreaNode | undefined,
-): "bottom" | "contents" | "header" {
-	const haystack =
-		`${ref.areaId} ${area?.name ?? ""} ${area?.description ?? ""}`.toLowerCase();
-	if (/(header|top|app-?bar|navigation|nav|상단|헤더)/.test(haystack)) return "header";
-	if (/(bottom|footer|cta|action|button|하단|버튼|완료|다음)/.test(haystack)) return "bottom";
-	return "contents";
 }
 
 function findMainScreen(screens: RegisteredScreenNode[]): RegisteredScreenNode | undefined {

@@ -27,6 +27,7 @@ export function composePrddScreen(input: RegisteredPrddScreen): ComposedPrddScre
 		id: input.screen.id,
 		name: input.screen.name,
 		order: input.screen.order,
+		screenType: input.screen.screenType,
 		...(input.screen.description ? { description: input.screen.description } : {}),
 		...(input.screen.surface ? { surface: input.screen.surface } : {}),
 		children: {

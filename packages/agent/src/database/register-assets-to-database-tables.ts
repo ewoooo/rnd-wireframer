@@ -30,7 +30,8 @@ export interface DatabaseRegionChild {
 	id: string;
 }
 
-export type ScreenSurfaceType = "screen.page" | "screen.bottomSheet" | "screen.popup";
+import type { ScreenSurfaceType } from "../types";
+import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
 export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
 export interface DatabaseScreenRegion {
@@ -270,18 +271,18 @@ function toScreenRow(
 			type: "screen.page",
 			regions: {
 				header: {
-					type: "Screen.Header",
-					metadata: { title: "고정 상단 영역" },
+					type: REGION_NODE_TYPE.header,
+					metadata: { title: REGION_METADATA_TITLE.header },
 					children: toRegionChildren(screen.children.header),
 				},
 				contents: {
-					type: "Screen.Contents",
-					metadata: { title: "스크롤 콘텐츠 영역" },
+					type: REGION_NODE_TYPE.contents,
+					metadata: { title: REGION_METADATA_TITLE.contents },
 					children: toRegionChildren(screen.children.contents),
 				},
 				bottom: {
-					type: "Screen.Bottom",
-					metadata: { title: "고정 하단 영역" },
+					type: REGION_NODE_TYPE.bottom,
+					metadata: { title: REGION_METADATA_TITLE.bottom },
 					children: toRegionChildren(screen.children.bottom),
 				},
 			},

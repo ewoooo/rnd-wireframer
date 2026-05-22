@@ -88,6 +88,8 @@ export interface ComposedVariantNode extends OrderedNode {
 
 export interface ComposedScreenNode extends OrderedNode {
 	variantId?: string;
+	/** 정규 screen type. Register에서 결정된 값이 그대로 통과. */
+	screenType?: ScreenSurfaceType;
 	surface?: string;
 	children: ComposedScreenRegionChildren;
 }
@@ -121,12 +123,20 @@ export interface RegisteredScreenAreaRef {
 	areaId: string;
 	order: number;
 	area?: RegisteredAreaNode;
+	/** Register가 결정한 region slot. Compose는 이 값을 그대로 사용. */
+	slot?: RegionSlot;
 }
+
+/** Screen surface 정규형. Register 단계가 결정. */
+export type ScreenSurfaceType = "screen.page" | "screen.bottomSheet" | "screen.popup";
 
 export interface RegisteredScreenNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "screen";
 	name: string;
 	description?: string;
+	/** 정규 screen type. Register 책임. */
+	screenType: ScreenSurfaceType;
+	/** 화면 경로 텍스트 (PRDD frontmatter). 정규 type과 별개. */
 	surface?: string;
 	/** Region 구조 미사용 시 (legacy 호환) flat area refs */
 	areas: RegisteredScreenAreaRef[];

@@ -6,6 +6,7 @@ import type {
 	DatabaseScreenRegion,
 	DatabaseScreenRow,
 } from "./register-assets-to-database-tables";
+import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
 import type {
 	DecoratedAreaNode,
 	DecoratedComponentNode,
@@ -89,21 +90,22 @@ export function materializePrddScreenToTables(
 	);
 
 	const screenBody: DatabaseScreenBody = {
-		type: "screen.page",
+		// Register가 결정한 type을 단순 통과. materializer는 의사결정 안 함.
+		type: decorated.screen.screenType ?? "screen.page",
 		regions: {
 			header: toRegion(
-				"Screen.Header",
-				"고정 상단 영역",
+				REGION_NODE_TYPE.header,
+				REGION_METADATA_TITLE.header,
 				decorated.header.children.map(toCompositeChild),
 			),
 			contents: toRegion(
-				"Screen.Contents",
-				"스크롤 콘텐츠 영역",
+				REGION_NODE_TYPE.contents,
+				REGION_METADATA_TITLE.contents,
 				decorated.contents.children.map(toAreaChild),
 			),
 			bottom: toRegion(
-				"Screen.Bottom",
-				"고정 하단 영역",
+				REGION_NODE_TYPE.bottom,
+				REGION_METADATA_TITLE.bottom,
 				decorated.bottom.children.map(toCompositeChild),
 			),
 		},
