@@ -134,7 +134,7 @@
 									}
 								},
 								{
-									"type": "Organism",
+									"type": "Area",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-term-list",
@@ -144,7 +144,7 @@
 										"updatedAt": "2026-05-21T00:00:00Z"
 									},
 									"props": {
-										"organismCode": "ogn-mbr-term-list",
+										"areaCode": "ogn-mbr-term-list",
 										"name": "약관 목록 조회",
 										"flow": "vertical"
 									},
@@ -443,7 +443,7 @@
 									}
 								},
 								{
-									"type": "Organism",
+									"type": "Area",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-member-input",
@@ -453,7 +453,7 @@
 										"updatedAt": "2026-05-21T00:00:00Z"
 									},
 									"props": {
-										"organismCode": "ogn-mbr-member-input",
+										"areaCode": "ogn-mbr-member-input",
 										"name": "회원 정보 입력",
 										"flow": "vertical"
 									},
@@ -597,7 +597,7 @@
 									]
 								},
 								{
-									"type": "Organism",
+									"type": "Area",
 									"componentVersion": "1.0.0",
 									"metadata": {
 										"id": "ogn-mbr-entry-check",
@@ -607,7 +607,7 @@
 										"updatedAt": "2026-05-21T00:00:00Z"
 									},
 									"props": {
-										"organismCode": "ogn-mbr-entry-check",
+										"areaCode": "ogn-mbr-entry-check",
 										"name": "가입 진입 조건 확인",
 										"flow": "vertical"
 									},

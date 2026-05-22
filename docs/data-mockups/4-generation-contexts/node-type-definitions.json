@@ -92,7 +92,7 @@
 			"properties": {
 				"source": {
 					"type": "object",
-					"description": "screenSource, organismSource, compositeSource, policy, generatedReason 등"
+					"description": "screenSource, areaSource, compositeSource, policy, generatedReason 등"
 				}
 			}
 		},
@@ -121,7 +121,7 @@
 					"description": "screenRouteCode, order, path hint"
 				}
 			},
-			"allowedChildren": ["section", "organism", "slot"]
+			"allowedChildren": ["section", "area", "slot"]
 		},
 		"section": {
 			"description": "화면 내 chrome, header, body, footer 같은 배치 구획",
@@ -133,9 +133,9 @@
 					"allowedValues": ["chrome", "content", "form", "list", "feedback", "cta", "overlay"]
 				}
 			},
-			"allowedChildren": ["organism", "pattern", "composite", "slot", "text", "action", "dataList"]
+			"allowedChildren": ["area", "pattern", "composite", "slot", "text", "action", "dataList"]
 		},
-		"organism": {
+		"area": {
 			"description": "SB/OGN 원천과 연결되는 재사용 가능한 화면 덩어리",
 			"extends": [
 				"NodeIdentity",
@@ -149,13 +149,13 @@
 			],
 			"required": ["id", "nodeType", "name", "composite", "source", "children"],
 			"uniqueProperties": {
-				"organismCode": {
+				"areaCode": {
 					"type": "string",
 					"description": "원천 OGN 코드. source.code와 같거나 source에서 유도 가능해야 한다."
 				},
 				"editScope": {
 					"type": "string",
-					"allowedValues": ["sharedOrganism", "screenLocalOverride"]
+					"allowedValues": ["sharedArea", "screenLocalOverride"]
 				}
 			},
 			"allowedChildren": ["pattern", "composite", "slot", "text", "action", "dataList"]
@@ -282,7 +282,7 @@
 		"모든 노드는 NodeIdentity를 포함해야 한다.",
 		"composite가 있는 노드는 renderer registry에 같은 키가 있어야 한다.",
 		"dataList는 dataBinding.collection과 dataBinding.itemName을 반드시 가져야 한다.",
-		"source.type이 organismSource이면 source.code는 원천 organism code와 매칭되어야 한다.",
+		"source.type이 areaSource이면 source.code는 원천 area code와 매칭되어야 한다.",
 		"allowedChildren에 없는 nodeType은 생성 결과 검수에서 실패 처리한다."
 	]
 }

@@ -9,22 +9,22 @@
 				"description": "회원 가입에 필요한 약관을 확인하고 동의한다.",
 				"surface": "page"
 			},
-			"organisms": [
+			"areas": [
 				{
 					"order": 1,
-					"organismCode": "ogn-mbr-term-list"
+					"areaCode": "ogn-mbr-term-list"
 				},
 				{
 					"order": 2,
-					"organismCode": "ogn-mbr-term-agree"
+					"areaCode": "ogn-mbr-term-agree"
 				},
 				{
 					"order": 3,
-					"organismCode": "ogn-mbr-guardian-input"
+					"areaCode": "ogn-mbr-guardian-input"
 				},
 				{
 					"order": 4,
-					"organismCode": "ogn-mbr-guardian-result"
+					"areaCode": "ogn-mbr-guardian-result"
 				}
 			]
 		},
@@ -37,14 +37,14 @@
 				"description": "약관 버전 불일치 시 최신 약관 재동의를 안내한다.",
 				"surface": "page"
 			},
-			"organisms": [
+			"areas": [
 				{
 					"order": 1,
-					"organismCode": "ogn-mbr-term-list"
+					"areaCode": "ogn-mbr-term-list"
 				},
 				{
 					"order": 2,
-					"organismCode": "ogn-mbr-term-agree"
+					"areaCode": "ogn-mbr-term-agree"
 				}
 			]
 		},
@@ -57,14 +57,14 @@
 				"description": "필수 약관 미동의 시 진행 제한 상태를 안내한다.",
 				"surface": "page"
 			},
-			"organisms": [
+			"areas": [
 				{
 					"order": 1,
-					"organismCode": "ogn-mbr-term-list"
+					"areaCode": "ogn-mbr-term-list"
 				},
 				{
 					"order": 2,
-					"organismCode": "ogn-mbr-term-agree"
+					"areaCode": "ogn-mbr-term-agree"
 				}
 			]
 		},
@@ -77,14 +77,14 @@
 				"description": "동의 저장 실패 시 재시도 안내를 노출한다.",
 				"surface": "page"
 			},
-			"organisms": [
+			"areas": [
 				{
 					"order": 1,
-					"organismCode": "ogn-mbr-term-list"
+					"areaCode": "ogn-mbr-term-list"
 				},
 				{
 					"order": 2,
-					"organismCode": "ogn-mbr-term-agree"
+					"areaCode": "ogn-mbr-term-agree"
 				}
 			]
 		}

@@ -1,6 +1,6 @@
 import type { PropValue, WireframeEvents } from "../src/schema";
 
-export type CXUINode = ScreenNode | ScreenRegionNode | LayoutNode | OrganismNode | ComponentNode;
+export type CXUINode = ScreenNode | ScreenRegionNode | LayoutNode | AreaNode | ComponentNode;
 
 export type CXUIMetadata = {
 	id: string;
@@ -39,7 +39,7 @@ export type ScreenContentsNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: ScreenContentsProps;
-	children: Array<OrganismNode | ComponentNode | LayoutNode>;
+	children: Array<AreaNode | ComponentNode | LayoutNode>;
 };
 
 export type ScreenBottomNode = {
@@ -87,11 +87,11 @@ export type LayoutGridNode = {
 	children: CXUINode[];
 };
 
-export type OrganismNode = {
-	type: "Organism";
+export type AreaNode = {
+	type: "Area";
 	componentVersion: string;
 	metadata: CXUIMetadata;
-	props: OrganismProps;
+	props: AreaProps;
 	children: CXUINode[];
 };
 
@@ -216,8 +216,8 @@ export type GlobalNavigationProps = {
 	}>;
 };
 
-export type OrganismProps = {
-	organismCode: string;
+export type AreaProps = {
+	areaCode: string;
 	name: string;
 };
 
@@ -328,11 +328,11 @@ export const typedNodeTreeExample: ScreenNode = {
 			},
 			children: [
 				{
-					type: "Organism",
+					type: "Area",
 					componentVersion: "1.0.0",
 					metadata: nodeMetadata("ogn-mbr-term-list", "약관 목록 조회"),
 					props: {
-						organismCode: "ogn-mbr-term-list",
+						areaCode: "ogn-mbr-term-list",
 						name: "약관 목록 조회",
 					},
 					children: [
@@ -385,11 +385,11 @@ export const typedNodeTreeExample: ScreenNode = {
 					],
 				},
 				{
-					type: "Organism",
+					type: "Area",
 					componentVersion: "1.0.0",
 					metadata: nodeMetadata("ogn-mbr-term-agree", "약관 동의 CTA"),
 					props: {
-						organismCode: "ogn-mbr-term-agree",
+						areaCode: "ogn-mbr-term-agree",
 						name: "약관 동의 CTA",
 					},
 					children: [
