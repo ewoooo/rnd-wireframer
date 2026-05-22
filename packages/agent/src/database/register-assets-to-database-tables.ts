@@ -26,7 +26,7 @@ export interface DatabaseScreenVariantRow {
 }
 
 export interface DatabaseRegionChild {
-	kind: "composite" | "organism";
+	kind: "composite" | "organism" | "area";
 	id: string;
 }
 

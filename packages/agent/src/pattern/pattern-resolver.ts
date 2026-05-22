@@ -69,6 +69,27 @@ export function createPatternResolver(
 				reasons: ["deterministic screen shell"],
 			};
 		}
+		if (level === "area") {
+			const area = node as { layout?: string; areaType?: string; key?: number };
+			const reasons: string[] = [];
+			if (area.areaType) reasons.push(`areaType: ${area.areaType}`);
+			if (area.layout) reasons.push(`layout: ${area.layout}`);
+			if (reasons.length === 0) reasons.push("default area pattern");
+			return {
+				id: area.layout ? `area-${area.layout}` : "area-section",
+				variant: DEFAULT_VARIANT,
+				reasons,
+			};
+		}
+		if (level === "region") {
+			const region = node as { slot?: string };
+			const slot = region.slot ?? "contents";
+			return {
+				id: `region-${slot}`,
+				variant: DEFAULT_VARIANT,
+				reasons: [`region slot: ${slot}`],
+			};
+		}
 		if (level === "variant") {
 			return {
 				id: "screen-variant",
