@@ -734,11 +734,11 @@
 			"hooks": []
 		},
 		{
-			"id": "action-area-next",
+			"id": "action-area-member-next",
 			"type": "button",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "action-area-next",
+				"title": "action-area-member-next",
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
