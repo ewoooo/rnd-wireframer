@@ -55,6 +55,7 @@ const organism: SampleOrganism = {
 		createdAt: "2026-05-21T00:00:00Z",
 		updatedAt: "2026-05-21T00:00:00Z",
 	},
+	pattern: { id: "list-stack", variant: "default" },
 	props: { name: "약관 목록 조회" },
 	children: [
 		{ kind: "composite", id: "requiredTerm" },
@@ -99,19 +100,41 @@ const screen: SampleScreen = {
 	},
 };
 
-const screenPattern: PatternStorePattern = {
-	id: "term-agreement-screen",
-	name: "약관 동의 화면",
-	target: "screen",
+const listStackPattern: PatternStorePattern = {
+	id: "list-stack",
+	name: "리스트 스택",
+	target: "organism",
 	defaultVariant: "default",
 	variants: {
 		default: {
-			regions: {
-				contents: {
-					pageStack: {
-						enabled: true,
-						divider: { type: "section" },
-					},
+			direction: "vertical",
+			childOrder: "explicit",
+			gap: 8,
+			props: {
+				flow: "vertical",
+				componentGap: 8,
+			},
+		},
+	},
+};
+
+const sectionStackPattern: PatternStorePattern = {
+	id: "section-stack",
+	name: "섹션 스택",
+	target: "region",
+	defaultVariant: "default",
+	variants: {
+		default: {
+			direction: "vertical",
+			childOrder: "explicit",
+			childWrap: {
+				kind: "page-stack",
+				appliesTo: ["composite", "organism"],
+				sectionPaddingX: 12,
+				itemPaddingX: 20,
+				paddingY: 28,
+				divider: {
+					type: "section",
 				},
 			},
 		},
@@ -131,7 +154,9 @@ describe("renderTreeToTables", () => {
 				updatedAt: node.metadata.updatedAt,
 			},
 			pattern: { id: "default", variant: "default" },
-			children: [{ component: { type: node.type }, props: (node.props ?? {}) as Record<string, never> }],
+			children: [
+				{ component: { type: node.type }, props: (node.props ?? {}) as Record<string, never> },
+			],
 			events: {},
 		});
 		const schema = tablesToRenderTree({
@@ -143,8 +168,18 @@ describe("renderTreeToTables", () => {
 				]),
 			),
 			organismById: new Map([[organism.id, organism]]),
-			patternById: new Map([[screenPattern.id, screenPattern]]),
+			patternById: new Map<string, PatternStorePattern>([
+				[listStackPattern.id, listStackPattern],
+				[sectionStackPattern.id, sectionStackPattern],
+			]),
 		});
+		const contentsNode = schema.children[0]?.children?.[1];
+
+		expect(contentsNode?.children?.map((node) => node.type)).toEqual([
+			"PageStack",
+			"Divider",
+			"PageStack",
+		]);
 
 		const result = renderTreeToTables(schema, {
 			screenVariantId: "mbr-join-base",

@@ -1,15 +1,15 @@
 import type {
-	AssetRegistry,
-	RegisteredComponentAsset,
-	RegisteredOrganismAsset,
-	RegisteredScreenAsset,
+	RegisteredComponentNode,
+	RegisteredNodeTree,
+	RegisteredOrganismNode,
+	RegisteredScreenNode,
 } from "@cx/agent";
 import { Database } from "lucide-react";
 import type { AgentNodeSelection, SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
 
 interface AgentRegistryPreviewProps {
-	registry?: AssetRegistry;
+	registry?: RegisteredNodeTree;
 	selectedAsset?: SelectedAgentAsset;
 	selectedNode: AgentNodeSelection;
 	onSelectNode: (node: AgentNodeSelection) => void;
@@ -64,7 +64,7 @@ function OrganismPreview({
 	order,
 	onSelectNode,
 }: {
-	organism?: RegisteredOrganismAsset;
+	organism?: RegisteredOrganismNode;
 	order: number;
 	onSelectNode: (node: AgentNodeSelection) => void;
 }) {
@@ -92,7 +92,7 @@ function OrganismPreview({
 				<Badge variant="outline">{organism.layout ?? "section"}</Badge>
 			</button>
 			<div className="mt-3 flex flex-col gap-2">
-				{organism.components.map((componentRef) => (
+				{organism.children.map((componentRef) => (
 					<ComponentPreview
 						key={componentRef.componentId}
 						component={componentRef.component}
@@ -110,7 +110,7 @@ function ComponentPreview({
 	order,
 	onSelectNode,
 }: {
-	component?: RegisteredComponentAsset;
+	component?: RegisteredComponentNode;
 	order: number;
 	onSelectNode: (node: AgentNodeSelection) => void;
 }) {
@@ -140,10 +140,10 @@ function ComponentPreview({
 }
 
 function getPreviewScreen(
-	registry: AssetRegistry | undefined,
+	registry: RegisteredNodeTree | undefined,
 	selectedAsset: SelectedAgentAsset | undefined,
 	selectedNode: AgentNodeSelection,
-): RegisteredScreenAsset | undefined {
+): RegisteredScreenNode | undefined {
 	if (selectedAsset?.level === "screen") return selectedAsset.item;
 	if (selectedAsset?.level === "variant") return selectedAsset.item.screens[0];
 	if (selectedAsset?.level === "route") return selectedAsset.item.variants[0]?.screens[0];
@@ -157,7 +157,7 @@ function getPreviewScreen(
 				}
 				if (selectedNode.level === "component") {
 					const hasComponent = screen.organisms.some((organismRef) => {
-						return organismRef.organism?.components.some(
+						return organismRef.organism?.children.some(
 							(componentRef) => componentRef.componentId === selectedNode.id,
 						);
 					});

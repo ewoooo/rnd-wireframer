@@ -5,19 +5,21 @@ import {
 	composeAssetContentsWithAI,
 	identifyGaps,
 	mergeProposals,
-} from "../compose-assets-ai";
-import type { RegisterAssetsInput } from "../types";
+} from "../compose/compose-assets-ai";
+import type { ComposedNodeTree } from "../types";
 
-function makeInput(overrides: Partial<RegisterAssetsInput> = {}): RegisterAssetsInput {
+function makeInput(overrides: Partial<ComposedNodeTree> = {}): ComposedNodeTree {
 	return {
-		routes: [{ id: "r1", variants: [{ id: "v1", screens: [{ id: "s1" }] }] }],
+		routes: [{ id: "r1", children: [{ variantId: "v1" }] }],
+		variants: [{ id: "v1", routeId: "r1", children: [{ screenId: "s1" }] }],
+		screens: [{ id: "s1", variantId: "v1", children: { contents: [] } }],
 		organisms: [
 			{
 				id: "ogn-mbr-member-input",
 				name: "회원 정보 입력",
 				description: "가입에 필요한 기본 개인정보 입력 및 형식·중복 검증",
 				layout: "vertical",
-				components: [{ componentId: "text-field-user-id" }],
+				children: [{ componentId: "text-field-user-id" }],
 			},
 		],
 		components: [
@@ -25,7 +27,7 @@ function makeInput(overrides: Partial<RegisterAssetsInput> = {}): RegisterAssets
 				id: "text-field-user-id",
 				type: "text-field",
 				props: { label: "아이디 입력" },
-				raw: { description: "아이디 입력", note: "max: 20" },
+				description: "아이디 입력",
 			},
 		],
 		...overrides,
@@ -40,7 +42,6 @@ describe("identifyGaps", () => {
 				componentId: "text-field-user-id",
 				type: "text-field",
 				missing: ["placeholder", "helperText"],
-				hasRaw: true,
 			},
 		]);
 	});
@@ -54,7 +55,7 @@ describe("identifyGaps", () => {
 		expect(gaps[0].missing).toEqual(["label", "placeholder", "helperText"]);
 	});
 
-	it("does not flag components when all required+optional keys are present", () => {
+	it("does not flag components when all required and optional keys are present", () => {
 		const gaps = identifyGaps(
 			makeInput({
 				components: [
@@ -73,7 +74,7 @@ describe("identifyGaps", () => {
 		expect(gaps).toEqual([]);
 	});
 
-	it("uses fallback (no required/optional) for unknown types", () => {
+	it("uses fallback for unknown types", () => {
 		const gaps = identifyGaps(
 			makeInput({
 				components: [{ id: "x", type: "mystery", props: { label: "ok" } }],
@@ -83,7 +84,11 @@ describe("identifyGaps", () => {
 	});
 
 	it("returns empty when no components", () => {
-		const gaps = identifyGaps({ routes: [{ id: "r1", variants: [] }] });
+		const gaps = identifyGaps({
+			routes: [{ id: "r1", children: [] }],
+			variants: [],
+			screens: [],
+		});
 		expect(gaps).toEqual([]);
 	});
 });

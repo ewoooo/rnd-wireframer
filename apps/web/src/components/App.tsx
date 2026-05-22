@@ -1,6 +1,6 @@
 "use client";
 
-import type { AssetRegistry } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent";
 import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -11,7 +11,7 @@ import { InspectionPanel } from "./layout/InspectionPanel";
 import { NavigationPanel } from "./layout/NavigationPanel";
 
 interface AppProps {
-	agentRegistry?: AssetRegistry;
+	agentRegistry?: RegisteredNodeTree;
 }
 
 const localWorkbenchData = loadLocalWorkbenchData();

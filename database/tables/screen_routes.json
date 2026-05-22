@@ -1,11 +1,11 @@
 {
 	"screenRoutes": [
 		{
-			"name": "회원 가입",
-			"order": 1,
-			"id": "mbr-join",
+			"id": "sb-mbr-uc01_02-0513",
 			"moduleId": "mbr",
-			"processId": "PR-MBR-CS-004-01"
+			"name": "회원 가입 및 휴면 해제",
+			"order": 1,
+			"processId": null
 		}
 	]
 }

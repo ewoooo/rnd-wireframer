@@ -1,4 +1,5 @@
 export * from "./bindings";
+export * from "./component-catalog";
 export {
 	type ComponentDefinition,
 	ComponentRegistry,

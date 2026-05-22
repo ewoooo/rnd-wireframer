@@ -15,7 +15,6 @@ import {
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
-import decoratedTablesSet from "../../../../database/ai-imports/decorated-tables.generated.json";
 import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
 import organismSampleSet from "../../../../database/tables/organisms.json";
@@ -45,48 +44,20 @@ registerWireframeNodeKinds(
 		.mappings,
 );
 
-const decoratedTables = decoratedTablesSet as unknown as {
-	screenRoutes: SampleScreenRouteSet["screenRoutes"];
-	screenVariants: SampleScreenVariantSet["screenVariants"];
-	screens: SampleScreenSet["screens"];
-	organisms: SampleOrganismSet["organisms"];
-	components: ComponentTableSet["components"];
-};
-
-const sampleRouteSet: SampleScreenRouteSet = {
-	screenRoutes: [
-		...(screenRouteSampleSet as unknown as SampleScreenRouteSet).screenRoutes,
-		...decoratedTables.screenRoutes,
-	],
-};
-const sampleVariantSet: SampleScreenVariantSet = {
-	screenVariants: [
-		...(screenVariantSampleSet as unknown as SampleScreenVariantSet).screenVariants,
-		...decoratedTables.screenVariants,
-	],
-};
-const componentTableSet: ComponentTableSet = {
-	components: [
-		...(compositeSampleSet as unknown as ComponentTableSet).components,
-		...decoratedTables.components,
-	],
-};
-const organisms = [
-	...(organismSampleSet as unknown as SampleOrganismSet).organisms,
-	...decoratedTables.organisms,
-];
+const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
+const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
+const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
+const organisms = (organismSampleSet as unknown as SampleOrganismSet).organisms;
 const mockDataByScreenId = new Map(
 	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
 		.filter((entry) => entry.scenario === "default")
 		.map((entry) => [entry.screenId, entry.data]),
 );
 const orderedSampleScreens = getOrderedSampleScreens(
-	[...(screenSampleSet as unknown as SampleScreenSet).screens, ...decoratedTables.screens].map(
-		(screen) => ({
-			...screen,
-			data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
-		}),
-	),
+	(screenSampleSet as unknown as SampleScreenSet).screens.map((screen) => ({
+		...screen,
+		data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
+	})),
 	sampleVariantSet,
 	sampleRouteSet,
 );

@@ -5,34 +5,146 @@
 			"type": "Organism",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "약관 동의",
+				"title": "약관 목록 조회",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"props": {
 				"name": "약관 목록 조회"
 			},
 			"pattern": {
-				"id": "term-list",
+				"id": "list-stack",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"kind": "composite",
-					"id": "requiredTerm"
+					"id": "list-cell-term-required"
 				},
 				{
 					"kind": "composite",
-					"id": "optionalTerm"
+					"id": "list-cell-term-optional"
 				},
 				{
 					"kind": "composite",
-					"id": "termDetail"
+					"id": "accordion-term-detail"
 				},
 				{
 					"kind": "composite",
-					"id": "errorMessage"
+					"id": "section-message-term-error"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-term-agree",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "약관 동의"
+			},
+			"pattern": {
+				"id": "checkbox-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "checkbox-all-agree"
+				},
+				{
+					"kind": "composite",
+					"id": "checkbox-term-required"
+				},
+				{
+					"kind": "composite",
+					"id": "checkbox-term-optional"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-required-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-next"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-input",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "법정대리인 정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "법정대리인 정보 입력"
+			},
+			"pattern": {
+				"id": "field-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "text-field-guardian-name"
+				},
+				{
+					"kind": "composite",
+					"id": "text-field-guardian-phone"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-guardian-info"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-guardian-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-guardian-request"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-result",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "법정대리인 동의 결과 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "법정대리인 동의 결과 확인"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-guardian-wait"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-guardian-expire"
+				},
+				{
+					"kind": "composite",
+					"id": "button-guardian-retry"
 				}
 			]
 		},
@@ -42,9 +154,9 @@
 			"version": "1.0.0",
 			"metadata": {
 				"title": "회원 정보 입력",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"props": {
 				"name": "회원 정보 입력"
@@ -73,6 +185,10 @@
 				{
 					"kind": "composite",
 					"id": "section-message-input-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-next"
 				}
 			]
 		},
@@ -82,9 +198,9 @@
 			"version": "1.0.0",
 			"metadata": {
 				"title": "가입 진입 조건 확인",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"props": {
 				"name": "가입 진입 조건 확인"
@@ -96,7 +212,323 @@
 			"children": [
 				{
 					"kind": "composite",
-					"id": "section-message-entry-check"
+					"id": "section-message-entry-existing"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-entry-dormant"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-entry-withdrawn"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-select",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "인증수단 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "인증수단 선택"
+			},
+			"pattern": {
+				"id": "list-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "list-cell-auth-phone"
+				},
+				{
+					"kind": "composite",
+					"id": "list-cell-auth-pass"
+				},
+				{
+					"kind": "composite",
+					"id": "list-cell-auth-cert"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-request",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "본인인증 요청",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "본인인증 요청"
+			},
+			"pattern": {
+				"id": "field-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "text-field-auth-code"
+				},
+				{
+					"kind": "composite",
+					"id": "text-field-auth-timer"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-auth-error"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-auth-expire"
+				},
+				{
+					"kind": "composite",
+					"id": "button-auth-retry"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-auth-confirm"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-member-status",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "회원 상태 조회",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "회원 상태 조회"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-status-dormant"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-status-withdrawn"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-status-error"
+				},
+				{
+					"kind": "composite",
+					"id": "button-status-retry"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-path",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 경로 분기",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "가입 경로 분기"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-join-available"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-join-dormant"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-join-blocked"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-join-proceed"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-complete",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 완료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "가입 완료"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-join-success"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-session-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-join-done"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-detect",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 감지 및 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 감지 및 안내"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-dormant-guide"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-dormant-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-dormant-release"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-eligibility",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 가능 여부 판정",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 가능 여부 판정"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-eligibility-guide"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-eligibility-block"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-eligibility-error"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-eligibility-proceed"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-release",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 처리",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 처리"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-release-progress"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-release-error"
+				},
+				{
+					"kind": "composite",
+					"id": "section-message-release-session-error"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-complete",
+			"type": "Organism",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 완료 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 완료 안내"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "composite",
+					"id": "section-message-complete-result"
+				},
+				{
+					"kind": "composite",
+					"id": "action-area-complete-home"
 				}
 			]
 		}

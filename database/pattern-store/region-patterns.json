@@ -1,0 +1,35 @@
+{
+	"patterns": [
+		{
+			"id": "section-stack",
+			"target": "region",
+			"name": "섹션 스택",
+			"description": "Region children을 섹션 단위 PageStack으로 감싸고 divider로 구분하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["composite", "organism"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"divider": {
+						"type": "section"
+					}
+				}
+			}
+		},
+		{
+			"id": "plain-stack",
+			"target": "region",
+			"name": "기본 스택",
+			"description": "Region children을 명시 순서대로 세로 배치하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			}
+		}
+	]
+}

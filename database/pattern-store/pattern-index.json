@@ -1,0 +1,46 @@
+{
+	"patterns": [
+		{
+			"id": "section-stack",
+			"target": "region",
+			"name": "섹션 스택",
+			"description": "Region children을 섹션 단위 PageStack으로 감싸고 divider로 구분하는 레이아웃 프리셋",
+			"keywords": ["region", "section", "page-stack", "divider"]
+		},
+		{
+			"id": "plain-stack",
+			"target": "region",
+			"name": "기본 스택",
+			"description": "Region children을 명시 순서대로 세로 배치하는 레이아웃 프리셋",
+			"keywords": ["region", "stack", "plain"]
+		},
+		{
+			"id": "list-stack",
+			"target": "organism",
+			"name": "리스트 스택",
+			"description": "Organism children을 리스트형 항목으로 세로 배치하는 레이아웃 프리셋",
+			"keywords": ["organism", "list", "list-cell", "vertical"]
+		},
+		{
+			"id": "field-stack",
+			"target": "organism",
+			"name": "필드 스택",
+			"description": "Organism children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
+			"keywords": ["organism", "field", "form", "text-field", "vertical"]
+		},
+		{
+			"id": "checkbox-stack",
+			"target": "organism",
+			"name": "체크박스 스택",
+			"description": "Organism children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
+			"keywords": ["organism", "checkbox", "check", "vertical"]
+		},
+		{
+			"id": "message-stack",
+			"target": "organism",
+			"name": "메시지 스택",
+			"description": "Organism children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
+			"keywords": ["organism", "message", "status", "section-message"]
+		}
+	]
+}

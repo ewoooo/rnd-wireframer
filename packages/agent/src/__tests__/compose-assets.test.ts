@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { composeAssetContents } from "../compose-assets";
-import type { RegisterAssetsInput } from "../types";
+import { composeAssetContents } from "../compose/compose-assets";
+import { registerAssets } from "../register/register-assets";
+import type { GeneratedNodeTree } from "../types";
 
-function makeInput(components: RegisterAssetsInput["components"]): RegisterAssetsInput {
+function makeInput(components: GeneratedNodeTree["components"]): GeneratedNodeTree {
 	return {
 		routes: [
 			{
@@ -15,153 +16,158 @@ function makeInput(components: RegisterAssetsInput["components"]): RegisterAsset
 	};
 }
 
+function composeGenerated(input: GeneratedNodeTree) {
+	return composeAssetContents(registerAssets(input));
+}
+
 describe("composeAssetContents", () => {
-	it("fills text-field label from raw.description", () => {
-		const input = makeInput([
-			{
-				id: "text-field-user-id",
-				type: "text-field",
-				raw: { description: "아이디 입력" },
-			},
-		]);
-
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({ label: "아이디 입력" });
-		expect(result.filledComponentIds).toEqual(["text-field-user-id"]);
-	});
-
-	it("fills list-cell title from raw.description", () => {
-		const input = makeInput([
-			{
-				id: "list-cell-term-required",
-				type: "list-cell",
-				raw: { description: "필수 약관 항목" },
-			},
-		]);
-
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({ title: "필수 약관 항목" });
-	});
-
-	it("fills section-message with message + variant", () => {
-		const input = makeInput([
-			{
-				id: "section-message-input-error",
-				type: "section-message",
-				raw: { description: "입력 오류 안내", variant: "negative" },
-			},
-		]);
-
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({
-			message: "입력 오류 안내",
-			variant: "negative",
-		});
-	});
-
-	it("extracts maxLength from raw.note", () => {
-		const input = makeInput([
-			{
-				id: "text-field-user-id",
-				type: "text-field",
-				raw: {
-					description: "아이디 입력",
-					note: "[정책:POL-MBR-INFO-002-04] 아이디 길이 → max: 20",
+	it("leaves missing text-field label absent for AI Composer", () => {
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "text-field-user-id",
+					type: "text-field",
+					raw: { description: "아이디 입력" },
 				},
-			},
-		]);
+			]),
+		);
 
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({
-			label: "아이디 입력",
-			maxLength: 20,
+		expect(result.composed.components?.[0]).toMatchObject({
+			description: "아이디 입력",
+			props: {},
 		});
+		expect(result.filledComponentIds).toEqual([]);
+	});
+
+	it("leaves missing list-cell title absent", () => {
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "list-cell-term-required",
+					type: "list-cell",
+					raw: { description: "필수 약관 항목" },
+				},
+			]),
+		);
+
+		expect(result.composed.components?.[0]).toMatchObject({
+			description: "필수 약관 항목",
+			props: {},
+		});
+	});
+
+	it("keeps concrete variant without adding pending message", () => {
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "section-message-input-error",
+					type: "section-message",
+					raw: { description: "입력 오류 안내", variant: "negative" },
+				},
+			]),
+		);
+
+		expect(result.composed.components?.[0].props).toEqual({ variant: "negative" });
+	});
+
+	it("extracts maxLength from raw.note without adding pending label", () => {
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "text-field-user-id",
+					type: "text-field",
+					raw: {
+						description: "아이디 입력",
+						note: "[정책:POL-MBR-INFO-002-04] 아이디 길이 -> max: 20",
+					},
+				},
+			]),
+		);
+
+		expect(result.composed.components?.[0].props).toEqual({ maxLength: 20 });
 	});
 
 	it("ignores variant '-' as missing", () => {
-		const input = makeInput([
-			{
-				id: "list-cell-term-required",
-				type: "list-cell",
-				raw: { description: "필수 약관 항목", variant: "-" },
-			},
-		]);
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "list-cell-term-required",
+					type: "list-cell",
+					raw: { description: "필수 약관 항목", variant: "-" },
+				},
+			]),
+		);
 
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({ title: "필수 약관 항목" });
+		expect(result.composed.components?.[0].props).toEqual({});
 	});
 
 	it("does not overwrite existing props", () => {
-		const input = makeInput([
-			{
-				id: "x",
-				type: "text-field",
-				props: { label: "preset" },
-				raw: { description: "should be ignored" },
-			},
-		]);
-
-		const result = composeAssetContents(input);
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "x",
+					type: "text-field",
+					props: { label: "preset" },
+					raw: { description: "should be ignored" },
+				},
+			]),
+		);
 
 		expect(result.composed.components?.[0].props).toEqual({ label: "preset" });
 		expect(result.filledComponentIds).toEqual([]);
 	});
 
 	it("skips components without raw", () => {
-		const input = makeInput([{ id: "x", type: "text-field" }]);
-
-		const result = composeAssetContents(input);
+		const result = composeGenerated(makeInput([{ id: "x", type: "text-field" }]));
 
 		expect(result.skipped).toEqual([{ componentId: "x", reason: "no raw" }]);
 	});
 
-	it("falls back to label for unknown types", () => {
-		const input = makeInput([{ id: "x", type: "mystery-widget", raw: { description: "안내" } }]);
+	it("skips unknown types without a label key", () => {
+		const result = composeGenerated(
+			makeInput([{ id: "x", type: "mystery-widget", raw: { description: "안내" } }]),
+		);
 
-		const result = composeAssetContents(input);
-
-		expect(result.composed.components?.[0].props).toEqual({ label: "안내" });
+		expect(result.composed.components?.[0].props).toEqual({});
+		expect(result.skipped).toEqual([{ componentId: "x", reason: "raw insufficient" }]);
 	});
 
-	it("normalizes content action-area components to button", () => {
-		const input = makeInput([
-			{
-				id: "action-area-next",
-				type: "action-area",
-				raw: { description: "다음 버튼 영역", variant: "strong" },
-			},
-		]);
-
-		const result = composeAssetContents(input);
+	it("normalizes content action-area components to button without pending label", () => {
+		const result = composeGenerated(
+			makeInput([
+				{
+					id: "action-area-next",
+					type: "action-area",
+					raw: { description: "다음 버튼 영역", variant: "strong" },
+				},
+			]),
+		);
 
 		expect(result.composed.components?.[0]).toMatchObject({
 			id: "action-area-next",
 			type: "button",
-			props: { label: "다음 버튼 영역", variant: "strong" },
+			props: { variant: "strong" },
 		});
 	});
 
-	it("preserves untouched fields", () => {
-		const input: RegisterAssetsInput = {
+	it("preserves organism and component relationships in composed node tree", () => {
+		const input: GeneratedNodeTree = {
 			routes: [{ id: "r1", variants: [{ id: "v1", screens: [{ id: "s1" }] }] }],
-			organisms: [{ id: "o1", components: [{ componentId: "x" }] }],
+			organisms: [{ id: "o1", children: [{ componentId: "x" }] }],
 			components: [{ id: "x", type: "text-field", raw: { description: "test" } }],
 		};
 
-		const result = composeAssetContents(input);
+		const result = composeGenerated(input);
 
-		expect(result.composed.organisms).toBe(input.organisms);
+		expect(result.composed.organisms?.[0].children).toEqual([{ componentId: "x", order: 1 }]);
+		expect(result.composed.components?.[0]).not.toHaveProperty("raw");
+		expect(result.strippedComponentRawIds).toEqual(["x"]);
 	});
 });
 
-describe("composeAssetContents — edge screen inheritance", () => {
+describe("composeAssetContents - edge screen inheritance", () => {
 	it("copies main screen organisms to edge screens with empty organisms", () => {
-		const input: RegisterAssetsInput = {
+		const result = composeGenerated({
 			routes: [
 				{
 					id: "r1",
@@ -180,24 +186,24 @@ describe("composeAssetContents — edge screen inheritance", () => {
 					],
 				},
 			],
-		};
+		});
 
-		const result = composeAssetContents(input);
-		const variant = result.composed.routes[0].variants[0];
+		const firstEdge = result.composed.screens.find((screen) => screen.id === "FP-001-E1");
+		const secondEdge = result.composed.screens.find((screen) => screen.id === "FP-001-E2");
 
-		expect(variant.screens[1].organisms).toEqual([
-			{ organismId: "ogn-term-list" },
-			{ organismId: "ogn-term-agree" },
+		expect(firstEdge?.children.contents).toEqual([
+			{ organismId: "ogn-term-list", order: 1 },
+			{ organismId: "ogn-term-agree", order: 2 },
 		]);
-		expect(variant.screens[2].organisms).toEqual([
-			{ organismId: "ogn-term-list" },
-			{ organismId: "ogn-term-agree" },
+		expect(secondEdge?.children.contents).toEqual([
+			{ organismId: "ogn-term-list", order: 1 },
+			{ organismId: "ogn-term-agree", order: 2 },
 		]);
 		expect(result.inheritedEdgeScreenIds).toEqual(["FP-001-E1", "FP-001-E2"]);
 	});
 
 	it("does not overwrite edge screens that already declare organisms", () => {
-		const input: RegisterAssetsInput = {
+		const result = composeGenerated({
 			routes: [
 				{
 					id: "r1",
@@ -212,29 +218,55 @@ describe("composeAssetContents — edge screen inheritance", () => {
 					],
 				},
 			],
-		};
+		});
 
-		const result = composeAssetContents(input);
+		const edge = result.composed.screens.find((screen) => screen.id === "M-E1");
 
-		expect(result.composed.routes[0].variants[0].screens[1].organisms).toEqual([
-			{ organismId: "ogn-custom" },
-		]);
+		expect(edge?.children.contents).toEqual([{ organismId: "ogn-custom", order: 1 }]);
 		expect(result.inheritedEdgeScreenIds).toEqual([]);
 	});
 
 	it("does nothing when main screen also has no organisms", () => {
-		const input: RegisterAssetsInput = {
+		const result = composeGenerated({
 			routes: [
 				{
 					id: "r1",
 					variants: [{ id: "v1", screens: [{ id: "M-0" }, { id: "M-E1" }] }],
 				},
 			],
-		};
+		});
 
-		const result = composeAssetContents(input);
+		const edge = result.composed.screens.find((screen) => screen.id === "M-E1");
 
-		expect(result.composed.routes[0].variants[0].screens[1].organisms).toBeUndefined();
+		expect(edge?.children.contents).toEqual([]);
 		expect(result.inheritedEdgeScreenIds).toEqual([]);
+	});
+
+	it("flattens routes, variants, and screens into node arrays with child references", () => {
+		const result = composeGenerated({
+			routes: [
+				{
+					id: "r1",
+					variants: [
+						{
+							id: "v1",
+							screens: [{ id: "s1" }],
+						},
+					],
+				},
+			],
+		});
+
+		expect(result.composed.routes[0].children).toEqual([{ variantId: "v1", order: 1 }]);
+		expect(result.composed.variants[0]).toMatchObject({
+			id: "v1",
+			routeId: "r1",
+			children: [{ screenId: "s1", order: 1 }],
+		});
+		expect(result.composed.screens[0]).toMatchObject({
+			id: "s1",
+			variantId: "v1",
+			children: { contents: [] },
+		});
 	});
 });

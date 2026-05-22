@@ -1,6 +1,6 @@
-export type AssetLevel = "route" | "variant" | "screen" | "organism" | "component";
+export type NodeLevel = "route" | "variant" | "screen" | "organism" | "component";
 
-export interface OrderedAsset {
+export interface OrderedNode {
 	id: string;
 	name?: string;
 	order?: number;
@@ -11,23 +11,30 @@ export interface ComponentRawInput {
 	description?: string;
 	variant?: string;
 	note?: string;
-	events?: string;
+	hooks?: NodeHook[];
 }
 
-export interface ComponentAssetInput extends OrderedAsset {
+export interface NodeHook {
+	trigger: string;
+	action: string;
+	target?: string;
+	params?: Record<string, unknown>;
+}
+
+export interface GeneratedComponentNode extends OrderedNode {
 	type?: string;
 	props?: Record<string, unknown>;
 	raw?: ComponentRawInput;
 }
 
-export interface OrganismComponentRefInput {
+export interface OrganismChildRefInput {
 	componentId: string;
 	order?: number;
 }
 
-export interface OrganismAssetInput extends OrderedAsset {
+export interface GeneratedOrganismNode extends OrderedNode {
 	layout?: string;
-	components?: OrganismComponentRefInput[];
+	children?: OrganismChildRefInput[];
 }
 
 export interface ScreenOrganismRefInput {
@@ -35,155 +42,176 @@ export interface ScreenOrganismRefInput {
 	order?: number;
 }
 
-export interface ScreenRawTransitionInput {
-	from?: string;
-	to?: string;
-	condition?: string;
-	payload?: string;
-}
-
-export interface ScreenRawCaseInput {
-	id?: string;
-	name?: string;
-	description?: string;
-	followUp?: string;
-}
-
-export interface ScreenRawInput {
-	description?: string;
-	transitions?: ScreenRawTransitionInput[];
-	cases?: ScreenRawCaseInput[];
-}
-
-export interface ScreenAssetInput extends OrderedAsset {
+export interface GeneratedScreenNode extends OrderedNode {
 	surface?: string;
 	organisms?: ScreenOrganismRefInput[];
-	raw?: ScreenRawInput;
 }
 
-export interface ScreenVariantAssetInput extends OrderedAsset {
-	screens: ScreenAssetInput[];
+export interface GeneratedVariantNode extends OrderedNode {
+	screens: GeneratedScreenNode[];
 }
 
-export interface ScreenRouteAssetInput extends OrderedAsset {
-	variants: ScreenVariantAssetInput[];
+export interface GeneratedRouteNode extends OrderedNode {
+	variants: GeneratedVariantNode[];
 }
 
-export interface RegisterAssetsInput {
-	routes: ScreenRouteAssetInput[];
-	organisms?: OrganismAssetInput[];
-	components?: ComponentAssetInput[];
+export interface GeneratedNodeTree {
+	routes: GeneratedRouteNode[];
+	organisms?: GeneratedOrganismNode[];
+	components?: GeneratedComponentNode[];
 }
 
-export interface RegisteredComponentAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
+export interface ComposedRouteChildRef {
+	variantId: string;
+	order?: number;
+}
+
+export interface ComposedVariantChildRef {
+	screenId: string;
+	order?: number;
+}
+
+export interface ComposedScreenRegionChildren {
+	header?: ScreenOrganismRefInput[];
+	contents?: ScreenOrganismRefInput[];
+	bottom?: ScreenOrganismRefInput[];
+}
+
+export interface ComposedRouteNode extends OrderedNode {
+	children: ComposedRouteChildRef[];
+}
+
+export interface ComposedVariantNode extends OrderedNode {
+	routeId?: string;
+	children: ComposedVariantChildRef[];
+}
+
+export interface ComposedScreenNode extends OrderedNode {
+	variantId?: string;
+	surface?: string;
+	children: ComposedScreenRegionChildren;
+}
+
+export interface ComposedOrganismNode extends OrderedNode {
+	layout?: string;
+	children?: OrganismChildRefInput[];
+}
+
+export interface ComposedComponentNode extends OrderedNode {
+	type?: string;
+	policyID?: string[];
+	props?: Record<string, unknown>;
+	hooks?: NodeHook[];
+}
+
+export interface ComposedNodeTree {
+	routes: ComposedRouteNode[];
+	variants: ComposedVariantNode[];
+	screens: ComposedScreenNode[];
+	organisms?: ComposedOrganismNode[];
+	components?: ComposedComponentNode[];
+}
+
+export interface RegisteredComponentNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "component";
 	name: string;
 	type: string;
 	description?: string;
+	policyID?: string[];
 	props: Record<string, unknown>;
 	raw?: ComponentRawInput;
 }
 
-export interface RegisteredOrganismComponentRef {
+export interface RegisteredOrganismChildRef {
 	componentId: string;
 	order: number;
-	component?: RegisteredComponentAsset;
+	component?: RegisteredComponentNode;
 }
 
-export interface RegisteredOrganismAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
+export interface RegisteredOrganismNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "organism";
 	name: string;
 	description?: string;
 	layout?: string;
-	components: RegisteredOrganismComponentRef[];
+	children: RegisteredOrganismChildRef[];
 }
 
 export interface RegisteredScreenOrganismRef {
 	organismId: string;
 	order: number;
-	organism?: RegisteredOrganismAsset;
+	organism?: RegisteredOrganismNode;
 }
 
-export interface RegisteredScreenAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
+export interface RegisteredScreenNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "screen";
 	name: string;
 	description?: string;
 	surface?: string;
 	organisms: RegisteredScreenOrganismRef[];
-	raw?: ScreenRawInput;
 }
 
-export interface RegisteredScreenVariantAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
+export interface RegisteredVariantNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "variant";
 	name: string;
 	description?: string;
-	screens: RegisteredScreenAsset[];
+	screens: RegisteredScreenNode[];
 }
 
-export interface RegisteredScreenRouteAsset extends Required<Pick<OrderedAsset, "id" | "order">> {
+export interface RegisteredRouteNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "route";
 	name: string;
 	description?: string;
-	variants: RegisteredScreenVariantAsset[];
+	variants: RegisteredVariantNode[];
 }
 
-export interface AssetRegistry {
-	routes: RegisteredScreenRouteAsset[];
-	organisms: RegisteredOrganismAsset[];
-	components: RegisteredComponentAsset[];
+export interface RegisteredNodeTree {
+	routes: RegisteredRouteNode[];
+	organisms: RegisteredOrganismNode[];
+	components: RegisteredComponentNode[];
 	warnings: string[];
 }
 
-export interface AssetDecoration {
-	patternId: string;
-	reasons: string[];
+export interface PatternRef {
+	id: string;
+	variant: string;
+	reasons?: string[];
 }
 
-export interface DecoratedAsset<TAsset> {
-	asset: TAsset;
-	decoration: AssetDecoration;
+export interface DecoratedRouteNode extends ComposedRouteNode {
+	pattern: PatternRef;
 }
 
-export interface DecoratedOrganismComponentRef
-	extends Omit<RegisteredOrganismComponentRef, "component"> {
-	component?: DecoratedAsset<RegisteredComponentAsset>;
+export interface DecoratedVariantNode extends ComposedVariantNode {
+	pattern: PatternRef;
 }
 
-export interface DecoratedOrganismAsset extends Omit<RegisteredOrganismAsset, "components"> {
-	components: DecoratedOrganismComponentRef[];
+export interface DecoratedScreenNode extends ComposedScreenNode {
+	pattern: PatternRef;
 }
 
-export interface DecoratedScreenOrganismRef extends Omit<RegisteredScreenOrganismRef, "organism"> {
-	organism?: DecoratedAsset<DecoratedOrganismAsset>;
+export interface DecoratedOrganismNode extends ComposedOrganismNode {
+	pattern: PatternRef;
 }
 
-export interface DecoratedScreenAsset extends Omit<RegisteredScreenAsset, "organisms"> {
-	organisms: DecoratedScreenOrganismRef[];
+export interface DecoratedComponentNode extends ComposedComponentNode {
+	pattern: PatternRef;
 }
 
-export interface DecoratedScreenVariantAsset extends Omit<RegisteredScreenVariantAsset, "screens"> {
-	screens: Array<DecoratedAsset<DecoratedScreenAsset>>;
-}
-
-export interface DecoratedScreenRouteAsset extends Omit<RegisteredScreenRouteAsset, "variants"> {
-	variants: Array<DecoratedAsset<DecoratedScreenVariantAsset>>;
-}
-
-export interface DecoratedAssetRegistry {
-	routes: Array<DecoratedAsset<DecoratedScreenRouteAsset>>;
-	organisms: Array<DecoratedAsset<DecoratedOrganismAsset>>;
-	components: Array<DecoratedAsset<RegisteredComponentAsset>>;
+export interface DecoratedNodeTree {
+	routes: DecoratedRouteNode[];
+	variants: DecoratedVariantNode[];
+	screens: DecoratedScreenNode[];
+	organisms: DecoratedOrganismNode[];
+	components: DecoratedComponentNode[];
 	warnings: string[];
 }
 
-export interface PatternResolverInput<TAsset> {
-	level: AssetLevel;
-	asset: TAsset;
+export interface PatternResolverInput<TNode> {
+	level: NodeLevel;
+	node: TNode;
 }
 
-export type PatternResolver = <TAsset>(
-	input: PatternResolverInput<TAsset>,
-) => AssetDecoration | undefined;
+export type PatternResolver = <TNode>(input: PatternResolverInput<TNode>) => PatternRef | undefined;
 
 export interface ScreenRouteTableRow {
 	code: string;
@@ -222,7 +250,7 @@ export interface ScreenMockDataInput {
 	sourceRefs?: string[];
 }
 
-export interface RegisterAssetMockInput {
+export interface GeneratedNodeMockInput {
 	screenMockData?: ScreenMockDataInput[];
 }
 
@@ -241,7 +269,7 @@ export interface OrganismTableRow {
 	order: number;
 	description?: string;
 	layout?: string;
-	components: Array<{
+	children: Array<{
 		componentId: string;
 		order: number;
 	}>;
@@ -256,7 +284,7 @@ export interface ComponentTableRow {
 	props: Record<string, unknown>;
 }
 
-export interface RegisteredAssetTables {
+export interface MaterializedNodeTables {
 	screenRoutes: ScreenRouteTableRow[];
 	screenVariants: ScreenVariantTableRow[];
 	screens: ScreenTableRow[];

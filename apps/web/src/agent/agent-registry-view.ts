@@ -1,41 +1,43 @@
 import type {
-	AssetLevel,
-	AssetRegistry,
-	RegisteredComponentAsset,
-	RegisteredOrganismAsset,
-	RegisteredScreenAsset,
-	RegisteredScreenRouteAsset,
-	RegisteredScreenVariantAsset,
+	NodeLevel,
+	RegisteredComponentNode,
+	RegisteredNodeTree,
+	RegisteredOrganismNode,
+	RegisteredRouteNode,
+	RegisteredScreenNode,
+	RegisteredVariantNode,
 } from "@cx/agent";
 
 export interface AgentNodeSelection {
 	id: string;
-	level: AssetLevel;
+	level: NodeLevel;
 }
 
 export type SelectedAgentAsset =
 	| {
 			level: "route";
-			item: RegisteredScreenRouteAsset;
+			item: RegisteredRouteNode;
 	  }
 	| {
 			level: "variant";
-			item: RegisteredScreenVariantAsset;
+			item: RegisteredVariantNode;
 	  }
 	| {
 			level: "screen";
-			item: RegisteredScreenAsset;
+			item: RegisteredScreenNode;
 	  }
 	| {
 			level: "organism";
-			item: RegisteredOrganismAsset;
+			item: RegisteredOrganismNode;
 	  }
 	| {
 			level: "component";
-			item: RegisteredComponentAsset;
+			item: RegisteredComponentNode;
 	  };
 
-export function getDefaultAgentSelection(registry: AssetRegistry | undefined): AgentNodeSelection {
+export function getDefaultAgentSelection(
+	registry: RegisteredNodeTree | undefined,
+): AgentNodeSelection {
 	const screen = registry?.routes[0]?.variants[0]?.screens[0];
 	if (screen) {
 		return {
@@ -52,7 +54,7 @@ export function getDefaultAgentSelection(registry: AssetRegistry | undefined): A
 }
 
 export function findSelectedAgentAsset(
-	registry: AssetRegistry | undefined,
+	registry: RegisteredNodeTree | undefined,
 	selection: AgentNodeSelection | undefined,
 ): SelectedAgentAsset | undefined {
 	if (!registry || !selection?.id) return undefined;

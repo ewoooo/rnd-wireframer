@@ -48,19 +48,23 @@ export interface SampleScreenRegion {
 	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
 	componentVersion?: string;
 	metadata: { title: string } & Partial<WireframeMetadata>;
-	props?: Record<string, PropValue>;
+	pattern?: {
+		id: string;
+		variant?: string;
+	};
 	children?: SampleRenderEntry[];
+	props?: Record<string, PropValue>;
 }
 
-import {
-	type CompositeVariant,
-	type OrganismVariant,
-	type PatternStore,
-	type PatternStorePageStack as SamplePageStackPattern,
-	type PatternStorePattern,
-	type PatternStoreTarget,
-	type ScreenVariant,
+import type {
+	CompositeVariant,
+	OrganismVariant,
+	PatternStore,
+	PatternStorePattern,
+	PatternStoreTarget,
+	RegionVariant,
 } from "@cx/agent/pattern-store";
+
 export {
 	findPattern as findPatternStorePattern,
 	listPatterns as listPatternStorePatterns,
@@ -72,8 +76,7 @@ export type {
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
-	SamplePageStackPattern,
-	ScreenVariant,
+	RegionVariant,
 };
 
 export interface SampleScreenMetadata {
@@ -245,9 +248,6 @@ export function tablesToRenderTree({
 	patternById?: Map<string, PatternStorePattern>;
 	screen: SampleScreen;
 }): WireframeSchema {
-	const patternId = screen.pattern?.id ?? screen.patternId;
-	const patternVariant = screen.pattern?.variant ?? screen.patternVariant;
-	const screenPattern = getPatternPreset(patternById, patternId, patternVariant, "screen");
 	const screenBody = screen.screen;
 	const schemaMetadata = deriveSchemaMetadata(screen);
 	const screenNodeMetadata: WireframeMetadata = {
@@ -277,7 +277,6 @@ export function tablesToRenderTree({
 						compositeById,
 						organismById,
 						patternById,
-						screenPattern,
 					),
 					tableRegionToRenderNode(
 						"contents",
@@ -286,7 +285,6 @@ export function tablesToRenderTree({
 						compositeById,
 						organismById,
 						patternById,
-						screenPattern,
 					),
 					tableRegionToRenderNode(
 						"bottom",
@@ -295,7 +293,6 @@ export function tablesToRenderTree({
 						compositeById,
 						organismById,
 						patternById,
-						screenPattern,
 					),
 				],
 			},
@@ -351,10 +348,7 @@ export function getValidationStatus(screen?: AppScreen) {
 export function getValidationWarnings(screen?: AppScreen) {
 	if (!screen) return [];
 	const validation = validateWireframeSchemaFull(screen.schema);
-	return [
-		...screen.warnings,
-		...validation.warnings.map((warning) => `render tree: ${warning}`),
-	];
+	return [...screen.warnings, ...validation.warnings.map((warning) => `render tree: ${warning}`)];
 }
 
 export function validateSampleScreenSource(screen: SampleScreen) {
@@ -376,13 +370,8 @@ export function validateSampleScreenSource(screen: SampleScreen) {
 	if (screen.minComponentsVersion) {
 		errors.push(`${label}: minComponentsVersion is deprecated in screen source`);
 	}
-	if (!screen.pattern?.id) {
-		errors.push(`${label}: pattern.id is required`);
-	}
 	if (screen.patternId || screen.patternVariant) {
-		errors.push(
-			`${label}: use pattern.id / pattern.variant instead of patternId / patternVariant`,
-		);
+		errors.push(`${label}: use pattern.id / pattern.variant instead of patternId / patternVariant`);
 	}
 
 	validateScreenSourceRegion(screen, "header", "Screen.Header", errors);
@@ -405,68 +394,90 @@ function tableRegionToRenderNode(
 	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-	screenPattern?: ScreenVariant,
 ): WireframeNode {
 	const regionId = REGION_ID_BY_KEY[regionKey];
+	const regionPattern = resolveRegionPattern(regionKey, region, patternById);
 	return {
 		type: region.type,
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
-		props: getPatternOwnedProps(screenPattern?.regions?.[regionKey]?.props, region.props),
+		props: getPatternOwnedProps(undefined, region.props),
 		children: tableRegionChildrenToRenderNodes(
-			regionKey,
+			regionId,
 			schemaMetadata,
 			region,
 			compositeById,
 			organismById,
 			patternById,
-			screenPattern,
+			regionPattern,
 		),
 	};
 }
 
 function tableRegionChildrenToRenderNodes(
-	regionKey: "bottom" | "contents" | "header",
+	regionId: string,
 	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
 	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-	screenPattern?: ScreenVariant,
+	regionPattern: RegionVariant | undefined,
 ) {
 	const entries = region.children ?? [];
-	const pageStack = screenPattern?.regions?.[regionKey]?.pageStack;
-	if (regionKey !== "contents" || !pageStack?.enabled) {
-		return entries.map((entry) =>
-			tableEntryToRenderNode(entry, compositeById, organismById, patternById),
-		);
-	}
-
-	const regionId = REGION_ID_BY_KEY[regionKey];
-	const nodes: WireframeNode[] = [];
-	entries.forEach((entry, index) => {
-		if (index > 0) {
-			nodes.push(createDividerNode(regionId, schemaMetadata, region, pageStack, index));
-		}
-		nodes.push(
-			createPageStackNode(
-				regionId,
-				schemaMetadata,
-				region,
-				pageStack,
-				index,
-				tableEntryToRenderNode(entry, compositeById, organismById, patternById),
-			),
-		);
-	});
-	return nodes;
+	const nodes = entries.map((entry) =>
+		tableEntryToRenderNode(entry, compositeById, organismById, patternById),
+	);
+	return wrapRegionChildren(regionId, schemaMetadata, region, entries, nodes, regionPattern);
 }
 
-function createPageStackNode(
+function resolveRegionPattern(
+	regionKey: "bottom" | "contents" | "header",
+	region: SampleScreenRegion,
+	patternById: Map<string, PatternStorePattern>,
+) {
+	const fallbackPatternId = regionKey === "contents" ? "section-stack" : "plain-stack";
+	return getPatternPreset(
+		patternById,
+		region.pattern?.id ?? fallbackPatternId,
+		region.pattern?.variant,
+		"region",
+	);
+}
+
+function wrapRegionChildren(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
-	pageStack: SamplePageStackPattern,
+	entries: SampleRenderEntry[],
+	children: WireframeNode[],
+	pattern: RegionVariant | undefined,
+) {
+	const childWrap = pattern?.childWrap;
+	if (childWrap?.kind !== "page-stack") return children;
+
+	const appliesTo = childWrap.appliesTo ?? ["composite", "organism"];
+	const wrapped: WireframeNode[] = [];
+	children.forEach((child, index) => {
+		const entry = entries[index];
+		if (!entry || !appliesTo.includes(entry.kind)) {
+			wrapped.push(child);
+			return;
+		}
+		if (wrapped.length > 0 && childWrap.divider) {
+			wrapped.push(createRegionDividerNode(regionId, schemaMetadata, region, childWrap, index));
+		}
+		wrapped.push(
+			createRegionPageStackNode(regionId, schemaMetadata, region, childWrap, index, child),
+		);
+	});
+	return wrapped;
+}
+
+function createRegionPageStackNode(
+	regionId: string,
+	schemaMetadata: WireframeMetadata,
+	region: SampleScreenRegion,
+	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
 	child: WireframeNode,
 ): WireframeNode {
@@ -475,23 +486,23 @@ function createPageStackNode(
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: {
 			...completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
-			id: `${regionId}-pagestack-${index + 1}`,
-			title: `Pagestack ${index + 1}`,
+			id: `${regionId}-section-${index + 1}`,
+			title: `섹션 ${index + 1}`,
 		},
 		props: {
-			itemPaddingX: pageStack.itemPaddingX ?? 20,
-			paddingY: pageStack.paddingY ?? 28,
-			sectionPaddingX: pageStack.sectionPaddingX ?? 12,
+			itemPaddingX: childWrap.itemPaddingX ?? 20,
+			paddingY: childWrap.paddingY ?? 28,
+			sectionPaddingX: childWrap.sectionPaddingX ?? 12,
 		},
 		children: [child],
 	};
 }
 
-function createDividerNode(
+function createRegionDividerNode(
 	regionId: string,
 	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
-	pageStack: SamplePageStackPattern,
+	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
 ): WireframeNode {
 	return {
@@ -503,7 +514,7 @@ function createDividerNode(
 			title: `섹션 구분선 ${index}`,
 		},
 		props: {
-			type: pageStack.divider?.type ?? "section",
+			type: childWrap.divider?.type ?? "section",
 		},
 	};
 }
@@ -532,7 +543,9 @@ function validateScreenSourceRegion(
 		return;
 	}
 	if (region.type !== expectedType) {
-		errors.push(`${screen.id ?? screen.metadata.title}: screen.regions.${regionKey}.type must be ${expectedType}`);
+		errors.push(
+			`${screen.id ?? screen.metadata.title}: screen.regions.${regionKey}.type must be ${expectedType}`,
+		);
 	}
 	if (!region.metadata?.title) {
 		errors.push(
@@ -541,7 +554,9 @@ function validateScreenSourceRegion(
 	}
 	for (const child of region.children ?? []) {
 		if (!child.id) {
-			errors.push(`${screen.id ?? screen.metadata.title}: ${regionKey} ${child.kind} child requires id`);
+			errors.push(
+				`${screen.id ?? screen.metadata.title}: ${regionKey} ${child.kind} child requires id`,
+			);
 		}
 	}
 }
@@ -553,10 +568,7 @@ function tableEntryToRenderNode(
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	if (entry.kind === "composite") {
-		return tableCompositeToRenderNode(
-			requireComposite(compositeById, entry.id),
-			patternById,
-		);
+		return tableCompositeToRenderNode(requireComposite(compositeById, entry.id), patternById);
 	}
 
 	const organism = organismById.get(entry.id);
@@ -602,10 +614,7 @@ function tableEntryToRenderNode(
 			organismCode: organism.id,
 		}),
 		children: organism.children.map((compositeRef) =>
-			tableCompositeToRenderNode(
-				requireComposite(compositeById, compositeRef.id),
-				patternById,
-			),
+			tableCompositeToRenderNode(requireComposite(compositeById, compositeRef.id), patternById),
 		),
 	};
 }
@@ -647,8 +656,8 @@ function requireComposite(compositeById: Map<string, SampleComposite>, composite
 	return composite;
 }
 
-type VariantByTarget<T extends PatternStoreTarget> = T extends "screen"
-	? ScreenVariant
+type VariantByTarget<T extends PatternStoreTarget> = T extends "region"
+	? RegionVariant
 	: T extends "organism"
 		? OrganismVariant
 		: CompositeVariant;

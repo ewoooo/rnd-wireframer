@@ -60,6 +60,8 @@ FastAPI
 
 ## 4. 권장 저장소 구조
 
+저장소 구조의 상세 운영 규칙은 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 기준으로 한다. 이 문서는 기술 경계와 주요 모듈만 요약한다.
+
 ```text
 AGENTS.md
 AGENTS_HISTORY.md
@@ -107,6 +109,8 @@ docs/
 ```
 
 `packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 `@cx/components/styles.css`와 `@cx/layout/styles.css` legacy style export도 import한다. 정리 목표는 Tailwind v4 `@theme` 산출물을 `@cx/tokens/tailwind.css`로 모으고, layout/component의 legacy `styles.css` 책임을 최소화하는 것이다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/agent`는 Agent SDK runtime과 deterministic asset registration pipeline을 담당한다.
+
+`packages/agent/src`는 `register`, `compose`, `decorate`, `pattern`, `database`, `runtime` 책임 디렉토리로 나눈다. 외부 subpath import는 `package.json` `exports`에서 유지하고, 내부 구현 위치는 책임 디렉토리 기준으로 관리한다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
@@ -172,11 +176,12 @@ apps/web/
     data/
     adapters/
     agent/
+    server/
 ```
 
-`apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/` 책임 디렉토리로 나눈다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
+`apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/`, `server/` 책임 디렉토리로 나눈다. `src/app/api/**/route.ts`는 HTTP request/response glue만 담당하고, 파일 시스템 접근과 Agent SDK/Claude orchestration은 `src/server/**`에 둔다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
 
-Pattern은 앱 소비 데이터가 아니라 [docs/pattern-store](/Users/plusx/Documents/rnd-screen-generator/docs/pattern-store)의 reference store로 운영한다. AI는 `pattern-index.json`으로 후보를 좁힌 뒤 target별 pattern 파일의 guidance와 recipe를 확인한다. resolver/generator는 선택된 recipe를 `WireframeNode` 구조로 materialize하고, `@cx/renderer`는 pattern store를 직접 읽지 않는다.
+Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store)의 reference store로 운영한다. Pattern store는 screen 자체를 분류하지 않고, 콘텐츠/OGN 내부의 flow, spacing, child ordering 같은 레이아웃 레시피만 관리한다. `Screen` shell과 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 content layout recipe를 `WireframeNode` 구조로 materialize하고, `@cx/renderer`는 pattern store를 직접 읽지 않는다.
 
 앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 

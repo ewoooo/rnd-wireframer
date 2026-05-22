@@ -1,4 +1,4 @@
-import type { AssetRegistry } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent";
 import { useEffect, useRef, useState } from "react";
 import type { AgentNodeSelection } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,7 @@ import { cn } from "@/components/utils";
 import { useWorkbenchStore } from "@/model/store";
 
 interface AgentRegistryNavigationProps {
-	registry?: AssetRegistry;
+	registry?: RegisteredNodeTree;
 	selectedNode: AgentNodeSelection;
 	onSelectNode: (node: AgentNodeSelection) => void;
 }
@@ -141,7 +141,7 @@ export function AgentRegistryNavigation({
 			});
 			const payload = await readJsonResponse<{
 				error?: string;
-				registry?: AssetRegistry;
+				registry?: RegisteredNodeTree;
 				runtime?: { provider: string; sessionId?: string };
 				writtenPath?: string;
 			}>(response, "Failed to generate register JSON.");
@@ -152,7 +152,7 @@ export function AgentRegistryNavigation({
 
 			setAgentRegistry(payload.registry);
 			setAgentGenerationMessage(
-				`Generated via ${payload.runtime?.provider ?? "agent"} ${payload.writtenPath ?? "agent-assets.generated.json"}`,
+				`Generated via ${payload.runtime?.provider ?? "agent"} ${payload.writtenPath ?? "agent-assets.json"}`,
 			);
 		} catch (error) {
 			setAgentGenerationStatus("error");
@@ -248,9 +248,7 @@ export function AgentRegistryNavigation({
 			<div className="flex items-center justify-between gap-2">
 				<div>
 					<p className="text-sm font-semibold">Agent Registry</p>
-					<p className="text-xs text-muted-foreground">
-						database/ai-imports/agent-assets.generated.json
-					</p>
+					<p className="text-xs text-muted-foreground">database/ai-imports/agent-assets.json</p>
 				</div>
 				<Badge variant="outline">{registry?.routes.length ?? 0} routes</Badge>
 			</div>

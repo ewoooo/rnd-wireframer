@@ -1,8 +1,8 @@
 import type {
-	ComponentAssetInput,
-	OrganismAssetInput,
-	RegisterAssetsInput,
-	ScreenAssetInput,
+	GeneratedComponentNode,
+	GeneratedNodeTree,
+	GeneratedOrganismNode,
+	GeneratedScreenNode,
 } from "@cx/agent";
 
 interface ClientImportMarkdownFile {
@@ -20,12 +20,12 @@ export function generateRegisterFromClientImport({
 	importId,
 	organismFiles,
 	screenFiles,
-}: GenerateRegisterFromClientImportInput): RegisterAssetsInput {
+}: GenerateRegisterFromClientImportInput): GeneratedNodeTree {
 	const organisms = organismFiles.map((file, index) => parseOrganismFile(file, index));
-	const componentById = new Map<string, ComponentAssetInput>();
+	const componentById = new Map<string, GeneratedComponentNode>();
 
 	for (const organism of organisms) {
-		for (const componentRef of organism.components ?? []) {
+		for (const componentRef of organism.children ?? []) {
 			if (componentById.has(componentRef.componentId)) continue;
 			componentById.set(componentRef.componentId, {
 				id: componentRef.componentId,
@@ -71,7 +71,7 @@ export function generateRegisterFromClientImport({
 	};
 }
 
-function parseScreenFile(file: ClientImportMarkdownFile, index: number): ScreenAssetInput {
+function parseScreenFile(file: ClientImportMarkdownFile, index: number): GeneratedScreenNode {
 	const frontmatter = parseFrontmatter(file.content);
 	const rows = parseMarkdownTableAfterHeading(file.content, "화면 구성");
 	const organisms = rows
@@ -91,7 +91,7 @@ function parseScreenFile(file: ClientImportMarkdownFile, index: number): ScreenA
 	};
 }
 
-function parseOrganismFile(file: ClientImportMarkdownFile, index: number): OrganismAssetInput {
+function parseOrganismFile(file: ClientImportMarkdownFile, index: number): GeneratedOrganismNode {
 	const frontmatter = parseFrontmatter(file.content);
 	const infoRows = parseMarkdownTableAfterHeading(file.content, "오가니즘 정보");
 	const detailRows = parseMarkdownTableAfterHeading(file.content, "컴포넌트 상세");
@@ -104,7 +104,7 @@ function parseOrganismFile(file: ClientImportMarkdownFile, index: number): Organ
 		order: index + 1,
 		description: frontmatter["오가니즘 설명"],
 		layout: firstInfo?.["오가니즘 레이아웃"],
-		components: detailRows
+		children: detailRows
 			.map((row, rowIndex) => ({
 				componentId: row["컴포넌트 명"] ?? "",
 				order: parseOrder(row.no) ?? rowIndex + 1,
@@ -113,8 +113,8 @@ function parseOrganismFile(file: ClientImportMarkdownFile, index: number): Organ
 	};
 }
 
-function parseComponents(content: string): ComponentAssetInput[] {
-	const components: ComponentAssetInput[] = [];
+function parseComponents(content: string): GeneratedComponentNode[] {
+	const components: GeneratedComponentNode[] = [];
 
 	parseMarkdownTableAfterHeading(content, "컴포넌트 상세").forEach((row, index) => {
 		const id = row["컴포넌트 명"];
@@ -192,7 +192,7 @@ function parseOrder(value: string | undefined) {
 	return Number.isFinite(number) ? number : undefined;
 }
 
-function getRouteName(screens: ScreenAssetInput[], fallback: string) {
+function getRouteName(screens: GeneratedScreenNode[], fallback: string) {
 	const firstScreenName = screens[0]?.name;
 	if (!firstScreenName) return fallback;
 	return firstScreenName.includes("회원") ? "회원 가입" : fallback;

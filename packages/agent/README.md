@@ -26,20 +26,24 @@ import { composeAssetContents } from "@cx/agent/compose-assets";
 import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
 import { registerAssets } from "@cx/agent/register-assets";
 import { registerAssetsToTables } from "@cx/agent/register-assets-to-tables";
-import type { RegisterAssetsInput } from "@cx/agent/types";
+import type { GeneratedNodeTree } from "@cx/agent/types";
 ```
 
 ## 현재 기능
 
-| 파일 | 책임 |
+| 경로 | 책임 |
 |---|---|
-| `src/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
-| `src/claude-asset-generator.ts` | Claude Agent SDK local session 기반 Phase 1 asset register 생성 |
-| `src/register-assets.ts` | **Register** — Parse user input into canonical data structure. 정규화 + raw 보존 |
-| `src/compose-assets.ts` | **Composer** — Place props, placeholders and data bindings. `component.raw` → `component.props` 매핑 (markdown 직접 안 읽음) |
-| `src/decorate-assets.ts` | **Decorator** — Place layout patterns into each render node using pattern-store. patternId/chrome 결정 메타만 박음 |
-| `src/register-assets-to-tables.ts` | AI import bundle을 `database/tables` 계약에 가까운 row set으로 변환 |
-| `src/register-assets-to-database-tables.ts` | **DB transformer** — Materialize decorator decisions and content into `database/tables` row shape. chrome composite 합성, regions.children 펼침 |
+| `src/runtime/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
+| `src/register/claude-asset-generator.ts` | Claude Agent SDK local session 기반 Phase 1 asset register 생성. screen case는 개별 screen으로 materialize하고 화면 설명은 `screen.description`에 둠 |
+| `src/register/register-assets.ts` | **Register** — Parse user input into canonical data structure. 정규화 + raw 보존 |
+| `src/register/register-assets-to-tables.ts` | AI import bundle을 `database/tables` 계약에 가까운 row set으로 변환 |
+| `src/compose/compose-assets.ts` | **Composer** — Place props, placeholders and data bindings. `component.raw` → `component.props` 매핑, legacy `screen.raw` 제거 |
+| `src/compose/compose-assets-ai.ts` | Composer의 빈 props/gap을 Agent SDK/Claude로 보강하는 서버 전용 단계 |
+| `src/decorate/decorate-assets.ts` | **Decorator** — 콘텐츠/OGN layout pattern만 매칭한다. screen shell은 deterministic code가 담당함 |
+| `src/pattern/pattern-schema.ts` | pattern-store JSON schema와 layout preset 타입 |
+| `src/pattern/pattern-store.ts` | `database/pattern-store` reference catalog loader |
+| `src/pattern/pattern-resolver.ts` | pattern catalog에서 children layout preset을 고르는 resolver |
+| `src/database/register-assets-to-database-tables.ts` | **DB transformer** — Decorator 결정과 content를 `database/tables` row shape로 materialize한다. screen region shell은 코드 계약으로 생성 |
 | `src/types.ts` | agent asset, decoration, table row 타입 |
 | `src/index.ts` | 패키지 공개 export 집약 |
 | `src/__tests__/` | 패키지 단위 동작 검증 |
@@ -50,7 +54,7 @@ import type { RegisterAssetsInput } from "@cx/agent/types";
 
 - **Register**: Parse user input into canonical data structure. (구조 추출)
 - **Composer**: Place props, placeholders and data bindings. (콘텐츠 채움)
-- **Decorator**: Place layout patterns into each render node using pattern-store. (스타일링)
+- **Decorator**: Match content layout patterns from pattern-store. (콘텐츠/OGN 배치)
 - **DB transformer**: Materialize decorator decisions and content into `database/tables` row shape.
 
 ```text
@@ -60,9 +64,9 @@ md (client-imports) 또는 read model
 -> Composer  : composeAssetContents
                component.raw → component.props (label/title/message/variant/maxLength)
 -> Decorator : decorateRegisteredAssets
-               pattern-store 조회 후 patternId/chrome 결정 메타 박음
+               pattern-store 조회 후 content layout patternId 결정 메타 박음
 -> DB        : decoratedAssetsToDatabaseTables
-               결정 메타 materialize, chrome composite 합성, database/tables row 생성
+               결정 메타 materialize, screen shell과 database/tables row 생성
 ```
 
 **단계 내부는 두 패스로 구성**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 비용 0의 안전한 기본값을 만들고, (2)가 빈 곳/의심 케이스를 보강한다. Decorator의 (2)는 marketplace(Vendor↔Consumer) 협상으로 진행할 예정 (설계 진행 중).
@@ -74,7 +78,7 @@ Claude 생성은 로컬 Claude 실행 파일을 우선 사용한다. 각 생성 
 ```text
 uploaded markdown files
 -> generateAssetsWithLocalClaude
--> RegisterAssetsInput
+-> GeneratedNodeTree
 -> registerAssets
 ```
 

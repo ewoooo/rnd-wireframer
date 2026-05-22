@@ -1,4 +1,4 @@
-import type { AssetRegistry } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent";
 import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
@@ -63,7 +63,7 @@ export interface SelectedCompositeContext {
 }
 
 interface InitializeWorkbenchInput {
-	agentRegistry?: AssetRegistry;
+	agentRegistry?: RegisteredNodeTree;
 	organisms: AppOrganism[];
 	screens: AppScreen[];
 }
@@ -74,7 +74,7 @@ interface WorkbenchState {
 	agentGenerationMessage: string;
 	agentGenerationStatus: "error" | "idle" | "loading" | "success";
 	agentImports: AgentClientImport[];
-	agentRegistry?: AssetRegistry;
+	agentRegistry?: RegisteredNodeTree;
 	agentWarnings: string[];
 	composites: AppComposite[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
@@ -95,7 +95,7 @@ interface WorkbenchState {
 	setAgentGenerationMessage: (message: string) => void;
 	setAgentGenerationStatus: (status: WorkbenchState["agentGenerationStatus"]) => void;
 	setAgentImports: (imports: AgentClientImport[]) => void;
-	setAgentRegistry: (registry?: AssetRegistry) => void;
+	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
 	selectedAgentAsset?: SelectedAgentAsset;
 	selectedAgentNode: AgentNodeSelection;
 	selectedComposite?: SelectedCompositeContext;
@@ -492,9 +492,7 @@ function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
 			byCode.set(screen.screenRouteId, route);
 		}
 
-		let variant = route.screenVariants.find(
-			(candidate) => candidate.id === screen.screenVariantId,
-		);
+		let variant = route.screenVariants.find((candidate) => candidate.id === screen.screenVariantId);
 		if (!variant) {
 			variant = {
 				id: screen.screenVariantId,

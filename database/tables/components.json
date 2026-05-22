@@ -1,548 +1,1839 @@
 {
 	"components": [
 		{
-			"id": "top-navigation",
-			"type": "HeaderBase",
+			"id": "list-cell-term-required",
+			"type": "list-cell",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "상단 내비게이션",
+				"title": "list-cell-term-required",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-list-cell",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "HeaderBase"
+						"type": "list-cell"
 					},
 					"props": {
-						"titleContent": "약관 동의",
-						"titleSize": "title3",
-						"showBackButton": true
+						"title": "[필수] 서비스 이용약관 동의",
+						"description": "회원 가입을 위해 반드시 동의가 필요합니다."
 					}
 				}
 			],
-			"events": {
-				"onClick": {
-					"action": "custom",
-					"handler": "goBack"
-				}
-			},
-			"version": "1.0.0"
-		},
-		{
-			"id": "screen-intro",
-			"type": "SectionHeader",
-			"metadata": {
-				"title": "약관 동의 안내 문구",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
-			},
-			"pattern": {
-				"id": "default",
-				"variant": "default"
-			},
-			"children": [
+			"hooks": [
 				{
-					"component": {
-						"type": "SectionHeader"
-					},
-					"props": {
-						"title": "회원 가입 약관에 동의해 주세요",
-						"description": "필수 약관과 선택 약관을 확인한 뒤 동의 상태를 선택합니다."
-					}
-				}
-			],
-			"events": {},
-			"version": "1.0.0"
-		},
-		{
-			"id": "requiredTerm",
-			"type": "ListCell",
-			"metadata": {
-				"title": "필수 약관 항목",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
-			},
-			"pattern": {
-				"id": "default",
-				"variant": "default"
-			},
-			"children": [
-				{
-					"component": {
-						"type": "ListCell"
-					},
-					"props": {
-						"title": {
-							"bind": "termList.requiredTerm.title",
-							"default": "필수 약관 항목"
-						},
-						"description": {
-							"bind": "termList.requiredTerm.description",
-							"default": "필수 약관 항목"
-						},
-						"required": true,
-						"checked": {
-							"bind": "termList.requiredTerm.checked",
-							"default": false
-						}
-					}
-				}
-			],
-			"events": {
-				"onChange": {
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "checkedTerms",
-					"value": "requiredTerm"
+					"target": "checkedTerms",
+					"params": {
+						"parameter": "checkedTerms"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
-			"id": "optionalTerm",
-			"type": "ListCell",
+			"id": "list-cell-term-optional",
+			"type": "list-cell",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "선택 약관 항목",
+				"title": "list-cell-term-optional",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-list-cell",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "ListCell"
+						"type": "list-cell"
 					},
 					"props": {
-						"title": {
-							"bind": "termList.optionalTerm.title",
-							"default": "선택 약관 항목"
-						},
-						"description": {
-							"bind": "termList.optionalTerm.description",
-							"default": "선택 약관 항목"
-						},
-						"required": false,
-						"checked": {
-							"bind": "termList.optionalTerm.checked",
-							"default": false
-						}
+						"title": "[선택] 마케팅 정보 수신 동의",
+						"description": "이벤트·혜택 정보를 받아보실 수 있습니다."
 					}
 				}
 			],
-			"events": {
-				"onChange": {
+			"hooks": [
+				{
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "checkedTerms",
-					"value": "optionalTerm"
+					"target": "checkedTerms",
+					"params": {
+						"parameter": "checkedTerms"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
-			"id": "termDetail",
-			"type": "Accordion",
+			"id": "accordion-term-detail",
+			"type": "accordion",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "약관 전문 펼치기",
+				"title": "accordion-term-detail",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-accordion",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "Accordion"
+						"type": "accordion"
 					},
-					"props": {
-						"title": {
-							"bind": "termList.termDetail.title",
-							"default": "약관 전문 펼치기"
-						},
-						"description": {
-							"bind": "termList.termDetail.description",
-							"default": "약관 전문 펼치기"
-						}
-					}
+					"props": {}
 				}
 			],
-			"events": {
-				"onClick": {
+			"hooks": [
+				{
+					"trigger": "onClick",
 					"action": "setState",
-					"key": "expandedTermId",
-					"value": "termDetail"
+					"target": "expandedTermId",
+					"params": {
+						"parameter": "expandedTermId"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
-			"id": "errorMessage",
-			"type": "SectionMessage",
+			"id": "section-message-term-error",
+			"type": "section-message",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "약관 조회 오류 안내",
+				"title": "section-message-term-error",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-section-message",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "SectionMessage"
+						"type": "section-message"
 					},
 					"props": {
-						"variant": {
-							"bind": "termList.errorMessage.variant",
-							"default": "negative"
-						},
-						"title": {
-							"bind": "termList.errorMessage.title",
-							"default": "약관 조회 오류 안내"
-						},
-						"description": {
-							"bind": "termList.errorMessage.description",
-							"default": "약관 조회 오류 안내"
-						}
+						"variant": "negative",
+						"title": "약관 정보를 불러오지 못했습니다",
+						"description": "일시적인 오류로 약관 목록을 표시할 수 없습니다. 잠시 후 다시 시도해 주세요."
 					}
 				}
 			],
-			"events": {},
-			"version": "1.0.0"
+			"hooks": []
 		},
 		{
-			"id": "top-navigation-mbr-fp-002",
-			"type": "HeaderBase",
+			"id": "checkbox-all-agree",
+			"type": "checkbox",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "상단 내비게이션",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "checkbox-all-agree",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-checkbox",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "HeaderBase"
+						"type": "checkbox"
 					},
 					"props": {
-						"titleContent": "개인정보 입력",
-						"titleSize": "title3",
-						"showBackButton": true
+						"variant": "medium",
+						"label": "전체 약관에 동의합니다"
 					}
 				}
 			],
-			"events": {
-				"onClick": {
-					"action": "custom",
-					"handler": "goBack"
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "allTermsAgreed",
+					"params": {
+						"parameter": "allTermsAgreed"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
-			"id": "screen-intro-mbr-fp-002",
-			"type": "SectionHeader",
+			"id": "checkbox-term-required",
+			"type": "checkbox",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "개인정보 입력 안내 문구",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "checkbox-term-required",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-checkbox",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "SectionHeader"
+						"type": "checkbox"
 					},
 					"props": {
-						"title": "회원 가입에 필요한 정보를 입력해 주세요",
-						"description": "아이디, 비밀번호, 이메일, 연락처를 입력하면 가입 가능 여부를 확인합니다."
+						"variant": "medium",
+						"label": "[필수] 약관에 동의합니다"
 					}
 				}
 			],
-			"events": {},
-			"version": "1.0.0"
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "checkedTermId",
+					"params": {
+						"parameter": "checkedTermId"
+					}
+				}
+			]
+		},
+		{
+			"id": "checkbox-term-optional",
+			"type": "checkbox",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "checkbox-term-optional",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-checkbox",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "checkbox"
+					},
+					"props": {
+						"variant": "small",
+						"label": "[선택] 약관에 동의합니다"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "checkedTermId",
+					"params": {
+						"parameter": "checkedTermId"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-required-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-required-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "필수 약관에 동의해 주세요",
+						"description": "회원 가입을 진행하려면 모든 필수 약관에 동의해야 합니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-next",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-next",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "다음"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-MBR-FP-002-0",
+					"params": {
+						"parameter": "NOVA-MBR-FP-002-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "text-field-guardian-name",
+			"type": "text-field",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "text-field-guardian-name",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-text-field",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "text-field"
+					},
+					"props": {
+						"label": "법정대리인 이름",
+						"placeholder": "법정대리인 이름을 입력해 주세요",
+						"helperText": "실명을 정확히 입력해 주세요."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "guardianName",
+					"params": {
+						"parameter": "guardianName"
+					}
+				}
+			]
+		},
+		{
+			"id": "text-field-guardian-phone",
+			"type": "text-field",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "text-field-guardian-phone",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-text-field",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "text-field"
+					},
+					"props": {
+						"label": "법정대리인 휴대폰 번호",
+						"placeholder": "'-' 없이 숫자만 입력",
+						"helperText": "동의 요청 메시지가 발송될 번호입니다."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "guardianPhone",
+					"params": {
+						"parameter": "guardianPhone"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-guardian-info",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-guardian-info",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "법정대리인 동의 안내",
+						"description": "동의 요청 발송 후 24시간 이내에 동의를 완료해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-guardian-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-guardian-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "인증에 실패했습니다",
+						"description": "입력하신 법정대리인 정보를 다시 확인해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-guardian-request",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-guardian-request",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "동의 요청 발송"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "apiCall"
+				}
+			]
+		},
+		{
+			"id": "section-message-guardian-wait",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-guardian-wait",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "법정대리인 동의 대기 중",
+						"description": "동의 요청 후 24시간 이내에 동의가 완료되어야 가입을 진행할 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-guardian-expire",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-guardian-expire",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "동의 유효시간이 만료되었습니다",
+						"description": "법정대리인 동의 유효시간이 지났습니다. 다시 요청해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "button-guardian-retry",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "button-guardian-retry",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "solid",
+						"label": "동의 재요청"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "apiCall"
+				}
+			]
 		},
 		{
 			"id": "text-field-user-id",
-			"type": "TextField",
+			"type": "text-field",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "아이디 입력",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "text-field-user-id",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-text-field",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "TextField"
+						"type": "text-field"
 					},
 					"props": {
+						"maxLength": 20,
 						"label": "아이디",
-						"placeholder": "영문 또는 숫자 6~20자",
-						"helperText": "사용할 아이디를 입력해 주세요.",
-						"value": {
-							"bind": "memberInput.userId",
-							"default": ""
-						}
+						"placeholder": "아이디를 입력해 주세요",
+						"helperText": "영문, 숫자 조합 6~20자로 입력해 주세요."
 					}
 				}
 			],
-			"events": {
-				"onChange": {
+			"hooks": [
+				{
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "userId"
+					"target": "userId",
+					"params": {
+						"parameter": "userId"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
 			"id": "text-field-password",
-			"type": "TextField",
+			"type": "text-field",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "비밀번호 입력",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "text-field-password",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-text-field",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "TextField"
+						"type": "text-field"
 					},
 					"props": {
+						"maxLength": 20,
 						"label": "비밀번호",
-						"placeholder": "영문, 숫자 조합 8~20자",
-						"helperText": "안전한 비밀번호를 입력해 주세요.",
-						"inputType": "password",
-						"value": {
-							"bind": "memberInput.password",
-							"default": ""
-						}
+						"placeholder": "비밀번호를 입력해 주세요",
+						"helperText": "영문, 숫자, 특수문자 조합 8~20자로 입력해 주세요."
 					}
 				}
 			],
-			"events": {
-				"onChange": {
+			"hooks": [
+				{
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "password"
+					"target": "password",
+					"params": {
+						"parameter": "password"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
 			"id": "text-field-email",
-			"type": "TextField",
+			"type": "text-field",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "이메일 입력",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "text-field-email",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-text-field",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "TextField"
+						"type": "text-field"
 					},
 					"props": {
 						"label": "이메일",
 						"placeholder": "example@email.com",
-						"inputType": "email",
-						"value": {
-							"bind": "memberInput.email",
-							"default": ""
-						}
+						"helperText": "본인이 사용 중인 이메일을 입력해 주세요."
 					}
 				}
 			],
-			"events": {
-				"onChange": {
+			"hooks": [
+				{
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "email"
+					"target": "email",
+					"params": {
+						"parameter": "email"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
 			"id": "text-field-phone",
-			"type": "TextField",
+			"type": "text-field",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "연락처 입력",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "text-field-phone",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-text-field",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "TextField"
+						"type": "text-field"
 					},
 					"props": {
-						"label": "연락처",
-						"placeholder": "010-0000-0000",
-						"inputType": "tel",
-						"value": {
-							"bind": "memberInput.phone",
-							"default": ""
-						}
+						"label": "휴대폰 번호",
+						"placeholder": "'-' 없이 숫자만 입력",
+						"helperText": "본인 명의의 휴대폰 번호를 입력해 주세요."
 					}
 				}
 			],
-			"events": {
-				"onChange": {
+			"hooks": [
+				{
+					"trigger": "onChange",
 					"action": "setState",
-					"key": "phone"
+					"target": "phone",
+					"params": {
+						"parameter": "phone"
+					}
 				}
-			},
-			"version": "1.0.0"
+			]
 		},
 		{
 			"id": "section-message-input-error",
-			"type": "SectionMessage",
+			"type": "section-message",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "입력 오류 안내",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "section-message-input-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-section-message",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "SectionMessage"
+						"type": "section-message"
 					},
 					"props": {
-						"variant": {
-							"bind": "memberInput.errorMessage.variant",
-							"default": "negative"
-						},
-						"title": {
-							"bind": "memberInput.errorMessage.title",
-							"default": "입력 오류 안내"
-						},
-						"description": {
-							"bind": "memberInput.errorMessage.description",
-							"default": "입력 정보를 다시 확인해 주세요."
-						}
+						"variant": "negative",
+						"title": "입력 정보를 확인해 주세요",
+						"description": "형식이 올바르지 않거나 이미 사용 중인 정보가 있습니다."
 					}
 				}
 			],
-			"events": {},
-			"version": "1.0.0"
+			"hooks": []
 		},
 		{
-			"id": "section-message-entry-check",
-			"type": "SectionMessage",
+			"id": "action-area-next",
+			"type": "button",
+			"version": "1.0.0",
 			"metadata": {
-				"title": "가입 가능 여부 확인 안내",
-				"author": "plus_x_author_1",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
+				"title": "action-area-next",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
 			"pattern": {
-				"id": "default",
+				"id": "component-button",
 				"variant": "default"
 			},
 			"children": [
 				{
 					"component": {
-						"type": "SectionMessage"
+						"type": "button"
 					},
 					"props": {
-						"variant": {
-							"bind": "entryCheck.variant",
-							"default": "info"
-						},
-						"title": {
-							"bind": "entryCheck.title",
-							"default": "가입 가능 여부를 확인합니다"
-						},
-						"description": {
-							"bind": "entryCheck.description",
-							"default": "입력한 정보를 기준으로 기존 회원 여부와 가입 가능 경로를 확인합니다."
-						}
+						"variant": "strong",
+						"label": "다음"
 					}
 				}
 			],
-			"events": {},
-			"version": "1.0.0"
-		},
-		{
-			"id": "single-primary-action",
-			"type": "ActionButton",
-			"metadata": {
-				"title": "하단 단일 주요 액션",
-				"author": "system",
-				"createdAt": "2026-05-21T00:00:00Z",
-				"updatedAt": "2026-05-21T00:00:00Z"
-			},
-			"pattern": {
-				"id": "single-primary-action",
-				"variant": "default"
-			},
-			"children": [
+			"hooks": [
 				{
-					"component": {
-						"type": "ActionButton"
-					},
-					"props": {
-						"variant": "primary",
-						"fullWidth": true,
-						"size": "xlarge",
-						"title": "다음"
-					}
-				}
-			],
-			"events": {
-				"onClick": {
+					"trigger": "onClick",
 					"action": "navigate",
-					"url": "NOVA-MBR-FP-003-0",
+					"target": "NOVA-MBR-FP-003-0",
 					"params": {
-						"handoff": "temporaryMemberInput"
+						"parameter": "NOVA-MBR-FP-003-0"
 					}
 				}
+			]
+		},
+		{
+			"id": "section-message-entry-existing",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-entry-existing",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
 			},
-			"version": "1.0.0"
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "이미 가입된 회원입니다",
+						"description": "기존 계정으로 로그인하시거나 아이디·비밀번호 찾기를 이용해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-entry-dormant",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-entry-dormant",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "휴면 상태의 계정이 있습니다",
+						"description": "휴면 해제 후 서비스를 이용하실 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-entry-withdrawn",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-entry-withdrawn",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "탈퇴 이력이 있는 계정입니다",
+						"description": "탈퇴 후 재가입 제한 정책에 따라 가입이 제한될 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "list-cell-auth-phone",
+			"type": "list-cell",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "list-cell-auth-phone",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "list-cell"
+					},
+					"props": {
+						"title": "휴대폰 본인인증",
+						"description": "본인 명의의 휴대폰으로 인증을 진행합니다."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "setState",
+					"target": "selectedAuthMethod",
+					"params": {
+						"parameter": "selectedAuthMethod"
+					}
+				}
+			]
+		},
+		{
+			"id": "list-cell-auth-pass",
+			"type": "list-cell",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "list-cell-auth-pass",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "list-cell"
+					},
+					"props": {
+						"title": "PASS 인증",
+						"description": "PASS 앱을 통해 간편하게 인증합니다."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "setState",
+					"target": "selectedAuthMethod",
+					"params": {
+						"parameter": "selectedAuthMethod"
+					}
+				}
+			]
+		},
+		{
+			"id": "list-cell-auth-cert",
+			"type": "list-cell",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "list-cell-auth-cert",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "list-cell"
+					},
+					"props": {
+						"title": "공동인증서 인증",
+						"description": "보유하신 공동인증서로 본인인증을 진행합니다."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "setState",
+					"target": "selectedAuthMethod",
+					"params": {
+						"parameter": "selectedAuthMethod"
+					}
+				}
+			]
+		},
+		{
+			"id": "text-field-auth-code",
+			"type": "text-field",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "text-field-auth-code",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-text-field",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "text-field"
+					},
+					"props": {
+						"maxLength": 6,
+						"label": "인증번호",
+						"placeholder": "6자리 인증번호 입력",
+						"helperText": "수신한 인증번호를 입력해 주세요."
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onChange",
+					"action": "setState",
+					"target": "authCode",
+					"params": {
+						"parameter": "authCode"
+					}
+				}
+			]
+		},
+		{
+			"id": "text-field-auth-timer",
+			"type": "text-field",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "text-field-auth-timer",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-text-field",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "text-field"
+					},
+					"props": {
+						"label": "남은 시간",
+						"placeholder": "03:00",
+						"helperText": "유효시간 내에 인증번호를 입력해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-auth-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-auth-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "인증에 실패했습니다",
+						"description": "인증번호가 올바르지 않습니다. 다시 확인해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-auth-expire",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-auth-expire",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "인증 유효시간이 만료되었습니다",
+						"description": "인증번호 재요청 후 다시 입력해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "button-auth-retry",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "button-auth-retry",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "outlined",
+						"label": "인증번호 재요청"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "apiCall"
+				}
+			]
+		},
+		{
+			"id": "action-area-auth-confirm",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-auth-confirm",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "인증 확인"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "apiCall"
+				}
+			]
+		},
+		{
+			"id": "section-message-status-dormant",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-status-dormant",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "휴면 상태의 계정입니다",
+						"description": "휴면 해제 절차를 진행한 후 서비스를 이용해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-status-withdrawn",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-status-withdrawn",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "탈퇴 처리된 계정입니다",
+						"description": "재가입 제한 기간이 경과한 경우 신규 가입이 가능합니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-status-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-status-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "회원 상태를 조회하지 못했습니다",
+						"description": "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "button-status-retry",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "button-status-retry",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "outlined",
+						"label": "다시 시도"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "apiCall"
+				}
+			]
+		},
+		{
+			"id": "section-message-join-available",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-join-available",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "positive",
+						"title": "가입이 가능합니다",
+						"description": "본인인증이 완료되었습니다. 다음 단계에서 회원 정보를 입력해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-join-dormant",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-join-dormant",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "휴면 계정이 확인되었습니다",
+						"description": "휴면 해제 후 기존 계정으로 서비스를 이용하실 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-join-blocked",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-join-blocked",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "가입이 제한된 고객입니다",
+						"description": "내부 정책에 따라 가입이 제한되어 있습니다. 고객센터로 문의해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-join-proceed",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-join-proceed",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "회원 가입 진행"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-MBR-FP-005-0",
+					"params": {
+						"parameter": "NOVA-MBR-FP-005-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-join-success",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-join-success",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "positive",
+						"title": "회원 가입이 완료되었습니다",
+						"description": "환영합니다. 이제 다양한 서비스를 이용하실 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-session-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-session-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "세션 생성에 실패했습니다",
+						"description": "다시 로그인하여 서비스를 이용해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-join-done",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-join-done",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "홈으로 이동"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "홈",
+					"params": {
+						"parameter": "홈"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-dormant-guide",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-dormant-guide",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "휴면 상태의 계정입니다",
+						"description": "장기간 미접속으로 휴면 처리되었습니다. 휴면 해제 후 서비스를 이용해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-dormant-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-dormant-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "상태 조회에 실패했습니다",
+						"description": "일시적인 오류로 회원 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-dormant-release",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-dormant-release",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "휴면 해제하기"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-MBR-FP-007-0",
+					"params": {
+						"parameter": "NOVA-MBR-FP-007-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-eligibility-guide",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-eligibility-guide",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "휴면 해제가 가능합니다",
+						"description": "본인인증 후 휴면 상태를 해제하실 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-eligibility-block",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-eligibility-block",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "휴면 해제가 불가능합니다",
+						"description": "현재 계정 상태에서는 휴면 해제를 진행할 수 없습니다. 고객센터로 문의해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-eligibility-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-eligibility-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "해제 가능 여부 판정에 실패했습니다",
+						"description": "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-eligibility-proceed",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-eligibility-proceed",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "본인인증 진행"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-MBR-FP-008-0",
+					"params": {
+						"parameter": "NOVA-MBR-FP-008-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "section-message-release-progress",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-release-progress",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "info",
+						"title": "휴면 해제 처리 중",
+						"description": "분리 보관된 회원 정보를 복원하고 있습니다. 잠시만 기다려 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-release-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-release-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "negative",
+						"title": "휴면 해제에 실패했습니다",
+						"description": "상태 전환 또는 데이터 복원 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-release-session-error",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-release-session-error",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "cautionary",
+						"title": "세션 복구에 실패했습니다",
+						"description": "휴면 해제는 완료되었습니다. 다시 로그인하여 서비스를 이용해 주세요."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "section-message-complete-result",
+			"type": "section-message",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "section-message-complete-result",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-section-message",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "section-message"
+					},
+					"props": {
+						"variant": "positive",
+						"title": "휴면 해제가 완료되었습니다",
+						"description": "이제 모든 서비스를 정상적으로 이용하실 수 있습니다."
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "action-area-complete-home",
+			"type": "button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "action-area-complete-home",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "button"
+					},
+					"props": {
+						"variant": "strong",
+						"label": "홈으로 이동"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "홈",
+					"params": {
+						"parameter": "홈"
+					}
+				}
+			]
 		}
 	]
 }
