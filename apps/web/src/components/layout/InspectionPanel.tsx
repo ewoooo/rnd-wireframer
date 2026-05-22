@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import type { SelectedCompositeContext, SelectedOrganismContext } from "@/model/store";
+import type { SelectedCompositeContext, SelectedAreaContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
@@ -14,7 +14,7 @@ export function InspectionPanel() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
-	const organism = useWorkbenchStore((state) => state.selectedOrganism);
+	const area = useWorkbenchStore((state) => state.selectedArea);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const validationErrors = useWorkbenchStore((state) => state.validationErrors);
@@ -22,7 +22,7 @@ export function InspectionPanel() {
 	const validationStats = useWorkbenchStore((state) => state.validationStats);
 	const validationSuccess = useWorkbenchStore((state) => state.validationSuccess);
 	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
-	const reorderScreenOrganisms = useWorkbenchStore((state) => state.reorderScreenOrganisms);
+	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 
 	if (activeTab === "agent") {
 		return (
@@ -81,12 +81,12 @@ export function InspectionPanel() {
 							<InfoRow label="Module" value={screen.module} />
 						</div>
 						{composite ? <CompositeInspection composite={composite} /> : null}
-						{organism ? <OrganismInspection organism={organism} /> : null}
+						{area ? <AreaInspection area={area} /> : null}
 						<Separator />
-						<ConnectedOrganismList
-							onReorder={reorderScreenOrganisms}
+						<ConnectedAreaList
+							onReorder={reorderScreenAreas}
 							screenCode={screen.code}
-							screenOrganisms={screen.organisms}
+							screenAreas={screen.areas}
 						/>
 						<Separator />
 						<div className="flex flex-col gap-2">
@@ -150,33 +150,33 @@ function ValidationStats({
 	);
 }
 
-function ConnectedOrganismList({
+function ConnectedAreaList({
 	onReorder,
 	screenCode,
-	screenOrganisms,
+	screenAreas,
 }: {
-	onReorder: (screenCode: string, organismCodes: string[]) => void;
+	onReorder: (screenCode: string, areaCodes: string[]) => void;
 	screenCode: string;
-	screenOrganisms: Array<{ order: number; organismCode: string }>;
+	screenAreas: Array<{ order: number; areaCode: string }>;
 }) {
-	const [draggedOrganismCode, setDraggedOrganismCode] = useState("");
-	const canReorder = screenOrganisms.length > 1;
+	const [draggedAreaCode, setDraggedAreaCode] = useState("");
+	const canReorder = screenAreas.length > 1;
 
-	function handleDrop(targetOrganismCode: string) {
-		if (!draggedOrganismCode || draggedOrganismCode === targetOrganismCode) {
-			setDraggedOrganismCode("");
+	function handleDrop(targetAreaCode: string) {
+		if (!draggedAreaCode || draggedAreaCode === targetAreaCode) {
+			setDraggedAreaCode("");
 			return;
 		}
 
-		const previousOrganismCodes = screenOrganisms.map((organism) => organism.organismCode);
-		const nextOrganismCodes = moveItemBefore(
-			previousOrganismCodes,
-			draggedOrganismCode,
-			targetOrganismCode,
+		const previousAreaCodes = screenAreas.map((area) => area.areaCode);
+		const nextAreaCodes = moveItemBefore(
+			previousAreaCodes,
+			draggedAreaCode,
+			targetAreaCode,
 		);
 
-		onReorder(screenCode, nextOrganismCodes);
-		setDraggedOrganismCode("");
+		onReorder(screenCode, nextAreaCodes);
+		setDraggedAreaCode("");
 	}
 
 	return (
@@ -186,29 +186,29 @@ function ConnectedOrganismList({
 				<Badge variant="outline">local order</Badge>
 			</div>
 			<ul className="flex flex-col gap-2">
-				{screenOrganisms.map((screenOrganism) => (
-					<li key={screenOrganism.organismCode}>
+				{screenAreas.map((screenArea) => (
+					<li key={screenArea.areaCode}>
 						<button
 							aria-disabled={!canReorder}
 							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
-							data-dragging={draggedOrganismCode === screenOrganism.organismCode}
+							data-dragging={draggedAreaCode === screenArea.areaCode}
 							data-drop-target={
-								Boolean(draggedOrganismCode) && draggedOrganismCode !== screenOrganism.organismCode
+								Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode
 							}
 							draggable={canReorder}
-							onDragEnd={() => setDraggedOrganismCode("")}
+							onDragEnd={() => setDraggedAreaCode("")}
 							onDragOver={(event) => {
 								if (canReorder) event.preventDefault();
 							}}
 							onDragStart={(event) => {
 								if (!canReorder) return;
 								event.dataTransfer.effectAllowed = "move";
-								event.dataTransfer.setData("text/plain", screenOrganism.organismCode);
-								setDraggedOrganismCode(screenOrganism.organismCode);
+								event.dataTransfer.setData("text/plain", screenArea.areaCode);
+								setDraggedAreaCode(screenArea.areaCode);
 							}}
 							onDrop={(event) => {
 								event.preventDefault();
-								handleDrop(screenOrganism.organismCode);
+								handleDrop(screenArea.areaCode);
 							}}
 							type="button"
 						>
@@ -216,10 +216,10 @@ function ConnectedOrganismList({
 								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
 								<div className="flex min-w-0 flex-col gap-1">
 									<span className="truncate text-sm font-medium">
-										{screenOrganism.organismCode}
+										{screenArea.areaCode}
 									</span>
 									<span className="text-xs text-muted-foreground">
-										order {screenOrganism.order}
+										order {screenArea.order}
 									</span>
 								</div>
 							</div>
@@ -254,26 +254,26 @@ function CompositeInspection({ composite }: { composite: SelectedCompositeContex
 				<InfoRow label="Composite id" value={composite.code} />
 				<InfoRow label="Type" value={composite.node.type} />
 				<InfoRow label="Source screen" value={composite.screen.code} />
-				<InfoRow label="Parent OGN" value={composite.organism?.code ?? "screen"} />
+				<InfoRow label="Parent OGN" value={composite.area?.code ?? "screen"} />
 			</div>
 			<NodePropsPanel node={composite.node} />
 		</>
 	);
 }
 
-function OrganismInspection({ organism }: { organism: SelectedOrganismContext }) {
+function AreaInspection({ area }: { area: SelectedAreaContext }) {
 	return (
 		<>
 			<Separator />
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">선택 OGN</h2>
-				<InfoRow label="OGN code" value={organism.code} />
-				<InfoRow label="Source screen" value={organism.screen.code} />
-				<InfoRow label="Composites" value={String(organism.node.children?.length ?? 0)} />
+				<InfoRow label="OGN code" value={area.code} />
+				<InfoRow label="Source screen" value={area.screen.code} />
+				<InfoRow label="Composites" value={String(area.node.children?.length ?? 0)} />
 			</div>
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">컴포넌트</h2>
-				{organism.node.children?.map((child, index) => (
+				{area.node.children?.map((child, index) => (
 					<div
 						key={child.metadata.id}
 						className="flex items-center justify-between rounded-lg border bg-background p-3"

@@ -1,7 +1,7 @@
 import type {
 	GeneratedComponentNode,
 	GeneratedNodeTree,
-	GeneratedOrganismNode,
+	GeneratedAreaNode,
 	GeneratedScreenNode,
 } from "@cx/agent";
 
@@ -12,20 +12,20 @@ interface ClientImportMarkdownFile {
 
 export interface GenerateRegisterFromClientImportInput {
 	importId: string;
-	organismFiles: ClientImportMarkdownFile[];
+	areaFiles: ClientImportMarkdownFile[];
 	screenFiles: ClientImportMarkdownFile[];
 }
 
 export function generateRegisterFromClientImport({
 	importId,
-	organismFiles,
+	areaFiles,
 	screenFiles,
 }: GenerateRegisterFromClientImportInput): GeneratedNodeTree {
-	const organisms = organismFiles.map((file, index) => parseOrganismFile(file, index));
+	const areas = areaFiles.map((file, index) => parseAreaFile(file, index));
 	const componentById = new Map<string, GeneratedComponentNode>();
 
-	for (const organism of organisms) {
-		for (const componentRef of organism.children ?? []) {
+	for (const area of areas) {
+		for (const componentRef of area.children ?? []) {
 			if (componentById.has(componentRef.componentId)) continue;
 			componentById.set(componentRef.componentId, {
 				id: componentRef.componentId,
@@ -36,7 +36,7 @@ export function generateRegisterFromClientImport({
 		}
 	}
 
-	for (const file of organismFiles) {
+	for (const file of areaFiles) {
 		for (const component of parseComponents(file.content)) {
 			componentById.set(component.id, {
 				...componentById.get(component.id),
@@ -64,7 +64,7 @@ export function generateRegisterFromClientImport({
 				],
 			},
 		],
-		organisms,
+		areas,
 		components: Array.from(componentById.values()).sort((left, right) => {
 			return (left.order ?? 0) - (right.order ?? 0) || left.id.localeCompare(right.id);
 		}),
@@ -74,12 +74,12 @@ export function generateRegisterFromClientImport({
 function parseScreenFile(file: ClientImportMarkdownFile, index: number): GeneratedScreenNode {
 	const frontmatter = parseFrontmatter(file.content);
 	const rows = parseMarkdownTableAfterHeading(file.content, "화면 구성");
-	const organisms = rows
+	const areas = rows
 		.map((row, rowIndex) => ({
-			organismId: row["오가니즘 ID"] ?? "",
+			areaId: row["오가니즘 ID"] ?? "",
 			order: parseOrder(row.no) ?? rowIndex + 1,
 		}))
-		.filter((row) => row.organismId);
+		.filter((row) => row.areaId);
 
 	return {
 		id: frontmatter["화면 ID"] ?? file.name.replace(/\.md$/i, ""),
@@ -87,11 +87,11 @@ function parseScreenFile(file: ClientImportMarkdownFile, index: number): Generat
 		order: index + 1,
 		description: frontmatter["화면 설명"],
 		surface: "page",
-		organisms,
+		areas,
 	};
 }
 
-function parseOrganismFile(file: ClientImportMarkdownFile, index: number): GeneratedOrganismNode {
+function parseAreaFile(file: ClientImportMarkdownFile, index: number): GeneratedAreaNode {
 	const frontmatter = parseFrontmatter(file.content);
 	const infoRows = parseMarkdownTableAfterHeading(file.content, "오가니즘 정보");
 	const detailRows = parseMarkdownTableAfterHeading(file.content, "컴포넌트 상세");

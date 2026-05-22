@@ -4,7 +4,7 @@ import { renderTreeToTables } from "./render-tree-to-tables";
 import {
 	type PatternStorePattern,
 	type SampleComposite,
-	type SampleOrganism,
+	type SampleArea,
 	type SampleScreen,
 	tablesToRenderTree,
 } from "./tables-to-render-tree";
@@ -45,9 +45,9 @@ const termDetail: WireframeNode = {
 	props: { title: { bind: "termList.termDetail.title" } },
 };
 
-const organism: SampleOrganism = {
+const area: SampleArea = {
 	id: "ogn-mbr-term-list",
-	type: "Organism",
+	type: "Area",
 	version: "1.0.0",
 	metadata: {
 		title: "약관 목록",
@@ -88,7 +88,7 @@ const screen: SampleScreen = {
 				metadata: { title: "스크롤 콘텐츠 영역" },
 				children: [
 					{ kind: "composite", id: "screen-intro" },
-					{ kind: "organism", id: "ogn-mbr-term-list" },
+					{ kind: "area", id: "ogn-mbr-term-list" },
 				],
 			},
 			bottom: {
@@ -103,7 +103,7 @@ const screen: SampleScreen = {
 const listStackPattern: PatternStorePattern = {
 	id: "list-stack",
 	name: "리스트 스택",
-	target: "organism",
+	target: "area",
 	defaultVariant: "default",
 	variants: {
 		default: {
@@ -129,7 +129,7 @@ const sectionStackPattern: PatternStorePattern = {
 			childOrder: "explicit",
 			childWrap: {
 				kind: "page-stack",
-				appliesTo: ["composite", "organism"],
+				appliesTo: ["composite", "area"],
 				sectionPaddingX: 12,
 				itemPaddingX: 20,
 				paddingY: 28,
@@ -167,7 +167,7 @@ describe("renderTreeToTables", () => {
 					toSampleComposite(node),
 				]),
 			),
-			organismById: new Map([[organism.id, organism]]),
+			areaById: new Map([[area.id, area]]),
 			patternById: new Map<string, PatternStorePattern>([
 				[listStackPattern.id, listStackPattern],
 				[sectionStackPattern.id, sectionStackPattern],
@@ -191,9 +191,9 @@ describe("renderTreeToTables", () => {
 		]);
 		expect(result.screens.screens[0].screen.regions.contents.children).toEqual([
 			{ kind: "composite", id: "screen-intro" },
-			{ kind: "organism", id: "ogn-mbr-term-list" },
+			{ kind: "area", id: "ogn-mbr-term-list" },
 		]);
-		expect(result.organisms.organisms[0]).toMatchObject({
+		expect(result.areas.areas[0]).toMatchObject({
 			id: "ogn-mbr-term-list",
 			props: { name: "약관 목록 조회" },
 			children: [

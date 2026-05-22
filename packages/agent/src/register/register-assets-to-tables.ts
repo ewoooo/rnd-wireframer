@@ -27,13 +27,13 @@ export function registerAssetsToTables(
 			return variant.screens.map((screen) => mapScreenRow(variant, screen));
 		});
 	});
-	const organisms = registry.organisms.map((organism) => ({
-		id: organism.id,
-		name: organism.name,
-		order: organism.order,
-		...(organism.description ? { description: organism.description } : {}),
-		...(organism.layout ? { layout: organism.layout } : {}),
-		children: organism.children.map((component) => ({
+	const areas = registry.areas.map((area) => ({
+		id: area.id,
+		name: area.name,
+		order: area.order,
+		...(area.description ? { description: area.description } : {}),
+		...(area.layout ? { layout: area.layout } : {}),
+		children: area.children.map((component) => ({
 			componentId: component.componentId,
 			order: component.order,
 		})),
@@ -59,7 +59,7 @@ export function registerAssetsToTables(
 			...(mock.sourceRefs ? { sourceRefs: [...mock.sourceRefs] } : {}),
 			data: { ...mock.data },
 		})),
-		organisms,
+		areas,
 		components,
 		warnings: [...registry.warnings],
 	};
@@ -83,9 +83,9 @@ function mapScreenRow(variant: RegisteredVariantNode, screen: RegisteredScreenNo
 		order: screen.order,
 		...(screen.description ? { description: screen.description } : {}),
 		...(screen.surface ? { surface: screen.surface } : {}),
-		organisms: screen.organisms.map((organism) => ({
-			organismId: organism.organismId,
-			order: organism.order,
+		areas: screen.areas.map((area) => ({
+			areaId: area.areaId,
+			order: area.order,
 		})),
 	};
 }

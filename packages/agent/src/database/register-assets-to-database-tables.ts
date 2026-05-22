@@ -1,7 +1,7 @@
 import type {
 	DecoratedComponentNode,
 	DecoratedNodeTree,
-	DecoratedOrganismNode,
+	DecoratedAreaNode,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
@@ -26,7 +26,7 @@ export interface DatabaseScreenVariantRow {
 }
 
 export interface DatabaseRegionChild {
-	kind: "composite" | "organism" | "area";
+	kind: "composite" | "area" | "area";
 	id: string;
 }
 
@@ -64,18 +64,18 @@ export interface DatabaseScreenRow {
 	screen: DatabaseScreenBody;
 }
 
-export interface DatabaseOrganismMetadata {
+export interface DatabaseAreaMetadata {
 	title: string;
 	author: string;
 	createdAt: string;
 	updatedAt: string;
 }
 
-export interface DatabaseOrganismRow {
+export interface DatabaseAreaRow {
 	id: string;
-	type: "Organism";
+	type: "Area";
 	version: string;
-	metadata: DatabaseOrganismMetadata;
+	metadata: DatabaseAreaMetadata;
 	props: { name: string };
 	pattern: { id: string; variant: string };
 	children: Array<{ kind: "composite"; id: string }>;
@@ -107,7 +107,7 @@ export interface MaterializedDatabaseNodeTables {
 	screenRoutes: DatabaseScreenRouteRow[];
 	screenVariants: DatabaseScreenVariantRow[];
 	screens: DatabaseScreenRow[];
-	organisms: DatabaseOrganismRow[];
+	areas: DatabaseAreaRow[];
 	components: DatabaseComponentRow[];
 	warnings: string[];
 }
@@ -120,7 +120,7 @@ export interface MaterializedDatabaseNodeTablesOptions {
 	version?: string;
 	now?: () => string;
 	pendingPatternId?: string;
-	organismPrefix?: string;
+	areaPrefix?: string;
 }
 
 const DEFAULT_AUTHOR = "plus_x_athor_1";
@@ -129,7 +129,7 @@ const DEFAULT_VERSION = "1.0.0";
 const DEFAULT_MIN_RENDERER_VERSION = "0.1.0";
 const DEFAULT_THEME_MODE = "light";
 const DEFAULT_PENDING_PATTERN_ID = "screen-shell";
-const DEFAULT_ORGANISM_PREFIX = "ogn-";
+const DEFAULT_AREA_PREFIX = "ogn-";
 
 export function materializeDecoratedAssetsToDatabaseTables(
 	decorated: DecoratedNodeTree,
@@ -141,7 +141,7 @@ export function materializeDecoratedAssetsToDatabaseTables(
 	const minRendererVersion = options.minRendererVersion ?? DEFAULT_MIN_RENDERER_VERSION;
 	const themeMode = options.themeMode ?? DEFAULT_THEME_MODE;
 	const pendingPatternId = options.pendingPatternId ?? DEFAULT_PENDING_PATTERN_ID;
-	const organismPrefix = options.organismPrefix ?? DEFAULT_ORGANISM_PREFIX;
+	const areaPrefix = options.areaPrefix ?? DEFAULT_AREA_PREFIX;
 	const now = options.now ?? (() => new Date().toISOString());
 	const timestamp = now();
 	const warnings = [...decorated.warnings];
@@ -183,11 +183,11 @@ export function materializeDecoratedAssetsToDatabaseTables(
 		}
 	}
 
-	const organisms = decorated.organisms.map((organism) =>
-		toOrganismRow(organism, {
+	const areas = decorated.areas.map((area) =>
+		toAreaRow(area, {
 			author,
 			componentVersion,
-			organismPrefix,
+			areaPrefix,
 			timestamp,
 		}),
 	);
@@ -199,7 +199,7 @@ export function materializeDecoratedAssetsToDatabaseTables(
 		screenRoutes,
 		screenVariants,
 		screens,
-		organisms,
+		areas,
 		components,
 		warnings,
 	};
@@ -290,38 +290,38 @@ function toRegionChildren(
 	refs: DecoratedScreenNode["children"]["contents"],
 ): DatabaseRegionChild[] {
 	return (refs ?? []).map((ref) => ({
-		kind: "organism",
-		id: ref.organismId,
+		kind: "area",
+		id: ref.areaId,
 	}));
 }
 
-interface OrganismRowContext {
+interface AreaRowContext {
 	author: string;
 	componentVersion: string;
-	organismPrefix: string;
+	areaPrefix: string;
 	timestamp: string;
 }
 
-function toOrganismRow(
-	organism: DecoratedOrganismNode,
-	ctx: OrganismRowContext,
-): DatabaseOrganismRow {
+function toAreaRow(
+	area: DecoratedAreaNode,
+	ctx: AreaRowContext,
+): DatabaseAreaRow {
 	return {
-		id: organism.id,
-		type: "Organism",
+		id: area.id,
+		type: "Area",
 		version: ctx.componentVersion,
 		metadata: {
-			title: organism.name ?? organism.id,
+			title: area.name ?? area.id,
 			author: ctx.author,
 			createdAt: ctx.timestamp,
 			updatedAt: ctx.timestamp,
 		},
-		props: { name: organism.name ?? organism.id },
+		props: { name: area.name ?? area.id },
 		pattern: {
-			id: organism.pattern.id ?? derivePatternId(organism.id, ctx.organismPrefix),
-			variant: organism.pattern.variant,
+			id: area.pattern.id ?? derivePatternId(area.id, ctx.areaPrefix),
+			variant: area.pattern.variant,
 		},
-		children: [...(organism.children ?? [])]
+		children: [...(area.children ?? [])]
 			.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 			.map((ref) => ({ kind: "composite" as const, id: ref.componentId })),
 	};
@@ -371,10 +371,10 @@ function deriveModule(id: string): string {
 	return segments[0]?.toLowerCase() ?? id.toLowerCase();
 }
 
-function derivePatternId(organismId: string, organismPrefix: string): string {
-	let remainder = organismId;
-	if (remainder.startsWith(organismPrefix)) {
-		remainder = remainder.slice(organismPrefix.length);
+function derivePatternId(areaId: string, areaPrefix: string): string {
+	let remainder = areaId;
+	if (remainder.startsWith(areaPrefix)) {
+		remainder = remainder.slice(areaPrefix.length);
 	}
 	const firstDash = remainder.indexOf("-");
 	if (firstDash <= 0) return remainder;

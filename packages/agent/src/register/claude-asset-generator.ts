@@ -10,7 +10,7 @@ export interface ClaudeAssetMarkdownFile {
 
 export interface ClaudeAssetGeneratorInput {
 	importId: string;
-	organismFiles: ClaudeAssetMarkdownFile[];
+	areaFiles: ClaudeAssetMarkdownFile[];
 	screenFiles: ClaudeAssetMarkdownFile[];
 }
 
@@ -60,7 +60,7 @@ const componentSchema = z.object({
 	raw: componentRawSchema.optional(),
 });
 
-const organismSchema = z.object({
+const areaSchema = z.object({
 	id: z.string().min(1),
 	name: z.string().optional(),
 	order: z.number().optional(),
@@ -81,10 +81,10 @@ const screenSchema = z.object({
 	order: z.number().optional(),
 	description: z.string().optional(),
 	surface: z.string().optional(),
-	organisms: z
+	areas: z
 		.array(
 			assetRefSchema.extend({
-				organismId: z.string().min(1),
+				areaId: z.string().min(1),
 			}),
 		)
 		.optional(),
@@ -110,7 +110,7 @@ const registerAssetsInputSchema = z.object({
 			}),
 		)
 		.min(1),
-	organisms: z.array(organismSchema).optional(),
+	areas: z.array(areaSchema).optional(),
 	components: z.array(componentSchema).optional(),
 }) satisfies z.ZodType<GeneratedNodeTree>;
 
@@ -131,7 +131,7 @@ export async function generateAssetsWithLocalClaude(
 
 	logDebug(logger, debug, "input", {
 		importId: input.importId,
-		organismFiles: summarizeFiles(input.organismFiles),
+		areaFiles: summarizeFiles(input.areaFiles),
 		promptLength: prompt.length,
 		screenFiles: summarizeFiles(input.screenFiles),
 	});
@@ -204,7 +204,7 @@ export async function generateAssetsWithLocalClaude(
 		elapsedMs: Date.now() - startedAt,
 		messageCounts: Object.fromEntries(messageCounts),
 		numTurns: resultMessage.num_turns,
-		organismCount: generated.organisms?.length ?? 0,
+		areaCount: generated.areas?.length ?? 0,
 		rawResultLength: resultMessage.result.length,
 		routeCount: generated.routes.length,
 		screenCount: generated.routes.reduce((count, route) => {
@@ -298,26 +298,26 @@ function buildPrompt(input: ClaudeAssetGeneratorInput) {
 		'  Edge screens: read the "## 케이스 분기" table in that same file and',
 		"  register every row as a screen under the same variant using the row's",
 		"  화면 ID (e.g. NOVA-MBR-FP-001-E1) as the screen id and 화면 명 / 화면 설명",
-		"  as name / description. Edge-case screens have no organisms unless the",
+		"  as name / description. Edge-case screens have no areas unless the",
 		"  markdown explicitly lists them.",
 		"- Order screens within a variant: main screen first (order 1),",
 		"  then edge screens in the order they appear in 케이스 분기 (order 2, 3, ...).",
-		"- Register Organisms and Components referenced by the screens.",
-		"- For each organism, put referenced components under organism.children.",
-		"- Do not create organism.raw or organism.components.",
+		"- Register Areas and Components referenced by the screens.",
+		"- For each area, put referenced components under area.children.",
+		"- Do not create area.raw or area.components.",
 		"- Preserve IDs from the source markdown whenever present.",
 		"- Do not invent screens that are not declared in the markdown.",
 		"- Do not invent copy text that is not needed for registration.",
 		"",
 		"Component identity (required):",
-		'- For each component row in an organism\'s "## 컴포넌트 상세" table:',
+		'- For each component row in an area\'s "## 컴포넌트 상세" table:',
 		'    component.id   = "컴포넌트 명" cell verbatim (e.g. text-field-auth-code)',
 		'    component.type = "컴포넌트 ID" cell verbatim (e.g. text-field, section-message, button,',
 		"                     action-area, list-cell, accordion, checkbox). This is the component",
 		"                     vocabulary key, NOT the row identifier. Always populate it.",
 		"",
 		"Raw field extraction (verbatim, no interpretation):",
-		'- For each component (a row in an organism\'s "## 컴포넌트 상세" table),',
+		'- For each component (a row in an area\'s "## 컴포넌트 상세" table),',
 		"  populate component.raw with the table cells:",
 		'    raw.description = "컴포넌트 설명" cell verbatim',
 		'    raw.variant     = "variant" cell verbatim (use empty string or omit if "-")',
@@ -340,9 +340,9 @@ function buildPrompt(input: ClaudeAssetGeneratorInput) {
 		...input.screenFiles.map(formatMarkdownFile),
 		"</screen_files>",
 		"",
-		"<organism_files>",
-		...input.organismFiles.map(formatMarkdownFile),
-		"</organism_files>",
+		"<area_files>",
+		...input.areaFiles.map(formatMarkdownFile),
+		"</area_files>",
 	].join("\n");
 }
 
@@ -414,14 +414,14 @@ const registerAssetsJsonSchema = {
 											order: { type: "number" },
 											description: { type: "string" },
 											surface: { type: "string" },
-											organisms: {
+											areas: {
 												type: "array",
 												items: {
 													type: "object",
 													additionalProperties: false,
-													required: ["organismId"],
+													required: ["areaId"],
 													properties: {
-														organismId: { type: "string", minLength: 1 },
+														areaId: { type: "string", minLength: 1 },
 														order: { type: "number" },
 													},
 												},
@@ -435,7 +435,7 @@ const registerAssetsJsonSchema = {
 				},
 			},
 		},
-		organisms: {
+		areas: {
 			type: "array",
 			items: {
 				type: "object",

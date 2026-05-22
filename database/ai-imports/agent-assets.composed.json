@@ -375,21 +375,21 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					},
 					{
-						"organismId": "ogn-mbr-guardian-input",
+						"areaId": "ogn-mbr-guardian-input",
 						"order": 3
 					}
 				],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-guardian-result",
+						"areaId": "ogn-mbr-guardian-result",
 						"order": 4
 					}
 				]
@@ -404,21 +404,21 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					},
 					{
-						"organismId": "ogn-mbr-guardian-input",
+						"areaId": "ogn-mbr-guardian-input",
 						"order": 3
 					}
 				],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-guardian-result",
+						"areaId": "ogn-mbr-guardian-result",
 						"order": 4
 					}
 				]
@@ -433,21 +433,21 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					},
 					{
-						"organismId": "ogn-mbr-guardian-input",
+						"areaId": "ogn-mbr-guardian-input",
 						"order": 3
 					}
 				],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-guardian-result",
+						"areaId": "ogn-mbr-guardian-result",
 						"order": 4
 					}
 				]
@@ -462,21 +462,21 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					},
 					{
-						"organismId": "ogn-mbr-guardian-input",
+						"areaId": "ogn-mbr-guardian-input",
 						"order": 3
 					}
 				],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-guardian-result",
+						"areaId": "ogn-mbr-guardian-result",
 						"order": 4
 					}
 				]
@@ -491,11 +491,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -510,11 +510,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -529,11 +529,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -548,11 +548,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -567,11 +567,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -586,11 +586,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-input",
+						"areaId": "ogn-mbr-member-input",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-entry-check",
+						"areaId": "ogn-mbr-entry-check",
 						"order": 2
 					}
 				]
@@ -605,11 +605,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -624,11 +624,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -643,11 +643,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -662,11 +662,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -681,11 +681,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -700,11 +700,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -719,11 +719,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -738,11 +738,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -757,11 +757,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -776,11 +776,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -795,11 +795,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -814,11 +814,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-join-path",
+						"areaId": "ogn-mbr-join-path",
 						"order": 2
 					}
 				]
@@ -834,7 +834,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-join-complete",
+						"areaId": "ogn-mbr-join-complete",
 						"order": 1
 					}
 				]
@@ -850,7 +850,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-join-complete",
+						"areaId": "ogn-mbr-join-complete",
 						"order": 1
 					}
 				]
@@ -866,7 +866,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-join-complete",
+						"areaId": "ogn-mbr-join-complete",
 						"order": 1
 					}
 				]
@@ -882,7 +882,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-join-complete",
+						"areaId": "ogn-mbr-join-complete",
 						"order": 1
 					}
 				]
@@ -897,11 +897,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -916,11 +916,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -935,11 +935,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -954,11 +954,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -973,11 +973,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -992,11 +992,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-detect",
+						"areaId": "ogn-mbr-dormant-detect",
 						"order": 2
 					}
 				]
@@ -1011,11 +1011,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-eligibility",
+						"areaId": "ogn-mbr-dormant-eligibility",
 						"order": 2
 					}
 				]
@@ -1030,11 +1030,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-eligibility",
+						"areaId": "ogn-mbr-dormant-eligibility",
 						"order": 2
 					}
 				]
@@ -1049,11 +1049,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-eligibility",
+						"areaId": "ogn-mbr-dormant-eligibility",
 						"order": 2
 					}
 				]
@@ -1068,11 +1068,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-member-status",
+						"areaId": "ogn-mbr-member-status",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-dormant-eligibility",
+						"areaId": "ogn-mbr-dormant-eligibility",
 						"order": 2
 					}
 				]
@@ -1087,11 +1087,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -1106,11 +1106,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -1125,11 +1125,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -1144,11 +1144,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -1163,11 +1163,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-auth-select",
+						"areaId": "ogn-mbr-auth-select",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-auth-request",
+						"areaId": "ogn-mbr-auth-request",
 						"order": 2
 					}
 				]
@@ -1182,11 +1182,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					}
 				]
@@ -1201,11 +1201,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					}
 				]
@@ -1220,11 +1220,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					}
 				]
@@ -1239,11 +1239,11 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-term-list",
+						"areaId": "ogn-mbr-term-list",
 						"order": 1
 					},
 					{
-						"organismId": "ogn-mbr-term-agree",
+						"areaId": "ogn-mbr-term-agree",
 						"order": 2
 					}
 				]
@@ -1258,7 +1258,7 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-dormant-release",
+						"areaId": "ogn-mbr-dormant-release",
 						"order": 1
 					}
 				]
@@ -1273,7 +1273,7 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-dormant-release",
+						"areaId": "ogn-mbr-dormant-release",
 						"order": 1
 					}
 				]
@@ -1288,7 +1288,7 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-dormant-release",
+						"areaId": "ogn-mbr-dormant-release",
 						"order": 1
 					}
 				]
@@ -1303,7 +1303,7 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-dormant-release",
+						"areaId": "ogn-mbr-dormant-release",
 						"order": 1
 					}
 				]
@@ -1318,7 +1318,7 @@
 			"children": {
 				"contents": [
 					{
-						"organismId": "ogn-mbr-dormant-release",
+						"areaId": "ogn-mbr-dormant-release",
 						"order": 1
 					}
 				]
@@ -1334,7 +1334,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-dormant-complete",
+						"areaId": "ogn-mbr-dormant-complete",
 						"order": 1
 					}
 				]
@@ -1350,7 +1350,7 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-dormant-complete",
+						"areaId": "ogn-mbr-dormant-complete",
 						"order": 1
 					}
 				]
@@ -1366,14 +1366,14 @@
 				"contents": [],
 				"bottom": [
 					{
-						"organismId": "ogn-mbr-dormant-complete",
+						"areaId": "ogn-mbr-dormant-complete",
 						"order": 1
 					}
 				]
 			}
 		}
 	],
-	"organisms": [
+	"areas": [
 		{
 			"id": "ogn-mbr-term-list",
 			"name": "약관 목록 조회",

@@ -28,7 +28,7 @@ Resolver 로직은 별도 단계에서 구현한다. 이 디렉터리는 우선 
 |---|---|
 | `pattern-index.json` | 후보 pattern 검색용 인덱스 |
 | `region-patterns.json` | region children layout preset |
-| `organism-patterns.json` | organism children layout preset |
+| `area-patterns.json` | organism children layout preset |
 | `composite-patterns.json` | composite children/slot layout preset |
 
 ## 스키마
@@ -46,7 +46,7 @@ Resolver 로직은 별도 단계에서 구현한다. 이 디렉터리는 우선 
 		"childOrder": "explicit",
 		"childWrap": {
 			"kind": "page-stack",
-			"appliesTo": ["composite", "organism"],
+			"appliesTo": ["composite", "area"],
 			"itemPaddingX": 20,
 			"sectionPaddingX": 12,
 			"paddingY": 28,

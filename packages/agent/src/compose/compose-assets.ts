@@ -3,16 +3,16 @@ import type {
 	ComponentRawInput,
 	ComposedComponentNode,
 	ComposedNodeTree,
-	ComposedOrganismNode,
+	ComposedAreaNode,
 	ComposedRouteNode,
 	ComposedScreenNode,
 	ComposedVariantNode,
 	RegisteredComponentNode,
 	RegisteredNodeTree,
 	RegisteredScreenNode,
-	RegisteredScreenOrganismRef,
+	RegisteredScreenAreaRef,
 	RegisteredVariantNode,
-	ScreenOrganismRefInput,
+	ScreenAreaRefInput,
 } from "../types";
 
 // 우선순위: 본문(content) > 라벨(label) > 제목(title)
@@ -47,10 +47,10 @@ export function composeAssetContents(
 		composeComponent(component, filledComponentIds, strippedComponentRawIds, skipped),
 	);
 	const componentById = new Map(components.map((component) => [component.id, component]));
-	const organisms = registered.organisms.map((organism) =>
-		composeOrganism(organism, componentById, warnings),
+	const areas = registered.areas.map((area) =>
+		composeArea(area, componentById, warnings),
 	);
-	const organismById = new Map(organisms.map((organism) => [organism.id, organism]));
+	const areaById = new Map(areas.map((area) => [area.id, area]));
 
 	const routes: ComposedRouteNode[] = [];
 	const variants: ComposedVariantNode[] = [];
@@ -82,7 +82,7 @@ export function composeAssetContents(
 			});
 
 			for (const screen of composeVariantScreens(variant, inheritedEdgeScreenIds)) {
-				screens.push(composeScreen(screen, variant.id, organismById, warnings));
+				screens.push(composeScreen(screen, variant.id, areaById, warnings));
 			}
 		}
 	}
@@ -92,7 +92,7 @@ export function composeAssetContents(
 			routes,
 			variants,
 			screens,
-			organisms,
+			areas,
 			components,
 		},
 		filledComponentIds,
@@ -150,24 +150,25 @@ function normalizeComponentType(type: string | undefined): string | undefined {
 	return type;
 }
 
-function composeOrganism(
-	organism: RegisteredNodeTree["organisms"][number],
+function composeArea(
+	area: RegisteredNodeTree["areas"][number],
 	componentById: Map<string, ComposedComponentNode>,
 	warnings: string[],
-): ComposedOrganismNode {
-	for (const ref of organism.children) {
+): ComposedAreaNode {
+	for (const ref of area.children) {
 		if (!componentById.has(ref.componentId)) {
 			warnings.push(`Missing composed component: ${ref.componentId}`);
 		}
 	}
 
 	return {
-		id: organism.id,
-		name: organism.name,
-		order: organism.order,
-		...(organism.description ? { description: organism.description } : {}),
-		...(organism.layout ? { layout: organism.layout } : {}),
-		children: organism.children.map((ref) => ({
+		level: "area",
+		id: area.id,
+		name: area.name,
+		order: area.order,
+		...(area.description ? { description: area.description } : {}),
+		...(area.layout ? { layout: area.layout } : {}),
+		children: area.children.map((ref) => ({
 			componentId: ref.componentId,
 			order: ref.order,
 		})),
@@ -179,14 +180,14 @@ function composeVariantScreens(
 	inheritedEdgeScreenIds: string[],
 ): RegisteredScreenNode[] {
 	const main = findMainScreen(variant.screens);
-	if (!main?.organisms || main.organisms.length === 0) return variant.screens;
+	if (!main?.areas || main.areas.length === 0) return variant.screens;
 
 	return variant.screens.map((screen) => {
-		if (screen.id === main.id || screen.organisms.length > 0) return screen;
+		if (screen.id === main.id || screen.areas.length > 0) return screen;
 		inheritedEdgeScreenIds.push(screen.id);
 		return {
 			...screen,
-			organisms: main.organisms.map((ref) => ({ ...ref })),
+			areas: main.areas.map((ref) => ({ ...ref })),
 		};
 	});
 }
@@ -194,13 +195,13 @@ function composeVariantScreens(
 function composeScreen(
 	screen: RegisteredScreenNode,
 	variantId: string,
-	organismById: Map<string, ComposedOrganismNode>,
+	areaById: Map<string, ComposedAreaNode>,
 	warnings: string[],
 ): ComposedScreenNode {
-	const regions = partitionScreenOrganisms(screen.organisms, organismById);
-	for (const ref of screen.organisms) {
-		if (!organismById.has(ref.organismId)) {
-			warnings.push(`Missing composed organism: ${ref.organismId}`);
+	const regions = partitionScreenAreas(screen.areas, areaById);
+	for (const ref of screen.areas) {
+		if (!areaById.has(ref.areaId)) {
+			warnings.push(`Missing composed area: ${ref.areaId}`);
 		}
 	}
 
@@ -215,18 +216,18 @@ function composeScreen(
 	};
 }
 
-function partitionScreenOrganisms(
-	refs: RegisteredScreenOrganismRef[],
-	organismById: Map<string, ComposedOrganismNode>,
+function partitionScreenAreas(
+	refs: RegisteredScreenAreaRef[],
+	areaById: Map<string, ComposedAreaNode>,
 ) {
-	const header: ScreenOrganismRefInput[] = [];
-	const contents: ScreenOrganismRefInput[] = [];
-	const bottom: ScreenOrganismRefInput[] = [];
+	const header: ScreenAreaRefInput[] = [];
+	const contents: ScreenAreaRefInput[] = [];
+	const bottom: ScreenAreaRefInput[] = [];
 
 	for (const ref of refs) {
-		const child = { organismId: ref.organismId, order: ref.order };
-		const organism = organismById.get(ref.organismId);
-		const target = resolveScreenRegion(ref, organism);
+		const child = { areaId: ref.areaId, order: ref.order };
+		const area = areaById.get(ref.areaId);
+		const target = resolveScreenRegion(ref, area);
 		if (target === "header") header.push(child);
 		else if (target === "bottom") bottom.push(child);
 		else contents.push(child);
@@ -240,11 +241,11 @@ function partitionScreenOrganisms(
 }
 
 function resolveScreenRegion(
-	ref: RegisteredScreenOrganismRef,
-	organism: ComposedOrganismNode | undefined,
+	ref: RegisteredScreenAreaRef,
+	area: ComposedAreaNode | undefined,
 ): "bottom" | "contents" | "header" {
 	const haystack =
-		`${ref.organismId} ${organism?.name ?? ""} ${organism?.description ?? ""}`.toLowerCase();
+		`${ref.areaId} ${area?.name ?? ""} ${area?.description ?? ""}`.toLowerCase();
 	if (/(header|top|app-?bar|navigation|nav|상단|헤더)/.test(haystack)) return "header";
 	if (/(bottom|footer|cta|action|button|하단|버튼|완료|다음)/.test(haystack)) return "bottom";
 	return "contents";

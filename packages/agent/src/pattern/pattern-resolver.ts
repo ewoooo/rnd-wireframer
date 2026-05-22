@@ -1,25 +1,25 @@
 import type {
 	ComposedComponentNode,
-	ComposedOrganismNode,
+	ComposedAreaNode,
 	PatternRef,
 	PatternResolver,
 } from "../types";
 
 const DEFAULT_VARIANT = "default";
 
-export interface OrganismResolutionInput extends ComposedOrganismNode {
+export interface AreaResolutionInput extends ComposedAreaNode {
 	__compositeTypes?: ReadonlySet<string>;
 }
 
 import type {
 	CompositePattern,
-	OrganismPattern,
+	AreaPattern,
 	Pattern,
 	PatternResolutionSignals,
 } from "./pattern-schema";
 import {
 	isCompositePattern,
-	isOrganismPattern,
+	isAreaPattern,
 	listPatterns,
 	normalizePatternId,
 } from "./pattern-store";
@@ -29,15 +29,15 @@ export interface PatternResolverFactoryOptions {
 }
 
 /**
- * Resolver chain: composite → organism → screen.
- * decorate-assets processes assets in that order so organism/screen resolution
+ * Resolver chain: composite → area → screen.
+ * decorate-assets processes assets in that order so area/screen resolution
  * can read upstream decorations from the cross-linked asset.
  */
 export function createPatternResolver(
 	options: PatternResolverFactoryOptions = {},
 ): PatternResolver {
 	const patterns = options.patterns ?? listPatterns();
-	const organismPatterns = patterns.filter(isOrganismPattern);
+	const areaPatterns = patterns.filter(isAreaPattern);
 	const compositePatterns = patterns.filter(isCompositePattern);
 
 	return ({ level, node }) => {
@@ -52,13 +52,13 @@ export function createPatternResolver(
 				}
 			);
 		}
-		if (level === "organism") {
-			const organism = node as OrganismResolutionInput;
+		if (level === "area") {
+			const area = node as AreaResolutionInput;
 			return (
-				resolveOrganism(organism, organismPatterns) ?? {
-					id: organism.layout ? `organism-${organism.layout}` : "organism-section",
+				resolveArea(area, areaPatterns) ?? {
+					id: area.layout ? `area-${area.layout}` : "area-section",
 					variant: DEFAULT_VARIANT,
-					reasons: organism.layout ? [`layout: ${organism.layout}`] : ["default organism pattern"],
+					reasons: area.layout ? [`layout: ${area.layout}`] : ["default area pattern"],
 				}
 			);
 		}
@@ -67,18 +67,6 @@ export function createPatternResolver(
 				id: "screen-shell",
 				variant: DEFAULT_VARIANT,
 				reasons: ["deterministic screen shell"],
-			};
-		}
-		if (level === "area") {
-			const area = node as { layout?: string; areaType?: string; key?: number };
-			const reasons: string[] = [];
-			if (area.areaType) reasons.push(`areaType: ${area.areaType}`);
-			if (area.layout) reasons.push(`layout: ${area.layout}`);
-			if (reasons.length === 0) reasons.push("default area pattern");
-			return {
-				id: area.layout ? `area-${area.layout}` : "area-section",
-				variant: DEFAULT_VARIANT,
-				reasons,
 			};
 		}
 		if (level === "region") {
@@ -133,22 +121,22 @@ function scoreCompositePattern(
 	return { pattern, score, reasons };
 }
 
-function resolveOrganism(
-	organism: OrganismResolutionInput,
-	candidates: OrganismPattern[],
+function resolveArea(
+	area: AreaResolutionInput,
+	candidates: AreaPattern[],
 ): PatternRef | undefined {
-	const compositeTypes = organism.__compositeTypes ?? new Set<string>();
+	const compositeTypes = area.__compositeTypes ?? new Set<string>();
 	const scored = candidates
-		.map((pattern) => scoreOrganismPattern(pattern, organism, compositeTypes))
+		.map((pattern) => scoreAreaPattern(pattern, area, compositeTypes))
 		.filter((entry) => entry.score > 0);
 	return pickWinner(scored);
 }
 
-function scoreOrganismPattern(
-	pattern: OrganismPattern,
-	organism: ComposedOrganismNode,
+function scoreAreaPattern(
+	pattern: AreaPattern,
+	area: ComposedAreaNode,
 	compositeTypes: ReadonlySet<string>,
-): Scored<OrganismPattern> {
+): Scored<AreaPattern> {
 	const reasons: string[] = [];
 	let score = 0;
 	const resolution = pattern.resolution;
@@ -174,8 +162,8 @@ function scoreOrganismPattern(
 		}
 	}
 
-	score += scoreNameKeywords(resolution, organism.name, organism.description, reasons);
-	score += scoreIdPatterns(resolution, organism.id, reasons);
+	score += scoreNameKeywords(resolution, area.name, area.description, reasons);
+	score += scoreIdPatterns(resolution, area.id, reasons);
 
 	return { pattern, score, reasons };
 }

@@ -1,8 +1,8 @@
 {
-	"organisms": [
+	"areas": [
 		{
 			"id": "ogn-mbr-term-list",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "약관 목록 조회",
@@ -38,7 +38,7 @@
 		},
 		{
 			"id": "ogn-mbr-term-agree",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "약관 동의",
@@ -78,7 +78,7 @@
 		},
 		{
 			"id": "ogn-mbr-guardian-input",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "법정대리인 정보 입력",
@@ -118,7 +118,7 @@
 		},
 		{
 			"id": "ogn-mbr-guardian-result",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "법정대리인 동의 결과 확인",
@@ -150,7 +150,7 @@
 		},
 		{
 			"id": "ogn-mbr-member-input",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "회원 정보 입력",
@@ -194,7 +194,7 @@
 		},
 		{
 			"id": "ogn-mbr-entry-check",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "가입 진입 조건 확인",
@@ -226,7 +226,7 @@
 		},
 		{
 			"id": "ogn-mbr-auth-select",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "인증수단 선택",
@@ -258,7 +258,7 @@
 		},
 		{
 			"id": "ogn-mbr-auth-request",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "본인인증 요청",
@@ -302,7 +302,7 @@
 		},
 		{
 			"id": "ogn-mbr-member-status",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "회원 상태 조회",
@@ -338,7 +338,7 @@
 		},
 		{
 			"id": "ogn-mbr-join-path",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "가입 경로 분기",
@@ -374,7 +374,7 @@
 		},
 		{
 			"id": "ogn-mbr-join-complete",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "가입 완료",
@@ -406,7 +406,7 @@
 		},
 		{
 			"id": "ogn-mbr-dormant-detect",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "휴면 감지 및 안내",
@@ -438,7 +438,7 @@
 		},
 		{
 			"id": "ogn-mbr-dormant-eligibility",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "휴면 해제 가능 여부 판정",
@@ -474,7 +474,7 @@
 		},
 		{
 			"id": "ogn-mbr-dormant-release",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "휴면 해제 처리",
@@ -506,7 +506,7 @@
 		},
 		{
 			"id": "ogn-mbr-dormant-complete",
-			"type": "Organism",
+			"type": "Area",
 			"version": "1.0.0",
 			"metadata": {
 				"title": "휴면 해제 완료 안내",

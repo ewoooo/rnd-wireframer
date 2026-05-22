@@ -10,7 +10,7 @@
 				"childOrder": "explicit",
 				"childWrap": {
 					"kind": "page-stack",
-					"appliesTo": ["composite", "organism"],
+					"appliesTo": ["composite", "area"],
 					"sectionPaddingX": 12,
 					"itemPaddingX": 20,
 					"paddingY": 28,

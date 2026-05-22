@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { query, type SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import { type ComponentPropContract, getComponentCatalogEntry } from "@cx/renderer";
 import { z } from "zod";
-import type { ComposedComponentNode, ComposedNodeTree, ComposedOrganismNode } from "../types";
+import type { ComposedComponentNode, ComposedNodeTree, ComposedAreaNode } from "../types";
 import { PENDING_VALUE } from "./compose-assets";
 
 export interface ComposeAIProposal {
@@ -65,8 +65,8 @@ export async function composeAssetContentsWithAI(
 		};
 	}
 
-	const organismIndex = buildOrganismIndex(composed);
-	const prompt = buildPrompt(composed, gaps, organismIndex);
+	const areaIndex = buildAreaIndex(composed);
+	const prompt = buildPrompt(composed, gaps, areaIndex);
 	const runner = options.runner ?? createDefaultRunner(options);
 
 	const { proposals, sessionId } = await runner({ prompt });
@@ -120,12 +120,12 @@ function isAIHelpfulOptionalProp(contract: ComponentPropContract) {
 	return ["description", "label", "title"].includes(contract.role ?? "");
 }
 
-function buildOrganismIndex(composed: ComposedNodeTree): Map<string, ComposedOrganismNode[]> {
-	const index = new Map<string, ComposedOrganismNode[]>();
-	for (const organism of composed.organisms ?? []) {
-		for (const ref of organism.children ?? []) {
+function buildAreaIndex(composed: ComposedNodeTree): Map<string, ComposedAreaNode[]> {
+	const index = new Map<string, ComposedAreaNode[]>();
+	for (const area of composed.areas ?? []) {
+		for (const ref of area.children ?? []) {
 			const list = index.get(ref.componentId) ?? [];
-			list.push(organism);
+			list.push(area);
 			index.set(ref.componentId, list);
 		}
 	}
@@ -135,7 +135,7 @@ function buildOrganismIndex(composed: ComposedNodeTree): Map<string, ComposedOrg
 function buildPrompt(
 	composed: ComposedNodeTree,
 	gaps: ComposeAIGap[],
-	organismIndex: Map<string, ComposedOrganismNode[]>,
+	areaIndex: Map<string, ComposedAreaNode[]>,
 ): string {
 	const componentsById = new Map(
 		(composed.components ?? []).map((component) => [component.id, component]),
@@ -147,7 +147,7 @@ function buildPrompt(
 		"Do NOT propose values for keys not listed in `missing`.",
 		'A key whose existing value is the literal string "__pending__" is a placeholder; you MUST replace it.',
 		"Do NOT overwrite existing values that are not `__pending__`.",
-		"Keep the language and tone consistent with the surrounding organism context.",
+		"Keep the language and tone consistent with the surrounding area context.",
 		"If you cannot reasonably propose a value, omit that key from your response.",
 		"",
 		"Return JSON: { proposals: [{ componentId, props }] }",
@@ -158,8 +158,8 @@ function buildPrompt(
 	for (const gap of gaps) {
 		const component = componentsById.get(gap.componentId);
 		if (!component) continue;
-		const organisms = organismIndex.get(gap.componentId) ?? [];
-		lines.push(serializeGap(component, gap, organisms));
+		const areas = areaIndex.get(gap.componentId) ?? [];
+		lines.push(serializeGap(component, gap, areas));
 	}
 
 	lines.push("</components>");
@@ -169,7 +169,7 @@ function buildPrompt(
 function serializeGap(
 	component: ComposedComponentNode,
 	gap: ComposeAIGap,
-	organisms: ComposedOrganismNode[],
+	areas: ComposedAreaNode[],
 ): string {
 	const props = component.props ?? {};
 	return [
@@ -179,9 +179,9 @@ function serializeGap(
 		`    <hooks>${JSON.stringify(component.hooks ?? [])}</hooks>`,
 		`    <name>${escapeText(component.name ?? "")}</name>`,
 		`    <description>${escapeText(component.description ?? "")}</description>`,
-		...organisms.map(
+		...areas.map(
 			(o) =>
-				`    <organism id="${escapeAttribute(o.id)}" name="${escapeAttribute(o.name ?? "")}" description="${escapeAttribute(o.description ?? "")}" layout="${escapeAttribute(o.layout ?? "")}" />`,
+				`    <area id="${escapeAttribute(o.id)}" name="${escapeAttribute(o.name ?? "")}" description="${escapeAttribute(o.description ?? "")}" layout="${escapeAttribute(o.layout ?? "")}" />`,
 		),
 		"  </component>",
 	].join("\n");

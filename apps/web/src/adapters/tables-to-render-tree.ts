@@ -15,9 +15,9 @@ export interface AppScreen {
 	description?: string;
 	module: string;
 	name: string;
-	organisms: Array<{
+	areas: Array<{
 		order: number;
-		organismCode: string;
+		areaCode: string;
 	}>;
 	screenOrder: number;
 	screenRouteId: string;
@@ -32,7 +32,7 @@ export interface AppScreen {
 	warnings: string[];
 }
 
-export interface AppOrganism {
+export interface AppArea {
 	code: string;
 	compositeCount: number;
 	name: string;
@@ -42,7 +42,7 @@ export interface AppOrganism {
 
 export type SampleRenderEntry =
 	| { kind: "composite"; id: string }
-	| { kind: "organism"; id: string };
+	| { kind: "area"; id: string };
 
 export interface SampleScreenRegion {
 	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
@@ -58,7 +58,7 @@ export interface SampleScreenRegion {
 
 import type {
 	CompositeVariant,
-	OrganismVariant,
+	AreaVariant,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -72,7 +72,7 @@ export {
 } from "@cx/agent/pattern-store";
 export type {
 	CompositeVariant,
-	OrganismVariant,
+	AreaVariant,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -115,7 +115,7 @@ export interface SampleScreen {
 
 export type SampleScreenSurface = "page" | "bottomsheet" | "popup";
 
-export interface SampleOrganismMetadata {
+export interface SampleAreaMetadata {
 	title: string;
 	author: string;
 	createdAt: string;
@@ -123,11 +123,11 @@ export interface SampleOrganismMetadata {
 	description?: string;
 }
 
-export interface SampleOrganism {
+export interface SampleArea {
 	id: string;
-	type: "Organism";
+	type: "Area";
 	version: string;
-	metadata: SampleOrganismMetadata;
+	metadata: SampleAreaMetadata;
 	pattern?: {
 		id: string;
 		variant?: string;
@@ -163,8 +163,8 @@ export interface SampleCompositeSet {
 	composites: SampleComposite[];
 }
 
-export interface SampleOrganismSet {
-	organisms: SampleOrganism[];
+export interface SampleAreaSet {
+	areas: SampleArea[];
 }
 
 export interface SampleScreenSet {
@@ -198,17 +198,17 @@ export interface SampleScreenVariantSet {
 
 export function tablesToRenderTrees({
 	composites,
-	organisms,
+	areas,
 	patternStore,
 	screens,
 }: {
 	composites: SampleComposite[];
-	organisms: SampleOrganism[];
+	areas: SampleArea[];
 	patternStore?: PatternStore;
 	screens: SampleScreen[];
 }) {
 	const compositeById = new Map(composites.map((composite) => [composite.id, composite]));
-	const organismById = new Map(organisms.map((organism) => [organism.id, organism]));
+	const areaById = new Map(areas.map((area) => [area.id, area]));
 	const patternById = new Map(
 		(patternStore?.patterns ?? []).map((pattern) => [pattern.id, pattern]),
 	);
@@ -216,7 +216,7 @@ export function tablesToRenderTrees({
 	return screens.map((screen) =>
 		tablesToRenderTree({
 			compositeById,
-			organismById,
+			areaById,
 			patternById,
 			screen,
 		}),
@@ -239,12 +239,12 @@ function deriveSchemaMetadata(screen: SampleScreen): WireframeMetadata {
 
 export function tablesToRenderTree({
 	compositeById,
-	organismById,
+	areaById,
 	patternById = new Map(),
 	screen,
 }: {
 	compositeById: Map<string, SampleComposite>;
-	organismById: Map<string, SampleOrganism>;
+	areaById: Map<string, SampleArea>;
 	patternById?: Map<string, PatternStorePattern>;
 	screen: SampleScreen;
 }): WireframeSchema {
@@ -275,7 +275,7 @@ export function tablesToRenderTree({
 						schemaMetadata,
 						screenBody.regions.header,
 						compositeById,
-						organismById,
+						areaById,
 						patternById,
 					),
 					tableRegionToRenderNode(
@@ -283,7 +283,7 @@ export function tablesToRenderTree({
 						schemaMetadata,
 						screenBody.regions.contents,
 						compositeById,
-						organismById,
+						areaById,
 						patternById,
 					),
 					tableRegionToRenderNode(
@@ -291,7 +291,7 @@ export function tablesToRenderTree({
 						schemaMetadata,
 						screenBody.regions.bottom,
 						compositeById,
-						organismById,
+						areaById,
 						patternById,
 					),
 				],
@@ -392,7 +392,7 @@ function tableRegionToRenderNode(
 	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
 	compositeById: Map<string, SampleComposite>,
-	organismById: Map<string, SampleOrganism>,
+	areaById: Map<string, SampleArea>,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	const regionId = REGION_ID_BY_KEY[regionKey];
@@ -407,7 +407,7 @@ function tableRegionToRenderNode(
 			schemaMetadata,
 			region,
 			compositeById,
-			organismById,
+			areaById,
 			patternById,
 			regionPattern,
 		),
@@ -419,13 +419,13 @@ function tableRegionChildrenToRenderNodes(
 	schemaMetadata: WireframeMetadata,
 	region: SampleScreenRegion,
 	compositeById: Map<string, SampleComposite>,
-	organismById: Map<string, SampleOrganism>,
+	areaById: Map<string, SampleArea>,
 	patternById: Map<string, PatternStorePattern>,
 	regionPattern: RegionVariant | undefined,
 ) {
 	const entries = region.children ?? [];
 	const nodes = entries.map((entry) =>
-		tableEntryToRenderNode(entry, compositeById, organismById, patternById),
+		tableEntryToRenderNode(entry, compositeById, areaById, patternById),
 	);
 	return wrapRegionChildren(regionId, schemaMetadata, region, entries, nodes, regionPattern);
 }
@@ -455,7 +455,7 @@ function wrapRegionChildren(
 	const childWrap = pattern?.childWrap;
 	if (childWrap?.kind !== "page-stack") return children;
 
-	const appliesTo = childWrap.appliesTo ?? ["composite", "organism"];
+	const appliesTo = childWrap.appliesTo ?? ["composite", "area"];
 	const wrapped: WireframeNode[] = [];
 	children.forEach((child, index) => {
 		const entry = entries[index];
@@ -564,17 +564,17 @@ function validateScreenSourceRegion(
 function tableEntryToRenderNode(
 	entry: SampleRenderEntry,
 	compositeById: Map<string, SampleComposite>,
-	organismById: Map<string, SampleOrganism>,
+	areaById: Map<string, SampleArea>,
 	patternById: Map<string, PatternStorePattern>,
 ): WireframeNode {
 	if (entry.kind === "composite") {
 		return tableCompositeToRenderNode(requireComposite(compositeById, entry.id), patternById);
 	}
 
-	const organism = organismById.get(entry.id);
-	if (!organism) {
+	const area = areaById.get(entry.id);
+	if (!area) {
 		return {
-			type: "Organism",
+			type: "Area",
 			componentVersion: "1.0.0",
 			metadata: {
 				id: entry.id,
@@ -584,7 +584,7 @@ function tableEntryToRenderNode(
 				updatedAt: "2026-05-21T00:00:00Z",
 			},
 			props: {
-				organismCode: entry.id,
+				areaCode: entry.id,
 				name: entry.id,
 				sourceStatus: "missing",
 			},
@@ -592,28 +592,28 @@ function tableEntryToRenderNode(
 		};
 	}
 
-	const organismPattern = getPatternPreset(
+	const areaPattern = getPatternPreset(
 		patternById,
-		organism.pattern?.id,
-		organism.pattern?.variant,
-		"organism",
+		area.pattern?.id,
+		area.pattern?.variant,
+		"area",
 	);
 
 	return {
-		type: organism.type,
-		componentVersion: organism.version,
+		type: area.type,
+		componentVersion: area.version,
 		metadata: {
-			id: organism.id,
-			title: organism.metadata.title,
-			author: organism.metadata.author,
-			createdAt: organism.metadata.createdAt,
-			updatedAt: organism.metadata.updatedAt,
-			description: organism.metadata.description,
+			id: area.id,
+			title: area.metadata.title,
+			author: area.metadata.author,
+			createdAt: area.metadata.createdAt,
+			updatedAt: area.metadata.updatedAt,
+			description: area.metadata.description,
 		},
-		props: mergeProps(mergeProps(organismPattern?.props, organism.props), {
-			organismCode: organism.id,
+		props: mergeProps(mergeProps(areaPattern?.props, area.props), {
+			areaCode: area.id,
 		}),
-		children: organism.children.map((compositeRef) =>
+		children: area.children.map((compositeRef) =>
 			tableCompositeToRenderNode(requireComposite(compositeById, compositeRef.id), patternById),
 		),
 	};
@@ -658,8 +658,8 @@ function requireComposite(compositeById: Map<string, SampleComposite>, composite
 
 type VariantByTarget<T extends PatternStoreTarget> = T extends "region"
 	? RegionVariant
-	: T extends "organism"
-		? OrganismVariant
+	: T extends "area"
+		? AreaVariant
 		: CompositeVariant;
 
 function getPatternPreset<T extends PatternStoreTarget>(

@@ -37,7 +37,7 @@ const propsSchema: z.ZodType<Record<string, PatternPropValue>> = z.record(
 const childWrapSchema = z
 	.object({
 		kind: z.literal("page-stack"),
-		appliesTo: z.array(z.enum(["composite", "organism"])).optional(),
+		appliesTo: z.array(z.enum(["composite", "area"])).optional(),
 		divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
 		itemPaddingX: z.number().optional(),
 		paddingY: z.number().optional(),
@@ -56,7 +56,7 @@ const childrenLayoutSchema = z.object({
 });
 
 const regionVariantSchema = childrenLayoutSchema;
-const organismVariantSchema = childrenLayoutSchema;
+const areaVariantSchema = childrenLayoutSchema;
 const compositeVariantSchema = childrenLayoutSchema;
 
 const setMatcherSchema = z
@@ -69,7 +69,7 @@ const setMatcherSchema = z
 
 const resolutionSchema = z
 	.object({
-		organismPatterns: setMatcherSchema,
+		areaPatterns: setMatcherSchema,
 		compositePatterns: setMatcherSchema,
 		compositeTypes: setMatcherSchema,
 		nameKeywords: z.array(z.string()).optional(),
@@ -106,11 +106,11 @@ export const regionPatternSchema = z
 	})
 	.superRefine(refineDefaultVariant);
 
-export const organismPatternSchema = z
+export const areaPatternSchema = z
 	.object({
 		...baseFields,
-		target: z.literal("organism"),
-		variants: z.record(z.string(), organismVariantSchema),
+		target: z.literal("area"),
+		variants: z.record(z.string(), areaVariantSchema),
 	})
 	.superRefine(refineDefaultVariant);
 
@@ -124,13 +124,13 @@ export const compositePatternSchema = z
 
 export const patternSchema = z.discriminatedUnion("target", [
 	regionPatternSchema,
-	organismPatternSchema,
+	areaPatternSchema,
 	compositePatternSchema,
 ]);
 
 const catalogMatchSchema = z
 	.object({
-		organisms: setMatcherSchema,
+		areas: setMatcherSchema,
 		composites: setMatcherSchema,
 		componentTypes: setMatcherSchema,
 		keywords: z.array(z.string()).optional(),
@@ -153,10 +153,10 @@ const regionCatalogPatternSchema = z.object({
 	layout: regionVariantSchema.optional(),
 });
 
-const organismCatalogPatternSchema = z.object({
+const areaCatalogPatternSchema = z.object({
 	...catalogBaseFields,
-	target: z.literal("organism"),
-	layout: organismVariantSchema.optional(),
+	target: z.literal("area"),
+	layout: areaVariantSchema.optional(),
 });
 
 const compositeCatalogPatternSchema = z.object({
@@ -167,7 +167,7 @@ const compositeCatalogPatternSchema = z.object({
 
 const catalogPatternSchema = z.discriminatedUnion("target", [
 	regionCatalogPatternSchema,
-	organismCatalogPatternSchema,
+	areaCatalogPatternSchema,
 	compositeCatalogPatternSchema,
 ]);
 
@@ -200,10 +200,10 @@ function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 		};
 	}
 
-	if (pattern.target === "organism") {
+	if (pattern.target === "area") {
 		return {
 			...base,
-			target: "organism",
+			target: "area",
 			variants: {
 				[defaultVariant]: pattern.layout ?? {},
 			},
@@ -222,7 +222,7 @@ function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals {
 	if (!match) return undefined;
 	return {
-		organismPatterns: match.organisms,
+		areaPatterns: match.areas,
 		compositePatterns: match.composites,
 		compositeTypes: match.componentTypes,
 		nameKeywords: match.keywords,
@@ -237,10 +237,10 @@ export const patternCatalogSchema = z.object({
 
 export type Pattern = z.infer<typeof patternSchema>;
 export type RegionPattern = z.infer<typeof regionPatternSchema>;
-export type OrganismPattern = z.infer<typeof organismPatternSchema>;
+export type AreaPattern = z.infer<typeof areaPatternSchema>;
 export type CompositePattern = z.infer<typeof compositePatternSchema>;
 export type RegionVariant = z.infer<typeof regionVariantSchema>;
-export type OrganismVariant = z.infer<typeof organismVariantSchema>;
+export type AreaVariant = z.infer<typeof areaVariantSchema>;
 export type CompositeVariant = z.infer<typeof compositeVariantSchema>;
 export type ChildrenLayoutPreset = z.infer<typeof childrenLayoutSchema>;
 export type ChildWrapPreset = z.infer<typeof childWrapSchema>;

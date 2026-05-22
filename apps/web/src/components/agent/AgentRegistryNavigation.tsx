@@ -34,7 +34,7 @@ export function AgentRegistryNavigation({
 	async function loadImports() {
 		const response = await fetch("/api/agent/client-imports");
 		const payload = await readJsonResponse<{
-			imports?: Array<{ id: string; organismFiles: number; screenFiles: number }>;
+			imports?: Array<{ id: string; areaFiles: number; screenFiles: number }>;
 		}>(response, "Failed to load client imports.");
 
 		if (!response.ok) {
@@ -99,7 +99,7 @@ export function AgentRegistryNavigation({
 			});
 			const payload = await readJsonResponse<{
 				error?: string;
-				import?: { id: string; organismFiles: number; screenFiles: number };
+				import?: { id: string; areaFiles: number; screenFiles: number };
 				writtenFiles?: number;
 			}>(response, "Failed to upload client import.");
 
@@ -209,7 +209,7 @@ export function AgentRegistryNavigation({
 							>
 								<p className="truncate text-sm font-medium">{item.id}</p>
 								<p className="text-xs text-muted-foreground">
-									{item.screenFiles} screens · {item.organismFiles} organisms
+									{item.screenFiles} screens · {item.areaFiles} areas
 								</p>
 							</button>
 						))}
@@ -294,7 +294,7 @@ export function AgentRegistryNavigation({
 				</div>
 			)}
 			<div className="grid grid-cols-2 gap-2">
-				<Badge variant="secondary">{registry?.organisms.length ?? 0} organisms</Badge>
+				<Badge variant="secondary">{registry?.areas.length ?? 0} areas</Badge>
 				<Badge variant="secondary">{registry?.components.length ?? 0} components</Badge>
 			</div>
 		</div>

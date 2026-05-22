@@ -104,7 +104,7 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		},
 	},
 	{
-		kind: "organism",
+		kind: "area",
 		render: ({ node, renderable, renderChildren }) => {
 			const { props } = renderable;
 			const titleGap = toNumber(props.titleGap, 8);

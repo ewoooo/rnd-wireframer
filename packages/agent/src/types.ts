@@ -1,4 +1,4 @@
-export type NodeLevel = "route" | "variant" | "screen" | "region" | "area" | "organism" | "component";
+export type NodeLevel = "route" | "variant" | "screen" | "region" | "area" | "component";
 
 export interface OrderedNode {
 	id: string;
@@ -27,27 +27,24 @@ export interface GeneratedComponentNode extends OrderedNode {
 	raw?: ComponentRawInput;
 }
 
-/** @deprecated Organism 어휘는 Area로 교체됩니다. PRDD 문서의 "영역"과 1:1 매칭. */
-export interface OrganismChildRefInput {
+export interface AreaChildRefInput {
 	componentId: string;
 	order?: number;
 }
 
-/** @deprecated Use Area 어휘로 교체됩니다 (PRDD "영역" ↔ Area). */
-export interface GeneratedOrganismNode extends OrderedNode {
+export interface GeneratedAreaNode extends OrderedNode {
 	layout?: string;
-	children?: OrganismChildRefInput[];
+	children?: AreaChildRefInput[];
 }
 
-/** @deprecated header/contents/bottom region 구조로 교체됩니다. */
-export interface ScreenOrganismRefInput {
-	organismId: string;
+export interface ScreenAreaRefInput {
+	areaId: string;
 	order?: number;
 }
 
 export interface GeneratedScreenNode extends OrderedNode {
 	surface?: string;
-	organisms?: ScreenOrganismRefInput[];
+	areas?: ScreenAreaRefInput[];
 }
 
 export interface GeneratedVariantNode extends OrderedNode {
@@ -60,7 +57,7 @@ export interface GeneratedRouteNode extends OrderedNode {
 
 export interface GeneratedNodeTree {
 	routes: GeneratedRouteNode[];
-	organisms?: GeneratedOrganismNode[];
+	areas?: GeneratedAreaNode[];
 	components?: GeneratedComponentNode[];
 }
 
@@ -75,9 +72,9 @@ export interface ComposedVariantChildRef {
 }
 
 export interface ComposedScreenRegionChildren {
-	header?: ScreenOrganismRefInput[];
-	contents?: ScreenOrganismRefInput[];
-	bottom?: ScreenOrganismRefInput[];
+	header?: ScreenAreaRefInput[];
+	contents?: ScreenAreaRefInput[];
+	bottom?: ScreenAreaRefInput[];
 }
 
 export interface ComposedRouteNode extends OrderedNode {
@@ -95,11 +92,6 @@ export interface ComposedScreenNode extends OrderedNode {
 	children: ComposedScreenRegionChildren;
 }
 
-export interface ComposedOrganismNode extends OrderedNode {
-	layout?: string;
-	children?: OrganismChildRefInput[];
-}
-
 export interface ComposedComponentNode extends OrderedNode {
 	type?: string;
 	policyID?: string[];
@@ -111,7 +103,7 @@ export interface ComposedNodeTree {
 	routes: ComposedRouteNode[];
 	variants: ComposedVariantNode[];
 	screens: ComposedScreenNode[];
-	organisms?: ComposedOrganismNode[];
+	areas?: ComposedAreaNode[];
 	components?: ComposedComponentNode[];
 }
 
@@ -125,27 +117,10 @@ export interface RegisteredComponentNode extends Required<Pick<OrderedNode, "id"
 	raw?: ComponentRawInput;
 }
 
-/** @deprecated Use {@link RegisteredAreaChildRef}. */
-export interface RegisteredOrganismChildRef {
-	componentId: string;
+export interface RegisteredScreenAreaRef {
+	areaId: string;
 	order: number;
-	component?: RegisteredComponentNode;
-}
-
-/** @deprecated Use {@link RegisteredAreaNode}. */
-export interface RegisteredOrganismNode extends Required<Pick<OrderedNode, "id" | "order">> {
-	level: "organism";
-	name: string;
-	description?: string;
-	layout?: string;
-	children: RegisteredOrganismChildRef[];
-}
-
-/** @deprecated header/contents/bottom region 구조로 교체. */
-export interface RegisteredScreenOrganismRef {
-	organismId: string;
-	order: number;
-	organism?: RegisteredOrganismNode;
+	area?: RegisteredAreaNode;
 }
 
 export interface RegisteredScreenNode extends Required<Pick<OrderedNode, "id" | "order">> {
@@ -153,10 +128,8 @@ export interface RegisteredScreenNode extends Required<Pick<OrderedNode, "id" | 
 	name: string;
 	description?: string;
 	surface?: string;
-	/**
-	 * @deprecated Region 구조 (header/contents/bottom)로 교체 중. Step 3 이후 제거 예정.
-	 */
-	organisms: RegisteredScreenOrganismRef[];
+	/** Region 구조 미사용 시 (legacy 호환) flat area refs */
+	areas: RegisteredScreenAreaRef[];
 	/** PRDD 영역=0. 컴포넌트가 직접 region 자식. */
 	header?: RegisteredHeaderRegion;
 	/** PRDD 영역 1~998. Area 노드가 region 자식. */
@@ -181,7 +154,7 @@ export interface RegisteredRouteNode extends Required<Pick<OrderedNode, "id" | "
 
 export interface RegisteredNodeTree {
 	routes: RegisteredRouteNode[];
-	organisms: RegisteredOrganismNode[];
+	areas: RegisteredAreaNode[];
 	components: RegisteredComponentNode[];
 	warnings: string[];
 }
@@ -204,9 +177,6 @@ export interface DecoratedScreenNode extends ComposedScreenNode {
 	pattern: PatternRef;
 }
 
-export interface DecoratedOrganismNode extends ComposedOrganismNode {
-	pattern: PatternRef;
-}
 
 export interface DecoratedComponentNode extends ComposedComponentNode {
 	pattern: PatternRef;
@@ -216,7 +186,7 @@ export interface DecoratedNodeTree {
 	routes: DecoratedRouteNode[];
 	variants: DecoratedVariantNode[];
 	screens: DecoratedScreenNode[];
-	organisms: DecoratedOrganismNode[];
+	areas: DecoratedAreaNode[];
 	components: DecoratedComponentNode[];
 	warnings: string[];
 }
@@ -250,8 +220,8 @@ export interface ScreenTableRow {
 	order: number;
 	description?: string;
 	surface?: string;
-	organisms: Array<{
-		organismId: string;
+	areas: Array<{
+		areaId: string;
 		order: number;
 	}>;
 }
@@ -278,18 +248,6 @@ export interface ScreenMockDataTableRow {
 	sourceRefs?: string[];
 }
 
-/** @deprecated Use {@link AreaTableRow}. */
-export interface OrganismTableRow {
-	id: string;
-	name: string;
-	order: number;
-	description?: string;
-	layout?: string;
-	children: Array<{
-		componentId: string;
-		order: number;
-	}>;
-}
 
 export interface ComponentTableRow {
 	id: string;
@@ -305,13 +263,13 @@ export interface MaterializedNodeTables {
 	screenVariants: ScreenVariantTableRow[];
 	screens: ScreenTableRow[];
 	screenMockData: ScreenMockDataTableRow[];
-	organisms: OrganismTableRow[];
+	areas: AreaTableRow[];
 	components: ComponentTableRow[];
 	warnings: string[];
 }
 
 // ============================================================================
-// Region 1급 시민 + Area (구 Organism) 트리 구조
+// Region 1급 시민 + Area (구 Area) 트리 구조
 // ----------------------------------------------------------------------------
 // PRDD 영역 번호 → Region/Area 분류 contract:
 //   영역 === 0     → Region(slot='header'),   children = Component refs
@@ -329,8 +287,8 @@ export interface RegisteredAreaChildRef {
 
 export interface RegisteredAreaNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "area";
-	/** PRDD 영역 no. (contents region일 때만 유효, 1..998). */
-	key: number;
+	/** PRDD 영역 no. (PRDD 출처일 때만 채움; legacy 호환 시 undefined). */
+	key?: number;
 	name: string;
 	description?: string;
 	layout?: string;
@@ -369,7 +327,7 @@ export interface ComposedAreaChildRef {
 
 export interface ComposedAreaNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "area";
-	key: number;
+	key?: number;
 	name: string;
 	description?: string;
 	layout?: string;
@@ -431,8 +389,8 @@ export interface DecoratedPrddScreen {
 
 export interface AreaTableRow {
 	id: string;
-	/** PRDD 영역 no. */
-	key: number;
+	/** PRDD 영역 no. (legacy 호환 시 undefined). */
+	key?: number;
 	name: string;
 	order: number;
 	description?: string;

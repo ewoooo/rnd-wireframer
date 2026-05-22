@@ -15,22 +15,22 @@
 							"name": "약관 동의",
 							"order": 1,
 							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-term-list"
+									"areaId": "ogn-mbr-term-list"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-term-agree"
+									"areaId": "ogn-mbr-term-agree"
 								},
 								{
 									"order": 3,
-									"organismId": "ogn-mbr-guardian-input"
+									"areaId": "ogn-mbr-guardian-input"
 								},
 								{
 									"order": 4,
-									"organismId": "ogn-mbr-guardian-result"
+									"areaId": "ogn-mbr-guardian-result"
 								}
 							]
 						},
@@ -65,14 +65,14 @@
 							"name": "개인정보 입력",
 							"order": 1,
 							"description": "가입에 필요한 기본 정보를 입력한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-member-input"
+									"areaId": "ogn-mbr-member-input"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-entry-check"
+									"areaId": "ogn-mbr-entry-check"
 								}
 							]
 						},
@@ -119,14 +119,14 @@
 							"name": "본인인증",
 							"order": 1,
 							"description": "가입자의 본인 여부를 확인한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-auth-select"
+									"areaId": "ogn-mbr-auth-select"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-auth-request"
+									"areaId": "ogn-mbr-auth-request"
 								}
 							]
 						},
@@ -167,14 +167,14 @@
 							"name": "회원 검증",
 							"order": 1,
 							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-member-status"
+									"areaId": "ogn-mbr-member-status"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-join-path"
+									"areaId": "ogn-mbr-join-path"
 								}
 							]
 						},
@@ -227,10 +227,10 @@
 							"name": "가입 완료",
 							"order": 1,
 							"description": "회원 생성 및 후속 처리를 수행한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-join-complete"
+									"areaId": "ogn-mbr-join-complete"
 								}
 							]
 						},
@@ -265,14 +265,14 @@
 							"name": "로그인",
 							"order": 1,
 							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-member-status"
+									"areaId": "ogn-mbr-member-status"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-dormant-detect"
+									"areaId": "ogn-mbr-dormant-detect"
 								}
 							]
 						},
@@ -319,14 +319,14 @@
 							"name": "휴면 여부 확인",
 							"order": 1,
 							"description": "대상 계정의 휴면 상태 여부를 확인한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-member-status"
+									"areaId": "ogn-mbr-member-status"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-dormant-eligibility"
+									"areaId": "ogn-mbr-dormant-eligibility"
 								}
 							]
 						},
@@ -361,14 +361,14 @@
 							"name": "본인인증",
 							"order": 1,
 							"description": "휴면 해제 전 본인 여부를 확인한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-auth-select"
+									"areaId": "ogn-mbr-auth-select"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-auth-request"
+									"areaId": "ogn-mbr-auth-request"
 								}
 							]
 						},
@@ -409,14 +409,14 @@
 							"name": "약관 동의",
 							"order": 1,
 							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-term-list"
+									"areaId": "ogn-mbr-term-list"
 								},
 								{
 									"order": 2,
-									"organismId": "ogn-mbr-term-agree"
+									"areaId": "ogn-mbr-term-agree"
 								}
 							]
 						},
@@ -451,10 +451,10 @@
 							"name": "휴면 해제 처리",
 							"order": 1,
 							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-dormant-release"
+									"areaId": "ogn-mbr-dormant-release"
 								}
 							]
 						},
@@ -495,10 +495,10 @@
 							"name": "휴면 해제 완료",
 							"order": 1,
 							"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.",
-							"organisms": [
+							"areas": [
 								{
 									"order": 1,
-									"organismId": "ogn-mbr-dormant-complete"
+									"areaId": "ogn-mbr-dormant-complete"
 								}
 							]
 						},
@@ -519,7 +519,7 @@
 			]
 		}
 	],
-	"organisms": [
+	"areas": [
 		{
 			"id": "ogn-mbr-term-list",
 			"name": "약관 목록 조회",

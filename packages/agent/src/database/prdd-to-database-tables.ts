@@ -24,8 +24,8 @@ export interface DatabaseAreaRow {
 	id: string;
 	type: "Area";
 	version: string;
-	/** PRDD 영역 no. */
-	key: number;
+	/** PRDD 영역 no. (legacy 호환 시 undefined). */
+	key?: number;
 	metadata: DatabaseAreaMetadata;
 	props: {
 		name: string;

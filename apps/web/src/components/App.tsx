@@ -22,7 +22,7 @@ export function App({ agentRegistry = mockAgentAssetRegistry }: AppProps) {
 	useEffect(() => {
 		initializeWorkbench({
 			agentRegistry,
-			organisms: localWorkbenchData.organisms,
+			areas: localWorkbenchData.areas,
 			screens: localWorkbenchData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench]);

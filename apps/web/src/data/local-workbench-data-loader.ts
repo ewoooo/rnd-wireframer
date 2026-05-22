@@ -8,7 +8,7 @@ import {
 } from "@cx/renderer";
 import {
 	type SampleCompositeSet,
-	type SampleOrganismSet,
+	type SampleAreaSet,
 	type SampleScreenRouteSet,
 	type SampleScreenSet,
 	type SampleScreenVariantSet,
@@ -17,7 +17,7 @@ import {
 } from "@/adapters/tables-to-render-tree";
 import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
-import organismSampleSet from "../../../../database/tables/organisms.json";
+import areaSampleSet from "../../../../database/tables/areas.json";
 import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
 import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
 import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
@@ -47,7 +47,7 @@ registerWireframeNodeKinds(
 const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
 const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
 const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
-const organisms = (organismSampleSet as unknown as SampleOrganismSet).organisms;
+const areas = (areaSampleSet as unknown as SampleAreaSet).areas;
 const mockDataByScreenId = new Map(
 	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
 		.filter((entry) => entry.scenario === "default")
@@ -64,7 +64,7 @@ const orderedSampleScreens = getOrderedSampleScreens(
 
 const sampleScreens = tablesToRenderTrees({
 	screens: orderedSampleScreens,
-	organisms,
+	areas,
 	composites: componentTableSet.components,
 	patternStore: loadPatternStore(),
 }) satisfies WireframeScreenSet["screens"];
@@ -78,14 +78,14 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	const route = sampleRouteSet.screenRoutes.find(
 		(candidate) => candidate.id === variant?.screenRouteId,
 	);
-	const organisms = extractOrganisms(schema);
+	const areas = extractAreas(schema);
 
 	return {
 		code: schema.metadata.id,
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-		organisms,
+		areas,
 		screenOrder: sampleScreen.order ?? index + 1,
 		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
@@ -100,31 +100,31 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	};
 });
 
-const organismCatalog = getOrganismCatalog(sampleScreens);
+const areaCatalog = getAreaCatalog(sampleScreens);
 
 export function loadLocalWorkbenchData() {
 	return {
-		organisms: organismCatalog,
+		areas: areaCatalog,
 		screens: wireframeWorkbenchData,
 	};
 }
 
-function extractOrganisms(schema: WireframeSchema) {
-	const organisms: Array<{ order: number; organismCode: string }> = [];
+function extractAreas(schema: WireframeSchema) {
+	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
-		if (node.type !== "Organism") return;
+		if (node.type !== "Area") return;
 
-		organisms.push({
-			order: organisms.length + 1,
-			organismCode: String(node.props?.organismCode ?? node.metadata.id),
+		areas.push({
+			order: areas.length + 1,
+			areaCode: String(node.props?.areaCode ?? node.metadata.id),
 		});
 	});
 
-	return organisms;
+	return areas;
 }
 
-function getOrganismCatalog(schemas: WireframeSchema[]) {
+function getAreaCatalog(schemas: WireframeSchema[]) {
 	const byCode = new Map<
 		string,
 		{
@@ -138,9 +138,9 @@ function getOrganismCatalog(schemas: WireframeSchema[]) {
 
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
-			if (node.type !== "Organism") return;
+			if (node.type !== "Area") return;
 
-			const code = String(node.props?.organismCode ?? node.metadata.id);
+			const code = String(node.props?.areaCode ?? node.metadata.id);
 			byCode.set(code, {
 				code,
 				name: String(node.props?.name ?? node.metadata.title),

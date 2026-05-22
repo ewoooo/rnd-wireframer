@@ -99,8 +99,8 @@ describe("registerPrddDocument", () => {
 		expect(result.screen.surface).toBe("담기 전 유효성 재검증");
 	});
 
-	it("keeps deprecated organisms field empty for PRDD-sourced screens", () => {
-		expect(result.screen.organisms).toEqual([]);
+	it("keeps deprecated areas field empty for PRDD-sourced screens", () => {
+		expect(result.screen.areas).toEqual([]);
 	});
 
 	it("produces no warnings for well-formed input", () => {

@@ -1,7 +1,7 @@
 import type {
 	RegisteredComponentNode,
 	RegisteredNodeTree,
-	RegisteredOrganismNode,
+	RegisteredAreaNode,
 	RegisteredScreenNode,
 } from "@cx/agent";
 import { Database } from "lucide-react";
@@ -40,11 +40,11 @@ export function AgentRegistryPreview({
 				</div>
 				{screen ? (
 					<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto">
-						{screen.organisms.map((organismRef) => (
-							<OrganismPreview
-								key={organismRef.organismId}
-								organism={organismRef.organism}
-								order={organismRef.order}
+						{screen.areas.map((areaRef) => (
+							<AreaPreview
+								key={areaRef.areaId}
+								area={areaRef.area}
+								order={areaRef.order}
 								onSelectNode={onSelectNode}
 							/>
 						))}
@@ -59,19 +59,19 @@ export function AgentRegistryPreview({
 	);
 }
 
-function OrganismPreview({
-	organism,
+function AreaPreview({
+	area,
 	order,
 	onSelectNode,
 }: {
-	organism?: RegisteredOrganismNode;
+	area?: RegisteredAreaNode;
 	order: number;
 	onSelectNode: (node: AgentNodeSelection) => void;
 }) {
-	if (!organism) {
+	if (!area) {
 		return (
 			<div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-				Missing organism
+				Missing area
 			</div>
 		);
 	}
@@ -81,18 +81,18 @@ function OrganismPreview({
 			<button
 				type="button"
 				className="flex w-full items-start justify-between gap-3 text-left"
-				onClick={() => onSelectNode({ level: "organism", id: organism.id })}
+				onClick={() => onSelectNode({ level: "area", id: area.id })}
 			>
 				<div className="min-w-0">
 					<p className="truncate text-sm font-semibold">
-						{order}. {organism.name}
+						{order}. {area.name}
 					</p>
-					<p className="truncate text-xs text-muted-foreground">{organism.id}</p>
+					<p className="truncate text-xs text-muted-foreground">{area.id}</p>
 				</div>
-				<Badge variant="outline">{organism.layout ?? "section"}</Badge>
+				<Badge variant="outline">{area.layout ?? "section"}</Badge>
 			</button>
 			<div className="mt-3 flex flex-col gap-2">
-				{organism.children.map((componentRef) => (
+				{area.children.map((componentRef) => (
 					<ComponentPreview
 						key={componentRef.componentId}
 						component={componentRef.component}
@@ -151,13 +151,13 @@ function getPreviewScreen(
 	for (const route of registry?.routes ?? []) {
 		for (const variant of route.variants) {
 			for (const screen of variant.screens) {
-				if (selectedNode.level === "organism") {
-					const hasOrganism = screen.organisms.some((ref) => ref.organismId === selectedNode.id);
-					if (hasOrganism) return screen;
+				if (selectedNode.level === "area") {
+					const hasArea = screen.areas.some((ref) => ref.areaId === selectedNode.id);
+					if (hasArea) return screen;
 				}
 				if (selectedNode.level === "component") {
-					const hasComponent = screen.organisms.some((organismRef) => {
-						return organismRef.organism?.children.some(
+					const hasComponent = screen.areas.some((areaRef) => {
+						return areaRef.area?.children.some(
 							(componentRef) => componentRef.componentId === selectedNode.id,
 						);
 					});

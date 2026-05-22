@@ -2,7 +2,7 @@ import type { RegisteredNodeTree } from "@cx/agent";
 import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
-	type AppOrganism,
+	type AppArea,
 	type AppScreen,
 	getInitialScreenCode,
 	getScreenNode,
@@ -21,7 +21,7 @@ export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 export interface AppComposite {
 	code: string;
 	name: string;
-	parentOrganismCode?: string;
+	parentAreaCode?: string;
 	sourceScreenCode: string;
 	type: string;
 }
@@ -49,7 +49,7 @@ export interface AppScreenVariantOption {
 	type: AppScreen["screenVariantType"];
 }
 
-export interface SelectedOrganismContext {
+export interface SelectedAreaContext {
 	code: string;
 	node: WireframeNode;
 	screen: AppScreen;
@@ -58,13 +58,13 @@ export interface SelectedOrganismContext {
 export interface SelectedCompositeContext {
 	code: string;
 	node: WireframeNode;
-	organism?: SelectedOrganismContext;
+	area?: SelectedAreaContext;
 	screen: AppScreen;
 }
 
 interface InitializeWorkbenchInput {
 	agentRegistry?: RegisteredNodeTree;
-	organisms: AppOrganism[];
+	areas: AppArea[];
 	screens: AppScreen[];
 }
 
@@ -79,15 +79,15 @@ interface WorkbenchState {
 	composites: AppComposite[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
 	isCompositeView: boolean;
-	isOrganismView: boolean;
-	organisms: AppOrganism[];
+	isAreaView: boolean;
+	areas: AppArea[];
 	screenNode?: WireframeScreenNode;
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
-	reorderScreenOrganisms: (screenCode: string, organismCodes: string[]) => void;
+	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
 	selectAgentNode: (node: AgentNodeSelection) => void;
 	selectComposite: (compositeCode: string) => void;
-	selectOrganism: (organismCode: string) => void;
+	selectArea: (areaCode: string) => void;
 	selectScreenRoute: (screenRouteId: string) => void;
 	selectScreenVariant: (screenCode: string) => void;
 	selectScreen: (screenCode: string) => void;
@@ -100,8 +100,8 @@ interface WorkbenchState {
 	selectedAgentNode: AgentNodeSelection;
 	selectedComposite?: SelectedCompositeContext;
 	selectedCompositeCode: string;
-	selectedOrganism?: SelectedOrganismContext;
-	selectedOrganismCode: string;
+	selectedArea?: SelectedAreaContext;
+	selectedAreaCode: string;
 	selectedScreen?: AppScreen;
 	selectedScreenCode: string;
 	validationErrors: string[];
@@ -113,7 +113,7 @@ interface WorkbenchState {
 
 export interface AgentClientImport {
 	id: string;
-	organismFiles: number;
+	areaFiles: number;
 	screenFiles: number;
 }
 
@@ -127,8 +127,8 @@ const initialWorkbenchState = {
 	agentWarnings: [],
 	composites: [],
 	isCompositeView: false,
-	isOrganismView: false,
-	organisms: [],
+	isAreaView: false,
+	areas: [],
 	screenNode: undefined,
 	screenRoutes: [],
 	screens: [],
@@ -139,8 +139,8 @@ const initialWorkbenchState = {
 	},
 	selectedComposite: undefined,
 	selectedCompositeCode: "",
-	selectedOrganism: undefined,
-	selectedOrganismCode: "",
+	selectedArea: undefined,
+	selectedAreaCode: "",
 	selectedScreen: undefined,
 	selectedScreenCode: "",
 	validationErrors: [],
@@ -152,7 +152,7 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ agentRegistry, organisms, screens }) => {
+	initializeWorkbench: ({ agentRegistry, areas, screens }) => {
 		const composites = getCompositeCatalog(screens);
 		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
@@ -163,11 +163,11 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
 			? state.selectedScreenCode
 			: getInitialScreenCode(screens);
-		const selectedOrganismCode = organisms.some(
-			(organism) => organism.code === state.selectedOrganismCode,
+		const selectedAreaCode = areas.some(
+			(area) => area.code === state.selectedAreaCode,
 		)
-			? state.selectedOrganismCode
-			: (organisms[0]?.code ?? "");
+			? state.selectedAreaCode
+			: (areas[0]?.code ?? "");
 		const selectedCompositeCode = composites.some(
 			(composite) => composite.code === state.selectedCompositeCode,
 		)
@@ -179,12 +179,12 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			agentRegistry,
 			agentWarnings: agentRegistry?.warnings ?? [],
 			composites,
-			organisms,
+			areas,
 			screenRoutes,
 			screens,
 			selectedAgentNode,
 			selectedCompositeCode,
-			selectedOrganismCode,
+			selectedAreaCode,
 			selectedScreenCode,
 		};
 
@@ -207,11 +207,11 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
-	reorderScreenOrganisms: (screenCode, organismCodes) => {
+	reorderScreenAreas: (screenCode, areaCodes) => {
 		const state = get();
 		const nextScreens = state.screens.map((screen) => {
 			if (screen.code !== screenCode) return screen;
-			return reorderWorkbenchScreenOrganisms(screen, organismCodes);
+			return reorderWorkbenchScreenAreas(screen, areaCodes);
 		});
 		const nextState = {
 			...state,
@@ -267,17 +267,17 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
-	selectOrganism: (organismCode) => {
+	selectArea: (areaCode) => {
 		const state = get();
 		const nextState = {
 			...state,
 			activeNavigatorTab: "ogn",
-			selectedOrganismCode: organismCode,
+			selectedAreaCode: areaCode,
 		} satisfies WorkbenchState;
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
-			selectedOrganismCode: organismCode,
+			selectedAreaCode: areaCode,
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
@@ -345,30 +345,30 @@ function getDerivedWorkbenchState(
 		| "screens"
 		| "selectedAgentNode"
 		| "selectedCompositeCode"
-		| "selectedOrganismCode"
+		| "selectedAreaCode"
 		| "selectedScreenCode"
 	>,
 ) {
 	const selectedScreen = getSelectedScreen(state.screens, state.selectedScreenCode);
-	const selectedOrganism = getSelectedOrganismContext(state.screens, state.selectedOrganismCode);
+	const selectedArea = getSelectedAreaContext(state.screens, state.selectedAreaCode);
 	const selectedComposite = getSelectedCompositeContext(state.screens, state.selectedCompositeCode);
-	const isOrganismView = state.activeNavigatorTab === "ogn" && Boolean(selectedOrganism);
+	const isAreaView = state.activeNavigatorTab === "ogn" && Boolean(selectedArea);
 	const isCompositeView = state.activeNavigatorTab === "comp" && Boolean(selectedComposite);
 	const activeScreen = isCompositeView
 		? selectedComposite?.screen
-		: isOrganismView
-			? selectedOrganism?.screen
+		: isAreaView
+			? selectedArea?.screen
 			: selectedScreen;
 	const validationStatus = getValidationStatus(activeScreen);
 
 	return {
 		activeScreen,
 		isCompositeView,
-		isOrganismView,
+		isAreaView,
 		screenNode: getScreenNode(selectedScreen),
 		selectedAgentAsset: findSelectedAgentAsset(state.agentRegistry, state.selectedAgentNode),
 		selectedComposite: isCompositeView ? selectedComposite : undefined,
-		selectedOrganism: isOrganismView ? selectedOrganism : undefined,
+		selectedArea: isAreaView ? selectedArea : undefined,
 		selectedScreen,
 		validationErrors: validationStatus.errors,
 		validationLabel: validationStatus.label,
@@ -378,16 +378,16 @@ function getDerivedWorkbenchState(
 	};
 }
 
-function reorderWorkbenchScreenOrganisms(screen: AppScreen, organismCodes: string[]): AppScreen {
-	const organismByCode = new Map(
-		screen.organisms.map((organism) => [organism.organismCode, organism]),
+function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): AppScreen {
+	const areaByCode = new Map(
+		screen.areas.map((area) => [area.areaCode, area]),
 	);
-	const nextOrganisms = organismCodes.map((organismCode, index) => {
-		const organism = organismByCode.get(organismCode);
+	const nextAreas = areaCodes.map((areaCode, index) => {
+		const area = areaByCode.get(areaCode);
 		return {
-			...organism,
+			...area,
 			order: index + 1,
-			organismCode,
+			areaCode,
 		};
 	});
 	const schema = cloneSchema(screen.schema);
@@ -395,49 +395,49 @@ function reorderWorkbenchScreenOrganisms(screen: AppScreen, organismCodes: strin
 	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
 
 	if (contentsNode?.children) {
-		contentsNode.children = reorderOrganismContainers(contentsNode.children, organismCodes);
+		contentsNode.children = reorderAreaContainers(contentsNode.children, areaCodes);
 	}
 
 	return {
 		...screen,
-		organisms: nextOrganisms,
+		areas: nextAreas,
 		schema,
 	};
 }
 
-function reorderOrganismContainers(nodes: WireframeNode[], organismCodes: string[]) {
-	const organismContainerByCode = new Map(
+function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
+	const areaContainerByCode = new Map(
 		nodes
 			.map((node) => {
-				const organismCode = getContainedOrganismCode(node);
-				return organismCode ? ([organismCode, node] as const) : undefined;
+				const areaCode = getContainedAreaCode(node);
+				return areaCode ? ([areaCode, node] as const) : undefined;
 			})
-			.filter(isOrganismContainerEntry),
+			.filter(isAreaContainerEntry),
 	);
-	const nextOrganismContainers = organismCodes
-		.map((organismCode) => organismContainerByCode.get(organismCode))
+	const nextAreaContainers = areaCodes
+		.map((areaCode) => areaContainerByCode.get(areaCode))
 		.filter(isWireframeNode);
-	let nextOrganismIndex = 0;
+	let nextAreaIndex = 0;
 
 	return nodes.map((node) => {
-		if (!getContainedOrganismCode(node)) return node;
-		const nextNode = nextOrganismContainers[nextOrganismIndex];
-		nextOrganismIndex += 1;
+		if (!getContainedAreaCode(node)) return node;
+		const nextNode = nextAreaContainers[nextAreaIndex];
+		nextAreaIndex += 1;
 		return nextNode ?? node;
 	});
 }
 
-function getContainedOrganismCode(node: WireframeNode): string | undefined {
-	if (node.type === "Organism") return getOrganismCode(node);
-	const childOrganism = node.children?.find((child) => child.type === "Organism");
-	return childOrganism ? getOrganismCode(childOrganism) : undefined;
+function getContainedAreaCode(node: WireframeNode): string | undefined {
+	if (node.type === "Area") return getAreaCode(node);
+	const childArea = node.children?.find((child) => child.type === "Area");
+	return childArea ? getAreaCode(childArea) : undefined;
 }
 
 function cloneSchema<T>(schema: T): T {
 	return JSON.parse(JSON.stringify(schema)) as T;
 }
 
-function isOrganismContainerEntry(
+function isAreaContainerEntry(
 	entry: readonly [string, WireframeNode] | undefined,
 ): entry is readonly [string, WireframeNode] {
 	return Boolean(entry);
@@ -451,14 +451,14 @@ function getCompositeCatalog(screens: AppScreen[]): AppComposite[] {
 	const byCode = new Map<string, AppComposite>();
 
 	for (const screen of screens) {
-		forEachCompositeNode(screen.schema.children, undefined, (node, parentOrganismCode) => {
+		forEachCompositeNode(screen.schema.children, undefined, (node, parentAreaCode) => {
 			const code = node.metadata.id;
 			if (byCode.has(code)) return;
 
 			byCode.set(code, {
 				code,
 				name: node.metadata.title,
-				parentOrganismCode,
+				parentAreaCode,
 				sourceScreenCode: screen.code,
 				type: node.type,
 			});
@@ -537,15 +537,15 @@ function getScreenVariantLabelOrder(label: string) {
 	return edgeNumber ? Number(edgeNumber) : Number.MAX_SAFE_INTEGER;
 }
 
-function getSelectedOrganismContext(
+function getSelectedAreaContext(
 	screens: AppScreen[],
-	selectedOrganismCode: string,
-): SelectedOrganismContext | undefined {
+	selectedAreaCode: string,
+): SelectedAreaContext | undefined {
 	for (const screen of screens) {
-		const node = findOrganismNode(screen.schema.children, selectedOrganismCode);
+		const node = findAreaNode(screen.schema.children, selectedAreaCode);
 		if (node) {
 			return {
-				code: selectedOrganismCode,
+				code: selectedAreaCode,
 				node,
 				screen,
 			};
@@ -564,8 +564,8 @@ function getSelectedCompositeContext(
 			return {
 				code: selectedCompositeCode,
 				node: found.node,
-				organism: found.parentOrganismCode
-					? getSelectedOrganismContext([screen], found.parentOrganismCode)
+				area: found.parentAreaCode
+					? getSelectedAreaContext([screen], found.parentAreaCode)
 					: undefined,
 				screen,
 			};
@@ -574,15 +574,15 @@ function getSelectedCompositeContext(
 	return undefined;
 }
 
-function findOrganismNode(nodes: WireframeNode[], organismCode: string): WireframeNode | undefined {
+function findAreaNode(nodes: WireframeNode[], areaCode: string): WireframeNode | undefined {
 	for (const node of nodes) {
 		if (
-			node.type === "Organism" &&
-			String(node.props?.organismCode ?? node.metadata.id) === organismCode
+			node.type === "Area" &&
+			String(node.props?.areaCode ?? node.metadata.id) === areaCode
 		) {
 			return node;
 		}
-		const childMatch = node.children ? findOrganismNode(node.children, organismCode) : undefined;
+		const childMatch = node.children ? findAreaNode(node.children, areaCode) : undefined;
 		if (childMatch) return childMatch;
 	}
 	return undefined;
@@ -591,18 +591,18 @@ function findOrganismNode(nodes: WireframeNode[], organismCode: string): Wirefra
 function findCompositeNode(
 	nodes: WireframeNode[],
 	compositeCode: string,
-	parentOrganismCode?: string,
-): { node: WireframeNode; parentOrganismCode?: string } | undefined {
+	parentAreaCode?: string,
+): { node: WireframeNode; parentAreaCode?: string } | undefined {
 	for (const node of nodes) {
-		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
+		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
 		if (isCompositeNode(node) && node.metadata.id === compositeCode) {
 			return {
 				node,
-				parentOrganismCode,
+				parentAreaCode,
 			};
 		}
 		const childMatch = node.children
-			? findCompositeNode(node.children, compositeCode, nextParentOrganismCode)
+			? findCompositeNode(node.children, compositeCode, nextParentAreaCode)
 			: undefined;
 		if (childMatch) return childMatch;
 	}
@@ -611,23 +611,23 @@ function findCompositeNode(
 
 function forEachCompositeNode(
 	nodes: WireframeNode[],
-	parentOrganismCode: string | undefined,
-	callback: (node: WireframeNode, parentOrganismCode?: string) => void,
+	parentAreaCode: string | undefined,
+	callback: (node: WireframeNode, parentAreaCode?: string) => void,
 ) {
 	for (const node of nodes) {
-		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
+		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
 		if (isCompositeNode(node)) {
-			callback(node, parentOrganismCode);
+			callback(node, parentAreaCode);
 		}
 		if (node.children) {
-			forEachCompositeNode(node.children, nextParentOrganismCode, callback);
+			forEachCompositeNode(node.children, nextParentAreaCode, callback);
 		}
 	}
 }
 
-function getOrganismCode(node: WireframeNode) {
-	if (node.type !== "Organism") return undefined;
-	return String(node.props?.organismCode ?? node.metadata.id);
+function getAreaCode(node: WireframeNode) {
+	if (node.type !== "Area") return undefined;
+	return String(node.props?.areaCode ?? node.metadata.id);
 }
 
 function isCompositeNode(node: WireframeNode) {
@@ -636,7 +636,7 @@ function isCompositeNode(node: WireframeNode) {
 		"Screen.Header",
 		"Screen.Contents",
 		"Screen.Bottom",
-		"Organism",
+		"Area",
 		"PageStack",
 	].includes(node.type);
 }

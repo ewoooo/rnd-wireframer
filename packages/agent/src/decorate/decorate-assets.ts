@@ -1,14 +1,14 @@
-import { createPatternResolver, type OrganismResolutionInput } from "../pattern/pattern-resolver";
+import { createPatternResolver, type AreaResolutionInput } from "../pattern/pattern-resolver";
 import type {
 	ComposedComponentNode,
 	ComposedNodeTree,
-	ComposedOrganismNode,
+	ComposedAreaNode,
 	ComposedRouteNode,
 	ComposedScreenNode,
 	ComposedVariantNode,
 	DecoratedComponentNode,
 	DecoratedNodeTree,
-	DecoratedOrganismNode,
+	DecoratedAreaNode,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
@@ -34,8 +34,8 @@ export function decorateRegisteredAssets(
 		if (component.type) componentTypeById.set(component.id, component.type);
 	}
 
-	const organisms: DecoratedOrganismNode[] = (composed.organisms ?? []).map((organism) =>
-		attachOrganismPattern(organism, componentTypeById, resolvePattern),
+	const areas: DecoratedAreaNode[] = (composed.areas ?? []).map((area) =>
+		attachAreaPattern(area, componentTypeById, resolvePattern),
 	);
 
 	const screens: DecoratedScreenNode[] = composed.screens.map((screen) =>
@@ -48,7 +48,7 @@ export function decorateRegisteredAssets(
 		attachPattern(route, "route", resolvePattern),
 	);
 
-	return { routes, variants, screens, organisms, components, warnings: [] };
+	return { routes, variants, screens, areas, components, warnings: [] };
 }
 
 function attachPattern<
@@ -63,20 +63,20 @@ function attachPattern<
 	return { ...node, pattern };
 }
 
-function attachOrganismPattern(
-	organism: ComposedOrganismNode,
+function attachAreaPattern(
+	area: ComposedAreaNode,
 	componentTypeById: ReadonlyMap<string, string>,
 	resolvePattern: PatternResolver,
-): DecoratedOrganismNode {
+): DecoratedAreaNode {
 	const compositeTypes = new Set<string>();
-	for (const ref of organism.children ?? []) {
+	for (const ref of area.children ?? []) {
 		const type = componentTypeById.get(ref.componentId);
 		if (type) compositeTypes.add(type);
 	}
-	const resolverInput: OrganismResolutionInput = { ...organism, __compositeTypes: compositeTypes };
+	const resolverInput: AreaResolutionInput = { ...area, __compositeTypes: compositeTypes };
 	const pattern =
-		resolvePattern({ level: "organism", node: resolverInput }) ?? fallbackPattern("organism");
-	return { ...organism, pattern };
+		resolvePattern({ level: "area", node: resolverInput }) ?? fallbackPattern("area");
+	return { ...area, pattern };
 }
 
 function fallbackPattern(level: string): PatternRef {

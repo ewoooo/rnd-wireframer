@@ -22,7 +22,7 @@ const DB_TABLE_PATHS = {
 	screenRoutes: path.join(DB_TABLES_DIR, "screen_routes.json"),
 	screenVariants: path.join(DB_TABLES_DIR, "screen_variants.json"),
 	screens: path.join(DB_TABLES_DIR, "screens.json"),
-	organisms: path.join(DB_TABLES_DIR, "organisms.json"),
+	areas: path.join(DB_TABLES_DIR, "areas.json"),
 	components: path.join(DB_TABLES_DIR, "components.json"),
 } as const;
 
@@ -39,11 +39,11 @@ export async function generateAgentRegister({
 
 	console.info("[agent-generate] start", { importId, composeWithAI });
 
-	const { organismFiles, screenFiles } = await readClientImportMarkdownFiles(importId);
+	const { areaFiles, screenFiles } = await readClientImportMarkdownFiles(importId);
 
 	console.info("[agent-generate] loaded markdown files", {
 		importId,
-		organismFiles: organismFiles.map((file) => ({
+		areaFiles: areaFiles.map((file) => ({
 			name: file.name,
 			characters: file.content.length,
 		})),
@@ -53,14 +53,14 @@ export async function generateAgentRegister({
 		})),
 	});
 
-	if (screenFiles.length === 0 && organismFiles.length === 0) {
+	if (screenFiles.length === 0 && areaFiles.length === 0) {
 		throw new AgentGenerateError("No markdown files found in the selected client import.", 400);
 	}
 
 	const claudeResult = await generateAssetsWithLocalClaude(
 		{
 			importId,
-			organismFiles,
+			areaFiles,
 			screenFiles,
 		},
 		{
@@ -73,7 +73,7 @@ export async function generateAgentRegister({
 	const registry = registerAssets(generated);
 	console.info("[agent-generate] registered assets", {
 		componentCount: registry.components.length,
-		organismCount: registry.organisms.length,
+		areaCount: registry.areas.length,
 		routeCount: registry.routes.length,
 		warnings: registry.warnings,
 	});
@@ -112,7 +112,7 @@ export async function generateAgentRegister({
 
 	console.info("[agent-generate] decorated db tables", {
 		componentCount: decoratedTables.components.length,
-		organismCount: decoratedTables.organisms.length,
+		areaCount: decoratedTables.areas.length,
 		screenCount: decoratedTables.screens.length,
 		screenRouteCount: decoratedTables.screenRoutes.length,
 		screenVariantCount: decoratedTables.screenVariants.length,
@@ -136,7 +136,7 @@ export async function generateAgentRegister({
 			composed: "database/ai-imports/agent-assets.composed.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
-			dbTables: "database/tables/{screen_routes,screen_variants,screens,organisms,components}.json",
+			dbTables: "database/tables/{screen_routes,screen_variants,screens,areas,components}.json",
 		},
 	};
 }
@@ -157,7 +157,7 @@ async function writeAgentImportArtifacts(payload: {
 		screenRoutes: unknown[];
 		screenVariants: unknown[];
 		screens: unknown[];
-		organisms: unknown[];
+		areas: unknown[];
 		components: unknown[];
 	};
 	generated: unknown;
@@ -186,7 +186,7 @@ async function writeAgentImportArtifacts(payload: {
 		screenVariants: payload.decoratedTables.screenVariants,
 	});
 	await writeDbTable(DB_TABLE_PATHS.screens, { screens: payload.decoratedTables.screens });
-	await writeDbTable(DB_TABLE_PATHS.organisms, { organisms: payload.decoratedTables.organisms });
+	await writeDbTable(DB_TABLE_PATHS.areas, { areas: payload.decoratedTables.areas });
 	await writeDbTable(DB_TABLE_PATHS.components, { components: payload.decoratedTables.components });
 	console.info("[agent-generate] wrote agent assets", {
 		assetsPath: AGENT_ASSETS_PATH,

@@ -112,7 +112,7 @@ export function registerPrddDocument(parsed: ParsedPrddDocument): RegisteredPrdd
 		order: 1,
 		...(parsed.meta.description ? { description: parsed.meta.description } : {}),
 		...(parsed.meta.route ? { surface: parsed.meta.route } : {}),
-		organisms: [], // deprecated; PRDD 입력은 region 구조만 채움
+		areas: [], // deprecated; PRDD 입력은 region 구조만 채움
 		header,
 		contents,
 		bottom,

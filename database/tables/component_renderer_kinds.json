@@ -6,7 +6,7 @@
 		{ "type": "PageStack", "kind": "page-stack" },
 		{ "type": "Divider", "kind": "divider" },
 		{ "type": "SectionHeader", "kind": "section-header" },
-		{ "type": "Organism", "kind": "organism" },
+		{ "type": "Area", "kind": "area" },
 
 		{ "type": "ListCell", "kind": "list-cell" },
 		{ "type": "list-cell", "kind": "list-cell" },

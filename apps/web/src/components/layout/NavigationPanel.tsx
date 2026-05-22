@@ -11,16 +11,16 @@ export function NavigationPanel() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const composites = useWorkbenchStore((state) => state.composites);
-	const organisms = useWorkbenchStore((state) => state.organisms);
+	const areas = useWorkbenchStore((state) => state.areas);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
 	const selectedCompositeCode = useWorkbenchStore((state) => state.selectedCompositeCode);
-	const selectedOrganismCode = useWorkbenchStore((state) => state.selectedOrganismCode);
+	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 	const selectedScreenCode = useWorkbenchStore((state) => state.selectedScreenCode);
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 	const selectComposite = useWorkbenchStore((state) => state.selectComposite);
-	const selectOrganism = useWorkbenchStore((state) => state.selectOrganism);
+	const selectArea = useWorkbenchStore((state) => state.selectArea);
 	const selectScreenRoute = useWorkbenchStore((state) => state.selectScreenRoute);
 	const selectScreenVariant = useWorkbenchStore((state) => state.selectScreenVariant);
 	const selectTab = useWorkbenchStore((state) => state.selectTab);
@@ -49,24 +49,24 @@ export function NavigationPanel() {
 					{activeTab === "ogn" ? (
 						<ScrollArea className="h-[calc(100vh-32px)]">
 							<div className="flex flex-col gap-2 pr-3">
-								{organisms.map((organism) => (
+								{areas.map((area) => (
 									<button
 										type="button"
-										key={organism.code}
+										key={area.code}
 										className={cn(
 											"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
-											organism.code === selectedOrganismCode && "border-primary bg-primary/5",
+											area.code === selectedAreaCode && "border-primary bg-primary/5",
 										)}
-										onClick={() => selectOrganism(organism.code)}
+										onClick={() => selectArea(area.code)}
 									>
 										<div className="flex items-center justify-between gap-2">
-											<p className="text-sm font-medium">{organism.name}</p>
-											<Badge variant="secondary">{organism.usage}</Badge>
+											<p className="text-sm font-medium">{area.name}</p>
+											<Badge variant="secondary">{area.usage}</Badge>
 										</div>
-										<p className="mt-1 text-xs text-muted-foreground">{organism.code}</p>
+										<p className="mt-1 text-xs text-muted-foreground">{area.code}</p>
 										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-											<span>{organism.stateCount} states</span>
-											<span>{organism.compositeCount} composites</span>
+											<span>{area.stateCount} states</span>
+											<span>{area.compositeCount} composites</span>
 										</div>
 									</button>
 								))}
@@ -93,7 +93,7 @@ export function NavigationPanel() {
 										<p className="mt-1 truncate text-xs text-muted-foreground">{composite.code}</p>
 										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
 											<span>{composite.sourceScreenCode}</span>
-											<span>{composite.parentOrganismCode ?? "screen"}</span>
+											<span>{composite.parentAreaCode ?? "screen"}</span>
 										</div>
 									</button>
 								))}

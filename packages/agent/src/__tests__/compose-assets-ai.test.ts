@@ -13,13 +13,15 @@ function makeInput(overrides: Partial<ComposedNodeTree> = {}): ComposedNodeTree 
 		routes: [{ id: "r1", children: [{ variantId: "v1" }] }],
 		variants: [{ id: "v1", routeId: "r1", children: [{ screenId: "s1" }] }],
 		screens: [{ id: "s1", variantId: "v1", children: { contents: [] } }],
-		organisms: [
+		areas: [
 			{
+				level: "area",
 				id: "ogn-mbr-member-input",
+				order: 1,
 				name: "회원 정보 입력",
 				description: "가입에 필요한 기본 개인정보 입력 및 형식·중복 검증",
 				layout: "vertical",
-				children: [{ componentId: "text-field-user-id" }],
+				children: [{ componentId: "text-field-user-id", order: 1 }],
 			},
 		],
 		components: [
@@ -163,7 +165,7 @@ describe("composeAssetContentsWithAI", () => {
 		expect(result.composed).toBe(input);
 	});
 
-	it("calls runner with prompt including organism context, then merges", async () => {
+	it("calls runner with prompt including area context, then merges", async () => {
 		const runner = vi.fn().mockResolvedValue({
 			proposals: [
 				{

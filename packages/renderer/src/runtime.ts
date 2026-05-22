@@ -10,7 +10,7 @@ export type WireframeNodeKind =
 	| "layout-flex"
 	| "layout-grid"
 	| "list-cell"
-	| "organism"
+	| "area"
 	| "page-stack"
 	| "section-header"
 	| "section-message"
@@ -62,7 +62,7 @@ const DEFAULT_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
 	["PageStack", "page-stack"],
 	["Divider", "divider"],
 	["SectionHeader", "section-header"],
-	["Organism", "organism"],
+	["Area", "area"],
 	["ListCell", "list-cell"],
 	["Accordion", "accordion"],
 	["SectionMessage", "section-message"],

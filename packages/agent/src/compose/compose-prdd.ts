@@ -31,15 +31,15 @@ export function composePrddScreen(input: RegisteredPrddScreen): ComposedPrddScre
 		...(input.screen.surface ? { surface: input.screen.surface } : {}),
 		children: {
 			header: (input.screen.header?.children ?? []).map((ref) => ({
-				organismId: ref.componentId,
+				areaId: ref.componentId,
 				order: ref.order,
 			})),
 			contents: (input.screen.contents?.children ?? []).map((area) => ({
-				organismId: area.id,
+				areaId: area.id,
 				order: area.order,
 			})),
 			bottom: (input.screen.bottom?.children ?? []).map((ref) => ({
-				organismId: ref.componentId,
+				areaId: ref.componentId,
 				order: ref.order,
 			})),
 		},

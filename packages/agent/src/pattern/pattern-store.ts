@@ -1,7 +1,7 @@
 import compositePatternSet from "../../../../database/pattern-store/composite-patterns.json" with {
 	type: "json",
 };
-import organismPatternSet from "../../../../database/pattern-store/organism-patterns.json" with {
+import areaPatternSet from "../../../../database/pattern-store/area-patterns.json" with {
 	type: "json",
 };
 import regionPatternSet from "../../../../database/pattern-store/region-patterns.json" with {
@@ -12,8 +12,8 @@ import {
 	type ChildWrapPreset,
 	type CompositePattern,
 	type CompositeVariant,
-	type OrganismPattern,
-	type OrganismVariant,
+	type AreaPattern,
+	type AreaVariant,
 	type Pattern,
 	type PatternResolutionSignals,
 	patternStoreSchema,
@@ -28,8 +28,8 @@ export type {
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
-	OrganismPattern,
-	OrganismVariant,
+	AreaPattern,
+	AreaVariant,
 	Pattern,
 	PatternResolutionSignals,
 	RegionPattern,
@@ -52,7 +52,7 @@ export function loadPatternStore(): PatternStore {
 	const merged = {
 		patterns: [
 			...(regionPatternSet as { patterns: unknown[] }).patterns,
-			...(organismPatternSet as { patterns: unknown[] }).patterns,
+			...(areaPatternSet as { patterns: unknown[] }).patterns,
 			...(compositePatternSet as { patterns: unknown[] }).patterns,
 		],
 	};
@@ -86,8 +86,8 @@ export function isRegionPattern(pattern: Pattern): pattern is RegionPattern {
 	return pattern.target === "region";
 }
 
-export function isOrganismPattern(pattern: Pattern): pattern is OrganismPattern {
-	return pattern.target === "organism";
+export function isAreaPattern(pattern: Pattern): pattern is AreaPattern {
+	return pattern.target === "area";
 }
 
 export function isCompositePattern(pattern: Pattern): pattern is CompositePattern {
