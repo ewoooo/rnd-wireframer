@@ -76,12 +76,31 @@ export interface DatabaseAreaMetadata {
 	updatedAt: string;
 }
 
+/**
+ * Canonical area DB row. Legacy와 PRDD pipeline 양쪽 다 이 shape으로 발행.
+ * PRDD 출처는 key + 풍부한 props (layout, areaType, errorPolicy 등) 채움.
+ * Legacy 출처는 name만 채우고 나머지 optional 비움.
+ */
 export interface DatabaseAreaRow {
 	id: string;
 	type: AreaTypeLiteral;
 	version: string;
+	/** PRDD 영역 no. (legacy 출처일 때 undefined). */
+	key?: number;
 	metadata: DatabaseAreaMetadata;
-	props: { name: string };
+	props: {
+		name: string;
+		layout?: string;
+		areaType?: string;
+		visibility?: string;
+		minCount?: number;
+		maxCount?: number;
+		priority?: number;
+		errorPolicy?: string;
+		policyAnchors?: string[];
+		/** Dynamic area trigger entity (PRDD pipeline 발행). */
+		trigger?: { type: "boolean-state"; source: string; defaultValue?: boolean };
+	};
 	pattern: { id: string; variant: string };
 	children: Array<{ kind: "composite"; id: string }>;
 }

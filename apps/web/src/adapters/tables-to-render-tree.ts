@@ -1,3 +1,4 @@
+import type { ScreenSurfaceType } from "@cx/agent/types";
 import {
 	type PropValue,
 	validateWireframeSchemaFull,
@@ -104,7 +105,7 @@ export interface SampleScreen {
 	theme?: WireframeSchema["theme"];
 	data?: Record<string, unknown>;
 	screen: {
-		type: SampleScreenSurface;
+		type: ScreenSurfaceType;
 		regions: {
 			bottom: SampleScreenRegion;
 			contents: SampleScreenRegion;
@@ -113,7 +114,6 @@ export interface SampleScreen {
 	};
 }
 
-export type SampleScreenSurface = "screen.page" | "screen.bottomSheet" | "screen.popup";
 
 export interface SampleAreaMetadata {
 	title: string;

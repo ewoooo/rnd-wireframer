@@ -1,4 +1,6 @@
 import type {
+	DatabaseAreaMetadata,
+	DatabaseAreaRow,
 	DatabaseComponentRow,
 	DatabaseCompositeMetadata,
 	DatabaseRegionChild,
@@ -13,35 +15,6 @@ import type {
 	DecoratedPrddScreen,
 	NodeHook,
 } from "../types";
-
-export interface DatabaseAreaMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface DatabaseAreaRow {
-	id: string;
-	type: "area.static" | "area.dynamic";
-	version: string;
-	/** PRDD 영역 no. (legacy 호환 시 undefined). */
-	key?: number;
-	metadata: DatabaseAreaMetadata;
-	props: {
-		name: string;
-		layout?: string;
-		areaType?: string;
-		visibility?: string;
-		minCount?: number;
-		maxCount?: number;
-		priority?: number;
-		errorPolicy?: string;
-		policyAnchors?: string[];
-	};
-	pattern: { id: string; variant: string };
-	children: Array<{ kind: "composite"; id: string }>;
-}
 
 export interface MaterializedPrddTables {
 	screen: DatabaseScreenRow;
