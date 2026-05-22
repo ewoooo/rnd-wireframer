@@ -1,0 +1,132 @@
+// ============================================================
+// RND Screen Generator — DB Schema
+// dbdiagram.io 에서 이 파일 전체를 붙여넣으면 ERD 자동 생성
+// 마지막 업데이트: 2026-05-22
+// ============================================================
+
+Project rnd_wireframer {
+  database_type: 'PostgreSQL'
+  Note: '''
+    와이어프레임 생성기의 소비 데이터 테이블.
+
+    데이터 흐름 방향:
+      screen_route → screen_variant → screen
+      organism.children (jsonb) → components.id
+      screen.screen (jsonb) → organisms.id / components.id
+
+    organisms / components 사이의 참조는
+    DB FK 가 아닌 JSONB 내부 참조로 관리된다.
+  '''
+}
+
+// ============================================================
+// 화면 흐름 단위 (예: "회원 가입 및 휴면 해제")
+// ============================================================
+Table screen_routes {
+  id          varchar     [pk,   note: "예: sb-mbr-uc01_02-0513"]
+  module_id   varchar     [not null, note: "업무 모듈. 예: mbr"]
+  name        varchar     [not null]
+  order       integer     [not null]
+  process_id  varchar     [null, note: "정책/업무 프로세스 연결 코드"]
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+}
+
+// ============================================================
+// 흐름 안의 화면 묶음 (base: 정상 흐름 / edge: 에러·분기 케이스)
+// ============================================================
+Table screen_variants {
+  id                   varchar     [pk,  note: "예: nova-mbr-fp-001"]
+  screen_route_id      varchar     [not null, ref: > screen_routes.id]
+  name                 varchar     [not null, note: "예: 약관 동의"]
+  order                integer     [not null]
+  variant_type         varchar     [not null, note: "'base' | 'edge'"]
+  base_variant_id      varchar     [null,     ref: > screen_variants.id, note: "edge 가 참조하는 base variant"]
+  trigger              varchar     [null,     note: "edge 발생 조건"]
+  difference_from_base varchar     [null,     note: "base 대비 차이 설명"]
+  follow_up            varchar     [null]
+  source_ref           jsonb       [null,     note: "원천 명세 추적 정보"]
+  created_at           timestamptz [not null, default: `now()`]
+  updated_at           timestamptz [not null, default: `now()`]
+}
+
+// ============================================================
+// 실제 렌더링 대상 화면 인스턴스
+// screen 컬럼: Screen.Header / Screen.Contents / Screen.Bottom 렌더 트리 전체
+// ============================================================
+Table screens {
+  id                   varchar     [pk,  note: "예: NOVA-MBR-FP-001-0"]
+  screen_variant_id    varchar     [not null, ref: > screen_variants.id]
+  version              varchar     [not null]
+  min_renderer_version varchar     [not null]
+  order                integer     [not null]
+  pattern_id           varchar     [null, note: "공급 pattern 참조. 예: screen-shell"]
+  pattern_variant      varchar     [null, note: "예: default"]
+  theme_mode           varchar     [not null, default: 'light', note: "'light' | 'dark'"]
+  title                varchar     [null]
+  author               varchar     [null]
+  screen               jsonb       [not null, note: "렌더 트리 전체 (regions: header/contents/bottom)"]
+  source_ref           jsonb       [null]
+  created_at           timestamptz [not null, default: `now()`]
+  updated_at           timestamptz [not null, default: `now()`]
+
+  Note: "53개 화면 인스턴스 (base + edge 케이스 포함)"
+}
+
+// ============================================================
+// 화면 region 에 배치되는 섹션 단위
+// children(jsonb): 이 OGN 이 사용하는 component id 배열
+// ============================================================
+Table organisms {
+  id               varchar     [pk,  note: "예: ogn-mbr-term-list"]
+  type             varchar     [not null, default: 'Organism']
+  version          varchar     [not null]
+  pattern_id       varchar     [null, note: "예: list-stack"]
+  pattern_variant  varchar     [null]
+  title            varchar     [null]
+  author           varchar     [null]
+  props            jsonb       [null]
+  children         jsonb       [null, note: "composite id 배열 (JSONB 참조)"]
+  states           jsonb       [null, note: "default/loading/error 상태별 visible composite id"]
+  policy_refs      jsonb       [null]
+  feature_refs     jsonb       [null]
+  source_ref       jsonb       [null]
+  created_at       timestamptz [not null, default: `now()`]
+  updated_at       timestamptz [not null, default: `now()`]
+
+  Note: "15개 organism"
+}
+
+// ============================================================
+// renderer 가 leaf node 로 그리는 구체적 UI 컴포넌트
+// ============================================================
+Table components {
+  id               varchar     [pk,  note: "예: list-cell-term-required"]
+  type             varchar     [not null, note: "renderer 매핑 타입. 예: list-cell, accordion, button"]
+  version          varchar     [not null]
+  pattern_id       varchar     [null]
+  pattern_variant  varchar     [null]
+  title            varchar     [null]
+  author           varchar     [null]
+  props            jsonb       [null]
+  children         jsonb       [null, note: "concrete render subtree"]
+  hooks            jsonb       [null, note: "onChange 등 이벤트 핸들러"]
+  events           jsonb       [null]
+  display          jsonb       [null, note: "상태별 노출 조건"]
+  source_ref       jsonb       [null]
+  created_at       timestamptz [not null, default: `now()`]
+  updated_at       timestamptz [not null, default: `now()`]
+
+  Note: "58개 component"
+}
+
+// ============================================================
+// component type 문자열 → renderer kind 매핑 테이블
+// 예: 'ListCell' → 'list-cell', 'button' → 'action'
+// ============================================================
+Table component_renderer_kinds {
+  type  varchar [pk,       note: "예: ListCell, list-cell, Accordion, button"]
+  kind  varchar [not null, note: "예: list-cell, accordion, action, text-field"]
+
+  Note: "25개 매핑 (대소문자 변형 포함)"
+}
