@@ -29,6 +29,7 @@ export function AgentRegistryNavigation({
 		"idle",
 	);
 	const folderInputRef = useRef<HTMLInputElement>(null);
+	const [composeWithAI, setComposeWithAI] = useState(false);
 
 	async function loadImports() {
 		const response = await fetch("/api/agent/client-imports");
@@ -136,7 +137,7 @@ export function AgentRegistryNavigation({
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ importId: selectedImportId }),
+				body: JSON.stringify({ importId: selectedImportId, composeWithAI }),
 			});
 			const payload = await readJsonResponse<{
 				error?: string;
@@ -212,8 +213,29 @@ export function AgentRegistryNavigation({
 								</p>
 							</button>
 						))}
+						<label className="flex items-center gap-2 rounded-md border bg-secondary/30 px-2 py-1.5 text-xs">
+							<input
+								type="checkbox"
+								className="h-3.5 w-3.5 accent-primary"
+								checked={composeWithAI}
+								onChange={(event) => setComposeWithAI(event.target.checked)}
+								disabled={status === "loading"}
+							/>
+							<span className="flex-1">
+								<span className="font-medium">Composer AI inspection</span>
+								<span className="ml-1 text-muted-foreground">
+									(placeholder/helperText 자동 합성)
+								</span>
+							</span>
+						</label>
 						<Button type="button" onClick={handleGenerate} disabled={status === "loading"}>
-							{status === "loading" ? "Generating..." : "Generate Register JSON"}
+							{status === "loading"
+								? composeWithAI
+									? "Generating with AI inspection..."
+									: "Generating..."
+								: composeWithAI
+									? "Generate Register + AI Compose"
+									: "Generate Register JSON"}
 						</Button>
 					</div>
 				) : (
