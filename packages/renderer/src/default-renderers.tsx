@@ -9,6 +9,7 @@ import {
 } from "@cx/components";
 import { Flex, Grid } from "@cx/layout/primitives";
 import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
+import { areaRendererDefinition } from "./renderers/area";
 import type { RendererDefinition } from "./registry";
 import { toBoolean, toText } from "./runtime";
 import type {
@@ -103,29 +104,7 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			);
 		},
 	},
-	{
-		kind: "area",
-		render: ({ node, renderable, renderChildren }) => {
-			const { props } = renderable;
-			const titleGap = toNumber(props.titleGap, 8);
-			const componentGap = toNumber(props.componentGap, 12);
-
-			return (
-				<section
-					key={node.metadata.id}
-					className="flex w-full min-w-0 flex-col"
-					style={{ gap: titleGap }}
-				>
-					<div className="flex w-full min-w-0 flex-col">
-						<p className="text-base font-semibold">{toText(props.name, node.metadata.title)}</p>
-					</div>
-					<div className="flex w-full min-w-0 flex-col" style={{ gap: componentGap }}>
-						{renderChildren()}
-					</div>
-				</section>
-			);
-		},
-	},
+	areaRendererDefinition,
 	{
 		kind: "list-cell",
 		render: ({ node, renderable }) => {
