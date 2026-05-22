@@ -55,18 +55,39 @@ export function toBoolean(value: unknown, fallback = false) {
 	return Boolean(value);
 }
 
+const DEFAULT_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
+	["HeaderBase", "header"],
+	["Layout.Flex", "layout-flex"],
+	["Layout.Grid", "layout-grid"],
+	["PageStack", "page-stack"],
+	["Divider", "divider"],
+	["SectionHeader", "section-header"],
+	["Organism", "organism"],
+	["ListCell", "list-cell"],
+	["Accordion", "accordion"],
+	["SectionMessage", "section-message"],
+	["TextField", "text-field"],
+	["Button", "action"],
+	["ActionArea", "action"],
+];
+
+const kindByType = new Map<string, WireframeNodeKind>(DEFAULT_KIND_MAPPINGS);
+
+export function registerWireframeNodeKinds(
+	mappings: Array<{ type: string; kind: WireframeNodeKind }>,
+): void {
+	for (const { type, kind } of mappings) {
+		kindByType.set(type, kind);
+	}
+}
+
+export function clearWireframeNodeKindRegistry(): void {
+	kindByType.clear();
+	for (const [type, kind] of DEFAULT_KIND_MAPPINGS) {
+		kindByType.set(type, kind);
+	}
+}
+
 export function getWireframeNodeKind(node: WireframeNode): WireframeNodeKind {
-	if (node.type === "HeaderBase") return "header";
-	if (node.type === "Layout.Flex") return "layout-flex";
-	if (node.type === "Layout.Grid") return "layout-grid";
-	if (node.type === "PageStack") return "page-stack";
-	if (node.type === "Divider") return "divider";
-	if (node.type === "SectionHeader") return "section-header";
-	if (node.type === "Organism") return "organism";
-	if (node.type === "ListCell") return "list-cell";
-	if (node.type === "Accordion") return "accordion";
-	if (node.type === "SectionMessage") return "section-message";
-	if (node.type === "TextField") return "text-field";
-	if (node.type === "Button" || node.type === "ActionArea") return "action";
-	return "fallback";
+	return kindByType.get(node.type) ?? "fallback";
 }

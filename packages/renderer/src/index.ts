@@ -13,10 +13,12 @@ export {
 	WireframeScreenRenderer,
 } from "./renderer";
 export {
+	clearWireframeNodeKindRegistry,
 	getRenderableWireframeNode,
-	getWireframeNodeKind,
 	getScreenRegions,
+	getWireframeNodeKind,
 	type RenderableWireframeNode,
+	registerWireframeNodeKinds,
 	toBoolean,
 	toText,
 	type WireframeNodeKind,

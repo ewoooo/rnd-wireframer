@@ -1,5 +1,11 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
-import { type WireframeNode, type WireframeSchema, validateWireframeSchemaFull } from "@cx/renderer";
+import {
+	registerWireframeNodeKinds,
+	validateWireframeSchemaFull,
+	type WireframeNode,
+	type WireframeNodeKind,
+	type WireframeSchema,
+} from "@cx/renderer";
 import {
 	type SampleCompositeSet,
 	type SampleOrganismSet,
@@ -10,6 +16,7 @@ import {
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
 import decoratedTablesSet from "../../../../database/ai-imports/decorated-tables.generated.json";
+import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
 import organismSampleSet from "../../../../database/tables/organisms.json";
 import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
@@ -32,6 +39,11 @@ type ScreenMockDataSet = {
 		data: Record<string, unknown>;
 	}>;
 };
+
+registerWireframeNodeKinds(
+	(componentRendererKindsSet as { mappings: Array<{ type: string; kind: WireframeNodeKind }> })
+		.mappings,
+);
 
 const decoratedTables = decoratedTablesSet as unknown as {
 	screenRoutes: SampleScreenRouteSet["screenRoutes"];
@@ -69,13 +81,12 @@ const mockDataByScreenId = new Map(
 		.map((entry) => [entry.screenId, entry.data]),
 );
 const orderedSampleScreens = getOrderedSampleScreens(
-	[
-		...(screenSampleSet as unknown as SampleScreenSet).screens,
-		...decoratedTables.screens,
-	].map((screen) => ({
-		...screen,
-		data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
-	})),
+	[...(screenSampleSet as unknown as SampleScreenSet).screens, ...decoratedTables.screens].map(
+		(screen) => ({
+			...screen,
+			data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
+		}),
+	),
 	sampleVariantSet,
 	sampleRouteSet,
 );
@@ -126,7 +137,6 @@ export function loadLocalWorkbenchData() {
 		screens: wireframeWorkbenchData,
 	};
 }
-
 
 function extractOrganisms(schema: WireframeSchema) {
 	const organisms: Array<{ order: number; organismCode: string }> = [];
@@ -182,9 +192,7 @@ function getOrderedSampleScreens(
 	const variantByCode = new Map(variants.screenVariants.map((variant) => [variant.id, variant]));
 
 	return [...screens].sort((left, right) => {
-		const leftVariant = left.screenVariantId
-			? variantByCode.get(left.screenVariantId)
-			: undefined;
+		const leftVariant = left.screenVariantId ? variantByCode.get(left.screenVariantId) : undefined;
 		const rightVariant = right.screenVariantId
 			? variantByCode.get(right.screenVariantId)
 			: undefined;

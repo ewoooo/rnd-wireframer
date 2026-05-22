@@ -3,13 +3,11 @@
 		{
 			"id": "SB-MBR-UC01_02-0513",
 			"name": "회원 가입 및 휴면 해제",
-			"order": 1,
-			"description": "회원 가입 메인 플로우 및 휴면 해제 플로우 화면 라우트",
+			"description": "회원 가입(약관 동의~가입 완료) 및 휴면 해제(로그인~휴면 해제 완료) 플로우",
 			"variants": [
 				{
 					"id": "NOVA-MBR-FP-001",
 					"name": "약관 동의",
-					"order": 1,
 					"description": "회원 가입에 필요한 약관을 확인하고 동의한다.",
 					"screens": [
 						{
@@ -34,32 +32,71 @@
 									"order": 4,
 									"organismId": "ogn-mbr-guardian-result"
 								}
-							]
+							],
+							"raw": {
+								"description": "회원 가입에 필요한 약관을 확인하고 동의한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-001-0",
+										"to": "NOVA-MBR-FP-002-0",
+										"condition": "필수·선택 약관 동의 정보 입력 완료",
+										"payload": "동의이력ID, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-001-E1",
+										"name": "약관 동의-약관 버전 불일치",
+										"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-약관 버전 불일치",
+										"followUp": "최신 약관 재동의"
+									},
+									{
+										"id": "NOVA-MBR-FP-001-E2",
+										"name": "약관 동의-필수 약관 미동의",
+										"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-필수 약관 미동의",
+										"followUp": "진행 제한"
+									},
+									{
+										"id": "NOVA-MBR-FP-001-E3",
+										"name": "약관 동의-동의 저장 실패",
+										"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-동의 저장 실패",
+										"followUp": "재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-001-E1",
 							"name": "약관 동의-약관 버전 불일치",
 							"order": 2,
-							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-약관 버전 불일치"
+							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-약관 버전 불일치",
+							"raw": {
+								"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-약관 버전 불일치"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-001-E2",
 							"name": "약관 동의-필수 약관 미동의",
 							"order": 3,
-							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-필수 약관 미동의"
+							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-필수 약관 미동의",
+							"raw": {
+								"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-필수 약관 미동의"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-001-E3",
 							"name": "약관 동의-동의 저장 실패",
 							"order": 4,
-							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-동의 저장 실패"
+							"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-동의 저장 실패",
+							"raw": {
+								"description": "회원 가입에 필요한 약관을 확인하고 동의한다.-동의 저장 실패"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-002",
 					"name": "개인정보 입력",
-					"order": 2,
 					"description": "가입에 필요한 기본 정보를 입력한다.",
 					"screens": [
 						{
@@ -76,44 +113,101 @@
 									"order": 2,
 									"organismId": "ogn-mbr-entry-check"
 								}
-							]
+							],
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-002-0",
+										"to": "NOVA-MBR-FP-003-0",
+										"condition": "회원 정보 입력 및 검증 완료",
+										"payload": "임시저장ID, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-002-E1",
+										"name": "개인정보 입력-필수값 누락",
+										"description": "가입에 필요한 기본 정보를 입력한다.-필수값 누락",
+										"followUp": "다음 단계 진행 불가"
+									},
+									{
+										"id": "NOVA-MBR-FP-002-E2",
+										"name": "개인정보 입력-입력 형식 오류",
+										"description": "가입에 필요한 기본 정보를 입력한다.-입력 형식 오류",
+										"followUp": "다음 단계 진행 불가"
+									},
+									{
+										"id": "NOVA-MBR-FP-002-E3",
+										"name": "개인정보 입력-아이디 중복",
+										"description": "가입에 필요한 기본 정보를 입력한다.-아이디 중복",
+										"followUp": "사용 불가 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-002-E4",
+										"name": "개인정보 입력-휴대폰번호 중복",
+										"description": "가입에 필요한 기본 정보를 입력한다.-휴대폰번호 중복",
+										"followUp": "기존 회원 확인 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-002-E5",
+										"name": "개인정보 입력-이메일 중복",
+										"description": "가입에 필요한 기본 정보를 입력한다.-이메일 중복",
+										"followUp": "기존 계정 확인 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-002-E1",
 							"name": "개인정보 입력-필수값 누락",
 							"order": 2,
-							"description": "가입에 필요한 기본 정보를 입력한다.-필수값 누락"
+							"description": "가입에 필요한 기본 정보를 입력한다.-필수값 누락",
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.-필수값 누락"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-002-E2",
 							"name": "개인정보 입력-입력 형식 오류",
 							"order": 3,
-							"description": "가입에 필요한 기본 정보를 입력한다.-입력 형식 오류"
+							"description": "가입에 필요한 기본 정보를 입력한다.-입력 형식 오류",
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.-입력 형식 오류"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-002-E3",
 							"name": "개인정보 입력-아이디 중복",
 							"order": 4,
-							"description": "가입에 필요한 기본 정보를 입력한다.-아이디 중복"
+							"description": "가입에 필요한 기본 정보를 입력한다.-아이디 중복",
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.-아이디 중복"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-002-E4",
 							"name": "개인정보 입력-휴대폰번호 중복",
 							"order": 5,
-							"description": "가입에 필요한 기본 정보를 입력한다.-휴대폰번호 중복"
+							"description": "가입에 필요한 기본 정보를 입력한다.-휴대폰번호 중복",
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.-휴대폰번호 중복"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-002-E5",
 							"name": "개인정보 입력-이메일 중복",
 							"order": 6,
-							"description": "가입에 필요한 기본 정보를 입력한다.-이메일 중복"
+							"description": "가입에 필요한 기본 정보를 입력한다.-이메일 중복",
+							"raw": {
+								"description": "가입에 필요한 기본 정보를 입력한다.-이메일 중복"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-003",
 					"name": "본인인증",
-					"order": 3,
 					"description": "가입자의 본인 여부를 확인한다.",
 					"screens": [
 						{
@@ -130,38 +224,86 @@
 									"order": 2,
 									"organismId": "ogn-mbr-auth-request"
 								}
-							]
+							],
+							"raw": {
+								"description": "가입자의 본인 여부를 확인한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-003-0",
+										"to": "NOVA-MBR-FP-004-0",
+										"condition": "본인인증 완료",
+										"payload": "인증세션ID, 인증결과, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-003-E1",
+										"name": "본인인증-인증번호 만료",
+										"description": "가입자의 본인 여부를 확인한다.-인증번호 만료",
+										"followUp": "재발급 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-003-E2",
+										"name": "본인인증-인증번호 불일치",
+										"description": "가입자의 본인 여부를 확인한다.-인증번호 불일치",
+										"followUp": "재시도 또는 제한 처리"
+									},
+									{
+										"id": "NOVA-MBR-FP-003-E3",
+										"name": "본인인증-인증 실패 한도 초과",
+										"description": "가입자의 본인 여부를 확인한다.-인증 실패 한도 초과",
+										"followUp": "재시도 제한"
+									},
+									{
+										"id": "NOVA-MBR-FP-003-E4",
+										"name": "본인인증-외부 인증기관 오류",
+										"description": "가입자의 본인 여부를 확인한다.-외부 인증기관 오류",
+										"followUp": "대체 수단 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-003-E1",
 							"name": "본인인증-인증번호 만료",
 							"order": 2,
-							"description": "가입자의 본인 여부를 확인한다.-인증번호 만료"
+							"description": "가입자의 본인 여부를 확인한다.-인증번호 만료",
+							"raw": {
+								"description": "가입자의 본인 여부를 확인한다.-인증번호 만료"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-003-E2",
 							"name": "본인인증-인증번호 불일치",
 							"order": 3,
-							"description": "가입자의 본인 여부를 확인한다.-인증번호 불일치"
+							"description": "가입자의 본인 여부를 확인한다.-인증번호 불일치",
+							"raw": {
+								"description": "가입자의 본인 여부를 확인한다.-인증번호 불일치"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-003-E3",
 							"name": "본인인증-인증 실패 한도 초과",
 							"order": 4,
-							"description": "가입자의 본인 여부를 확인한다.-인증 실패 한도 초과"
+							"description": "가입자의 본인 여부를 확인한다.-인증 실패 한도 초과",
+							"raw": {
+								"description": "가입자의 본인 여부를 확인한다.-인증 실패 한도 초과"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-003-E4",
 							"name": "본인인증-외부 인증기관 오류",
 							"order": 5,
-							"description": "가입자의 본인 여부를 확인한다.-외부 인증기관 오류"
+							"description": "가입자의 본인 여부를 확인한다.-외부 인증기관 오류",
+							"raw": {
+								"description": "가입자의 본인 여부를 확인한다.-외부 인증기관 오류"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-004",
 					"name": "회원 검증",
-					"order": 4,
 					"description": "기존 가입 여부와 가입 가능 조건을 확인한다.",
 					"screens": [
 						{
@@ -178,50 +320,116 @@
 									"order": 2,
 									"organismId": "ogn-mbr-join-path"
 								}
-							]
+							],
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-004-0",
+										"to": "NOVA-MBR-FP-005-0",
+										"condition": "가입 가능 여부 판정 완료 (신규 가입 가능)",
+										"payload": "인증세션ID, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-004-E1",
+										"name": "회원 검증-이미 가입된 회원",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-이미 가입된 회원",
+										"followUp": "로그인 또는 내정보 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-004-E2",
+										"name": "회원 검증-휴면 회원",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-휴면 회원",
+										"followUp": "휴면 해제 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-004-E3",
+										"name": "회원 검증-재가입 제한 대상",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-재가입 제한 대상",
+										"followUp": "제한 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-004-E4",
+										"name": "회원 검증-가입 제한 고객",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-가입 제한 고객",
+										"followUp": "가입 불가 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-004-E5",
+										"name": "회원 검증-법정대리인 동의 유효시간 만료",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-법정대리인 동의 유효시간 만료",
+										"followUp": "재요청"
+									},
+									{
+										"id": "NOVA-MBR-FP-004-E6",
+										"name": "회원 검증-조회 시스템 오류",
+										"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-조회 시스템 오류",
+										"followUp": "재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E1",
 							"name": "회원 검증-이미 가입된 회원",
 							"order": 2,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-이미 가입된 회원"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-이미 가입된 회원",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-이미 가입된 회원"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E2",
 							"name": "회원 검증-휴면 회원",
 							"order": 3,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-휴면 회원"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-휴면 회원",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-휴면 회원"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E3",
 							"name": "회원 검증-재가입 제한 대상",
 							"order": 4,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-재가입 제한 대상"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-재가입 제한 대상",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-재가입 제한 대상"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E4",
 							"name": "회원 검증-가입 제한 고객",
 							"order": 5,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-가입 제한 고객"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-가입 제한 고객",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-가입 제한 고객"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E5",
 							"name": "회원 검증-법정대리인 동의 유효시간 만료",
 							"order": 6,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-법정대리인 동의 유효시간 만료"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-법정대리인 동의 유효시간 만료",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-법정대리인 동의 유효시간 만료"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-004-E6",
 							"name": "회원 검증-조회 시스템 오류",
 							"order": 7,
-							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-조회 시스템 오류"
+							"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-조회 시스템 오류",
+							"raw": {
+								"description": "기존 가입 여부와 가입 가능 조건을 확인한다.-조회 시스템 오류"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-005",
 					"name": "가입 완료",
-					"order": 5,
 					"description": "회원 생성 및 후속 처리를 수행한다.",
 					"screens": [
 						{
@@ -234,32 +442,63 @@
 									"order": 1,
 									"organismId": "ogn-mbr-join-complete"
 								}
-							]
+							],
+							"raw": {
+								"description": "회원 생성 및 후속 처리를 수행한다.",
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-005-E1",
+										"name": "가입 완료-계정 생성 실패",
+										"description": "회원 생성 및 후속 처리를 수행한다.-계정 생성 실패",
+										"followUp": "가입 완료 처리 중단"
+									},
+									{
+										"id": "NOVA-MBR-FP-005-E2",
+										"name": "가입 완료-동의 이력 누락",
+										"description": "회원 생성 및 후속 처리를 수행한다.-동의 이력 누락",
+										"followUp": "약관 단계 재진입"
+									},
+									{
+										"id": "NOVA-MBR-FP-005-E3",
+										"name": "가입 완료-세션 생성 실패",
+										"description": "회원 생성 및 후속 처리를 수행한다.-세션 생성 실패",
+										"followUp": "로그인 재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-005-E1",
 							"name": "가입 완료-계정 생성 실패",
 							"order": 2,
-							"description": "회원 생성 및 후속 처리를 수행한다.-계정 생성 실패"
+							"description": "회원 생성 및 후속 처리를 수행한다.-계정 생성 실패",
+							"raw": {
+								"description": "회원 생성 및 후속 처리를 수행한다.-계정 생성 실패"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-005-E2",
 							"name": "가입 완료-동의 이력 누락",
 							"order": 3,
-							"description": "회원 생성 및 후속 처리를 수행한다.-동의 이력 누락"
+							"description": "회원 생성 및 후속 처리를 수행한다.-동의 이력 누락",
+							"raw": {
+								"description": "회원 생성 및 후속 처리를 수행한다.-동의 이력 누락"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-005-E3",
 							"name": "가입 완료-세션 생성 실패",
 							"order": 4,
-							"description": "회원 생성 및 후속 처리를 수행한다.-세션 생성 실패"
+							"description": "회원 생성 및 후속 처리를 수행한다.-세션 생성 실패",
+							"raw": {
+								"description": "회원 생성 및 후속 처리를 수행한다.-세션 생성 실패"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-006",
 					"name": "로그인",
-					"order": 6,
 					"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.",
 					"screens": [
 						{
@@ -276,44 +515,101 @@
 									"order": 2,
 									"organismId": "ogn-mbr-dormant-detect"
 								}
-							]
+							],
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-006-0",
+										"to": "NOVA-MBR-FP-007-0",
+										"condition": "휴면 계정 진입 및 로그인 시도 완료",
+										"payload": "세션ID, 회원상태코드"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-006-E1",
+										"name": "로그인-로그인 실패",
+										"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-로그인 실패",
+										"followUp": "로그인 실패 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-006-E2",
+										"name": "로그인-계정 미존재",
+										"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-계정 미존재",
+										"followUp": "가입 또는 아이디 찾기 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-006-E3",
+										"name": "로그인-탈퇴 회원",
+										"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-탈퇴 회원",
+										"followUp": "재가입 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-006-E4",
+										"name": "로그인-가입제한 회원",
+										"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-가입제한 회원",
+										"followUp": "로그인 불가 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-006-E5",
+										"name": "로그인-상태 조회 실패",
+										"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-상태 조회 실패",
+										"followUp": "재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-006-E1",
 							"name": "로그인-로그인 실패",
 							"order": 2,
-							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-로그인 실패"
+							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-로그인 실패",
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-로그인 실패"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-006-E2",
 							"name": "로그인-계정 미존재",
 							"order": 3,
-							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-계정 미존재"
+							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-계정 미존재",
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-계정 미존재"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-006-E3",
 							"name": "로그인-탈퇴 회원",
 							"order": 4,
-							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-탈퇴 회원"
+							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-탈퇴 회원",
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-탈퇴 회원"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-006-E4",
 							"name": "로그인-가입제한 회원",
 							"order": 5,
-							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-가입제한 회원"
+							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-가입제한 회원",
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-가입제한 회원"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-006-E5",
 							"name": "로그인-상태 조회 실패",
 							"order": 6,
-							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-상태 조회 실패"
+							"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-상태 조회 실패",
+							"raw": {
+								"description": "휴면 계정 진입을 위해 고객이 로그인을 시도한다.-상태 조회 실패"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-007",
 					"name": "휴면 여부 확인",
-					"order": 7,
 					"description": "대상 계정의 휴면 상태 여부를 확인한다.",
 					"screens": [
 						{
@@ -330,32 +626,71 @@
 									"order": 2,
 									"organismId": "ogn-mbr-dormant-eligibility"
 								}
-							]
+							],
+							"raw": {
+								"description": "대상 계정의 휴면 상태 여부를 확인한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-007-0",
+										"to": "NOVA-MBR-FP-008-0",
+										"condition": "휴면 해제 가능 여부 판정 완료",
+										"payload": "세션ID, 회원상태코드, 해제가능여부"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-007-E1",
+										"name": "휴면 여부 확인-휴면 해제 불가 상태",
+										"description": "대상 계정의 휴면 상태 여부를 확인한다.-휴면 해제 불가 상태",
+										"followUp": "해제 불가 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-007-E2",
+										"name": "휴면 여부 확인-식별정보 불일치",
+										"description": "대상 계정의 휴면 상태 여부를 확인한다.-식별정보 불일치",
+										"followUp": "본인인증 재수행 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-007-E3",
+										"name": "휴면 여부 확인-판정 시스템 오류",
+										"description": "대상 계정의 휴면 상태 여부를 확인한다.-판정 시스템 오류",
+										"followUp": "업무 중단 및 오류 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-007-E1",
 							"name": "휴면 여부 확인-휴면 해제 불가 상태",
 							"order": 2,
-							"description": "대상 계정의 휴면 상태 여부를 확인한다.-휴면 해제 불가 상태"
+							"description": "대상 계정의 휴면 상태 여부를 확인한다.-휴면 해제 불가 상태",
+							"raw": {
+								"description": "대상 계정의 휴면 상태 여부를 확인한다.-휴면 해제 불가 상태"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-007-E2",
 							"name": "휴면 여부 확인-식별정보 불일치",
 							"order": 3,
-							"description": "대상 계정의 휴면 상태 여부를 확인한다.-식별정보 불일치"
+							"description": "대상 계정의 휴면 상태 여부를 확인한다.-식별정보 불일치",
+							"raw": {
+								"description": "대상 계정의 휴면 상태 여부를 확인한다.-식별정보 불일치"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-007-E3",
 							"name": "휴면 여부 확인-판정 시스템 오류",
 							"order": 4,
-							"description": "대상 계정의 휴면 상태 여부를 확인한다.-판정 시스템 오류"
+							"description": "대상 계정의 휴면 상태 여부를 확인한다.-판정 시스템 오류",
+							"raw": {
+								"description": "대상 계정의 휴면 상태 여부를 확인한다.-판정 시스템 오류"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-008",
 					"name": "본인인증",
-					"order": 8,
 					"description": "휴면 해제 전 본인 여부를 확인한다.",
 					"screens": [
 						{
@@ -372,38 +707,86 @@
 									"order": 2,
 									"organismId": "ogn-mbr-auth-request"
 								}
-							]
+							],
+							"raw": {
+								"description": "휴면 해제 전 본인 여부를 확인한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-008-0",
+										"to": "NOVA-MBR-FP-009-0",
+										"condition": "본인인증 완료",
+										"payload": "인증세션ID, 인증결과, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-008-E1",
+										"name": "본인인증-인증번호 만료",
+										"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 만료",
+										"followUp": "재발급 안내"
+									},
+									{
+										"id": "NOVA-MBR-FP-008-E2",
+										"name": "본인인증-인증번호 불일치",
+										"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 불일치",
+										"followUp": "재시도 또는 제한 처리"
+									},
+									{
+										"id": "NOVA-MBR-FP-008-E3",
+										"name": "본인인증-인증 실패 한도 초과",
+										"description": "휴면 해제 전 본인 여부를 확인한다.-인증 실패 한도 초과",
+										"followUp": "재시도 제한"
+									},
+									{
+										"id": "NOVA-MBR-FP-008-E4",
+										"name": "본인인증-외부 인증기관 오류",
+										"description": "휴면 해제 전 본인 여부를 확인한다.-외부 인증기관 오류",
+										"followUp": "대체 수단 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-008-E1",
 							"name": "본인인증-인증번호 만료",
 							"order": 2,
-							"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 만료"
+							"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 만료",
+							"raw": {
+								"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 만료"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-008-E2",
 							"name": "본인인증-인증번호 불일치",
 							"order": 3,
-							"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 불일치"
+							"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 불일치",
+							"raw": {
+								"description": "휴면 해제 전 본인 여부를 확인한다.-인증번호 불일치"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-008-E3",
 							"name": "본인인증-인증 실패 한도 초과",
 							"order": 4,
-							"description": "휴면 해제 전 본인 여부를 확인한다.-인증 실패 한도 초과"
+							"description": "휴면 해제 전 본인 여부를 확인한다.-인증 실패 한도 초과",
+							"raw": {
+								"description": "휴면 해제 전 본인 여부를 확인한다.-인증 실패 한도 초과"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-008-E4",
 							"name": "본인인증-외부 인증기관 오류",
 							"order": 5,
-							"description": "휴면 해제 전 본인 여부를 확인한다.-외부 인증기관 오류"
+							"description": "휴면 해제 전 본인 여부를 확인한다.-외부 인증기관 오류",
+							"raw": {
+								"description": "휴면 해제 전 본인 여부를 확인한다.-외부 인증기관 오류"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-009",
 					"name": "약관 동의",
-					"order": 9,
 					"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.",
 					"screens": [
 						{
@@ -420,32 +803,71 @@
 									"order": 2,
 									"organismId": "ogn-mbr-term-agree"
 								}
-							]
+							],
+							"raw": {
+								"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-009-0",
+										"to": "NOVA-MBR-FP-010-0",
+										"condition": "필수 약관 재동의 완료",
+										"payload": "동의이력ID, 세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-009-E1",
+										"name": "약관 동의-약관 버전 불일치",
+										"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-약관 버전 불일치",
+										"followUp": "최신 약관 재동의"
+									},
+									{
+										"id": "NOVA-MBR-FP-009-E2",
+										"name": "약관 동의-필수 약관 미동의",
+										"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-필수 약관 미동의",
+										"followUp": "진행 불가"
+									},
+									{
+										"id": "NOVA-MBR-FP-009-E3",
+										"name": "약관 동의-동의 저장 실패",
+										"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-동의 저장 실패",
+										"followUp": "재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-009-E1",
 							"name": "약관 동의-약관 버전 불일치",
 							"order": 2,
-							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-약관 버전 불일치"
+							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-약관 버전 불일치",
+							"raw": {
+								"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-약관 버전 불일치"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-009-E2",
 							"name": "약관 동의-필수 약관 미동의",
 							"order": 3,
-							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-필수 약관 미동의"
+							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-필수 약관 미동의",
+							"raw": {
+								"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-필수 약관 미동의"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-009-E3",
 							"name": "약관 동의-동의 저장 실패",
 							"order": 4,
-							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-동의 저장 실패"
+							"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-동의 저장 실패",
+							"raw": {
+								"description": "재동의가 필요한 약관 및 고지 내용을 확인하고 동의한다.-동의 저장 실패"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-010",
 					"name": "휴면 해제 처리",
-					"order": 10,
 					"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.",
 					"screens": [
 						{
@@ -458,38 +880,86 @@
 									"order": 1,
 									"organismId": "ogn-mbr-dormant-release"
 								}
-							]
+							],
+							"raw": {
+								"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-010-0",
+										"to": "NOVA-MBR-FP-011-0",
+										"condition": "휴면 상태 해제 및 데이터 복원 완료",
+										"payload": "회원상태코드, 해제완료시각, 로그인세션ID"
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-010-E1",
+										"name": "휴면 해제 처리-상태 전환 실패",
+										"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-상태 전환 실패",
+										"followUp": "휴면 상태 유지"
+									},
+									{
+										"id": "NOVA-MBR-FP-010-E2",
+										"name": "휴면 해제 처리-데이터 복원 실패",
+										"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-데이터 복원 실패",
+										"followUp": "해제 보류"
+									},
+									{
+										"id": "NOVA-MBR-FP-010-E3",
+										"name": "휴면 해제 처리-인증 세션 만료",
+										"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-인증 세션 만료",
+										"followUp": "본인인증 재수행"
+									},
+									{
+										"id": "NOVA-MBR-FP-010-E4",
+										"name": "휴면 해제 처리-세션 생성 실패",
+										"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-세션 생성 실패",
+										"followUp": "로그인 재시도 안내"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-010-E1",
 							"name": "휴면 해제 처리-상태 전환 실패",
 							"order": 2,
-							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-상태 전환 실패"
+							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-상태 전환 실패",
+							"raw": {
+								"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-상태 전환 실패"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-010-E2",
 							"name": "휴면 해제 처리-데이터 복원 실패",
 							"order": 3,
-							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-데이터 복원 실패"
+							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-데이터 복원 실패",
+							"raw": {
+								"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-데이터 복원 실패"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-010-E3",
 							"name": "휴면 해제 처리-인증 세션 만료",
 							"order": 4,
-							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-인증 세션 만료"
+							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-인증 세션 만료",
+							"raw": {
+								"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-인증 세션 만료"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-010-E4",
 							"name": "휴면 해제 처리-세션 생성 실패",
 							"order": 5,
-							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-세션 생성 실패"
+							"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-세션 생성 실패",
+							"raw": {
+								"description": "휴면 상태를 해제하고 정상 회원 상태로 복원한다.-세션 생성 실패"
+							}
 						}
 					]
 				},
 				{
 					"id": "NOVA-MBR-FP-011",
 					"name": "휴면 해제 완료",
-					"order": 11,
 					"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.",
 					"screens": [
 						{
@@ -502,19 +972,50 @@
 									"order": 1,
 									"organismId": "ogn-mbr-dormant-complete"
 								}
-							]
+							],
+							"raw": {
+								"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.",
+								"transitions": [
+									{
+										"from": "NOVA-MBR-FP-011-0",
+										"to": "홈",
+										"condition": "홈으로 이동 버튼 탭",
+										"payload": ""
+									}
+								],
+								"cases": [
+									{
+										"id": "NOVA-MBR-FP-011-E1",
+										"name": "휴면 해제 완료-알림 발송 실패",
+										"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-알림 발송 실패",
+										"followUp": "화면 안내 유지"
+									},
+									{
+										"id": "NOVA-MBR-FP-011-E2",
+										"name": "휴면 해제 완료-결과 조회 실패",
+										"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-결과 조회 실패",
+										"followUp": "해제 상태 재조회"
+									}
+								]
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-011-E1",
 							"name": "휴면 해제 완료-알림 발송 실패",
 							"order": 2,
-							"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-알림 발송 실패"
+							"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-알림 발송 실패",
+							"raw": {
+								"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-알림 발송 실패"
+							}
 						},
 						{
 							"id": "NOVA-MBR-FP-011-E2",
 							"name": "휴면 해제 완료-결과 조회 실패",
 							"order": 3,
-							"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-결과 조회 실패"
+							"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-결과 조회 실패",
+							"raw": {
+								"description": "휴면 해제 완료 여부와 결과를 고객에게 안내한다.-결과 조회 실패"
+							}
 						}
 					]
 				}
@@ -530,19 +1031,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "list-cell-term-required"
+					"componentId": "ogn-mbr-term-list::list-cell-term-required"
 				},
 				{
 					"order": 2,
-					"componentId": "list-cell-term-optional"
+					"componentId": "ogn-mbr-term-list::list-cell-term-optional"
 				},
 				{
 					"order": 3,
-					"componentId": "accordion-term-detail"
+					"componentId": "ogn-mbr-term-list::accordion-term-detail"
 				},
 				{
 					"order": 4,
-					"componentId": "section-message-term-error"
+					"componentId": "ogn-mbr-term-list::section-message-term-error"
 				}
 			]
 		},
@@ -554,23 +1055,23 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "checkbox-all-agree"
+					"componentId": "ogn-mbr-term-agree::checkbox-all-agree"
 				},
 				{
 					"order": 2,
-					"componentId": "checkbox-term-required"
+					"componentId": "ogn-mbr-term-agree::checkbox-term-required"
 				},
 				{
 					"order": 3,
-					"componentId": "checkbox-term-optional"
+					"componentId": "ogn-mbr-term-agree::checkbox-term-optional"
 				},
 				{
 					"order": 4,
-					"componentId": "section-message-required-error"
+					"componentId": "ogn-mbr-term-agree::section-message-required-error"
 				},
 				{
 					"order": 5,
-					"componentId": "action-area-next"
+					"componentId": "ogn-mbr-term-agree::action-area-next"
 				}
 			]
 		},
@@ -582,23 +1083,23 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "text-field-guardian-name"
+					"componentId": "ogn-mbr-guardian-input::text-field-guardian-name"
 				},
 				{
 					"order": 2,
-					"componentId": "text-field-guardian-phone"
+					"componentId": "ogn-mbr-guardian-input::text-field-guardian-phone"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-guardian-info"
+					"componentId": "ogn-mbr-guardian-input::section-message-guardian-info"
 				},
 				{
 					"order": 4,
-					"componentId": "section-message-guardian-error"
+					"componentId": "ogn-mbr-guardian-input::section-message-guardian-error"
 				},
 				{
 					"order": 5,
-					"componentId": "action-area-guardian-request"
+					"componentId": "ogn-mbr-guardian-input::action-area-guardian-request"
 				}
 			]
 		},
@@ -610,15 +1111,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-guardian-wait"
+					"componentId": "ogn-mbr-guardian-result::section-message-guardian-wait"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-guardian-expire"
+					"componentId": "ogn-mbr-guardian-result::section-message-guardian-expire"
 				},
 				{
 					"order": 3,
-					"componentId": "button-guardian-retry"
+					"componentId": "ogn-mbr-guardian-result::button-guardian-retry"
 				}
 			]
 		},
@@ -630,27 +1131,27 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "text-field-user-id"
+					"componentId": "ogn-mbr-member-input::text-field-user-id"
 				},
 				{
 					"order": 2,
-					"componentId": "text-field-password"
+					"componentId": "ogn-mbr-member-input::text-field-password"
 				},
 				{
 					"order": 3,
-					"componentId": "text-field-email"
+					"componentId": "ogn-mbr-member-input::text-field-email"
 				},
 				{
 					"order": 4,
-					"componentId": "text-field-phone"
+					"componentId": "ogn-mbr-member-input::text-field-phone"
 				},
 				{
 					"order": 5,
-					"componentId": "section-message-input-error"
+					"componentId": "ogn-mbr-member-input::section-message-input-error"
 				},
 				{
 					"order": 6,
-					"componentId": "action-area-next"
+					"componentId": "ogn-mbr-member-input::action-area-next"
 				}
 			]
 		},
@@ -662,15 +1163,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-entry-existing"
+					"componentId": "ogn-mbr-entry-check::section-message-entry-existing"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-entry-dormant"
+					"componentId": "ogn-mbr-entry-check::section-message-entry-dormant"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-entry-withdrawn"
+					"componentId": "ogn-mbr-entry-check::section-message-entry-withdrawn"
 				}
 			]
 		},
@@ -682,15 +1183,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "list-cell-auth-phone"
+					"componentId": "ogn-mbr-auth-select::list-cell-auth-phone"
 				},
 				{
 					"order": 2,
-					"componentId": "list-cell-auth-pass"
+					"componentId": "ogn-mbr-auth-select::list-cell-auth-pass"
 				},
 				{
 					"order": 3,
-					"componentId": "list-cell-auth-cert"
+					"componentId": "ogn-mbr-auth-select::list-cell-auth-cert"
 				}
 			]
 		},
@@ -702,27 +1203,27 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "text-field-auth-code"
+					"componentId": "ogn-mbr-auth-request::text-field-auth-code"
 				},
 				{
 					"order": 2,
-					"componentId": "text-field-auth-timer"
+					"componentId": "ogn-mbr-auth-request::text-field-auth-timer"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-auth-error"
+					"componentId": "ogn-mbr-auth-request::section-message-auth-error"
 				},
 				{
 					"order": 4,
-					"componentId": "section-message-auth-expire"
+					"componentId": "ogn-mbr-auth-request::section-message-auth-expire"
 				},
 				{
 					"order": 5,
-					"componentId": "button-auth-retry"
+					"componentId": "ogn-mbr-auth-request::button-auth-retry"
 				},
 				{
 					"order": 6,
-					"componentId": "action-area-auth-confirm"
+					"componentId": "ogn-mbr-auth-request::action-area-auth-confirm"
 				}
 			]
 		},
@@ -734,19 +1235,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-status-dormant"
+					"componentId": "ogn-mbr-member-status::section-message-status-dormant"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-status-withdrawn"
+					"componentId": "ogn-mbr-member-status::section-message-status-withdrawn"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-status-error"
+					"componentId": "ogn-mbr-member-status::section-message-status-error"
 				},
 				{
 					"order": 4,
-					"componentId": "button-status-retry"
+					"componentId": "ogn-mbr-member-status::button-status-retry"
 				}
 			]
 		},
@@ -758,19 +1259,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-join-available"
+					"componentId": "ogn-mbr-join-path::section-message-join-available"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-join-dormant"
+					"componentId": "ogn-mbr-join-path::section-message-join-dormant"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-join-blocked"
+					"componentId": "ogn-mbr-join-path::section-message-join-blocked"
 				},
 				{
 					"order": 4,
-					"componentId": "action-area-join-proceed"
+					"componentId": "ogn-mbr-join-path::action-area-join-proceed"
 				}
 			]
 		},
@@ -782,15 +1283,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-join-success"
+					"componentId": "ogn-mbr-join-complete::section-message-join-success"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-session-error"
+					"componentId": "ogn-mbr-join-complete::section-message-session-error"
 				},
 				{
 					"order": 3,
-					"componentId": "action-area-join-done"
+					"componentId": "ogn-mbr-join-complete::action-area-join-done"
 				}
 			]
 		},
@@ -802,15 +1303,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-dormant-guide"
+					"componentId": "ogn-mbr-dormant-detect::section-message-dormant-guide"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-dormant-error"
+					"componentId": "ogn-mbr-dormant-detect::section-message-dormant-error"
 				},
 				{
 					"order": 3,
-					"componentId": "action-area-dormant-release"
+					"componentId": "ogn-mbr-dormant-detect::action-area-dormant-release"
 				}
 			]
 		},
@@ -822,19 +1323,19 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-eligibility-guide"
+					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-eligibility-block"
+					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-block"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-eligibility-error"
+					"componentId": "ogn-mbr-dormant-eligibility::section-message-eligibility-error"
 				},
 				{
 					"order": 4,
-					"componentId": "action-area-eligibility-proceed"
+					"componentId": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed"
 				}
 			]
 		},
@@ -846,15 +1347,15 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-release-progress"
+					"componentId": "ogn-mbr-dormant-release::section-message-release-progress"
 				},
 				{
 					"order": 2,
-					"componentId": "section-message-release-error"
+					"componentId": "ogn-mbr-dormant-release::section-message-release-error"
 				},
 				{
 					"order": 3,
-					"componentId": "section-message-release-session-error"
+					"componentId": "ogn-mbr-dormant-release::section-message-release-session-error"
 				}
 			]
 		},
@@ -866,428 +1367,599 @@
 			"components": [
 				{
 					"order": 1,
-					"componentId": "section-message-complete-result"
+					"componentId": "ogn-mbr-dormant-complete::section-message-complete-result"
 				},
 				{
 					"order": 2,
-					"componentId": "action-area-complete-home"
+					"componentId": "ogn-mbr-dormant-complete::action-area-complete-home"
 				}
 			]
 		}
 	],
 	"components": [
 		{
-			"id": "list-cell-term-required",
-			"name": "필수 약관 항목",
-			"type": "list-cell"
-		},
-		{
-			"id": "list-cell-term-optional",
-			"name": "선택 약관 항목",
-			"type": "list-cell"
-		},
-		{
-			"id": "accordion-term-detail",
-			"name": "약관 전문 펼치기",
-			"type": "accordion"
-		},
-		{
-			"id": "section-message-term-error",
-			"name": "약관 조회 오류 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"id": "ogn-mbr-term-list::list-cell-term-required",
+			"name": "list-cell-term-required",
+			"type": "list-cell",
+			"raw": {
+				"description": "필수 약관 항목",
+				"note": "[정책:POL-MBR-TERM-001-01] 회원 가입 필수 약관",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=checkedTerms"
 			}
 		},
 		{
-			"id": "checkbox-all-agree",
-			"name": "전체 동의",
+			"id": "ogn-mbr-term-list::list-cell-term-optional",
+			"name": "list-cell-term-optional",
+			"type": "list-cell",
+			"raw": {
+				"description": "선택 약관 항목",
+				"note": "[정책:POL-MBR-TERM-001-02] 회원 가입 선택 약관",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=checkedTerms"
+			}
+		},
+		{
+			"id": "ogn-mbr-term-list::accordion-term-detail",
+			"name": "accordion-term-detail",
+			"type": "accordion",
+			"raw": {
+				"description": "약관 전문 펼치기",
+				"events": "이벤트=onClick; 액션=setState; 파라미터=expandedTermId"
+			}
+		},
+		{
+			"id": "ogn-mbr-term-list::section-message-term-error",
+			"name": "section-message-term-error",
+			"type": "section-message",
+			"raw": {
+				"description": "약관 조회 오류 안내",
+				"variant": "negative",
+				"note": "오류 발생 시 노출"
+			}
+		},
+		{
+			"id": "ogn-mbr-term-agree::checkbox-all-agree",
+			"name": "checkbox-all-agree",
 			"type": "checkbox",
-			"props": {
-				"variant": "medium"
+			"raw": {
+				"description": "전체 동의",
+				"variant": "medium",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=allTermsAgreed"
 			}
 		},
 		{
-			"id": "checkbox-term-required",
-			"name": "필수 약관 동의",
+			"id": "ogn-mbr-term-agree::checkbox-term-required",
+			"name": "checkbox-term-required",
 			"type": "checkbox",
-			"props": {
-				"variant": "medium"
+			"raw": {
+				"description": "필수 약관 동의",
+				"variant": "medium",
+				"note": "[정책:POL-MBR-TERM-001-06] 필수 약관 미동의 처리",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=checkedTermId"
 			}
 		},
 		{
-			"id": "checkbox-term-optional",
-			"name": "선택 약관 동의",
+			"id": "ogn-mbr-term-agree::checkbox-term-optional",
+			"name": "checkbox-term-optional",
 			"type": "checkbox",
-			"props": {
-				"variant": "small"
+			"raw": {
+				"description": "선택 약관 동의",
+				"variant": "small",
+				"note": "[정책:POL-MBR-TERM-001-07] 선택 약관 미동의 처리",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=checkedTermId"
 			}
 		},
 		{
-			"id": "section-message-required-error",
-			"name": "필수 약관 미동의 오류 안내",
+			"id": "ogn-mbr-term-agree::section-message-required-error",
+			"name": "section-message-required-error",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "필수 약관 미동의 오류 안내",
+				"variant": "negative",
+				"note": "필수 약관 미동의 시 노출"
 			}
 		},
 		{
-			"id": "action-area-next",
-			"name": "다음 버튼 영역",
+			"id": "ogn-mbr-term-agree::action-area-next",
+			"name": "action-area-next",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "다음 버튼 영역",
+				"variant": "strong",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=NOVA-MBR-FP-002-0"
 			}
 		},
 		{
-			"id": "text-field-guardian-name",
-			"name": "법정대리인 이름 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-guardian-input::text-field-guardian-name",
+			"name": "text-field-guardian-name",
+			"type": "text-field",
+			"raw": {
+				"description": "법정대리인 이름 입력",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=guardianName"
+			}
 		},
 		{
-			"id": "text-field-guardian-phone",
-			"name": "법정대리인 연락처 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-guardian-input::text-field-guardian-phone",
+			"name": "text-field-guardian-phone",
+			"type": "text-field",
+			"raw": {
+				"description": "법정대리인 연락처 입력",
+				"note": "[정책:POL-MBR-TERM-002-03] 법정대리인 인증수단",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=guardianPhone"
+			}
 		},
 		{
-			"id": "section-message-guardian-info",
-			"name": "법정대리인 동의 안내",
+			"id": "ogn-mbr-guardian-input::section-message-guardian-info",
+			"name": "section-message-guardian-info",
 			"type": "section-message",
-			"props": {
-				"variant": "info"
+			"raw": {
+				"description": "법정대리인 동의 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-TERM-002-05] 법정대리인 동의 유효시간"
 			}
 		},
 		{
-			"id": "section-message-guardian-error",
-			"name": "법정대리인 정보 오류 안내",
+			"id": "ogn-mbr-guardian-input::section-message-guardian-error",
+			"name": "section-message-guardian-error",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "법정대리인 정보 오류 안내",
+				"variant": "negative",
+				"note": "인증 실패 시 노출"
 			}
 		},
 		{
-			"id": "action-area-guardian-request",
-			"name": "동의 요청 발송 버튼 영역",
+			"id": "ogn-mbr-guardian-input::action-area-guardian-request",
+			"name": "action-area-guardian-request",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "동의 요청 발송 버튼 영역",
+				"variant": "strong",
+				"events": "이벤트=onClick; 액션=apiCall"
 			}
 		},
 		{
-			"id": "section-message-guardian-wait",
-			"name": "법정대리인 동의 대기 안내",
+			"id": "ogn-mbr-guardian-result::section-message-guardian-wait",
+			"name": "section-message-guardian-wait",
 			"type": "section-message",
-			"props": {
-				"variant": "info"
+			"raw": {
+				"description": "법정대리인 동의 대기 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-TERM-002-05] 법정대리인 동의 유효시간"
 			}
 		},
 		{
-			"id": "section-message-guardian-expire",
-			"name": "동의 유효시간 만료 안내",
+			"id": "ogn-mbr-guardian-result::section-message-guardian-expire",
+			"name": "section-message-guardian-expire",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "동의 유효시간 만료 안내",
+				"variant": "negative",
+				"note": "만료 시 노출"
 			}
 		},
 		{
-			"id": "button-guardian-retry",
-			"name": "동의 재요청 버튼",
+			"id": "ogn-mbr-guardian-result::button-guardian-retry",
+			"name": "button-guardian-retry",
 			"type": "button",
-			"props": {
-				"variant": "solid"
+			"raw": {
+				"description": "동의 재요청 버튼",
+				"variant": "solid",
+				"note": "유효시간 만료 시 활성화",
+				"events": "이벤트=onClick; 액션=apiCall"
 			}
 		},
 		{
-			"id": "text-field-user-id",
-			"name": "아이디 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-member-input::text-field-user-id",
+			"name": "text-field-user-id",
+			"type": "text-field",
+			"raw": {
+				"description": "아이디 입력",
+				"note": "[정책:POL-MBR-INFO-002-04] 아이디 길이 → max: 20",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=userId"
+			}
 		},
 		{
-			"id": "text-field-password",
-			"name": "비밀번호 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-member-input::text-field-password",
+			"name": "text-field-password",
+			"type": "text-field",
+			"raw": {
+				"description": "비밀번호 입력",
+				"note": "[정책:POL-MBR-INFO-002-05] 비밀번호 길이 → max: 20",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=password"
+			}
 		},
 		{
-			"id": "text-field-email",
-			"name": "이메일 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-member-input::text-field-email",
+			"name": "text-field-email",
+			"type": "text-field",
+			"raw": {
+				"description": "이메일 입력",
+				"note": "[정책:POL-MBR-INFO-001-01] 회원 가입 필수 입력 항목",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=email"
+			}
 		},
 		{
-			"id": "text-field-phone",
-			"name": "연락처 입력",
-			"type": "text-field"
+			"id": "ogn-mbr-member-input::text-field-phone",
+			"name": "text-field-phone",
+			"type": "text-field",
+			"raw": {
+				"description": "연락처 입력",
+				"note": "[정책:POL-MBR-INFO-001-01] 회원 가입 필수 입력 항목",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=phone"
+			}
 		},
 		{
-			"id": "section-message-input-error",
-			"name": "입력 오류 안내",
+			"id": "ogn-mbr-member-input::section-message-input-error",
+			"name": "section-message-input-error",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "입력 오류 안내",
+				"variant": "negative",
+				"note": "검증 실패 시 노출"
 			}
 		},
 		{
-			"id": "section-message-entry-existing",
-			"name": "기존 정상 회원 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
-			}
-		},
-		{
-			"id": "section-message-entry-dormant",
-			"name": "휴면 회원 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
-			}
-		},
-		{
-			"id": "section-message-entry-withdrawn",
-			"name": "탈퇴 회원 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "info"
-			}
-		},
-		{
-			"id": "list-cell-auth-phone",
-			"name": "휴대폰 본인인증 선택",
-			"type": "list-cell"
-		},
-		{
-			"id": "list-cell-auth-pass",
-			"name": "PASS 인증 선택",
-			"type": "list-cell"
-		},
-		{
-			"id": "list-cell-auth-cert",
-			"name": "공동인증서 선택",
-			"type": "list-cell"
-		},
-		{
-			"id": "text-field-auth-code",
-			"name": "인증번호 입력",
-			"type": "text-field"
-		},
-		{
-			"id": "text-field-auth-timer",
-			"name": "인증번호 유효시간 타이머",
-			"type": "text-field"
-		},
-		{
-			"id": "section-message-auth-error",
-			"name": "인증 오류 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "negative"
-			}
-		},
-		{
-			"id": "section-message-auth-expire",
-			"name": "인증번호 만료 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
-			}
-		},
-		{
-			"id": "button-auth-retry",
-			"name": "인증번호 재요청 버튼",
-			"type": "button",
-			"props": {
-				"variant": "outlined"
-			}
-		},
-		{
-			"id": "action-area-auth-confirm",
-			"name": "인증 확인 버튼 영역",
+			"id": "ogn-mbr-member-input::action-area-next",
+			"name": "action-area-next",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "다음 버튼 영역",
+				"variant": "strong",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=NOVA-MBR-FP-003-0"
 			}
 		},
 		{
-			"id": "section-message-status-dormant",
-			"name": "휴면 회원 안내",
+			"id": "ogn-mbr-entry-check::section-message-entry-existing",
+			"name": "section-message-entry-existing",
 			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
+			"raw": {
+				"description": "기존 정상 회원 안내",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-INFO-003-07] 기존 정상 회원 식별 시 처리"
 			}
 		},
 		{
-			"id": "section-message-status-withdrawn",
-			"name": "탈퇴 회원 안내",
+			"id": "ogn-mbr-entry-check::section-message-entry-dormant",
+			"name": "section-message-entry-dormant",
 			"type": "section-message",
-			"props": {
-				"variant": "info"
+			"raw": {
+				"description": "휴면 회원 안내",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-INFO-003-08] 기존 휴면 회원 식별 시 처리"
 			}
 		},
 		{
-			"id": "section-message-status-error",
-			"name": "조회 오류 안내",
+			"id": "ogn-mbr-entry-check::section-message-entry-withdrawn",
+			"name": "section-message-entry-withdrawn",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "탈퇴 회원 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-INFO-003-09] 기존 탈퇴 회원 식별 시 처리"
 			}
 		},
 		{
-			"id": "button-status-retry",
-			"name": "재시도 버튼",
+			"id": "ogn-mbr-auth-select::list-cell-auth-phone",
+			"name": "list-cell-auth-phone",
+			"type": "list-cell",
+			"raw": {
+				"description": "휴대폰 본인인증 선택",
+				"note": "[정책:POL-MBR-AUTH-002-01] 회원 가입 허용 인증수단",
+				"events": "이벤트=onClick; 액션=setState; 파라미터=selectedAuthMethod"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-select::list-cell-auth-pass",
+			"name": "list-cell-auth-pass",
+			"type": "list-cell",
+			"raw": {
+				"description": "PASS 인증 선택",
+				"note": "[정책:POL-MBR-AUTH-002-09] 인증수단 노출 순서",
+				"events": "이벤트=onClick; 액션=setState; 파라미터=selectedAuthMethod"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-select::list-cell-auth-cert",
+			"name": "list-cell-auth-cert",
+			"type": "list-cell",
+			"raw": {
+				"description": "공동인증서 선택",
+				"note": "[정책:POL-MBR-AUTH-002-09] 인증수단 노출 순서",
+				"events": "이벤트=onClick; 액션=setState; 파라미터=selectedAuthMethod"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-request::text-field-auth-code",
+			"name": "text-field-auth-code",
+			"type": "text-field",
+			"raw": {
+				"description": "인증번호 입력",
+				"note": "[정책:POL-MBR-AUTH-003-01] 인증번호 자리수 → max: 6",
+				"events": "이벤트=onChange; 액션=setState; 파라미터=authCode"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-request::text-field-auth-timer",
+			"name": "text-field-auth-timer",
+			"type": "text-field",
+			"raw": {
+				"description": "인증번호 유효시간 타이머",
+				"note": "[정책:POL-MBR-AUTH-003-03] 인증번호 유효시간 → timerDuration: 180"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-request::section-message-auth-error",
+			"name": "section-message-auth-error",
+			"type": "section-message",
+			"raw": {
+				"description": "인증 오류 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-AUTH-005-07] 실패 안내 문구"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-request::section-message-auth-expire",
+			"name": "section-message-auth-expire",
+			"type": "section-message",
+			"raw": {
+				"description": "인증번호 만료 안내",
+				"variant": "cautionary",
+				"note": "유효시간 만료 시 노출"
+			}
+		},
+		{
+			"id": "ogn-mbr-auth-request::button-auth-retry",
+			"name": "button-auth-retry",
 			"type": "button",
-			"props": {
-				"variant": "outlined"
+			"raw": {
+				"description": "인증번호 재요청 버튼",
+				"variant": "outlined",
+				"note": "[정책:POL-MBR-AUTH-004-01] 인증번호 재요청 가능 시간\n[정책:POL-MBR-AUTH-004-02] 인증번호 재요청 가능 횟수 → maxRetry: 5",
+				"events": "이벤트=onClick; 액션=apiCall"
 			}
 		},
 		{
-			"id": "section-message-join-available",
-			"name": "신규 가입 가능 안내",
+			"id": "ogn-mbr-auth-request::action-area-auth-confirm",
+			"name": "action-area-auth-confirm",
+			"type": "action-area",
+			"raw": {
+				"description": "인증 확인 버튼 영역",
+				"variant": "strong",
+				"events": "이벤트=onClick; 액션=apiCall"
+			}
+		},
+		{
+			"id": "ogn-mbr-member-status::section-message-status-dormant",
+			"name": "section-message-status-dormant",
 			"type": "section-message",
-			"props": {
+			"raw": {
+				"description": "휴면 회원 안내",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-STAT-001-05] 휴면 상태 후속 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-member-status::section-message-status-withdrawn",
+			"name": "section-message-status-withdrawn",
+			"type": "section-message",
+			"raw": {
+				"description": "탈퇴 회원 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-STAT-001-06] 탈퇴 상태 후속 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-member-status::section-message-status-error",
+			"name": "section-message-status-error",
+			"type": "section-message",
+			"raw": {
+				"description": "조회 오류 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-STAT-001-10] 조회 실패 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-member-status::button-status-retry",
+			"name": "button-status-retry",
+			"type": "button",
+			"raw": {
+				"description": "재시도 버튼",
+				"variant": "outlined",
+				"note": "오류 발생 시 노출",
+				"events": "이벤트=onClick; 액션=apiCall"
+			}
+		},
+		{
+			"id": "ogn-mbr-join-path::section-message-join-available",
+			"name": "section-message-join-available",
+			"type": "section-message",
+			"raw": {
+				"description": "신규 가입 가능 안내",
+				"variant": "positive",
+				"note": "[정책:POL-MBR-JOIN-001-01] 신규가입 가능 고객 상태"
+			}
+		},
+		{
+			"id": "ogn-mbr-join-path::section-message-join-dormant",
+			"name": "section-message-join-dormant",
+			"type": "section-message",
+			"raw": {
+				"description": "휴면 해제 유도 안내",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-JOIN-001-03] 기존 휴면 회원 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-join-path::section-message-join-blocked",
+			"name": "section-message-join-blocked",
+			"type": "section-message",
+			"raw": {
+				"description": "가입 제한 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-JOIN-001-05] 가입 제한 고객 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-join-path::action-area-join-proceed",
+			"name": "action-area-join-proceed",
+			"type": "action-area",
+			"raw": {
+				"description": "가입 진행 버튼 영역",
+				"variant": "strong",
+				"note": "미가입 상태 판정 시 활성화",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=NOVA-MBR-FP-005-0"
+			}
+		},
+		{
+			"id": "ogn-mbr-join-complete::section-message-join-success",
+			"name": "section-message-join-success",
+			"type": "section-message",
+			"raw": {
+				"description": "가입 완료 안내 메시지",
 				"variant": "positive"
 			}
 		},
 		{
-			"id": "section-message-join-dormant",
-			"name": "휴면 해제 유도 안내",
+			"id": "ogn-mbr-join-complete::section-message-session-error",
+			"name": "section-message-session-error",
 			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
+			"raw": {
+				"description": "세션 생성 실패 안내",
+				"variant": "cautionary",
+				"note": "세션 생성 실패 시 노출"
 			}
 		},
 		{
-			"id": "section-message-join-blocked",
-			"name": "가입 제한 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "negative"
-			}
-		},
-		{
-			"id": "action-area-join-proceed",
-			"name": "가입 진행 버튼 영역",
+			"id": "ogn-mbr-join-complete::action-area-join-done",
+			"name": "action-area-join-done",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "홈으로 이동 버튼 영역",
+				"variant": "strong",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=홈"
 			}
 		},
 		{
-			"id": "section-message-join-success",
-			"name": "가입 완료 안내 메시지",
+			"id": "ogn-mbr-dormant-detect::section-message-dormant-guide",
+			"name": "section-message-dormant-guide",
 			"type": "section-message",
-			"props": {
-				"variant": "positive"
+			"raw": {
+				"description": "휴면 상태 안내 메시지",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-LOGIN-001-12] 휴면 진입 안내 문구"
 			}
 		},
 		{
-			"id": "section-message-session-error",
-			"name": "세션 생성 실패 안내",
+			"id": "ogn-mbr-dormant-detect::section-message-dormant-error",
+			"name": "section-message-dormant-error",
 			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
+			"raw": {
+				"description": "조회 오류 안내",
+				"variant": "negative",
+				"note": "상태 조회 실패 시 노출"
 			}
 		},
 		{
-			"id": "action-area-join-done",
-			"name": "홈으로 이동 버튼 영역",
+			"id": "ogn-mbr-dormant-detect::action-area-dormant-release",
+			"name": "action-area-dormant-release",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "휴면 해제하기 버튼 영역",
+				"variant": "strong",
+				"note": "[정책:POL-MBR-LOGIN-001-07] 휴면 해제 이동 경로",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=NOVA-MBR-FP-007-0"
 			}
 		},
 		{
-			"id": "section-message-dormant-guide",
-			"name": "휴면 상태 안내 메시지",
+			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-guide",
+			"name": "section-message-eligibility-guide",
 			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
+			"raw": {
+				"description": "휴면 해제 가능 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-DORM-001-01] 휴면 해제 가능 상태"
 			}
 		},
 		{
-			"id": "section-message-dormant-error",
-			"name": "조회 오류 안내",
+			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-block",
+			"name": "section-message-eligibility-block",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "해제 불가 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-DORM-001-02] 휴면 해제 불가 상태"
 			}
 		},
 		{
-			"id": "action-area-dormant-release",
-			"name": "휴면 해제하기 버튼 영역",
+			"id": "ogn-mbr-dormant-eligibility::section-message-eligibility-error",
+			"name": "section-message-eligibility-error",
+			"type": "section-message",
+			"raw": {
+				"description": "판정 오류 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-DORM-001-10] 판정 실패 처리"
+			}
+		},
+		{
+			"id": "ogn-mbr-dormant-eligibility::action-area-eligibility-proceed",
+			"name": "action-area-eligibility-proceed",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "본인인증 진행 버튼 영역",
+				"variant": "strong",
+				"note": "[정책:POL-MBR-DORM-001-03] 본인확인 필요 여부",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=NOVA-MBR-FP-008-0"
 			}
 		},
 		{
-			"id": "section-message-eligibility-guide",
-			"name": "휴면 해제 가능 안내",
+			"id": "ogn-mbr-dormant-release::section-message-release-progress",
+			"name": "section-message-release-progress",
 			"type": "section-message",
-			"props": {
-				"variant": "info"
+			"raw": {
+				"description": "휴면 해제 처리 중 안내",
+				"variant": "info",
+				"note": "[정책:POL-MBR-DORM-002-03] 상태 전환 조건"
 			}
 		},
 		{
-			"id": "section-message-eligibility-block",
-			"name": "해제 불가 안내",
+			"id": "ogn-mbr-dormant-release::section-message-release-error",
+			"name": "section-message-release-error",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "처리 오류 안내",
+				"variant": "negative",
+				"note": "[정책:POL-MBR-DORM-002-07] 상태 전환 실패 처리\n[정책:POL-MBR-DORM-003-08] 복원 실패 처리"
 			}
 		},
 		{
-			"id": "section-message-eligibility-error",
-			"name": "판정 오류 안내",
+			"id": "ogn-mbr-dormant-release::section-message-release-session-error",
+			"name": "section-message-release-session-error",
 			"type": "section-message",
-			"props": {
-				"variant": "negative"
+			"raw": {
+				"description": "세션 복구 실패 안내",
+				"variant": "cautionary",
+				"note": "[정책:POL-MBR-SESS-002-07] 세션 복구 실패 처리"
 			}
 		},
 		{
-			"id": "action-area-eligibility-proceed",
-			"name": "본인인증 진행 버튼 영역",
+			"id": "ogn-mbr-dormant-complete::section-message-complete-result",
+			"name": "section-message-complete-result",
+			"type": "section-message",
+			"raw": {
+				"description": "휴면 해제 완료 안내 메시지",
+				"variant": "positive",
+				"note": "[정책:POL-MBR-DORM-004-12] 결과 안내 문구\n[정책:POL-MBR-DORM-004-04] 화면 안내 항목"
+			}
+		},
+		{
+			"id": "ogn-mbr-dormant-complete::action-area-complete-home",
+			"name": "action-area-complete-home",
 			"type": "action-area",
-			"props": {
-				"variant": "strong"
-			}
-		},
-		{
-			"id": "section-message-release-progress",
-			"name": "휴면 해제 처리 중 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "info"
-			}
-		},
-		{
-			"id": "section-message-release-error",
-			"name": "처리 오류 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "negative"
-			}
-		},
-		{
-			"id": "section-message-release-session-error",
-			"name": "세션 복구 실패 안내",
-			"type": "section-message",
-			"props": {
-				"variant": "cautionary"
-			}
-		},
-		{
-			"id": "section-message-complete-result",
-			"name": "휴면 해제 완료 안내 메시지",
-			"type": "section-message",
-			"props": {
-				"variant": "positive"
-			}
-		},
-		{
-			"id": "action-area-complete-home",
-			"name": "홈으로 이동 버튼 영역",
-			"type": "action-area",
-			"props": {
-				"variant": "strong"
+			"raw": {
+				"description": "홈으로 이동 버튼 영역",
+				"variant": "strong",
+				"note": "[정책:POL-MBR-DORM-004-07] 완료 후 기본 이동 경로",
+				"events": "이벤트=onClick; 액션=navigate; 파라미터=홈"
 			}
 		}
 	]

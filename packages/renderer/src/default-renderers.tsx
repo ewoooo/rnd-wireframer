@@ -142,12 +142,12 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		kind: "section-message",
 		render: ({ node, renderable }) => {
 			const { props } = renderable;
+			const heading = toText(props.title) || toText(props.message) || toText(node.metadata.title);
+			const body = props.title && props.message ? toText(props.message) : toText(props.description);
 			return (
 				<div key={node.metadata.id} className={getSectionMessageClassName(toText(props.variant))}>
-					<p className="text-sm font-semibold">{toText(props.title, node.metadata.title)}</p>
-					{props.description ? (
-						<p className="mt-1 text-xs leading-5 opacity-80">{toText(props.description)}</p>
-					) : null}
+					<p className="text-sm font-semibold">{heading}</p>
+					{body ? <p className="mt-1 text-xs leading-5 opacity-80">{body}</p> : null}
 				</div>
 			);
 		},
