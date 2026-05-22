@@ -42,4 +42,7 @@ supabase/.temp/
 .codex-artifacts/
 *.tsbuildinfo
 
+# Next.js auto-generated type file (regenerated on every dev/build run)
+next-env.d.ts
+
 .gstack/
