@@ -36,6 +36,13 @@
 			"keywords": ["area", "checkbox", "check", "vertical"]
 		},
 		{
+			"id": "accordion-list",
+			"target": "area",
+			"name": "아코디언 리스트",
+			"description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
+			"keywords": ["area", "accordion", "expand", "list-cell"]
+		},
+		{
 			"id": "message-stack",
 			"target": "area",
 			"name": "메시지 스택",
