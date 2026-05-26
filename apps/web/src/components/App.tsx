@@ -4,7 +4,7 @@ import type { RegisteredNodeTree } from "@cx/agent";
 import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { loadLocalWorkbenchData } from "@/data/local-workbench-data-loader";
+import type { AppOrganism, AppScreen } from "@/adapters/tables-to-render-tree";
 import { useWorkbenchStore } from "@/model/store";
 import { Canvas } from "./layout/Canvas";
 import { InspectionPanel } from "./layout/InspectionPanel";
@@ -12,20 +12,22 @@ import { NavigationPanel } from "./layout/NavigationPanel";
 
 interface AppProps {
 	agentRegistry?: RegisteredNodeTree;
+	initialData: {
+		screens: AppScreen[];
+		organisms: AppOrganism[];
+	};
 }
 
-const localWorkbenchData = loadLocalWorkbenchData();
-
-export function App({ agentRegistry = mockAgentAssetRegistry }: AppProps) {
+export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: AppProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
 
 	useEffect(() => {
 		initializeWorkbench({
 			agentRegistry,
-			organisms: localWorkbenchData.organisms,
-			screens: localWorkbenchData.screens,
+			organisms: initialData.organisms,
+			screens: initialData.screens,
 		});
-	}, [agentRegistry, initializeWorkbench]);
+	}, [agentRegistry, initializeWorkbench, initialData]);
 
 	return (
 		<SidebarProvider>
