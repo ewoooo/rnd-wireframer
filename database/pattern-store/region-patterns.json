@@ -33,6 +33,51 @@
 				"childOrder": "explicit",
 				"gap": 0
 			}
+		},
+		{
+			"id": "commerce-detail-content-stack",
+			"target": "region",
+			"name": "상품 상세 콘텐츠 스택",
+			"description": "ThumbnailLarge, ProductInfo, Pagestack section, Divider, Footer가 순차로 흐르는 상품 상세 contents region 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": [
+						"area"
+					],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"divider": {
+						"type": "section"
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaNode": "10069:97830",
+					"contentWidth": 393
+				}
+			}
+		},
+		{
+			"id": "commerce-detail-bottom-action",
+			"target": "region",
+			"name": "상품 상세 하단 액션",
+			"description": "Tooltip과 56px primary button을 safe area 위에 고정하는 상품 상세 bottom region 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"paddingX": 12,
+				"paddingY": 10,
+				"layoutProps": {
+					"bottomSafeArea": 36,
+					"buttonHeight": 56,
+					"sourceFigmaNode": "10228:58801"
+				}
+			}
 		}
 	]
 }

@@ -17,44 +17,40 @@ export function renderErrorPolicyFallback(
 ): ReactNode | null | undefined {
 	if (!policy) return undefined;
 
-	switch (policy) {
-		case ERROR_POLICY.HIDE_AREA:
-			return null;
-
-		case ERROR_POLICY.HIDE_ITEM:
-			return (
-				<section
-					key={context.areaId}
-					className={cx(
-						"flex w-full min-w-0 flex-col",
-						spacingUtilityClass("gap", context.titleGap),
-					)}
-					style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
-					data-area-empty="hide-item"
-				>
-					{context.areaName ? (
-						<p className="text-base font-semibold text-muted-foreground">{context.areaName}</p>
-					) : null}
-				</section>
-			);
-
-		case ERROR_POLICY.SHOW_DEFAULT:
-			return (
-				<section
-					key={context.areaId}
-					className={cx(
-						"flex w-full min-w-0 flex-col rounded-md border border-dashed bg-muted/30 p-3",
-						spacingUtilityClass("gap", context.titleGap),
-					)}
-					style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
-					data-area-empty="show-default"
-				>
-					{context.areaName ? <p className="text-base font-semibold">{context.areaName}</p> : null}
-					<p className="text-xs text-muted-foreground">기본값 표시 — 데이터 미수신</p>
-				</section>
-			);
-
-		default:
-			return undefined;
-	}
+	return ERROR_POLICY_FALLBACK_RENDERERS[policy]?.(context);
 }
+
+type ErrorPolicyFallbackContext = { areaId: string; areaName?: string; titleGap: number };
+
+const ERROR_POLICY_FALLBACK_RENDERERS: Record<
+	string,
+	(context: ErrorPolicyFallbackContext) => ReactNode | null
+> = {
+	[ERROR_POLICY.HIDE_AREA]: () => null,
+	[ERROR_POLICY.HIDE_ITEM]: (context) => (
+		<section
+			key={context.areaId}
+			className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", context.titleGap))}
+			style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
+			data-area-empty="hide-item"
+		>
+			{context.areaName ? (
+				<p className="text-base font-semibold text-muted-foreground">{context.areaName}</p>
+			) : null}
+		</section>
+	),
+	[ERROR_POLICY.SHOW_DEFAULT]: (context) => (
+		<section
+			key={context.areaId}
+			className={cx(
+				"flex w-full min-w-0 flex-col rounded-md border border-dashed bg-muted/30 p-3",
+				spacingUtilityClass("gap", context.titleGap),
+			)}
+			style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
+			data-area-empty="show-default"
+		>
+			{context.areaName ? <p className="text-base font-semibold">{context.areaName}</p> : null}
+			<p className="text-xs text-muted-foreground">기본값 표시 — 데이터 미수신</p>
+		</section>
+	),
+};

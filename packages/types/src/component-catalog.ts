@@ -7,8 +7,12 @@ import type { TokenRole, TokenSlot } from "./tokens";
  */
 export type RenderTreeNodeKind =
 	| "accordion"
+	| "accordion-info"
 	| "action"
+	| "badge"
 	| "banner-indicator"
+	| "card-contents"
+	| "card-summary"
 	| "checkbox"
 	| "divider"
 	| "fallback"
@@ -26,8 +30,10 @@ export type RenderTreeNodeKind =
 	| "section-header"
 	| "section-message"
 	| "store-card"
+	| "text-link"
 	| "text-field"
-	| "thumbnail-large";
+	| "thumbnail-large"
+	| "title-section";
 
 export type ComponentCatalogSource = "react-component" | "renderer-composite" | "layout-primitive";
 

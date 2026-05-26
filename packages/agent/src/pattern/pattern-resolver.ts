@@ -1,6 +1,7 @@
 import type {
 	ComposedAreaNode,
 	ComposedComponentNode,
+	NodeLevel,
 	PatternRef,
 	PatternResolver,
 } from "../types";
@@ -53,8 +54,8 @@ export function createPatternResolver(
 	const areaPatterns = patterns.filter(isAreaPattern);
 	const compositePatterns = patterns.filter(isCompositePattern);
 
-	return ({ level, node }) => {
-		if (level === "component") {
+	const resolverByLevel = {
+		component: (node) => {
 			const component = node as ComposedComponentNode;
 			const type = component.type ?? "unknown";
 			return (
@@ -64,8 +65,8 @@ export function createPatternResolver(
 					reasons: [`component type: ${type}`],
 				}
 			);
-		}
-		if (level === "area") {
+		},
+		area: (node) => {
 			const area = node as AreaResolutionInput;
 			return (
 				resolveArea(area, areaPatterns) ?? {
@@ -76,15 +77,13 @@ export function createPatternResolver(
 					reasons: area.layout ? [`layout: ${area.layout}`] : ["default area pattern"],
 				}
 			);
-		}
-		if (level === "screen") {
-			return {
-				id: FALLBACK_PATTERN_ID.screen,
-				variant: DEFAULT_VARIANT,
-				reasons: ["deterministic screen shell"],
-			};
-		}
-		if (level === "region") {
+		},
+		screen: () => ({
+			id: FALLBACK_PATTERN_ID.screen,
+			variant: DEFAULT_VARIANT,
+			reasons: ["deterministic screen shell"],
+		}),
+		region: (node) => {
 			const region = node as { slot?: string };
 			const slot = region.slot ?? "contents";
 			return {
@@ -92,23 +91,20 @@ export function createPatternResolver(
 				variant: DEFAULT_VARIANT,
 				reasons: [`region slot: ${slot}`],
 			};
-		}
-		if (level === "variant") {
-			return {
-				id: FALLBACK_PATTERN_ID.variant,
-				variant: DEFAULT_VARIANT,
-				reasons: ["default variant pattern"],
-			};
-		}
-		if (level === "route") {
-			return {
-				id: FALLBACK_PATTERN_ID.route,
-				variant: DEFAULT_VARIANT,
-				reasons: ["default route pattern"],
-			};
-		}
-		return undefined;
-	};
+		},
+		variant: () => ({
+			id: FALLBACK_PATTERN_ID.variant,
+			variant: DEFAULT_VARIANT,
+			reasons: ["default variant pattern"],
+		}),
+		route: () => ({
+			id: FALLBACK_PATTERN_ID.route,
+			variant: DEFAULT_VARIANT,
+			reasons: ["default route pattern"],
+		}),
+	} satisfies Record<NodeLevel, (node: unknown) => PatternRef | undefined>;
+
+	return ({ level, node }) => resolverByLevel[level]?.(node);
 }
 
 function resolveComposite(
@@ -224,10 +220,12 @@ function pickWinner<TPattern extends Pattern>(
 	scored: Array<Scored<TPattern>>,
 ): PatternRef | undefined {
 	if (scored.length === 0) return undefined;
+	// priority 시스템 제거 (2026-05-26): 동점일 때 pattern id 알파벳 순으로 deterministic 결정.
+	// 다중 매칭이 의미 있는 다른 패턴을 가리키면 AI Pattern Selector가 최종 결정한다.
 	scored.sort((a, b) => {
 		const scoreDiff = b.score - a.score;
 		if (scoreDiff !== 0) return scoreDiff;
-		return (b.pattern.resolution?.priority ?? 0) - (a.pattern.resolution?.priority ?? 0);
+		return a.pattern.id.localeCompare(b.pattern.id);
 	});
 	const winner = scored[0];
 	return { id: winner.pattern.id, variant: DEFAULT_VARIANT, reasons: winner.reasons };

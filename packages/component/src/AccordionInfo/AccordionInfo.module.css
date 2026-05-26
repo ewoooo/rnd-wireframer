@@ -1,0 +1,70 @@
+.accordionInfo {
+	display: flex;
+	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	flex-direction: column;
+	padding: 20px 24px;
+	border: 1px solid #ebeef6;
+	border-radius: 20px;
+	background: #ffffff;
+	color: #05001a;
+	font-family: var(--skt-typography-font-family-base);
+	letter-spacing: 0;
+}
+
+.price {
+	padding: 24px;
+}
+
+.header {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+	text-align: left;
+}
+
+.title {
+	min-width: 0;
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.priceText {
+	margin-left: auto;
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.35;
+	color: #3617ce;
+}
+
+.chevron {
+	width: 8px;
+	height: 8px;
+	flex-shrink: 0;
+	border-right: 1.5px solid #05001a;
+	border-bottom: 1.5px solid #05001a;
+	transform: rotate(45deg) translateY(-2px);
+	transition: transform 0.15s ease;
+}
+
+.chevron.open {
+	transform: rotate(225deg) translateY(-2px);
+}
+
+.body {
+	margin: 16px 0 0;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.55;
+	color: rgba(6, 12, 31, 0.6);
+}

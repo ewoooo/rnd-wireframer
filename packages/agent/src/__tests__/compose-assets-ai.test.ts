@@ -4,6 +4,7 @@ import {
 	type ComposeAIRunner,
 	composeAssetContentsWithAI,
 	identifyGaps,
+	identifyPlacementCandidates,
 	mergeProposals,
 } from "../compose/compose-assets-ai";
 import type { ComposedNodeTree } from "../types";
@@ -95,6 +96,48 @@ describe("identifyGaps", () => {
 	});
 });
 
+describe("identifyPlacementCandidates", () => {
+	it("flags non-system bottom areas for AI placement review", () => {
+		const candidates = identifyPlacementCandidates(
+			makeInput({
+				screens: [
+					{
+						id: "s1",
+						variantId: "v1",
+						children: {
+							contents: [{ areaId: "ogn-mbr-member-input", order: 1 }],
+							bottom: [
+								{ areaId: "ogn-mbr-guardian-result", order: 1 },
+								{ areaId: "synth-bottom-s1", order: 2 },
+								{ areaId: "s1-bottom-actions", order: 3 },
+							],
+						},
+					},
+				],
+				areas: [
+					{
+						level: "area",
+						id: "ogn-mbr-member-input",
+						order: 1,
+						name: "회원 정보 입력",
+						children: [],
+					},
+					{
+						level: "area",
+						id: "ogn-mbr-guardian-result",
+						order: 2,
+						name: "법정대리인 동의 결과 확인",
+						description: "법정대리인 동의 완료 여부 확인 및 결과 안내",
+						children: [],
+					},
+				],
+			}),
+		);
+
+		expect(candidates.map((candidate) => candidate.areaId)).toEqual(["ogn-mbr-guardian-result"]);
+	});
+});
+
 describe("mergeProposals", () => {
 	it("adds only novel keys, never overwrites existing props", () => {
 		const result = mergeProposals(makeInput(), [
@@ -138,6 +181,52 @@ describe("mergeProposals", () => {
 	it("warns when proposal targets unknown component", () => {
 		const result = mergeProposals(makeInput(), [{ componentId: "ghost", props: { label: "x" } }]);
 		expect(result.warnings).toEqual(["Proposal for unknown component: ghost"]);
+	});
+
+	it("moves misplaced bottom result areas back to contents from placement proposals", () => {
+		const input = makeInput({
+			screens: [
+				{
+					id: "s1",
+					variantId: "v1",
+					children: {
+						contents: [{ areaId: "ogn-mbr-member-input", order: 1 }],
+						bottom: [{ areaId: "ogn-mbr-guardian-result", order: 1 }],
+					},
+				},
+			],
+			areas: [
+				...(makeInput().areas ?? []),
+				{
+					level: "area",
+					id: "ogn-mbr-guardian-result",
+					order: 2,
+					name: "법정대리인 동의 결과 확인",
+					description: "법정대리인 동의 완료 여부 확인 및 결과 안내",
+					children: [],
+				},
+			],
+		});
+
+		const result = mergeProposals(
+			input,
+			[],
+			[
+				{
+					screenId: "s1",
+					areaId: "ogn-mbr-guardian-result",
+					region: "contents",
+					rationale: "결과 확인 영역은 bottom CTA가 아니라 본문 상태 안내다.",
+				},
+			],
+		);
+
+		expect(result.movedAreaIds).toEqual(["ogn-mbr-guardian-result"]);
+		expect(result.composed.screens[0]?.children.bottom).toBeUndefined();
+		expect(result.composed.screens[0]?.children.contents?.map((ref) => ref.areaId)).toEqual([
+			"ogn-mbr-member-input",
+			"ogn-mbr-guardian-result",
+		]);
 	});
 });
 
@@ -192,5 +281,63 @@ describe("composeAssetContentsWithAI", () => {
 			helperText: "20자 이내",
 		});
 		expect(result.mergedComponentIds).toEqual(["text-field-user-id"]);
+	});
+
+	it("calls runner for placement review even when prop gaps are absent", async () => {
+		const runner = vi.fn().mockResolvedValue({
+			proposals: [],
+			placements: [
+				{
+					screenId: "s1",
+					areaId: "ogn-mbr-guardian-result",
+					region: "contents",
+					rationale: "결과 확인 영역은 본문 상태 안내다.",
+				},
+			],
+		});
+		const input = makeInput({
+			screens: [
+				{
+					id: "s1",
+					variantId: "v1",
+					children: {
+						contents: [],
+						bottom: [{ areaId: "ogn-mbr-guardian-result", order: 1 }],
+					},
+				},
+			],
+			areas: [
+				{
+					level: "area",
+					id: "ogn-mbr-guardian-result",
+					order: 1,
+					name: "법정대리인 동의 결과 확인",
+					description: "법정대리인 동의 완료 여부 확인 및 결과 안내",
+					children: [{ componentId: "section-message-guardian-wait", order: 1 }],
+				},
+			],
+			components: [
+				{
+					id: "section-message-guardian-wait",
+					type: "section-message",
+					props: {
+						title: "동의 대기 중",
+						description: "법정대리인 동의가 완료되면 다음 단계로 진행됩니다.",
+						tone: "info",
+					},
+				},
+			],
+		});
+
+		const result = await composeAssetContentsWithAI(input, { runner });
+
+		expect(runner).toHaveBeenCalledTimes(1);
+		const prompt = (runner.mock.calls[0]?.[0] as { prompt: string }).prompt;
+		expect(prompt).toContain("placement_candidates");
+		expect(prompt).toContain("법정대리인 동의 결과 확인");
+		expect(result.movedAreaIds).toEqual(["ogn-mbr-guardian-result"]);
+		expect(result.composed.screens[0]?.children.contents?.[0]?.areaId).toBe(
+			"ogn-mbr-guardian-result",
+		);
 	});
 });

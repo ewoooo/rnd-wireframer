@@ -87,19 +87,16 @@ export const RADIUS_TOKEN_SET: ReadonlySet<number> = new Set(RADIUS_TOKEN_VALUES
 export const ELEVATION_TOKEN_VALUES: readonly number[] = [0, 1, 2, 3, 4];
 export const ELEVATION_TOKEN_SET: ReadonlySet<number> = new Set(ELEVATION_TOKEN_VALUES);
 
+const NUMERIC_TOKEN_SCALE_BY_ROLE: Partial<Record<TokenRole, ReadonlySet<number>>> = {
+	elevation: ELEVATION_TOKEN_SET,
+	radius: RADIUS_TOKEN_SET,
+	spacing: SPACING_TOKEN_SET,
+};
+
 /**
  * Numeric token role의 허용 스케일을 조회한다.
  * 비수치 token role(color/typography/motion)에는 undefined를 반환한다.
  */
 export function getNumericTokenScale(role: TokenRole): ReadonlySet<number> | undefined {
-	switch (role) {
-		case "spacing":
-			return SPACING_TOKEN_SET;
-		case "radius":
-			return RADIUS_TOKEN_SET;
-		case "elevation":
-			return ELEVATION_TOKEN_SET;
-		default:
-			return undefined;
-	}
+	return NUMERIC_TOKEN_SCALE_BY_ROLE[role];
 }

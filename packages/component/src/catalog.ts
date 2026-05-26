@@ -1,4 +1,9 @@
-import { isTokenRole, type ComponentCatalog, type ComponentCatalogEntry, type ComponentPropContract } from "@cx/types";
+import {
+	type ComponentCatalog,
+	type ComponentCatalogEntry,
+	type ComponentPropContract,
+	isTokenRole,
+} from "@cx/types";
 
 export const componentCatalog = {
 	"Layout.Flex": {
@@ -109,6 +114,7 @@ export const componentCatalog = {
 	},
 	Badge: {
 		type: "Badge",
+		kind: "badge",
 		source: "react-component",
 		version: "1.0.0",
 		props: {
@@ -189,6 +195,33 @@ export const componentCatalog = {
 			children: { type: "string", role: "content", required: true },
 		},
 	},
+	CardContentsFilled: {
+		type: "CardContentsFilled",
+		kind: "card-contents",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Filled content card with a slot-like text surface.",
+		aliases: ["card-contents-filled", "CardText", "card-text"],
+		props: {
+			title: { type: "string", role: "title" },
+			description: { type: "string", role: "description" },
+		},
+	},
+	CardSummary: {
+		type: "CardSummary",
+		kind: "card-summary",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Summary card for product, rating, price, or calculation sections.",
+		aliases: ["card-summary"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			subText: { type: "string", role: "description" },
+			rightText: { type: "string", role: "value" },
+			items: { type: "array", role: "data" },
+			buttonLabel: { type: "string", role: "label" },
+		},
+	},
 	Accordion: {
 		type: "Accordion",
 		kind: "accordion",
@@ -198,6 +231,33 @@ export const componentCatalog = {
 		props: {
 			title: { type: "string", role: "title", required: true },
 			description: { type: "string", role: "description" },
+			expanded: { type: "boolean", role: "state", defaultValue: false },
+		},
+	},
+	AccordionNoticeInfo: {
+		type: "AccordionNoticeInfo",
+		kind: "accordion-info",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Notice accordion for PRDD detail/spec information sections.",
+		aliases: ["accordion-notice-info"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			description: { type: "string", role: "description" },
+			expanded: { type: "boolean", role: "state", defaultValue: false },
+		},
+	},
+	AccordionPriceInfo: {
+		type: "AccordionPriceInfo",
+		kind: "accordion-info",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Price accordion for PRDD subsidy/price comparison sections.",
+		aliases: ["accordion-price-info"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			description: { type: "string", role: "description" },
+			priceText: { type: "string", role: "value" },
 			expanded: { type: "boolean", role: "state", defaultValue: false },
 		},
 	},
@@ -456,7 +516,11 @@ export const componentCatalog = {
 				defaultValue: "info",
 				variantTokens: {
 					info: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon.brand" },
-					negative: { surface: "color.surface.elevated", text: "color.text.error", icon: "color.icon" },
+					negative: {
+						surface: "color.surface.elevated",
+						text: "color.text.error",
+						icon: "color.icon",
+					},
 					positive: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon" },
 					cautionary: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon" },
 				},
@@ -473,6 +537,18 @@ export const componentCatalog = {
 		props: {
 			items: { type: "array", role: "data", required: true },
 			activeKey: { type: "string", role: "state", required: true },
+		},
+	},
+	TextButton: {
+		type: "TextButton",
+		kind: "text-link",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Inline text button, including underline link variants in PRDD specs.",
+		aliases: ["ButtonTextUnderline", "button-text-underline", "text-button"],
+		props: {
+			label: { type: "string", role: "label", required: true },
+			underline: { type: "boolean", role: "styleVariant", defaultValue: false },
 		},
 	},
 	TextField: {
@@ -495,6 +571,20 @@ export const componentCatalog = {
 			},
 			error: { type: "boolean", role: "state", defaultValue: false },
 			rightElement: { type: "node", role: "slot", aiWritable: false },
+		},
+	},
+	TitleSection: {
+		type: "TitleSection",
+		kind: "title-section",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Section title row used by PRDD and SKT Next UI section stacks.",
+		aliases: ["title-section", "TitleContents"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			subtitle: { type: "string", role: "description" },
+			rightText: { type: "string", role: "label" },
+			badge: { type: "string", role: "styleVariant" },
 		},
 	},
 	ThumbnailLarge: {

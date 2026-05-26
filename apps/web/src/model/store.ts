@@ -86,7 +86,6 @@ interface WorkbenchState {
 
 export interface AgentClientImport {
 	id: string;
-	areaFiles: number;
 	screenFiles: number;
 }
 

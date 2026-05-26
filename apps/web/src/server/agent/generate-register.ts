@@ -1,15 +1,15 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { aiSelectPatterns } from "@cx/agent/ai-pattern-selector";
 import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator";
 import { composeAssetContents } from "@cx/agent/compose-assets";
 import { composeAssetContentsWithAI } from "@cx/agent/compose-assets-ai";
+import { composeSynthesizeWithAI } from "@cx/agent/compose-synthesize-ai";
 import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
 import { aiReviewDesignTree, applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
-import { parseClientImportMarkdownBundle } from "@cx/agent/register/client-import-parser";
 import { registerAssets } from "@cx/agent/register-assets";
 import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
 import { createPatternResolver } from "@cx/agent/resolvers/pattern-resolver";
-import { errorsOf, warningsOf } from "@cx/types";
 import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { assertValidImportId, readClientImportMarkdownFiles } from "@/server/agent/client-imports";
 import { getDatabaseDir } from "@/server/database-paths";
@@ -20,10 +20,11 @@ const AI_IMPORTS_DIR = path.join(DATABASE_DIR, "ai-imports");
 
 /**
  * 모델 정렬:
- * - Extract: Sonnet — markdown verbatim 추출은 단순 작업이라 비용·속도 우선
- * - Compose / DesignReview AI: Opus — 풍부한 맥락에서 판단·생성 필요
+ * - Extract: Opus — Sonnet은 organism 컴포넌트 표 walk를 누락하는 사례가 반복됐다.
+ *   instruction-following 안정성을 위해 Opus로 승격.
+ * - Compose / Pattern Selector / DesignReview AI: Opus.
  */
-const MODEL_EXTRACT = "claude-sonnet-4-6";
+const MODEL_EXTRACT = "claude-opus-4-7";
 const MODEL_COMPOSE = "claude-opus-4-7";
 const MODEL_REVIEWER = "claude-opus-4-7";
 const AGENT_ASSETS_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.json");
@@ -36,12 +37,6 @@ const AGENT_ASSETS_DESIGN_REVIEW_PATH = path.join(
 );
 const AGENT_ASSETS_REVIEWED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.reviewed.json");
 const AGENT_ASSETS_MATERIALIZED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.materialized.json");
-const CLIENT_IMPORT_PARSED_PATH = path.join(AI_IMPORTS_DIR, "client-import.parsed.json");
-const CLIENT_IMPORT_VALIDATION_PATH = path.join(AI_IMPORTS_DIR, "client-import.validation.json");
-const CLIENT_IMPORT_MATERIALIZED_PATH = path.join(
-	AI_IMPORTS_DIR,
-	"client-import.materialized.json",
-);
 
 export interface GenerateAgentRegisterOptions {
 	composeWithAI?: boolean;
@@ -60,57 +55,23 @@ export async function generateAgentRegister({
 	const patternStore = loadPatternStoreForWorkbench();
 	const resolvePattern = createPatternResolver({ patterns: patternStore.patterns });
 
-	const { areaFiles, screenFiles } = await readClientImportMarkdownFiles(importId);
+	const { screenFiles } = await readClientImportMarkdownFiles(importId);
 
 	console.info("[agent-generate] loaded markdown files", {
 		importId,
-		areaFiles: areaFiles.map((file) => ({
-			name: file.name,
-			characters: file.content.length,
-		})),
 		screenFiles: screenFiles.map((file) => ({
 			name: file.name,
 			characters: file.content.length,
 		})),
 	});
 
-	if (screenFiles.length === 0 && areaFiles.length === 0) {
-		throw new AgentGenerateError("No markdown files found in the selected client import.", 400);
+	if (screenFiles.length === 0) {
+		throw new AgentGenerateError("No screen markdown files found in the selected client import.", 400);
 	}
-
-	const deterministicCandidate = parseClientImportMarkdownBundle({
-		importId,
-		areaFiles,
-		screenFiles,
-	});
-	const deterministicRegistry = registerAssets(deterministicCandidate.generated);
-	const deterministicComposeResult = composeAssetContents(deterministicRegistry);
-	const deterministicDecorated = decorateRegisteredAssets(deterministicComposeResult.composed, {
-		resolvePattern,
-	});
-	const deterministicReview = reviewDesignTree(deterministicDecorated);
-	const deterministicReviewed = applyDesignReview(
-		deterministicDecorated,
-		deterministicReview,
-	).reviewed;
-	const deterministicMaterialized = materializeDecoratedAssetsToNodeTree(deterministicReviewed);
-	await writeDeterministicImportArtifacts({
-		generated: deterministicCandidate.generated,
-		materialized: deterministicMaterialized,
-		validation: deterministicCandidate.validation,
-	});
-	console.info("[agent-generate] wrote deterministic client import candidate", {
-		errorCount: errorsOf(deterministicCandidate.validation).length,
-		warningCount: warningsOf(deterministicCandidate.validation).length,
-		screenCount: deterministicMaterialized.screens.length,
-		areaCount: deterministicMaterialized.areas.length,
-		componentCount: deterministicMaterialized.components.length,
-	});
 
 	const claudeResult = await generateAssetsWithLocalClaude(
 		{
 			importId,
-			areaFiles,
 			screenFiles,
 		},
 		{
@@ -154,14 +115,43 @@ export async function generateAgentRegister({
 			sessionId: composeAIResult.sessionId,
 		});
 		composed = composeAIResult.composed;
+
+		// Composer-AI synthesis pass: chrome/CTA 등 누락 component를 추론·합성.
+		// Decorator가 다음 단계에서 region/area에 배치한다.
+		const synthResult = await composeSynthesizeWithAI(composed, {
+			cwd: PROJECT_DIR,
+			continueSession: false,
+			debug: true,
+			model: MODEL_COMPOSE,
+		});
+		console.info("[agent-generate] composed synthesis (AI)", {
+			proposalCount: synthResult.proposals.length,
+			skippedCount: synthResult.skipped.length,
+			warnings: synthResult.warnings,
+			sessionId: synthResult.sessionId,
+		});
+		composed = synthResult.composed;
 	}
 
+	// AI Pattern Selector: deterministic 매칭 위에 AI 선택을 override로 얹는다.
+	const patternSelection = await aiSelectPatterns(composed, {
+		cwd: PROJECT_DIR,
+		continueSession: false,
+		debug: true,
+		model: MODEL_COMPOSE,
+	});
+	console.info("[agent-generate] ai pattern selector", {
+		selectionCount: patternSelection.selections.size,
+		skippedCount: patternSelection.skipped.length,
+		warnings: patternSelection.warnings,
+		sessionId: patternSelection.sessionId,
+	});
 	const decorated = decorateRegisteredAssets(composed, {
 		resolvePattern,
+		aiPatternSelections: patternSelection.selections,
 	});
 	const deterministicDesignReview = reviewDesignTree(decorated);
 	let designReview = deterministicDesignReview;
-	let aiReviewSessionId: string | undefined;
 	if (reviewWithAI) {
 		const aiReview = await aiReviewDesignTree(decorated, {
 			cwd: PROJECT_DIR,
@@ -169,17 +159,10 @@ export async function generateAgentRegister({
 			debug: true,
 			model: MODEL_REVIEWER,
 		});
-		aiReviewSessionId = aiReview.sessionId;
 		designReview = {
 			...deterministicDesignReview,
-			operations: [
-				...deterministicDesignReview.operations,
-				...aiReview.designReview.operations,
-			],
-			findings: [
-				...deterministicDesignReview.findings,
-				...aiReview.designReview.findings,
-			],
+			operations: [...deterministicDesignReview.operations, ...aiReview.designReview.operations],
+			findings: [...deterministicDesignReview.findings, ...aiReview.designReview.findings],
 			warnings: [
 				...deterministicDesignReview.warnings,
 				...aiReview.designReview.warnings,
@@ -235,9 +218,6 @@ export async function generateAgentRegister({
 		writtenPaths: {
 			assets: "database/ai-imports/agent-assets.json",
 			composed: "database/ai-imports/agent-assets.composed.json",
-			deterministicMaterialized: "database/ai-imports/client-import.materialized.json",
-			deterministicParsed: "database/ai-imports/client-import.parsed.json",
-			deterministicValidation: "database/ai-imports/client-import.validation.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
 			designReview: "database/ai-imports/agent-assets.design-review.json",
@@ -254,29 +234,6 @@ export class AgentGenerateError extends Error {
 	) {
 		super(message);
 	}
-}
-
-async function writeDeterministicImportArtifacts(payload: {
-	generated: unknown;
-	materialized: unknown;
-	validation: unknown;
-}) {
-	await mkdir(AI_IMPORTS_DIR, { recursive: true });
-	await writeFile(
-		CLIENT_IMPORT_PARSED_PATH,
-		`${JSON.stringify(payload.generated, null, "\t")}\n`,
-		"utf8",
-	);
-	await writeFile(
-		CLIENT_IMPORT_VALIDATION_PATH,
-		`${JSON.stringify(payload.validation, null, "\t")}\n`,
-		"utf8",
-	);
-	await writeFile(
-		CLIENT_IMPORT_MATERIALIZED_PATH,
-		`${JSON.stringify(payload.materialized, null, "\t")}\n`,
-		"utf8",
-	);
 }
 
 async function writeAgentImportArtifacts(payload: {

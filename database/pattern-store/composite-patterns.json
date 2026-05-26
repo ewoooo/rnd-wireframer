@@ -1,6 +1,24 @@
 {
 	"patterns": [
 		{
+			"id": "component-app-bar",
+			"target": "composite",
+			"name": "앱 바",
+			"description": "단일 AppBar render component를 screen header chrome으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["AppBar"]
+				},
+				"keywords": ["AppBar", "app-bar", "appbar", "header", "chrome"],
+				"priority": 90
+			}
+		},
+		{
 			"id": "component-text-field",
 			"target": "composite",
 			"name": "텍스트 필드",
@@ -110,6 +128,179 @@
 				},
 				"keywords": ["checkbox", "check"],
 				"priority": 80
+			}
+		},
+		{
+			"id": "component-product-info",
+			"target": "composite",
+			"name": "상품 정보 요약",
+			"description": "브랜드명, 상품명, 정상가/할인가, badge, CTA chip을 포함하는 ProductInfo composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 8,
+				"layoutProps": {
+					"paddingX": 32,
+					"titleGap": 6,
+					"priceGap": 4,
+					"sourceFigmaNode": "10069:97854"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["product-info", "price-text", "badge"]
+				},
+				"keywords": ["ProductInfo", "상품명", "가격", "할인가", "brand"],
+				"priority": 95
+			}
+		},
+		{
+			"id": "component-card-summary",
+			"target": "composite",
+			"name": "요약 카드",
+			"description": "상품명, 가격, 대표 설명을 담는 CardSummary 단일 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaNode": "10069:97858"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["card-summary"]
+				},
+				"keywords": ["CardSummary", "summary", "요약", "가격", "상품명"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "component-badge",
+			"target": "composite",
+			"name": "상태 배지",
+			"description": "판매 상태, 가입 가능 여부 같은 짧은 상태값을 표시하는 Badge 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["badge"]
+				},
+				"keywords": ["Badge", "status", "상태", "가입 가능"],
+				"priority": 86
+			}
+		},
+		{
+			"id": "component-text-button",
+			"target": "composite",
+			"name": "텍스트 버튼",
+			"description": "자세히 보기, 더보기 같은 inline link action을 표시하는 TextButton 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["text-link"]
+				},
+				"keywords": ["TextButton", "더보기", "자세히", "link"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-list-text",
+			"target": "composite",
+			"name": "리스트 텍스트",
+			"description": "라벨과 값을 한 줄로 표시하는 ListText 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": ["ListText", "list", "항목", "값"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-option-card",
+			"target": "composite",
+			"name": "옵션 선택 카드",
+			"description": "선택 상태 stroke와 보조 설명을 갖는 색상/용량/배송 옵션 카드 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 4,
+				"layoutProps": {
+					"minHeight": 74,
+					"radius": 12,
+					"selectedStroke": "primary",
+					"sourceFigmaNode": "10069:121745"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["option-card", "select-card"]
+				},
+				"keywords": ["option", "select", "색상", "용량", "배송"],
+				"priority": 92
+			}
+		},
+		{
+			"id": "component-banner-indicator",
+			"target": "composite",
+			"name": "배너 인디케이터",
+			"description": "상품 상세 중간에 들어가는 BannerIndicaterMedium carousel/banner composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"layoutProps": {
+					"width": 369,
+					"height": 112,
+					"indicator": true,
+					"sourceFigmaNode": "10069:97872"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["banner", "banner-indicator"]
+				},
+				"keywords": ["BannerIndicaterMedium", "banner", "carousel", "배너"],
+				"priority": 88
+			}
+		},
+		{
+			"id": "component-action-button-with-tooltip",
+			"target": "composite",
+			"name": "툴팁 포함 하단 액션 버튼",
+			"description": "Tooltip과 56px primary Button을 결합한 상품 상세 하단 CTA composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"layoutProps": {
+					"buttonHeight": 56,
+					"paddingX": 12,
+					"paddingTop": 10,
+					"paddingBottom": 36,
+					"sourceFigmaNode": "10228:58801"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["button"],
+					"anyOf": ["tooltip", "action-button"]
+				},
+				"keywords": ["ActionButton", "Tooltip", "구매", "신청", "bottom", "cta"],
+				"priority": 98
 			}
 		}
 	]

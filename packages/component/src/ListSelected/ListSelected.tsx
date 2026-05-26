@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CheckboxText } from "../Checkbox/Checkbox";
 import { ListSelectedRightItem } from "../ListSelectedRightItem/ListSelectedRightItem";
 import { RadioText } from "../Radio/Radio";
@@ -20,19 +21,28 @@ export function ListSelected({
 	label = "텍스트",
 	price = "-9,900원",
 	buttonLabel = "받기",
-	checked = false,
+	checked,
 	showPrice = true,
 	showButton = true,
 	onChange,
 	onButtonClick,
 }: ListSelectedProps) {
+	const [uncontrolledChecked, setUncontrolledChecked] = useState(false);
+	const isControlled = checked !== undefined;
+	const currentChecked = isControlled ? checked : uncontrolledChecked;
+
+	function handleChange(nextChecked: boolean) {
+		if (!isControlled) setUncontrolledChecked(nextChecked);
+		onChange?.(nextChecked);
+	}
+
 	return (
 		<div className={styles.row}>
 			<div className={styles.left}>
 				{type === "radio" ? (
-					<RadioText label={label} checked={checked} onChange={onChange} />
+					<RadioText label={label} checked={currentChecked} onChange={handleChange} />
 				) : (
-					<CheckboxText label={label} checked={checked} onChange={onChange} />
+					<CheckboxText label={label} checked={currentChecked} onChange={handleChange} />
 				)}
 			</div>
 			{showPrice && <span className={styles.price}>{price}</span>}

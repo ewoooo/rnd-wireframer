@@ -24,6 +24,54 @@ describe("@cx/renderer component-catalog", () => {
 			type: "Checkbox",
 			kind: "checkbox",
 		});
+		expect(getComponentCatalogEntry("product-info")).toMatchObject({
+			type: "ProductInfo",
+			kind: "product-info",
+		});
+		expect(getComponentCatalogEntry("thumbnail-large")).toMatchObject({
+			type: "ThumbnailLarge",
+			kind: "thumbnail-large",
+		});
+		expect(getComponentCatalogEntry("option-card")).toMatchObject({
+			type: "OptionCard",
+			kind: "option-card",
+		});
+		expect(getComponentCatalogEntry("banner-indicator")).toMatchObject({
+			type: "BannerIndicaterMedium",
+			kind: "banner-indicator",
+		});
+		expect(getComponentCatalogEntry("footer")).toMatchObject({
+			type: "Footer",
+			kind: "footer",
+		});
+		expect(getComponentCatalogEntry("legal-text")).toMatchObject({
+			type: "LegalText",
+			kind: "legal-text",
+		});
+		expect(getComponentCatalogEntry("map")).toMatchObject({
+			type: "MapBlock",
+			kind: "map",
+		});
+		expect(getComponentCatalogEntry("store-card")).toMatchObject({
+			type: "StoreCard",
+			kind: "store-card",
+		});
+		expect(getComponentCatalogEntry("ButtonTextUnderline")).toMatchObject({
+			type: "TextButton",
+			kind: "text-link",
+		});
+		expect(getComponentCatalogEntry("TitleSection")).toMatchObject({
+			type: "TitleSection",
+			kind: "title-section",
+		});
+		expect(getComponentCatalogEntry("AccordionPriceInfo")).toMatchObject({
+			type: "AccordionPriceInfo",
+			kind: "accordion-info",
+		});
+		expect(getComponentCatalogEntry("CardText")).toMatchObject({
+			type: "CardContentsFilled",
+			kind: "card-contents",
+		});
 	});
 
 	it("exposes prop contracts for compose-time inference", () => {
@@ -36,7 +84,20 @@ describe("@cx/renderer component-catalog", () => {
 
 	it("includes package components and renderer composites", () => {
 		expect(getComponentCatalogTypes()).toEqual(
-			expect.arrayContaining(["ActionButton", "Button", "HeaderBase", "ListCell", "TextField"]),
+			expect.arrayContaining([
+				"ActionButton",
+				"Button",
+				"CardSummary",
+				"HeaderBase",
+				"ListCell",
+				"MapBlock",
+				"OptionCard",
+				"ProductInfo",
+				"StoreCard",
+				"TextField",
+				"TitleSection",
+				"ThumbnailLarge",
+			]),
 		);
 	});
 });

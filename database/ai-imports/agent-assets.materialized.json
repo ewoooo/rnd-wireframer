@@ -1,107 +1,27 @@
 {
 	"screenRoutes": [
 		{
-			"id": "nova-mbr-fp",
-			"moduleId": "nova",
-			"name": "NOVA-MBR-FP",
+			"id": "prdd-smoke",
+			"moduleId": "prdd",
+			"name": "PRDD-smoke",
 			"order": 1,
 			"processId": null
 		}
 	],
 	"screenVariants": [
 		{
-			"id": "nova-mbr-fp-001",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "약관 동의",
+			"id": "nova-prdd-pg-001",
+			"screenRouteId": "prdd-smoke",
+			"name": "상품 상세 핵심 요약 탐색",
 			"order": 1,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-002",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "개인정보 입력",
-			"order": 2,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-003",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "본인인증",
-			"order": 3,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-004",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "회원 검증",
-			"order": 4,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-005",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "가입 완료",
-			"order": 5,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-006",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "로그인",
-			"order": 6,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-007",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "휴면 여부 확인",
-			"order": 7,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-008",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "본인인증",
-			"order": 8,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-009",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "약관 동의",
-			"order": 9,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-010",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "휴면 해제 처리",
-			"order": 10,
-			"variantType": "base",
-			"followUp": null
-		},
-		{
-			"id": "nova-mbr-fp-011",
-			"screenRouteId": "nova-mbr-fp",
-			"name": "휴면 해제 완료",
-			"order": 11,
 			"variantType": "base",
 			"followUp": null
 		}
 	],
 	"screens": [
 		{
-			"id": "NOVA-MBR-FP-001-0",
-			"screenVariantId": "nova-mbr-fp-001",
+			"id": "NOVA-PRDD-PG-001-0",
+			"screenVariantId": "nova-prdd-pg-001",
 			"minRendererVersion": "0.1.0",
 			"version": "1.0.0",
 			"order": 1,
@@ -110,10 +30,10 @@
 				"variant": "default"
 			},
 			"metadata": {
-				"title": "약관 동의",
+				"title": "상품 상세 핵심 요약 탐색",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -136,15 +56,11 @@
 						"children": [
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-list"
+								"id": "NOVA-PRDD-PG-001-0-area-0"
 							},
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-input"
+								"id": "NOVA-PRDD-PG-001-0-area-1"
 							}
 						]
 					},
@@ -156,7 +72,7 @@
 						"children": [
 							{
 								"kind": "area",
-								"id": "ogn-mbr-guardian-result"
+								"id": "synth-bottom-NOVA-PRDD-PG-001-0"
 							}
 						]
 					}
@@ -164,8 +80,8 @@
 			}
 		},
 		{
-			"id": "NOVA-MBR-FP-001-E1",
-			"screenVariantId": "nova-mbr-fp-001",
+			"id": "NOVA-PRDD-PG-001-1",
+			"screenVariantId": "nova-prdd-pg-001",
 			"minRendererVersion": "0.1.0",
 			"version": "1.0.0",
 			"order": 2,
@@ -174,10 +90,10 @@
 				"variant": "default"
 			},
 			"metadata": {
-				"title": "약관 동의-약관 버전 불일치",
+				"title": "상품 상세 핵심 요약 탐색-상품 기준 정보 누락",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -200,15 +116,11 @@
 						"children": [
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-list"
+								"id": "NOVA-PRDD-PG-001-0-area-0"
 							},
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-input"
+								"id": "NOVA-PRDD-PG-001-0-area-1"
 							}
 						]
 					},
@@ -220,7 +132,7 @@
 						"children": [
 							{
 								"kind": "area",
-								"id": "ogn-mbr-guardian-result"
+								"id": "synth-bottom-NOVA-PRDD-PG-001-1"
 							}
 						]
 					}
@@ -228,8 +140,8 @@
 			}
 		},
 		{
-			"id": "NOVA-MBR-FP-001-E2",
-			"screenVariantId": "nova-mbr-fp-001",
+			"id": "NOVA-PRDD-PG-001-E1",
+			"screenVariantId": "nova-prdd-pg-001",
 			"minRendererVersion": "0.1.0",
 			"version": "1.0.0",
 			"order": 3,
@@ -238,10 +150,10 @@
 				"variant": "default"
 			},
 			"metadata": {
-				"title": "약관 동의-필수 약관 미동의",
+				"title": "상품 상세 핵심 요약 탐색-미디어·후기·스펙 로딩 실패",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"theme": {
 				"mode": "light"
@@ -264,139 +176,11 @@
 						"children": [
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-list"
+								"id": "NOVA-PRDD-PG-001-0-area-0"
 							},
 							{
 								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-input"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-result"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-001-E3",
-			"screenVariantId": "nova-mbr-fp-001",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "약관 동의-동의 저장 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-list"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-input"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-guardian-result"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-0",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
+								"id": "NOVA-PRDD-PG-001-0-area-1"
 							}
 						]
 					},
@@ -406,2598 +190,6 @@
 							"title": "고정 하단 영역"
 						},
 						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-E1",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력-필수값 누락",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-E2",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력-입력 형식 오류",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-E3",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력-아이디 중복",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-E4",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력-휴대폰번호 중복",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-002-E5",
-			"screenVariantId": "nova-mbr-fp-002",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 6,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "개인정보 입력-이메일 중복",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-input"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-entry-check"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-003-0",
-			"screenVariantId": "nova-mbr-fp-003",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-003-E1",
-			"screenVariantId": "nova-mbr-fp-003",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증번호 만료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-003-E2",
-			"screenVariantId": "nova-mbr-fp-003",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증번호 불일치",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-003-E3",
-			"screenVariantId": "nova-mbr-fp-003",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증 실패 한도 초과",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-003-E4",
-			"screenVariantId": "nova-mbr-fp-003",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-외부 인증기관 오류",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-0",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E1",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-이미 가입된 회원",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E2",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-휴면 회원",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E3",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-재가입 제한 대상",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E4",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-가입 제한 고객",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E5",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 6,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-법정대리인 동의 유효시간 만료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-004-E6",
-			"screenVariantId": "nova-mbr-fp-004",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 7,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "회원 검증-조회 시스템 오류",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-path"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-005-0",
-			"screenVariantId": "nova-mbr-fp-005",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "가입 완료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-005-E1",
-			"screenVariantId": "nova-mbr-fp-005",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "가입 완료-계정 생성 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-005-E2",
-			"screenVariantId": "nova-mbr-fp-005",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "가입 완료-동의 이력 누락",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-005-E3",
-			"screenVariantId": "nova-mbr-fp-005",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "가입 완료-세션 생성 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-join-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-0",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-E1",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인-로그인 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-E2",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인-계정 미존재",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-E3",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인-탈퇴 회원",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-E4",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인-가입제한 회원",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-006-E5",
-			"screenVariantId": "nova-mbr-fp-006",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 6,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "로그인-상태 조회 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-detect"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-007-0",
-			"screenVariantId": "nova-mbr-fp-007",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 여부 확인",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-eligibility"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-007-E1",
-			"screenVariantId": "nova-mbr-fp-007",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 여부 확인-휴면 해제 불가 상태",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-eligibility"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-007-E2",
-			"screenVariantId": "nova-mbr-fp-007",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 여부 확인-식별정보 불일치",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-eligibility"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-007-E3",
-			"screenVariantId": "nova-mbr-fp-007",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 여부 확인-판정 시스템 오류",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-member-status"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-eligibility"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-008-0",
-			"screenVariantId": "nova-mbr-fp-008",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-008-E1",
-			"screenVariantId": "nova-mbr-fp-008",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증번호 만료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-008-E2",
-			"screenVariantId": "nova-mbr-fp-008",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증번호 불일치",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-008-E3",
-			"screenVariantId": "nova-mbr-fp-008",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-인증 실패 한도 초과",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-008-E4",
-			"screenVariantId": "nova-mbr-fp-008",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "본인인증-외부 인증기관 오류",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-select"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-auth-request"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-009-0",
-			"screenVariantId": "nova-mbr-fp-009",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "약관 동의",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-list"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-009-E1",
-			"screenVariantId": "nova-mbr-fp-009",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "약관 동의-약관 버전 불일치",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-list"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-009-E2",
-			"screenVariantId": "nova-mbr-fp-009",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "약관 동의-필수 약관 미동의",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-list"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-009-E3",
-			"screenVariantId": "nova-mbr-fp-009",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "약관 동의-동의 저장 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-list"
-							},
-							{
-								"kind": "area",
-								"id": "ogn-mbr-term-agree"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-010-0",
-			"screenVariantId": "nova-mbr-fp-010",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 처리",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-release"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-010-E1",
-			"screenVariantId": "nova-mbr-fp-010",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 처리-상태 전환 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-release"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-010-E2",
-			"screenVariantId": "nova-mbr-fp-010",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 처리-데이터 복원 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-release"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-010-E3",
-			"screenVariantId": "nova-mbr-fp-010",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 4,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 처리-인증 세션 만료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-release"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-010-E4",
-			"screenVariantId": "nova-mbr-fp-010",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 5,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 처리-세션 생성 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-release"
-							}
-						]
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": []
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-011-0",
-			"screenVariantId": "nova-mbr-fp-011",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 1,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 완료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-011-E1",
-			"screenVariantId": "nova-mbr-fp-011",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 2,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 완료-알림 발송 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-complete"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"id": "NOVA-MBR-FP-011-E2",
-			"screenVariantId": "nova-mbr-fp-011",
-			"minRendererVersion": "0.1.0",
-			"version": "1.0.0",
-			"order": 3,
-			"pattern": {
-				"id": "screen-shell",
-				"variant": "default"
-			},
-			"metadata": {
-				"title": "휴면 해제 완료-결과 조회 실패",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"theme": {
-				"mode": "light"
-			},
-			"screen": {
-				"type": "screen.page",
-				"regions": {
-					"header": {
-						"type": "Screen.Header",
-						"metadata": {
-							"title": "고정 상단 영역"
-						},
-						"children": []
-					},
-					"contents": {
-						"type": "Screen.Contents",
-						"metadata": {
-							"title": "스크롤 콘텐츠 영역"
-						},
-						"children": []
-					},
-					"bottom": {
-						"type": "Screen.Bottom",
-						"metadata": {
-							"title": "고정 하단 영역"
-						},
-						"children": [
-							{
-								"kind": "area",
-								"id": "ogn-mbr-dormant-complete"
-							}
-						]
 					}
 				}
 			}
@@ -3005,345 +197,388 @@
 	],
 	"areas": [
 		{
-			"id": "ogn-mbr-term-list",
+			"id": "NOVA-PRDD-PG-001-0-area-0",
 			"type": "area.static",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "약관 목록 조회",
+				"title": "화면 상단 네비게이션",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"props": {
-				"name": "약관 목록 조회"
+				"name": "화면 상단 네비게이션"
 			},
 			"pattern": {
 				"id": "area-vertical",
 				"variant": "default"
 			},
-			"children": []
+			"children": [
+				{
+					"kind": "component",
+					"id": "AppBarHeader"
+				}
+			]
 		},
 		{
-			"id": "ogn-mbr-term-agree",
+			"id": "NOVA-PRDD-PG-001-0-area-1",
 			"type": "area.static",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "약관 동의",
+				"title": "상품 요약·핵심 속성 표시 영역",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"props": {
-				"name": "약관 동의"
+				"name": "상품 요약·핵심 속성 표시 영역"
 			},
 			"pattern": {
-				"id": "area-vertical",
+				"id": "product-hero-summary",
 				"variant": "default"
 			},
-			"children": []
+			"children": [
+				{
+					"kind": "component",
+					"id": "composite-product-hero-summary"
+				}
+			]
 		},
 		{
-			"id": "ogn-mbr-guardian-input",
+			"id": "synth-bottom-NOVA-PRDD-PG-001-0",
 			"type": "area.static",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "법정대리인 정보 입력",
+				"title": "",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"props": {
-				"name": "법정대리인 정보 입력"
+				"name": ""
 			},
 			"pattern": {
 				"id": "area-vertical",
 				"variant": "default"
 			},
-			"children": []
+			"children": [
+				{
+					"kind": "component",
+					"id": "cta-NOVA-PRDD-PG-001-0"
+				}
+			]
 		},
 		{
-			"id": "ogn-mbr-guardian-result",
+			"id": "synth-bottom-NOVA-PRDD-PG-001-1",
 			"type": "area.static",
 			"version": "1.0.0",
 			"metadata": {
-				"title": "법정대리인 동의 결과 확인",
+				"title": "",
 				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
 			},
 			"props": {
-				"name": "법정대리인 동의 결과 확인"
+				"name": ""
 			},
 			"pattern": {
 				"id": "area-vertical",
 				"variant": "default"
 			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-member-input",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "회원 정보 입력",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "회원 정보 입력"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-entry-check",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "가입 진입 조건 확인",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "가입 진입 조건 확인"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-auth-select",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "인증수단 선택",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "인증수단 선택"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-auth-request",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "본인인증 요청",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "본인인증 요청"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-member-status",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "회원 상태 조회",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "회원 상태 조회"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-join-path",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "가입 경로 분기",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "가입 경로 분기"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-join-complete",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "가입 완료",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "가입 완료"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-dormant-detect",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "휴면 감지 및 안내",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "휴면 감지 및 안내"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-dormant-eligibility",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "휴면 해제 가능 여부 판정",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "휴면 해제 가능 여부 판정"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-dormant-release",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "휴면 해제 처리",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "휴면 해제 처리"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
-		},
-		{
-			"id": "ogn-mbr-dormant-complete",
-			"type": "area.static",
-			"version": "1.0.0",
-			"metadata": {
-				"title": "휴면 해제 완료 안내",
-				"author": "plus_x_athor_1",
-				"createdAt": "2026-05-26T06:22:43.240Z",
-				"updatedAt": "2026-05-26T06:22:43.240Z"
-			},
-			"props": {
-				"name": "휴면 해제 완료 안내"
-			},
-			"pattern": {
-				"id": "area-vertical",
-				"variant": "default"
-			},
-			"children": []
+			"children": [
+				{
+					"kind": "component",
+					"id": "cta-NOVA-PRDD-PG-001-1"
+				}
+			]
 		}
 	],
-	"components": [],
+	"components": [
+		{
+			"id": "AppBarHeader",
+			"type": "AppBar",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AppBarHeader",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-app-bar",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"variant": "WithBack",
+						"title": "상품 상세"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-0",
+					"params": {
+						"parameter": "NOVA-PRDD-PG-001-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "CardSummaryProductSummary",
+			"type": "CardSummary",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CardSummaryProductSummary",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-product-info",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardSummary"
+					},
+					"props": {
+						"variant": "text",
+						"title": "상품명",
+						"subText": "상품 유형 · 가격 · 할인 혜택",
+						"buttonLabel": "자세히 보기"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "BadgeProductStatus",
+			"type": "Badge",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "BadgeProductStatus",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-badge",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Badge"
+					},
+					"props": {
+						"variant": "blue",
+						"children": "가입 가능"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "ButtonTextUnderlineProductOriginNav",
+			"type": "ButtonTextUnderline",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ButtonTextUnderlineProductOriginNav",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ButtonTextUnderline"
+					},
+					"props": {
+						"label": "상품 원문 보기"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-002-0",
+					"params": {
+						"parameter": "NOVA-PRDD-PG-002-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "ListTextProductInfo",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextProductInfo",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"title": "이용 조건",
+						"subText": "가입 자격 및 주요 안내 사항"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "cta-NOVA-PRDD-PG-001-0",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "Primary CTA",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-action-button-with-tooltip",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"label": "다음",
+						"variant": "primary",
+						"size": "xlarge",
+						"fullWidth": true
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-1"
+				}
+			]
+		},
+		{
+			"id": "cta-NOVA-PRDD-PG-001-1",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "Primary CTA",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-action-button-with-tooltip",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"label": "다음",
+						"variant": "primary",
+						"size": "xlarge",
+						"fullWidth": true
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-E1"
+				}
+			]
+		},
+		{
+			"id": "composite-product-hero-summary",
+			"type": "Layout.Flex",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "상품 요약 헤로",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-product-info",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardSummary"
+					},
+					"props": {
+						"variant": "text",
+						"title": "상품명",
+						"subText": "상품 유형 · 가격 · 할인 혜택",
+						"buttonLabel": "자세히 보기"
+					}
+				},
+				{
+					"component": {
+						"type": "Badge"
+					},
+					"props": {
+						"variant": "blue",
+						"children": "가입 가능"
+					}
+				},
+				{
+					"component": {
+						"type": "ButtonTextUnderline"
+					},
+					"props": {
+						"label": "상품 원문 보기"
+					}
+				},
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"title": "이용 조건",
+						"subText": "가입 자격 및 주요 안내 사항"
+					}
+				}
+			],
+			"hooks": []
+		}
+	],
 	"warnings": [
-		"DesignReview: ai-reviewer: skipped op #0 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #1 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #2 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #3 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #4 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #5 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #6 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #7 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #8 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #9 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #10 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #11 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #12 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #13 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #14 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #15 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #16 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #17 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #18 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #19 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #20 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #21 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #22 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #23 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #24 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #25 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #26 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #27 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #28 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #29 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #30 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #31 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #32 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #33 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #34 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #35 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #36 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #37 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #38 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #39 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #40 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #41 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #42 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #43 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #44 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #45 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #46 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #47 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #48 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #49 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #50 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #51 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
-		"DesignReview: ai-reviewer: skipped op #52 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"component\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"insertInto\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]"
+		"DesignReview: ai-reviewer: skipped op #0 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"DesignReview: ai-reviewer: skipped op #1 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"DesignReview: ai-reviewer: skipped op #2 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]"
 	]
 }

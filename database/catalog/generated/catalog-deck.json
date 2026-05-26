@@ -1,0 +1,1672 @@
+{
+  "builtAt": "2026-05-26T10:43:56.140Z",
+  "version": "0.1.0",
+  "primitives": [
+    {
+      "id": "Layout.Flex",
+      "name": "Layout.Flex",
+      "description": "Vertical/horizontal flex container with token-driven spacing.",
+      "props": [
+        {
+          "name": "direction",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "row",
+              "column"
+            ],
+            "defaultValue": "column"
+          }
+        },
+        {
+          "name": "gap",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingY",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "align",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ]
+          }
+        },
+        {
+          "name": "justify",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "start",
+              "center",
+              "end",
+              "between"
+            ]
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [
+        "spacing"
+      ],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Layout.Grid",
+      "name": "Layout.Grid",
+      "description": "CSS grid container with token-driven spacing.",
+      "props": [
+        {
+          "name": "columns",
+          "contract": {
+            "type": "string",
+            "role": "layout"
+          }
+        },
+        {
+          "name": "rows",
+          "contract": {
+            "type": "string",
+            "role": "layout"
+          }
+        },
+        {
+          "name": "gap",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingY",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "align",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ]
+          }
+        },
+        {
+          "name": "justify",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "start",
+              "center",
+              "end",
+              "stretch"
+            ]
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [
+        "spacing"
+      ],
+      "exampleUsage": ""
+    },
+    {
+      "id": "PageStack",
+      "name": "PageStack",
+      "description": "Region inset wrapper. Edge padding + safe-area aware vertical stack.",
+      "props": [
+        {
+          "name": "gap",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "paddingY",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [
+        "spacing"
+      ],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ActionButton",
+      "name": "ActionButton",
+      "description": "Bottom action rail button backed by @cx/components ActionButton.",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "primary",
+              "secondary",
+              "solid"
+            ],
+            "defaultValue": "primary",
+            "variantTokens": {
+              "primary": {
+                "surface": "color.surface.brand",
+                "text": "color.text.inverse"
+              },
+              "secondary": {
+                "surface": "color.surface.muted",
+                "text": "color.text"
+              },
+              "solid": {
+                "surface": "color.surface",
+                "text": "color.text",
+                "border": "color.border.strong"
+              }
+            }
+          }
+        },
+        {
+          "name": "size",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "xsmall",
+              "small",
+              "medium",
+              "large",
+              "xlarge"
+            ],
+            "defaultValue": "xlarge"
+          }
+        },
+        {
+          "name": "fullWidth",
+          "contract": {
+            "type": "boolean",
+            "role": "layout",
+            "defaultValue": true
+          }
+        },
+        {
+          "name": "rightIcon",
+          "contract": {
+            "type": "node",
+            "role": "slot",
+            "aiWritable": false
+          }
+        }
+      ],
+      "variants": [
+        "primary",
+        "secondary",
+        "solid"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "AppBar",
+      "name": "AppBar",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "showBack",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "showLogo",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "rightItem",
+          "contract": {
+            "type": "node",
+            "role": "slot",
+            "aiWritable": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Badge",
+      "name": "Badge",
+      "description": "",
+      "props": [
+        {
+          "name": "children",
+          "contract": {
+            "type": "string",
+            "role": "content",
+            "required": true
+          }
+        },
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "gray",
+              "black",
+              "blue"
+            ],
+            "defaultValue": "gray",
+            "variantTokens": {
+              "gray": {
+                "surface": "color.surface.muted",
+                "text": "color.text"
+              },
+              "black": {
+                "surface": "color.surface.inverse",
+                "text": "color.text.inverse"
+              },
+              "blue": {
+                "surface": "color.surface.brand",
+                "text": "color.text.inverse"
+              }
+            }
+          }
+        }
+      ],
+      "variants": [
+        "gray",
+        "black",
+        "blue"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "BannerIndicaterMedium",
+      "name": "BannerIndicaterMedium",
+      "description": "Medium banner carousel item with an indicator, matching Figma spelling.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "imageUrl",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "current",
+          "contract": {
+            "type": "number",
+            "role": "state",
+            "defaultValue": 1
+          }
+        },
+        {
+          "name": "total",
+          "contract": {
+            "type": "number",
+            "role": "state",
+            "defaultValue": 1
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "BottomNavigation",
+      "name": "BottomNavigation",
+      "description": "",
+      "props": [
+        {
+          "name": "items",
+          "contract": {
+            "type": "array",
+            "role": "data",
+            "required": true
+          }
+        },
+        {
+          "name": "activeKey",
+          "contract": {
+            "type": "string",
+            "role": "state",
+            "required": true
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Button",
+      "name": "Button",
+      "description": "",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "primary",
+              "secondary",
+              "solid"
+            ],
+            "defaultValue": "primary",
+            "variantTokens": {
+              "primary": {
+                "surface": "color.surface.brand",
+                "text": "color.text.inverse"
+              },
+              "secondary": {
+                "surface": "color.surface.muted",
+                "text": "color.text"
+              },
+              "solid": {
+                "surface": "color.surface",
+                "text": "color.text",
+                "border": "color.border.strong"
+              }
+            }
+          }
+        },
+        {
+          "name": "size",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "xsmall",
+              "small",
+              "medium",
+              "large",
+              "xlarge"
+            ],
+            "defaultValue": "medium"
+          }
+        },
+        {
+          "name": "fullWidth",
+          "contract": {
+            "type": "boolean",
+            "role": "layout",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "rightIcon",
+          "contract": {
+            "type": "node",
+            "role": "slot",
+            "aiWritable": false
+          }
+        }
+      ],
+      "variants": [
+        "primary",
+        "secondary",
+        "solid"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Callout",
+      "name": "Callout",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "children",
+          "contract": {
+            "type": "string",
+            "role": "content",
+            "required": true
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "CardContentsFilled",
+      "name": "CardContentsFilled",
+      "description": "Filled content card with a slot-like text surface.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "CardSummary",
+      "name": "CardSummary",
+      "description": "Summary card for product, rating, price, or calculation sections.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "subText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "rightText",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "items",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        },
+        {
+          "name": "buttonLabel",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Accordion",
+      "name": "Accordion",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "expanded",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "AccordionNoticeInfo",
+      "name": "AccordionNoticeInfo",
+      "description": "Notice accordion for PRDD detail/spec information sections.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "expanded",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "AccordionPriceInfo",
+      "name": "AccordionPriceInfo",
+      "description": "Price accordion for PRDD subsidy/price comparison sections.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "priceText",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "expanded",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Checkbox",
+      "name": "Checkbox",
+      "description": "Checkbox item rendered through @cx/components ListSelected checkbox mode.",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "checked",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "small",
+              "medium"
+            ],
+            "defaultValue": "medium"
+          }
+        }
+      ],
+      "variants": [
+        "small",
+        "medium"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Chip",
+      "name": "Chip",
+      "description": "",
+      "props": [
+        {
+          "name": "children",
+          "contract": {
+            "type": "string",
+            "role": "content",
+            "required": true
+          }
+        },
+        {
+          "name": "selected",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Divider",
+      "name": "Divider",
+      "description": "",
+      "props": [
+        {
+          "name": "type",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "contents",
+              "section"
+            ],
+            "defaultValue": "contents",
+            "variantTokens": {
+              "contents": {
+                "border": "color.border.subtle"
+              },
+              "section": {
+                "border": "color.border.strong"
+              }
+            }
+          }
+        }
+      ],
+      "variants": [
+        "contents",
+        "section"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Footer",
+      "name": "Footer",
+      "description": "Low-emphasis legal/help footer for detail screens.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "links",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "HeaderBase",
+      "name": "HeaderBase",
+      "description": "Renderer header node mapped to AppBar.",
+      "props": [
+        {
+          "name": "titleContent",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "titleSize",
+          "contract": {
+            "type": "string",
+            "role": "styleVariant"
+          }
+        },
+        {
+          "name": "showBackButton",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        },
+        {
+          "name": "showLogo",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "InfoTextList",
+      "name": "InfoTextList",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "category",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "date",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "badge",
+          "contract": {
+            "type": "string",
+            "role": "styleVariant"
+          }
+        },
+        {
+          "name": "rightText",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "LegalText",
+      "name": "LegalText",
+      "description": "Fine print list for product legal notices.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "items",
+          "contract": {
+            "type": "array",
+            "role": "data",
+            "required": true
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListCell",
+      "name": "ListCell",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "required",
+          "contract": {
+            "type": "boolean",
+            "role": "state"
+          }
+        },
+        {
+          "name": "checked",
+          "contract": {
+            "type": "boolean",
+            "role": "state"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListSelected",
+      "name": "ListSelected",
+      "description": "",
+      "props": [
+        {
+          "name": "type",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "radio",
+              "checkbox"
+            ],
+            "defaultValue": "radio"
+          }
+        },
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "price",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "buttonLabel",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "checked",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "showPrice",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        },
+        {
+          "name": "showButton",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        }
+      ],
+      "variants": [
+        "radio",
+        "checkbox"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListSelectedRightItem",
+      "name": "ListSelectedRightItem",
+      "description": "",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "type",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "buttonXsmallSolid"
+            ],
+            "defaultValue": "buttonXsmallSolid"
+          }
+        }
+      ],
+      "variants": [
+        "buttonXsmallSolid"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListText",
+      "name": "ListText",
+      "description": "",
+      "props": [
+        {
+          "name": "table",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "off",
+              "on",
+              "dot",
+              "firstTitle",
+              "secondTitle"
+            ],
+            "defaultValue": "off"
+          }
+        },
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "subText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "price",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "showRightItem",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        }
+      ],
+      "variants": [
+        "off",
+        "on",
+        "dot",
+        "firstTitle",
+        "secondTitle"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "MapBlock",
+      "name": "MapBlock",
+      "description": "Map placeholder block for nearby store sections.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "address",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "OptionCard",
+      "name": "OptionCard",
+      "description": "Selectable product option card for commerce detail patterns.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "value",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "selected",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "disabled",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ProductInfo",
+      "name": "ProductInfo",
+      "description": "Product summary block for commerce detail hero sections.",
+      "props": [
+        {
+          "name": "brand",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "price",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "originalPrice",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "discountRate",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "badges",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "RadioText",
+      "name": "RadioText",
+      "description": "",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "checked",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "StoreCard",
+      "name": "StoreCard",
+      "description": "Nearby store list item for product detail patterns.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "address",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "distance",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "status",
+          "contract": {
+            "type": "string",
+            "role": "state"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "SectionHeader",
+      "name": "SectionHeader",
+      "description": "",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "SectionMessage",
+      "name": "SectionMessage",
+      "description": "",
+      "props": [
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "info",
+              "negative",
+              "positive",
+              "cautionary"
+            ],
+            "defaultValue": "info",
+            "variantTokens": {
+              "info": {
+                "surface": "color.surface.elevated",
+                "text": "color.text",
+                "icon": "color.icon.brand"
+              },
+              "negative": {
+                "surface": "color.surface.elevated",
+                "text": "color.text.error",
+                "icon": "color.icon"
+              },
+              "positive": {
+                "surface": "color.surface.elevated",
+                "text": "color.text",
+                "icon": "color.icon"
+              },
+              "cautionary": {
+                "surface": "color.surface.elevated",
+                "text": "color.text",
+                "icon": "color.icon"
+              }
+            }
+          }
+        },
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "message",
+          "contract": {
+            "type": "string",
+            "role": "content"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        }
+      ],
+      "variants": [
+        "info",
+        "negative",
+        "positive",
+        "cautionary"
+      ],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "Tab",
+      "name": "Tab",
+      "description": "",
+      "props": [
+        {
+          "name": "items",
+          "contract": {
+            "type": "array",
+            "role": "data",
+            "required": true
+          }
+        },
+        {
+          "name": "activeKey",
+          "contract": {
+            "type": "string",
+            "role": "state",
+            "required": true
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "TextButton",
+      "name": "TextButton",
+      "description": "Inline text button, including underline link variants in PRDD specs.",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "required": true
+          }
+        },
+        {
+          "name": "underline",
+          "contract": {
+            "type": "boolean",
+            "role": "styleVariant",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "TextField",
+      "name": "TextField",
+      "description": "",
+      "props": [
+        {
+          "name": "label",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "placeholder",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "helperText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "value",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "inputType",
+          "contract": {
+            "type": "string",
+            "role": "data",
+            "defaultValue": "text"
+          }
+        },
+        {
+          "name": "state",
+          "contract": {
+            "type": "enum",
+            "role": "state",
+            "values": [
+              "default",
+              "focused",
+              "typing",
+              "typed",
+              "disabled"
+            ],
+            "defaultValue": "default"
+          }
+        },
+        {
+          "name": "error",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        },
+        {
+          "name": "rightElement",
+          "contract": {
+            "type": "node",
+            "role": "slot",
+            "aiWritable": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "TitleSection",
+      "name": "TitleSection",
+      "description": "Section title row used by PRDD and SKT Next UI section stacks.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "subtitle",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "rightText",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "badge",
+          "contract": {
+            "type": "string",
+            "role": "styleVariant"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ThumbnailLarge",
+      "name": "ThumbnailLarge",
+      "description": "Large product visual block used at the top of commerce detail screens.",
+      "props": [
+        {
+          "name": "src",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "alt",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "eyebrow",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "backgroundColor",
+          "contract": {
+            "type": "string",
+            "role": "styleVariant"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    }
+  ],
+  "componentPatterns": {
+    "registered": [],
+    "proposed": []
+  }
+}

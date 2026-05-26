@@ -76,7 +76,6 @@ packages/agent/
     register/
       claude-asset-generator.ts
       register-assets.ts
-      register-assets-to-tables.ts
     runtime/
       agent-sdk-runtime.ts
     types.ts
@@ -89,7 +88,6 @@ packages/agent/
 | `runtime/agent-sdk-runtime.ts` | Agent SDK 의존성을 감싸는 최소 runtime adapter만 둔다. 역할별 prompt와 output schema는 별도 파일로 분리한다. |
 | `register/claude-asset-generator.ts` *(Register 입력 어댑터)* | local Claude 호출은 서버/API 전용이다. markdown 표 셀은 `component.raw`에 박고, "이벤트" / "액션" / "액션 파라미터"는 `raw.hooks: NodeHook[]`로 구조화한다. 화면 설명은 `screen.description`에 둔다. 케이스 분기 표는 `variant.screens`의 개별 screen으로 materialize하며 `screen.raw`는 만들지 않는다. |
 | `register/register-assets.ts` | **Register 단계.** 입력을 mutate하지 않고 order 정규화와 참조 warning만 수행한다. `component.raw`는 그대로 보존한다. composite의 콘텐츠 props는 비어있을 수 있으며 Composer에서 채운다. |
-| `register/register-assets-to-tables.ts` | persistence를 수행하지 않고 row object만 반환한다. |
 | `compose/compose-assets.ts` | **Composer 단계.** Register 산출물의 `component.raw`를 읽어서 `component.props`와 `component.hooks`를 채운다 (markdown을 직접 읽지 않음). `routes`, `variants`, `screens`는 flat 배열과 `children` 참조로 풀고, screen children은 `header`, `contents`, `bottom` region으로 나눈다. composed 산출물에는 raw와 pending placeholder를 남기지 않는다. 스타일/layout/chrome은 다루지 않는다. |
 | `compose/compose-assets-ai.ts` | Composer gap에 한정된 AI 보강만 수행한다. 레이아웃 pattern 선택이나 DB row materialize는 하지 않는다. |
 | `decorate/decorate-assets.ts` | **Decorator 단계.** 콘텐츠/OGN 레이아웃 전담: pattern-store에서 content layout pattern 메타를 매칭한다. Screen shell, chrome, 콘텐츠 props는 손대지 않는다. pattern 추론은 교체 가능한 resolver로 유지한다. |

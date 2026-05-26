@@ -210,52 +210,17 @@ export const patternStoreSchema = z
 
 function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 	const defaultVariant = pattern.variant ?? "default";
-	const base = {
+	return {
 		id: pattern.id,
 		target: pattern.target,
 		name: pattern.name,
 		description: pattern.description,
 		defaultVariant,
 		resolution: normalizeCatalogMatch(pattern.match),
-	};
-
-	if (pattern.target === "region") {
-		return {
-			...base,
-			target: "region",
-			variants: {
-				[defaultVariant]: pattern.layout ?? {},
-			},
-		};
-	}
-
-	if (pattern.target === "area") {
-		return {
-			...base,
-			target: "area",
-			variants: {
-				[defaultVariant]: pattern.layout ?? {},
-			},
-		};
-	}
-
-	if (pattern.target === "screen") {
-		return {
-			...base,
-			target: "screen",
-			variants: {
-				[defaultVariant]: pattern.layout ?? {},
-			},
-		};
-	}
-
-	return {
-		...base,
-		target: "composite",
 		variants: {
 			[defaultVariant]: pattern.layout ?? {},
 		},
-	};
+	} as Pattern;
 }
 
 function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals | undefined {

@@ -17,6 +17,7 @@ export type AreaType = "static" | "dynamic";
 
 export interface AreaRenderableProps {
 	name?: string;
+	hideTitle?: boolean;
 	titleGap?: number;
 	componentGap?: number;
 	areaType?: AreaType;

@@ -1,0 +1,414 @@
+{
+  "builtAt": "2026-05-26T10:43:56.142Z",
+  "version": "0.1.0",
+  "patterns": [
+    {
+      "id": "area-vertical",
+      "name": "수직 스택",
+      "description": "Area children을 명시 순서대로 세로 배치하는 generic 레이아웃 프리셋. 다른 area pattern이 매칭 안 됐을 때 fallback.",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "list-stack",
+      "name": "리스트 스택",
+      "description": "Area children을 리스트형 항목으로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "field-stack",
+      "name": "필드 스택",
+      "description": "Area children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "checkbox-stack",
+      "name": "체크박스 스택",
+      "description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "accordion-list",
+      "name": "아코디언 리스트",
+      "description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "message-stack",
+      "name": "메시지 스택",
+      "description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "action-stack",
+      "name": "액션 스택",
+      "description": "Area children을 일반 액션 묶음으로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "bottom-action-area",
+      "name": "하단 액션 영역",
+      "description": "Screen Bottom region에 고정되는 주요 CTA 액션을 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "product-hero-summary",
+      "name": "상품 히어로 요약",
+      "description": "ThumbnailLarge 다음 ProductInfo가 이어지는 상품 상세 상단 요약 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "product-option-grid",
+      "name": "상품 옵션 그리드",
+      "description": "색상, 용량, 배송 방법처럼 선택 옵션 card를 2열 grid로 배치하는 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "product-info-section",
+      "name": "상품 정보 섹션",
+      "description": "상품 정보, 사용 방법, 유의사항처럼 title과 본문 블록을 세로로 배치하는 상세 정보 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "product-disclosure-accordion",
+      "name": "상품 고시 아코디언",
+      "description": "판매자 정보, 교환/환불, 상품 이용 안내 같은 하단 고시 항목을 accordion list로 배치하는 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "benefit-brand-list",
+      "name": "혜택 브랜드 리스트",
+      "description": "제휴/혜택 브랜드 card를 세로 list로 배치하는 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "nearby-store-list",
+      "name": "근처 매장 리스트",
+      "description": "지도와 근처 매장 row를 함께 표시하는 매장 안내 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "product-footer-legal",
+      "name": "상품 상세 푸터",
+      "description": "이용약관, 판매자 정보, copyright를 포함하는 상품 상세 footer 영역",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "area-app-bar",
+      "name": "앱바 헤더",
+      "description": "화면 상단 navigation AppBar 를 담는 area 레이아웃. AppBar 컴포넌트가 단일 자식으로 들어간다.",
+      "variants": [
+        "default",
+        "with-back"
+      ],
+      "appliesTo": [
+        "area"
+      ]
+    },
+    {
+      "id": "component-app-bar",
+      "name": "앱 바",
+      "description": "단일 AppBar render component를 screen header chrome으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-text-field",
+      "name": "텍스트 필드",
+      "description": "단일 TextField render component를 field item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-section-message",
+      "name": "섹션 메시지",
+      "description": "단일 SectionMessage render component를 message item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-button",
+      "name": "버튼",
+      "description": "단일 Button render component를 action item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-list-cell",
+      "name": "리스트 셀",
+      "description": "단일 ListCell render component를 list item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-accordion",
+      "name": "아코디언",
+      "description": "단일 Accordion render component를 expandable item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-checkbox",
+      "name": "체크박스",
+      "description": "단일 Checkbox render component를 selectable item으로 배치하는 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-product-info",
+      "name": "상품 정보 요약",
+      "description": "브랜드명, 상품명, 정상가/할인가, badge, CTA chip을 포함하는 ProductInfo composite",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-card-summary",
+      "name": "요약 카드",
+      "description": "상품명, 가격, 대표 설명을 담는 CardSummary 단일 컴포넌트 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-badge",
+      "name": "상태 배지",
+      "description": "판매 상태, 가입 가능 여부 같은 짧은 상태값을 표시하는 Badge 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-text-button",
+      "name": "텍스트 버튼",
+      "description": "자세히 보기, 더보기 같은 inline link action을 표시하는 TextButton 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-list-text",
+      "name": "리스트 텍스트",
+      "description": "라벨과 값을 한 줄로 표시하는 ListText 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-option-card",
+      "name": "옵션 선택 카드",
+      "description": "선택 상태 stroke와 보조 설명을 갖는 색상/용량/배송 옵션 카드 composite",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-banner-indicator",
+      "name": "배너 인디케이터",
+      "description": "상품 상세 중간에 들어가는 BannerIndicaterMedium carousel/banner composite",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "component-action-button-with-tooltip",
+      "name": "툴팁 포함 하단 액션 버튼",
+      "description": "Tooltip과 56px primary Button을 결합한 상품 상세 하단 CTA composite",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "composite"
+      ]
+    },
+    {
+      "id": "section-stack",
+      "name": "섹션 스택",
+      "description": "Region children을 섹션 단위 PageStack으로 감싸고 divider로 구분하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "region"
+      ]
+    },
+    {
+      "id": "plain-stack",
+      "name": "기본 스택",
+      "description": "Region children을 명시 순서대로 세로 배치하는 레이아웃 프리셋",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "region"
+      ]
+    },
+    {
+      "id": "commerce-detail-content-stack",
+      "name": "상품 상세 콘텐츠 스택",
+      "description": "ThumbnailLarge, ProductInfo, Pagestack section, Divider, Footer가 순차로 흐르는 상품 상세 contents region 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "region"
+      ]
+    },
+    {
+      "id": "commerce-detail-bottom-action",
+      "name": "상품 상세 하단 액션",
+      "description": "Tooltip과 56px primary button을 safe area 위에 고정하는 상품 상세 bottom region 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "region"
+      ]
+    },
+    {
+      "id": "screen-shell",
+      "name": "화면 셸",
+      "description": "Screen 아래 Header, Contents, Bottom region을 갖는 기본 page shell 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "screen"
+      ]
+    },
+    {
+      "id": "commerce-detail-screen",
+      "name": "상품 상세 화면",
+      "description": "상품/구독/단말기 상세 화면 shell 패턴",
+      "variants": [
+        "default"
+      ],
+      "appliesTo": [
+        "screen"
+      ]
+    }
+  ]
+}

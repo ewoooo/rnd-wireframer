@@ -18,21 +18,14 @@ import type {
 } from "../types";
 
 /**
- * Legacy area slot 추론 contract. 자연어 키워드 기반이지만 분기 코드 대신
- * 테이블 형태로 표현. PRDD pipeline은 영역 번호로 결정하므로 이 표 안 씀.
+ * 2026-05-26: keyword 기반 inferAreaSlot 제거.
  *
- * [[feedback_no_hardcoded_switch]]에 따라 분기 로직 대신 lookup으로 처리.
+ * 옛 휴리스틱은 description 자연어("완료 여부" 등)에서 false positive를 만들어
+ * organism content area를 잘못 bottom으로 슬롯팅했다. Client-import organism은
+ * 본질적으로 content area이므로 항상 contents 반환한다. chrome(header/bottom CTA)은
+ * Composer-AI synthesis가 담당.
  */
-const SLOT_KEYWORD_PATTERNS: Array<{ slot: RegionSlot; pattern: RegExp }> = [
-	{ slot: "header", pattern: /header|top|app-?bar|navigation|nav|상단|헤더/ },
-	{ slot: "bottom", pattern: /bottom|footer|cta|action|button|하단|버튼|완료|다음/ },
-];
-
-function inferAreaSlot(ref: { areaId: string }, area: RegisteredAreaNode | undefined): RegionSlot {
-	const haystack = `${ref.areaId} ${area?.name ?? ""} ${area?.description ?? ""}`.toLowerCase();
-	for (const { slot, pattern } of SLOT_KEYWORD_PATTERNS) {
-		if (pattern.test(haystack)) return slot;
-	}
+function inferAreaSlot(_ref: { areaId: string }, _area: RegisteredAreaNode | undefined): RegionSlot {
 	return "contents";
 }
 
@@ -157,8 +150,16 @@ function registerArea(
 		id: area.id,
 		name: area.name ?? area.id,
 		order: normalizeOrder(area.order, index),
+		...(area.key !== undefined ? { key: area.key } : {}),
 		...(area.description ? { description: area.description } : {}),
 		...(area.layout ? { layout: area.layout } : {}),
+		...(area.areaType ? { areaType: area.areaType } : {}),
+		...(area.visibility ? { visibility: area.visibility } : {}),
+		...(area.serverControl ? { serverControl: area.serverControl } : {}),
+		...(area.minCount !== undefined ? { minCount: area.minCount } : {}),
+		...(area.maxCount !== undefined ? { maxCount: area.maxCount } : {}),
+		...(area.priority !== undefined ? { priority: area.priority } : {}),
+		...(area.errorPolicy ? { errorPolicy: area.errorPolicy } : {}),
 		children: orderRefs(getAreaChildren(area), "componentId").map((ref, refIndex) => {
 			const component = componentById.get(ref.componentId);
 			if (!component) {

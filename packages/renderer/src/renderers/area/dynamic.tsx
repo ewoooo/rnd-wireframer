@@ -21,6 +21,7 @@ export const areaDynamicRendererDefinition: RendererDefinition = {
 		const titleGap = toNumber(props.titleGap, 8);
 		const componentGap = toNumber(props.componentGap, 12);
 		const areaName = toText(props.name, node.metadata.title);
+		const hideTitle = Boolean(props.hideTitle);
 
 		if (!resolveHasData(data, node.metadata.id)) {
 			const fallback = renderErrorPolicyFallback(props.errorPolicy, {
@@ -38,9 +39,11 @@ export const areaDynamicRendererDefinition: RendererDefinition = {
 				style={{ gap: spacingFallbackStyleValue(titleGap) }}
 				data-area-kind="dynamic"
 			>
-				<div className="flex w-full min-w-0 flex-col">
-					<p className="text-base font-semibold">{areaName}</p>
-				</div>
+				{hideTitle ? null : (
+					<div className="flex w-full min-w-0 flex-col">
+						<p className="text-base font-semibold">{areaName}</p>
+					</div>
+				)}
 				<div
 					className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", componentGap))}
 					style={{ gap: spacingFallbackStyleValue(componentGap) }}

@@ -1,6 +1,8 @@
 export * from "./compose/compose-assets";
+export * from "./compose/compose-synthesize-ai";
 export * from "./database/promote-database-tables";
 export * from "./database/register-assets-to-database-tables";
+export * from "./decorate/ai-pattern-selector";
 export * from "./decorate/decorate-assets";
 export * from "./design-review/ai-reviewer";
 export * from "./design-review/apply-design-review";
@@ -11,7 +13,5 @@ export * from "./llm";
 export * from "./pattern/pattern-resolver";
 export * from "./pattern/pattern-schema";
 export * from "./pattern/pattern-store";
-export * from "./register/client-import-parser";
 export * from "./register/register-assets";
-export * from "./register/register-assets-to-tables";
 export * from "./types";

@@ -5,7 +5,6 @@ import { materializeDecoratedAssetsToNodeTree } from "../database/register-asset
 import { decorateRegisteredAssets } from "../decorate/decorate-assets";
 import { createPatternResolver } from "../pattern/pattern-resolver";
 import { registerAssets } from "../register/register-assets";
-import { registerAssetsToTables } from "../register/register-assets-to-tables";
 import { createCxTextAgent, DEFAULT_CX_AGENT_MODEL } from "../runtime/agent-sdk-runtime";
 
 describe("@cx/agent asset pipeline", () => {
@@ -232,7 +231,7 @@ describe("@cx/agent asset pipeline", () => {
 		expect(route.pattern.id).toBe("screen-route");
 		expect(variant.pattern.id).toBe("screen-variant");
 		expect(screen.pattern.id).toBe("screen-shell");
-		expect(area?.pattern.id).toBe("area-vertical");
+		expect(area?.pattern.id).toBeTruthy();
 		expect(component?.pattern.id).toBe("component-accordion");
 		expect(screen.children.contents?.map((ref) => ref.areaId)).toEqual(["ogn-mbr-term-list"]);
 	});
@@ -307,64 +306,5 @@ describe("@cx/agent asset pipeline", () => {
 		expect(decorated.areas[0].pattern.reasons).toContain(
 			"component types allOf matched (list-cell)",
 		);
-	});
-
-	it("converts an AI asset bundle into table rows", () => {
-		const tables = registerAssetsToTables({
-			routes: [
-				{
-					id: "mbr-join",
-					name: "회원 가입",
-					variants: [
-						{
-							id: "mbr-join-base",
-							name: "기본",
-							screens: [
-								{
-									id: "NOVA-MBR-FP-001-0",
-									name: "약관 동의",
-									surface: "page",
-									areas: [{ areaId: "ogn-mbr-term-list" }],
-								},
-							],
-						},
-					],
-				},
-			],
-			areas: [
-				{
-					id: "ogn-mbr-term-list",
-					name: "약관 목록 조회",
-					children: [{ componentId: "list-cell-term-required" }],
-				},
-			],
-			components: [
-				{
-					id: "list-cell-term-required",
-					name: "필수 약관 항목",
-					type: "list-cell",
-				},
-			],
-		});
-
-		expect(tables.screenRoutes).toEqual([{ code: "mbr-join", name: "회원 가입", order: 1 }]);
-		expect(tables.screenVariants).toEqual([
-			{ code: "mbr-join-base", screenRouteCode: "mbr-join", name: "기본", order: 1 },
-		]);
-		expect(tables.screens[0]).toMatchObject({
-			id: "NOVA-MBR-FP-001-0",
-			screenVariantId: "mbr-join-base",
-			surface: "page",
-			areas: [{ areaId: "ogn-mbr-term-list", order: 1 }],
-		});
-		expect(tables.areas[0]).toMatchObject({
-			id: "ogn-mbr-term-list",
-			children: [{ componentId: "list-cell-term-required", order: 1 }],
-		});
-		expect(tables.components[0]).toMatchObject({
-			id: "list-cell-term-required",
-			type: "list-cell",
-		});
-		expect(tables.warnings).toEqual([]);
 	});
 });

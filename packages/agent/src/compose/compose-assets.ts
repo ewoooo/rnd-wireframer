@@ -2,16 +2,16 @@ import { getComponentCatalogEntry } from "@cx/components/catalog";
 import { normalizeComponentType } from "../normalize-component-type";
 import type {
 	ComponentRawInput,
+	ComposedAreaNode,
 	ComposedComponentNode,
 	ComposedNodeTree,
-	ComposedAreaNode,
 	ComposedRouteNode,
 	ComposedScreenNode,
 	ComposedVariantNode,
 	RegisteredComponentNode,
 	RegisteredNodeTree,
-	RegisteredScreenNode,
 	RegisteredScreenAreaRef,
+	RegisteredScreenNode,
 	RegisteredVariantNode,
 	ScreenAreaRefInput,
 } from "../types";
@@ -48,9 +48,7 @@ export function composeAssetContents(
 		composeComponent(component, filledComponentIds, strippedComponentRawIds, skipped),
 	);
 	const componentById = new Map(components.map((component) => [component.id, component]));
-	const areas = registered.areas.map((area) =>
-		composeArea(area, componentById, warnings),
-	);
+	const areas = registered.areas.map((area) => composeArea(area, componentById, warnings));
 	const areaById = new Map(areas.map((area) => [area.id, area]));
 
 	const routes: ComposedRouteNode[] = [];
@@ -219,13 +217,15 @@ function partitionScreenAreas(refs: RegisteredScreenAreaRef[]) {
 	const header: ScreenAreaRefInput[] = [];
 	const contents: ScreenAreaRefInput[] = [];
 	const bottom: ScreenAreaRefInput[] = [];
+	const slotBuckets = { bottom, contents, header } satisfies Record<
+		NonNullable<RegisteredScreenAreaRef["slot"]>,
+		ScreenAreaRefInput[]
+	>;
 
 	for (const ref of refs) {
 		const child = { areaId: ref.areaId, order: ref.order };
 		const slot = ref.slot ?? "contents";
-		if (slot === "header") header.push(child);
-		else if (slot === "bottom") bottom.push(child);
-		else contents.push(child);
+		slotBuckets[slot].push(child);
 	}
 
 	return {

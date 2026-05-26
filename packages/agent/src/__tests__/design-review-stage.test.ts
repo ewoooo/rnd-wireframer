@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { materializeDecoratedAssetsToNodeTree } from "../database/register-assets-to-database-tables";
 import { applyDesignReview } from "../design-review/apply-design-review";
 import { reviewDesignTree } from "../design-review/review-design-tree";
-import { materializeDecoratedAssetsToNodeTree } from "../database/register-assets-to-database-tables";
 import type { DecoratedNodeTree } from "../types";
 
 const tree: DecoratedNodeTree = {
@@ -69,6 +69,46 @@ describe("design review stage", () => {
 		expect(
 			result.reviewed.areas.find((area) => area.id === "screen-1-bottom-actions")?.children,
 		).toEqual([{ componentId: "action-area-next", order: 1 }]);
+	});
+
+	it("does not promote inline consent request api actions as bottom CTA", () => {
+		const review = reviewDesignTree({
+			...tree,
+			areas: [
+				{
+					level: "area",
+					id: "guardian-input",
+					name: "법정대리인 정보 입력",
+					order: 1,
+					children: [{ componentId: "action-area-guardian-request", order: 1 }],
+					pattern: { id: "field-stack", variant: "default" },
+				},
+			],
+			components: [
+				{
+					id: "action-area-guardian-request",
+					name: "동의 요청 발송",
+					order: 1,
+					type: "button",
+					props: { label: "동의 요청 발송" },
+					hooks: [{ trigger: "onClick", action: "apiCall" }],
+					pattern: { id: "component-button", variant: "default" },
+				},
+			],
+			screens: [
+				{
+					id: "screen-1",
+					name: "Screen",
+					order: 1,
+					children: {
+						contents: [{ areaId: "guardian-input", order: 1 }],
+					},
+					pattern: { id: "screen-shell", variant: "default" },
+				},
+			],
+		});
+
+		expect(review.operations).toEqual([]);
 	});
 
 	it("applies display updates to reviewed components", () => {

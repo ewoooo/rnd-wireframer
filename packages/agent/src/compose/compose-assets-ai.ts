@@ -3,12 +3,27 @@ import { query, type SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import { getComponentCatalogEntry } from "@cx/components/catalog";
 import type { ComponentPropContract } from "@cx/types";
 import { z } from "zod";
-import type { ComposedComponentNode, ComposedNodeTree, ComposedAreaNode } from "../types";
+import type {
+	ComposedAreaNode,
+	ComposedComponentNode,
+	ComposedNodeTree,
+	ComposedScreenNode,
+	RegionSlot,
+	ScreenAreaRefInput,
+} from "../types";
 import { PENDING_VALUE } from "./compose-assets";
 
 export interface ComposeAIProposal {
 	componentId: string;
 	props: Record<string, unknown>;
+}
+
+export interface ComposeAIPlacementProposal {
+	screenId: string;
+	areaId: string;
+	region: RegionSlot;
+	order?: number;
+	rationale: string;
 }
 
 export interface ComposeAIGap {
@@ -23,6 +38,7 @@ export interface ComposeAIRunnerInput {
 
 export interface ComposeAIRunnerOutput {
 	proposals: ComposeAIProposal[];
+	placements?: ComposeAIPlacementProposal[];
 	sessionId?: string;
 }
 
@@ -42,42 +58,61 @@ export interface ComposeAssetContentsWithAIOptions {
 export interface ComposeAssetContentsWithAIResult {
 	composed: ComposedNodeTree;
 	proposals: ComposeAIProposal[];
+	placements: ComposeAIPlacementProposal[];
 	gaps: ComposeAIGap[];
 	mergedComponentIds: string[];
+	movedAreaIds: string[];
 	skippedProposals: Array<{ componentId: string; reason: string }>;
 	warnings: string[];
 	sessionId?: string;
 }
+
+const REGION_SLOTS = ["header", "contents", "bottom"] as const satisfies readonly RegionSlot[];
+
+const COMPOSE_PLACEMENT_REVIEW_CONTRACT = {
+	defaultRegion: "contents",
+	reviewRegions: ["bottom"],
+	systemAreaIdPatterns: [/^synth-/, /-bottom-actions$/],
+} as const satisfies {
+	defaultRegion: RegionSlot;
+	reviewRegions: readonly RegionSlot[];
+	systemAreaIdPatterns: readonly RegExp[];
+};
 
 export async function composeAssetContentsWithAI(
 	composed: ComposedNodeTree,
 	options: ComposeAssetContentsWithAIOptions = {},
 ): Promise<ComposeAssetContentsWithAIResult> {
 	const gaps = identifyGaps(composed);
+	const placementCandidates = identifyPlacementCandidates(composed);
 
-	if (gaps.length === 0) {
+	if (gaps.length === 0 && placementCandidates.length === 0) {
 		return {
 			composed,
 			proposals: [],
+			placements: [],
 			gaps: [],
 			mergedComponentIds: [],
+			movedAreaIds: [],
 			skippedProposals: [],
 			warnings: [],
 		};
 	}
 
 	const areaIndex = buildAreaIndex(composed);
-	const prompt = buildPrompt(composed, gaps, areaIndex);
+	const prompt = buildPrompt(composed, gaps, areaIndex, placementCandidates);
 	const runner = options.runner ?? createDefaultRunner(options);
 
-	const { proposals, sessionId } = await runner({ prompt });
-	const merge = mergeProposals(composed, proposals);
+	const { placements = [], proposals, sessionId } = await runner({ prompt });
+	const merge = mergeProposals(composed, proposals, placements);
 
 	return {
 		composed: merge.composed,
+		placements,
 		proposals,
 		gaps,
 		mergedComponentIds: merge.mergedComponentIds,
+		movedAreaIds: merge.movedAreaIds,
 		skippedProposals: merge.skipped,
 		warnings: merge.warnings,
 		sessionId,
@@ -137,6 +172,7 @@ function buildPrompt(
 	composed: ComposedNodeTree,
 	gaps: ComposeAIGap[],
 	areaIndex: Map<string, ComposedAreaNode[]>,
+	placementCandidates: ComposePlacementCandidate[],
 ): string {
 	const componentsById = new Map(
 		(composed.components ?? []).map((component) => [component.id, component]),
@@ -151,7 +187,13 @@ function buildPrompt(
 		"Keep the language and tone consistent with the surrounding area context.",
 		"If you cannot reasonably propose a value, omit that key from your response.",
 		"",
-		"Return JSON: { proposals: [{ componentId, props }] }",
+		"You may also propose `placements` for existing screen areas when a source slot is clearly",
+		"wrong. Bottom is reserved for pinned screen-level action areas. Status, result, waiting,",
+		"expiry, retry, guidance, or confirmation-result areas are content and should usually be",
+		'moved to region="contents" even when the import placed them in bottom.',
+		"Do not move synthetic chrome/action areas.",
+		"",
+		"Return JSON: { proposals: [{ componentId, props }], placements: [{ screenId, areaId, region, order, rationale }] }",
 		"",
 		"<components>",
 	];
@@ -164,6 +206,11 @@ function buildPrompt(
 	}
 
 	lines.push("</components>");
+	lines.push("", "<placement_candidates>");
+	for (const candidate of placementCandidates) {
+		lines.push(serializePlacementCandidate(candidate));
+	}
+	lines.push("</placement_candidates>");
 	return lines.join("\n");
 }
 
@@ -188,6 +235,55 @@ function serializeGap(
 	].join("\n");
 }
 
+interface ComposePlacementCandidate {
+	screenId: string;
+	areaId: string;
+	currentRegion: RegionSlot;
+	currentOrder?: number;
+	area?: ComposedAreaNode;
+}
+
+export function identifyPlacementCandidates(
+	composed: ComposedNodeTree,
+): ComposePlacementCandidate[] {
+	const areaById = new Map((composed.areas ?? []).map((area) => [area.id, area]));
+	const candidates: ComposePlacementCandidate[] = [];
+
+	for (const screen of composed.screens) {
+		for (const region of COMPOSE_PLACEMENT_REVIEW_CONTRACT.reviewRegions) {
+			for (const ref of screen.children[region] ?? []) {
+				if (isSystemArea(ref.areaId)) continue;
+				candidates.push({
+					screenId: screen.id,
+					areaId: ref.areaId,
+					currentRegion: region,
+					currentOrder: ref.order,
+					area: areaById.get(ref.areaId),
+				});
+			}
+		}
+	}
+
+	return candidates;
+}
+
+function serializePlacementCandidate(candidate: ComposePlacementCandidate): string {
+	const area = candidate.area;
+	return [
+		`  <area_ref screen="${escapeAttribute(candidate.screenId)}" area="${escapeAttribute(candidate.areaId)}" current_region="${candidate.currentRegion}" order="${candidate.currentOrder ?? ""}">`,
+		`    <name>${escapeText(area?.name ?? "")}</name>`,
+		`    <description>${escapeText(area?.description ?? "")}</description>`,
+		`    <children>${JSON.stringify(area?.children ?? [])}</children>`,
+		"  </area_ref>",
+	].join("\n");
+}
+
+function isSystemArea(areaId: string) {
+	return COMPOSE_PLACEMENT_REVIEW_CONTRACT.systemAreaIdPatterns.some((pattern) =>
+		pattern.test(areaId),
+	);
+}
+
 function escapeAttribute(value: string) {
 	return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
 }
@@ -199,6 +295,7 @@ function escapeText(value: string) {
 export interface MergeProposalsResult {
 	composed: ComposedNodeTree;
 	mergedComponentIds: string[];
+	movedAreaIds: string[];
 	skipped: Array<{ componentId: string; reason: string }>;
 	warnings: string[];
 }
@@ -206,6 +303,7 @@ export interface MergeProposalsResult {
 export function mergeProposals(
 	composed: ComposedNodeTree,
 	proposals: ComposeAIProposal[],
+	placements: ComposeAIPlacementProposal[] = [],
 ): MergeProposalsResult {
 	const componentsById = new Map(
 		(composed.components ?? []).map((component) => [component.id, component]),
@@ -244,12 +342,102 @@ export function mergeProposals(
 		}
 	}
 
+	const placementMerge = mergePlacementProposals({ ...composed, components }, placements, warnings);
+
 	return {
-		composed: { ...composed, components },
+		composed: placementMerge.composed,
 		mergedComponentIds,
+		movedAreaIds: placementMerge.movedAreaIds,
 		skipped,
 		warnings,
 	};
+}
+
+function mergePlacementProposals(
+	composed: ComposedNodeTree,
+	placements: ComposeAIPlacementProposal[],
+	warnings: string[],
+) {
+	if (placements.length === 0) return { composed, movedAreaIds: [] };
+
+	const movedAreaIds: string[] = [];
+	const nextScreens = composed.screens.map((screen) =>
+		mergeScreenPlacementProposals(screen, placements, movedAreaIds, warnings),
+	);
+
+	return { composed: { ...composed, screens: nextScreens }, movedAreaIds };
+}
+
+function mergeScreenPlacementProposals(
+	screen: ComposedScreenNode,
+	placements: ComposeAIPlacementProposal[],
+	movedAreaIds: string[],
+	warnings: string[],
+): ComposedScreenNode {
+	const screenPlacements = placements.filter((placement) => placement.screenId === screen.id);
+	if (screenPlacements.length === 0) return screen;
+
+	const children = cloneScreenChildren(screen.children);
+	for (const placement of screenPlacements) {
+		if (!REGION_SLOTS.includes(placement.region)) {
+			warnings.push(`Placement for ${placement.areaId} has invalid region: ${placement.region}`);
+			continue;
+		}
+		if (isSystemArea(placement.areaId)) {
+			warnings.push(`Placement for system area skipped: ${placement.areaId}`);
+			continue;
+		}
+		const existing = findAreaRef(children, placement.areaId);
+		if (!existing) {
+			warnings.push(`Placement for unknown screen area: ${screen.id}/${placement.areaId}`);
+			continue;
+		}
+
+		removeAreaRef(children, placement.areaId);
+		const targetRefs = children[placement.region] ?? [];
+		children[placement.region] = [
+			...targetRefs,
+			{ areaId: placement.areaId, order: placement.order ?? targetRefs.length + 1 },
+		];
+		movedAreaIds.push(placement.areaId);
+	}
+
+	return { ...screen, children: normalizeScreenChildren(children) };
+}
+
+function cloneScreenChildren(children: ComposedScreenNode["children"]) {
+	return {
+		header: [...(children.header ?? [])],
+		contents: [...(children.contents ?? [])],
+		bottom: [...(children.bottom ?? [])],
+	} satisfies Record<RegionSlot, ScreenAreaRefInput[]>;
+}
+
+function normalizeScreenChildren(children: Record<RegionSlot, ScreenAreaRefInput[]>) {
+	return REGION_SLOTS.reduce<ComposedScreenNode["children"]>((next, slot) => {
+		if (children[slot].length > 0) next[slot] = normalizeAreaRefOrders(children[slot]);
+		return next;
+	}, {});
+}
+
+function normalizeAreaRefOrders(refs: ScreenAreaRefInput[]) {
+	return [...refs]
+		.sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+		.map((ref, index) => ({ ...ref, order: index + 1 }));
+}
+
+function findAreaRef(children: Record<RegionSlot, ScreenAreaRefInput[]>, areaId: string) {
+	for (const slot of REGION_SLOTS) {
+		const ref = children[slot].find((candidate) => candidate.areaId === areaId);
+		if (ref) return ref;
+	}
+	return undefined;
+}
+
+function removeAreaRef(children: Record<RegionSlot, ScreenAreaRefInput[]>, areaId: string) {
+	for (const slot of REGION_SLOTS) {
+		children[slot] = children[slot].filter((candidate) => candidate.areaId !== areaId);
+	}
 }
 
 const proposalSchema = z.object({
@@ -259,12 +447,23 @@ const proposalSchema = z.object({
 			props: z.record(z.string(), z.unknown()),
 		}),
 	),
+	placements: z
+		.array(
+			z.object({
+				screenId: z.string().min(1),
+				areaId: z.string().min(1),
+				region: z.enum(REGION_SLOTS),
+				order: z.number().optional(),
+				rationale: z.string().min(1),
+			}),
+		)
+		.default([]),
 });
 
 const proposalJsonSchema = {
 	type: "object",
 	additionalProperties: false,
-	required: ["proposals"],
+	required: ["proposals", "placements"],
 	properties: {
 		proposals: {
 			type: "array",
@@ -275,6 +474,21 @@ const proposalJsonSchema = {
 				properties: {
 					componentId: { type: "string", minLength: 1 },
 					props: { type: "object" },
+				},
+			},
+		},
+		placements: {
+			type: "array",
+			items: {
+				type: "object",
+				additionalProperties: false,
+				required: ["screenId", "areaId", "region", "rationale"],
+				properties: {
+					screenId: { type: "string", minLength: 1 },
+					areaId: { type: "string", minLength: 1 },
+					region: { type: "string", enum: REGION_SLOTS },
+					order: { type: "number" },
+					rationale: { type: "string", minLength: 1 },
 				},
 			},
 		},
@@ -333,11 +547,13 @@ function createDefaultRunner(options: ComposeAssetContentsWithAIOptions): Compos
 		if (debug) {
 			logger.info("[cx-agent:compose-ai] done", {
 				elapsedMs: Date.now() - startedAt,
+				placementCount: parsed.placements.length,
 				proposalCount: parsed.proposals.length,
 			});
 		}
 
 		return {
+			placements: parsed.placements,
 			proposals: parsed.proposals,
 			sessionId: resultMessage.session_id,
 		};

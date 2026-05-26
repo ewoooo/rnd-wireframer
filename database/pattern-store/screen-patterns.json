@@ -11,8 +11,40 @@
 				"gap": 0
 			},
 			"match": {
-				"keywords": ["screen", "shell", "page"],
+				"keywords": [
+					"screen",
+					"shell",
+					"page"
+				],
 				"priority": 100
+			}
+		},
+		{
+			"id": "commerce-detail-screen",
+			"target": "screen",
+			"name": "상품 상세 화면",
+			"description": "상품/구독/단말기 상세 화면 shell 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"contentWidth": 393,
+					"chrome": "statusbar-header-bottom-action",
+					"sourceFigmaNode": "10069:97828"
+				}
+			},
+			"match": {
+				"keywords": [
+					"commerce",
+					"detail",
+					"product",
+					"상품",
+					"상세",
+					"구독",
+					"단말기"
+				],
+				"priority": 120
 			}
 		}
 	]

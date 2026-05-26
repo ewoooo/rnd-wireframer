@@ -16,6 +16,10 @@ export interface ComponentRawInput {
 	variant?: string;
 	note?: string;
 	hooks?: NodeHook[];
+	/** "표시 텍스트" 셀 verbatim (예: "title: {상품명}\nsubText: {상품 유형}") */
+	displayText?: string;
+	/** "바인딩(소스)" 셀 verbatim (정책 ID / API 참조 등) */
+	binding?: string;
 }
 
 export interface GeneratedComponentNode extends OrderedNode {
@@ -31,6 +35,19 @@ export interface AreaChildRefInput {
 
 export interface GeneratedAreaNode extends OrderedNode {
 	layout?: string;
+	/** PRDD 영역 no. 컬럼. screen-embedded area의 안정적 식별자. */
+	key?: number;
+	/** 영역 유형: static / dynamic */
+	areaType?: "static" | "dynamic";
+	/** 노출 조건 (예: "항상", "조건 시") */
+	visibility?: string;
+	/** 서버 제어 항목 (자유 텍스트) */
+	serverControl?: string;
+	minCount?: number;
+	maxCount?: number;
+	priority?: number;
+	/** 오류 처리 방식 */
+	errorPolicy?: string;
 	children?: AreaChildRefInput[];
 }
 
@@ -97,6 +114,12 @@ export interface ComposedComponentNode extends OrderedNode {
 	props?: Record<string, unknown>;
 	hooks?: NodeHook[];
 	display?: NodeDisplay;
+	/**
+	 * Composer-AI가 화면 의도로부터 새로 합성한 component 표식.
+	 * Decorator가 이 정보를 보고 적절한 region/area에 배치한다.
+	 * Materialize 단계에서는 무시.
+	 */
+	synthesized?: { screenId: string; region: RegionSlot };
 }
 
 export interface ComposedNodeTree {

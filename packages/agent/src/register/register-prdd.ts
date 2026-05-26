@@ -1,4 +1,3 @@
-import { NODE_TYPES } from "@cx/types";
 import type {
 	RegisteredAreaChildRef,
 	RegisteredAreaNode,
@@ -7,42 +6,34 @@ import type {
 	RegisteredContentsRegion,
 	RegisteredHeaderRegion,
 	RegisteredScreenNode,
-	ScreenSurfaceType,
 } from "../types";
 import type { ParsedAreaRow, ParsedComponentRow, ParsedPrddDocument } from "./prdd-parser";
+import {
+	PRDD_AREA_SLOT_RULES,
+	PRDD_AREA_SLOTS,
+	PRDD_DEFAULT_HEADER_COMPONENT,
+	PRDD_SCREEN_TYPE_CONTRACT,
+	type PrddAreaSlot,
+} from "./prdd-register-contracts";
 
-/**
- * Screen type → header 필수 여부 contract. [[feedback_no_hardcoded_switch]]에 따라
- * 분기 로직 대신 테이블로 표현. 새 screen type 추가 시 이 표만 갱신.
- */
-const HEADER_REQUIRED_BY_SCREEN_TYPE: Record<ScreenSurfaceType, boolean> = {
-	"screen.page": true,
-	"screen.bottomSheet": false,
-	"screen.popup": false,
-};
-
-/** 향후 PRDD frontmatter "구현 유형" 등으로 결정 가능. 지금은 단일 기본값. */
-function decideScreenType(_parsed: ParsedPrddDocument): ScreenSurfaceType {
-	return NODE_TYPES.screenSurface[0];
+function decideScreenType(_parsed: ParsedPrddDocument) {
+	return PRDD_SCREEN_TYPE_CONTRACT.defaultScreenType;
 }
 
 /**
  * screen.page 같은 header 필수 type일 때 header가 비어있으면 default AppBar 합성.
  * AGENTS.md "Screen 아래 Screen.Header/Contents/Bottom 3영역 생성" deterministic 책임.
  */
-function synthesizeDefaultHeader(
-	screenId: string,
-	screenName: string,
-): RegisteredComponentNode {
+function synthesizeDefaultHeader(screenId: string, screenName: string): RegisteredComponentNode {
 	return {
 		level: "component",
-		id: `${screenId}__synthesized-header`,
+		id: `${screenId}${PRDD_DEFAULT_HEADER_COMPONENT.idSuffix}`,
 		name: screenName,
-		order: 1,
-		type: "AppBar",
+		order: PRDD_DEFAULT_HEADER_COMPONENT.order,
+		type: PRDD_DEFAULT_HEADER_COMPONENT.type,
 		props: {
-			titleContent: screenName,
-			showBackButton: true,
+			[PRDD_DEFAULT_HEADER_COMPONENT.props.titleProp]: screenName,
+			showBackButton: PRDD_DEFAULT_HEADER_COMPONENT.props.showBackButton,
 		},
 	};
 }
@@ -57,10 +48,8 @@ function synthesizeDefaultHeader(
  * 이 규칙은 register 단계에 모인다. Composer/Decorator는 결정된 region/area만
  * 보고 숫자를 직접 비교하지 않는다.
  */
-function classifyArea(no: number): "header" | "bottom" | "contents" {
-	if (no === 0) return "header";
-	if (no >= 999) return "bottom";
-	return "contents";
+function classifyArea(no: number): PrddAreaSlot {
+	return PRDD_AREA_SLOT_RULES.find((rule) => rule.matches(no))?.slot ?? PRDD_AREA_SLOTS.contents;
 }
 
 export interface RegisteredPrddScreen {
@@ -107,29 +96,26 @@ export function registerPrddDocument(parsed: ParsedPrddDocument): RegisteredPrdd
 	for (const no of sortedAreaNumbers) {
 		const components = sortByOrder(componentsByArea.get(no) ?? []);
 		const slot = classifyArea(no);
+		const meta = areaMetaByNo.get(no);
 
-		if (slot === "header") {
-			for (const c of components) headerChildren.push(toChildRef(c));
-		} else if (slot === "bottom") {
-			for (const c of components) bottomChildren.push(toChildRef(c));
-		} else {
-			contentsAreas.push(toArea(no, areaMetaByNo.get(no), components, stableScreenId));
-		}
+		PRDD_SLOT_ACCUMULATORS[slot]({
+			bottomChildren,
+			components,
+			contentsAreas,
+			headerChildren,
+			meta,
+			no,
+			screenId: stableScreenId,
+		});
 
 		// 메타는 있는데 컴포넌트 없거나, 컴포넌트는 있는데 메타 없는 경우 경고
-		const meta = areaMetaByNo.get(no);
-		if (!meta && slot === "contents") {
-			warnings.push(`영역 ${no}: 화면 구성 메타 없음 (컴포넌트만 존재)`);
-		}
-		if (meta && components.length === 0 && slot === "contents") {
-			warnings.push(`영역 ${no}: 메타만 있고 컴포넌트 없음`);
-		}
+		pushPrddSlotWarnings(warnings, { components, meta, no, slot });
 	}
 
 	// 5) Screen type 결정 + header 추론 (deterministic code 책임)
 	const screenType = decideScreenType(parsed);
 	const screenName = parsed.meta.screenName ?? stableScreenId;
-	if (HEADER_REQUIRED_BY_SCREEN_TYPE[screenType] && headerChildren.length === 0) {
+	if (PRDD_SCREEN_TYPE_CONTRACT.headerRequired[screenType] && headerChildren.length === 0) {
 		const defaultHeader = synthesizeDefaultHeader(stableScreenId, screenName);
 		allComponents.push(defaultHeader);
 		headerChildren.push(toChildRef(defaultHeader));
@@ -168,6 +154,56 @@ export function registerPrddDocument(parsed: ParsedPrddDocument): RegisteredPrdd
 	};
 
 	return { screen, components: allComponents, areas: contentsAreas, warnings };
+}
+
+interface PrddSlotAccumulatorContext {
+	bottomChildren: RegisteredAreaChildRef[];
+	components: RegisteredComponentNode[];
+	contentsAreas: RegisteredAreaNode[];
+	headerChildren: RegisteredAreaChildRef[];
+	meta: ParsedAreaRow | undefined;
+	no: number;
+	screenId: string;
+}
+
+const PRDD_SLOT_ACCUMULATORS = {
+	header: ({ components, headerChildren }) => {
+		for (const component of components) headerChildren.push(toChildRef(component));
+	},
+	bottom: ({ bottomChildren, components }) => {
+		for (const component of components) bottomChildren.push(toChildRef(component));
+	},
+	contents: ({ components, contentsAreas, meta, no, screenId }) => {
+		contentsAreas.push(toArea(no, meta, components, screenId));
+	},
+} satisfies Record<PrddAreaSlot, (context: PrddSlotAccumulatorContext) => void>;
+
+interface PrddSlotWarningContext {
+	components: RegisteredComponentNode[];
+	meta: ParsedAreaRow | undefined;
+	no: number;
+	slot: PrddAreaSlot;
+}
+
+const PRDD_SLOT_WARNING_RULES = [
+	{
+		matches: ({ meta, slot }) => !meta && slot === PRDD_AREA_SLOTS.contents,
+		message: ({ no }) => `영역 ${no}: 화면 구성 메타 없음 (컴포넌트만 존재)`,
+	},
+	{
+		matches: ({ components, meta, slot }) =>
+			Boolean(meta) && components.length === 0 && slot === PRDD_AREA_SLOTS.contents,
+		message: ({ no }) => `영역 ${no}: 메타만 있고 컴포넌트 없음`,
+	},
+] satisfies Array<{
+	matches: (context: PrddSlotWarningContext) => boolean;
+	message: (context: PrddSlotWarningContext) => string;
+}>;
+
+function pushPrddSlotWarnings(warnings: string[], context: PrddSlotWarningContext) {
+	for (const rule of PRDD_SLOT_WARNING_RULES) {
+		if (rule.matches(context)) warnings.push(rule.message(context));
+	}
 }
 
 function toComponent(row: ParsedComponentRow, screenId: string): RegisteredComponentNode {

@@ -15,7 +15,6 @@ import {
 	decorateRegisteredAssets,
 	materializeDecoratedAssetsToNodeTree,
 	registerAssets,
-	registerAssetsToTables,
 	reviewDesignTree,
 } from "@cx/agent";
 ```
@@ -30,7 +29,6 @@ import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
 import { applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
 import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
 import { registerAssets } from "@cx/agent/register-assets";
-import { registerAssetsToTables } from "@cx/agent/register-assets-to-tables";
 import type { GeneratedNodeTree } from "@cx/agent/types";
 ```
 
@@ -41,7 +39,6 @@ import type { GeneratedNodeTree } from "@cx/agent/types";
 | `src/runtime/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
 | `src/register/claude-asset-generator.ts` | Claude Agent SDK local session 기반 `GeneratedNodeTree` 생성. screen case는 개별 screen으로 materialize하고 화면 설명은 `screen.description`에 둠 |
 | `src/register/register-assets.ts` | **Register** — `GeneratedNodeTree`를 `RegisteredNodeTree`로 정렬/정규화하고 raw를 보존 |
-| `src/register/register-assets-to-tables.ts` | legacy/simple table row 변환 helper. 신규 AI import materialize는 `database/register-assets-to-database-tables.ts`를 우선 사용 |
 | `src/compose/compose-assets.ts` | **Composer** — `RegisteredNodeTree`를 flat `ComposedNodeTree`로 풀고 `component.raw`를 `props`/`hooks`로 승격. `raw`와 pending placeholder는 산출물에 남기지 않음 |
 | `src/compose/compose-assets-ai.ts` | Composer의 빈 props/gap을 Agent SDK/Claude로 보강하는 서버 전용 단계 |
 | `src/decorate/decorate-assets.ts` | **Decorator** — `ComposedNodeTree`에 콘텐츠/OGN layout pattern 메타를 붙여 `DecoratedNodeTree`를 만든다. screen shell은 deterministic code가 담당함 |

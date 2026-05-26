@@ -23,6 +23,7 @@ type PatternCatalogMatch = {
 
 type PatternCatalogEntry = Pick<PatternStorePattern, "id" | "target" | "name" | "description"> & {
 	variant?: string;
+	variants?: Array<{ name?: string; id?: string } | string>;
 	layout?: ChildrenLayoutPreset;
 	match?: PatternCatalogMatch;
 };
@@ -60,17 +61,27 @@ export function loadPatternStoreForWorkbench(): PatternStore {
 }
 
 function normalizeCatalogPattern(pattern: PatternCatalogEntry): PatternStorePattern {
-	const { layout, match, variant, ...base } = pattern;
+	const { layout, match, variant, variants, ...base } = pattern;
 	const defaultVariant = variant ?? DEFAULT_PATTERN_VARIANT;
+	const variantNames = normalizeVariantNames(variants, defaultVariant);
 
 	return {
 		...base,
 		defaultVariant,
 		resolution: normalizeCatalogMatch(match),
-		variants: {
-			[defaultVariant]: layout ?? {},
-		},
+		variants: Object.fromEntries(variantNames.map((name) => [name, layout ?? {}])),
 	};
+}
+
+function normalizeVariantNames(
+	variants: PatternCatalogEntry["variants"],
+	defaultVariant: string,
+): string[] {
+	if (!variants) return [defaultVariant];
+	const names = variants
+		.map((entry) => (typeof entry === "string" ? entry : (entry.name ?? entry.id)))
+		.filter((name): name is string => typeof name === "string" && name.length > 0);
+	return names.includes(defaultVariant) ? names : [defaultVariant, ...names];
 }
 
 function normalizeCatalogMatch(
