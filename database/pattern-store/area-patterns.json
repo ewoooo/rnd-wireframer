@@ -9,7 +9,7 @@
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 8,
-				"props": {
+				"layoutProps": {
 					"flow": "vertical",
 					"titleGap": 8,
 					"componentGap": 8
@@ -32,7 +32,7 @@
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 12,
-				"props": {
+				"layoutProps": {
 					"flow": "vertical",
 					"titleGap": 8,
 					"componentGap": 12
@@ -55,7 +55,7 @@
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 12,
-				"props": {
+				"layoutProps": {
 					"flow": "vertical",
 					"titleGap": 8,
 					"componentGap": 12
@@ -78,7 +78,7 @@
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 0,
-				"props": {
+				"layoutProps": {
 					"flow": "vertical",
 					"titleGap": 8,
 					"componentGap": 0
@@ -101,7 +101,7 @@
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 12,
-				"props": {
+				"layoutProps": {
 					"flow": "vertical",
 					"titleGap": 8,
 					"componentGap": 12

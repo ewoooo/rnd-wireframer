@@ -33,14 +33,14 @@ packages/{name}/
   src/
     __tests__/
     index.ts
-    types.ts
+    types.ts        # 패키지 내부 타입. 공유 계약은 @cx/types 우선
     {responsibility}/
       *.ts
 ```
 
 새 파일을 추가할 때의 기본 판단:
 
-- 외부 패키지에서 공유해야 하는 계약 타입은 `src/types.ts`
+- 외부 패키지에서 공유해야 하는 계약 타입은 `packages/types`의 `@cx/types`에 둔다. 한 패키지 내부에서만 쓰는 타입만 해당 패키지 `src/types.ts`에 둔다.
 - 공개 import 표면은 `src/index.ts`와 `package.json` `exports`
 - 특정 단계의 구현은 해당 책임 폴더
 - Node.js 전용 adapter는 루트 export에 섞지 않고 subpath export
@@ -64,6 +64,10 @@ packages/agent/src/
 
 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 흐름을 기본 계약으로 유지한다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다.
 
+## 4.1 `packages/types` 구조
+
+`@cx/types`는 런타임 구현을 갖지 않는 공유 계약 패키지다. `database/tables` row shape, pattern-store 계약처럼 `@cx/agent`, `@cx/renderer`, `apps/web`이 동시에 참조하는 타입은 여기에서 먼저 정의한다. 특정 패키지 구현 세부 타입은 이 패키지로 올리지 않는다.
+
 ## 5. 앱 구조 규칙
 
 `apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다.
@@ -72,14 +76,14 @@ packages/agent/src/
 apps/web/src/
   app/          Next.js route와 API route
   components/   화면/패널/프리뷰 UI
-  adapters/     table/read model과 render tree 변환
+  adapters/     workbench용 source validation/read helper
   data/         local loader와 앱 소비 read model adapter
   model/        클라이언트 상태와 선택 모델
   agent/        브라우저에서 쓰는 agent pipeline 호출 wrapper
   server/       route handler가 호출하는 서버 전용 IO/orchestration
 ```
 
-렌더링 primitive는 `@cx/layout`, leaf component는 `@cx/components`, render node 해석은 `@cx/renderer`, AI pipeline은 `@cx/agent`로 올린다. 앱 내부에는 제품 작업면과 API route glue만 남긴다.
+렌더링 primitive는 `@cx/layout`, leaf component는 `@cx/components`, render tree projection과 node 해석은 `@cx/renderer`, 공유 row/pattern 계약은 `@cx/types`, AI pipeline은 `@cx/agent`로 올린다. 앱 내부에는 제품 작업면과 API route glue만 남긴다.
 
 `src/app/api/**/route.ts`는 HTTP status와 response shape만 관리한다. 파일 시스템, 업로드 저장, local Claude 실행, AI import artifact write처럼 Node.js 전용 side effect는 `src/server/**`로 격리한다. `src/data/**`에는 앱이 소비하는 read model loader만 두고, 파일 쓰기나 `node:*` 의존 helper는 두지 않는다.
 
@@ -95,9 +99,9 @@ database/
 
 `database/client-imports`는 원천 import 보관소다. parser나 AI 보정 단계가 원본을 덮어쓰지 않는다.
 `database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.db-tables.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
-`database/tables`는 승인된 소비 데이터만 둔다. agent pipeline, parser, API route는 이 디렉토리를 직접 덮어쓰지 않고 별도 promote/import 단계에서만 반영한다.
-`database/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `region`, `area`, `component` children을 어떻게 배치할지 정의하는 layout preset이며, screen 자체를 분류하지 않는다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
-`database/ai-imports`의 단계별 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.db-tables.json` 이름을 사용한다.
+`database/tables`는 승인된 소비 데이터만 둔다. agent pipeline과 parser는 이 디렉토리를 직접 덮어쓰지 않고 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계에서만 반영한다.
+`database/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이며, screen 자체를 분류하지 않는다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
+`database/ai-imports`의 deterministic parser 산출물은 `client-import.parsed.json`, `client-import.validation.json`, `client-import.db-tables.json` 이름을 사용한다. Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.db-tables.json` 이름을 사용한다.
 
 ## 7. 변경 기준
 

@@ -16,5 +16,8 @@
 - `apps/web` workbench는 `tables/` 또는 동일 shape의 loader 결과만 화면 데이터로 소비한다.
 - parser, AI generation, agent pipeline은 `tables/`를 직접 덮어쓰지 않는다.
 - `ai-imports/*.db-tables.json`은 `tables/` 후보일 뿐이다.
-- 후보를 `tables/`로 반영하려면 별도 promote/import 단계에서 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
+- deterministic parser는 `client-import.parsed.json`, `client-import.validation.json`, `client-import.db-tables.json`을 먼저 남긴다.
+- Claude/AI 보정 흐름은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.db-tables.json`을 남긴다.
+- 후보를 `tables/`로 반영할 때는 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계를 사용한다.
+- promote/import는 참조 무결성, renderer projection validation, pattern-store warning report를 통과한 후보만 `tables/`로 쓴다.
 - `pattern-store/`의 pattern은 소비 데이터에 복사하지 않고 `pattern.id`, `pattern.variant`로만 참조한다.

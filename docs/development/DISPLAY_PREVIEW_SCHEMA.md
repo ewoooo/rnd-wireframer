@@ -14,7 +14,7 @@ SQL에 적재하는 1차 원천 정보의 책임은 [DATA_MAP.md](/Users/plusx/D
 - 우측 상세의 table row는 표시 순서를 가진다.
 - table row에는 화면 표시값과 원천 추적용 code를 함께 둔다.
 - 생성 전 화면은 `preview.status = "empty"`로 표현한다.
-- 생성 후 화면은 `preview.status = "generated"`와 `generatedScreenId` 또는 `wireframeJson` 참조로 표현한다.
+- 생성 후 화면은 `preview.status = "generated"`와 `generatedScreenId` 또는 `renderTree` 참조로 표현한다. `renderTree`는 저장 포맷이 아니라 프리뷰 렌더 입력 DTO다.
 
 ## 3. 최상위 구조
 
@@ -149,11 +149,11 @@ type DisplayPreviewFrame = {
     height: number;
   };
   generatedScreenId?: string;
-  wireframeJson?: unknown;
+  renderTree?: unknown;
 };
 ```
 
-생성 전에는 `status = "empty"`와 `message`를 사용한다. 생성 후에는 `generatedScreenId` 또는 `wireframeJson`으로 렌더링 대상을 연결한다.
+생성 전에는 `status = "empty"`와 `message`를 사용한다. 생성 후에는 `generatedScreenId` 또는 `renderTree`로 렌더링 대상을 연결한다.
 
 ## 8. Detail
 

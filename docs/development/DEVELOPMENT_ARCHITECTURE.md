@@ -40,10 +40,11 @@ FastAPI
 | 레이어 | 책임 |
 |---|---|
 | Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/renderer` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
+| `@cx/types` | `database/tables` row shape, pattern-store 계약처럼 여러 패키지가 공유하는 타입 전용 패키지 |
 | `@cx/tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
 | `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
 | `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive |
-| `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, React 렌더링 패키지 |
+| `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, `tablesToRenderTree` projection, React 렌더링 패키지 |
 | `@cx/agent` | screen/area/component read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
 | FastAPI | 후속 JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
@@ -53,7 +54,7 @@ FastAPI
 | Supabase PostgreSQL | 후속 관계형 데이터와 생성 이력 저장 |
 | Supabase Storage | 후속 원본 JSON 파일과 선택적 산출물 저장 |
 | ERD 도구 | 후속 Supabase PostgreSQL 스키마의 관계 검토 |
-| Claude API | 후속 와이어프레임 JSON 생성과 재생성 |
+| Claude API | 후속 `database/tables` shape table 후보 생성과 재생성 |
 | Codex Review | 후속 Claude 생성 결과 검수 |
 
 공급 데이터/소비 데이터의 현재 계약은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다. DB 테이블, 컬럼, migration, ERD 산출물의 세부 책임은 소비 데이터 계약이 안정화된 뒤 확정한다.
@@ -102,13 +103,13 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 `@cx/components/styles.css`와 `@cx/layout/styles.css` legacy style export도 import한다. 정리 목표는 Tailwind v4 `@theme` 산출물을 `@cx/tokens/tailwind.css`로 모으고, layout/component의 legacy `styles.css` 책임을 최소화하는 것이다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 render node type과 props를 해석하고 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/renderer/src/component-catalog.ts`는 compose/AI/editor가 공유하는 component prop, variant, AI writable surface 계약 레지스트리다. `packages/agent`는 Agent SDK runtime과 deterministic NodeTree registration pipeline을 담당한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 `database/tables` shape를 RenderTree DTO로 projection하고, render node type과 props를 해석해 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. `packages/renderer/src/component-catalog.ts`는 compose/AI/editor가 공유하는 component prop, variant, AI writable surface 계약 레지스트리다. `packages/renderer/src/renderer-kind-contract.ts`는 render node type을 renderer kind로 연결하는 계약 테이블이다. `packages/agent`는 Agent SDK runtime과 deterministic NodeTree registration pipeline을 담당한다.
 
-`packages/agent/src`는 `register`, `compose`, `decorate`, `pattern`, `database`, `runtime` 책임 디렉토리로 나눈다. 외부 subpath import는 `package.json` `exports`에서 유지하고, 내부 구현 위치는 책임 디렉토리 기준으로 관리한다. 생성 단계 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 순서다.
+`packages/agent/src`는 `register`, `compose`, `decorate`, `pattern`, `database`, `runtime` 책임 디렉토리로 나눈다. 외부 subpath import는 `package.json` `exports`에서 유지하고, 내부 구현 위치는 책임 디렉토리 기준으로 관리한다. `register/client-import-parser.ts`는 업로드된 screen/area markdown 묶음을 deterministic하게 `GeneratedNodeTree`와 validation report로 변환한다. 생성 단계 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 순서다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
-화면 생성 데이터는 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`, `database/pattern-store/` 아래에 둔다. `database/client-imports`는 업로드 원본, `database/ai-imports`는 AI 생성 후보 bundle과 table 후보, `database/tables`는 workbench가 소비하는 승인된 table dump, `database/pattern-store`는 layout preset reference catalog다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+화면 생성 데이터는 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`, `database/pattern-store/` 아래에 둔다. `database/client-imports`는 업로드 원본, `database/ai-imports`는 deterministic parser 후보와 AI 생성 후보 bundle/table 후보, `database/tables`는 workbench가 소비하는 승인된 table dump, `database/pattern-store`는 layout preset reference catalog다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
 ## 5. FastAPI 모듈
 
@@ -132,18 +133,18 @@ services/api/app/
     prompt_builder.py
     agent_runtime.py
     local_session_resolver.py
-    claude_wireframe_generator.py
-    codex_wireframe_reviewer.py
+    claude_table_generator.py
+    codex_table_reviewer.py
     generated_screen_set_builder.py
     generated_screen_builder.py
     generated_area_builder.py
-    wireframe_to_puck.py
-    puck_to_wireframe.py
+    tables_draft_to_puck.py
+    puck_to_tables_draft.py
   schemas/
     source_import.py
     screen_source.py
     area_source.py
-    wireframe.py
+    render_tree.py
     generation_job.py
     generated_screen.py
     generated_area.py
@@ -175,11 +176,11 @@ apps/web/
 
 `apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/`, `server/` 책임 디렉토리로 나눈다. `src/app/api/**/route.ts`는 HTTP request/response glue만 담당하고, 파일 시스템 접근과 Agent SDK/Claude orchestration은 `src/server/**`에 둔다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
 
-Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store)의 reference store로 운영한다. Pattern store는 screen 자체를 분류하지 않고, 콘텐츠/OGN 내부의 flow, spacing, child ordering 같은 레이아웃 레시피만 관리한다. `Screen` shell과 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 content layout recipe를 `WireframeNode` 구조로 materialize하고, `@cx/renderer`는 pattern store를 직접 읽지 않는다.
+Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store)의 reference store로 운영한다. Pattern store는 screen 자체를 분류하지 않고, 콘텐츠/OGN 내부의 flow, spacing, child ordering 같은 레이아웃 레시피만 관리한다. `Screen` shell과 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 content layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/renderer` 입력 DTO로만 취급한다.
 
 앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 
-1. 렌더된 스크린 화면: `@cx/renderer` schema를 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Area`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
+1. 렌더된 스크린 화면: `@cx/renderer`가 `database/tables` shape를 RenderTree로 projection하고 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Area`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
 2. 다른 screen 및 OGN 조회: 현재 화면을 유지한 채 다른 generated screen, screen source, area source, generated area을 탐색하거나 선택할 수 있는 목록/검색/탭 영역을 제공한다.
 3. 렌더된 스크린 화면과 관련된 screen/OGN 정보: 현재 렌더 화면의 source screen, generated screen, 연결 OGN, OGN 상태, component 구성, 정책/기능 참조, 검증 경고를 함께 보여준다.
 
@@ -196,7 +197,7 @@ Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plu
 | `GET` | `/screen-sources/{screen_code}` | 화면 상세와 연결 OGN 조회 |
 | `GET` | `/screen-sources/{screen_code}/area-sources` | 생성 컨텍스트용 OGN 목록 조회 |
 | `GET` | `/display-preview/screens/{screen_code}` | 디스플레이 프리뷰용 화면 상세 read model 조회 |
-| `POST` | `/screen-sources/{screen_code}/generate` | 초기 와이어프레임 생성 |
+| `POST` | `/screen-sources/{screen_code}/generate` | 초기 table 후보 생성 |
 | `GET` | `/generation-jobs/{job_id}` | 생성 작업과 최신 생성 묶음 조회 |
 | `POST` | `/generation-jobs/{job_id}/regenerate` | 피드백 기반 생성 묶음 재생성 |
 | `GET` | `/generated-screen-sets/{set_id}` | 생성 묶음과 하위 화면/OGN 섹션 조회 |
@@ -205,8 +206,8 @@ Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plu
 | `PATCH` | `/generated-screens/{generated_screen_id}/composition` | Puck Screen 편집 결과를 screen composition draft로 저장 |
 | `POST` | `/generated-screens/{generated_screen_id}/composition/publish` | screen composition draft를 새 편집 버전으로 발행 |
 | `POST` | `/generated-areas/{generated_area_id}/regenerate` | 특정 OGN 섹션 재생성 |
-| `PATCH` | `/generated-areas/{generated_area_id}/edit` | Puck 편집 결과를 internal wireframe JSON으로 역변환해 임시 저장 |
-| `POST` | `/generated-areas/{generated_area_id}/publish` | 저장된 internal wireframe JSON 편집본 발행 |
+| `PATCH` | `/generated-areas/{generated_area_id}/edit` | Puck 편집 결과를 `database/tables` shape의 area/component draft로 임시 저장 |
+| `POST` | `/generated-areas/{generated_area_id}/publish` | 저장된 area/component draft를 새 편집 버전으로 발행 |
 | `GET` | `/area-sources/{area_source_code}/versions` | 공유 OGN 편집 버전 이력 조회 |
 | `POST` | `/generated-screen-sets/{set_id}/review` | Codex 기반 생성 묶음 검수 |
 | `POST` | `/generated-screens/{generated_screen_id}/review` | Codex 기반 개별 화면 검수 |
@@ -214,7 +215,7 @@ Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plu
 
 ## 8. 생성 계약
 
-Claude는 HTML이 아니라 `mobile-wireframe` JSON을 반환해야 한다.
+Claude는 HTML이 아니라 `database/tables` shape의 table 후보 JSON을 반환해야 한다. RenderTree는 저장하지 않고 `@cx/renderer`의 `tablesToRenderTree`가 프리뷰 직전에 생성한다.
 
 생성 결과는 `generated_screen_sets`를 묶음 단위로 하고, 실제 화면은 `generated_screens`의 개별 row로 저장한다. 화면 안의 OGN 섹션과 하위 component JSON은 `generated_areas`에 저장한다.
 
@@ -224,15 +225,15 @@ Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키�
 
 Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로컬 실행을 우선 사용하되, 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다. Codex 검수는 로컬 CLI 또는 로컬 런타임 실행기를 우선 사용한다. 로컬 실행이 없거나 실패하면 원격 API로 fallback한다.
 
-현재 와이어프레임 JSON 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. FastAPI 구현이 붙으면 이 계약을 Python schema로 mirrored contract 형태로 옮긴다.
+현재 render tree 입력 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. 이 스키마는 저장 포맷이 아니라 `database/tables`를 렌더러에 넘기기 위해 펼친 입력 DTO다. FastAPI 구현이 붙으면 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
 
-생성 JSON의 `component.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
+생성 JSON의 `component.type`, `pattern.id`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/tokens`, `database/pattern-store`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
 ## 9. Puck Screen/OGN 편집 정책
 
 Puck은 생성 결과를 자유 배치형 디자인 툴로 바꾸기 위한 레이어가 아니다. Claude가 만든 화면을 사람이 검토하면서 Screen composition과 OGN 내부 컴포넌트를 제한된 구조로 조정하기 위한 후편집 레이어다.
 
-공식 저장 포맷은 Puck 데이터가 아니라 internal wireframe JSON이다. Puck 데이터는 에디터 화면 안에서만 사용하는 임시 표현이다.
+공식 저장 포맷은 Puck 데이터나 render tree가 아니라 `database/tables` shape의 draft/edit version이다. Puck 데이터는 에디터 화면 안에서만 사용하는 임시 표현이고, render tree는 preview 렌더 직전에만 생성한다.
 
 편집 범위는 두 단계로 나눈다.
 
@@ -243,9 +244,9 @@ Puck은 생성 결과를 자유 배치형 디자인 툴로 바꾸기 위한 레�
 
 ```text
 generated_screens + generated_areas
--> internal wireframe JSON을 Puck data로 변환
+-> database/tables shape의 draft를 Puck data로 변환
 -> Puck에서 사용자 편집
--> Puck data를 internal wireframe JSON으로 역변환
+-> Puck data를 database/tables shape의 draft로 반영
 -> screen_edit_versions 또는 area_edit_versions에 저장
 ```
 
@@ -259,7 +260,7 @@ Puck 편집 원칙:
 - 간격, 정렬, 노출 여부, 문구, component Variant, Props처럼 안전한 prop만 편집 가능하게 연다.
 - 간격 값은 자유 숫자가 아니라 `none`, `xs`, `sm`, `md`, `lg`, `xl` 같은 디자인 토큰으로 제한한다.
 - Puck Screen block은 `generated_areas` 또는 공유 OGN edit version을 참조한다.
-- Puck OGN block 내부 props/children은 OGN internal wireframe JSON의 component tree와 매핑한다.
+- Puck OGN block 내부 props/children은 `database/tables` shape의 area/component draft와 매핑한다.
 - Puck preview는 `@cx/components`, `@cx/layout`, `@cx/tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
 
 렌더링 우선순위:
@@ -268,9 +269,9 @@ Puck 편집 원칙:
 screen_edit_versions latest published composition
 -> generated_screens + generated_areas composition
 
-area_edit_versions latest published internal_json
--> generated_areas edited_json
--> generated_areas layout_json + children_json
+area_edit_versions latest published tables draft
+-> generated_areas tables draft
+-> generated_areas layout + children tables
 ```
 
 재생성 원칙:

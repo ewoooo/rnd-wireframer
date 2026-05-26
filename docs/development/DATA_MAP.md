@@ -37,7 +37,8 @@
   ├─ pattern preset
   ├─ @cx/components
   ├─ @cx/layout
-  └─ @cx/tokens
+  ├─ @cx/tokens
+  └─ @cx/types
         |
         v
 parser / normalizer / resolver
@@ -62,10 +63,16 @@ promote / import
   └─ components.json
         |
         v
-@cx/renderer validation
+@cx/renderer tablesToRenderTree
         |
         v
-@cx/renderer
+RenderTree DTO
+        |
+        v
+@cx/renderer validation / React render
+        |
+        v
+@cx/layout / @cx/components
         |
         v
 apps/web
@@ -79,10 +86,11 @@ apps/web
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
-| `database/pattern-store/*.json` | region/area/component preset, layout recipe, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, `components[].pattern` |
+| `database/pattern-store/*.json` | region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
+| `packages/types` | `database/tables` row shape와 pattern-store 공유 타입 계약 | `@cx/agent`, `@cx/renderer`, `apps/web`의 공통 타입 import |
 | `packages/renderer/src/component-catalog.ts` | compose/AI/editor가 참조하는 component prop/variant 계약 | `components[].props`, `components[].hooks`, AI gap 판정 |
 
 공급 데이터 원칙:
@@ -90,7 +98,8 @@ apps/web
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
 - `database/pattern-store/*.json`은 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
-- pattern store의 layout recipe는 parser/resolver/generator 단계에서 `WireframeNode` 구조로 materialize한다. `@cx/renderer`는 pattern store를 직접 읽지 않고 materialize된 node만 렌더링한다.
+- pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
+- pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
 
 ## 4. 소비 데이터
@@ -107,13 +116,13 @@ apps/web
 
 용어 기준:
 
-`component`와 `composite`는 **서로 다른 축의 어휘**다. 같은 row를 다른 관점에서 부르는 이름이지 둘 중 하나가 잘못된 것이 아니다.
+`component`와 `composite`는 **서로 다른 범위의 어휘**다.
 
-- **render-tree kind 축** — `kind: "component" | "area"`. `database/tables` row와 region child entry가 쓰는 식별 키다. `components`는 `database/tables/components.json`의 파일명과 최상위 키이고, `components[]`의 각 row는 renderer가 소비하는 concrete render row다.
-- **pattern store target 축** — `target: "composite" | "area" | "region"`. 패턴이 어떤 단위에 적용되는지 분류한다. `composite`는 "단일 component-level 패턴 대상"을 가리키며 wrapper 개수와 무관하다. `database/pattern-store/composite-patterns.json`이 이 축의 파일이다.
-- **catalog source 축** — `source: "react-component" | "renderer-composite" | "layout-primitive"`. `packages/renderer/src/component-catalog.ts`에서 entry의 구현 출처를 분류한다. `renderer-composite`는 renderer가 합성한 leaf를 가리킨다.
+- **component** — `database/tables/components.json`의 일반 render row다. 단일 `@cx/components` leaf일 수도 있고, 후속 composite wrapper일 수도 있다. region/area child entry는 이 row를 `kind: "component"`로 참조한다.
+- **composite** — 최소 2개 이상의 `@cx/components`를 결합한 합성 컴포넌트다. `database/pattern-store/composite-patterns.json`은 이 합성 wrapper 내부의 children/slot layout만 다룬다.
+- **catalog source** — `source: "react-component" | "renderer-composite" | "layout-primitive"`는 `packages/renderer/src/component-catalog.ts`에서 구현 출처를 설명하는 보조 정보다.
 
-세 축은 의도적으로 분리돼 있다. 같은 단어가 같은 의미라고 가정하지 말 것.
+따라서 일반 render row를 composite라고 부르지 않는다. composite 용어는 합성 wrapper가 실제로 존재할 때만 쓴다.
 
 소비 데이터 관계는 아래 방향만 허용한다.
 
@@ -177,7 +186,7 @@ screenRoute
 
 ### screens
 
-`screens`는 workbench와 `tablesToRenderTree`가 직접 소비하는 화면 인스턴스다.
+`screens`는 workbench와 `@cx/renderer`의 `tablesToRenderTree`가 직접 소비하는 화면 인스턴스다.
 
 필수 필드:
 
@@ -185,7 +194,7 @@ screenRoute
 |---|---|
 | `id` | 화면 고유 ID |
 | `screenVariantId` | 소속 variant ID |
-| `version` | wireframe schema version |
+| `version` | RenderTree schema version |
 | `minRendererVersion` | 최소 renderer version |
 | `metadata` | `@cx/renderer` schema metadata |
 | `pattern.id` | 공급 pattern 참조 |
@@ -225,7 +234,7 @@ region child entry는 두 종류만 허용한다.
 | 필드 | 설명 |
 |---|---|
 | `id` | OGN 고유 ID. 첨부 명세의 `오가니즘 ID`와 맞춘다. |
-| `type` | `Area` |
+| `type` | `area.static` 또는 `area.dynamic` |
 | `version` | OGN node version |
 | `metadata` | `@cx/renderer` node metadata |
 | `children` | 이 OGN이 참조하는 concrete render node 목록 |
@@ -256,7 +265,7 @@ region child entry는 두 종류만 허용한다.
 | `type` | renderer mapping 대상 node type. 예: `HeaderBase`, `ListCell`, `TextField`, `SectionMessage` |
 | `version` | component row version |
 | `metadata` | `@cx/renderer` node metadata |
-| `pattern` | component pattern 참조 |
+| `pattern` | composite wrapper일 때 내부 children/slot layout pattern 참조 |
 | `children` | 실제 leaf component와 props를 담는 render child 목록 |
 
 권장 필드:
@@ -320,16 +329,12 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 - region child의 `{ kind: "area", id }`는 존재하는 `areas[].id`를 참조한다.
 - `areas[].children[].id`는 존재하는 `components[].id`를 참조한다.
 - `screens[].pattern.id`는 공급 `database/pattern-store/*.json`의 `patterns[].id`를 참조한다.
-- 모든 node/table `id`는 같은 렌더 트리 안에서 중복되지 않아야 한다.
-- `tablesToRenderTree` 결과는 `@cx/renderer` validation을 통과해야 한다.
+- 모든 node/table `id`는 같은 RenderTree 안에서 중복되지 않아야 한다.
+- `@cx/renderer`의 `tablesToRenderTree` 결과는 `@cx/renderer` validation을 통과해야 한다.
 
 ## 8. 현재 강화 백로그
 
 | 우선순위 | 작업 | 완료 기준 |
 |---|---|---|
-| P0 | 첨부 screen/area markdown을 소비 데이터 초안으로 변환하는 parser 추가 | `screen_routes`, `screen_variants`, `screens`, `areas`, `components` 초안 생성 |
-| P0 | 소비 데이터 참조 무결성 validator 추가 | 누락 route/variant/screen/area/component/pattern을 리포트 |
-| P0 | sample 데이터를 소비 계약 기준으로 정리 | `sourceRef`, state, edge variant 후보가 표현됨 |
-| P1 | 공급 `database/pattern-store/*.json`과 소비 `pattern.id` 관계 검사 | 누락 pattern warning 표시 |
-| P1 | component type과 `@cx/renderer` mapping 관계 검사 | fallback renderer 사용 항목 리포트 |
+| P1 | sample 데이터를 소비 계약 기준으로 보강 | `sourceRef`, state, edge variant 후보가 표현됨 |
 | P2 | 소비 데이터에서 DB/read model로 승격할 필드 선별 | 후속 DB 설계 문서와 충돌하지 않음 |

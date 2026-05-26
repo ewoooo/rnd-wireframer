@@ -57,3 +57,5 @@ Resolver 로직은 별도 단계에서 구현한다. 이 디렉터리는 우선 
 ```
 
 `childWrap`은 parent node가 자기 children을 감쌀 때만 적용된다. 예를 들어 OGN 전체를 `PageStack`에 넣는 것은 `Screen.Contents` 같은 `region` pattern의 책임이고, OGN 내부 component 배치는 `area` pattern의 책임이다. `composite` 용어는 2개 이상의 `@cx/components`가 하나의 wrapper로 결합된 경우에만 사용한다.
+
+`layoutProps`는 render projection 단계에서 layout/area wrapper에만 주입되는 값이다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
