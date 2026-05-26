@@ -5,8 +5,8 @@ import {
 	type WireframeSchema,
 } from "@cx/renderer";
 import {
-	type DatabaseComponentSet,
 	type DatabaseAreaSet,
+	type DatabaseComponentSet,
 	type DatabaseScreenRouteSet,
 	type DatabaseScreenSet,
 	type DatabaseScreenVariantSet,
@@ -24,7 +24,7 @@ type WireframeScreenSet = {
 };
 
 type ComponentTableSet = {
-	components: DatabaseComponentSet["composites"];
+	components: DatabaseComponentSet["components"];
 };
 
 const screenRouteSet = screenRoutesTable as unknown as DatabaseScreenRouteSet;
@@ -40,7 +40,7 @@ const orderedDatabaseScreens = orderDatabaseScreens(
 const renderedScreens = tablesToRenderTrees({
 	screens: orderedDatabaseScreens,
 	areas,
-	composites: componentTableSet.components,
+	components: componentTableSet.components,
 	patternStore: loadPatternStore(),
 }) satisfies WireframeScreenSet["screens"];
 
@@ -104,7 +104,7 @@ function getAreaCatalog(schemas: WireframeSchema[]) {
 		string,
 		{
 			code: string;
-			compositeCount: number;
+			componentCount: number;
 			name: string;
 			stateCount: number;
 			usage: string;
@@ -121,7 +121,7 @@ function getAreaCatalog(schemas: WireframeSchema[]) {
 				name: node.metadata.title,
 				usage: "section",
 				stateCount: 1,
-				compositeCount: node.children?.length ?? 0,
+				componentCount: node.children?.length ?? 0,
 			});
 		});
 	}

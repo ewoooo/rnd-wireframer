@@ -1,20 +1,19 @@
 import type {
-	DatabaseAreaMetadata,
-	DatabaseAreaRow,
-	DatabaseComponentRow,
-	DatabaseCompositeMetadata,
-	DatabaseRegionChild,
-	DatabaseScreenBody,
-	DatabaseScreenRegion,
-	DatabaseScreenRow,
-} from "./register-assets-to-database-tables";
-import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
-import type {
 	DecoratedAreaNode,
 	DecoratedComponentNode,
 	DecoratedPrddScreen,
 	NodeHook,
 } from "../types";
+import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
+import type {
+	DatabaseAreaRow,
+	DatabaseComponentMetadata,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenBody,
+	DatabaseScreenRegion,
+	DatabaseScreenRow,
+} from "./register-assets-to-database-tables";
 
 export interface MaterializedPrddTables {
 	screen: DatabaseScreenRow;
@@ -69,7 +68,7 @@ export function materializePrddScreenToTables(
 			header: toRegion(
 				REGION_NODE_TYPE.header,
 				REGION_METADATA_TITLE.header,
-				decorated.header.children.map(toCompositeChild),
+				decorated.header.children.map(toComponentChild),
 			),
 			contents: toRegion(
 				REGION_NODE_TYPE.contents,
@@ -79,7 +78,7 @@ export function materializePrddScreenToTables(
 			bottom: toRegion(
 				REGION_NODE_TYPE.bottom,
 				REGION_METADATA_TITLE.bottom,
-				decorated.bottom.children.map(toCompositeChild),
+				decorated.bottom.children.map(toComponentChild),
 			),
 		},
 	};
@@ -115,8 +114,8 @@ function toRegion(
 	return { type, metadata: { title }, children };
 }
 
-function toCompositeChild(ref: { componentId: string }): DatabaseRegionChild {
-	return { kind: "composite", id: ref.componentId };
+function toComponentChild(ref: { componentId: string }): DatabaseRegionChild {
+	return { kind: "component", id: ref.componentId };
 }
 
 function toAreaChild(area: DecoratedAreaNode): DatabaseRegionChild {
@@ -157,7 +156,7 @@ function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRo
 		pattern: { id: area.pattern.id, variant: area.pattern.variant },
 		children: [...area.children]
 			.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-			.map((ref) => ({ kind: "composite" as const, id: ref.componentId })),
+			.map((ref) => ({ kind: "component" as const, id: ref.componentId })),
 	};
 }
 
@@ -171,7 +170,7 @@ function toComponentRow(
 	component: DecoratedComponentNode,
 	ctx: ComponentRowContext,
 ): DatabaseComponentRow {
-	const meta: DatabaseCompositeMetadata = {
+	const meta: DatabaseComponentMetadata = {
 		title: component.name ?? component.id,
 		author: ctx.author,
 		createdAt: ctx.timestamp,

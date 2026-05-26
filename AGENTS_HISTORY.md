@@ -38,6 +38,6 @@
 
 ## 2026-05-26 - Data Agent
 
-- 변경: `docs/data-mockups`를 제거하고, 데이터 위치를 `database/client-imports`, `database/ai-imports`, `database/tables`, `database/pattern-store` 생명 주기로 정리함
-- 이유: 원천 import, AI 후보 산출물, 승인된 소비 데이터의 경계를 파일 위치로 강제하기 위함
-- 검증: 최신 기준 문서에서 `docs/data-mockups` 참조가 제거됐고, `generate-register`가 table 후보를 `database/ai-imports/agent-assets.db-tables.json`에만 쓰도록 확인함
+- 변경: `components.json` row를 component render row로 정리하고, `composite`는 2개 이상의 `@cx/components`가 결합된 wrapper 의미로만 남기도록 계약/코드/문서를 갱신함
+- 이유: 일반 component row를 composite라고 부르면 합성 컴포넌트와 단일 컴포넌트 참조의 경계가 다시 흐려지기 때문
+- 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run apps/web/src/adapters packages/agent packages/renderer`, 관련 파일 `npx biome check`

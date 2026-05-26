@@ -10,16 +10,16 @@ import { NavigationRail } from "./NavigationRail";
 export function NavigationPanel() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
-	const composites = useWorkbenchStore((state) => state.composites);
+	const components = useWorkbenchStore((state) => state.components);
 	const areas = useWorkbenchStore((state) => state.areas);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
-	const selectedCompositeCode = useWorkbenchStore((state) => state.selectedCompositeCode);
+	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 	const selectedScreenCode = useWorkbenchStore((state) => state.selectedScreenCode);
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
-	const selectComposite = useWorkbenchStore((state) => state.selectComposite);
+	const selectComponent = useWorkbenchStore((state) => state.selectComponent);
 	const selectArea = useWorkbenchStore((state) => state.selectArea);
 	const selectScreenRoute = useWorkbenchStore((state) => state.selectScreenRoute);
 	const selectScreenVariant = useWorkbenchStore((state) => state.selectScreenVariant);
@@ -66,7 +66,7 @@ export function NavigationPanel() {
 										<p className="mt-1 text-xs text-muted-foreground">{area.code}</p>
 										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
 											<span>{area.stateCount} states</span>
-											<span>{area.compositeCount} composites</span>
+											<span>{area.componentCount} components</span>
 										</div>
 									</button>
 								))}
@@ -76,24 +76,24 @@ export function NavigationPanel() {
 					{activeTab === "comp" ? (
 						<ScrollArea className="h-[calc(100vh-32px)]">
 							<div className="flex flex-col gap-2 pr-3">
-								{composites.map((composite) => (
+								{components.map((component) => (
 									<button
 										type="button"
-										key={composite.code}
+										key={component.code}
 										className={cn(
 											"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
-											composite.code === selectedCompositeCode && "border-primary bg-primary/5",
+											component.code === selectedComponentCode && "border-primary bg-primary/5",
 										)}
-										onClick={() => selectComposite(composite.code)}
+										onClick={() => selectComponent(component.code)}
 									>
 										<div className="flex items-center justify-between gap-2">
-											<p className="truncate text-sm font-medium">{composite.name}</p>
-											<Badge variant="secondary">{composite.type}</Badge>
+											<p className="truncate text-sm font-medium">{component.name}</p>
+											<Badge variant="secondary">{component.type}</Badge>
 										</div>
-										<p className="mt-1 truncate text-xs text-muted-foreground">{composite.code}</p>
+										<p className="mt-1 truncate text-xs text-muted-foreground">{component.code}</p>
 										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-											<span>{composite.sourceScreenCode}</span>
-											<span>{composite.parentAreaCode ?? "screen"}</span>
+											<span>{component.sourceScreenCode}</span>
+											<span>{component.parentAreaCode ?? "screen"}</span>
 										</div>
 									</button>
 								))}

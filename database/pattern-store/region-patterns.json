@@ -10,7 +10,10 @@
 				"childOrder": "explicit",
 				"childWrap": {
 					"kind": "page-stack",
-					"appliesTo": ["composite", "area"],
+					"appliesTo": [
+						"component",
+						"area"
+					],
 					"sectionPaddingX": 12,
 					"itemPaddingX": 20,
 					"paddingY": 28,

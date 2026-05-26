@@ -146,10 +146,10 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 | 우선순위 | 담당 | 작업 |
 |---|---|---|
 | P0 | Frontend Agent | `apps/web` workbench를 `database/tables` 계약 또는 동일 shape의 loader 결과에서 로드하도록 정리 |
-| P0 | Frontend Agent | `@cx/renderer` composite mapping과 누락 renderer 리포트를 workbench 검증 패널에 연결 |
+| P0 | Frontend Agent | `@cx/renderer` component mapping과 누락 renderer 리포트를 workbench 검증 패널에 연결 |
 | P0 | Design System Agent | `@cx/renderer`, `@cx/layout`, `@cx/tokens` spacing key 계약을 정리 |
 | P0 | Frontend Agent | `@cx/layout` legacy `styles.css` export와 잔여 CSS 책임 정리 |
 | P1 | Data Agent | 첨부 screen/area markdown을 소비 데이터 초안으로 변환하는 parser/validator 설계 |
 | P1 | Backend Agent | 소비 데이터 계약 기준 FastAPI read model 초안 구현 |
-| P2 | Frontend Agent | Puck 기반 Screen composition/OGN composite 편집 프로토타입 구현 |
+| P2 | Frontend Agent | Puck 기반 Screen composition/OGN component 편집 프로토타입 구현 |
 | P2 | Agent Runtime Agent | Claude 생성/Codex 검수 local-first Agent SDK 실행 전략 구현 |

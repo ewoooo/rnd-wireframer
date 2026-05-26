@@ -1,6 +1,6 @@
 import type {
-	ComposedComponentNode,
 	ComposedAreaNode,
+	ComposedComponentNode,
 	PatternRef,
 	PatternResolver,
 } from "../types";
@@ -21,18 +21,18 @@ const FALLBACK_PATTERN_ID = {
 } as const;
 
 export interface AreaResolutionInput extends ComposedAreaNode {
-	__compositeTypes?: ReadonlySet<string>;
+	__componentTypes?: ReadonlySet<string>;
 }
 
 import type {
-	CompositePattern,
 	AreaPattern,
+	CompositePattern,
 	Pattern,
 	PatternResolutionSignals,
 } from "./pattern-schema";
 import {
-	isCompositePattern,
 	isAreaPattern,
+	isCompositePattern,
 	listPatterns,
 	normalizePatternId,
 } from "./pattern-store";
@@ -136,13 +136,10 @@ function scoreCompositePattern(
 	return { pattern, score, reasons };
 }
 
-function resolveArea(
-	area: AreaResolutionInput,
-	candidates: AreaPattern[],
-): PatternRef | undefined {
-	const compositeTypes = area.__compositeTypes ?? new Set<string>();
+function resolveArea(area: AreaResolutionInput, candidates: AreaPattern[]): PatternRef | undefined {
+	const componentTypes = area.__componentTypes ?? new Set<string>();
 	const scored = candidates
-		.map((pattern) => scoreAreaPattern(pattern, area, compositeTypes))
+		.map((pattern) => scoreAreaPattern(pattern, area, componentTypes))
 		.filter((entry) => entry.score > 0);
 	return pickWinner(scored);
 }
@@ -150,29 +147,29 @@ function resolveArea(
 function scoreAreaPattern(
 	pattern: AreaPattern,
 	area: ComposedAreaNode,
-	compositeTypes: ReadonlySet<string>,
+	componentTypes: ReadonlySet<string>,
 ): Scored<AreaPattern> {
 	const reasons: string[] = [];
 	let score = 0;
 	const resolution = pattern.resolution;
 	if (!resolution) return { pattern, score: 0, reasons };
 
-	const typeMatcher = resolution.compositeTypes;
+	const typeMatcher = resolution.componentTypes;
 	if (typeMatcher) {
-		if (typeMatcher.noneOf?.some((t) => compositeTypes.has(t))) {
+		if (typeMatcher.noneOf?.some((t) => componentTypes.has(t))) {
 			return { pattern, score: 0, reasons };
 		}
 		if (typeMatcher.allOf?.length) {
-			const missing = typeMatcher.allOf.filter((t) => !compositeTypes.has(t));
+			const missing = typeMatcher.allOf.filter((t) => !componentTypes.has(t));
 			if (missing.length > 0) return { pattern, score: 0, reasons };
 			score += 20;
-			reasons.push(`composite types allOf matched (${typeMatcher.allOf.join(", ")})`);
+			reasons.push(`component types allOf matched (${typeMatcher.allOf.join(", ")})`);
 		}
 		if (typeMatcher.anyOf?.length) {
-			const matched = typeMatcher.anyOf.filter((t) => compositeTypes.has(t));
+			const matched = typeMatcher.anyOf.filter((t) => componentTypes.has(t));
 			if (matched.length > 0) {
 				score += 10 * matched.length;
-				reasons.push(`composite types anyOf matched (${matched.join(", ")})`);
+				reasons.push(`component types anyOf matched (${matched.join(", ")})`);
 			}
 		}
 	}

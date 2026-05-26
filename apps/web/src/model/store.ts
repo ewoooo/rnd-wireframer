@@ -18,7 +18,7 @@ import {
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 
-export interface AppComposite {
+export interface AppComponent {
 	code: string;
 	name: string;
 	parentAreaCode?: string;
@@ -55,7 +55,7 @@ export interface SelectedAreaContext {
 	screen: AppScreen;
 }
 
-export interface SelectedCompositeContext {
+export interface SelectedComponentContext {
 	code: string;
 	node: WireframeNode;
 	area?: SelectedAreaContext;
@@ -76,9 +76,9 @@ interface WorkbenchState {
 	agentImports: AgentClientImport[];
 	agentRegistry?: RegisteredNodeTree;
 	agentWarnings: string[];
-	composites: AppComposite[];
+	components: AppComponent[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
-	isCompositeView: boolean;
+	isComponentView: boolean;
 	isAreaView: boolean;
 	areas: AppArea[];
 	screenNode?: WireframeScreenNode;
@@ -86,7 +86,7 @@ interface WorkbenchState {
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
 	selectAgentNode: (node: AgentNodeSelection) => void;
-	selectComposite: (compositeCode: string) => void;
+	selectComponent: (componentCode: string) => void;
 	selectArea: (areaCode: string) => void;
 	selectScreenRoute: (screenRouteId: string) => void;
 	selectScreenVariant: (screenCode: string) => void;
@@ -98,8 +98,8 @@ interface WorkbenchState {
 	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
 	selectedAgentAsset?: SelectedAgentAsset;
 	selectedAgentNode: AgentNodeSelection;
-	selectedComposite?: SelectedCompositeContext;
-	selectedCompositeCode: string;
+	selectedComponent?: SelectedComponentContext;
+	selectedComponentCode: string;
 	selectedArea?: SelectedAreaContext;
 	selectedAreaCode: string;
 	selectedScreen?: AppScreen;
@@ -125,8 +125,8 @@ const initialWorkbenchState = {
 	agentImports: [],
 	agentRegistry: undefined,
 	agentWarnings: [],
-	composites: [],
-	isCompositeView: false,
+	components: [],
+	isComponentView: false,
 	isAreaView: false,
 	areas: [],
 	screenNode: undefined,
@@ -137,8 +137,8 @@ const initialWorkbenchState = {
 		level: "screen" as const,
 		id: "",
 	},
-	selectedComposite: undefined,
-	selectedCompositeCode: "",
+	selectedComponent: undefined,
+	selectedComponentCode: "",
 	selectedArea: undefined,
 	selectedAreaCode: "",
 	selectedScreen: undefined,
@@ -153,7 +153,7 @@ const initialWorkbenchState = {
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
 	initializeWorkbench: ({ agentRegistry, areas, screens }) => {
-		const composites = getCompositeCatalog(screens);
+		const components = getComponentCatalog(screens);
 		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
 		const selectedAgentNode =
@@ -163,27 +163,25 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
 			? state.selectedScreenCode
 			: getInitialScreenCode(screens);
-		const selectedAreaCode = areas.some(
-			(area) => area.code === state.selectedAreaCode,
-		)
+		const selectedAreaCode = areas.some((area) => area.code === state.selectedAreaCode)
 			? state.selectedAreaCode
 			: (areas[0]?.code ?? "");
-		const selectedCompositeCode = composites.some(
-			(composite) => composite.code === state.selectedCompositeCode,
+		const selectedComponentCode = components.some(
+			(component) => component.code === state.selectedComponentCode,
 		)
-			? state.selectedCompositeCode
-			: (composites[0]?.code ?? "");
+			? state.selectedComponentCode
+			: (components[0]?.code ?? "");
 
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
 			agentRegistry,
 			agentWarnings: agentRegistry?.warnings ?? [],
-			composites,
+			components,
 			areas,
 			screenRoutes,
 			screens,
 			selectedAgentNode,
-			selectedCompositeCode,
+			selectedComponentCode,
 			selectedAreaCode,
 			selectedScreenCode,
 		};
@@ -253,17 +251,17 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
-	selectComposite: (compositeCode) => {
+	selectComponent: (componentCode) => {
 		const state = get();
 		const nextState = {
 			...state,
 			activeNavigatorTab: "comp",
-			selectedCompositeCode: compositeCode,
+			selectedComponentCode: componentCode,
 		} satisfies WorkbenchState;
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
-			selectedCompositeCode: compositeCode,
+			selectedComponentCode: componentCode,
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
@@ -344,18 +342,18 @@ function getDerivedWorkbenchState(
 		| "activeNavigatorTab"
 		| "screens"
 		| "selectedAgentNode"
-		| "selectedCompositeCode"
+		| "selectedComponentCode"
 		| "selectedAreaCode"
 		| "selectedScreenCode"
 	>,
 ) {
 	const selectedScreen = getSelectedScreen(state.screens, state.selectedScreenCode);
 	const selectedArea = getSelectedAreaContext(state.screens, state.selectedAreaCode);
-	const selectedComposite = getSelectedCompositeContext(state.screens, state.selectedCompositeCode);
+	const selectedComponent = getSelectedComponentContext(state.screens, state.selectedComponentCode);
 	const isAreaView = state.activeNavigatorTab === "ogn" && Boolean(selectedArea);
-	const isCompositeView = state.activeNavigatorTab === "comp" && Boolean(selectedComposite);
-	const activeScreen = isCompositeView
-		? selectedComposite?.screen
+	const isComponentView = state.activeNavigatorTab === "comp" && Boolean(selectedComponent);
+	const activeScreen = isComponentView
+		? selectedComponent?.screen
 		: isAreaView
 			? selectedArea?.screen
 			: selectedScreen;
@@ -363,11 +361,11 @@ function getDerivedWorkbenchState(
 
 	return {
 		activeScreen,
-		isCompositeView,
+		isComponentView,
 		isAreaView,
 		screenNode: getScreenNode(selectedScreen),
 		selectedAgentAsset: findSelectedAgentAsset(state.agentRegistry, state.selectedAgentNode),
-		selectedComposite: isCompositeView ? selectedComposite : undefined,
+		selectedComponent: isComponentView ? selectedComponent : undefined,
 		selectedArea: isAreaView ? selectedArea : undefined,
 		selectedScreen,
 		validationErrors: validationStatus.errors,
@@ -379,9 +377,7 @@ function getDerivedWorkbenchState(
 }
 
 function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): AppScreen {
-	const areaByCode = new Map(
-		screen.areas.map((area) => [area.areaCode, area]),
-	);
+	const areaByCode = new Map(screen.areas.map((area) => [area.areaCode, area]));
 	const nextAreas = areaCodes.map((areaCode, index) => {
 		const area = areaByCode.get(areaCode);
 		return {
@@ -447,11 +443,11 @@ function isWireframeNode(node: WireframeNode | undefined): node is WireframeNode
 	return Boolean(node);
 }
 
-function getCompositeCatalog(screens: AppScreen[]): AppComposite[] {
-	const byCode = new Map<string, AppComposite>();
+function getComponentCatalog(screens: AppScreen[]): AppComponent[] {
+	const byCode = new Map<string, AppComponent>();
 
 	for (const screen of screens) {
-		forEachCompositeNode(screen.schema.children, undefined, (node, parentAreaCode) => {
+		forEachComponentNode(screen.schema.children, undefined, (node, parentAreaCode) => {
 			const code = node.metadata.id;
 			if (byCode.has(code)) return;
 
@@ -554,15 +550,15 @@ function getSelectedAreaContext(
 	return undefined;
 }
 
-function getSelectedCompositeContext(
+function getSelectedComponentContext(
 	screens: AppScreen[],
-	selectedCompositeCode: string,
-): SelectedCompositeContext | undefined {
+	selectedComponentCode: string,
+): SelectedComponentContext | undefined {
 	for (const screen of screens) {
-		const found = findCompositeNode(screen.schema.children, selectedCompositeCode);
+		const found = findComponentNode(screen.schema.children, selectedComponentCode);
 		if (found) {
 			return {
-				code: selectedCompositeCode,
+				code: selectedComponentCode,
 				node: found.node,
 				area: found.parentAreaCode
 					? getSelectedAreaContext([screen], found.parentAreaCode)
@@ -585,39 +581,39 @@ function findAreaNode(nodes: WireframeNode[], areaCode: string): WireframeNode |
 	return undefined;
 }
 
-function findCompositeNode(
+function findComponentNode(
 	nodes: WireframeNode[],
-	compositeCode: string,
+	componentCode: string,
 	parentAreaCode?: string,
 ): { node: WireframeNode; parentAreaCode?: string } | undefined {
 	for (const node of nodes) {
 		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isCompositeNode(node) && node.metadata.id === compositeCode) {
+		if (isComponentNode(node) && node.metadata.id === componentCode) {
 			return {
 				node,
 				parentAreaCode,
 			};
 		}
 		const childMatch = node.children
-			? findCompositeNode(node.children, compositeCode, nextParentAreaCode)
+			? findComponentNode(node.children, componentCode, nextParentAreaCode)
 			: undefined;
 		if (childMatch) return childMatch;
 	}
 	return undefined;
 }
 
-function forEachCompositeNode(
+function forEachComponentNode(
 	nodes: WireframeNode[],
 	parentAreaCode: string | undefined,
 	callback: (node: WireframeNode, parentAreaCode?: string) => void,
 ) {
 	for (const node of nodes) {
 		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isCompositeNode(node)) {
+		if (isComponentNode(node)) {
 			callback(node, parentAreaCode);
 		}
 		if (node.children) {
-			forEachCompositeNode(node.children, nextParentAreaCode, callback);
+			forEachComponentNode(node.children, nextParentAreaCode, callback);
 		}
 	}
 }
@@ -631,7 +627,7 @@ function isAreaNode(node: WireframeNode) {
 	return node.type === "area.static" || node.type === "area.dynamic" || node.type === "Area";
 }
 
-function isCompositeNode(node: WireframeNode) {
+function isComponentNode(node: WireframeNode) {
 	return ![
 		"Screen",
 		"Screen.Header",

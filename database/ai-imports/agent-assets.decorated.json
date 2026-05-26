@@ -1857,7 +1857,7 @@
 				"id": "list-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (list-cell)",
+					"component types allOf matched (list-cell)",
 					"name keywords matched (목록)"
 				]
 			}
@@ -1894,7 +1894,7 @@
 				"id": "checkbox-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (checkbox)",
+					"component types allOf matched (checkbox)",
 					"name keywords matched (동의)"
 				]
 			}
@@ -1931,7 +1931,7 @@
 				"id": "field-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (text-field)",
+					"component types allOf matched (text-field)",
 					"name keywords matched (입력)"
 				]
 			}
@@ -1960,7 +1960,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내)"
 				]
 			}
@@ -2001,7 +2001,7 @@
 				"id": "field-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (text-field)",
+					"component types allOf matched (text-field)",
 					"name keywords matched (입력)"
 				]
 			}
@@ -2030,7 +2030,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (상태)"
 				]
 			}
@@ -2059,7 +2059,7 @@
 				"id": "list-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (list-cell)",
+					"component types allOf matched (list-cell)",
 					"name keywords matched (목록)"
 				]
 			}
@@ -2100,7 +2100,7 @@
 				"id": "field-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (text-field)",
+					"component types allOf matched (text-field)",
 					"name keywords matched (입력)"
 				]
 			}
@@ -2133,7 +2133,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내, 상태)"
 				]
 			}
@@ -2166,7 +2166,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내, 상태)"
 				]
 			}
@@ -2195,7 +2195,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내)"
 				]
 			}
@@ -2224,7 +2224,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내, 상태)"
 				]
 			}
@@ -2257,7 +2257,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내)"
 				]
 			}
@@ -2286,7 +2286,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (상태)"
 				]
 			}
@@ -2311,7 +2311,7 @@
 				"id": "message-stack",
 				"variant": "default",
 				"reasons": [
-					"composite types allOf matched (section-message)",
+					"component types allOf matched (section-message)",
 					"name keywords matched (안내, 상태)"
 				]
 			}

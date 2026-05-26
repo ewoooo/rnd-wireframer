@@ -71,13 +71,13 @@ describe("PRDD pipeline e2e (parse → register → compose → decorate → tab
 
 	it("DB screen row has 3 regions with correct child kinds", () => {
 		expect(tables.screen.screen.regions.header.children).toEqual([
-			{ kind: "composite", id: "NOVA-PRDD-PG-011-5__a0-1" },
+			{ kind: "component", id: "NOVA-PRDD-PG-011-5__a0-1" },
 		]);
 		expect(tables.screen.screen.regions.contents.children).toEqual([
 			{ kind: "area", id: "NOVA-PRDD-PG-011-5__area1" },
 		]);
 		expect(tables.screen.screen.regions.bottom.children).toEqual([
-			{ kind: "composite", id: "NOVA-PRDD-PG-011-5__a999-1" },
+			{ kind: "component", id: "NOVA-PRDD-PG-011-5__a999-1" },
 		]);
 	});
 
@@ -90,9 +90,7 @@ describe("PRDD pipeline e2e (parse → register → compose → decorate → tab
 		expect(areaRow?.props?.layout).toBe("vertical");
 		expect(areaRow?.props?.errorPolicy).toBe("영역 전체 숨김");
 		expect(areaRow?.props?.policyAnchors).toEqual(["PI-PRDD-SAVE-001-04"]);
-		expect(areaRow?.children).toEqual([
-			{ kind: "composite", id: "NOVA-PRDD-PG-011-5__a1-1" },
-		]);
+		expect(areaRow?.children).toEqual([{ kind: "component", id: "NOVA-PRDD-PG-011-5__a1-1" }]);
 	});
 
 	it("DB component rows include header/area/bottom components", () => {

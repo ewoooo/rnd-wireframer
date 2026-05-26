@@ -1,13 +1,13 @@
 import type { PropValue, WireframeNode, WireframeSchema, WireframeScreenNode } from "@cx/renderer";
 
 import type {
-	DatabaseComponentRow,
-	DatabaseComponentSet,
 	DatabaseAreaRow,
 	DatabaseAreaSet,
+	DatabaseComponentRow,
+	DatabaseComponentSet,
 	DatabaseRegionChild,
-	DatabaseScreenRow,
 	DatabaseScreenRegion,
+	DatabaseScreenRow,
 	DatabaseScreenSet,
 } from "./tables-to-render-tree";
 
@@ -19,7 +19,7 @@ export interface RenderTreeToTablesOptions {
 }
 
 export interface RenderTreeToTablesResult {
-	composites: DatabaseComponentSet;
+	components: DatabaseComponentSet;
 	areas: DatabaseAreaSet;
 	screens: DatabaseScreenSet;
 	warnings: string[];
@@ -39,7 +39,7 @@ export function renderTreeToTables(
 ): RenderTreeToTablesResult {
 	const warnings: string[] = [];
 	const screenNode = getSingleScreenNode(schema, warnings);
-	const compositesById = new Map<string, DatabaseComponentRow>();
+	const componentsById = new Map<string, DatabaseComponentRow>();
 	const areasById = new Map<string, DatabaseAreaRow>();
 
 	const screen: DatabaseScreenRow = {
@@ -61,15 +61,15 @@ export function renderTreeToTables(
 		screen: {
 			type: "screen.page",
 			regions: {
-				header: extractRegion(screenNode, "header", compositesById, areasById, warnings),
-				contents: extractRegion(screenNode, "contents", compositesById, areasById, warnings),
-				bottom: extractRegion(screenNode, "bottom", compositesById, areasById, warnings),
+				header: extractRegion(screenNode, "header", componentsById, areasById, warnings),
+				contents: extractRegion(screenNode, "contents", componentsById, areasById, warnings),
+				bottom: extractRegion(screenNode, "bottom", componentsById, areasById, warnings),
 			},
 		},
 	};
 
 	return {
-		composites: { composites: Array.from(compositesById.values()) },
+		components: { components: Array.from(componentsById.values()) },
 		areas: { areas: Array.from(areasById.values()) },
 		screens: { screens: [screen] },
 		warnings,
@@ -90,7 +90,7 @@ function getSingleScreenNode(schema: WireframeSchema, warnings: string[]): Wiref
 function extractRegion(
 	screenNode: WireframeScreenNode,
 	regionKey: RegionKey,
-	compositesById: Map<string, DatabaseComponentRow>,
+	componentsById: Map<string, DatabaseComponentRow>,
 	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
 ): DatabaseScreenRegion {
@@ -105,27 +105,27 @@ function extractRegion(
 			region.componentVersion === screenNode.componentVersion ? undefined : region.componentVersion,
 		metadata: { title: region.metadata.title },
 		props: region.props,
-		children: extractRegionEntries(region.children ?? [], compositesById, areasById, warnings),
+		children: extractRegionEntries(region.children ?? [], componentsById, areasById, warnings),
 	};
 }
 
 function extractRegionEntries(
 	nodes: WireframeNode[],
-	compositesById: Map<string, DatabaseComponentRow>,
+	componentsById: Map<string, DatabaseComponentRow>,
 	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
 ): DatabaseRegionChild[] {
-	return nodes.flatMap((node) => extractRegionEntry(node, compositesById, areasById, warnings));
+	return nodes.flatMap((node) => extractRegionEntry(node, componentsById, areasById, warnings));
 }
 
 function extractRegionEntry(
 	node: WireframeNode,
-	compositesById: Map<string, DatabaseComponentRow>,
+	componentsById: Map<string, DatabaseComponentRow>,
 	areasById: Map<string, DatabaseAreaRow>,
 	warnings: string[],
 ): DatabaseRegionChild[] {
 	if (isGeneratedPageStack(node)) {
-		return extractRegionEntries(node.children ?? [], compositesById, areasById, warnings);
+		return extractRegionEntries(node.children ?? [], componentsById, areasById, warnings);
 	}
 
 	if (isGeneratedDivider(node)) {
@@ -135,18 +135,18 @@ function extractRegionEntry(
 
 	if (isAreaNode(node)) {
 		const areaId = getAreaId(node);
-		areasById.set(areaId, extractArea(node, areaId, compositesById, warnings));
+		areasById.set(areaId, extractArea(node, areaId, componentsById, warnings));
 		return [{ kind: "area", id: areaId }];
 	}
 
-	compositesById.set(node.metadata.id, nodeToComposite(node));
-	return [{ kind: "composite", id: node.metadata.id }];
+	componentsById.set(node.metadata.id, nodeToComponent(node));
+	return [{ kind: "component", id: node.metadata.id }];
 }
 
 function extractArea(
 	node: WireframeNode,
 	areaId: string,
-	compositesById: Map<string, DatabaseComponentRow>,
+	componentsById: Map<string, DatabaseComponentRow>,
 	warnings: string[],
 ): DatabaseAreaRow {
 	const { areaCode: _areaCode, ...props } = node.props ?? {};
@@ -163,11 +163,11 @@ function extractArea(
 			description: node.metadata.description,
 		},
 		props: Object.keys(props).length > 0 ? (props as Record<string, PropValue>) : undefined,
-		children: extractAreaChildren(node.children ?? [], compositesById, warnings),
+		children: extractAreaChildren(node.children ?? [], componentsById, warnings),
 	};
 }
 
-function nodeToComposite(node: WireframeNode): DatabaseComponentRow {
+function nodeToComponent(node: WireframeNode): DatabaseComponentRow {
 	return {
 		id: node.metadata.id,
 		type: node.type,
@@ -192,14 +192,14 @@ function nodeToComposite(node: WireframeNode): DatabaseComponentRow {
 
 function extractAreaChildren(
 	nodes: WireframeNode[],
-	compositesById: Map<string, DatabaseComponentRow>,
+	componentsById: Map<string, DatabaseComponentRow>,
 	warnings: string[],
 ) {
-	const composites: DatabaseAreaRow["children"] = [];
+	const components: DatabaseAreaRow["children"] = [];
 
 	for (const node of nodes) {
 		if (isGeneratedPageStack(node)) {
-			composites.push(...extractAreaChildren(node.children ?? [], compositesById, warnings));
+			components.push(...extractAreaChildren(node.children ?? [], componentsById, warnings));
 			continue;
 		}
 		if (isGeneratedDivider(node)) {
@@ -207,16 +207,14 @@ function extractAreaChildren(
 			continue;
 		}
 		if (isAreaNode(node)) {
-			warnings.push(
-				`Nested Area node was not extracted as an area table row: ${node.metadata.id}`,
-			);
+			warnings.push(`Nested Area node was not extracted as an area table row: ${node.metadata.id}`);
 			continue;
 		}
-		compositesById.set(node.metadata.id, nodeToComposite(node));
-		composites.push({ kind: "composite", id: node.metadata.id });
+		componentsById.set(node.metadata.id, nodeToComponent(node));
+		components.push({ kind: "component", id: node.metadata.id });
 	}
 
-	return composites;
+	return components;
 }
 
 function getAreaId(node: WireframeNode) {
@@ -236,4 +234,3 @@ function isGeneratedPageStack(node: WireframeNode) {
 function isGeneratedDivider(node: WireframeNode) {
 	return node.type === "Divider" && /-divider-\d+$/.test(node.metadata.id);
 }
-

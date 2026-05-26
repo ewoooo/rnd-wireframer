@@ -44,7 +44,7 @@ FastAPI
 | `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
 | `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive |
 | `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, React 렌더링 패키지 |
-| `@cx/agent` | screen/area/composite read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
+| `@cx/agent` | screen/area/component read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
 | FastAPI | 후속 JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | 후속 Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
@@ -181,7 +181,7 @@ Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plu
 
 1. 렌더된 스크린 화면: `@cx/renderer` schema를 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Area`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
 2. 다른 screen 및 OGN 조회: 현재 화면을 유지한 채 다른 generated screen, screen source, area source, generated area을 탐색하거나 선택할 수 있는 목록/검색/탭 영역을 제공한다.
-3. 렌더된 스크린 화면과 관련된 screen/OGN 정보: 현재 렌더 화면의 source screen, generated screen, 연결 OGN, OGN 상태, composite 구성, 정책/기능 참조, 검증 경고를 함께 보여준다.
+3. 렌더된 스크린 화면과 관련된 screen/OGN 정보: 현재 렌더 화면의 source screen, generated screen, 연결 OGN, OGN 상태, component 구성, 정책/기능 참조, 검증 경고를 함께 보여준다.
 
 이 3가지 기능은 별도 제품으로 분리하지 않고, 미리보기/검수/편집 진입 전 단계의 기본 작업면으로 본다. Puck 편집기는 이 작업면에서 선택한 screen 또는 OGN을 편집 모드로 여는 후속 레이어다.
 
@@ -216,7 +216,7 @@ Pattern은 앱 소비 데이터가 아니라 [database/pattern-store](/Users/plu
 
 Claude는 HTML이 아니라 `mobile-wireframe` JSON을 반환해야 한다.
 
-생성 결과는 `generated_screen_sets`를 묶음 단위로 하고, 실제 화면은 `generated_screens`의 개별 row로 저장한다. 화면 안의 OGN 섹션과 하위 composite JSON은 `generated_areas`에 저장한다.
+생성 결과는 `generated_screen_sets`를 묶음 단위로 하고, 실제 화면은 `generated_screens`의 개별 row로 저장한다. 화면 안의 OGN 섹션과 하위 component JSON은 `generated_areas`에 저장한다.
 
 `screen_variants`의 `variant_type = 'base'`는 기본 화면, `variant_type = 'edge'`는 케이스별 Screen Variant로 생성한다.
 
@@ -226,7 +226,7 @@ Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로
 
 현재 와이어프레임 JSON 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. FastAPI 구현이 붙으면 이 계약을 Python schema로 mirrored contract 형태로 옮긴다.
 
-생성 JSON의 `composite.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
+생성 JSON의 `component.type`, `layout.pattern`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
 ## 9. Puck Screen/OGN 편집 정책
 
@@ -259,8 +259,8 @@ Puck 편집 원칙:
 - 간격, 정렬, 노출 여부, 문구, component Variant, Props처럼 안전한 prop만 편집 가능하게 연다.
 - 간격 값은 자유 숫자가 아니라 `none`, `xs`, `sm`, `md`, `lg`, `xl` 같은 디자인 토큰으로 제한한다.
 - Puck Screen block은 `generated_areas` 또는 공유 OGN edit version을 참조한다.
-- Puck OGN block 내부 props/children은 OGN internal wireframe JSON의 composite tree와 매핑한다.
-- Puck preview는 `@cx/components`, `@cx/layout`, `@cx/tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 sample composite mapping을 사용한다.
+- Puck OGN block 내부 props/children은 OGN internal wireframe JSON의 component tree와 매핑한다.
+- Puck preview는 `@cx/components`, `@cx/layout`, `@cx/tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
 
 렌더링 우선순위:
 

@@ -1,14 +1,14 @@
-import { createPatternResolver, type AreaResolutionInput } from "../pattern/pattern-resolver";
+import { type AreaResolutionInput, createPatternResolver } from "../pattern/pattern-resolver";
 import type {
+	ComposedAreaNode,
 	ComposedComponentNode,
 	ComposedNodeTree,
-	ComposedAreaNode,
 	ComposedRouteNode,
 	ComposedScreenNode,
 	ComposedVariantNode,
+	DecoratedAreaNode,
 	DecoratedComponentNode,
 	DecoratedNodeTree,
-	DecoratedAreaNode,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
@@ -68,14 +68,13 @@ function attachAreaPattern(
 	componentTypeById: ReadonlyMap<string, string>,
 	resolvePattern: PatternResolver,
 ): DecoratedAreaNode {
-	const compositeTypes = new Set<string>();
+	const componentTypes = new Set<string>();
 	for (const ref of area.children ?? []) {
 		const type = componentTypeById.get(ref.componentId);
-		if (type) compositeTypes.add(type);
+		if (type) componentTypes.add(type);
 	}
-	const resolverInput: AreaResolutionInput = { ...area, __compositeTypes: compositeTypes };
-	const pattern =
-		resolvePattern({ level: "area", node: resolverInput }) ?? fallbackPattern("area");
+	const resolverInput: AreaResolutionInput = { ...area, __componentTypes: componentTypes };
+	const pattern = resolvePattern({ level: "area", node: resolverInput }) ?? fallbackPattern("area");
 	return { ...area, pattern };
 }
 

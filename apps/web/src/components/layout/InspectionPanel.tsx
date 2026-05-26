@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import type { SelectedCompositeContext, SelectedAreaContext } from "@/model/store";
+import type { SelectedAreaContext, SelectedComponentContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
-	const composite = useWorkbenchStore((state) => state.selectedComposite);
+	const component = useWorkbenchStore((state) => state.selectedComponent);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
@@ -80,7 +80,7 @@ export function InspectionPanel() {
 							<InfoRow label="Variant type" value={screen.screenVariantType} />
 							<InfoRow label="Module" value={screen.module} />
 						</div>
-						{composite ? <CompositeInspection composite={composite} /> : null}
+						{component ? <ComponentInspection component={component} /> : null}
 						{area ? <AreaInspection area={area} /> : null}
 						<Separator />
 						<ConnectedAreaList
@@ -92,9 +92,7 @@ export function InspectionPanel() {
 						<div className="flex flex-col gap-2">
 							<h2 className="text-sm font-semibold">검증 상태</h2>
 							<div className="flex flex-wrap gap-2">
-								<Badge variant={validationSuccess ? "default" : "outline"}>
-									{validationLabel}
-								</Badge>
+								<Badge variant={validationSuccess ? "default" : "outline"}>{validationLabel}</Badge>
 								{validationWarnings.length > 0 ? (
 									<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
 								) : null}
@@ -169,11 +167,7 @@ function ConnectedAreaList({
 		}
 
 		const previousAreaCodes = screenAreas.map((area) => area.areaCode);
-		const nextAreaCodes = moveItemBefore(
-			previousAreaCodes,
-			draggedAreaCode,
-			targetAreaCode,
-		);
+		const nextAreaCodes = moveItemBefore(previousAreaCodes, draggedAreaCode, targetAreaCode);
 
 		onReorder(screenCode, nextAreaCodes);
 		setDraggedAreaCode("");
@@ -192,9 +186,7 @@ function ConnectedAreaList({
 							aria-disabled={!canReorder}
 							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
 							data-dragging={draggedAreaCode === screenArea.areaCode}
-							data-drop-target={
-								Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode
-							}
+							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode}
 							draggable={canReorder}
 							onDragEnd={() => setDraggedAreaCode("")}
 							onDragOver={(event) => {
@@ -215,12 +207,8 @@ function ConnectedAreaList({
 							<div className="flex min-w-0 items-center gap-2">
 								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
 								<div className="flex min-w-0 flex-col gap-1">
-									<span className="truncate text-sm font-medium">
-										{screenArea.areaCode}
-									</span>
-									<span className="text-xs text-muted-foreground">
-										order {screenArea.order}
-									</span>
+									<span className="truncate text-sm font-medium">{screenArea.areaCode}</span>
+									<span className="text-xs text-muted-foreground">order {screenArea.order}</span>
 								</div>
 							</div>
 							<Badge variant="outline">section</Badge>
@@ -245,18 +233,18 @@ function moveItemBefore(items: string[], movedItem: string, targetItem: string) 
 	];
 }
 
-function CompositeInspection({ composite }: { composite: SelectedCompositeContext }) {
+function ComponentInspection({ component }: { component: SelectedComponentContext }) {
 	return (
 		<>
 			<Separator />
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">선택 COMP</h2>
-				<InfoRow label="Composite id" value={composite.code} />
-				<InfoRow label="Type" value={composite.node.type} />
-				<InfoRow label="Source screen" value={composite.screen.code} />
-				<InfoRow label="Parent OGN" value={composite.area?.code ?? "screen"} />
+				<InfoRow label="Component id" value={component.code} />
+				<InfoRow label="Type" value={component.node.type} />
+				<InfoRow label="Source screen" value={component.screen.code} />
+				<InfoRow label="Parent OGN" value={component.area?.code ?? "screen"} />
 			</div>
-			<NodePropsPanel node={composite.node} />
+			<NodePropsPanel node={component.node} />
 		</>
 	);
 }
@@ -269,7 +257,7 @@ function AreaInspection({ area }: { area: SelectedAreaContext }) {
 				<h2 className="text-sm font-semibold">선택 OGN</h2>
 				<InfoRow label="OGN code" value={area.code} />
 				<InfoRow label="Source screen" value={area.screen.code} />
-				<InfoRow label="Composites" value={String(area.node.children?.length ?? 0)} />
+				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
 			</div>
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">컴포넌트</h2>

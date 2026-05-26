@@ -1,7 +1,7 @@
 import type {
+	DecoratedAreaNode,
 	DecoratedComponentNode,
 	DecoratedNodeTree,
-	DecoratedAreaNode,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
@@ -26,12 +26,12 @@ export interface DatabaseScreenVariantRow {
 }
 
 export interface DatabaseRegionChild {
-	kind: "composite" | "area";
+	kind: "component" | "area";
 	id: string;
 }
 
-import type { ScreenSurfaceType } from "../types";
 import { normalizeComponentType } from "../normalize-component-type";
+import type { ScreenSurfaceType } from "../types";
 import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
 export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
@@ -115,15 +115,15 @@ export interface DatabaseAreaRow {
 		[k: string]: unknown;
 	};
 	pattern?: { id: string; variant?: string };
-	children: Array<{ kind: "composite"; id: string }>;
+	children: Array<{ kind: "component"; id: string }>;
 }
 
-export interface DatabaseCompositeChildEntry {
+export interface DatabaseComponentChildEntry {
 	component: { type?: string } & Record<string, unknown>;
 	props: Record<string, unknown>;
 }
 
-export interface DatabaseCompositeMetadata {
+export interface DatabaseComponentMetadata {
 	title: string;
 	author: string;
 	createdAt: string;
@@ -135,9 +135,9 @@ export interface DatabaseComponentRow {
 	id: string;
 	type: string;
 	version: string;
-	metadata: DatabaseCompositeMetadata;
+	metadata: DatabaseComponentMetadata;
 	pattern: { id: string; variant: string };
-	children: DatabaseCompositeChildEntry[];
+	children: DatabaseComponentChildEntry[];
 	hooks?: NodeHook[];
 	events?: Record<string, unknown>;
 }
@@ -341,10 +341,7 @@ interface AreaRowContext {
 	timestamp: string;
 }
 
-function toAreaRow(
-	area: DecoratedAreaNode,
-	ctx: AreaRowContext,
-): DatabaseAreaRow {
+function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRow {
 	return {
 		id: area.id,
 		// Legacy organism path — area.dynamic 정보가 없으므로 static으로 강제.
@@ -363,7 +360,7 @@ function toAreaRow(
 		},
 		children: [...(area.children ?? [])]
 			.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-			.map((ref) => ({ kind: "composite" as const, id: ref.componentId })),
+			.map((ref) => ({ kind: "component" as const, id: ref.componentId })),
 	};
 }
 
@@ -393,7 +390,6 @@ function toComponentRow(
 		hooks: [...(component.hooks ?? [])],
 	};
 }
-
 
 function slugify(id: string): string {
 	return id.toLowerCase();

@@ -37,7 +37,7 @@ const propsSchema: z.ZodType<Record<string, PatternPropValue>> = z.record(
 const childWrapSchema = z
 	.object({
 		kind: z.literal("page-stack"),
-		appliesTo: z.array(z.enum(["composite", "area"])).optional(),
+		appliesTo: z.array(z.enum(["component", "area"])).optional(),
 		divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
 		itemPaddingX: z.number().optional(),
 		paddingY: z.number().optional(),
@@ -71,7 +71,7 @@ const resolutionSchema = z
 	.object({
 		areaPatterns: setMatcherSchema,
 		compositePatterns: setMatcherSchema,
-		compositeTypes: setMatcherSchema,
+		componentTypes: setMatcherSchema,
 		nameKeywords: z.array(z.string()).optional(),
 		idPatterns: z.array(z.string()).optional(),
 		priority: z.number().optional(),
@@ -224,7 +224,7 @@ function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals {
 	return {
 		areaPatterns: match.areas,
 		compositePatterns: match.composites,
-		compositeTypes: match.componentTypes,
+		componentTypes: match.componentTypes,
 		nameKeywords: match.keywords,
 		idPatterns: match.ids,
 		priority: match.priority,

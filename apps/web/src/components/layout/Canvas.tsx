@@ -2,19 +2,19 @@ import { WireframeNodeRenderer } from "@cx/renderer";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
-import type { SelectedCompositeContext, SelectedAreaContext } from "@/model/store";
+import type { SelectedAreaContext, SelectedComponentContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { RenderedScreen } from "../screen/RenderedScreen";
 
 export function Canvas() {
-	const isCompositeView = useWorkbenchStore((state) => state.isCompositeView);
+	const isComponentView = useWorkbenchStore((state) => state.isComponentView);
 	const isAreaView = useWorkbenchStore((state) => state.isAreaView);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const screenNode = useWorkbenchStore((state) => state.screenNode);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
-	const selectedComposite = useWorkbenchStore((state) => state.selectedComposite);
+	const selectedComponent = useWorkbenchStore((state) => state.selectedComponent);
 	const selectedArea = useWorkbenchStore((state) => state.selectedArea);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 
@@ -26,10 +26,10 @@ export function Canvas() {
 				<h1 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
 					{getCanvasTitle({
 						activeTab,
-						isCompositeView,
+						isComponentView,
 						isAreaView,
 						selectedAgentAsset,
-						selectedComposite,
+						selectedComponent,
 						selectedArea,
 					})}
 				</h1>
@@ -42,12 +42,12 @@ export function Canvas() {
 						selectedNode={selectedAgentNode}
 						onSelectNode={selectAgentNode}
 					/>
-				) : isCompositeView && selectedComposite ? (
+				) : isComponentView && selectedComponent ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
 						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 							<WireframeNodeRenderer
-								data={selectedComposite.screen.schema.data}
-								node={selectedComposite.node}
+								data={selectedComponent.screen.schema.data}
+								node={selectedComponent.node}
 							/>
 						</div>
 					</div>
@@ -70,21 +70,21 @@ export function Canvas() {
 
 function getCanvasTitle({
 	activeTab,
-	isCompositeView,
+	isComponentView,
 	isAreaView,
 	selectedAgentAsset,
-	selectedComposite,
+	selectedComponent,
 	selectedArea,
 }: {
 	activeTab: string;
-	isCompositeView: boolean;
+	isComponentView: boolean;
 	isAreaView: boolean;
 	selectedAgentAsset?: SelectedAgentAsset;
-	selectedComposite?: SelectedCompositeContext;
+	selectedComponent?: SelectedComponentContext;
 	selectedArea?: SelectedAreaContext;
 }) {
 	if (activeTab === "agent") return selectedAgentAsset?.item.name ?? "Agent Registry";
-	if (isCompositeView) return selectedComposite?.node.metadata.title;
+	if (isComponentView) return selectedComponent?.node.metadata.title;
 	if (isAreaView) return selectedArea?.node.metadata.title;
 	return null;
 }

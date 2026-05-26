@@ -2,10 +2,10 @@ import type { WireframeNode } from "@cx/renderer";
 import { describe, expect, it } from "vitest";
 import { renderTreeToTables } from "./render-tree-to-tables";
 import {
-	type PatternStorePattern,
-	type DatabaseComponentRow,
 	type DatabaseAreaRow,
+	type DatabaseComponentRow,
 	type DatabaseScreenRow,
+	type PatternStorePattern,
 	tablesToRenderTree,
 } from "./tables-to-render-tree";
 
@@ -58,8 +58,8 @@ const area: DatabaseAreaRow = {
 	pattern: { id: "list-stack", variant: "default" },
 	props: { name: "약관 목록 조회" },
 	children: [
-		{ kind: "composite", id: "requiredTerm" },
-		{ kind: "composite", id: "termDetail" },
+		{ kind: "component", id: "requiredTerm" },
+		{ kind: "component", id: "termDetail" },
 	],
 };
 
@@ -81,13 +81,13 @@ const screen: DatabaseScreenRow = {
 			header: {
 				type: "Screen.Header",
 				metadata: { title: "고정 상단 영역" },
-				children: [{ kind: "composite", id: "top-navigation" }],
+				children: [{ kind: "component", id: "top-navigation" }],
 			},
 			contents: {
 				type: "Screen.Contents",
 				metadata: { title: "스크롤 콘텐츠 영역" },
 				children: [
-					{ kind: "composite", id: "screen-intro" },
+					{ kind: "component", id: "screen-intro" },
 					{ kind: "area", id: "ogn-mbr-term-list" },
 				],
 			},
@@ -129,7 +129,7 @@ const sectionStackPattern: PatternStorePattern = {
 			childOrder: "explicit",
 			childWrap: {
 				kind: "page-stack",
-				appliesTo: ["composite", "area"],
+				appliesTo: ["component", "area"],
 				sectionPaddingX: 12,
 				itemPaddingX: 20,
 				paddingY: 28,
@@ -143,7 +143,7 @@ const sectionStackPattern: PatternStorePattern = {
 
 describe("renderTreeToTables", () => {
 	it("extracts database table rows from a resolved render tree", () => {
-		const toCompositeRow = (node: WireframeNode): DatabaseComponentRow => ({
+		const toComponentRow = (node: WireframeNode): DatabaseComponentRow => ({
 			id: node.metadata.id,
 			type: node.type,
 			version: node.componentVersion,
@@ -161,10 +161,10 @@ describe("renderTreeToTables", () => {
 		});
 		const schema = tablesToRenderTree({
 			screen,
-			compositeById: new Map(
+			componentById: new Map(
 				[topNavigation, intro, requiredTerm, termDetail].map((node) => [
 					node.metadata.id,
-					toCompositeRow(node),
+					toComponentRow(node),
 				]),
 			),
 			areaById: new Map([[area.id, area]]),
@@ -187,21 +187,21 @@ describe("renderTreeToTables", () => {
 		});
 
 		expect(result.screens.screens[0].screen.regions.header.children).toEqual([
-			{ kind: "composite", id: "top-navigation" },
+			{ kind: "component", id: "top-navigation" },
 		]);
 		expect(result.screens.screens[0].screen.regions.contents.children).toEqual([
-			{ kind: "composite", id: "screen-intro" },
+			{ kind: "component", id: "screen-intro" },
 			{ kind: "area", id: "ogn-mbr-term-list" },
 		]);
 		expect(result.areas.areas[0]).toMatchObject({
 			id: "ogn-mbr-term-list",
 			props: { name: "약관 목록 조회" },
 			children: [
-				{ kind: "composite", id: "requiredTerm" },
-				{ kind: "composite", id: "termDetail" },
+				{ kind: "component", id: "requiredTerm" },
+				{ kind: "component", id: "termDetail" },
 			],
 		});
-		expect(result.composites.composites.map((c) => c.id).sort()).toEqual([
+		expect(result.components.components.map((c) => c.id).sort()).toEqual([
 			"requiredTerm",
 			"screen-intro",
 			"termDetail",

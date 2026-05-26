@@ -118,9 +118,7 @@ describe("@cx/agent asset pipeline", () => {
 			"list-cell-term-required",
 			"accordion-term-detail",
 		]);
-		expect(input.routes[0].variants[0].screens[0].areas[0].areaId).toBe(
-			"ogn-mbr-term-agree",
-		);
+		expect(input.routes[0].variants[0].screens[0].areas[0].areaId).toBe("ogn-mbr-term-agree");
 	});
 
 	it("decorates registered assets without changing registration order", () => {
@@ -170,9 +168,7 @@ describe("@cx/agent asset pipeline", () => {
 		expect(screen.pattern.id).toBe("screen-shell");
 		expect(area?.pattern.id).toBe("area-vertical");
 		expect(component?.pattern.id).toBe("component-accordion");
-		expect(screen.children.contents?.map((ref) => ref.areaId)).toEqual([
-			"ogn-mbr-term-list",
-		]);
+		expect(screen.children.contents?.map((ref) => ref.areaId)).toEqual(["ogn-mbr-term-list"]);
 	});
 
 	it("lets callers provide a custom pattern resolver", () => {
@@ -243,7 +239,7 @@ describe("@cx/agent asset pipeline", () => {
 
 		expect(decorated.areas[0].pattern.id).toBe("list-stack");
 		expect(decorated.areas[0].pattern.reasons).toContain(
-			"composite types allOf matched (list-cell)",
+			"component types allOf matched (list-cell)",
 		);
 	});
 

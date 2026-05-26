@@ -19,19 +19,19 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "list-cell-term-required"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "list-cell-term-optional"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "accordion-term-detail"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-term-error"
 				}
 			]
@@ -55,23 +55,23 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "checkbox-all-agree"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "checkbox-term-required"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "checkbox-term-optional"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-required-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-next"
 				}
 			]
@@ -95,23 +95,23 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-guardian-name"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-guardian-phone"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-guardian-info"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-guardian-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-guardian-request"
 				}
 			]
@@ -135,15 +135,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-guardian-wait"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-guardian-expire"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "button-guardian-retry"
 				}
 			]
@@ -167,27 +167,27 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-user-id"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-password"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-email"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-phone"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-input-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-next"
 				}
 			]
@@ -211,15 +211,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-entry-existing"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-entry-dormant"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-entry-withdrawn"
 				}
 			]
@@ -243,15 +243,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "list-cell-auth-phone"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "list-cell-auth-pass"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "list-cell-auth-cert"
 				}
 			]
@@ -275,27 +275,27 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-auth-code"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "text-field-auth-timer"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-auth-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-auth-expire"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "button-auth-retry"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-auth-confirm"
 				}
 			]
@@ -319,19 +319,19 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-status-dormant"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-status-withdrawn"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-status-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "button-status-retry"
 				}
 			]
@@ -355,19 +355,19 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-join-available"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-join-dormant"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-join-blocked"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-join-proceed"
 				}
 			]
@@ -391,15 +391,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-join-success"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-session-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-join-done"
 				}
 			]
@@ -423,15 +423,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-dormant-guide"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-dormant-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-dormant-release"
 				}
 			]
@@ -455,19 +455,19 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-eligibility-guide"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-eligibility-block"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-eligibility-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-eligibility-proceed"
 				}
 			]
@@ -491,15 +491,15 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-release-progress"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-release-error"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-release-session-error"
 				}
 			]
@@ -523,11 +523,11 @@
 			},
 			"children": [
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "section-message-complete-result"
 				},
 				{
-					"kind": "composite",
+					"kind": "component",
 					"id": "action-area-complete-home"
 				}
 			]

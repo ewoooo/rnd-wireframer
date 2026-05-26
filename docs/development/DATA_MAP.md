@@ -78,8 +78,8 @@ apps/web
 | 공급원 | 책임 | 소비 데이터 반영 방식 |
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
-| `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/composite metadata |
-| `database/pattern-store/*.json` | region/area/composite preset, layout recipe, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, `components[].pattern` |
+| `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
+| `database/pattern-store/*.json` | region/area/component preset, layout recipe, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, `components[].pattern` |
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
@@ -107,9 +107,13 @@ apps/web
 
 용어 기준:
 
-- `components`는 `database/tables/components.json`의 파일명과 최상위 키다.
-- `composite`는 renderer가 소비하는 concrete render node 개념이다.
-- 따라서 `components[]`의 각 row는 composite node를 저장하며, 참조 키는 `components[].id`다.
+`component`와 `composite`는 **서로 다른 축의 어휘**다. 같은 row를 다른 관점에서 부르는 이름이지 둘 중 하나가 잘못된 것이 아니다.
+
+- **render-tree kind 축** — `kind: "component" | "area"`. `database/tables` row와 region child entry가 쓰는 식별 키다. `components`는 `database/tables/components.json`의 파일명과 최상위 키이고, `components[]`의 각 row는 renderer가 소비하는 concrete render row다.
+- **pattern store target 축** — `target: "composite" | "area" | "region"`. 패턴이 어떤 단위에 적용되는지 분류한다. `composite`는 "단일 component-level 패턴 대상"을 가리키며 wrapper 개수와 무관하다. `database/pattern-store/composite-patterns.json`이 이 축의 파일이다.
+- **catalog source 축** — `source: "react-component" | "renderer-composite" | "layout-primitive"`. `packages/renderer/src/component-catalog.ts`에서 entry의 구현 출처를 분류한다. `renderer-composite`는 renderer가 합성한 leaf를 가리킨다.
+
+세 축은 의도적으로 분리돼 있다. 같은 단어가 같은 의미라고 가정하지 말 것.
 
 소비 데이터 관계는 아래 방향만 허용한다.
 
@@ -118,7 +122,7 @@ screenRoute
 └─ screenVariant.screenRouteId
       └─ screen.screenVariantId
          └─ screen.regions.{header,contents,bottom}.children[]
-         ├─ { kind: "composite", id } -> components[].id
+         ├─ { kind: "component", id } -> components[].id
          └─ { kind: "area", id } -> areas[].id
             └─ area.children[].id -> components[].id
 ```
@@ -204,7 +208,7 @@ screenRoute
 region child entry는 두 종류만 허용한다.
 
 ```json
-{ "kind": "composite", "id": "top-navigation" }
+{ "kind": "component", "id": "top-navigation" }
 { "kind": "area", "id": "ogn-mbr-term-list" }
 ```
 
@@ -233,7 +237,7 @@ region child entry는 두 종류만 허용한다.
 | `props.name` | source OGN 명. `metadata.title`과 별도로 원천 명칭을 보존해야 할 때 사용 |
 | `pattern.id` | 공급 pattern 참조 |
 | `pattern.variant` | pattern variant |
-| `states` | default/loading/error 등 상태별 visible composite id |
+| `states` | default/loading/error 등 상태별 visible component id |
 | `sourceRef` | 원천 area markdown 추적 정보 |
 | `policyRefs` | 관련 정책 코드 |
 | `featureRefs` | 관련 기능 코드 |
@@ -242,17 +246,17 @@ region child entry는 두 종류만 허용한다.
 
 ### components
 
-`components`는 renderer가 실제 leaf node 또는 작은 render subtree로 렌더링할 concrete composite node다.
+`components`는 renderer가 실제 leaf node 또는 작은 render subtree로 렌더링할 concrete component row다.
 
 필수 필드:
 
 | 필드 | 설명 |
 |---|---|
-| `id` | concrete composite 고유 ID |
+| `id` | concrete component row 고유 ID |
 | `type` | renderer mapping 대상 node type. 예: `HeaderBase`, `ListCell`, `TextField`, `SectionMessage` |
-| `version` | composite node version |
+| `version` | component row version |
 | `metadata` | `@cx/renderer` node metadata |
-| `pattern` | component/composite pattern 참조 |
+| `pattern` | component pattern 참조 |
 | `children` | 실제 leaf component와 props를 담는 render child 목록 |
 
 권장 필드:
@@ -299,10 +303,10 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 | frontmatter `관련 정책 그룹` | `areas[].sourceRef.policyGroupRefs` |
 | frontmatter `관련 기능` | `areas[].featureRefs` |
 | `오가니즘 정보` table | OGN metadata, layout, visibility summary |
-| `케이스 분기` table | `areas[].states`와 composite `display` 후보 |
-| `컴포넌트 상세` table | `components[]` concrete composite node와 `areas[].children[]` usage |
+| `케이스 분기` table | `areas[].states`와 component `display` 후보 |
+| `컴포넌트 상세` table | `components[]` concrete component row와 `areas[].children[]` usage |
 
-`컴포넌트 상세`의 `컴포넌트 ID`는 공급 component package의 구현 타입 후보로 해석한다. row의 `컴포넌트 명`은 concrete composite `id` 후보로 사용한다.
+`컴포넌트 상세`의 `컴포넌트 ID`는 공급 component package의 구현 타입 후보로 해석한다. row의 `컴포넌트 명`은 concrete component row `id` 후보로 사용한다.
 
 ## 7. 검증 규칙
 
@@ -312,7 +316,7 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 - `screenVariants[].screenRouteId`는 존재하는 `screenRoutes[].id`를 참조한다.
 - `screens[].screenVariantId`는 존재하는 `screenVariants[].id`를 참조한다.
 - `screens[].screen.regions`는 `header`, `contents`, `bottom` 3개를 모두 가진다.
-- region child의 `{ kind: "composite", id }`는 존재하는 `components[].id`를 참조한다.
+- region child의 `{ kind: "component", id }`는 존재하는 `components[].id`를 참조한다.
 - region child의 `{ kind: "area", id }`는 존재하는 `areas[].id`를 참조한다.
 - `areas[].children[].id`는 존재하는 `components[].id`를 참조한다.
 - `screens[].pattern.id`는 공급 `database/pattern-store/*.json`의 `patterns[].id`를 참조한다.
@@ -324,8 +328,8 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 | 우선순위 | 작업 | 완료 기준 |
 |---|---|---|
 | P0 | 첨부 screen/area markdown을 소비 데이터 초안으로 변환하는 parser 추가 | `screen_routes`, `screen_variants`, `screens`, `areas`, `components` 초안 생성 |
-| P0 | 소비 데이터 참조 무결성 validator 추가 | 누락 route/variant/screen/area/composite/pattern을 리포트 |
+| P0 | 소비 데이터 참조 무결성 validator 추가 | 누락 route/variant/screen/area/component/pattern을 리포트 |
 | P0 | sample 데이터를 소비 계약 기준으로 정리 | `sourceRef`, state, edge variant 후보가 표현됨 |
 | P1 | 공급 `database/pattern-store/*.json`과 소비 `pattern.id` 관계 검사 | 누락 pattern warning 표시 |
-| P1 | composite type과 `@cx/renderer` mapping 관계 검사 | fallback renderer 사용 항목 리포트 |
+| P1 | component type과 `@cx/renderer` mapping 관계 검사 | fallback renderer 사용 항목 리포트 |
 | P2 | 소비 데이터에서 DB/read model로 승격할 필드 선별 | 후속 DB 설계 문서와 충돌하지 않음 |
