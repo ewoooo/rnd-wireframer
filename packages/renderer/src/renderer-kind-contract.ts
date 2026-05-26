@@ -34,7 +34,7 @@ function registerKnownNodeTypes(kindByType: Map<string, RenderTreeNodeKind>) {
 	const structuralKindEntries = [
 		[NODE_TYPES.layout[0], "layout-flex"],
 		[NODE_TYPES.layout[1], "layout-grid"],
-		[NODE_TYPES.wrapper[0], "page-stack"],
+		[NODE_TYPES.layout[2], "page-stack"],
 		[NODE_TYPES.area[0], NODE_TYPES.area[0]],
 		[NODE_TYPES.area[1], NODE_TYPES.area[1]],
 	] as const satisfies ReadonlyArray<readonly [string, RenderTreeNodeKind]>;

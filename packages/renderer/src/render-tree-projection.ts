@@ -263,7 +263,7 @@ function createRegionPageStackNode(
 	child: RenderTreeNode,
 ): RenderTreeNode {
 	return {
-		type: NODE_TYPES.wrapper[0],
+		type: NODE_TYPES.layout[2],
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: {
 			...completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
