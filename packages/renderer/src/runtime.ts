@@ -1,3 +1,4 @@
+import type { AreaType } from "@cx/types";
 import { resolveDisplayWhen, resolveProps } from "./bindings";
 import { createRendererKindMap } from "./renderer-kind-contract";
 import type { RenderTreeNode, RenderTreeScreenNode } from "./schema";
@@ -5,14 +6,14 @@ import type { RenderTreeNode, RenderTreeScreenNode } from "./schema";
 export type RenderTreeNodeKind =
 	| "accordion"
 	| "action"
+	| "checkbox"
 	| "divider"
 	| "fallback"
 	| "header"
 	| "layout-flex"
 	| "layout-grid"
 	| "list-cell"
-	| "area.static"
-	| "area.dynamic"
+	| AreaType
 	| "page-stack"
 	| "section-header"
 	| "section-message"

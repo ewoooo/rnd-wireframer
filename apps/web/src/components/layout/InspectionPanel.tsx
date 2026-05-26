@@ -277,27 +277,6 @@ function AreaInspection({
 	return (
 		<>
 			<Separator />
-			<div className="flex flex-col gap-2">
-				<h2 className="text-sm font-semibold">선택 OGN</h2>
-				<InfoRow label="OGN code" value={area.code} />
-				<InfoRow label="Source screen" value={screenCode ?? area.screenCode} />
-				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
-			</div>
-			<div className="flex flex-col gap-2">
-				<h2 className="text-sm font-semibold">컴포넌트</h2>
-				{area.node.children?.map((child, index) => (
-					<div
-						key={child.metadata.id}
-						className="flex items-center justify-between rounded-lg border bg-background p-3"
-					>
-						<div className="flex min-w-0 flex-col gap-1">
-							<span className="truncate text-sm font-medium">{child.metadata.title}</span>
-							<span className="text-xs text-muted-foreground">{child.metadata.id}</span>
-						</div>
-						<Badge variant="outline">{index + 1}</Badge>
-					</div>
-				))}
-			</div>
 		</>
 	);
 }

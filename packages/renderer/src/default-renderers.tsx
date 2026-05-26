@@ -4,6 +4,7 @@ import {
 	Button,
 	Callout,
 	Divider,
+	ListSelected,
 	ListText,
 	TextField,
 } from "@cx/components";
@@ -136,6 +137,23 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 							{toText(props.description)}
 						</p>
 					) : null}
+				</div>
+			);
+		},
+	},
+	{
+		kind: "checkbox",
+		render: ({ node, renderable }) => {
+			const { props } = renderable;
+			return (
+				<div key={node.metadata.id} className="w-full min-w-0">
+					<ListSelected
+						type="checkbox"
+						label={toText(props.label, node.metadata.title)}
+						checked={toBoolean(props.checked)}
+						showButton={false}
+						showPrice={false}
+					/>
 				</div>
 			);
 		},

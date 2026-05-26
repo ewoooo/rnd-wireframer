@@ -1,4 +1,4 @@
-import type { RegisteredNodeTree } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent/types";
 import { useEffect, useRef, useState } from "react";
 import type { AgentNodeSelection } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";

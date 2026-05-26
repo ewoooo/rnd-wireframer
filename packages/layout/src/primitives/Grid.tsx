@@ -1,3 +1,4 @@
+import { NODE_TYPES } from "@cx/types";
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import type { GridLayoutProps, LayoutGridNode } from "../types";
 
@@ -17,7 +18,7 @@ export function Grid({ as: Element = "div", children, className, layout, node, s
 		<Element
 			className={cx(gridLayoutClassName(layout), className)}
 			data-node-id={node?.metadata.id}
-			data-node-type={node?.type ?? "Layout.Grid"}
+			data-node-type={node?.type ?? NODE_TYPES.layout[1]}
 			style={{
 				...gridLayoutFallbackStyle(layout),
 				...style,

@@ -1,18 +1,18 @@
+import { NODE_TYPES } from "@cx/types";
+import type {
+	FlexLayoutProps,
+	GridLayoutProps,
+	NodeDisplay,
+	NodeMetadata,
+	PropBinding,
+	PropValue,
+} from "@cx/types";
 import { z } from "zod";
 
-export interface PropBinding {
-	bind: string;
-	default?: string | number | boolean | null;
-}
-
-export type PropValue =
-	| string
-	| number
-	| boolean
-	| null
-	| PropValue[]
-	| { [key: string]: PropValue }
-	| PropBinding;
+export type { PropBinding, PropValue };
+export type { ScreenRegionType } from "@cx/types";
+export type RenderTreeFlexLayoutProps = FlexLayoutProps;
+export type RenderTreeGridLayoutProps = GridLayoutProps;
 
 export type RenderTreeAction =
 	| {
@@ -53,23 +53,16 @@ export interface RenderTreeEvents {
 	[key: `on${string}`]: RenderTreeAction | RenderTreeAction[] | undefined;
 }
 
-export interface RenderTreeDisplay {
-	when?: PropBinding | boolean;
-}
+// NOTE: renderer는 아직 stateRole을 처리하지 않는다. 타입은 통일하되 동작은 별도 이슈.
+export type RenderTreeDisplay = NodeDisplay;
 
 export interface RenderTreeStyle {
 	background?: string;
 	opacity?: number;
 }
 
-export interface RenderTreeMetadata {
-	id: string;
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
+// RenderTree 노드는 id가 필수. 나머지는 NodeMetadata와 동일.
+export type RenderTreeMetadata = NodeMetadata & { id: string };
 
 export interface RenderTreeNode {
 	type: string;
@@ -83,39 +76,14 @@ export interface RenderTreeNode {
 	children?: RenderTreeNode[];
 }
 
-export const SCREEN_NODE_TYPE = "Screen" as const;
-export const SCREEN_HEADER_NODE_TYPE = "Screen.Header" as const;
-export const SCREEN_CONTENTS_NODE_TYPE = "Screen.Contents" as const;
-export const SCREEN_BOTTOM_NODE_TYPE = "Screen.Bottom" as const;
-export const LAYOUT_FLEX_NODE_TYPE = "Layout.Flex" as const;
-export const LAYOUT_GRID_NODE_TYPE = "Layout.Grid" as const;
+export const SCREEN_NODE_TYPE = NODE_TYPES.screenRoot[0];
+export const SCREEN_HEADER_NODE_TYPE = NODE_TYPES.screenRegion[0];
+export const SCREEN_CONTENTS_NODE_TYPE = NODE_TYPES.screenRegion[1];
+export const SCREEN_BOTTOM_NODE_TYPE = NODE_TYPES.screenRegion[2];
+export const LAYOUT_FLEX_NODE_TYPE = NODE_TYPES.layout[0];
+export const LAYOUT_GRID_NODE_TYPE = NODE_TYPES.layout[1];
 
-export const REQUIRED_SCREEN_REGION_TYPES = [
-	SCREEN_HEADER_NODE_TYPE,
-	SCREEN_CONTENTS_NODE_TYPE,
-	SCREEN_BOTTOM_NODE_TYPE,
-] as const;
-
-export type RenderTreeScreenRegionType = (typeof REQUIRED_SCREEN_REGION_TYPES)[number];
-
-export type RenderTreeFlexLayoutProps = {
-	direction: "row" | "column";
-	gap?: number;
-	paddingX?: number;
-	paddingY?: number;
-	align?: "start" | "center" | "end" | "stretch";
-	justify?: "start" | "center" | "end" | "between";
-};
-
-export type RenderTreeGridLayoutProps = {
-	columns?: string;
-	rows?: string;
-	gap?: number;
-	paddingX?: number;
-	paddingY?: number;
-	align?: "start" | "center" | "end" | "stretch";
-	justify?: "start" | "center" | "end" | "stretch";
-};
+export const REQUIRED_SCREEN_REGION_TYPES = NODE_TYPES.screenRegion;
 
 export type RenderTreeScreenHeaderNode = Omit<RenderTreeNode, "type" | "props" | "children"> & {
 	type: typeof SCREEN_HEADER_NODE_TYPE;
@@ -178,21 +146,14 @@ export interface RenderTree {
 	children: RenderTreeNode[];
 }
 
-export interface ValidationResult<T = RenderTree> {
-	success: boolean;
-	errors: string[];
-	warnings: string[];
-	stats?: RenderTreeValidationStats;
-	data?: T;
-}
-
-export interface RenderTreeValidationStats {
-	componentTypes: string[];
-	fallbackTypes: string[];
-	maxDepth: number;
-	rendererKinds: string[];
-	totalNodes: number;
-}
+export type {
+	ValidationIssue,
+	ValidationLayer,
+	ValidationCode,
+	ValidationSeverity,
+	ValidationResult,
+	ValidationStats,
+} from "@cx/types";
 
 export function isBindingValue(value: PropValue): value is PropBinding {
 	return (

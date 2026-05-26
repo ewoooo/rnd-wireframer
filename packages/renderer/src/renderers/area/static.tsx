@@ -1,4 +1,5 @@
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/primitives";
+import { NODE_TYPES } from "@cx/types";
 import { toNumber } from "../../normalize-render-props";
 import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";
@@ -8,7 +9,7 @@ import type { AreaRenderableProps } from "./types";
  * area.static — 항상 자식 표시. 분기 없음.
  */
 export const areaStaticRendererDefinition: RendererDefinition = {
-	kind: "area.static",
+	kind: NODE_TYPES.area[0],
 	render: ({ node, renderable, renderChildren }) => {
 		const props = renderable.props as AreaRenderableProps;
 		const titleGap = toNumber(props.titleGap, 8);

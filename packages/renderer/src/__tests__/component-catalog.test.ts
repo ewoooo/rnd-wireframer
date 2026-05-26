@@ -20,6 +20,10 @@ describe("@cx/renderer component-catalog", () => {
 		expect(getComponentCatalogEntry("section-message")?.type).toBe("SectionMessage");
 		expect(getComponentCatalogEntry("text-field")?.type).toBe("TextField");
 		expect(getComponentCatalogEntry("button")?.type).toBe("Button");
+		expect(getComponentCatalogEntry("checkbox")).toMatchObject({
+			type: "Checkbox",
+			kind: "checkbox",
+		});
 	});
 
 	it("exposes prop contracts for compose-time inference", () => {

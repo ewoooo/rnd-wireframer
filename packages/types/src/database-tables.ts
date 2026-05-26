@@ -1,3 +1,5 @@
+import type { AreaType, ScreenRegionType, ScreenSurfaceType } from "./node-types";
+
 export type PropBinding = {
 	bind: string;
 	default?: string | number | boolean | null;
@@ -17,6 +19,31 @@ export type NodeHook = {
 	action: string;
 	target?: string;
 	params?: Record<string, unknown>;
+};
+
+export type NodeDisplay = {
+	when?: PropBinding | boolean;
+	stateRole?: "base" | "loading" | "empty" | "error" | "success" | "disabled" | "expanded";
+};
+
+// 공통 layout props. @cx/layout, @cx/renderer가 모두 이 정의를 사용한다.
+export type FlexLayoutProps = {
+	direction: "row" | "column";
+	gap?: number;
+	paddingX?: number;
+	paddingY?: number;
+	align?: "start" | "center" | "end" | "stretch";
+	justify?: "start" | "center" | "end" | "between";
+};
+
+export type GridLayoutProps = {
+	columns?: string;
+	rows?: string;
+	gap?: number;
+	paddingX?: number;
+	paddingY?: number;
+	align?: "start" | "center" | "end" | "stretch";
+	justify?: "start" | "center" | "end" | "stretch";
 };
 
 export type DatabaseScreenRouteRow = {
@@ -43,8 +70,25 @@ export type DatabasePatternRef = {
 	variant?: string;
 };
 
-export type DatabaseScreenRegionType = string;
+export type NodeMetadata = {
+	title: string;
+	author: string;
+	createdAt: string;
+	updatedAt: string;
+	description?: string;
+};
 
+// 공통 row 베이스. 레벨 구분은 MaterializedNodeTree의 배열 위치(screens/areas/components)로 한다.
+export type BaseRow = {
+	id: string;
+	version: string;
+	metadata: NodeMetadata;
+	pattern?: DatabasePatternRef;
+};
+
+export type DatabaseScreenRegionType = ScreenRegionType;
+
+// Region은 row가 아닌 inline 구조체 — id/version 없음, ScreenBody.regions 안에서만 존재
 export type DatabaseScreenRegion = {
 	type: DatabaseScreenRegionType;
 	componentVersion?: string;
@@ -54,16 +98,8 @@ export type DatabaseScreenRegion = {
 	children: DatabaseRegionChild[];
 };
 
-export type DatabaseScreenRowMetadata = {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-};
-
 export type DatabaseScreenBody = {
-	type: string;
+	type: ScreenSurfaceType;
 	regions: {
 		header: DatabaseScreenRegion;
 		contents: DatabaseScreenRegion;
@@ -71,38 +107,23 @@ export type DatabaseScreenBody = {
 	};
 };
 
-export type DatabaseScreenRow = {
-	id: string;
+export type DatabaseScreenRow = BaseRow & {
 	screenVariantId: string;
 	minRendererVersion?: string;
 	minComponentsVersion?: string;
-	version: string;
 	order?: number;
-	pattern?: DatabasePatternRef;
 	patternId?: string;
 	patternVariant?: string;
-	metadata: DatabaseScreenRowMetadata;
 	theme?: { mode?: "light" | "dark" | "system"; primaryColor?: string; fontFamily?: string };
 	data?: Record<string, unknown>;
 	screen: DatabaseScreenBody;
 };
 
-export type AreaTypeLiteral = "area.static" | "area.dynamic";
+export type AreaTypeLiteral = AreaType;
 
-export type DatabaseAreaMetadata = {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-};
-
-export type DatabaseAreaRow = {
-	id: string;
+export type DatabaseAreaRow = BaseRow & {
 	type: AreaTypeLiteral;
-	version: string;
 	key?: number;
-	metadata: DatabaseAreaMetadata;
 	props?: {
 		name?: string;
 		layout?: string;
@@ -116,7 +137,6 @@ export type DatabaseAreaRow = {
 		trigger?: { type: "boolean-state"; source: string; defaultValue?: boolean };
 		[k: string]: unknown;
 	};
-	pattern?: DatabasePatternRef;
 	children: Array<{ kind: "component"; id: string }>;
 };
 
@@ -125,26 +145,21 @@ export type DatabaseComponentChildEntry = {
 	props: Record<string, unknown>;
 };
 
-export type DatabaseComponentMetadata = {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-};
-
-export type DatabaseComponentRow = {
-	id: string;
+export type DatabaseComponentRow = BaseRow & {
 	type: string;
-	version: string;
-	metadata: DatabaseComponentMetadata;
-	pattern: { id: string; variant: string };
+	pattern: DatabasePatternRef; // component는 pattern 필수
 	children: DatabaseComponentChildEntry[];
 	hooks?: NodeHook[];
+	display?: NodeDisplay;
 	events?: Record<string, unknown>;
 };
 
-export type MaterializedDatabaseNodeTables = {
+// 후방호환 alias — 새 코드는 NodeMetadata를 직접 쓰세요
+export type DatabaseScreenRowMetadata = NodeMetadata;
+export type DatabaseAreaMetadata = NodeMetadata;
+export type DatabaseComponentMetadata = NodeMetadata;
+
+export type MaterializedNodeTree = {
 	screenRoutes: DatabaseScreenRouteRow[];
 	screenVariants: DatabaseScreenVariantRow[];
 	screens: DatabaseScreenRow[];

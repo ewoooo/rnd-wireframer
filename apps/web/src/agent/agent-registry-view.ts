@@ -6,7 +6,7 @@ import type {
 	RegisteredRouteNode,
 	RegisteredScreenNode,
 	RegisteredVariantNode,
-} from "@cx/agent";
+} from "@cx/agent/types";
 
 export interface AgentNodeSelection {
 	id: string;

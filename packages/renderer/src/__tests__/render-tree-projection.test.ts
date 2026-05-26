@@ -53,7 +53,7 @@ const screen: RenderTreeTableScreenRow = {
 		...metadata,
 	},
 	screen: {
-		type: "page",
+		type: "screen.page",
 		regions: {
 			header: {
 				type: "Screen.Header",
@@ -129,6 +129,6 @@ describe("tablesToRenderTree", () => {
 			name: "약관 목록",
 		});
 		expect(componentNode?.props).toEqual({ title: "약관 동의" });
-		expect(validateRenderTreeFull(renderTree).success).toBe(true);
+		expect(validateRenderTreeFull(renderTree).ok).toBe(true);
 	});
 });

@@ -60,7 +60,7 @@ export function spacingUtilityClass(
 }
 
 export function spacingFallbackStyleValue(value: number | undefined): number | undefined {
-	return needsSpacingFallback(value) ? value : undefined;
+	return value;
 }
 
 export function flexLayoutClassName(layout: FlexLayoutProps | undefined): string {
@@ -115,8 +115,4 @@ function toSpacingClass(
 	if (value === undefined) return undefined;
 	const token = spacingClass[value];
 	return token ? `${prefix}-${token}` : undefined;
-}
-
-function needsSpacingFallback(value: number | undefined): boolean {
-	return value !== undefined && spacingClass[value] === undefined;
 }

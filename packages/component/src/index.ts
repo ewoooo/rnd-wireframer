@@ -8,6 +8,7 @@ export { Callout } from "./Callout";
 export { Chip } from "./Chip";
 export { Divider } from "./Divider";
 export { InfoTextList } from "./InfoTextList";
+export { ListSelected } from "./ListSelected";
 export type { ListTextTable } from "./ListText";
 export { ListText } from "./ListText";
 export type { TabItem } from "./Tab";

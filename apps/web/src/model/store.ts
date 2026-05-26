@@ -1,4 +1,4 @@
-import type { RegisteredNodeTree } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent/types";
 import { create } from "zustand";
 import {
 	type AppArea,

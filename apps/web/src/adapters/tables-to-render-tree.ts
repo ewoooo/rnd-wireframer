@@ -36,7 +36,7 @@ export interface AppComponent {
 	type: string;
 }
 
-// 모든 Database* row 타입은 @cx/agent에서 단일 정의. 이 adapter는 import만.
+// 모든 Database* row 타입은 @cx/types의 소비 데이터 계약을 원천으로 사용한다.
 export type {
 	DatabaseAreaMetadata,
 	DatabaseAreaRow,
@@ -49,33 +49,26 @@ export type {
 	DatabaseScreenRow,
 	DatabaseScreenRowMetadata,
 	DatabaseScreenVariantRow,
-} from "@cx/agent/register-assets-to-database-tables";
+} from "@cx/types";
 
-import type {
-	DatabaseScreenRegion,
-	DatabaseScreenRouteRow,
-	DatabaseScreenRow,
-	DatabaseScreenVariantRow,
-} from "@cx/agent/register-assets-to-database-tables";
+import {
+	type AreaVariant,
+	type CompositeVariant,
+	type DatabaseScreenRegion,
+	type DatabaseScreenRouteRow,
+	type DatabaseScreenRow,
+	type DatabaseScreenVariantRow,
+	NODE_TYPES,
+	type PatternStore,
+	type PatternStorePattern,
+	type PatternStoreTarget,
+	type RegionVariant,
+} from "@cx/types";
 
 // JSON 묶음 wrapper — 단순 plural 컨테이너라 inline 타입 alias.
 export type DatabaseScreenRouteSet = { screenRoutes: DatabaseScreenRouteRow[] };
 export type DatabaseScreenVariantSet = { screenVariants: DatabaseScreenVariantRow[] };
 
-import type {
-	AreaVariant,
-	CompositeVariant,
-	PatternStore,
-	PatternStorePattern,
-	PatternStoreTarget,
-	RegionVariant,
-} from "@cx/agent/pattern-store";
-
-export {
-	findPattern as findPatternStorePattern,
-	listPatterns as listPatternStorePatterns,
-	loadPatternStore,
-} from "@cx/agent/pattern-store";
 export type {
 	AreaVariant,
 	CompositeVariant,
@@ -120,9 +113,9 @@ export function validateDatabaseScreenSource(screen: DatabaseScreenRow) {
 		errors.push(`${label}: use pattern.id / pattern.variant instead of patternId / patternVariant`);
 	}
 
-	validateScreenSourceRegion(screen, "header", "Screen.Header", errors);
-	validateScreenSourceRegion(screen, "contents", "Screen.Contents", errors);
-	validateScreenSourceRegion(screen, "bottom", "Screen.Bottom", errors);
+	validateScreenSourceRegion(screen, "header", NODE_TYPES.screenRegion[0], errors);
+	validateScreenSourceRegion(screen, "contents", NODE_TYPES.screenRegion[1], errors);
+	validateScreenSourceRegion(screen, "bottom", NODE_TYPES.screenRegion[2], errors);
 
 	return errors;
 }

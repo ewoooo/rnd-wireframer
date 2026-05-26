@@ -1,18 +1,19 @@
-import type {
-	AreaVariant as RenderTreeAreaVariant,
-	ChildrenLayoutPreset as RenderTreeChildrenLayoutPreset,
-	ChildWrapPreset as RenderTreeChildWrapPreset,
-	CompositeVariant as RenderTreeCompositeVariant,
-	PatternLayoutProps as RenderTreePatternLayoutProps,
-	PatternStore as RenderTreePatternStore,
-	PatternStorePattern as RenderTreePatternStorePattern,
-	PatternStoreTarget as RenderTreePatternStoreTarget,
-	RegionVariant as RenderTreeRegionVariant,
-	DatabaseAreaRow as RenderTreeTableAreaRow,
-	DatabaseComponentRow as RenderTreeTableComponentRow,
-	DatabaseRegionChild as RenderTreeTableRegionChild,
-	DatabaseScreenRegion as RenderTreeTableScreenRegion,
-	DatabaseScreenRow as RenderTreeTableScreenRow,
+import {
+	NODE_TYPES,
+	type AreaVariant as RenderTreeAreaVariant,
+	type ChildrenLayoutPreset as RenderTreeChildrenLayoutPreset,
+	type ChildWrapPreset as RenderTreeChildWrapPreset,
+	type CompositeVariant as RenderTreeCompositeVariant,
+	type PatternLayoutProps as RenderTreePatternLayoutProps,
+	type PatternStore as RenderTreePatternStore,
+	type PatternStorePattern as RenderTreePatternStorePattern,
+	type PatternStoreTarget as RenderTreePatternStoreTarget,
+	type RegionVariant as RenderTreeRegionVariant,
+	type DatabaseAreaRow as RenderTreeTableAreaRow,
+	type DatabaseComponentRow as RenderTreeTableComponentRow,
+	type DatabaseRegionChild as RenderTreeTableRegionChild,
+	type DatabaseScreenRegion as RenderTreeTableScreenRegion,
+	type DatabaseScreenRow as RenderTreeTableScreenRow,
 } from "@cx/types";
 import type { PropValue, RenderTree, RenderTreeMetadata, RenderTreeNode } from "./schema";
 
@@ -149,15 +150,15 @@ const REGION_DEFAULT_PROPS: Record<
 	RenderTreeTableScreenRegion["type"],
 	Record<string, PropValue>
 > = {
-	"Screen.Header": {
+	[NODE_TYPES.screenRegion[0]]: {
 		position: "sticky",
 		layout: { direction: "column", gap: 0 },
 	},
-	"Screen.Contents": {
+	[NODE_TYPES.screenRegion[1]]: {
 		layout: { direction: "column", gap: 0 },
 		scroll: true,
 	},
-	"Screen.Bottom": {
+	[NODE_TYPES.screenRegion[2]]: {
 		position: "sticky",
 		layout: { direction: "column", gap: 0 },
 		safeArea: true,
@@ -262,7 +263,7 @@ function createRegionPageStackNode(
 	child: RenderTreeNode,
 ): RenderTreeNode {
 	return {
-		type: "PageStack",
+		type: NODE_TYPES.wrapper[0],
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
 		metadata: {
 			...completeMetadata({ id: regionId, ...region.metadata }, schemaMetadata),
@@ -375,6 +376,26 @@ function tableComponentToRenderNode(
 	const firstChild = component.children[0];
 	const childType = firstChild?.component?.type ?? component.type;
 	const childProps = firstChild?.props ?? {};
+	if (component.children.length > 1 || component.type === NODE_TYPES.layout[0]) {
+		return {
+			type: component.type,
+			componentVersion: component.version,
+			metadata: {
+				id: component.id,
+				title: component.metadata.title,
+				author: component.metadata.author,
+				createdAt: component.metadata.createdAt,
+				updatedAt: component.metadata.updatedAt,
+				description: component.metadata.description,
+			},
+			props: toFlexLayoutProps(componentPattern),
+			events: component.events as RenderTreeNode["events"],
+			display: component.display as RenderTreeNode["display"],
+			children: component.children.map((child, index) =>
+				componentChildEntryToRenderNode(component, child, index),
+			),
+		};
+	}
 	return {
 		type: childType,
 		componentVersion: component.version,
@@ -388,12 +409,45 @@ function tableComponentToRenderNode(
 		},
 		props: mergeProps(toPropRecord(componentPattern?.layoutProps), toPropRecord(childProps)),
 		events: component.events as RenderTreeNode["events"],
+		display: component.display as RenderTreeNode["display"],
+	};
+}
+
+function componentChildEntryToRenderNode(
+	parent: RenderTreeTableComponentRow,
+	child: RenderTreeTableComponentRow["children"][number],
+	index: number,
+): RenderTreeNode {
+	const childType = child.component.type ?? "Generic";
+	return {
+		type: childType,
+		componentVersion: parent.version,
+		metadata: {
+			id: `${parent.id}__child-${index + 1}`,
+			title: `${parent.metadata.title} child ${index + 1}`,
+			author: parent.metadata.author,
+			createdAt: parent.metadata.createdAt,
+			updatedAt: parent.metadata.updatedAt,
+		},
+		props: toPropRecord(child.props),
+	};
+}
+
+function toFlexLayoutProps(
+	preset: RenderTreeCompositeVariant | undefined,
+): RenderTreeNode["props"] {
+	return {
+		direction: preset?.direction === "horizontal" ? "row" : "column",
+		...(preset?.gap !== undefined ? { gap: preset.gap } : {}),
+		...(preset?.paddingX !== undefined ? { paddingX: preset.paddingX } : {}),
+		...(preset?.paddingY !== undefined ? { paddingY: preset.paddingY } : {}),
+		...toPropRecord(preset?.layoutProps),
 	};
 }
 
 function createMissingReferenceNode(kind: "area" | "component", id: string): RenderTreeNode {
 	return {
-		type: "MissingReference",
+		type: NODE_TYPES.system[0],
 		componentVersion: "1.0.0",
 		metadata: {
 			id,

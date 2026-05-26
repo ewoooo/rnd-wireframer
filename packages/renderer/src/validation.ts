@@ -1,26 +1,18 @@
+import {
+	BUILT_IN_NODE_TYPES,
+	type ValidationIssue,
+	type ValidationResult,
+	type ValidationStats,
+} from "@cx/types";
 import type { ComponentRegistry } from "./component-registry";
 import { getRenderTreeNodeKind } from "./runtime";
 import {
-	LAYOUT_FLEX_NODE_TYPE,
-	LAYOUT_GRID_NODE_TYPE,
 	REQUIRED_SCREEN_REGION_TYPES,
 	type RenderTree,
 	type RenderTreeNode,
-	type RenderTreeValidationStats,
 	RenderTreeValidator,
 	SCREEN_NODE_TYPE,
-	type ValidationResult,
 } from "./schema";
-
-export interface ValidateRenderTreeOptions {
-	checkDuplicateIds?: boolean;
-	checkRendererCoverage?: boolean;
-	checkScreenRegionContract?: boolean;
-	registry?: ComponentRegistry;
-	checkRegisteredComponents?: boolean;
-	checkVersionCompatibility?: boolean;
-	strictRendererCoverage?: boolean;
-}
 
 const CURRENT_RENDERER_VERSION = "0.1.0";
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
@@ -36,126 +28,137 @@ const SPACING_PROP_NAMES = new Set([
 	"sectionPaddingX",
 	"titleGap",
 ]);
-const BUILT_IN_NODE_TYPES = new Set<string>([
-	SCREEN_NODE_TYPE,
-	...REQUIRED_SCREEN_REGION_TYPES,
-	LAYOUT_FLEX_NODE_TYPE,
-	LAYOUT_GRID_NODE_TYPE,
-	"Area",
-]);
 const REQUIRED_SCREEN_REGION_TYPE_SET = new Set<string>(REQUIRED_SCREEN_REGION_TYPES);
 
-export function validateRenderTree(schema: unknown): ValidationResult {
-	const result = RenderTreeValidator.safeParse(schema);
+export interface ValidationContext {
+	registry?: ComponentRegistry;
+	rendererVersion: string;
+	strictRendererCoverage: boolean;
+}
 
-	if (result.success) {
+export type ValidationCheck = (tree: RenderTree, ctx: ValidationContext) => ValidationIssue[];
+
+export interface ValidateRenderTreeOptions {
+	checkDuplicateIds?: boolean;
+	checkRendererCoverage?: boolean;
+	checkScreenRegionContract?: boolean;
+	registry?: ComponentRegistry;
+	checkRegisteredComponents?: boolean;
+	checkVersionCompatibility?: boolean;
+	strictRendererCoverage?: boolean;
+}
+
+/** Schema (Zod) — 구조적 파싱. 실패 시 issues로 변환. */
+export function validateRenderTree(schema: unknown): ValidationResult<RenderTree> {
+	const parsed = RenderTreeValidator.safeParse(schema);
+
+	if (parsed.success) {
 		return {
-			success: true,
-			errors: [],
-			warnings: [],
-			stats: collectRenderTreeStats(result.data),
-			data: result.data,
+			ok: true,
+			issues: [],
+			data: parsed.data,
+			stats: collectRenderTreeStats(parsed.data),
 		};
 	}
 
-	return {
-		success: false,
-		errors: result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
-		warnings: [],
-	};
+	const issues: ValidationIssue[] = parsed.error.issues.map((issue) => ({
+		code: "schema.invalid",
+		severity: "error",
+		layer: "schema",
+		message: issue.message,
+		path: issue.path.filter(
+			(segment): segment is string | number =>
+				typeof segment === "string" || typeof segment === "number",
+		),
+	}));
+
+	return { ok: false, issues };
 }
 
 export function validateRenderTreeFull(
 	schema: unknown,
 	options: ValidateRenderTreeOptions = {},
-): ValidationResult {
-	const baseResult = validateRenderTree(schema);
-	if (!baseResult.success || !baseResult.data) return baseResult;
+): ValidationResult<RenderTree> {
+	const base = validateRenderTree(schema);
+	if (!base.ok || !base.data) return base;
 
-	const errors: string[] = [];
-	const warnings: string[] = [];
-	const stats = collectRenderTreeStats(baseResult.data);
+	const ctx: ValidationContext = {
+		registry: options.registry,
+		rendererVersion: CURRENT_RENDERER_VERSION,
+		strictRendererCoverage: options.strictRendererCoverage ?? false,
+	};
 
-	if (options.checkVersionCompatibility ?? true) {
-		const versionResult = validateRenderTreeVersions(baseResult.data);
-		errors.push(...versionResult.errors);
-		warnings.push(...versionResult.warnings);
-	}
+	const checks: ValidationCheck[] = [];
+	if (options.checkVersionCompatibility ?? true) checks.push(versionCheck);
+	if (options.checkDuplicateIds ?? true) checks.push(duplicateIdCheck);
+	if (options.checkScreenRegionContract ?? true) checks.push(screenRegionContractCheck);
+	if (options.checkRegisteredComponents && options.registry) checks.push(registryCoverageCheck);
+	if (options.checkRendererCoverage ?? true) checks.push(rendererCoverageCheck);
+	checks.push(tokenSpacingCheck);
 
-	if (options.checkDuplicateIds ?? true) {
-		const duplicates = findDuplicateNodeIds(baseResult.data);
-		if (duplicates.length > 0) {
-			errors.push(`Duplicate node IDs found: ${duplicates.join(", ")}`);
-		}
-	}
-
-	if (options.checkScreenRegionContract ?? true) {
-		errors.push(...validateScreenRegionContract(baseResult.data));
-	}
-
-	if (options.checkRegisteredComponents && options.registry) {
-		const missing = findUnregisteredComponents(baseResult.data, options.registry);
-		if (missing.length > 0) {
-			errors.push(`Unregistered component types found: ${missing.join(", ")}`);
-		}
-	}
-
-	if (options.checkRendererCoverage ?? true) {
-		const fallbackTypes = findFallbackRendererTypes(baseResult.data);
-		if (fallbackTypes.length > 0) {
-			const message = `Missing renderer mapping for node types: ${fallbackTypes.join(", ")}`;
-			if (options.strictRendererCoverage) {
-				errors.push(message);
-			} else {
-				warnings.push(message);
-			}
-		}
-	}
-
-	const untokenizedSpacingValues = findUntokenizedSpacingValues(baseResult.data);
-	if (untokenizedSpacingValues.length > 0) {
-		warnings.push(
-			`Spacing values are not in @cx/tokens Tailwind spacing keys: ${untokenizedSpacingValues.join(
-				", ",
-			)}`,
-		);
-	}
+	const issues = runChecks(base.data, checks, ctx);
 
 	return {
-		success: errors.length === 0,
-		errors,
-		warnings,
-		stats,
-		data: baseResult.data,
+		ok: !issues.some((issue) => issue.severity === "error"),
+		issues,
+		data: base.data,
+		stats: collectRenderTreeStats(base.data),
 	};
 }
 
-export function findDuplicateNodeIds(schema: RenderTree): string[] {
+export function runChecks(
+	tree: RenderTree,
+	checks: readonly ValidationCheck[],
+	ctx: ValidationContext,
+): ValidationIssue[] {
+	return checks.flatMap((check) => check(tree, ctx));
+}
+
+// ─── Checks ──────────────────────────────────────────────────────────────
+
+export const duplicateIdCheck: ValidationCheck = (tree) => {
 	const seen = new Set<string>();
 	const duplicates = new Set<string>();
 
-	forEachNode(schema.children, (node) => {
+	forEachNode(tree.children, (node) => {
 		const nodeId = node.metadata.id;
-		if (seen.has(nodeId)) {
-			duplicates.add(nodeId);
-		} else {
-			seen.add(nodeId);
-		}
+		if (seen.has(nodeId)) duplicates.add(nodeId);
+		else seen.add(nodeId);
 	});
 
-	return Array.from(duplicates).sort();
-}
+	return Array.from(duplicates)
+		.sort()
+		.map<ValidationIssue>((nodeId) => ({
+			code: "reference.duplicate-id",
+			severity: "error",
+			layer: "reference",
+			message: `Duplicate node ID: ${nodeId}`,
+			nodeId,
+		}));
+};
 
-export function validateScreenRegionContract(schema: RenderTree): string[] {
-	const errors: string[] = [];
-	const screenNodes = schema.children.filter((node) => node.type === SCREEN_NODE_TYPE);
+export const screenRegionContractCheck: ValidationCheck = (tree) => {
+	const issues: ValidationIssue[] = [];
+	const screenNodes = tree.children.filter((node) => node.type === SCREEN_NODE_TYPE);
 
 	if (screenNodes.length === 0) {
-		return [`${SCREEN_NODE_TYPE} node is required at schema.children`];
+		issues.push({
+			code: "contract.screen.missing",
+			severity: "error",
+			layer: "contract",
+			message: `${SCREEN_NODE_TYPE} node is required at schema.children`,
+		});
+		return issues;
 	}
 
 	if (screenNodes.length > 1) {
-		errors.push(`Only one ${SCREEN_NODE_TYPE} node is allowed at schema.children`);
+		issues.push({
+			code: "contract.screen.duplicate",
+			severity: "error",
+			layer: "contract",
+			message: `Only one ${SCREEN_NODE_TYPE} node is allowed at schema.children`,
+			data: { count: screenNodes.length },
+		});
 	}
 
 	for (const screenNode of screenNodes) {
@@ -166,72 +169,219 @@ export function validateScreenRegionContract(schema: RenderTree): string[] {
 		for (const requiredType of REQUIRED_SCREEN_REGION_TYPES) {
 			const count = directChildTypes.filter((type) => type === requiredType).length;
 			if (count === 0) {
-				errors.push(`${SCREEN_NODE_TYPE}(${screenId}) must include ${requiredType}`);
+				issues.push({
+					code: "contract.region.invalid-child",
+					severity: "error",
+					layer: "contract",
+					message: `${SCREEN_NODE_TYPE}(${screenId}) must include ${requiredType}`,
+					nodeId: screenId,
+					data: { requiredType, count },
+				});
 			}
 			if (count > 1) {
-				errors.push(`${SCREEN_NODE_TYPE}(${screenId}) must include only one ${requiredType}`);
+				issues.push({
+					code: "contract.region.invalid-child",
+					severity: "error",
+					layer: "contract",
+					message: `${SCREEN_NODE_TYPE}(${screenId}) must include only one ${requiredType}`,
+					nodeId: screenId,
+					data: { requiredType, count },
+				});
 			}
 		}
 
-		const invalidDirectChildren = children.filter(
+		const invalidChildren = children.filter(
 			(node) => !REQUIRED_SCREEN_REGION_TYPE_SET.has(node.type),
 		);
-		if (invalidDirectChildren.length > 0) {
-			errors.push(
-				`${SCREEN_NODE_TYPE}(${screenId}) direct children must be ${REQUIRED_SCREEN_REGION_TYPES.join(
-					", ",
-				)}. Invalid children: ${invalidDirectChildren
+		if (invalidChildren.length > 0) {
+			issues.push({
+				code: "contract.screen.invalid-child",
+				severity: "error",
+				layer: "contract",
+				message: `${SCREEN_NODE_TYPE}(${screenId}) direct children must be ${REQUIRED_SCREEN_REGION_TYPES.join(", ")}. Invalid children: ${invalidChildren
 					.map((node) => `${node.type}(${node.metadata.id})`)
 					.join(", ")}`,
-			);
+				nodeId: screenId,
+				data: { invalidChildren: invalidChildren.map((n) => ({ type: n.type, id: n.metadata.id })) },
+			});
 		}
 
 		const expectedOrder = REQUIRED_SCREEN_REGION_TYPES.join(" > ");
 		const actualOrder = directChildTypes.join(" > ");
 		if (children.length === REQUIRED_SCREEN_REGION_TYPES.length && actualOrder !== expectedOrder) {
-			errors.push(`${SCREEN_NODE_TYPE}(${screenId}) children must be ordered as ${expectedOrder}`);
+			issues.push({
+				code: "contract.screen.order",
+				severity: "error",
+				layer: "contract",
+				message: `${SCREEN_NODE_TYPE}(${screenId}) children must be ordered as ${expectedOrder}`,
+				nodeId: screenId,
+				data: { expected: expectedOrder, actual: actualOrder },
+			});
 		}
 	}
 
-	return errors;
+	return issues;
+};
+
+export const registryCoverageCheck: ValidationCheck = (tree, ctx) => {
+	if (!ctx.registry) return [];
+	const missing = extractUsedComponentTypes(tree).filter(
+		(type) => !BUILT_IN_NODE_TYPES.has(type) && !ctx.registry?.has(type),
+	);
+	if (missing.length === 0) return [];
+	return [
+		{
+			code: "node-type.unregistered",
+			severity: "error",
+			layer: "node-type",
+			message: `Unregistered component types found: ${missing.join(", ")}`,
+			data: { types: missing },
+		},
+	];
+};
+
+export const rendererCoverageCheck: ValidationCheck = (tree, ctx) => {
+	const fallbackTypes = findFallbackRendererTypes(tree);
+	if (fallbackTypes.length === 0) return [];
+	return [
+		{
+			code: "node-type.unknown",
+			severity: ctx.strictRendererCoverage ? "error" : "warning",
+			layer: "node-type",
+			message: `Missing renderer mapping for node types: ${fallbackTypes.join(", ")}`,
+			data: { types: fallbackTypes },
+		},
+	];
+};
+
+export const tokenSpacingCheck: ValidationCheck = (tree) => {
+	const values = findUntokenizedSpacingValues(tree);
+	if (values.length === 0) return [];
+	return [
+		{
+			code: "tokens.untokenized-spacing",
+			severity: "warning",
+			layer: "tokens",
+			message: `Spacing values are not in @cx/tokens Tailwind spacing keys: ${values.join(", ")}`,
+			data: { values },
+		},
+	];
+};
+
+export const versionCheck: ValidationCheck = (tree, ctx) => {
+	const issues: ValidationIssue[] = [];
+
+	if (!VERSION_PATTERN.test(tree.version)) {
+		issues.push({
+			code: "version.invalid",
+			severity: "error",
+			layer: "version",
+			message: `Invalid schema version format: ${tree.version}`,
+			data: { value: tree.version },
+		});
+	}
+
+	if (tree.minRendererVersion) {
+		if (!VERSION_PATTERN.test(tree.minRendererVersion)) {
+			issues.push({
+				code: "version.invalid",
+				severity: "error",
+				layer: "version",
+				message: `Invalid minRendererVersion format: ${tree.minRendererVersion}`,
+				data: { value: tree.minRendererVersion },
+			});
+		} else if (compareVersions(tree.minRendererVersion, ctx.rendererVersion) > 0) {
+			issues.push({
+				code: "version.incompatible",
+				severity: "error",
+				layer: "version",
+				message: `Renderer ${ctx.rendererVersion} does not satisfy minRendererVersion ${tree.minRendererVersion}`,
+				data: { rendererVersion: ctx.rendererVersion, minRendererVersion: tree.minRendererVersion },
+			});
+		}
+	}
+
+	if (tree.minComponentsVersion) {
+		issues.push({
+			code: "version.invalid",
+			severity: "warning",
+			layer: "version",
+			message:
+				"minComponentsVersion is deprecated in render tree; componentVersion should be checked per node",
+		});
+		if (!VERSION_PATTERN.test(tree.minComponentsVersion)) {
+			issues.push({
+				code: "version.invalid",
+				severity: "error",
+				layer: "version",
+				message: `Invalid minComponentsVersion format: ${tree.minComponentsVersion}`,
+				data: { value: tree.minComponentsVersion },
+			});
+		}
+	}
+
+	forEachNode(tree.children, (node) => {
+		if (!VERSION_PATTERN.test(node.componentVersion)) {
+			issues.push({
+				code: "version.invalid",
+				severity: "error",
+				layer: "version",
+				message: `${node.type}(${node.metadata.id}) has invalid componentVersion format: ${node.componentVersion}`,
+				nodeId: node.metadata.id,
+				nodeType: node.type,
+				data: { value: node.componentVersion },
+			});
+		}
+	});
+
+	return issues;
+};
+
+// ─── Helpers (legacy public API 유지) ─────────────────────────────────────
+
+export function findDuplicateNodeIds(tree: RenderTree): string[] {
+	const seen = new Set<string>();
+	const duplicates = new Set<string>();
+	forEachNode(tree.children, (node) => {
+		const nodeId = node.metadata.id;
+		if (seen.has(nodeId)) duplicates.add(nodeId);
+		else seen.add(nodeId);
+	});
+	return Array.from(duplicates).sort();
 }
 
-export function extractUsedComponentTypes(schema: RenderTree): string[] {
+export function extractUsedComponentTypes(tree: RenderTree): string[] {
 	const types = new Set<string>();
-	forEachNode(schema.children, (node) => types.add(node.type));
+	forEachNode(tree.children, (node) => types.add(node.type));
 	return Array.from(types).sort();
 }
 
 export function findUnregisteredComponents(
-	schema: RenderTree,
+	tree: RenderTree,
 	registry: ComponentRegistry,
 ): string[] {
-	return extractUsedComponentTypes(schema).filter(
+	return extractUsedComponentTypes(tree).filter(
 		(type) => !BUILT_IN_NODE_TYPES.has(type) && !registry.has(type),
 	);
 }
 
-export function findFallbackRendererTypes(schema: RenderTree): string[] {
+export function findFallbackRendererTypes(tree: RenderTree): string[] {
 	const fallbackTypes = new Set<string>();
-
-	forEachNode(schema.children, (node) => {
+	forEachNode(tree.children, (node) => {
 		if (BUILT_IN_NODE_TYPES.has(node.type)) return;
-		if (getRenderTreeNodeKind(node) === "fallback") {
-			fallbackTypes.add(node.type);
-		}
+		if (getRenderTreeNodeKind(node) === "fallback") fallbackTypes.add(node.type);
 	});
-
 	return Array.from(fallbackTypes).sort();
 }
 
-export function collectRenderTreeStats(schema: RenderTree): RenderTreeValidationStats {
+export function collectRenderTreeStats(tree: RenderTree): ValidationStats {
 	const componentTypes = new Set<string>();
 	const fallbackTypes = new Set<string>();
 	const rendererKinds = new Set<string>();
 	let maxDepth = 0;
 	let totalNodes = 0;
 
-	forEachNode(schema.children, (node, depth) => {
+	forEachNode(tree.children, (node, depth) => {
 		const rendererKind = getRenderTreeNodeKind(node);
 		totalNodes += 1;
 		maxDepth = Math.max(maxDepth, depth);
@@ -251,14 +401,21 @@ export function collectRenderTreeStats(schema: RenderTree): RenderTreeValidation
 	};
 }
 
-function findUntokenizedSpacingValues(schema: RenderTree): string[] {
-	const values = new Set<string>();
+export function validateScreenRegionContract(tree: RenderTree): ValidationIssue[] {
+	return screenRegionContractCheck(tree, {
+		rendererVersion: CURRENT_RENDERER_VERSION,
+		strictRendererCoverage: false,
+	});
+}
 
-	forEachNode(schema.children, (node) => {
+// ─── Internal utilities ──────────────────────────────────────────────────
+
+function findUntokenizedSpacingValues(tree: RenderTree): string[] {
+	const values = new Set<string>();
+	forEachNode(tree.children, (node) => {
 		collectUntokenizedSpacingValues(node.metadata.id, node.props, values);
 		collectUntokenizedSpacingValues(node.metadata.id, getNestedRecord(node.props?.layout), values);
 	});
-
 	return Array.from(values).sort();
 }
 
@@ -268,7 +425,6 @@ function collectUntokenizedSpacingValues(
 	values: Set<string>,
 ) {
 	if (!props) return;
-
 	for (const [propName, value] of Object.entries(props)) {
 		if (!SPACING_PROP_NAMES.has(propName)) continue;
 		if (typeof value !== "number") continue;
@@ -281,53 +437,13 @@ function getNestedRecord(value: unknown): Record<string, unknown> | undefined {
 	return value as Record<string, unknown>;
 }
 
-function validateRenderTreeVersions(schema: RenderTree) {
-	const errors: string[] = [];
-	const warnings: string[] = [];
-
-	if (!VERSION_PATTERN.test(schema.version)) {
-		errors.push(`Invalid schema version format: ${schema.version}`);
-	}
-
-	if (schema.minRendererVersion) {
-		if (!VERSION_PATTERN.test(schema.minRendererVersion)) {
-			errors.push(`Invalid minRendererVersion format: ${schema.minRendererVersion}`);
-		} else if (compareVersions(schema.minRendererVersion, CURRENT_RENDERER_VERSION) > 0) {
-			errors.push(
-				`Renderer ${CURRENT_RENDERER_VERSION} does not satisfy minRendererVersion ${schema.minRendererVersion}`,
-			);
-		}
-	}
-
-	if (schema.minComponentsVersion) {
-		warnings.push(
-			`minComponentsVersion is deprecated in render tree; componentVersion should be checked per node`,
-		);
-		if (!VERSION_PATTERN.test(schema.minComponentsVersion)) {
-			errors.push(`Invalid minComponentsVersion format: ${schema.minComponentsVersion}`);
-		}
-	}
-
-	forEachNode(schema.children, (node) => {
-		if (!VERSION_PATTERN.test(node.componentVersion)) {
-			errors.push(
-				`${node.type}(${node.metadata.id}) has invalid componentVersion format: ${node.componentVersion}`,
-			);
-		}
-	});
-
-	return { errors, warnings };
-}
-
 function compareVersions(left: string, right: string): number {
 	const leftParts = parseVersion(left);
 	const rightParts = parseVersion(right);
-
 	for (let index = 0; index < 3; index += 1) {
 		const delta = leftParts[index] - rightParts[index];
 		if (delta !== 0) return delta;
 	}
-
 	return 0;
 }
 
@@ -343,8 +459,6 @@ function forEachNode(
 ): void {
 	for (const node of nodes) {
 		callback(node, depth);
-		if (node.children) {
-			forEachNode(node.children, callback, depth + 1);
-		}
+		if (node.children) forEachNode(node.children, callback, depth + 1);
 	}
 }

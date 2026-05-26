@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { ActionButton } from "../ActionButton";
 import { Button } from "../Button";
+import { ListSelected } from "../ListSelected";
 
 describe("@cx/components", () => {
 	it("renders imported cx-components source", () => {
@@ -17,6 +18,19 @@ describe("@cx/components", () => {
 		render(<ActionButton>다음</ActionButton>);
 
 		expect(screen.getByRole("button", { name: "다음" })).toBeInTheDocument();
+	});
+
+	it("renders ListSelected checkbox mode as an accessible checkbox", () => {
+		render(
+			<ListSelected
+				type="checkbox"
+				label="전체 약관에 동의합니다"
+				showButton={false}
+				showPrice={false}
+			/>,
+		);
+
+		expect(screen.getByRole("checkbox", { name: "전체 약관에 동의합니다" })).toBeInTheDocument();
 	});
 
 	it("maps SKT spacing tokens through generated Tailwind v4 theme variables", async () => {

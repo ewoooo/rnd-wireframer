@@ -1,6 +1,6 @@
 "use client";
 
-import type { RegisteredNodeTree } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent/types";
 import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";

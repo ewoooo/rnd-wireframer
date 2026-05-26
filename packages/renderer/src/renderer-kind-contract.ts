@@ -1,3 +1,4 @@
+import { NODE_TYPES } from "@cx/types";
 import {
 	type ComponentCatalogEntry,
 	componentCatalog,
@@ -6,13 +7,6 @@ import {
 import type { RenderTreeNodeKind } from "./runtime";
 
 const structuralRendererKinds = {
-	"Layout.Flex": "layout-flex",
-	"Layout.Grid": "layout-grid",
-	PageStack: "page-stack",
-	"area.static": "area.static",
-	"area.dynamic": "area.dynamic",
-	Accordion: "accordion",
-	accordion: "accordion",
 	ActionArea: "action",
 	"action-area": "action",
 } as const satisfies Record<string, RenderTreeNodeKind>;
@@ -21,6 +15,8 @@ export function createRendererKindMap() {
 	const kindByType = new Map<string, RenderTreeNodeKind>(
 		Object.entries(structuralRendererKinds) as Array<[string, RenderTreeNodeKind]>,
 	);
+
+	registerKnownNodeTypes(kindByType);
 
 	for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
 		registerCatalogEntry(kindByType, entry);
@@ -32,6 +28,20 @@ export function createRendererKindMap() {
 	}
 
 	return kindByType;
+}
+
+function registerKnownNodeTypes(kindByType: Map<string, RenderTreeNodeKind>) {
+	const structuralKindEntries = [
+		[NODE_TYPES.layout[0], "layout-flex"],
+		[NODE_TYPES.layout[1], "layout-grid"],
+		[NODE_TYPES.wrapper[0], "page-stack"],
+		[NODE_TYPES.area[0], NODE_TYPES.area[0]],
+		[NODE_TYPES.area[1], NODE_TYPES.area[1]],
+	] as const satisfies ReadonlyArray<readonly [string, RenderTreeNodeKind]>;
+
+	for (const [type, kind] of structuralKindEntries) {
+		kindByType.set(type, kind);
+	}
 }
 
 function registerCatalogEntry(

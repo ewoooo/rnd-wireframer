@@ -1,3 +1,7 @@
+import type { NodeDisplay, NodeHook, ScreenSurfaceType } from "@cx/types";
+
+export type { NodeDisplay, NodeHook, ScreenSurfaceType };
+
 export type NodeLevel = "route" | "variant" | "screen" | "region" | "area" | "component";
 
 export interface OrderedNode {
@@ -12,13 +16,6 @@ export interface ComponentRawInput {
 	variant?: string;
 	note?: string;
 	hooks?: NodeHook[];
-}
-
-export interface NodeHook {
-	trigger: string;
-	action: string;
-	target?: string;
-	params?: Record<string, unknown>;
 }
 
 export interface GeneratedComponentNode extends OrderedNode {
@@ -99,6 +96,7 @@ export interface ComposedComponentNode extends OrderedNode {
 	policyID?: string[];
 	props?: Record<string, unknown>;
 	hooks?: NodeHook[];
+	display?: NodeDisplay;
 }
 
 export interface ComposedNodeTree {
@@ -127,8 +125,7 @@ export interface RegisteredScreenAreaRef {
 	slot?: RegionSlot;
 }
 
-/** Screen surface 정규형. Register 단계가 결정. */
-export type ScreenSurfaceType = "screen.page" | "screen.bottomSheet" | "screen.popup";
+/** Screen surface 정규형. Register 단계가 결정. (re-export됨 — 상단 참조) */
 
 export interface RegisteredScreenNode extends Required<Pick<OrderedNode, "id" | "order">> {
 	level: "screen";
@@ -185,11 +182,16 @@ export interface DecoratedVariantNode extends ComposedVariantNode {
 
 export interface DecoratedScreenNode extends ComposedScreenNode {
 	pattern: PatternRef;
+	regionPatterns?: Partial<Record<RegionSlot, PatternRef>>;
 }
-
 
 export interface DecoratedComponentNode extends ComposedComponentNode {
 	pattern: PatternRef;
+	/**
+	 * Composite wrapper children. 일반 leaf component에는 비워둔다.
+	 * Design Review의 createComposite 적용 결과만 이 값을 사용한다.
+	 */
+	children?: ComposedAreaChildRef[];
 }
 
 export interface DecoratedNodeTree {
@@ -245,7 +247,7 @@ export interface ComponentTableRow {
 	props: Record<string, unknown>;
 }
 
-export interface MaterializedNodeTables {
+export interface RegisteredTableRows {
 	screenRoutes: ScreenRouteTableRow[];
 	screenVariants: ScreenVariantTableRow[];
 	screens: ScreenTableRow[];

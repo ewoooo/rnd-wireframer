@@ -58,8 +58,28 @@ describe("@cx/renderer registry", () => {
 		expect(screen.getByText("필수 정보를 확인하세요")).toBeInTheDocument();
 	});
 
+	it("renders checkbox aliases with label props", () => {
+		render(
+			renderNode(
+				createNode({
+					type: "checkbox",
+					props: {
+						label: "전체 약관에 동의합니다",
+					},
+				}),
+				{},
+			),
+		);
+
+		expect(screen.getByLabelText("전체 약관에 동의합니다")).toHaveAttribute(
+			"type",
+			"checkbox",
+		);
+	});
+
 	it("exposes default renderer registry", () => {
 		expect(rendererRegistry.has("section-header")).toBe(true);
+		expect(rendererRegistry.has("checkbox")).toBe(true);
 		expect(rendererRegistry.has("fallback")).toBe(true);
 	});
 });

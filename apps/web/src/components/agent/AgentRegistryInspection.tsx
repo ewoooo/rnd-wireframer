@@ -1,4 +1,4 @@
-import type { RegisteredNodeTree } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent/types";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

@@ -1,4 +1,5 @@
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/primitives";
+import { NODE_TYPES } from "@cx/types";
 import { toNumber } from "../../normalize-render-props";
 import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";
@@ -14,7 +15,7 @@ import type { AreaRenderableProps } from "./types";
  *   그 외             → 자식 정상 렌더
  */
 export const areaDynamicRendererDefinition: RendererDefinition = {
-	kind: "area.dynamic",
+	kind: NODE_TYPES.area[1],
 	render: ({ data, node, renderable, renderChildren }) => {
 		const props = renderable.props as AreaRenderableProps;
 		const titleGap = toNumber(props.titleGap, 8);

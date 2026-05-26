@@ -1,25 +1,10 @@
+import type { FlexLayoutProps, GridLayoutProps, NODE_TYPES } from "@cx/types";
+
+export type { FlexLayoutProps, GridLayoutProps };
+
 export type LayoutMetadata = {
 	id: string;
 	title?: string;
-};
-
-export type FlexLayoutProps = {
-	direction: "row" | "column";
-	gap?: number;
-	paddingX?: number;
-	paddingY?: number;
-	align?: "start" | "center" | "end" | "stretch";
-	justify?: "start" | "center" | "end" | "between";
-};
-
-export type GridLayoutProps = {
-	columns?: string;
-	rows?: string;
-	gap?: number;
-	paddingX?: number;
-	paddingY?: number;
-	align?: "start" | "center" | "end" | "stretch";
-	justify?: "start" | "center" | "end" | "stretch";
 };
 
 export type LayoutNode = {
@@ -29,17 +14,17 @@ export type LayoutNode = {
 };
 
 export type LayoutFlexNode = LayoutNode & {
-	type: "Layout.Flex";
+	type: (typeof NODE_TYPES.layout)[0];
 	props: FlexLayoutProps;
 };
 
 export type LayoutGridNode = LayoutNode & {
-	type: "Layout.Grid";
+	type: (typeof NODE_TYPES.layout)[1];
 	props: GridLayoutProps;
 };
 
 export type ScreenHeaderNode = LayoutNode & {
-	type: "Screen.Header";
+	type: (typeof NODE_TYPES.screenRegion)[0];
 	props: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
@@ -50,7 +35,7 @@ export type ScreenHeaderNode = LayoutNode & {
 };
 
 export type ScreenContentsNode = LayoutNode & {
-	type: "Screen.Contents";
+	type: (typeof NODE_TYPES.screenRegion)[1];
 	props: {
 		layout: FlexLayoutProps;
 		scroll: boolean;
@@ -59,7 +44,7 @@ export type ScreenContentsNode = LayoutNode & {
 };
 
 export type ScreenBottomNode = LayoutNode & {
-	type: "Screen.Bottom";
+	type: (typeof NODE_TYPES.screenRegion)[2];
 	props: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
@@ -73,6 +58,6 @@ export type ScreenBottomNode = LayoutNode & {
 export type ScreenRegionNode = ScreenHeaderNode | ScreenContentsNode | ScreenBottomNode;
 
 export type ScreenNode = LayoutNode & {
-	type: "Screen";
+	type: (typeof NODE_TYPES.screenRoot)[0];
 	children: [ScreenHeaderNode, ScreenContentsNode, ScreenBottomNode];
 };

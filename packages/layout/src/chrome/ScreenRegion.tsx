@@ -1,6 +1,9 @@
+import { NODE_TYPES } from "@cx/types";
 import type { CSSProperties, ReactNode } from "react";
 import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../primitives";
 import type { ScreenRegionNode } from "../types";
+
+const SCREEN_CONTENTS_TYPE = NODE_TYPES.screenRegion[1];
 
 export type ScreenRegionProps = {
 	children?: ReactNode;
@@ -26,7 +29,7 @@ export function ScreenRegion({ children, className, node, style }: ScreenRegionP
 			style={{
 				...flexLayoutFallbackStyle(node.props.layout),
 				height: getHeight(node),
-				zIndex: node.type === "Screen.Contents" ? undefined : node.props.zIndex,
+				zIndex: node.type === SCREEN_CONTENTS_TYPE ? undefined : node.props.zIndex,
 				...style,
 			}}
 		>
@@ -36,7 +39,7 @@ export function ScreenRegion({ children, className, node, style }: ScreenRegionP
 }
 
 function getRegionClassName(node: ScreenRegionNode) {
-	if (node.type === "Screen.Contents") {
+	if (node.type === SCREEN_CONTENTS_TYPE) {
 		return cx(
 			"flex-1 min-h-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
 			node.props.scroll ? "overflow-y-auto" : "overflow-hidden",
@@ -47,17 +50,17 @@ function getRegionClassName(node: ScreenRegionNode) {
 }
 
 function getPositionClassName(node: ScreenRegionNode) {
-	if (node.type === "Screen.Contents") return undefined;
+	if (node.type === SCREEN_CONTENTS_TYPE) return undefined;
 	if (node.props.position === "sticky") return "sticky";
 	return "static";
 }
 
 function getPosition(node: ScreenRegionNode) {
-	if (node.type === "Screen.Contents") return undefined;
+	if (node.type === SCREEN_CONTENTS_TYPE) return undefined;
 	return node.props.position;
 }
 
 function getHeight(node: ScreenRegionNode) {
-	if (node.type === "Screen.Contents") return undefined;
+	if (node.type === SCREEN_CONTENTS_TYPE) return undefined;
 	return node.props.height;
 }

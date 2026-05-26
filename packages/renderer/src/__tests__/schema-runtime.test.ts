@@ -1,3 +1,4 @@
+import { errorsOf, getNodeTypeFamily, warningsOf } from "@cx/types";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -5,6 +6,7 @@ import {
 	collectRenderTreeStats,
 	findDuplicateNodeIds,
 	findFallbackRendererTypes,
+	getComponentCatalogEntry,
 	resolveDisplayWhen,
 	resolveProps,
 	validateRenderTreeFull,
@@ -105,8 +107,8 @@ describe("render tree", () => {
 	it("validates a renderable render tree", () => {
 		const result = validateRenderTreeFull(validSchema);
 
-		expect(result.success).toBe(true);
-		expect(result.errors).toEqual([]);
+		expect(result.ok).toBe(true);
+		expect(errorsOf(result)).toEqual([]);
 		expect(result.stats?.totalNodes).toBe(5);
 	});
 
@@ -142,7 +144,7 @@ describe("render tree", () => {
 		};
 
 		expect(findDuplicateNodeIds(schemaWithDuplicates)).toEqual(["hero"]);
-		expect(validateRenderTreeFull(schemaWithDuplicates).success).toBe(false);
+		expect(validateRenderTreeFull(schemaWithDuplicates).ok).toBe(false);
 	});
 
 	it("requires Screen to include Header, Contents, and Bottom regions", () => {
@@ -173,9 +175,10 @@ describe("render tree", () => {
 
 		const result = validateRenderTreeFull(invalidSchema);
 
-		expect(result.success).toBe(false);
-		expect(result.errors).toContain("Screen(screen-root) must include Screen.Header");
-		expect(result.errors).toContain("Screen(screen-root) must include Screen.Bottom");
+		expect(result.ok).toBe(false);
+		const messages = errorsOf(result).map((issue) => issue.message);
+		expect(messages).toContain("Screen(screen-root) must include Screen.Header");
+		expect(messages).toContain("Screen(screen-root) must include Screen.Bottom");
 	});
 
 	it("rejects direct non-region children under Screen", () => {
@@ -196,9 +199,9 @@ describe("render tree", () => {
 			],
 		};
 
-		const errors = validateScreenRegionContract(invalidSchema);
+		const issues = validateScreenRegionContract(invalidSchema);
 
-		expect(errors.some((error) => error.includes("direct children must be"))).toBe(true);
+		expect(issues.some((issue) => issue.message.includes("direct children must be"))).toBe(true);
 	});
 
 	it("checks registered composite types", () => {
@@ -213,16 +216,25 @@ describe("render tree", () => {
 			checkRegisteredComponents: true,
 		});
 
-		expect(result.success).toBe(true);
+		expect(result.ok).toBe(true);
 	});
 
 	it("reports fallback renderer coverage without failing by default", () => {
 		const result = validateRenderTreeFull(validSchema);
 
-		expect(result.success).toBe(true);
-		expect(result.warnings).toContain("Missing renderer mapping for node types: HeroSection");
+		expect(result.ok).toBe(true);
+		expect(warningsOf(result).map((i) => i.message)).toContain(
+			"Missing renderer mapping for node types: HeroSection",
+		);
 		expect(findFallbackRendererTypes(validSchema)).toEqual(["HeroSection"]);
 		expect(collectRenderTreeStats(validSchema).fallbackTypes).toEqual(["HeroSection"]);
+	});
+
+	it("keeps structural node types separate from component catalog types", () => {
+		expect(getNodeTypeFamily("screen.page")).toBe("screen-surface");
+		expect(getNodeTypeFamily("area.static")).toBe("area");
+		expect(getNodeTypeFamily("accordion")).toBe("component");
+		expect(getComponentCatalogEntry("accordion")?.type).toBe("Accordion");
 	});
 
 	it("can fail on fallback renderer coverage when strict", () => {
@@ -230,8 +242,10 @@ describe("render tree", () => {
 			strictRendererCoverage: true,
 		});
 
-		expect(result.success).toBe(false);
-		expect(result.errors).toContain("Missing renderer mapping for node types: HeroSection");
+		expect(result.ok).toBe(false);
+		expect(errorsOf(result).map((i) => i.message)).toContain(
+			"Missing renderer mapping for node types: HeroSection",
+		);
 	});
 
 	it("checks renderer version compatibility", () => {
@@ -242,7 +256,9 @@ describe("render tree", () => {
 
 		const result = validateRenderTreeFull(futureSchema);
 
-		expect(result.success).toBe(false);
-		expect(result.errors).toContain("Renderer 0.1.0 does not satisfy minRendererVersion 99.0.0");
+		expect(result.ok).toBe(false);
+		expect(errorsOf(result).map((i) => i.message)).toContain(
+			"Renderer 0.1.0 does not satisfy minRendererVersion 99.0.0",
+		);
 	});
 });

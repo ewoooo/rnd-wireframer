@@ -139,15 +139,34 @@ export const componentCatalog = {
 			children: { type: "string", role: "content", required: true },
 		},
 	},
-	CheckboxText: {
-		type: "CheckboxText",
-		kind: "list-cell",
-		source: "react-component",
+	Accordion: {
+		type: "Accordion",
+		kind: "accordion",
+		source: "renderer-composite",
 		version: "1.0.0",
-		aliases: ["Checkbox", "checkbox"],
+		aliases: ["accordion"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			description: { type: "string", role: "description" },
+			expanded: { type: "boolean", role: "state", defaultValue: false },
+		},
+	},
+	Checkbox: {
+		type: "Checkbox",
+		kind: "checkbox",
+		source: "renderer-composite",
+		version: "1.0.0",
+		description: "Checkbox item rendered through @cx/components ListSelected checkbox mode.",
+		aliases: ["checkbox"],
 		props: {
 			label: { type: "string", role: "label", required: true },
 			checked: { type: "boolean", role: "state", defaultValue: false },
+			variant: {
+				type: "enum",
+				role: "styleVariant",
+				values: ["small", "medium"],
+				defaultValue: "medium",
+			},
 		},
 	},
 	Chip: {

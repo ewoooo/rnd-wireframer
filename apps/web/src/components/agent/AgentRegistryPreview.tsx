@@ -3,7 +3,7 @@ import type {
 	RegisteredNodeTree,
 	RegisteredAreaNode,
 	RegisteredScreenNode,
-} from "@cx/agent";
+} from "@cx/agent/types";
 import { Database } from "lucide-react";
 import type { AgentNodeSelection, SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
