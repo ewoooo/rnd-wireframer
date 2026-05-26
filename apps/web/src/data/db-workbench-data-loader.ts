@@ -168,6 +168,7 @@ export async function loadDbWorkbenchData() {
 	return {
 		screens: processedScreens,
 		organisms: organismCatalog,
+		rendererKinds: (kindRows ?? []).map((r) => ({ type: r.type, kind: r.kind as WireframeNodeKind })),
 	};
 }
 

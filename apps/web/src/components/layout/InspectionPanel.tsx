@@ -1,9 +1,10 @@
 import type { WireframeNode } from "@cx/renderer";
-import { GripVertical, Workflow } from "lucide-react";
-import { useState } from "react";
+import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
+import { useState, useTransition } from "react";
+import { cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import type { SelectedCompositeContext, SelectedOrganismContext } from "@/model/store";
@@ -24,49 +25,28 @@ export function InspectionPanel() {
 	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
 	const reorderScreenOrganisms = useWorkbenchStore((state) => state.reorderScreenOrganisms);
 
-	if (activeTab === "agent") {
-		return (
-			<Sidebar side="right">
-				<SidebarHeader className="border-b border-sidebar-border">
-					<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-						<Workflow data-icon="inline-start" />
-						Agent
-					</h2>
-				</SidebarHeader>
-				<SidebarContent>
-					<ScrollArea className="h-[calc(100vh-88px)]">
-						<AgentRegistryInspection
-							registry={agentRegistry}
-							selectedAsset={selectedAgentAsset}
-							warnings={agentWarnings}
-						/>
-					</ScrollArea>
-				</SidebarContent>
-			</Sidebar>
-		);
-	}
-
-	if (!screen) {
-		return (
-			<Sidebar side="right">
-				<SidebarHeader>
-					<h2 className="text-base font-semibold leading-none tracking-normal">관련 정보</h2>
-				</SidebarHeader>
-			</Sidebar>
-		);
-	}
+	const title = activeTab === "agent" ? "Agent" : "Information";
 
 	return (
 		<Sidebar side="right">
 			<SidebarHeader className="border-b border-sidebar-border">
 				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
 					<Workflow data-icon="inline-start" />
-					Information
+					{title}
 				</h2>
 			</SidebarHeader>
-			<SidebarContent>
-				<ScrollArea className="h-[calc(100vh-88px)]">
-					<div className="flex flex-col gap-4 pr-3">
+			<SidebarContent className="p-3">
+				{activeTab === "agent" ? (
+					<AgentRegistryInspection
+						registry={agentRegistry}
+						selectedAsset={selectedAgentAsset}
+						warnings={agentWarnings}
+					/>
+				) : !screen ? (
+					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
+				) : (
+					<div className="flex flex-col gap-4">
+						<ScreenActions screenCode={screen.code} screenName={screen.name} screenData={screen.schema.data} />
 						<div className="flex flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
@@ -123,7 +103,7 @@ export function InspectionPanel() {
 							)}
 						</div>
 					</div>
-				</ScrollArea>
+				)}
 			</SidebarContent>
 		</Sidebar>
 	);
@@ -308,6 +288,157 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 		<div className="flex items-center justify-between gap-3 rounded-lg border bg-background p-3">
 			<span className="text-xs text-muted-foreground">{label}</span>
 			<span className="truncate text-sm font-medium">{value}</span>
+		</div>
+	);
+}
+
+function ScreenActions({ screenCode, screenName, screenData }: { screenCode: string; screenName: string; screenData: unknown }) {
+	const [isPending, startTransition] = useTransition();
+	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+	const [message, setMessage] = useState("");
+	const [editingTitle, setEditingTitle] = useState(false);
+	const [title, setTitle] = useState(screenName);
+	const [confirmDelete, setConfirmDelete] = useState(false);
+
+	function handleSave() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await updateScreenRegions(screenCode, screenData);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("저장 완료");
+			}
+		});
+	}
+
+	function handleClone() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await cloneScreen(screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage(`복제 완료 → ${result.newScreenId}`);
+			}
+		});
+	}
+
+	function handleSaveTitle() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await updateScreenTitle(screenCode, title);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("저장 완료");
+				setEditingTitle(false);
+			}
+		});
+	}
+
+	function handleDelete() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await deleteScreen(screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("삭제 완료");
+			}
+			setConfirmDelete(false);
+		});
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
+			<div className="flex items-center justify-between gap-2">
+				<span className="text-xs font-semibold text-muted-foreground">화면 작업</span>
+				<div className="flex gap-1">
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						disabled={isPending}
+						onClick={handleSave}
+					>
+						<Save className="mr-1 size-3" />
+						{isPending ? "저장 중..." : "저장"}
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						disabled={isPending}
+						onClick={handleClone}
+					>
+						<Copy className="mr-1 size-3" />
+						{isPending ? "복제 중..." : "복제"}
+					</Button>
+					{confirmDelete ? (
+						<>
+							<Button type="button" size="sm" variant="destructive" disabled={isPending} onClick={handleDelete}>
+								{isPending ? "삭제 중..." : "확인"}
+							</Button>
+							<Button type="button" size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+								취소
+							</Button>
+						</>
+					) : (
+						<Button
+							type="button"
+							size="sm"
+							variant="ghost"
+							className="text-destructive hover:text-destructive"
+							disabled={isPending}
+							onClick={() => setConfirmDelete(true)}
+						>
+							<Trash2 className="mr-1 size-3" />
+							삭제
+						</Button>
+					)}
+				</div>
+			</div>
+			{editingTitle ? (
+				<div className="flex gap-2">
+					<input
+						className="flex-1 rounded-md border bg-background px-2 py-1 text-sm"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && handleSaveTitle()}
+					/>
+					<Button type="button" size="sm" disabled={isPending} onClick={handleSaveTitle}>
+						{isPending ? "저장 중..." : "저장"}
+					</Button>
+					<Button type="button" size="sm" variant="ghost" onClick={() => setEditingTitle(false)}>
+						취소
+					</Button>
+				</div>
+			) : (
+				<button
+					type="button"
+					className="text-left text-xs text-muted-foreground underline-offset-2 hover:underline"
+					onClick={() => { setTitle(screenName); setEditingTitle(true); }}
+				>
+					제목 편집
+				</button>
+			)}
+			{confirmDelete && (
+				<p className="text-xs text-destructive">이 화면을 삭제할까요? 되돌릴 수 없습니다.</p>
+			)}
+			{status !== "idle" && (
+				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
+					{message}
+				</p>
+			)}
 		</div>
 	);
 }
