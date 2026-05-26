@@ -1,0 +1,19 @@
+{
+	"patterns": [
+		{
+			"id": "screen-shell",
+			"target": "screen",
+			"name": "화면 셸",
+			"description": "Screen 아래 Header, Contents, Bottom region을 갖는 기본 page shell 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"keywords": ["screen", "shell", "page"],
+				"priority": 100
+			}
+		}
+	]
+}

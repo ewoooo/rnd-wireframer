@@ -1,4 +1,3 @@
-import { loadPatternStore } from "@cx/agent/pattern-store";
 import {
 	type RenderTree,
 	type RenderTreeNode,
@@ -6,10 +5,17 @@ import {
 	type RenderTreeTableAreaRow,
 	type RenderTreeTableComponentRow,
 	type RenderTreeTableScreenRow,
-	type RenderTreeValidationStats,
 	tablesToRenderTrees,
 	validateRenderTreeFull,
 } from "@cx/renderer";
+import {
+	errorsOf,
+	getNodeTypeFamily,
+	isAreaType,
+	NODE_TYPES,
+	type ValidationStats as RenderTreeValidationStats,
+	warningsOf,
+} from "@cx/types";
 import {
 	type AppComponent,
 	type DatabaseScreenRouteSet,
@@ -17,11 +23,14 @@ import {
 	type DatabaseScreenVariantSet,
 	validateDatabaseScreenSource,
 } from "@/adapters/tables-to-render-tree";
+import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import areasTable from "../../../../database/tables/areas.json";
 import componentsTable from "../../../../database/tables/components.json";
 import screenRoutesTable from "../../../../database/tables/screen_routes.json";
 import screenVariantsTable from "../../../../database/tables/screen_variants.json";
 import screensTable from "../../../../database/tables/screens.json";
+
+const NON_COMPONENT_TYPES = new Set<string>(["Divider"]);
 
 type RenderTreeScreenSet = {
 	screens: RenderTree[];
@@ -35,7 +44,7 @@ const screenRouteSet = screenRoutesTable as unknown as DatabaseScreenRouteSet;
 const screenVariantSet = screenVariantsTable as unknown as DatabaseScreenVariantSet;
 const componentTableSet = componentsTable as unknown as ComponentTableSet;
 const areas = (areasTable as unknown as { areas: RenderTreeTableAreaRow[] }).areas;
-const patternStore = loadPatternStore();
+const patternStore = loadPatternStoreForWorkbench();
 const areaById = new Map(areas.map((area) => [area.id, area]));
 const componentById = new Map(
 	componentTableSet.components.map((component) => [component.id, component]),
@@ -120,7 +129,7 @@ export function getWorkbenchScreenNode(
 	areaOrderOverrides: Record<string, string[]> = {},
 ) {
 	const schema = getWorkbenchRenderTree(screenCode, areaOrderOverrides);
-	return schema?.children.find((node) => node.type === "Screen") as
+	return schema?.children.find((node) => node.type === NODE_TYPES.screenRoot[0]) as
 		| RenderTreeScreenNode
 		| undefined;
 }
@@ -144,11 +153,11 @@ export function getWorkbenchValidationStatus(screenCode: string): WorkbenchValid
 	const validation = validateRenderTreeFull(schema);
 	const errors = [
 		...screen.sourceValidationErrors,
-		...validation.errors.map((error) => `render tree: ${error}`),
+		...errorsOf(validation).map((issue) => `render tree: ${issue.message}`),
 	];
 	const warnings = [
 		...screen.warnings,
-		...validation.warnings.map((warning) => `render tree: ${warning}`),
+		...warningsOf(validation).map((issue) => `render tree: ${issue.message}`),
 	];
 
 	return {
@@ -422,19 +431,12 @@ function forEachNode(nodes: RenderTreeNode[], callback: (node: RenderTreeNode) =
 }
 
 function isAreaNode(node: RenderTreeNode) {
-	return node.type === "area.static" || node.type === "area.dynamic" || node.type === "Area";
+	return isAreaType(node.type);
 }
 
 function isComponentNode(node: RenderTreeNode) {
-	if (node.type === "Screen") return false;
-	if (node.type === "Screen.Header") return false;
-	if (node.type === "Screen.Contents") return false;
-	if (node.type === "Screen.Bottom") return false;
-	if (node.type === "Layout.Flex") return false;
-	if (node.type === "Layout.Grid") return false;
-	if (node.type === "PageStack") return false;
-	if (node.type === "Divider") return false;
-	return !isAreaNode(node);
+	if (NON_COMPONENT_TYPES.has(node.type)) return false;
+	return getNodeTypeFamily(node.type) === "component";
 }
 
 function forEachComponentNode(
@@ -488,7 +490,7 @@ function findComponentNode(
 function reorderRenderTreeAreas(schema: RenderTree, areaCodes: string[]): RenderTree {
 	const nextSchema = cloneSchema(schema);
 	const screenNode = getWorkbenchScreenNodeFromSchema(nextSchema);
-	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
+	const contentsNode = screenNode?.children.find((node) => node.type === NODE_TYPES.screenRegion[1]);
 
 	if (contentsNode?.children) {
 		contentsNode.children = reorderAreaContainers(contentsNode.children, areaCodes);
@@ -498,7 +500,9 @@ function reorderRenderTreeAreas(schema: RenderTree, areaCodes: string[]): Render
 }
 
 function getWorkbenchScreenNodeFromSchema(schema: RenderTree) {
-	return schema.children.find((node) => node.type === "Screen") as RenderTreeScreenNode | undefined;
+	return schema.children.find((node) => node.type === NODE_TYPES.screenRoot[0]) as
+		| RenderTreeScreenNode
+		| undefined;
 }
 
 function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {

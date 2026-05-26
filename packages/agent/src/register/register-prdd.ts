@@ -1,3 +1,4 @@
+import { NODE_TYPES } from "@cx/types";
 import type {
 	RegisteredAreaChildRef,
 	RegisteredAreaNode,
@@ -22,7 +23,7 @@ const HEADER_REQUIRED_BY_SCREEN_TYPE: Record<ScreenSurfaceType, boolean> = {
 
 /** 향후 PRDD frontmatter "구현 유형" 등으로 결정 가능. 지금은 단일 기본값. */
 function decideScreenType(_parsed: ParsedPrddDocument): ScreenSurfaceType {
-	return "screen.page";
+	return NODE_TYPES.screenSurface[0];
 }
 
 /**

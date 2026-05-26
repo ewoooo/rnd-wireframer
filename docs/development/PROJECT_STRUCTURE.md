@@ -55,6 +55,7 @@ packages/agent/src/
   register/    원천 입력을 GeneratedNodeTree/RegisteredNodeTree 계약으로 등록
   compose/     raw content를 ComposedNodeTree의 props/hooks 후보로 합성
   decorate/    pattern-store 기반 layout 결정 메타 부착
+  design-review/  docs/design 근거 기반 디자인 품질 patch 생성/적용
   pattern/     pattern schema, store loader, resolver
   database/    database/tables row shape materialize
   runtime/     Agent SDK 실행 adapter
@@ -62,7 +63,7 @@ packages/agent/src/
   index.ts
 ```
 
-`GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 흐름을 기본 계약으로 유지한다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다.
+`GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 흐름을 기본 계약으로 유지한다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다. Design Review는 `docs/design/` 근거 문서가 붙은 제한 operation patch만 적용한다.
 
 ## 4.1 `packages/types` 구조
 
@@ -98,10 +99,10 @@ database/
 ```
 
 `database/client-imports`는 원천 import 보관소다. parser나 AI 보정 단계가 원본을 덮어쓰지 않는다.
-`database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.db-tables.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
+`database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.materialized.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
 `database/tables`는 승인된 소비 데이터만 둔다. agent pipeline과 parser는 이 디렉토리를 직접 덮어쓰지 않고 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계에서만 반영한다.
-`database/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이며, screen 자체를 분류하지 않는다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
-`database/ai-imports`의 deterministic parser 산출물은 `client-import.parsed.json`, `client-import.validation.json`, `client-import.db-tables.json` 이름을 사용한다. Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.db-tables.json` 이름을 사용한다.
+`database/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `screen`, `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이다. 단, `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 pattern-store가 아니라 deterministic code와 `database/tables` 계약이 담당한다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
+`database/ai-imports`의 deterministic parser 산출물은 `client-import.parsed.json`, `client-import.validation.json`, `client-import.materialized.json` 이름을 사용한다. Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용한다.
 
 ## 7. 변경 기준
 

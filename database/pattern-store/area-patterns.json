@@ -115,6 +115,53 @@
 				"keywords": ["message", "status", "안내", "상태"],
 				"priority": 60
 			}
+		},
+		{
+			"id": "action-stack",
+			"target": "area",
+			"name": "액션 스택",
+			"description": "Area children을 일반 액션 묶음으로 세로 배치하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 12,
+				"layoutProps": {
+					"flow": "vertical",
+					"titleGap": 0,
+					"componentGap": 12
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["button"]
+				},
+				"keywords": ["action", "button", "cta", "버튼", "액션"],
+				"priority": 75
+			}
+		},
+		{
+			"id": "bottom-action-area",
+			"target": "area",
+			"name": "하단 액션 영역",
+			"description": "Screen Bottom region에 고정되는 주요 CTA 액션을 배치하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 12,
+				"paddingY": 0,
+				"layoutProps": {
+					"flow": "vertical",
+					"titleGap": 0,
+					"componentGap": 12
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["button"]
+				},
+				"keywords": ["bottom", "action", "cta", "하단", "다음", "확인"],
+				"priority": 95
+			}
 		}
 	]
 }

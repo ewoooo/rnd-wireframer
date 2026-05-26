@@ -1,7 +1,8 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { loadPatternStore } from "@cx/agent/pattern-store";
 import { promoteDatabaseTablesCandidate } from "@cx/agent/promote-database-tables";
+import { errorsOf, warningsOf } from "@cx/types";
+import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { getDatabaseDir } from "@/server/database-paths";
 
 const DATABASE_DIR = getDatabaseDir();
@@ -22,24 +23,27 @@ export async function promoteAiImportCandidate({
 	const candidatePath = path.join(AI_IMPORTS_DIR, candidateFile);
 	const candidate = JSON.parse(await readFile(candidatePath, "utf8")) as unknown;
 	const result = promoteDatabaseTablesCandidate(candidate, {
-		patternStore: loadPatternStore(),
+		patternStore: loadPatternStoreForWorkbench(),
 	});
 
-	if (!result.success || !result.files) {
+	const errors = errorsOf(result).map((issue) => issue.message);
+	const warnings = warningsOf(result).map((issue) => issue.message);
+
+	if (!result.ok || !result.data) {
 		return {
 			candidateFile,
 			dryRun,
-			errors: result.errors,
+			errors,
 			promoted: false,
-			warnings: result.warnings,
+			warnings,
 			writtenFiles: [],
 		};
 	}
 
-	const writtenFiles = Object.keys(result.files).sort();
+	const writtenFiles = Object.keys(result.data).sort();
 	if (!dryRun) {
 		await mkdir(TABLES_DIR, { recursive: true });
-		for (const [fileName, payload] of Object.entries(result.files)) {
+		for (const [fileName, payload] of Object.entries(result.data)) {
 			await writeFile(
 				path.join(TABLES_DIR, fileName),
 				`${JSON.stringify(payload, null, "\t")}\n`,
@@ -53,14 +57,14 @@ export async function promoteAiImportCandidate({
 		dryRun,
 		errors: [],
 		promoted: !dryRun,
-		warnings: result.warnings,
+		warnings,
 		writtenFiles,
 	};
 }
 
 function assertValidCandidateFile(candidateFile: string) {
-	if (!/^[a-z0-9][a-z0-9._-]*\.db-tables\.json$/i.test(candidateFile)) {
-		throw new PromoteAiImportError("candidateFile must be a *.db-tables.json file name.", 400);
+	if (!/^[a-z0-9][a-z0-9._-]*\.materialized\.json$/i.test(candidateFile)) {
+		throw new PromoteAiImportError("candidateFile must be a *.materialized.json file name.", 400);
 	}
 	if (candidateFile.includes("/") || candidateFile.includes("\\")) {
 		throw new PromoteAiImportError("candidateFile must not include path separators.", 400);

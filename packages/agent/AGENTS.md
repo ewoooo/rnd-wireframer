@@ -4,22 +4,24 @@
 
 `packages/agent`는 AI가 만든 결과를 바로 신뢰하지 않고, 코드가 정규화하고 검증 가능한 구조로 넘기는 중간 계층이다.
 
-담당 범위는 4단계 파이프라인으로 분리한다. 각 단계의 한 줄 정의:
+담당 범위는 5단계 파이프라인으로 분리한다. 각 단계의 한 줄 정의:
 
 - **Register**: Parse user input into canonical `RegisteredNodeTree`. (구조 추출: route/variant/screen/area/component 골격, 참조 해소, 누락 warning)
 - **Composer**: Place props, hooks and data binding candidates into `ComposedNodeTree`. (콘텐츠 채움: label, title, placeholder, helperText, hook)
 - **Decorator**: Match content layout patterns from pattern-store into `DecoratedNodeTree`. (콘텐츠/OGN pattern 매칭, layout recipe 결정)
-- **DB transformer**: Materialize decorator decisions and content into `database/tables` row shape.
+- **Design Review**: Review decorated tree with `docs/design/` references and apply limited patch operations. (CTA 승격, pattern 보정, 새 component/composite 제안, display 보정)
+- **DB transformer**: Materialize reviewed decorator decisions and content into `database/tables` row shape.
 
 ```text
 md (client-imports)
   -> [Register]   GeneratedNodeTree 생성 + RegisteredNodeTree 정규화 + raw 셀 보존
   -> [Composer]   RegisteredNodeTree → ComposedNodeTree, raw → props/hooks 매핑 (markdown 직접 안 읽음)
   -> [Decorator]  ComposedNodeTree → DecoratedNodeTree, pattern-store 조회 후 layout pattern 메타 부착
-  -> [DB]         DecoratedNodeTree → MaterializedDatabaseNodeTables 생성
+  -> [Review]     DecoratedNodeTree → DesignReview patch → ReviewedDecoratedNodeTree 생성
+  -> [DB]         ReviewedDecoratedNodeTree → MaterializedNodeTree 생성
 ```
 
-**단계 내부는 두 패스로 구성한다**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 빠르고 비용 0인 안전한 기본값을 만들고, (2)가 (1)이 놓친 부분을 보강한다. (1) 산출물이 (2)의 입력이자 평가 기준이 된다. Decorator의 (2) 패스는 marketplace(Vendor↔Consumer) 협상으로 진행할 예정 (설계 진행 중, 현재는 rule-based resolver만 운용).
+**단계 내부는 두 패스로 구성한다**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 빠르고 비용 0인 안전한 기본값을 만들고, (2)가 (1)이 놓친 부분을 보강한다. (1) 산출물이 (2)의 입력이자 평가 기준이 된다. Decorator는 현재 rule-based resolver를 운용하고, Design Review AI는 `docs/design/` 근거 문서가 붙은 제한 operation patch만 제안한다.
 
 **외부 의존 경계**: markdown 파싱은 오직 Register에서만 일어난다. Composer는 Register가 박은 `component.raw`와 `@cx/renderer`의 `component-catalog`만 읽는다. Screen 설명은 정규 `screen.description` 필드에 둔다.
 
@@ -30,6 +32,7 @@ md (client-imports)
 - 누락 참조 warning 생성
 - component props/hooks 합성 (deterministic 추출 + AI 보강)
 - pattern decoration (콘텐츠/OGN 레이아웃 한정)
+- design review patch 생성/적용 (디자인 문서 근거 필수)
 - `database/tables` 계약에 가까운 table row 변환
 - Agent SDK 실행을 위한 얇은 adapter
 
@@ -60,6 +63,11 @@ packages/agent/
       register-assets-to-database-tables.ts
     decorate/
       decorate-assets.ts
+    design-review/
+      apply-design-review.ts
+      design-review-schema.ts
+      review-design-tree.ts
+      index.ts
     index.ts
     pattern/
       pattern-resolver.ts
@@ -85,8 +93,9 @@ packages/agent/
 | `compose/compose-assets.ts` | **Composer 단계.** Register 산출물의 `component.raw`를 읽어서 `component.props`와 `component.hooks`를 채운다 (markdown을 직접 읽지 않음). `routes`, `variants`, `screens`는 flat 배열과 `children` 참조로 풀고, screen children은 `header`, `contents`, `bottom` region으로 나눈다. composed 산출물에는 raw와 pending placeholder를 남기지 않는다. 스타일/layout/chrome은 다루지 않는다. |
 | `compose/compose-assets-ai.ts` | Composer gap에 한정된 AI 보강만 수행한다. 레이아웃 pattern 선택이나 DB row materialize는 하지 않는다. |
 | `decorate/decorate-assets.ts` | **Decorator 단계.** 콘텐츠/OGN 레이아웃 전담: pattern-store에서 content layout pattern 메타를 매칭한다. Screen shell, chrome, 콘텐츠 props는 손대지 않는다. pattern 추론은 교체 가능한 resolver로 유지한다. |
+| `design-review/*` | **Design Review 단계.** `DecoratedNodeTree` 이후 디자인 품질을 검수한다. `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` 같은 제한 operation만 허용하고, 모든 finding/operation은 `docs/design/`의 책임 문서를 `designReferences`로 인용해야 한다. 판단값은 `design-review-contracts.ts`와 `database/pattern-store`에 둔다. 전체 tree 재생성이나 RenderTree 직접 생성은 하지 않는다. |
 | `pattern/*` | pattern schema/store/resolver를 함께 둔다. pattern은 children 배치 layout preset이며 screen shell 분류가 아니다. |
-| `database/register-assets-to-database-tables.ts` | **DB transformer 단계.** `DecoratedNodeTree`를 `MaterializedDatabaseNodeTables` row로 materialize한다. Screen shell과 regions.children은 코드 계약으로 생성한다. 새 decoration 결정이나 새 콘텐츠 합성은 하지 않는다. |
+| `database/register-assets-to-database-tables.ts` | **DB transformer 단계.** reviewed `DecoratedNodeTree`를 `MaterializedNodeTree` row로 materialize한다. Screen shell과 regions.children은 코드 계약으로 생성한다. 새 decoration 결정이나 새 콘텐츠 합성은 하지 않는다. |
 | `types.ts` | 외부 패키지가 import하는 `GeneratedNodeTree`, `RegisteredNodeTree`, `ComposedNodeTree`, `DecoratedNodeTree`, `NodeHook` 계약 타입을 둔다. |
 | `index.ts` | 브라우저 번들에서도 안전한 deterministic 공개 surface만 모은다. Agent SDK나 로컬 Claude처럼 Node.js 전용 의존성을 가진 파일은 루트에서 export하지 않고 subpath export로만 사용한다. |
 
@@ -97,8 +106,9 @@ packages/agent/
 - AI가 만든 결과는 항상 deterministic 함수와 renderer validation을 통과하는 후속 흐름을 전제로 한다.
 - `useMemo`와 `useCallback`은 이 패키지에서 사용할 일이 없다. React 의존성을 추가하지 않는다.
 - Agent SDK의 모델명, 세션 재개, fallback 정책은 하드코딩을 피하고 후속 runner 옵션으로 분리한다.
+- Design Review의 CTA 판정, operation dispatch, placement 처리, synthetic area 생성 규칙은 코드 내부 조건문이 아니라 contract table과 pattern-store reference로 표현한다.
 - decorator/resolver는 variant 단위로 결정한다. 1 variant = 메인 화면 1 + 엣지 화면 N이고 엣지는 메인의 상태 변형이라 동일 layout pattern을 공유한다. screen마다 resolver를 다시 호출하면 동일한 결정을 N+1번 반복하게 되고, AI fallback이 붙으면 비용이 5배까지 늘어난다. 엣지가 메인과 다른 pattern을 써야 하는 케이스가 생기면 그 시점에 예외 정책을 추가한다.
-- 단계 책임을 섞지 않는다. "콘텐츠인가 스타일인가"가 1차 분기 기준이다. Composer는 props 값만, Decorator는 시각 결정만 다룬다. Decorator의 AI fallback은 "visual pattern 선택"에만 사용하고, 콘텐츠 합성에는 Composer 쪽 AI 보강을 사용한다.
+- 단계 책임을 섞지 않는다. "콘텐츠인가 스타일인가"가 1차 분기 기준이다. Composer는 props 값만, Decorator는 pattern-store 기반 layout recipe를 다룬다. Design Review는 문서 근거가 필요한 디자인 품질 patch만 다루고, 콘텐츠 합성에는 Composer 쪽 AI 보강을 사용한다.
 - 앱 클라이언트 컴포넌트가 `@cx/agent` 루트를 import할 수 있으므로, 루트 export에는 `node:*`, `fs`, `async_hooks`, Agent SDK 같은 Node 전용 의존성이 흘러들지 않게 한다.
 
 ## 완료 기준

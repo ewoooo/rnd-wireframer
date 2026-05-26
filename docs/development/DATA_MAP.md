@@ -21,7 +21,7 @@
 생명 주기 강제 규칙:
 
 - `database/client-imports`는 업로드 원본 보관소다. 원본을 수정해 정규화하지 않는다.
-- `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.db-tables.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
+- `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.materialized.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
 - `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
 - `database/pattern-store`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
@@ -49,7 +49,9 @@ AI import 데이터
   ├─ agent-assets.registered.json  (RegisteredNodeTree, Register 결과)
   ├─ agent-assets.composed.json    (ComposedNodeTree, Composer 결과)
   ├─ agent-assets.decorated.json   (DecoratedNodeTree, Decorator 결과)
-  └─ agent-assets.db-tables.json   (MaterializedDatabaseNodeTables, DB 변환 결과)
+  ├─ agent-assets.design-review.json   (DesignReview patch/report)
+  ├─ agent-assets.reviewed.json   (DesignReview patch 적용 DecoratedNodeTree)
+  └─ agent-assets.materialized.json   (MaterializedNodeTree, DB 변환 결과)
         |
         v
 promote / import
@@ -86,7 +88,7 @@ apps/web
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
-| `database/pattern-store/*.json` | region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
+| `database/pattern-store/*.json` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
@@ -101,6 +103,8 @@ apps/web
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
+
+Design Review 단계는 DecoratedNodeTree 이후 디자인 품질을 보정하는 patch 단계다. `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` 같은 제한된 operation만 제안할 수 있으며, 각 finding/operation은 반드시 [docs/design](/Users/plusx/Documents/rnd-screen-generator/docs/design)의 책임 문서를 `designReferences`로 인용해야 한다. AI는 tree 전체를 재생성하지 않고 Design Review patch만 제안하며, deterministic code가 patch를 적용하고 검증한다.
 
 ## 4. 소비 데이터
 
@@ -198,10 +202,22 @@ screenRoute
 | `minRendererVersion` | 최소 renderer version |
 | `metadata` | `@cx/renderer` schema metadata |
 | `pattern.id` | 공급 pattern 참조 |
-| `screen.type` | 현재 table dump에서는 `page`, `bottomsheet`, `popup` 중 하나 |
+| `screen.type` | 화면 surface. `screen.page`, `screen.bottomSheet`, `screen.popup` 중 하나 |
 | `screen.regions.header` | `Screen.Header` region |
 | `screen.regions.contents` | `Screen.Contents` region |
 | `screen.regions.bottom` | `Screen.Bottom` region |
+
+node type 용어는 아래 축으로 분리한다.
+
+| 축 | 예시 | 소유자 | 의미 |
+|---|---|---|---|
+| screen surface | `screen.page`, `screen.bottomSheet`, `screen.popup` | `screens[].screen.type` | 화면 표시 형태. RenderTree node type이 아니다. |
+| screen region | `Screen.Header`, `Screen.Contents`, `Screen.Bottom` | `screens[].screen.regions.*.type` | RenderTree의 3분할 region node type이다. |
+| area behavior | `area.static`, `area.dynamic` | `areas[].type` | OGN 섹션의 노출/상태 동작이다. |
+| layout/wrapper | `Layout.Flex`, `Layout.Grid`, `PageStack` | `@cx/renderer` projection | pattern이 materialize하는 구조 node type이다. |
+| component | `Accordion`, `ListCell`, `TextField`, `accordion` alias | `components[].type`, `component-catalog` | 실제 render component 또는 renderer composite 타입이다. |
+
+따라서 `*.page`와 `*.static` 같은 namespace type은 데이터 구조/동작 축이고, `Accordion`/`accordion`은 component catalog 축이다. 새 타입을 추가할 때는 같은 `type` 문자열을 재사용하더라도 먼저 어느 축의 계약인지 정한다.
 
 시스템 상태 영역(StatusBar/SystemHeader)은 소비 데이터의 region child로 넣지 않는다. 모바일 프리뷰에서 항상 필요한 화면 chrome이므로 `@cx/layout`의 `AppScreen`이 자동으로 렌더링한다.
 

@@ -1,10 +1,11 @@
+import { errorsOf } from "@cx/types";
 import { describe, expect, it } from "vitest";
 import { promoteDatabaseTablesCandidate } from "../database/promote-database-tables";
-import type { MaterializedDatabaseNodeTables } from "../database/register-assets-to-database-tables";
+import type { MaterializedNodeTree } from "../database/register-assets-to-database-tables";
 
 const timestamp = "2026-05-26T00:00:00.000Z";
 
-const candidate: MaterializedDatabaseNodeTables = {
+const candidate: MaterializedNodeTree = {
 	screenRoutes: [
 		{
 			id: "route-main",
@@ -98,16 +99,16 @@ describe("promoteDatabaseTablesCandidate", () => {
 	it("wraps a valid candidate into database/tables file payloads", () => {
 		const result = promoteDatabaseTablesCandidate(candidate);
 
-		expect(result.success).toBe(true);
-		expect(result.errors).toEqual([]);
-		expect(result.files?.["screens.json"].screens).toHaveLength(1);
-		expect(result.files?.["areas.json"].areas[0]?.id).toBe("area-main");
+		expect(result.ok).toBe(true);
+		expect(errorsOf(result)).toEqual([]);
+		expect(result.data?.["screens.json"].screens).toHaveLength(1);
+		expect(result.data?.["areas.json"].areas[0]?.id).toBe("area-main");
 	});
 
 	it("blocks candidates with missing references", () => {
 		const area = candidate.areas[0];
 		if (!area) throw new Error("test candidate requires one area");
-		const broken: MaterializedDatabaseNodeTables = {
+		const broken: MaterializedNodeTree = {
 			...candidate,
 			areas: [
 				{
@@ -119,8 +120,10 @@ describe("promoteDatabaseTablesCandidate", () => {
 
 		const result = promoteDatabaseTablesCandidate(broken);
 
-		expect(result.success).toBe(false);
-		expect(result.errors).toContain("area-main: missing component missing-component");
-		expect(result.files).toBeUndefined();
+		expect(result.ok).toBe(false);
+		expect(errorsOf(result).map((i) => i.message)).toContain(
+			"area-main: missing component missing-component",
+		);
+		expect(result.data).toBeUndefined();
 	});
 });

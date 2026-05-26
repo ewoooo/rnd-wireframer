@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { composeAssetContents } from "../compose/compose-assets";
+import { materializeDecoratedAssetsToNodeTree } from "../database/register-assets-to-database-tables";
 import { decorateRegisteredAssets } from "../decorate/decorate-assets";
 import { createPatternResolver } from "../pattern/pattern-resolver";
 import { registerAssets } from "../register/register-assets";
@@ -119,6 +120,71 @@ describe("@cx/agent asset pipeline", () => {
 			"accordion-term-detail",
 		]);
 		expect(input.routes[0].variants[0].screens[0].areas[0].areaId).toBe("ogn-mbr-term-agree");
+	});
+
+	it("collapses duplicate component ids before downstream materialization", () => {
+		const registry = registerAssets({
+			routes: [
+				{
+					id: "mbr-join",
+					variants: [
+						{
+							id: "base",
+							screens: [{ id: "screen-main", areas: [{ areaId: "area-main" }] }],
+						},
+					],
+				},
+			],
+			areas: [
+				{
+					id: "area-main",
+					children: [{ componentId: "button-next" }],
+				},
+			],
+			components: [
+				{ id: "button-next", name: "old", order: 1, type: "button" },
+				{ id: "button-next", name: "latest", order: 2, type: "button" },
+			],
+		});
+
+		expect(registry.components).toHaveLength(1);
+		expect(registry.components[0]?.name).toBe("latest");
+		expect(registry.areas[0]?.children[0]?.component?.name).toBe("latest");
+		expect(registry.warnings).toContain("Duplicate component id collapsed: button-next");
+	});
+
+	it("collapses duplicate component rows during materialization", () => {
+		const materialized = materializeDecoratedAssetsToNodeTree({
+			routes: [],
+			variants: [],
+			screens: [],
+			areas: [],
+			components: [
+				{
+					id: "button-next",
+					name: "old",
+					order: 1,
+					type: "button",
+					props: { label: "old" },
+					pattern: { id: "component-button", variant: "default" },
+				},
+				{
+					id: "button-next",
+					name: "latest",
+					order: 2,
+					type: "button",
+					props: { label: "latest" },
+					pattern: { id: "component-button", variant: "default" },
+				},
+			],
+			warnings: [],
+		});
+
+		expect(materialized.components).toHaveLength(1);
+		expect(materialized.components[0]?.metadata.title).toBe("latest");
+		expect(materialized.warnings).toContain(
+			"Duplicate materialized component id collapsed: button-next",
+		);
 	});
 
 	it("decorates registered assets without changing registration order", () => {

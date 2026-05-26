@@ -12,6 +12,8 @@
 		"./compose-assets": "./src/compose/compose-assets.ts",
 		"./compose-assets-ai": "./src/compose/compose-assets-ai.ts",
 		"./decorate-assets": "./src/decorate/decorate-assets.ts",
+		"./design-review": "./src/design-review/index.ts",
+		"./design-review-schema": "./src/design-review/design-review-schema.ts",
 		"./promote-database-tables": "./src/database/promote-database-tables.ts",
 		"./pattern-schema": "./src/pattern/pattern-schema.ts",
 		"./pattern-store": "./src/pattern/pattern-store.ts",

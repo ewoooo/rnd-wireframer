@@ -1,18 +1,19 @@
+import { NODE_TYPES } from "@cx/types";
 import type {
+	GeneratedAreaNode,
 	GeneratedComponentNode,
 	GeneratedNodeTree,
-	GeneratedAreaNode,
 	GeneratedRouteNode,
 	GeneratedScreenNode,
 	GeneratedVariantNode,
 	RegionSlot,
-	RegisteredComponentNode,
-	RegisteredNodeTree,
 	RegisteredAreaChildRef,
 	RegisteredAreaNode,
+	RegisteredComponentNode,
+	RegisteredNodeTree,
 	RegisteredRouteNode,
-	RegisteredScreenNode,
 	RegisteredScreenAreaRef,
+	RegisteredScreenNode,
 	RegisteredVariantNode,
 } from "../types";
 
@@ -27,10 +28,7 @@ const SLOT_KEYWORD_PATTERNS: Array<{ slot: RegionSlot; pattern: RegExp }> = [
 	{ slot: "bottom", pattern: /bottom|footer|cta|action|button|하단|버튼|완료|다음/ },
 ];
 
-function inferAreaSlot(
-	ref: { areaId: string },
-	area: RegisteredAreaNode | undefined,
-): RegionSlot {
+function inferAreaSlot(ref: { areaId: string }, area: RegisteredAreaNode | undefined): RegionSlot {
 	const haystack = `${ref.areaId} ${area?.name ?? ""} ${area?.description ?? ""}`.toLowerCase();
 	for (const { slot, pattern } of SLOT_KEYWORD_PATTERNS) {
 		if (pattern.test(haystack)) return slot;
@@ -40,9 +38,10 @@ function inferAreaSlot(
 
 export function registerAssets(input: GeneratedNodeTree): RegisteredNodeTree {
 	const warnings: string[] = [];
-	const components = orderByIndex(input.components ?? []).map((component, index) =>
+	const registeredComponents = orderByIndex(input.components ?? []).map((component, index) =>
 		registerComponent(component, index, warnings),
 	);
+	const components = dedupeComponentsById(registeredComponents, warnings);
 	const componentById = new Map(components.map((component) => [component.id, component]));
 	const areas = orderByIndex(input.areas ?? []).map((area, index) => {
 		return registerArea(area, index, componentById, warnings);
@@ -58,6 +57,24 @@ export function registerAssets(input: GeneratedNodeTree): RegisteredNodeTree {
 		components,
 		warnings,
 	};
+}
+
+function dedupeComponentsById(
+	components: RegisteredComponentNode[],
+	warnings: string[],
+): RegisteredComponentNode[] {
+	const latestById = new Map<string, RegisteredComponentNode>();
+	const duplicateIds = new Set<string>();
+	for (const component of components) {
+		if (latestById.has(component.id)) duplicateIds.add(component.id);
+		latestById.set(component.id, component);
+	}
+
+	for (const id of [...duplicateIds].sort()) {
+		warnings.push(`Duplicate component id collapsed: ${id}`);
+	}
+
+	return components.filter((component) => latestById.get(component.id) === component);
 }
 
 function registerRoute(
@@ -108,7 +125,7 @@ function registerScreen(
 		name: screen.name ?? screen.id,
 		order: normalizeOrder(screen.order, index),
 		// Legacy organism path: screen type 정보 없음. Register 책임에 따라 기본값 강제.
-		screenType: "screen.page",
+		screenType: NODE_TYPES.screenSurface[0],
 		...(screen.description ? { description: screen.description } : {}),
 		...(screen.surface ? { surface: screen.surface } : {}),
 		areas: orderRefs(screen.areas ?? [], "areaId").map((ref, refIndex) => {

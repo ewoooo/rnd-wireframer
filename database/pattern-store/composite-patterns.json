@@ -1,3 +1,116 @@
 {
-	"patterns": []
+	"patterns": [
+		{
+			"id": "component-text-field",
+			"target": "composite",
+			"name": "텍스트 필드",
+			"description": "단일 TextField render component를 field item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["text-field"]
+				},
+				"keywords": ["text-field", "field", "input"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-section-message",
+			"target": "composite",
+			"name": "섹션 메시지",
+			"description": "단일 SectionMessage render component를 message item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["section-message"]
+				},
+				"keywords": ["section-message", "message", "notice"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-button",
+			"target": "composite",
+			"name": "버튼",
+			"description": "단일 Button render component를 action item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"fullWidth": true,
+					"size": "xlarge"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["button"]
+				},
+				"keywords": ["button", "action", "cta"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-list-cell",
+			"target": "composite",
+			"name": "리스트 셀",
+			"description": "단일 ListCell render component를 list item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": ["list-cell", "list"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-accordion",
+			"target": "composite",
+			"name": "아코디언",
+			"description": "단일 Accordion render component를 expandable item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["accordion"]
+				},
+				"keywords": ["accordion", "expand"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-checkbox",
+			"target": "composite",
+			"name": "체크박스",
+			"description": "단일 Checkbox render component를 selectable item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["checkbox"]
+				},
+				"keywords": ["checkbox", "check"],
+				"priority": 80
+			}
+		}
+	]
 }

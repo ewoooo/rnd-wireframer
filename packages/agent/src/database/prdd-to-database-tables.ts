@@ -1,3 +1,4 @@
+import { NODE_TYPES } from "@cx/types";
 import type {
 	DecoratedAreaNode,
 	DecoratedComponentNode,
@@ -12,6 +13,7 @@ import type {
 	DatabaseRegionChild,
 	DatabaseScreenBody,
 	DatabaseScreenRegion,
+	DatabaseScreenRegionType,
 	DatabaseScreenRow,
 } from "./register-assets-to-database-tables";
 
@@ -63,7 +65,7 @@ export function materializePrddScreenToTables(
 
 	const screenBody: DatabaseScreenBody = {
 		// Register가 결정한 type을 단순 통과. materializer는 의사결정 안 함.
-		type: decorated.screen.screenType ?? "screen.page",
+		type: decorated.screen.screenType ?? NODE_TYPES.screenSurface[0],
 		regions: {
 			header: toRegion(
 				REGION_NODE_TYPE.header,
@@ -107,7 +109,7 @@ export function materializePrddScreenToTables(
 }
 
 function toRegion(
-	type: string,
+	type: DatabaseScreenRegionType,
 	title: string,
 	children: DatabaseRegionChild[],
 ): DatabaseScreenRegion {
@@ -129,8 +131,8 @@ interface AreaRowContext {
 }
 
 function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRow {
-	const type: "area.static" | "area.dynamic" =
-		area.areaType === "dynamic" ? "area.dynamic" : "area.static";
+	const [STATIC_AREA, DYNAMIC_AREA] = NODE_TYPES.area;
+	const type = area.areaType === "dynamic" ? DYNAMIC_AREA : STATIC_AREA;
 	return {
 		id: area.id,
 		type,

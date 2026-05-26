@@ -4,37 +4,61 @@ import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator"
 import { composeAssetContents } from "@cx/agent/compose-assets";
 import { composeAssetContentsWithAI } from "@cx/agent/compose-assets-ai";
 import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
+import { aiReviewDesignTree, applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
 import { parseClientImportMarkdownBundle } from "@cx/agent/register/client-import-parser";
 import { registerAssets } from "@cx/agent/register-assets";
-import { materializeDecoratedAssetsToDatabaseTables } from "@cx/agent/register-assets-to-database-tables";
+import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
 import { createPatternResolver } from "@cx/agent/resolvers/pattern-resolver";
+import { errorsOf, warningsOf } from "@cx/types";
+import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { assertValidImportId, readClientImportMarkdownFiles } from "@/server/agent/client-imports";
 import { getDatabaseDir } from "@/server/database-paths";
 
 const DATABASE_DIR = getDatabaseDir();
 const PROJECT_DIR = path.dirname(DATABASE_DIR);
 const AI_IMPORTS_DIR = path.join(DATABASE_DIR, "ai-imports");
+
+/**
+ * 모델 정렬:
+ * - Extract: Sonnet — markdown verbatim 추출은 단순 작업이라 비용·속도 우선
+ * - Compose / DesignReview AI: Opus — 풍부한 맥락에서 판단·생성 필요
+ */
+const MODEL_EXTRACT = "claude-sonnet-4-6";
+const MODEL_COMPOSE = "claude-opus-4-7";
+const MODEL_REVIEWER = "claude-opus-4-7";
 const AGENT_ASSETS_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.json");
 const AGENT_ASSETS_COMPOSED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.composed.json");
 const AGENT_ASSETS_REGISTERED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.registered.json");
 const AGENT_ASSETS_DECORATED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.decorated.json");
-const AGENT_ASSETS_DB_TABLES_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.db-tables.json");
+const AGENT_ASSETS_DESIGN_REVIEW_PATH = path.join(
+	AI_IMPORTS_DIR,
+	"agent-assets.design-review.json",
+);
+const AGENT_ASSETS_REVIEWED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.reviewed.json");
+const AGENT_ASSETS_MATERIALIZED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.materialized.json");
 const CLIENT_IMPORT_PARSED_PATH = path.join(AI_IMPORTS_DIR, "client-import.parsed.json");
 const CLIENT_IMPORT_VALIDATION_PATH = path.join(AI_IMPORTS_DIR, "client-import.validation.json");
-const CLIENT_IMPORT_DB_TABLES_PATH = path.join(AI_IMPORTS_DIR, "client-import.db-tables.json");
+const CLIENT_IMPORT_MATERIALIZED_PATH = path.join(
+	AI_IMPORTS_DIR,
+	"client-import.materialized.json",
+);
 
 export interface GenerateAgentRegisterOptions {
 	composeWithAI?: boolean;
+	reviewWithAI?: boolean;
 	importId: string;
 }
 
 export async function generateAgentRegister({
 	composeWithAI = true,
+	reviewWithAI = true,
 	importId,
 }: GenerateAgentRegisterOptions) {
 	assertValidImportId(importId);
 
 	console.info("[agent-generate] start", { importId, composeWithAI });
+	const patternStore = loadPatternStoreForWorkbench();
+	const resolvePattern = createPatternResolver({ patterns: patternStore.patterns });
 
 	const { areaFiles, screenFiles } = await readClientImportMarkdownFiles(importId);
 
@@ -62,20 +86,25 @@ export async function generateAgentRegister({
 	const deterministicRegistry = registerAssets(deterministicCandidate.generated);
 	const deterministicComposeResult = composeAssetContents(deterministicRegistry);
 	const deterministicDecorated = decorateRegisteredAssets(deterministicComposeResult.composed, {
-		resolvePattern: createPatternResolver(),
+		resolvePattern,
 	});
-	const deterministicTables = materializeDecoratedAssetsToDatabaseTables(deterministicDecorated);
+	const deterministicReview = reviewDesignTree(deterministicDecorated);
+	const deterministicReviewed = applyDesignReview(
+		deterministicDecorated,
+		deterministicReview,
+	).reviewed;
+	const deterministicMaterialized = materializeDecoratedAssetsToNodeTree(deterministicReviewed);
 	await writeDeterministicImportArtifacts({
 		generated: deterministicCandidate.generated,
-		tables: deterministicTables,
+		materialized: deterministicMaterialized,
 		validation: deterministicCandidate.validation,
 	});
 	console.info("[agent-generate] wrote deterministic client import candidate", {
-		errorCount: deterministicCandidate.validation.errors.length,
-		warningCount: deterministicCandidate.validation.warnings.length,
-		screenCount: deterministicTables.screens.length,
-		areaCount: deterministicTables.areas.length,
-		componentCount: deterministicTables.components.length,
+		errorCount: errorsOf(deterministicCandidate.validation).length,
+		warningCount: warningsOf(deterministicCandidate.validation).length,
+		screenCount: deterministicMaterialized.screens.length,
+		areaCount: deterministicMaterialized.areas.length,
+		componentCount: deterministicMaterialized.components.length,
 	});
 
 	const claudeResult = await generateAssetsWithLocalClaude(
@@ -88,6 +117,7 @@ export async function generateAgentRegister({
 			cwd: PROJECT_DIR,
 			continueSession: false,
 			debug: true,
+			model: MODEL_EXTRACT,
 		},
 	);
 	const generated = claudeResult.generated;
@@ -114,6 +144,7 @@ export async function generateAgentRegister({
 			cwd: PROJECT_DIR,
 			continueSession: false,
 			debug: true,
+			model: MODEL_COMPOSE,
 		});
 		console.info("[agent-generate] composed asset contents (AI)", {
 			gapCount: composeAIResult.gaps.length,
@@ -126,24 +157,73 @@ export async function generateAgentRegister({
 	}
 
 	const decorated = decorateRegisteredAssets(composed, {
-		resolvePattern: createPatternResolver(),
+		resolvePattern,
 	});
-	const decoratedTables = materializeDecoratedAssetsToDatabaseTables(decorated);
-	const screenShellCounts = countScreenShellIds(decoratedTables);
+	const deterministicDesignReview = reviewDesignTree(decorated);
+	let designReview = deterministicDesignReview;
+	let aiReviewSessionId: string | undefined;
+	if (reviewWithAI) {
+		const aiReview = await aiReviewDesignTree(decorated, {
+			cwd: PROJECT_DIR,
+			continueSession: false,
+			debug: true,
+			model: MODEL_REVIEWER,
+		});
+		aiReviewSessionId = aiReview.sessionId;
+		designReview = {
+			...deterministicDesignReview,
+			operations: [
+				...deterministicDesignReview.operations,
+				...aiReview.designReview.operations,
+			],
+			findings: [
+				...deterministicDesignReview.findings,
+				...aiReview.designReview.findings,
+			],
+			warnings: [
+				...deterministicDesignReview.warnings,
+				...aiReview.designReview.warnings,
+				...aiReview.warnings,
+				...aiReview.skippedOperations.map(
+					(skipped) => `ai-reviewer: skipped op #${skipped.index} — ${skipped.reason}`,
+				),
+			],
+		};
+		console.info("[agent-generate] design review (AI)", {
+			aiOperationCount: aiReview.designReview.operations.length,
+			aiSkippedOperationCount: aiReview.skippedOperations.length,
+			aiWarnings: aiReview.warnings,
+			sessionId: aiReview.sessionId,
+		});
+	}
+	const designReviewResult = applyDesignReview(decorated, designReview);
+	const reviewed = designReviewResult.reviewed;
+	const materialized = materializeDecoratedAssetsToNodeTree(reviewed);
+	const screenShellCounts = countScreenShellIds(materialized);
 
-	console.info("[agent-generate] decorated db tables", {
-		componentCount: decoratedTables.components.length,
-		areaCount: decoratedTables.areas.length,
-		screenCount: decoratedTables.screens.length,
-		screenRouteCount: decoratedTables.screenRoutes.length,
-		screenVariantCount: decoratedTables.screenVariants.length,
+	console.info("[agent-generate] materialized node tree", {
+		componentCount: materialized.components.length,
+		areaCount: materialized.areas.length,
+		screenCount: materialized.screens.length,
+		screenRouteCount: materialized.screenRoutes.length,
+		screenVariantCount: materialized.screenVariants.length,
+		designReviewOperationCount: designReview.operations.length,
+		designReviewAppliedCount: designReviewResult.appliedOperationIds.length,
 		screenShellCounts,
 	});
 
-	await writeAgentImportArtifacts({ composed, decorated, decoratedTables, generated, registry });
+	await writeAgentImportArtifacts({
+		composed,
+		decorated,
+		designReview,
+		generated,
+		materialized,
+		registry,
+		reviewed,
+	});
 
 	return {
-		decoratedTables,
+		materialized,
 		generated,
 		registry,
 		runtime: {
@@ -155,12 +235,14 @@ export async function generateAgentRegister({
 		writtenPaths: {
 			assets: "database/ai-imports/agent-assets.json",
 			composed: "database/ai-imports/agent-assets.composed.json",
-			deterministicDbTables: "database/ai-imports/client-import.db-tables.json",
+			deterministicMaterialized: "database/ai-imports/client-import.materialized.json",
 			deterministicParsed: "database/ai-imports/client-import.parsed.json",
 			deterministicValidation: "database/ai-imports/client-import.validation.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
-			dbTables: "database/ai-imports/agent-assets.db-tables.json",
+			designReview: "database/ai-imports/agent-assets.design-review.json",
+			materialized: "database/ai-imports/agent-assets.materialized.json",
+			reviewed: "database/ai-imports/agent-assets.reviewed.json",
 		},
 	};
 }
@@ -176,7 +258,7 @@ export class AgentGenerateError extends Error {
 
 async function writeDeterministicImportArtifacts(payload: {
 	generated: unknown;
-	tables: unknown;
+	materialized: unknown;
 	validation: unknown;
 }) {
 	await mkdir(AI_IMPORTS_DIR, { recursive: true });
@@ -191,8 +273,8 @@ async function writeDeterministicImportArtifacts(payload: {
 		"utf8",
 	);
 	await writeFile(
-		CLIENT_IMPORT_DB_TABLES_PATH,
-		`${JSON.stringify(payload.tables, null, "\t")}\n`,
+		CLIENT_IMPORT_MATERIALIZED_PATH,
+		`${JSON.stringify(payload.materialized, null, "\t")}\n`,
 		"utf8",
 	);
 }
@@ -200,7 +282,8 @@ async function writeDeterministicImportArtifacts(payload: {
 async function writeAgentImportArtifacts(payload: {
 	composed: unknown;
 	decorated: unknown;
-	decoratedTables: {
+	designReview: unknown;
+	materialized: {
 		screenRoutes: unknown[];
 		screenVariants: unknown[];
 		screens: unknown[];
@@ -209,6 +292,7 @@ async function writeAgentImportArtifacts(payload: {
 	};
 	generated: unknown;
 	registry: unknown;
+	reviewed: unknown;
 }) {
 	await mkdir(AI_IMPORTS_DIR, { recursive: true });
 	await writeFile(AGENT_ASSETS_PATH, `${JSON.stringify(payload.generated, null, "\t")}\n`, "utf8");
@@ -228,8 +312,18 @@ async function writeAgentImportArtifacts(payload: {
 		"utf8",
 	);
 	await writeFile(
-		AGENT_ASSETS_DB_TABLES_PATH,
-		`${JSON.stringify(payload.decoratedTables, null, "\t")}\n`,
+		AGENT_ASSETS_DESIGN_REVIEW_PATH,
+		`${JSON.stringify(payload.designReview, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		AGENT_ASSETS_REVIEWED_PATH,
+		`${JSON.stringify(payload.reviewed, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		AGENT_ASSETS_MATERIALIZED_PATH,
+		`${JSON.stringify(payload.materialized, null, "\t")}\n`,
 		"utf8",
 	);
 	console.info("[agent-generate] wrote agent assets", {
@@ -237,13 +331,15 @@ async function writeAgentImportArtifacts(payload: {
 		composedPath: AGENT_ASSETS_COMPOSED_PATH,
 		registeredPath: AGENT_ASSETS_REGISTERED_PATH,
 		decoratedPath: AGENT_ASSETS_DECORATED_PATH,
-		dbTablesPath: AGENT_ASSETS_DB_TABLES_PATH,
+		designReviewPath: AGENT_ASSETS_DESIGN_REVIEW_PATH,
+		reviewedPath: AGENT_ASSETS_REVIEWED_PATH,
+		materializedPath: AGENT_ASSETS_MATERIALIZED_PATH,
 	});
 }
 
-function countScreenShellIds(tables: { screens: Array<{ pattern?: { id: string } }> }) {
+function countScreenShellIds(materialized: { screens: Array<{ pattern?: { id: string } }> }) {
 	const counts: Record<string, number> = {};
-	for (const screen of tables.screens) {
+	for (const screen of materialized.screens) {
 		const id = screen.pattern?.id ?? "(none)";
 		counts[id] = (counts[id] ?? 0) + 1;
 	}

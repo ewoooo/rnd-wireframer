@@ -1,3 +1,4 @@
+import type { ValidationIssue, ValidationResult } from "@cx/types";
 import type {
 	GeneratedAreaNode,
 	GeneratedComponentNode,
@@ -16,14 +17,23 @@ export interface ParseClientImportMarkdownBundleInput {
 	screenFiles: ClientImportMarkdownFile[];
 }
 
-export interface ClientImportValidationReport {
-	errors: string[];
-	warnings: string[];
-}
+export type ClientImportValidationReport = ValidationResult<GeneratedNodeTree>;
 
 export interface ParsedClientImportBundle {
 	generated: GeneratedNodeTree;
 	validation: ClientImportValidationReport;
+}
+
+function schemaIssue(
+	severity: "error" | "warning",
+	message: string,
+	data?: Record<string, unknown>,
+): ValidationIssue {
+	return { code: "schema.invalid", severity, layer: "schema", message, data };
+}
+
+function referenceIssue(message: string, data?: Record<string, unknown>): ValidationIssue {
+	return { code: "reference.missing-area", severity: "error", layer: "reference", message, data };
 }
 
 export function parseClientImportMarkdownBundle({
@@ -88,27 +98,31 @@ export function parseClientImportMarkdownBundle({
 export function validateClientImportGeneratedTree(
 	generated: GeneratedNodeTree,
 ): ClientImportValidationReport {
-	const errors: string[] = [];
-	const warnings: string[] = [];
+	const issues: ValidationIssue[] = [];
 	const areaIds = new Set((generated.areas ?? []).map((area) => area.id));
 	const componentIds = new Set((generated.components ?? []).map((component) => component.id));
 
-	if (generated.routes.length === 0) errors.push("route is required");
-	if ((generated.areas ?? []).length === 0) warnings.push("area files were not parsed");
-	if ((generated.components ?? []).length === 0) warnings.push("component rows were not parsed");
+	if (generated.routes.length === 0) issues.push(schemaIssue("error", "route is required"));
+	if ((generated.areas ?? []).length === 0)
+		issues.push(schemaIssue("warning", "area files were not parsed"));
+	if ((generated.components ?? []).length === 0)
+		issues.push(schemaIssue("warning", "component rows were not parsed"));
 
 	for (const route of generated.routes) {
-		if (!route.id) errors.push("route.id is required");
-		if (route.variants.length === 0) errors.push(`${route.id}: variant is required`);
+		if (!route.id) issues.push(schemaIssue("error", "route.id is required"));
+		if (route.variants.length === 0)
+			issues.push(schemaIssue("error", `${route.id}: variant is required`));
 		for (const variant of route.variants) {
-			if (!variant.id) errors.push(`${route.id}: variant.id is required`);
-			if (variant.screens.length === 0) errors.push(`${variant.id}: screen is required`);
+			if (!variant.id) issues.push(schemaIssue("error", `${route.id}: variant.id is required`));
+			if (variant.screens.length === 0)
+				issues.push(schemaIssue("error", `${variant.id}: screen is required`));
 			for (const screen of variant.screens) {
-				if (!screen.id) errors.push(`${variant.id}: screen.id is required`);
-				if ((screen.areas ?? []).length === 0) warnings.push(`${screen.id}: area refs are empty`);
+				if (!screen.id) issues.push(schemaIssue("error", `${variant.id}: screen.id is required`));
+				if ((screen.areas ?? []).length === 0)
+					issues.push(schemaIssue("warning", `${screen.id}: area refs are empty`));
 				for (const areaRef of screen.areas ?? []) {
 					if (!areaIds.has(areaRef.areaId)) {
-						errors.push(`${screen.id}: missing area ${areaRef.areaId}`);
+						issues.push(referenceIssue(`${screen.id}: missing area ${areaRef.areaId}`));
 					}
 				}
 			}
@@ -116,26 +130,31 @@ export function validateClientImportGeneratedTree(
 	}
 
 	for (const area of generated.areas ?? []) {
-		if (!area.id) errors.push("area.id is required");
-		if ((area.children ?? []).length === 0) warnings.push(`${area.id}: component refs are empty`);
+		if (!area.id) issues.push(schemaIssue("error", "area.id is required"));
+		if ((area.children ?? []).length === 0)
+			issues.push(schemaIssue("warning", `${area.id}: component refs are empty`));
 		for (const componentRef of area.children ?? []) {
 			if (!componentIds.has(componentRef.componentId)) {
-				errors.push(`${area.id}: missing component ${componentRef.componentId}`);
+				issues.push(referenceIssue(`${area.id}: missing component ${componentRef.componentId}`));
 			}
 		}
 	}
 
 	for (const component of generated.components ?? []) {
-		if (!component.id) errors.push("component.id is required");
+		if (!component.id) issues.push(schemaIssue("error", "component.id is required"));
 		if (!component.type || component.type === "Unknown") {
-			warnings.push(`${component.id}: component.type is unknown`);
+			issues.push(schemaIssue("warning", `${component.id}: component.type is unknown`));
 		}
 	}
 
-	errors.push(...findDuplicateIds("area", [...areaIds]));
-	errors.push(...findDuplicateIds("component", [...componentIds]));
+	issues.push(...findDuplicateIdIssues("area", [...areaIds]));
+	issues.push(...findDuplicateIdIssues("component", [...componentIds]));
 
-	return { errors, warnings };
+	return {
+		ok: !issues.some((issue) => issue.severity === "error"),
+		issues,
+		data: generated,
+	};
 }
 
 function parseScreenFile(file: ClientImportMarkdownFile, index: number): GeneratedScreenNode {
@@ -278,7 +297,7 @@ function slugify(value: string) {
 		.replace(/^-+|-+$/g, "");
 }
 
-function findDuplicateIds(label: string, ids: string[]) {
+function findDuplicateIdIssues(label: string, ids: string[]): ValidationIssue[] {
 	const seen = new Set<string>();
 	const duplicates = new Set<string>();
 	for (const id of ids) {
@@ -287,7 +306,13 @@ function findDuplicateIds(label: string, ids: string[]) {
 	}
 	return Array.from(duplicates)
 		.sort()
-		.map((id) => `${label} id is duplicated: ${id}`);
+		.map<ValidationIssue>((id) => ({
+			code: "reference.duplicate-id",
+			severity: "error",
+			layer: "reference",
+			message: `${label} id is duplicated: ${id}`,
+			data: { label, id },
+		}));
 }
 
 function isEntry(entry: readonly [string, string] | undefined): entry is readonly [string, string] {

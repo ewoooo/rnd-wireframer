@@ -1,18 +1,20 @@
-import type {
-	AreaTypeLiteral,
-	DatabaseAreaMetadata,
-	DatabaseAreaRow,
-	DatabaseComponentChildEntry,
-	DatabaseComponentMetadata,
-	DatabaseComponentRow,
-	DatabaseRegionChild,
-	DatabaseScreenBody,
-	DatabaseScreenRegion,
-	DatabaseScreenRouteRow,
-	DatabaseScreenRow,
-	DatabaseScreenRowMetadata,
-	DatabaseScreenVariantRow,
-	MaterializedDatabaseNodeTables,
+import {
+	type AreaTypeLiteral,
+	type DatabaseAreaMetadata,
+	type DatabaseAreaRow,
+	type DatabaseComponentChildEntry,
+	type DatabaseComponentMetadata,
+	type DatabaseComponentRow,
+	type DatabaseRegionChild,
+	type DatabaseScreenBody,
+	type DatabaseScreenRegion,
+	type DatabaseScreenRegionType,
+	type DatabaseScreenRouteRow,
+	type DatabaseScreenRow,
+	type DatabaseScreenRowMetadata,
+	type DatabaseScreenVariantRow,
+	type MaterializedNodeTree,
+	NODE_TYPES,
 } from "@cx/types";
 import { normalizeComponentType } from "../normalize-component-type";
 import type {
@@ -35,14 +37,15 @@ export type {
 	DatabaseRegionChild,
 	DatabaseScreenBody,
 	DatabaseScreenRegion,
+	DatabaseScreenRegionType,
 	DatabaseScreenRouteRow,
 	DatabaseScreenRow,
 	DatabaseScreenRowMetadata,
 	DatabaseScreenVariantRow,
-	MaterializedDatabaseNodeTables,
+	MaterializedNodeTree,
 };
 
-export interface MaterializedDatabaseNodeTablesOptions {
+export interface MaterializedNodeTreeOptions {
 	author?: string;
 	componentVersion?: string;
 	minRendererVersion?: string;
@@ -61,10 +64,10 @@ const DEFAULT_THEME_MODE = "light";
 const DEFAULT_PENDING_PATTERN_ID = "screen-shell";
 const DEFAULT_AREA_PREFIX = "ogn-";
 
-export function materializeDecoratedAssetsToDatabaseTables(
+export function materializeDecoratedAssetsToNodeTree(
 	decorated: DecoratedNodeTree,
-	options: MaterializedDatabaseNodeTablesOptions = {},
-): MaterializedDatabaseNodeTables {
+	options: MaterializedNodeTreeOptions = {},
+): MaterializedNodeTree {
 	const author = options.author ?? DEFAULT_AUTHOR;
 	const componentVersion = options.componentVersion ?? DEFAULT_COMPONENT_VERSION;
 	const version = options.version ?? DEFAULT_VERSION;
@@ -78,6 +81,7 @@ export function materializeDecoratedAssetsToDatabaseTables(
 
 	const variantById = new Map(decorated.variants.map((variant) => [variant.id, variant]));
 	const screenById = new Map(decorated.screens.map((screen) => [screen.id, screen]));
+	const componentById = new Map(decorated.components.map((component) => [component.id, component]));
 
 	const screenRoutes = decorated.routes.map((route) => toRouteRow(route));
 	const screenVariants: DatabaseScreenVariantRow[] = [];
@@ -121,8 +125,11 @@ export function materializeDecoratedAssetsToDatabaseTables(
 			timestamp,
 		}),
 	);
-	const components = decorated.components.map((component) =>
-		toComponentRow(component, { author, componentVersion, timestamp }),
+	const components = dedupeComponentRowsById(
+		decorated.components.map((component) =>
+			toComponentRow(component, { author, componentById, componentVersion, timestamp }),
+		),
+		warnings,
 	);
 
 	return {
@@ -135,10 +142,23 @@ export function materializeDecoratedAssetsToDatabaseTables(
 	};
 }
 
-/**
- * @deprecated Use materializeDecoratedAssetsToDatabaseTables.
- */
-export const decoratedAssetsToDatabaseTables = materializeDecoratedAssetsToDatabaseTables;
+function dedupeComponentRowsById(
+	components: DatabaseComponentRow[],
+	warnings: string[],
+): DatabaseComponentRow[] {
+	const latestById = new Map<string, DatabaseComponentRow>();
+	const duplicateIds = new Set<string>();
+	for (const component of components) {
+		if (latestById.has(component.id)) duplicateIds.add(component.id);
+		latestById.set(component.id, component);
+	}
+
+	for (const id of [...duplicateIds].sort()) {
+		warnings.push(`Duplicate materialized component id collapsed: ${id}`);
+	}
+
+	return components.filter((component) => latestById.get(component.id) === component);
+}
 
 function toRouteRow(route: DecoratedRouteNode): DatabaseScreenRouteRow {
 	return {
@@ -194,21 +214,24 @@ function toScreenRow(
 		},
 		theme: { mode: ctx.themeMode as "light" | "dark" | "system" },
 		screen: {
-			type: "screen.page",
+			type: NODE_TYPES.screenSurface[0],
 			regions: {
 				header: {
 					type: REGION_NODE_TYPE.header,
 					metadata: { title: REGION_METADATA_TITLE.header },
+					...(screen.regionPatterns?.header ? { pattern: screen.regionPatterns.header } : {}),
 					children: toRegionChildren(screen.children.header),
 				},
 				contents: {
 					type: REGION_NODE_TYPE.contents,
 					metadata: { title: REGION_METADATA_TITLE.contents },
+					...(screen.regionPatterns?.contents ? { pattern: screen.regionPatterns.contents } : {}),
 					children: toRegionChildren(screen.children.contents),
 				},
 				bottom: {
 					type: REGION_NODE_TYPE.bottom,
 					metadata: { title: REGION_METADATA_TITLE.bottom },
+					...(screen.regionPatterns?.bottom ? { pattern: screen.regionPatterns.bottom } : {}),
 					children: toRegionChildren(screen.children.bottom),
 				},
 			},
@@ -236,7 +259,7 @@ function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRo
 	return {
 		id: area.id,
 		// Legacy organism path — area.dynamic 정보가 없으므로 static으로 강제.
-		type: "area.static",
+		type: NODE_TYPES.area[0],
 		version: ctx.componentVersion,
 		metadata: {
 			title: area.name ?? area.id,
@@ -257,6 +280,7 @@ function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRo
 
 interface ComponentRowContext {
 	author: string;
+	componentById: Map<string, DecoratedComponentNode>;
 	componentVersion: string;
 	timestamp: string;
 }
@@ -277,8 +301,21 @@ function toComponentRow(
 			updatedAt: ctx.timestamp,
 		},
 		pattern: { id: component.pattern.id, variant: component.pattern.variant },
-		children: [{ component: { type }, props: { ...(component.props ?? {}) } }],
+		children:
+			component.children && component.children.length > 0
+				? [...component.children]
+						.sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+						.map((childRef) => {
+							const child = ctx.componentById.get(childRef.componentId);
+							const childType = normalizeComponentType(child?.type || "Generic") ?? "Generic";
+							return {
+								component: { type: childType },
+								props: { ...(child?.props ?? {}) },
+							};
+						})
+				: [{ component: { type }, props: { ...(component.props ?? {}) } }],
 		hooks: [...(component.hooks ?? [])],
+		...(component.display ? { display: component.display } : {}),
 	};
 }
 

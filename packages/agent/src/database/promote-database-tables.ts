@@ -1,13 +1,16 @@
 import { tablesToRenderTrees, validateRenderTreeFull } from "@cx/renderer";
-import type {
-	DatabaseAreaRow,
-	DatabaseComponentRow,
-	DatabaseRegionChild,
-	DatabaseScreenRouteRow,
-	DatabaseScreenRow,
-	DatabaseScreenVariantRow,
-	MaterializedDatabaseNodeTables,
-	PatternStore,
+import {
+	type DatabaseAreaRow,
+	type DatabaseComponentRow,
+	type DatabaseRegionChild,
+	type DatabaseScreenRouteRow,
+	type DatabaseScreenRow,
+	type DatabaseScreenVariantRow,
+	errorsOf,
+	type MaterializedNodeTree,
+	type PatternStore,
+	type ValidationIssue,
+	type ValidationResult,
 } from "@cx/types";
 
 export interface PromoteDatabaseTablesOptions {
@@ -15,12 +18,7 @@ export interface PromoteDatabaseTablesOptions {
 	strictRendererCoverage?: boolean;
 }
 
-export interface PromoteDatabaseTablesResult {
-	errors: string[];
-	files?: PromotedDatabaseTableFiles;
-	success: boolean;
-	warnings: string[];
-}
+export type PromoteDatabaseTablesResult = ValidationResult<PromotedDatabaseTableFiles>;
 
 export interface PromotedDatabaseTableFiles {
 	"areas.json": { areas: DatabaseAreaRow[] };
@@ -36,37 +34,38 @@ export function promoteDatabaseTablesCandidate(
 ): PromoteDatabaseTablesResult {
 	const shape = parseCandidateShape(candidate);
 	if (shape.success === false) {
-		return {
-			errors: shape.errors,
-			success: false,
-			warnings: [],
-		};
+		return { ok: false, issues: shape.issues };
 	}
 
 	const tables = shape.tables;
-	const errors = validateReferences(tables);
-	const warnings = [
-		...(tables.warnings ?? []),
-		...validatePatternReferences(tables, options.patternStore),
-	];
+	const issues: ValidationIssue[] = [];
 
-	if (errors.length === 0) {
-		const renderValidation = validateRendererProjection(tables, options);
-		errors.push(...renderValidation.errors);
-		warnings.push(...renderValidation.warnings);
+	issues.push(
+		...(tables.warnings ?? []).map<ValidationIssue>((message) => ({
+			code: "schema.invalid",
+			severity: "warning",
+			layer: "schema",
+			message,
+		})),
+	);
+	issues.push(...validateReferences(tables));
+	issues.push(...validatePatternReferences(tables, options.patternStore));
+
+	const hasError = errorsOf({ ok: false, issues }).length > 0;
+	if (!hasError) {
+		issues.push(...validateRendererProjection(tables, options));
 	}
 
+	const ok = !issues.some((issue) => issue.severity === "error");
+
 	return {
-		errors,
-		files: errors.length === 0 ? createPromotedTableFiles(tables) : undefined,
-		success: errors.length === 0,
-		warnings,
+		ok,
+		issues,
+		data: ok ? createPromotedTableFiles(tables) : undefined,
 	};
 }
 
-export function createPromotedTableFiles(
-	tables: MaterializedDatabaseNodeTables,
-): PromotedDatabaseTableFiles {
+export function createPromotedTableFiles(tables: MaterializedNodeTree): PromotedDatabaseTableFiles {
 	return {
 		"areas.json": { areas: tables.areas },
 		"components.json": { components: tables.components },
@@ -76,27 +75,44 @@ export function createPromotedTableFiles(
 	};
 }
 
+function schemaError(message: string, data?: Record<string, unknown>): ValidationIssue {
+	return { code: "schema.invalid", severity: "error", layer: "schema", message, data };
+}
+
+function referenceError(message: string, data?: Record<string, unknown>): ValidationIssue {
+	return { code: "reference.missing-area", severity: "error", layer: "reference", message, data };
+}
+
+function patternWarning(message: string, data?: Record<string, unknown>): ValidationIssue {
+	return {
+		code: "reference.missing-pattern",
+		severity: "warning",
+		layer: "reference",
+		message,
+		data,
+	};
+}
+
 function parseCandidateShape(
 	candidate: unknown,
-):
-	| { success: true; tables: MaterializedDatabaseNodeTables }
-	| { success: false; errors: string[] } {
+): { success: true; tables: MaterializedNodeTree } | { success: false; issues: ValidationIssue[] } {
 	if (!candidate || typeof candidate !== "object") {
-		return { success: false, errors: ["candidate must be an object"] };
+		return { success: false, issues: [schemaError("candidate must be an object")] };
 	}
 
-	const record = candidate as Partial<Record<keyof MaterializedDatabaseNodeTables, unknown>>;
-	const errors: string[] = [];
-	if (!Array.isArray(record.screenRoutes)) errors.push("screenRoutes array is required");
-	if (!Array.isArray(record.screenVariants)) errors.push("screenVariants array is required");
-	if (!Array.isArray(record.screens)) errors.push("screens array is required");
-	if (!Array.isArray(record.areas)) errors.push("areas array is required");
-	if (!Array.isArray(record.components)) errors.push("components array is required");
+	const record = candidate as Partial<Record<keyof MaterializedNodeTree, unknown>>;
+	const issues: ValidationIssue[] = [];
+	if (!Array.isArray(record.screenRoutes)) issues.push(schemaError("screenRoutes array is required"));
+	if (!Array.isArray(record.screenVariants))
+		issues.push(schemaError("screenVariants array is required"));
+	if (!Array.isArray(record.screens)) issues.push(schemaError("screens array is required"));
+	if (!Array.isArray(record.areas)) issues.push(schemaError("areas array is required"));
+	if (!Array.isArray(record.components)) issues.push(schemaError("components array is required"));
 	if (record.warnings !== undefined && !Array.isArray(record.warnings)) {
-		errors.push("warnings must be an array when provided");
+		issues.push(schemaError("warnings must be an array when provided"));
 	}
 
-	if (errors.length > 0) return { success: false, errors };
+	if (issues.length > 0) return { success: false, issues };
 
 	return {
 		success: true,
@@ -111,133 +127,106 @@ function parseCandidateShape(
 	};
 }
 
-function validateReferences(tables: MaterializedDatabaseNodeTables) {
-	const errors: string[] = [];
+function validateReferences(tables: MaterializedNodeTree): ValidationIssue[] {
+	const issues: ValidationIssue[] = [];
 	const routeIds = new Set(tables.screenRoutes.map((route) => route.id));
 	const variantIds = new Set(tables.screenVariants.map((variant) => variant.id));
 	const areaIds = new Set(tables.areas.map((area) => area.id));
 	const componentIds = new Set(tables.components.map((component) => component.id));
 
-	errors.push(
-		...findDuplicateIds(
-			"screenRoute",
-			tables.screenRoutes.map((route) => route.id),
-		),
-	);
-	errors.push(
-		...findDuplicateIds(
-			"screenVariant",
-			tables.screenVariants.map((variant) => variant.id),
-		),
-	);
-	errors.push(
-		...findDuplicateIds(
-			"screen",
-			tables.screens.map((screen) => screen.id),
-		),
-	);
-	errors.push(
-		...findDuplicateIds(
-			"area",
-			tables.areas.map((area) => area.id),
-		),
-	);
-	errors.push(
-		...findDuplicateIds(
-			"component",
-			tables.components.map((component) => component.id),
-		),
+	issues.push(
+		...findDuplicateIds("screenRoute", tables.screenRoutes.map((r) => r.id)),
+		...findDuplicateIds("screenVariant", tables.screenVariants.map((v) => v.id)),
+		...findDuplicateIds("screen", tables.screens.map((s) => s.id)),
+		...findDuplicateIds("area", tables.areas.map((a) => a.id)),
+		...findDuplicateIds("component", tables.components.map((c) => c.id)),
 	);
 
 	for (const variant of tables.screenVariants) {
 		if (!routeIds.has(variant.screenRouteId)) {
-			errors.push(`${variant.id}: missing screenRoute ${variant.screenRouteId}`);
+			issues.push(referenceError(`${variant.id}: missing screenRoute ${variant.screenRouteId}`));
 		}
 	}
 
 	for (const screen of tables.screens) {
 		if (!variantIds.has(screen.screenVariantId)) {
-			errors.push(`${screen.id}: missing screenVariant ${screen.screenVariantId}`);
+			issues.push(referenceError(`${screen.id}: missing screenVariant ${screen.screenVariantId}`));
 		}
-		validateRegionChildren(`${screen.id}.header`, screen.screen.regions.header.children, {
-			areaIds,
-			componentIds,
-			errors,
-		});
-		validateRegionChildren(`${screen.id}.contents`, screen.screen.regions.contents.children, {
-			areaIds,
-			componentIds,
-			errors,
-		});
-		validateRegionChildren(`${screen.id}.bottom`, screen.screen.regions.bottom.children, {
-			areaIds,
-			componentIds,
-			errors,
-		});
+		issues.push(
+			...validateRegionChildren(`${screen.id}.header`, screen.screen.regions.header.children, {
+				areaIds,
+				componentIds,
+			}),
+			...validateRegionChildren(`${screen.id}.contents`, screen.screen.regions.contents.children, {
+				areaIds,
+				componentIds,
+			}),
+			...validateRegionChildren(`${screen.id}.bottom`, screen.screen.regions.bottom.children, {
+				areaIds,
+				componentIds,
+			}),
+		);
 	}
 
 	for (const area of tables.areas) {
 		for (const child of area.children) {
 			if (!componentIds.has(child.id)) {
-				errors.push(`${area.id}: missing component ${child.id}`);
+				issues.push(referenceError(`${area.id}: missing component ${child.id}`));
 			}
 		}
 	}
 
-	return errors;
+	return issues;
 }
 
 function validateRegionChildren(
 	scope: string,
 	children: DatabaseRegionChild[],
-	context: {
-		areaIds: Set<string>;
-		componentIds: Set<string>;
-		errors: string[];
-	},
-) {
+	context: { areaIds: Set<string>; componentIds: Set<string> },
+): ValidationIssue[] {
+	const issues: ValidationIssue[] = [];
 	for (const child of children) {
 		if (child.kind === "area" && !context.areaIds.has(child.id)) {
-			context.errors.push(`${scope}: missing area ${child.id}`);
+			issues.push(referenceError(`${scope}: missing area ${child.id}`));
 		}
 		if (child.kind === "component" && !context.componentIds.has(child.id)) {
-			context.errors.push(`${scope}: missing component ${child.id}`);
+			issues.push(referenceError(`${scope}: missing component ${child.id}`));
 		}
 	}
+	return issues;
 }
 
 function validatePatternReferences(
-	tables: MaterializedDatabaseNodeTables,
+	tables: MaterializedNodeTree,
 	patternStore: PatternStore | undefined,
-) {
+): ValidationIssue[] {
 	if (!patternStore) return [];
-
-	const warnings: string[] = [];
+	const issues: ValidationIssue[] = [];
 	const patternIds = new Set(patternStore.patterns.map((pattern) => pattern.id));
 	for (const screen of tables.screens) {
 		if (screen.pattern?.id && !patternIds.has(screen.pattern.id)) {
-			warnings.push(`${screen.id}: pattern ${screen.pattern.id} is not in pattern-store`);
+			issues.push(patternWarning(`${screen.id}: pattern ${screen.pattern.id} is not in pattern-store`));
 		}
 	}
 	for (const area of tables.areas) {
 		if (area.pattern?.id && !patternIds.has(area.pattern.id)) {
-			warnings.push(`${area.id}: pattern ${area.pattern.id} is not in pattern-store`);
+			issues.push(patternWarning(`${area.id}: pattern ${area.pattern.id} is not in pattern-store`));
 		}
 	}
 	for (const component of tables.components) {
 		if (component.pattern?.id && !patternIds.has(component.pattern.id)) {
-			warnings.push(`${component.id}: pattern ${component.pattern.id} is not in pattern-store`);
+			issues.push(
+				patternWarning(`${component.id}: pattern ${component.pattern.id} is not in pattern-store`),
+			);
 		}
 	}
-	return warnings;
+	return issues;
 }
 
 function validateRendererProjection(
-	tables: MaterializedDatabaseNodeTables,
+	tables: MaterializedNodeTree,
 	options: PromoteDatabaseTablesOptions,
-) {
-	const errors: string[] = [];
-	const warnings: string[] = [];
+): ValidationIssue[] {
 	const renderTrees = tablesToRenderTrees({
 		screens: tables.screens,
 		areas: tables.areas,
@@ -245,22 +234,18 @@ function validateRendererProjection(
 		patternStore: options.patternStore,
 	});
 
-	for (const renderTree of renderTrees) {
-		const validation = validateRenderTreeFull(renderTree, {
+	return renderTrees.flatMap((renderTree) => {
+		const result = validateRenderTreeFull(renderTree, {
 			strictRendererCoverage: options.strictRendererCoverage ?? false,
 		});
-		errors.push(
-			...validation.errors.map((error) => `${renderTree.metadata.id}: render tree: ${error}`),
-		);
-		warnings.push(
-			...validation.warnings.map((warning) => `${renderTree.metadata.id}: render tree: ${warning}`),
-		);
-	}
-
-	return { errors, warnings };
+		return result.issues.map((issue) => ({
+			...issue,
+			message: `${renderTree.metadata.id}: render tree: ${issue.message}`,
+		}));
+	});
 }
 
-function findDuplicateIds(label: string, ids: string[]) {
+function findDuplicateIds(label: string, ids: string[]): ValidationIssue[] {
 	const seen = new Set<string>();
 	const duplicates = new Set<string>();
 	for (const id of ids) {
@@ -270,5 +255,11 @@ function findDuplicateIds(label: string, ids: string[]) {
 	}
 	return Array.from(duplicates)
 		.sort()
-		.map((id) => `${label} id is duplicated: ${id}`);
+		.map<ValidationIssue>((id) => ({
+			code: "reference.duplicate-id",
+			severity: "error",
+			layer: "reference",
+			message: `${label} id is duplicated: ${id}`,
+			data: { label, id },
+		}));
 }

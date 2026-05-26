@@ -1,3 +1,4 @@
+import { NODE_TYPES, type ScreenRegionType } from "@cx/types";
 import type { RegionSlot } from "../types";
 
 /**
@@ -10,9 +11,9 @@ export const REGION_METADATA_TITLE: Record<RegionSlot, string> = {
 	bottom: "고정 하단 영역",
 };
 
-/** wireframe schema의 region type (변경 시 schema.ts와 함께 갱신). */
-export const REGION_NODE_TYPE: Record<RegionSlot, string> = {
-	header: "Screen.Header",
-	contents: "Screen.Contents",
-	bottom: "Screen.Bottom",
-};
+/** wireframe schema의 region type. NODE_TYPES.screenRegion에서 파생. */
+export const REGION_NODE_TYPE = {
+	header: NODE_TYPES.screenRegion[0],
+	contents: NODE_TYPES.screenRegion[1],
+	bottom: NODE_TYPES.screenRegion[2],
+} as const satisfies Record<RegionSlot, ScreenRegionType>;

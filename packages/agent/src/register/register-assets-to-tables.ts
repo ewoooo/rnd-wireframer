@@ -1,13 +1,13 @@
 import type {
 	GeneratedNodeTree,
-	MaterializedNodeTables,
 	RegisteredRouteNode,
 	RegisteredScreenNode,
+	RegisteredTableRows,
 	RegisteredVariantNode,
 } from "../types";
 import { registerAssets } from "./register-assets";
 
-export function registerAssetsToTables(input: GeneratedNodeTree): MaterializedNodeTables {
+export function registerAssetsToTables(input: GeneratedNodeTree): RegisteredTableRows {
 	const registry = registerAssets(input);
 	const screenRoutes = registry.routes.map((route) => ({
 		code: route.id,

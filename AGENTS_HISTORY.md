@@ -36,13 +36,39 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-26 - Promote Import Adapter
+## 2026-05-26 - Design Review Contract Tables
 
-- 변경: `@cx/agent/promote-database-tables`와 `/api/agent/promote-ai-import`를 추가해 `*.db-tables.json` 후보를 검증 후에만 `database/tables` wrapper payload로 반영하도록 구현함
-- 변경: promote API는 dry-run을 기본값으로 두고, 명시적으로 `dryRun: false`일 때만 `database/tables`에 파일을 쓴다
-- 이유: parser/AI 후보 산출물이 승인 소비 데이터인 `database/tables`를 직접 덮어쓰지 못하게 하기 위함
-- 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run packages/agent apps/web/src/server apps/web/src/app/api/agent/promote-ai-import`, 관련 파일 `npx biome check --write`
-- 후속: 소비 데이터 계약 기준 FastAPI read model 초안, sample `sourceRef`/state/edge variant 보강
+- 변경: Design Review의 CTA 판정, operation dispatch, placement 처리, synthetic action area 생성을 contract table과 pattern-store reference로 분리함
+- 변경: `action-stack`, `bottom-action-area` area pattern을 추가하고, createComponent pattern fallback을 pattern-store 조회로 전환함
+- 이유: 신규 Design Review 기능 안에 판단값이 하드코딩되면 스키마/패턴 변경 때 코드 수정으로 번지는 문제를 막기 위함
+- 검증: `jq empty database/pattern-store/area-patterns.json`, `npm test -- packages/agent/src/__tests__/design-review-schema.test.ts packages/agent/src/__tests__/design-review-stage.test.ts`, `npx biome check packages/agent/src/design-review database/pattern-store/area-patterns.json`, `npx tsc --noEmit`
+- 후속: Design Review AI runner가 같은 contract table을 prompt/context로 참조하도록 연결
+
+## 2026-05-26 - Design Review Apply Expansion
+
+- 변경: `createComposite`가 `Layout.Flex` composite wrapper로 적용되고 materialize/render projection까지 nested children을 전달하도록 확장함
+- 변경: region pattern update, destination placement, component catalog 기반 AI-writable prop 검증을 Design Review apply 단계에 추가함
+- 변경: Pattern schema의 `childWrap` 타입을 정리하고 Design Review pattern draft를 normalized `variants/defaultVariant/resolution` 계약에 맞춤
+- 이유: Design Review patch 스키마가 표현하는 다양한 디자인/패턴 보정을 deterministic apply/materialize 단계에서도 구조적으로 받기 위함
+- 검증: `npm test -- packages/agent/src/__tests__/design-review-schema.test.ts packages/agent/src/__tests__/design-review-stage.test.ts packages/agent/src/__tests__/pattern-schema.test.ts packages/renderer/src/__tests__/render-tree-projection.test.ts`, `npm run lint`, `npx tsc --noEmit`
+- 후속: `createNewPattern` proposal을 pattern-store 승인/반영 workflow와 연결
+
+## 2026-05-26 - Design Review Schema
+
+- 변경: Design Review patch 스키마를 추가하고 `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` operation을 정의함
+- 변경: `agent-assets.design-review.json`과 patch 적용 결과 `agent-assets.reviewed.json` 생성 단계를 파이프라인에 추가함
+- 변경: 모든 finding/operation이 `docs/design/*` 근거를 `designReferences`로 반드시 포함하도록 강제함
+- 이유: CTA 승격, state display, 새 component/composite/pattern 제안을 자유 RenderTree 생성이 아니라 제한된 디자인 품질 patch로 다루기 위함
+- 검증: `npm test -- packages/agent/src/__tests__/design-review-schema.test.ts packages/agent/src/__tests__/design-review-stage.test.ts`, `npx tsc --noEmit`
+- 후속: Design Review AI reviewer runner 추가와 `createComposite` materialization 고도화
+
+## 2026-05-26 - Node Type Taxonomy
+
+- 변경: `@cx/types`에 node type taxonomy 계약을 추가해 `screen.*`, `Screen.*`, `area.*`, layout/wrapper/system type을 분리함
+- 변경: `Accordion`/`accordion`은 structural type이 아니라 component catalog type/alias로만 해석되도록 renderer mapping을 정리함
+- 이유: 화면 surface, area behavior, component 구현 타입이 같은 `type` 문자열 아래 섞여 생성/검증 책임이 흐려지는 것을 막기 위함
+- 검증: `npx tsc --noEmit`, `npm test -- packages/renderer/src/__tests__/schema-runtime.test.ts packages/renderer/src/__tests__/render-tree-projection.test.ts`
+- 후속: component catalog의 실제 Accordion 구현/props 계약이 늘어나면 `Accordion` entry를 확장
 
 ## 2026-05-26 - Data Agent
 

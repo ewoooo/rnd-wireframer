@@ -1,20 +1,37 @@
+import type {
+	AreaPattern,
+	AreaVariant,
+	ChildrenLayoutPreset,
+	ChildWrapPreset,
+	CompositePattern,
+	CompositeVariant,
+	Pattern,
+	PatternResolutionSignals,
+	PropValue,
+	RegionPattern,
+	RegionVariant,
+	ScreenPattern,
+	ScreenVariant,
+} from "@cx/types";
 import { z } from "zod";
 
-export interface PatternPropBinding {
-	bind: string;
-	default?: string | number | boolean | null;
-}
+// Pattern preset 진실원은 @cx/types. agent는 Zod schema로 런타임 검증만 담당.
+export type {
+	AreaPattern,
+	AreaVariant,
+	ChildrenLayoutPreset,
+	ChildWrapPreset,
+	CompositePattern,
+	CompositeVariant,
+	Pattern,
+	PatternResolutionSignals,
+	RegionPattern,
+	RegionVariant,
+	ScreenPattern,
+	ScreenVariant,
+};
 
-export type PatternPropValue =
-	| string
-	| number
-	| boolean
-	| null
-	| PatternPropValue[]
-	| { [key: string]: PatternPropValue }
-	| PatternPropBinding;
-
-const propValueSchema: z.ZodType<PatternPropValue> = z.lazy(() =>
+const propValueSchema: z.ZodType<PropValue> = z.lazy(() =>
 	z.union([
 		z.string(),
 		z.number(),
@@ -29,35 +46,31 @@ const propValueSchema: z.ZodType<PatternPropValue> = z.lazy(() =>
 	]),
 );
 
-const propsSchema: z.ZodType<Record<string, PatternPropValue>> = z.record(
-	z.string(),
-	propValueSchema,
-);
+const propsSchema: z.ZodType<Record<string, PropValue>> = z.record(z.string(), propValueSchema);
 
-const childWrapSchema = z
-	.object({
-		kind: z.literal("page-stack"),
-		appliesTo: z.array(z.enum(["component", "area"])).optional(),
-		divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
-		itemPaddingX: z.number().optional(),
-		paddingY: z.number().optional(),
-		sectionPaddingX: z.number().optional(),
-	})
-	.optional();
+const childWrapSchema = z.object({
+	kind: z.literal("page-stack"),
+	appliesTo: z.array(z.enum(["component", "area"])).optional(),
+	divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
+	itemPaddingX: z.number().optional(),
+	paddingY: z.number().optional(),
+	sectionPaddingX: z.number().optional(),
+}) satisfies z.ZodType<ChildWrapPreset>;
 
 const childrenLayoutSchema = z.object({
 	childOrder: z.literal("explicit").optional(),
-	childWrap: childWrapSchema,
+	childWrap: childWrapSchema.optional(),
 	direction: z.enum(["horizontal", "vertical"]).optional(),
 	gap: z.number().optional(),
 	paddingX: z.number().optional(),
 	paddingY: z.number().optional(),
 	layoutProps: propsSchema.optional(),
-});
+}) satisfies z.ZodType<ChildrenLayoutPreset>;
 
 const regionVariantSchema = childrenLayoutSchema;
 const areaVariantSchema = childrenLayoutSchema;
 const compositeVariantSchema = childrenLayoutSchema;
+const screenVariantSchema = childrenLayoutSchema;
 
 const setMatcherSchema = z
 	.object({
@@ -122,7 +135,16 @@ export const compositePatternSchema = z
 	})
 	.superRefine(refineDefaultVariant);
 
+export const screenPatternSchema = z
+	.object({
+		...baseFields,
+		target: z.literal("screen"),
+		variants: z.record(z.string(), screenVariantSchema),
+	})
+	.superRefine(refineDefaultVariant);
+
 export const patternSchema = z.discriminatedUnion("target", [
+	screenPatternSchema,
 	regionPatternSchema,
 	areaPatternSchema,
 	compositePatternSchema,
@@ -165,7 +187,14 @@ const compositeCatalogPatternSchema = z.object({
 	layout: compositeVariantSchema.optional(),
 });
 
+const screenCatalogPatternSchema = z.object({
+	...catalogBaseFields,
+	target: z.literal("screen"),
+	layout: screenVariantSchema.optional(),
+});
+
 const catalogPatternSchema = z.discriminatedUnion("target", [
+	screenCatalogPatternSchema,
 	regionCatalogPatternSchema,
 	areaCatalogPatternSchema,
 	compositeCatalogPatternSchema,
@@ -210,6 +239,16 @@ function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 		};
 	}
 
+	if (pattern.target === "screen") {
+		return {
+			...base,
+			target: "screen",
+			variants: {
+				[defaultVariant]: pattern.layout ?? {},
+			},
+		};
+	}
+
 	return {
 		...base,
 		target: "composite",
@@ -219,7 +258,7 @@ function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 	};
 }
 
-function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals {
+function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals | undefined {
 	if (!match) return undefined;
 	return {
 		areaPatterns: match.areas,
@@ -235,15 +274,5 @@ export const patternCatalogSchema = z.object({
 	patterns: z.array(catalogPatternSchema),
 });
 
-export type Pattern = z.infer<typeof patternSchema>;
-export type RegionPattern = z.infer<typeof regionPatternSchema>;
-export type AreaPattern = z.infer<typeof areaPatternSchema>;
-export type CompositePattern = z.infer<typeof compositePatternSchema>;
-export type RegionVariant = z.infer<typeof regionVariantSchema>;
-export type AreaVariant = z.infer<typeof areaVariantSchema>;
-export type CompositeVariant = z.infer<typeof compositeVariantSchema>;
-export type ChildrenLayoutPreset = z.infer<typeof childrenLayoutSchema>;
-export type ChildWrapPreset = z.infer<typeof childWrapSchema>;
-export type PatternResolutionSignals = z.infer<typeof resolutionSchema>;
 type CatalogPattern = z.infer<typeof catalogPatternSchema>;
 type CatalogMatch = z.infer<typeof catalogMatchSchema>;

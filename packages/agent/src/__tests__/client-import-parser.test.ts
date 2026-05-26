@@ -1,3 +1,4 @@
+import { errorsOf } from "@cx/types";
 import { describe, expect, it } from "vitest";
 import { parseClientImportMarkdownBundle } from "../register/client-import-parser";
 
@@ -42,7 +43,7 @@ describe("parseClientImportMarkdownBundle", () => {
 			areaFiles: [{ name: "area.md", content: AREA }],
 		});
 
-		expect(result.validation.errors).toEqual([]);
+		expect(errorsOf(result.validation)).toEqual([]);
 		expect(result.generated.routes[0]?.variants[0]?.screens[0]?.areas).toEqual([
 			{ areaId: "ogn-mbr-terms", order: 1 },
 		]);
@@ -68,6 +69,8 @@ describe("parseClientImportMarkdownBundle", () => {
 			areaFiles: [],
 		});
 
-		expect(result.validation.errors).toContain("NOVA-MBR-FP-001-0: missing area ogn-mbr-terms");
+		expect(errorsOf(result.validation).map((i) => i.message)).toContain(
+			"NOVA-MBR-FP-001-0: missing area ogn-mbr-terms",
+		);
 	});
 });

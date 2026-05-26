@@ -1,39 +1,46 @@
-import compositePatternSet from "../../../../database/pattern-store/composite-patterns.json" with {
+import areaPatternSet from "../../../../database/pattern-store/area-patterns.json" with {
 	type: "json",
 };
-import areaPatternSet from "../../../../database/pattern-store/area-patterns.json" with {
+import compositePatternSet from "../../../../database/pattern-store/composite-patterns.json" with {
 	type: "json",
 };
 import regionPatternSet from "../../../../database/pattern-store/region-patterns.json" with {
 	type: "json",
 };
+import screenPatternSet from "../../../../database/pattern-store/screen-patterns.json" with {
+	type: "json",
+};
 import {
+	type AreaPattern,
+	type AreaVariant,
 	type ChildrenLayoutPreset,
 	type ChildWrapPreset,
 	type CompositePattern,
 	type CompositeVariant,
-	type AreaPattern,
-	type AreaVariant,
 	type Pattern,
 	type PatternResolutionSignals,
 	patternStoreSchema,
 	type RegionPattern,
 	type RegionVariant,
+	type ScreenPattern,
+	type ScreenVariant,
 } from "./pattern-schema";
 
 export type PatternStoreTarget = Pattern["target"];
 
 export type {
+	AreaPattern,
+	AreaVariant,
 	ChildrenLayoutPreset,
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
-	AreaPattern,
-	AreaVariant,
 	Pattern,
 	PatternResolutionSignals,
 	RegionPattern,
 	RegionVariant,
+	ScreenPattern,
+	ScreenVariant,
 };
 
 export type PatternStorePattern = Pattern;
@@ -54,6 +61,7 @@ export function loadPatternStore(): PatternStore {
 			...(regionPatternSet as { patterns: unknown[] }).patterns,
 			...(areaPatternSet as { patterns: unknown[] }).patterns,
 			...(compositePatternSet as { patterns: unknown[] }).patterns,
+			...(screenPatternSet as { patterns: unknown[] }).patterns,
 		],
 	};
 
@@ -92,6 +100,10 @@ export function isAreaPattern(pattern: Pattern): pattern is AreaPattern {
 
 export function isCompositePattern(pattern: Pattern): pattern is CompositePattern {
 	return pattern.target === "composite";
+}
+
+export function isScreenPattern(pattern: Pattern): pattern is ScreenPattern {
+	return pattern.target === "screen";
 }
 
 export function normalizePatternId(value: string): string {
