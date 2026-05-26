@@ -39,6 +39,7 @@ export interface AppScreenVariantOption {
 	name: string;
 	screenCode: string;
 	type: AppScreen["screenVariantType"];
+	variantName: string;
 }
 
 interface InitializeWorkbenchInput {
@@ -384,6 +385,7 @@ function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
 			name: screen.name,
 			screenCode: screen.code,
 			type: screen.screenVariantType,
+			variantName: screen.screenVariantName,
 		};
 
 		let route = byCode.get(screen.screenRouteId);

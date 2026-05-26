@@ -1,8 +1,10 @@
 import type { RenderTreeNode } from "@cx/renderer";
-import { GripVertical, Workflow } from "lucide-react";
-import { useState } from "react";
+import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
+import { useState, useTransition } from "react";
+import { cloneScreen, deleteScreen, updateScreenAreaOrder, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
@@ -59,18 +61,39 @@ export function InspectionPanel() {
 	if (!screen) {
 		return (
 			<Sidebar side="right">
-				<SidebarContent>
-					<h2 className="text-base font-semibold leading-none tracking-normal">관련 정보</h2>
+				<SidebarHeader className="border-b border-sidebar-border">
+					<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
+						<Workflow data-icon="inline-start" />
+						Information
+					</h2>
+				</SidebarHeader>
+				<SidebarContent className="p-3">
+					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
 				</SidebarContent>
 			</Sidebar>
 		);
 	}
 
+	const currentAreaCodes =
+		areaOrderOverrides[screen.code] ?? screen.areas.map((a) => a.areaCode);
+
 	return (
 		<Sidebar side="right">
+			<SidebarHeader className="border-b border-sidebar-border">
+				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
+					<Workflow data-icon="inline-start" />
+					Information
+				</h2>
+			</SidebarHeader>
 			<SidebarContent className="overflow-hidden">
-				<ScrollArea className="h-screen">
-					<div className="flex min-w-0 flex-col gap-4">
+				<ScrollArea className="h-[calc(100vh-88px)]">
+					<div className="flex min-w-0 flex-col gap-4 p-3">
+						<ScreenActions
+							screenCode={screen.code}
+							screenName={screen.name}
+							screenVariantId={screen.screenVariantId}
+							areaCodes={currentAreaCodes}
+						/>
 						<div className="flex min-w-0 flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
@@ -84,7 +107,7 @@ export function InspectionPanel() {
 							<InfoRow label="Variant type" value={screen.screenVariantType} />
 							<InfoRow label="Module" value={screen.module} />
 						</div>
-						{component ? <ComponentInspection component={component} /> : null}
+						{component ? <ComponentInspection component={component} screenCode={screen.code} /> : null}
 						{area ? <AreaInspection area={area} /> : null}
 						<Separator />
 						<ConnectedAreaList
@@ -130,6 +153,154 @@ export function InspectionPanel() {
 				</ScrollArea>
 			</SidebarContent>
 		</Sidebar>
+	);
+}
+
+function ScreenActions({
+	screenCode,
+	screenName,
+	areaCodes,
+}: {
+	screenCode: string;
+	screenName: string;
+	screenVariantId: string;
+	areaCodes: string[];
+}) {
+	const [isPending, startTransition] = useTransition();
+	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+	const [message, setMessage] = useState("");
+	const [editingTitle, setEditingTitle] = useState(false);
+	const [title, setTitle] = useState(screenName);
+	const [confirmDelete, setConfirmDelete] = useState(false);
+
+	function handleSave() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await updateScreenAreaOrder(screenCode, areaCodes);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("저장 완료");
+			}
+		});
+	}
+
+	function handleClone() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await cloneScreen(screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage(`복제 완료 → ${result.newScreenId}`);
+			}
+		});
+	}
+
+	function handleSaveTitle() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await updateScreenTitle(screenCode, title);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("저장 완료");
+				setEditingTitle(false);
+			}
+		});
+	}
+
+	function handleDelete() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await deleteScreen(screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("삭제 완료");
+			}
+			setConfirmDelete(false);
+		});
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
+			<div className="flex items-center justify-between gap-2">
+				<span className="text-xs font-semibold text-muted-foreground">화면 작업</span>
+				<div className="flex gap-1">
+					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleSave}>
+						<Save className="mr-1 size-3" />
+						{isPending ? "저장 중..." : "저장"}
+					</Button>
+					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
+						<Copy className="mr-1 size-3" />
+						{isPending ? "복제 중..." : "복제"}
+					</Button>
+					{confirmDelete ? (
+						<>
+							<Button type="button" size="sm" variant="destructive" disabled={isPending} onClick={handleDelete}>
+								{isPending ? "삭제 중..." : "확인"}
+							</Button>
+							<Button type="button" size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
+								취소
+							</Button>
+						</>
+					) : (
+						<Button
+							type="button"
+							size="sm"
+							variant="ghost"
+							className="text-destructive hover:text-destructive"
+							disabled={isPending}
+							onClick={() => setConfirmDelete(true)}
+						>
+							<Trash2 className="mr-1 size-3" />
+							삭제
+						</Button>
+					)}
+				</div>
+			</div>
+			{editingTitle ? (
+				<div className="flex gap-2">
+					<input
+						className="flex-1 rounded-md border bg-background px-2 py-1 text-sm"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						onKeyDown={(e) => e.key === "Enter" && handleSaveTitle()}
+					/>
+					<Button type="button" size="sm" disabled={isPending} onClick={handleSaveTitle}>
+						{isPending ? "저장 중..." : "저장"}
+					</Button>
+					<Button type="button" size="sm" variant="ghost" onClick={() => setEditingTitle(false)}>
+						취소
+					</Button>
+				</div>
+			) : (
+				<button
+					type="button"
+					className="text-left text-xs text-muted-foreground underline-offset-2 hover:underline"
+					onClick={() => { setTitle(screenName); setEditingTitle(true); }}
+				>
+					제목 편집
+				</button>
+			)}
+			{confirmDelete && (
+				<p className="text-xs text-destructive">이 화면을 삭제할까요? 되돌릴 수 없습니다.</p>
+			)}
+			{status !== "idle" && (
+				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
+					{message}
+				</p>
+			)}
+		</div>
 	);
 }
 
@@ -251,7 +422,7 @@ function ComponentInspection({
 				<InfoRow label="Component id" value={component.code} />
 				<InfoRow label="Type" value={component.node.type} />
 				<InfoRow label="Source screen" value={screenCode ?? component.screenCode} />
-				<InfoRow label="Parent OGN" value={component.parentAreaCode ?? "screen"} />
+				<InfoRow label="Parent area" value={component.parentAreaCode ?? "screen"} />
 			</div>
 			<NodePropsPanel node={component.node} />
 		</>
