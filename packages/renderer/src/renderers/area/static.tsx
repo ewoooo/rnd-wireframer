@@ -1,3 +1,4 @@
+import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/primitives";
 import { toNumber } from "../../normalize-render-props";
 import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";
@@ -17,14 +18,17 @@ export const areaStaticRendererDefinition: RendererDefinition = {
 		return (
 			<section
 				key={node.metadata.id}
-				className="flex w-full min-w-0 flex-col"
-				style={{ gap: titleGap }}
+				className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", titleGap))}
+				style={{ gap: spacingFallbackStyleValue(titleGap) }}
 				data-area-kind="static"
 			>
 				<div className="flex w-full min-w-0 flex-col">
 					<p className="text-base font-semibold">{areaName}</p>
 				</div>
-				<div className="flex w-full min-w-0 flex-col" style={{ gap: componentGap }}>
+				<div
+					className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", componentGap))}
+					style={{ gap: spacingFallbackStyleValue(componentGap) }}
+				>
 					{renderChildren()}
 				</div>
 			</section>

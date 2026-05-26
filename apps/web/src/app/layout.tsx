@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Wireframe Generator",
-	description: "Wireframe Renderer",
+	title: "Render Tree Generator",
+	description: "Render Tree Renderer",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

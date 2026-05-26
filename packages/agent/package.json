@@ -12,8 +12,10 @@
 		"./compose-assets": "./src/compose/compose-assets.ts",
 		"./compose-assets-ai": "./src/compose/compose-assets-ai.ts",
 		"./decorate-assets": "./src/decorate/decorate-assets.ts",
+		"./promote-database-tables": "./src/database/promote-database-tables.ts",
 		"./pattern-schema": "./src/pattern/pattern-schema.ts",
 		"./pattern-store": "./src/pattern/pattern-store.ts",
+		"./register/client-import-parser": "./src/register/client-import-parser.ts",
 		"./register-assets": "./src/register/register-assets.ts",
 		"./register-assets-to-database-tables": "./src/database/register-assets-to-database-tables.ts",
 		"./resolvers/pattern-resolver": "./src/pattern/pattern-resolver.ts",
@@ -24,6 +26,7 @@
 	"dependencies": {
 		"@anthropic-ai/claude-agent-sdk": "^0.3.146",
 		"@cx/renderer": "0.1.0",
+		"@cx/types": "0.1.0",
 		"@openai/agents": "^0.11.4",
 		"zod": "^4.4.3"
 	}

@@ -14,7 +14,7 @@ export type PropValue =
 	| { [key: string]: PropValue }
 	| PropBinding;
 
-export type WireframeAction =
+export type RenderTreeAction =
 	| {
 			action: "navigate";
 			url: string;
@@ -42,27 +42,27 @@ export type WireframeAction =
 			params?: Record<string, unknown>;
 	  };
 
-export interface WireframeEvents {
-	onClick?: WireframeAction | WireframeAction[];
-	onChange?: WireframeAction | WireframeAction[];
-	onFocus?: WireframeAction | WireframeAction[];
-	onBlur?: WireframeAction | WireframeAction[];
-	onSubmit?: WireframeAction | WireframeAction[];
-	onLoad?: WireframeAction | WireframeAction[];
-	onView?: WireframeAction | WireframeAction[];
-	[key: `on${string}`]: WireframeAction | WireframeAction[] | undefined;
+export interface RenderTreeEvents {
+	onClick?: RenderTreeAction | RenderTreeAction[];
+	onChange?: RenderTreeAction | RenderTreeAction[];
+	onFocus?: RenderTreeAction | RenderTreeAction[];
+	onBlur?: RenderTreeAction | RenderTreeAction[];
+	onSubmit?: RenderTreeAction | RenderTreeAction[];
+	onLoad?: RenderTreeAction | RenderTreeAction[];
+	onView?: RenderTreeAction | RenderTreeAction[];
+	[key: `on${string}`]: RenderTreeAction | RenderTreeAction[] | undefined;
 }
 
-export interface WireframeDisplay {
+export interface RenderTreeDisplay {
 	when?: PropBinding | boolean;
 }
 
-export interface WireframeStyle {
+export interface RenderTreeStyle {
 	background?: string;
 	opacity?: number;
 }
 
-export interface WireframeMetadata {
+export interface RenderTreeMetadata {
 	id: string;
 	title: string;
 	author: string;
@@ -71,16 +71,16 @@ export interface WireframeMetadata {
 	description?: string;
 }
 
-export interface WireframeNode {
+export interface RenderTreeNode {
 	type: string;
 	componentVersion: string;
-	metadata: WireframeMetadata;
+	metadata: RenderTreeMetadata;
 	props?: Record<string, PropValue>;
 	className?: string;
-	style?: WireframeStyle;
-	events?: WireframeEvents;
-	display?: WireframeDisplay;
-	children?: WireframeNode[];
+	style?: RenderTreeStyle;
+	events?: RenderTreeEvents;
+	display?: RenderTreeDisplay;
+	children?: RenderTreeNode[];
 }
 
 export const SCREEN_NODE_TYPE = "Screen" as const;
@@ -96,9 +96,9 @@ export const REQUIRED_SCREEN_REGION_TYPES = [
 	SCREEN_BOTTOM_NODE_TYPE,
 ] as const;
 
-export type WireframeScreenRegionType = (typeof REQUIRED_SCREEN_REGION_TYPES)[number];
+export type RenderTreeScreenRegionType = (typeof REQUIRED_SCREEN_REGION_TYPES)[number];
 
-export type WireframeFlexLayoutProps = {
+export type RenderTreeFlexLayoutProps = {
 	direction: "row" | "column";
 	gap?: number;
 	paddingX?: number;
@@ -107,7 +107,7 @@ export type WireframeFlexLayoutProps = {
 	justify?: "start" | "center" | "end" | "between";
 };
 
-export type WireframeGridLayoutProps = {
+export type RenderTreeGridLayoutProps = {
 	columns?: string;
 	rows?: string;
 	gap?: number;
@@ -117,76 +117,76 @@ export type WireframeGridLayoutProps = {
 	justify?: "start" | "center" | "end" | "stretch";
 };
 
-export type WireframeScreenHeaderNode = Omit<WireframeNode, "type" | "props" | "children"> & {
+export type RenderTreeScreenHeaderNode = Omit<RenderTreeNode, "type" | "props" | "children"> & {
 	type: typeof SCREEN_HEADER_NODE_TYPE;
 	props: {
 		position: "fixed" | "sticky" | "static";
-		layout: WireframeFlexLayoutProps;
+		layout: RenderTreeFlexLayoutProps;
 		height?: number;
 		zIndex?: number;
 	};
-	children?: WireframeNode[];
+	children?: RenderTreeNode[];
 };
 
-export type WireframeScreenContentsNode = Omit<WireframeNode, "type" | "props" | "children"> & {
+export type RenderTreeScreenContentsNode = Omit<RenderTreeNode, "type" | "props" | "children"> & {
 	type: typeof SCREEN_CONTENTS_NODE_TYPE;
 	props: {
-		layout: WireframeFlexLayoutProps;
+		layout: RenderTreeFlexLayoutProps;
 		scroll: boolean;
 	};
-	children: WireframeNode[];
+	children: RenderTreeNode[];
 };
 
-export type WireframeScreenBottomNode = Omit<WireframeNode, "type" | "props" | "children"> & {
+export type RenderTreeScreenBottomNode = Omit<RenderTreeNode, "type" | "props" | "children"> & {
 	type: typeof SCREEN_BOTTOM_NODE_TYPE;
 	props: {
 		position: "fixed" | "sticky" | "static";
-		layout: WireframeFlexLayoutProps;
+		layout: RenderTreeFlexLayoutProps;
 		height?: number;
 		safeArea?: boolean;
 		zIndex?: number;
 	};
-	children?: WireframeNode[];
+	children?: RenderTreeNode[];
 };
 
-export type WireframeScreenNode = Omit<WireframeNode, "type" | "children"> & {
+export type RenderTreeScreenNode = Omit<RenderTreeNode, "type" | "children"> & {
 	type: typeof SCREEN_NODE_TYPE;
-	children: [WireframeScreenHeaderNode, WireframeScreenContentsNode, WireframeScreenBottomNode];
+	children: [RenderTreeScreenHeaderNode, RenderTreeScreenContentsNode, RenderTreeScreenBottomNode];
 };
 
-export type WireframeLayoutFlexNode = Omit<WireframeNode, "type" | "props"> & {
+export type RenderTreeLayoutFlexNode = Omit<RenderTreeNode, "type" | "props"> & {
 	type: typeof LAYOUT_FLEX_NODE_TYPE;
-	props: WireframeFlexLayoutProps;
+	props: RenderTreeFlexLayoutProps;
 };
 
-export type WireframeLayoutGridNode = Omit<WireframeNode, "type" | "props"> & {
+export type RenderTreeLayoutGridNode = Omit<RenderTreeNode, "type" | "props"> & {
 	type: typeof LAYOUT_GRID_NODE_TYPE;
-	props: WireframeGridLayoutProps;
+	props: RenderTreeGridLayoutProps;
 };
 
-export interface WireframeSchema {
+export interface RenderTree {
 	version: string;
 	minRendererVersion?: string;
 	minComponentsVersion?: string;
-	metadata: WireframeMetadata;
+	metadata: RenderTreeMetadata;
 	theme?: {
 		mode?: "light" | "dark" | "system";
 		primaryColor?: string;
 		fontFamily?: string;
 	};
 	data?: Record<string, unknown>;
-	children: WireframeNode[];
+	children: RenderTreeNode[];
 }
 
-export interface ValidationResult<T = WireframeSchema> {
+export interface ValidationResult<T = RenderTree> {
 	success: boolean;
 	errors: string[];
 	warnings: string[];
-	stats?: WireframeValidationStats;
+	stats?: RenderTreeValidationStats;
 	data?: T;
 }
 
-export interface WireframeValidationStats {
+export interface RenderTreeValidationStats {
 	componentTypes: string[];
 	fallbackTypes: string[];
 	maxDepth: number;
@@ -221,7 +221,7 @@ export const PropValueSchema: z.ZodType<PropValue> = z.lazy(() =>
 	]),
 );
 
-const WireframeActionSchema: z.ZodType<WireframeAction> = z.discriminatedUnion("action", [
+const RenderTreeActionSchema: z.ZodType<RenderTreeAction> = z.discriminatedUnion("action", [
 	z.object({
 		action: z.literal("navigate"),
 		url: z.string(),
@@ -251,10 +251,10 @@ const WireframeActionSchema: z.ZodType<WireframeAction> = z.discriminatedUnion("
 ]);
 
 const eventValueSchema = z
-	.union([WireframeActionSchema, z.array(WireframeActionSchema)])
+	.union([RenderTreeActionSchema, z.array(RenderTreeActionSchema)])
 	.optional();
 
-export const WireframeEventsSchema = z
+export const RenderTreeEventsSchema = z
 	.object({
 		onClick: eventValueSchema,
 		onChange: eventValueSchema,
@@ -266,7 +266,7 @@ export const WireframeEventsSchema = z
 	})
 	.catchall(eventValueSchema);
 
-export const WireframeMetadataSchema = z.object({
+export const RenderTreeMetadataSchema = z.object({
 	id: z.string(),
 	title: z.string(),
 	author: z.string(),
@@ -275,11 +275,11 @@ export const WireframeMetadataSchema = z.object({
 	description: z.string().optional(),
 });
 
-export const WireframeNodeSchema: z.ZodType<WireframeNode> = z.lazy(() =>
+export const RenderTreeNodeSchema: z.ZodType<RenderTreeNode> = z.lazy(() =>
 	z.object({
 		type: z.string(),
 		componentVersion: z.string(),
-		metadata: WireframeMetadataSchema,
+		metadata: RenderTreeMetadataSchema,
 		props: z.record(z.string(), PropValueSchema).optional(),
 		className: z.string().optional(),
 		style: z
@@ -288,21 +288,21 @@ export const WireframeNodeSchema: z.ZodType<WireframeNode> = z.lazy(() =>
 				opacity: z.number().optional(),
 			})
 			.optional(),
-		events: WireframeEventsSchema.optional(),
+		events: RenderTreeEventsSchema.optional(),
 		display: z
 			.object({
 				when: z.union([PropBindingSchema, z.boolean()]).optional(),
 			})
 			.optional(),
-		children: z.array(WireframeNodeSchema).optional(),
+		children: z.array(RenderTreeNodeSchema).optional(),
 	}),
 );
 
-export const WireframeSchemaValidator = z.object({
+export const RenderTreeValidator = z.object({
 	version: z.string(),
 	minRendererVersion: z.string().optional(),
 	minComponentsVersion: z.string().optional(),
-	metadata: WireframeMetadataSchema,
+	metadata: RenderTreeMetadataSchema,
 	theme: z
 		.object({
 			mode: z.enum(["light", "dark", "system"]).optional(),
@@ -311,5 +311,5 @@ export const WireframeSchemaValidator = z.object({
 		})
 		.optional(),
 	data: z.record(z.string(), z.unknown()).optional(),
-	children: z.array(WireframeNodeSchema),
+	children: z.array(RenderTreeNodeSchema),
 });

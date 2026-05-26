@@ -1,4 +1,4 @@
-import type { PropValue, WireframeEvents } from "../src/schema";
+import type { PropValue, RenderTreeEvents } from "../src/schema";
 
 export type CXUINode = ScreenNode | ScreenRegionNode | LayoutNode | AreaNode | ComponentNode;
 
@@ -111,7 +111,7 @@ export type SystemHeaderNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: SystemHeaderProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type TopNavigationNode = {
@@ -119,7 +119,7 @@ export type TopNavigationNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: TopNavigationProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type ProgressBarNode = {
@@ -134,7 +134,7 @@ export type GlobalNavigationNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: GlobalNavigationProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type CardNode = {
@@ -142,7 +142,7 @@ export type CardNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: CardProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type ButtonNode = {
@@ -150,7 +150,7 @@ export type ButtonNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: ButtonProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type ListCellNode = {
@@ -158,7 +158,7 @@ export type ListCellNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: ListCellProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type AccordionNode = {
@@ -166,7 +166,7 @@ export type AccordionNode = {
 	componentVersion: string;
 	metadata: CXUIMetadata;
 	props: AccordionProps;
-	events?: WireframeEvents;
+	events?: RenderTreeEvents;
 };
 
 export type SectionMessageNode = {

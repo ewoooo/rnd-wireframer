@@ -1,155 +1,46 @@
 import type {
+	AreaTypeLiteral,
+	DatabaseAreaMetadata,
+	DatabaseAreaRow,
+	DatabaseComponentChildEntry,
+	DatabaseComponentMetadata,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenBody,
+	DatabaseScreenRegion,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenRowMetadata,
+	DatabaseScreenVariantRow,
+	MaterializedDatabaseNodeTables,
+} from "@cx/types";
+import { normalizeComponentType } from "../normalize-component-type";
+import type {
 	DecoratedAreaNode,
 	DecoratedComponentNode,
 	DecoratedNodeTree,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
-	NodeHook,
 } from "../types";
-
-export interface DatabaseScreenRouteRow {
-	id: string;
-	moduleId: string;
-	name: string;
-	order: number;
-	processId: string | null;
-}
-
-export interface DatabaseScreenVariantRow {
-	id: string;
-	screenRouteId: string;
-	name: string;
-	order: number;
-	variantType: "base" | "edge";
-	followUp: string | null;
-}
-
-export interface DatabaseRegionChild {
-	kind: "component" | "area";
-	id: string;
-}
-
-import { normalizeComponentType } from "../normalize-component-type";
-import type { ScreenSurfaceType } from "../types";
 import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
-export type AreaTypeLiteral = "area.static" | "area.dynamic";
 
-export interface DatabaseScreenRegion {
-	type: string;
-	componentVersion?: string;
-	metadata: { title: string; description?: string };
-	pattern?: { id: string; variant?: string };
-	props?: Record<string, unknown>;
-	children: DatabaseRegionChild[];
-}
-
-export interface DatabaseScreenRowMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-export interface DatabaseScreenBody {
-	type: ScreenSurfaceType;
-	regions: {
-		header: DatabaseScreenRegion;
-		contents: DatabaseScreenRegion;
-		bottom: DatabaseScreenRegion;
-	};
-}
-
-export interface DatabaseScreenRow {
-	id: string;
-	screenVariantId: string;
-	minRendererVersion?: string;
-	minComponentsVersion?: string;
-	version: string;
-	/** JSON 영속 데이터엔 항상 존재하지만, in-flight 구성 중엔 미정일 수 있음. */
-	order?: number;
-	pattern?: { id: string; variant?: string };
-	patternId?: string;
-	patternVariant?: string;
-	metadata: DatabaseScreenRowMetadata;
-	theme?: { mode?: "light" | "dark" | "system"; primaryColor?: string; fontFamily?: string };
-	/** 워크벤치 mock data 주입용 optional 슬롯. JSON 영속 데이터엔 없음. */
-	data?: Record<string, unknown>;
-	screen: DatabaseScreenBody;
-}
-
-export interface DatabaseAreaMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-/**
- * Canonical area DB row. Legacy와 PRDD pipeline 양쪽 다 이 shape으로 발행.
- * PRDD 출처는 key + 풍부한 props (layout, areaType, errorPolicy 등) 채움.
- * Legacy 출처는 name만 채우고 나머지 optional 비움.
- */
-export interface DatabaseAreaRow {
-	id: string;
-	type: AreaTypeLiteral;
-	version: string;
-	/** PRDD 영역 no. (legacy 출처일 때 undefined). */
-	key?: number;
-	metadata: DatabaseAreaMetadata;
-	/** Legacy 출처는 비어있거나 name만, PRDD는 풍부한 메타. */
-	props?: {
-		name?: string;
-		layout?: string;
-		areaType?: string;
-		visibility?: string;
-		minCount?: number;
-		maxCount?: number;
-		priority?: number;
-		errorPolicy?: string;
-		policyAnchors?: string[];
-		/** Dynamic area trigger entity (PRDD pipeline 발행). */
-		trigger?: { type: "boolean-state"; source: string; defaultValue?: boolean };
-		[k: string]: unknown;
-	};
-	pattern?: { id: string; variant?: string };
-	children: Array<{ kind: "component"; id: string }>;
-}
-
-export interface DatabaseComponentChildEntry {
-	component: { type?: string } & Record<string, unknown>;
-	props: Record<string, unknown>;
-}
-
-export interface DatabaseComponentMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-	description?: string;
-}
-
-export interface DatabaseComponentRow {
-	id: string;
-	type: string;
-	version: string;
-	metadata: DatabaseComponentMetadata;
-	pattern: { id: string; variant: string };
-	children: DatabaseComponentChildEntry[];
-	hooks?: NodeHook[];
-	events?: Record<string, unknown>;
-}
-
-export interface MaterializedDatabaseNodeTables {
-	screenRoutes: DatabaseScreenRouteRow[];
-	screenVariants: DatabaseScreenVariantRow[];
-	screens: DatabaseScreenRow[];
-	areas: DatabaseAreaRow[];
-	components: DatabaseComponentRow[];
-	warnings: string[];
-}
+export type {
+	AreaTypeLiteral,
+	DatabaseAreaMetadata,
+	DatabaseAreaRow,
+	DatabaseComponentChildEntry,
+	DatabaseComponentMetadata,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenBody,
+	DatabaseScreenRegion,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenRowMetadata,
+	DatabaseScreenVariantRow,
+	MaterializedDatabaseNodeTables,
+};
 
 export interface MaterializedDatabaseNodeTablesOptions {
 	author?: string;

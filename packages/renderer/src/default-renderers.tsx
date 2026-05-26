@@ -7,16 +7,22 @@ import {
 	ListText,
 	TextField,
 } from "@cx/components";
-import { Flex, Grid } from "@cx/layout/primitives";
+import {
+	cx,
+	Flex,
+	Grid,
+	spacingFallbackStyleValue,
+	spacingUtilityClass,
+} from "@cx/layout/primitives";
 import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
-import { areaRendererDefinitions } from "./renderers/area";
 import type { RendererDefinition } from "./registry";
+import { areaRendererDefinitions } from "./renderers/area";
 import { toBoolean, toText } from "./runtime";
 import type {
-	WireframeFlexLayoutProps,
-	WireframeGridLayoutProps,
-	WireframeLayoutFlexNode,
-	WireframeLayoutGridNode,
+	RenderTreeFlexLayoutProps,
+	RenderTreeGridLayoutProps,
+	RenderTreeLayoutFlexNode,
+	RenderTreeLayoutGridNode,
 } from "./schema";
 
 export const defaultRendererDefinitions: RendererDefinition[] = [
@@ -38,8 +44,8 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		render: ({ node, renderable, renderChildren }) => (
 			<Flex
 				key={node.metadata.id}
-				layout={renderable.props as WireframeFlexLayoutProps}
-				node={node as WireframeLayoutFlexNode}
+				layout={renderable.props as RenderTreeFlexLayoutProps}
+				node={node as RenderTreeLayoutFlexNode}
 			>
 				{renderChildren()}
 			</Flex>
@@ -50,8 +56,8 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		render: ({ node, renderable, renderChildren }) => (
 			<Grid
 				key={node.metadata.id}
-				layout={renderable.props as WireframeGridLayoutProps}
-				node={node as WireframeLayoutGridNode}
+				layout={renderable.props as RenderTreeGridLayoutProps}
+				node={node as RenderTreeLayoutGridNode}
 			>
 				{renderChildren()}
 			</Grid>
@@ -68,12 +74,25 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			return (
 				<section
 					key={node.metadata.id}
-					className="box-border flex w-full flex-col"
+					className={cx(
+						"box-border flex w-full flex-col",
+						spacingUtilityClass("py", paddingY),
+						spacingUtilityClass("px", sectionPaddingX),
+					)}
 					data-node-id={node.metadata.id}
 					data-node-type={node.type}
-					style={{ padding: `${paddingY}px ${sectionPaddingX}px` }}
+					style={{
+						paddingBlock: spacingFallbackStyleValue(paddingY),
+						paddingInline: spacingFallbackStyleValue(sectionPaddingX),
+					}}
 				>
-					<div className="box-border flex w-full flex-col" style={{ paddingInline: itemPaddingX }}>
+					<div
+						className={cx(
+							"box-border flex w-full flex-col",
+							spacingUtilityClass("px", itemPaddingX),
+						)}
+						style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
+					>
 						{renderChildren()}
 					</div>
 				</section>

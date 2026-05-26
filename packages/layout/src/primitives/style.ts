@@ -52,6 +52,17 @@ export function cx(...values: Array<string | false | null | undefined>): string 
 	return values.filter(Boolean).join(" ");
 }
 
+export function spacingUtilityClass(
+	prefix: "gap" | "px" | "py",
+	value: number | undefined,
+): string | undefined {
+	return toSpacingClass(prefix, value);
+}
+
+export function spacingFallbackStyleValue(value: number | undefined): number | undefined {
+	return needsSpacingFallback(value) ? value : undefined;
+}
+
 export function flexLayoutClassName(layout: FlexLayoutProps | undefined): string {
 	if (!layout) return "flex flex-col";
 	return cx(
@@ -68,9 +79,9 @@ export function flexLayoutClassName(layout: FlexLayoutProps | undefined): string
 export function flexLayoutFallbackStyle(layout: FlexLayoutProps | undefined): CSSProperties {
 	if (!layout) return {};
 	return {
-		gap: needsSpacingFallback(layout.gap) ? layout.gap : undefined,
-		paddingInline: needsSpacingFallback(layout.paddingX) ? layout.paddingX : undefined,
-		paddingBlock: needsSpacingFallback(layout.paddingY) ? layout.paddingY : undefined,
+		gap: spacingFallbackStyleValue(layout.gap),
+		paddingInline: spacingFallbackStyleValue(layout.paddingX),
+		paddingBlock: spacingFallbackStyleValue(layout.paddingY),
 	};
 }
 
@@ -91,9 +102,9 @@ export function gridLayoutFallbackStyle(layout: GridLayoutProps | undefined): CS
 	return {
 		gridTemplateColumns: layout.columns,
 		gridTemplateRows: layout.rows,
-		gap: needsSpacingFallback(layout.gap) ? layout.gap : undefined,
-		paddingInline: needsSpacingFallback(layout.paddingX) ? layout.paddingX : undefined,
-		paddingBlock: needsSpacingFallback(layout.paddingY) ? layout.paddingY : undefined,
+		gap: spacingFallbackStyleValue(layout.gap),
+		paddingInline: spacingFallbackStyleValue(layout.paddingX),
+		paddingBlock: spacingFallbackStyleValue(layout.paddingY),
 	};
 }
 

@@ -12,10 +12,7 @@
  * 미지정 영역은 default true (회귀 없음).
  */
 
-export function resolveHasData(
-	data: Record<string, unknown>,
-	areaId: string,
-): boolean {
+export function resolveHasData(data: Record<string, unknown>, areaId: string): boolean {
 	const areaData = data.__areaData__;
 	if (!areaData || typeof areaData !== "object") return true;
 	const entry = (areaData as Record<string, unknown>)[areaId];

@@ -1,13 +1,11 @@
 import type { RegisteredNodeTree } from "@cx/agent";
-import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
 	type AppArea,
+	type AppComponent,
 	type AppScreen,
 	getInitialScreenCode,
-	getScreenNode,
 	getSelectedScreen,
-	getValidationStatus,
 } from "@/adapters/tables-to-render-tree";
 import {
 	type AgentNodeSelection,
@@ -18,13 +16,7 @@ import {
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 
-export interface AppComponent {
-	code: string;
-	name: string;
-	parentAreaCode?: string;
-	sourceScreenCode: string;
-	type: string;
-}
+export type { AppComponent };
 
 export interface AppScreenRoute {
 	code: string;
@@ -49,22 +41,10 @@ export interface AppScreenVariantOption {
 	type: AppScreen["screenVariantType"];
 }
 
-export interface SelectedAreaContext {
-	code: string;
-	node: WireframeNode;
-	screen: AppScreen;
-}
-
-export interface SelectedComponentContext {
-	code: string;
-	node: WireframeNode;
-	area?: SelectedAreaContext;
-	screen: AppScreen;
-}
-
 interface InitializeWorkbenchInput {
 	agentRegistry?: RegisteredNodeTree;
 	areas: AppArea[];
+	components: AppComponent[];
 	screens: AppScreen[];
 }
 
@@ -76,12 +56,12 @@ interface WorkbenchState {
 	agentImports: AgentClientImport[];
 	agentRegistry?: RegisteredNodeTree;
 	agentWarnings: string[];
+	areaOrderOverrides: Record<string, string[]>;
 	components: AppComponent[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
 	isComponentView: boolean;
 	isAreaView: boolean;
 	areas: AppArea[];
-	screenNode?: WireframeScreenNode;
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
@@ -98,17 +78,10 @@ interface WorkbenchState {
 	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
 	selectedAgentAsset?: SelectedAgentAsset;
 	selectedAgentNode: AgentNodeSelection;
-	selectedComponent?: SelectedComponentContext;
 	selectedComponentCode: string;
-	selectedArea?: SelectedAreaContext;
 	selectedAreaCode: string;
 	selectedScreen?: AppScreen;
 	selectedScreenCode: string;
-	validationErrors: string[];
-	validationLabel: string;
-	validationStats?: WireframeValidationStats;
-	validationSuccess: boolean;
-	validationWarnings: string[];
 }
 
 export interface AgentClientImport {
@@ -125,11 +98,11 @@ const initialWorkbenchState = {
 	agentImports: [],
 	agentRegistry: undefined,
 	agentWarnings: [],
+	areaOrderOverrides: {},
 	components: [],
 	isComponentView: false,
 	isAreaView: false,
 	areas: [],
-	screenNode: undefined,
 	screenRoutes: [],
 	screens: [],
 	selectedAgentAsset: undefined,
@@ -137,23 +110,15 @@ const initialWorkbenchState = {
 		level: "screen" as const,
 		id: "",
 	},
-	selectedComponent: undefined,
 	selectedComponentCode: "",
-	selectedArea: undefined,
 	selectedAreaCode: "",
 	selectedScreen: undefined,
 	selectedScreenCode: "",
-	validationErrors: [],
-	validationLabel: "screen source + render tree valid",
-	validationStats: undefined,
-	validationSuccess: true,
-	validationWarnings: [],
 };
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ agentRegistry, areas, screens }) => {
-		const components = getComponentCatalog(screens);
+	initializeWorkbench: ({ agentRegistry, areas, components, screens }) => {
 		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
 		const selectedAgentNode =
@@ -176,6 +141,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			activeNavigatorTab: state.activeNavigatorTab,
 			agentRegistry,
 			agentWarnings: agentRegistry?.warnings ?? [],
+			areaOrderOverrides: state.areaOrderOverrides,
 			components,
 			areas,
 			screenRoutes,
@@ -195,9 +161,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "agent",
+			activeNavigatorTab: "agent" as NavigatorTab,
 			selectedAgentNode: node,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -211,12 +177,18 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			if (screen.code !== screenCode) return screen;
 			return reorderWorkbenchScreenAreas(screen, areaCodes);
 		});
+		const areaOrderOverrides = {
+			...state.areaOrderOverrides,
+			[screenCode]: areaCodes,
+		};
 		const nextState = {
 			...state,
+			areaOrderOverrides,
 			screens: nextScreens,
-		} satisfies WorkbenchState;
+		};
 
 		set({
+			areaOrderOverrides,
 			screens: nextScreens,
 			...getDerivedWorkbenchState(nextState),
 		});
@@ -227,9 +199,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? state.selectedScreenCode;
 		const nextState = {
 			...state,
-			activeNavigatorTab: "scn",
+			activeNavigatorTab: "scn" as NavigatorTab,
 			selectedScreenCode: screenCode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -241,9 +213,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "scn",
+			activeNavigatorTab: "scn" as NavigatorTab,
 			selectedScreenCode: screenCode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -255,9 +227,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "comp",
+			activeNavigatorTab: "comp" as NavigatorTab,
 			selectedComponentCode: componentCode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -269,9 +241,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "ogn",
+			activeNavigatorTab: "ogn" as NavigatorTab,
 			selectedAreaCode: areaCode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -283,9 +255,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const state = get();
 		const nextState = {
 			...state,
-			activeNavigatorTab: "scn",
+			activeNavigatorTab: "scn" as NavigatorTab,
 			selectedScreenCode: screenCode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
@@ -298,7 +270,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const nextState = {
 			...state,
 			activeNavigatorTab: tab,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			activeNavigatorTab: tab,
@@ -319,11 +291,11 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const selectedAgentNode = getDefaultAgentSelection(registry);
 		const nextState = {
 			...state,
-			agentGenerationStatus: "success",
+			agentGenerationStatus: "success" as const,
 			agentRegistry: registry,
 			agentWarnings: registry?.warnings ?? [],
 			selectedAgentNode,
-		} satisfies WorkbenchState;
+		};
 
 		set({
 			agentGenerationStatus: nextState.agentGenerationStatus,
@@ -340,6 +312,8 @@ function getDerivedWorkbenchState(
 		WorkbenchState,
 		| "agentRegistry"
 		| "activeNavigatorTab"
+		| "components"
+		| "areas"
 		| "screens"
 		| "selectedAgentNode"
 		| "selectedComponentCode"
@@ -348,31 +322,25 @@ function getDerivedWorkbenchState(
 	>,
 ) {
 	const selectedScreen = getSelectedScreen(state.screens, state.selectedScreenCode);
-	const selectedArea = getSelectedAreaContext(state.screens, state.selectedAreaCode);
-	const selectedComponent = getSelectedComponentContext(state.screens, state.selectedComponentCode);
-	const isAreaView = state.activeNavigatorTab === "ogn" && Boolean(selectedArea);
-	const isComponentView = state.activeNavigatorTab === "comp" && Boolean(selectedComponent);
+	const hasSelectedArea = state.areas.some((area) => area.code === state.selectedAreaCode);
+	const hasSelectedComponent = state.components.some(
+		(component) => component.code === state.selectedComponentCode,
+	);
+	const isAreaView = state.activeNavigatorTab === "ogn" && hasSelectedArea;
+	const isComponentView = state.activeNavigatorTab === "comp" && hasSelectedComponent;
 	const activeScreen = isComponentView
-		? selectedComponent?.screen
+		? (getScreenForComponent(state.screens, state.components, state.selectedComponentCode) ??
+			selectedScreen)
 		: isAreaView
-			? selectedArea?.screen
+			? (getScreenForArea(state.screens, state.selectedAreaCode) ?? selectedScreen)
 			: selectedScreen;
-	const validationStatus = getValidationStatus(activeScreen);
 
 	return {
 		activeScreen,
 		isComponentView,
 		isAreaView,
-		screenNode: getScreenNode(selectedScreen),
 		selectedAgentAsset: findSelectedAgentAsset(state.agentRegistry, state.selectedAgentNode),
-		selectedComponent: isComponentView ? selectedComponent : undefined,
-		selectedArea: isAreaView ? selectedArea : undefined,
 		selectedScreen,
-		validationErrors: validationStatus.errors,
-		validationLabel: validationStatus.label,
-		validationStats: validationStatus.stats ?? activeScreen?.validationStats,
-		validationSuccess: validationStatus.success,
-		validationWarnings: validationStatus.warnings,
 	};
 }
 
@@ -386,82 +354,25 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 			areaCode,
 		};
 	});
-	const schema = cloneSchema(screen.schema);
-	const screenNode = getScreenNode({ ...screen, schema });
-	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
-
-	if (contentsNode?.children) {
-		contentsNode.children = reorderAreaContainers(contentsNode.children, areaCodes);
-	}
 
 	return {
 		...screen,
 		areas: nextAreas,
-		schema,
 	};
 }
 
-function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
-	const areaContainerByCode = new Map(
-		nodes
-			.map((node) => {
-				const areaCode = getContainedAreaCode(node);
-				return areaCode ? ([areaCode, node] as const) : undefined;
-			})
-			.filter(isAreaContainerEntry),
-	);
-	const nextAreaContainers = areaCodes
-		.map((areaCode) => areaContainerByCode.get(areaCode))
-		.filter(isWireframeNode);
-	let nextAreaIndex = 0;
-
-	return nodes.map((node) => {
-		if (!getContainedAreaCode(node)) return node;
-		const nextNode = nextAreaContainers[nextAreaIndex];
-		nextAreaIndex += 1;
-		return nextNode ?? node;
-	});
+function getScreenForComponent(
+	screens: AppScreen[],
+	components: AppComponent[],
+	componentCode: string,
+) {
+	const component = components.find((candidate) => candidate.code === componentCode);
+	if (!component) return undefined;
+	return screens.find((screen) => screen.code === component.sourceScreenCode);
 }
 
-function getContainedAreaCode(node: WireframeNode): string | undefined {
-	if (isAreaNode(node)) return getAreaCode(node);
-	const childArea = node.children?.find(isAreaNode);
-	return childArea ? getAreaCode(childArea) : undefined;
-}
-
-function cloneSchema<T>(schema: T): T {
-	return JSON.parse(JSON.stringify(schema)) as T;
-}
-
-function isAreaContainerEntry(
-	entry: readonly [string, WireframeNode] | undefined,
-): entry is readonly [string, WireframeNode] {
-	return Boolean(entry);
-}
-
-function isWireframeNode(node: WireframeNode | undefined): node is WireframeNode {
-	return Boolean(node);
-}
-
-function getComponentCatalog(screens: AppScreen[]): AppComponent[] {
-	const byCode = new Map<string, AppComponent>();
-
-	for (const screen of screens) {
-		forEachComponentNode(screen.schema.children, undefined, (node, parentAreaCode) => {
-			const code = node.metadata.id;
-			if (byCode.has(code)) return;
-
-			byCode.set(code, {
-				code,
-				name: node.metadata.title,
-				parentAreaCode,
-				sourceScreenCode: screen.code,
-				type: node.type,
-			});
-		});
-	}
-
-	return Array.from(byCode.values());
+function getScreenForArea(screens: AppScreen[], areaCode: string) {
+	return screens.find((screen) => screen.areas.some((area) => area.areaCode === areaCode));
 }
 
 function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
@@ -531,111 +442,4 @@ function getScreenVariantLabelOrder(label: string) {
 
 	const edgeNumber = label.match(/^E(\d+)$/)?.[1];
 	return edgeNumber ? Number(edgeNumber) : Number.MAX_SAFE_INTEGER;
-}
-
-function getSelectedAreaContext(
-	screens: AppScreen[],
-	selectedAreaCode: string,
-): SelectedAreaContext | undefined {
-	for (const screen of screens) {
-		const node = findAreaNode(screen.schema.children, selectedAreaCode);
-		if (node) {
-			return {
-				code: selectedAreaCode,
-				node,
-				screen,
-			};
-		}
-	}
-	return undefined;
-}
-
-function getSelectedComponentContext(
-	screens: AppScreen[],
-	selectedComponentCode: string,
-): SelectedComponentContext | undefined {
-	for (const screen of screens) {
-		const found = findComponentNode(screen.schema.children, selectedComponentCode);
-		if (found) {
-			return {
-				code: selectedComponentCode,
-				node: found.node,
-				area: found.parentAreaCode
-					? getSelectedAreaContext([screen], found.parentAreaCode)
-					: undefined,
-				screen,
-			};
-		}
-	}
-	return undefined;
-}
-
-function findAreaNode(nodes: WireframeNode[], areaCode: string): WireframeNode | undefined {
-	for (const node of nodes) {
-		if (isAreaNode(node) && node.metadata.id === areaCode) {
-			return node;
-		}
-		const childMatch = node.children ? findAreaNode(node.children, areaCode) : undefined;
-		if (childMatch) return childMatch;
-	}
-	return undefined;
-}
-
-function findComponentNode(
-	nodes: WireframeNode[],
-	componentCode: string,
-	parentAreaCode?: string,
-): { node: WireframeNode; parentAreaCode?: string } | undefined {
-	for (const node of nodes) {
-		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isComponentNode(node) && node.metadata.id === componentCode) {
-			return {
-				node,
-				parentAreaCode,
-			};
-		}
-		const childMatch = node.children
-			? findComponentNode(node.children, componentCode, nextParentAreaCode)
-			: undefined;
-		if (childMatch) return childMatch;
-	}
-	return undefined;
-}
-
-function forEachComponentNode(
-	nodes: WireframeNode[],
-	parentAreaCode: string | undefined,
-	callback: (node: WireframeNode, parentAreaCode?: string) => void,
-) {
-	for (const node of nodes) {
-		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isComponentNode(node)) {
-			callback(node, parentAreaCode);
-		}
-		if (node.children) {
-			forEachComponentNode(node.children, nextParentAreaCode, callback);
-		}
-	}
-}
-
-function getAreaCode(node: WireframeNode) {
-	if (!isAreaNode(node)) return undefined;
-	return node.metadata.id;
-}
-
-function isAreaNode(node: WireframeNode) {
-	return node.type === "area.static" || node.type === "area.dynamic" || node.type === "Area";
-}
-
-function isComponentNode(node: WireframeNode) {
-	return ![
-		"Screen",
-		"Screen.Header",
-		"Screen.Contents",
-		"Screen.Bottom",
-		"Area",
-		"area.static",
-		"area.dynamic",
-		"PageStack",
-	].includes(node.type);
 }

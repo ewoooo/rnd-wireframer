@@ -1,3 +1,4 @@
+import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/primitives";
 import type { ReactNode } from "react";
 
 import { ERROR_POLICY } from "./types";
@@ -24,8 +25,11 @@ export function renderErrorPolicyFallback(
 			return (
 				<section
 					key={context.areaId}
-					className="flex w-full min-w-0 flex-col"
-					style={{ gap: context.titleGap }}
+					className={cx(
+						"flex w-full min-w-0 flex-col",
+						spacingUtilityClass("gap", context.titleGap),
+					)}
+					style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
 					data-area-empty="hide-item"
 				>
 					{context.areaName ? (
@@ -38,13 +42,14 @@ export function renderErrorPolicyFallback(
 			return (
 				<section
 					key={context.areaId}
-					className="flex w-full min-w-0 flex-col rounded-md border border-dashed bg-muted/30 p-3"
-					style={{ gap: context.titleGap }}
+					className={cx(
+						"flex w-full min-w-0 flex-col rounded-md border border-dashed bg-muted/30 p-3",
+						spacingUtilityClass("gap", context.titleGap),
+					)}
+					style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
 					data-area-empty="show-default"
 				>
-					{context.areaName ? (
-						<p className="text-base font-semibold">{context.areaName}</p>
-					) : null}
+					{context.areaName ? <p className="text-base font-semibold">{context.areaName}</p> : null}
 					<p className="text-xs text-muted-foreground">기본값 표시 — 데이터 미수신</p>
 				</section>
 			);

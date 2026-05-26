@@ -1,4 +1,4 @@
-import type { WireframeNodeKind } from "./runtime";
+import type { RenderTreeNodeKind } from "./runtime";
 
 export type ComponentCatalogSource = "react-component" | "renderer-composite" | "layout-primitive";
 
@@ -38,7 +38,7 @@ export interface ComponentCatalogEntry {
 	 * Renderer kind. 분기 신호가 아니라 그룹 태그.
 	 * 미지정 시 runtime이 "fallback" kind로 처리.
 	 */
-	kind?: WireframeNodeKind;
+	kind?: RenderTreeNodeKind;
 	props: Record<string, ComponentPropContract>;
 }
 

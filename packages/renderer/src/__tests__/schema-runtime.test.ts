@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import {
 	ComponentRegistry,
-	collectWireframeStats,
-	findFallbackRendererTypes,
+	collectRenderTreeStats,
 	findDuplicateNodeIds,
+	findFallbackRendererTypes,
 	resolveDisplayWhen,
 	resolveProps,
+	validateRenderTreeFull,
 	validateScreenRegionContract,
-	validateWireframeSchemaFull,
 } from "../index";
-import type { WireframeSchema } from "../schema";
+import type { RenderTree } from "../schema";
 
 const metadata = (id: string, title: string) => ({
 	id,
@@ -26,7 +26,7 @@ const getHeroNode = () => {
 	return heroNode;
 };
 
-const validSchema: WireframeSchema = {
+const validSchema: RenderTree = {
 	version: "1.0.0",
 	metadata: metadata("roaming-sample", "T로밍 샘플"),
 	data: {
@@ -101,9 +101,9 @@ const validSchema: WireframeSchema = {
 	],
 };
 
-describe("wireframe", () => {
-	it("validates a renderable wireframe schema", () => {
-		const result = validateWireframeSchemaFull(validSchema);
+describe("render tree", () => {
+	it("validates a renderable render tree", () => {
+		const result = validateRenderTreeFull(validSchema);
 
 		expect(result.success).toBe(true);
 		expect(result.errors).toEqual([]);
@@ -142,11 +142,11 @@ describe("wireframe", () => {
 		};
 
 		expect(findDuplicateNodeIds(schemaWithDuplicates)).toEqual(["hero"]);
-		expect(validateWireframeSchemaFull(schemaWithDuplicates).success).toBe(false);
+		expect(validateRenderTreeFull(schemaWithDuplicates).success).toBe(false);
 	});
 
 	it("requires Screen to include Header, Contents, and Bottom regions", () => {
-		const invalidSchema: WireframeSchema = {
+		const invalidSchema: RenderTree = {
 			...validSchema,
 			children: [
 				{
@@ -171,7 +171,7 @@ describe("wireframe", () => {
 			],
 		};
 
-		const result = validateWireframeSchemaFull(invalidSchema);
+		const result = validateRenderTreeFull(invalidSchema);
 
 		expect(result.success).toBe(false);
 		expect(result.errors).toContain("Screen(screen-root) must include Screen.Header");
@@ -179,7 +179,7 @@ describe("wireframe", () => {
 	});
 
 	it("rejects direct non-region children under Screen", () => {
-		const invalidSchema: WireframeSchema = {
+		const invalidSchema: RenderTree = {
 			...validSchema,
 			children: [
 				{
@@ -208,7 +208,7 @@ describe("wireframe", () => {
 			version: "1.0.0",
 		});
 
-		const result = validateWireframeSchemaFull(validSchema, {
+		const result = validateRenderTreeFull(validSchema, {
 			registry,
 			checkRegisteredComponents: true,
 		});
@@ -217,16 +217,16 @@ describe("wireframe", () => {
 	});
 
 	it("reports fallback renderer coverage without failing by default", () => {
-		const result = validateWireframeSchemaFull(validSchema);
+		const result = validateRenderTreeFull(validSchema);
 
 		expect(result.success).toBe(true);
 		expect(result.warnings).toContain("Missing renderer mapping for node types: HeroSection");
 		expect(findFallbackRendererTypes(validSchema)).toEqual(["HeroSection"]);
-		expect(collectWireframeStats(validSchema).fallbackTypes).toEqual(["HeroSection"]);
+		expect(collectRenderTreeStats(validSchema).fallbackTypes).toEqual(["HeroSection"]);
 	});
 
 	it("can fail on fallback renderer coverage when strict", () => {
-		const result = validateWireframeSchemaFull(validSchema, {
+		const result = validateRenderTreeFull(validSchema, {
 			strictRendererCoverage: true,
 		});
 
@@ -240,11 +240,9 @@ describe("wireframe", () => {
 			minRendererVersion: "99.0.0",
 		};
 
-		const result = validateWireframeSchemaFull(futureSchema);
+		const result = validateRenderTreeFull(futureSchema);
 
 		expect(result.success).toBe(false);
-		expect(result.errors).toContain(
-			"Renderer 0.1.0 does not satisfy minRendererVersion 99.0.0",
-		);
+		expect(result.errors).toContain("Renderer 0.1.0 does not satisfy minRendererVersion 99.0.0");
 	});
 });

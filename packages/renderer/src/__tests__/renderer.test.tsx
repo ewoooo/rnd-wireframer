@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { type RendererDefinition, RendererRegistry } from "../registry";
 import { rendererRegistry, renderNode } from "../renderer";
-import type { WireframeNode } from "../schema";
+import type { RenderTreeNode } from "../schema";
 
-function createNode(overrides: Partial<WireframeNode> = {}): WireframeNode {
+function createNode(overrides: Partial<RenderTreeNode> = {}): RenderTreeNode {
 	return {
 		type: "UnknownThing",
 		componentVersion: "1.0.0",

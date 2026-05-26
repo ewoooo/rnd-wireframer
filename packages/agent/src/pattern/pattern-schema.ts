@@ -52,7 +52,7 @@ const childrenLayoutSchema = z.object({
 	gap: z.number().optional(),
 	paddingX: z.number().optional(),
 	paddingY: z.number().optional(),
-	props: propsSchema.optional(),
+	layoutProps: propsSchema.optional(),
 });
 
 const regionVariantSchema = childrenLayoutSchema;

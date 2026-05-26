@@ -1,17 +1,17 @@
-import type { WireframeScreenNode } from "@cx/renderer";
-import { WireframeScreenRenderer } from "@cx/renderer";
+import type { RenderTreeScreenNode } from "@cx/renderer";
+import { RenderTreeScreenRenderer } from "@cx/renderer";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface RenderedScreenProps {
 	data?: Record<string, unknown>;
-	node?: WireframeScreenNode;
+	node?: RenderTreeScreenNode;
 }
 
 export function RenderedScreen({ data, node }: RenderedScreenProps) {
 	return (
 		<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-3xl border bg-background shadow-xl">
-			{node ? <WireframeScreenRenderer data={data} node={node} /> : <EmptyRenderedScreen />}
+			{node ? <RenderTreeScreenRenderer data={data} node={node} /> : <EmptyRenderedScreen />}
 		</div>
 	);
 }

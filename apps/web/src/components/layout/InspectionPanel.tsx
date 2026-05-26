@@ -1,4 +1,4 @@
-import type { WireframeNode } from "@cx/renderer";
+import type { RenderTreeNode } from "@cx/renderer";
 import { GripVertical, Workflow } from "lucide-react";
 import { useState } from "react";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
@@ -6,23 +6,33 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import type { SelectedAreaContext, SelectedComponentContext } from "@/model/store";
+import {
+	getWorkbenchAreaSelection,
+	getWorkbenchComponentSelection,
+	getWorkbenchValidationStatus,
+	type WorkbenchRenderSelection,
+} from "@/data/local-workbench-data-loader";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
-	const component = useWorkbenchStore((state) => state.selectedComponent);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
-	const area = useWorkbenchStore((state) => state.selectedArea);
+	const areaOrderOverrides = useWorkbenchStore((state) => state.areaOrderOverrides);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
+	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
-	const validationErrors = useWorkbenchStore((state) => state.validationErrors);
-	const validationLabel = useWorkbenchStore((state) => state.validationLabel);
-	const validationStats = useWorkbenchStore((state) => state.validationStats);
-	const validationSuccess = useWorkbenchStore((state) => state.validationSuccess);
-	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
+	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
+	const component =
+		activeTab === "comp"
+			? getWorkbenchComponentSelection(selectedComponentCode, areaOrderOverrides)
+			: undefined;
+	const area =
+		activeTab === "ogn"
+			? getWorkbenchAreaSelection(selectedAreaCode, areaOrderOverrides)
+			: undefined;
+	const validation = screen ? getWorkbenchValidationStatus(screen.code) : undefined;
 
 	if (activeTab === "agent") {
 		return (
@@ -92,15 +102,17 @@ export function InspectionPanel() {
 						<div className="flex flex-col gap-2">
 							<h2 className="text-sm font-semibold">검증 상태</h2>
 							<div className="flex flex-wrap gap-2">
-								<Badge variant={validationSuccess ? "default" : "outline"}>{validationLabel}</Badge>
-								{validationWarnings.length > 0 ? (
-									<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
+								<Badge variant={validation?.success ? "default" : "outline"}>
+									{validation?.label ?? "screen source not selected"}
+								</Badge>
+								{validation && validation.warnings.length > 0 ? (
+									<Badge variant="secondary">{validation.warnings.length} warnings</Badge>
 								) : null}
 							</div>
-							{validationStats ? <ValidationStats stats={validationStats} /> : null}
-							{validationWarnings.length > 0 ? (
+							{validation?.stats ? <ValidationStats stats={validation.stats} /> : null}
+							{validation && validation.warnings.length > 0 ? (
 								<div className="flex flex-col gap-2">
-									{validationWarnings.map((warning) => (
+									{validation.warnings.map((warning) => (
 										<div
 											key={warning}
 											className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
@@ -110,9 +122,9 @@ export function InspectionPanel() {
 									))}
 								</div>
 							) : null}
-							{validationSuccess ? null : (
+							{validation?.success ? null : (
 								<div className="flex flex-col gap-2">
-									{validationErrors.map((error) => (
+									{validation?.errors.map((error) => (
 										<div key={error} className="rounded-lg border bg-background p-3 text-sm">
 											{error}
 										</div>
@@ -233,7 +245,13 @@ function moveItemBefore(items: string[], movedItem: string, targetItem: string) 
 	];
 }
 
-function ComponentInspection({ component }: { component: SelectedComponentContext }) {
+function ComponentInspection({
+	component,
+	screenCode,
+}: {
+	component: WorkbenchRenderSelection & { parentAreaCode?: string };
+	screenCode?: string;
+}) {
 	return (
 		<>
 			<Separator />
@@ -241,22 +259,28 @@ function ComponentInspection({ component }: { component: SelectedComponentContex
 				<h2 className="text-sm font-semibold">선택 COMP</h2>
 				<InfoRow label="Component id" value={component.code} />
 				<InfoRow label="Type" value={component.node.type} />
-				<InfoRow label="Source screen" value={component.screen.code} />
-				<InfoRow label="Parent OGN" value={component.area?.code ?? "screen"} />
+				<InfoRow label="Source screen" value={screenCode ?? component.screenCode} />
+				<InfoRow label="Parent OGN" value={component.parentAreaCode ?? "screen"} />
 			</div>
 			<NodePropsPanel node={component.node} />
 		</>
 	);
 }
 
-function AreaInspection({ area }: { area: SelectedAreaContext }) {
+function AreaInspection({
+	area,
+	screenCode,
+}: {
+	area: WorkbenchRenderSelection;
+	screenCode?: string;
+}) {
 	return (
 		<>
 			<Separator />
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">선택 OGN</h2>
 				<InfoRow label="OGN code" value={area.code} />
-				<InfoRow label="Source screen" value={area.screen.code} />
+				<InfoRow label="Source screen" value={screenCode ?? area.screenCode} />
 				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
 			</div>
 			<div className="flex flex-col gap-2">
@@ -278,7 +302,7 @@ function AreaInspection({ area }: { area: SelectedAreaContext }) {
 	);
 }
 
-function NodePropsPanel({ node }: { node: WireframeNode }) {
+function NodePropsPanel({ node }: { node: RenderTreeNode }) {
 	const props = node.props ? JSON.stringify(node.props, null, 2) : "{}";
 
 	return (

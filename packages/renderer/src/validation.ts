@@ -1,18 +1,18 @@
 import type { ComponentRegistry } from "./component-registry";
+import { getRenderTreeNodeKind } from "./runtime";
 import {
 	LAYOUT_FLEX_NODE_TYPE,
 	LAYOUT_GRID_NODE_TYPE,
 	REQUIRED_SCREEN_REGION_TYPES,
+	type RenderTree,
+	type RenderTreeNode,
+	type RenderTreeValidationStats,
+	RenderTreeValidator,
 	SCREEN_NODE_TYPE,
 	type ValidationResult,
-	type WireframeNode,
-	type WireframeSchema,
-	type WireframeValidationStats,
-	WireframeSchemaValidator,
 } from "./schema";
-import { getWireframeNodeKind } from "./runtime";
 
-export interface ValidateWireframeOptions {
+export interface ValidateRenderTreeOptions {
 	checkDuplicateIds?: boolean;
 	checkRendererCoverage?: boolean;
 	checkScreenRegionContract?: boolean;
@@ -24,6 +24,18 @@ export interface ValidateWireframeOptions {
 
 const CURRENT_RENDERER_VERSION = "0.1.0";
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
+const TOKEN_SPACING_VALUES = new Set([
+	0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40,
+]);
+const SPACING_PROP_NAMES = new Set([
+	"componentGap",
+	"gap",
+	"itemPaddingX",
+	"paddingX",
+	"paddingY",
+	"sectionPaddingX",
+	"titleGap",
+]);
 const BUILT_IN_NODE_TYPES = new Set<string>([
 	SCREEN_NODE_TYPE,
 	...REQUIRED_SCREEN_REGION_TYPES,
@@ -33,15 +45,15 @@ const BUILT_IN_NODE_TYPES = new Set<string>([
 ]);
 const REQUIRED_SCREEN_REGION_TYPE_SET = new Set<string>(REQUIRED_SCREEN_REGION_TYPES);
 
-export function validateWireframeSchema(schema: unknown): ValidationResult {
-	const result = WireframeSchemaValidator.safeParse(schema);
+export function validateRenderTree(schema: unknown): ValidationResult {
+	const result = RenderTreeValidator.safeParse(schema);
 
 	if (result.success) {
 		return {
 			success: true,
 			errors: [],
 			warnings: [],
-			stats: collectWireframeStats(result.data),
+			stats: collectRenderTreeStats(result.data),
 			data: result.data,
 		};
 	}
@@ -53,19 +65,19 @@ export function validateWireframeSchema(schema: unknown): ValidationResult {
 	};
 }
 
-export function validateWireframeSchemaFull(
+export function validateRenderTreeFull(
 	schema: unknown,
-	options: ValidateWireframeOptions = {},
+	options: ValidateRenderTreeOptions = {},
 ): ValidationResult {
-	const baseResult = validateWireframeSchema(schema);
+	const baseResult = validateRenderTree(schema);
 	if (!baseResult.success || !baseResult.data) return baseResult;
 
 	const errors: string[] = [];
 	const warnings: string[] = [];
-	const stats = collectWireframeStats(baseResult.data);
+	const stats = collectRenderTreeStats(baseResult.data);
 
 	if (options.checkVersionCompatibility ?? true) {
-		const versionResult = validateWireframeVersions(baseResult.data);
+		const versionResult = validateRenderTreeVersions(baseResult.data);
 		errors.push(...versionResult.errors);
 		warnings.push(...versionResult.warnings);
 	}
@@ -100,6 +112,15 @@ export function validateWireframeSchemaFull(
 		}
 	}
 
+	const untokenizedSpacingValues = findUntokenizedSpacingValues(baseResult.data);
+	if (untokenizedSpacingValues.length > 0) {
+		warnings.push(
+			`Spacing values are not in @cx/tokens Tailwind spacing keys: ${untokenizedSpacingValues.join(
+				", ",
+			)}`,
+		);
+	}
+
 	return {
 		success: errors.length === 0,
 		errors,
@@ -109,7 +130,7 @@ export function validateWireframeSchemaFull(
 	};
 }
 
-export function findDuplicateNodeIds(schema: WireframeSchema): string[] {
+export function findDuplicateNodeIds(schema: RenderTree): string[] {
 	const seen = new Set<string>();
 	const duplicates = new Set<string>();
 
@@ -125,7 +146,7 @@ export function findDuplicateNodeIds(schema: WireframeSchema): string[] {
 	return Array.from(duplicates).sort();
 }
 
-export function validateScreenRegionContract(schema: WireframeSchema): string[] {
+export function validateScreenRegionContract(schema: RenderTree): string[] {
 	const errors: string[] = [];
 	const screenNodes = schema.children.filter((node) => node.type === SCREEN_NODE_TYPE);
 
@@ -175,14 +196,14 @@ export function validateScreenRegionContract(schema: WireframeSchema): string[] 
 	return errors;
 }
 
-export function extractUsedComponentTypes(schema: WireframeSchema): string[] {
+export function extractUsedComponentTypes(schema: RenderTree): string[] {
 	const types = new Set<string>();
 	forEachNode(schema.children, (node) => types.add(node.type));
 	return Array.from(types).sort();
 }
 
 export function findUnregisteredComponents(
-	schema: WireframeSchema,
+	schema: RenderTree,
 	registry: ComponentRegistry,
 ): string[] {
 	return extractUsedComponentTypes(schema).filter(
@@ -190,12 +211,12 @@ export function findUnregisteredComponents(
 	);
 }
 
-export function findFallbackRendererTypes(schema: WireframeSchema): string[] {
+export function findFallbackRendererTypes(schema: RenderTree): string[] {
 	const fallbackTypes = new Set<string>();
 
 	forEachNode(schema.children, (node) => {
 		if (BUILT_IN_NODE_TYPES.has(node.type)) return;
-		if (getWireframeNodeKind(node) === "fallback") {
+		if (getRenderTreeNodeKind(node) === "fallback") {
 			fallbackTypes.add(node.type);
 		}
 	});
@@ -203,7 +224,7 @@ export function findFallbackRendererTypes(schema: WireframeSchema): string[] {
 	return Array.from(fallbackTypes).sort();
 }
 
-export function collectWireframeStats(schema: WireframeSchema): WireframeValidationStats {
+export function collectRenderTreeStats(schema: RenderTree): RenderTreeValidationStats {
 	const componentTypes = new Set<string>();
 	const fallbackTypes = new Set<string>();
 	const rendererKinds = new Set<string>();
@@ -211,7 +232,7 @@ export function collectWireframeStats(schema: WireframeSchema): WireframeValidat
 	let totalNodes = 0;
 
 	forEachNode(schema.children, (node, depth) => {
-		const rendererKind = getWireframeNodeKind(node);
+		const rendererKind = getRenderTreeNodeKind(node);
 		totalNodes += 1;
 		maxDepth = Math.max(maxDepth, depth);
 		componentTypes.add(node.type);
@@ -230,7 +251,37 @@ export function collectWireframeStats(schema: WireframeSchema): WireframeValidat
 	};
 }
 
-function validateWireframeVersions(schema: WireframeSchema) {
+function findUntokenizedSpacingValues(schema: RenderTree): string[] {
+	const values = new Set<string>();
+
+	forEachNode(schema.children, (node) => {
+		collectUntokenizedSpacingValues(node.metadata.id, node.props, values);
+		collectUntokenizedSpacingValues(node.metadata.id, getNestedRecord(node.props?.layout), values);
+	});
+
+	return Array.from(values).sort();
+}
+
+function collectUntokenizedSpacingValues(
+	nodeId: string,
+	props: Record<string, unknown> | undefined,
+	values: Set<string>,
+) {
+	if (!props) return;
+
+	for (const [propName, value] of Object.entries(props)) {
+		if (!SPACING_PROP_NAMES.has(propName)) continue;
+		if (typeof value !== "number") continue;
+		if (!TOKEN_SPACING_VALUES.has(value)) values.add(`${nodeId}.${propName}=${value}`);
+	}
+}
+
+function getNestedRecord(value: unknown): Record<string, unknown> | undefined {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+	return value as Record<string, unknown>;
+}
+
+function validateRenderTreeVersions(schema: RenderTree) {
 	const errors: string[] = [];
 	const warnings: string[] = [];
 
@@ -250,7 +301,7 @@ function validateWireframeVersions(schema: WireframeSchema) {
 
 	if (schema.minComponentsVersion) {
 		warnings.push(
-			`minComponentsVersion is deprecated in wireframe schema; componentVersion should be checked per node`,
+			`minComponentsVersion is deprecated in render tree; componentVersion should be checked per node`,
 		);
 		if (!VERSION_PATTERN.test(schema.minComponentsVersion)) {
 			errors.push(`Invalid minComponentsVersion format: ${schema.minComponentsVersion}`);
@@ -286,8 +337,8 @@ function parseVersion(version: string): [number, number, number] {
 }
 
 function forEachNode(
-	nodes: WireframeNode[],
-	callback: (node: WireframeNode, depth: number) => void,
+	nodes: RenderTreeNode[],
+	callback: (node: RenderTreeNode, depth: number) => void,
 	depth = 1,
 ): void {
 	for (const node of nodes) {
