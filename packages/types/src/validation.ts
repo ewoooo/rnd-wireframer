@@ -21,6 +21,8 @@ export type ValidationCode =
 	| "reference.missing-area"
 	| "reference.missing-pattern"
 	| "tokens.untokenized-spacing"
+	| "tokens.value-outside-scale"
+	| "tokens.unknown-token-role"
 	| "version.invalid"
 	| "version.incompatible";
 

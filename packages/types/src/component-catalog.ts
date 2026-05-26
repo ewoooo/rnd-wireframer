@@ -1,4 +1,5 @@
 import type { AreaType } from "./node-types";
+import type { TokenRole, TokenSlot } from "./tokens";
 
 /**
  * Renderer dispatch kind. component-catalog와 renderer kind contract가 공유하는 어휘다.
@@ -7,18 +8,26 @@ import type { AreaType } from "./node-types";
 export type RenderTreeNodeKind =
 	| "accordion"
 	| "action"
+	| "banner-indicator"
 	| "checkbox"
 	| "divider"
 	| "fallback"
+	| "footer"
 	| "header"
+	| "legal-text"
 	| "layout-flex"
 	| "layout-grid"
 	| "list-cell"
+	| "map"
+	| "option-card"
 	| AreaType
 	| "page-stack"
+	| "product-info"
 	| "section-header"
 	| "section-message"
-	| "text-field";
+	| "store-card"
+	| "text-field"
+	| "thumbnail-large";
 
 export type ComponentCatalogSource = "react-component" | "renderer-composite" | "layout-primitive";
 
@@ -46,6 +55,12 @@ export interface ComponentPropContract {
 	defaultValue?: unknown;
 	description?: string;
 	aiWritable?: boolean;
+	/**
+	 * 이 prop의 값이 디자인 토큰 스케일에서 와야 한다고 선언한다.
+	 * 예: gap/padding 류는 tokenRole: "spacing", 반경류는 "radius".
+	 * Validation은 tokenRole이 수치 스케일일 때 값이 해당 스케일 안에 있는지 검사한다.
+	 */
+	tokenRole?: TokenRole;
 }
 
 export interface ComponentCatalogEntry {
@@ -60,6 +75,12 @@ export interface ComponentCatalogEntry {
 	 */
 	kind?: RenderTreeNodeKind;
 	props: Record<string, ComponentPropContract>;
+	/**
+	 * 컴포넌트 자체가 사용하는 token slot → role 매핑.
+	 * 예: BrandHero는 { surface: "color.surface.brand", text: "color.text.inverse" }.
+	 * 슬롯별 variant는 향후 variantTokens(per-prop)로 확장한다.
+	 */
+	tokens?: Partial<Record<TokenSlot, TokenRole>>;
 }
 
 export type ComponentCatalog = Record<string, ComponentCatalogEntry>;

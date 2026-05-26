@@ -1,9 +1,13 @@
 import {
 	BUILT_IN_NODE_TYPES,
+	getNumericTokenScale,
+	SPACING_TOKEN_SET,
+	type TokenRole,
 	type ValidationIssue,
 	type ValidationResult,
 	type ValidationStats,
 } from "@cx/types";
+import { getComponentCatalogEntry } from "@cx/components/catalog";
 import type { ComponentRegistry } from "./component-registry";
 import { getRenderTreeNodeKind } from "./runtime";
 import {
@@ -16,15 +20,14 @@ import {
 
 const CURRENT_RENDERER_VERSION = "0.1.0";
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
-const TOKEN_SPACING_VALUES = new Set([
-	0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40,
-]);
-const SPACING_PROP_NAMES = new Set([
+
+/**
+ * Catalog가 아직 비어 있는 layoutProps 키들에 대한 fallback.
+ * pattern-store layoutProps가 catalog 기반으로 옮겨질 때까지 deprecation path로 유지한다.
+ */
+const FALLBACK_SPACING_PROP_NAMES = new Set([
 	"componentGap",
-	"gap",
 	"itemPaddingX",
-	"paddingX",
-	"paddingY",
 	"sectionPaddingX",
 	"titleGap",
 ]);
@@ -255,18 +258,83 @@ export const rendererCoverageCheck: ValidationCheck = (tree, ctx) => {
 };
 
 export const tokenSpacingCheck: ValidationCheck = (tree) => {
-	const values = findUntokenizedSpacingValues(tree);
-	if (values.length === 0) return [];
-	return [
-		{
+	const issues: ValidationIssue[] = [];
+	const fallbackValues: string[] = [];
+
+	forEachNode(tree.children, (node) => {
+		collectCatalogTokenIssues(node, issues);
+		collectFallbackSpacingValues(node, fallbackValues);
+	});
+
+	if (fallbackValues.length > 0) {
+		issues.push({
 			code: "tokens.untokenized-spacing",
 			severity: "warning",
 			layer: "tokens",
-			message: `Spacing values are not in @cx/tokens Tailwind spacing keys: ${values.join(", ")}`,
-			data: { values },
-		},
-	];
+			message: `Spacing values are not in @cx/tokens Tailwind spacing keys: ${fallbackValues.join(", ")}`,
+			data: { values: fallbackValues },
+		});
+	}
+
+	return issues;
 };
+
+function collectCatalogTokenIssues(node: RenderTreeNode, issues: ValidationIssue[]) {
+	const entry = getComponentCatalogEntry(node.type);
+	if (!entry) return;
+	const propSources: Array<Record<string, unknown> | undefined> = [
+		node.props,
+		getNestedRecord(node.props?.layout),
+	];
+	for (const props of propSources) {
+		if (!props) continue;
+		for (const [propName, contract] of Object.entries(entry.props)) {
+			const tokenRole = contract.tokenRole;
+			if (!tokenRole) continue;
+			const value = props[propName];
+			if (value === undefined || value === null) continue;
+			validateTokenRoleValue(node, propName, tokenRole, value, issues);
+		}
+	}
+}
+
+function validateTokenRoleValue(
+	node: RenderTreeNode,
+	propName: string,
+	role: TokenRole,
+	value: unknown,
+	issues: ValidationIssue[],
+) {
+	const scale = getNumericTokenScale(role);
+	if (scale === undefined) return; // 비수치 role은 1차 이터레이션 범위 밖.
+	if (typeof value !== "number") return;
+	if (scale.has(value)) return;
+	issues.push({
+		code: "tokens.value-outside-scale",
+		severity: "warning",
+		layer: "tokens",
+		nodeId: node.metadata.id,
+		nodeType: node.type,
+		message: `${node.type}.${propName}=${value} is outside the ${role} token scale.`,
+		data: { propName, value, tokenRole: role },
+	});
+}
+
+function collectFallbackSpacingValues(node: RenderTreeNode, values: string[]) {
+	const propSources: Array<Record<string, unknown> | undefined> = [
+		node.props,
+		getNestedRecord(node.props?.layout),
+	];
+	for (const props of propSources) {
+		if (!props) continue;
+		for (const [propName, value] of Object.entries(props)) {
+			if (!FALLBACK_SPACING_PROP_NAMES.has(propName)) continue;
+			if (typeof value !== "number") continue;
+			if (SPACING_TOKEN_SET.has(value)) continue;
+			values.push(`${node.metadata.id}.${propName}=${value}`);
+		}
+	}
+}
 
 export const versionCheck: ValidationCheck = (tree, ctx) => {
 	const issues: ValidationIssue[] = [];
@@ -409,28 +477,6 @@ export function validateScreenRegionContract(tree: RenderTree): ValidationIssue[
 }
 
 // ─── Internal utilities ──────────────────────────────────────────────────
-
-function findUntokenizedSpacingValues(tree: RenderTree): string[] {
-	const values = new Set<string>();
-	forEachNode(tree.children, (node) => {
-		collectUntokenizedSpacingValues(node.metadata.id, node.props, values);
-		collectUntokenizedSpacingValues(node.metadata.id, getNestedRecord(node.props?.layout), values);
-	});
-	return Array.from(values).sort();
-}
-
-function collectUntokenizedSpacingValues(
-	nodeId: string,
-	props: Record<string, unknown> | undefined,
-	values: Set<string>,
-) {
-	if (!props) return;
-	for (const [propName, value] of Object.entries(props)) {
-		if (!SPACING_PROP_NAMES.has(propName)) continue;
-		if (typeof value !== "number") continue;
-		if (!TOKEN_SPACING_VALUES.has(value)) values.add(`${nodeId}.${propName}=${value}`);
-	}
-}
 
 function getNestedRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
