@@ -1,4 +1,4 @@
-import type { ComponentCatalog, ComponentCatalogEntry, ComponentPropContract } from "@cx/types";
+import { isTokenRole, type ComponentCatalog, type ComponentCatalogEntry, type ComponentPropContract } from "@cx/types";
 
 export const componentCatalog = {
 	"Layout.Flex": {
@@ -79,6 +79,11 @@ export const componentCatalog = {
 				role: "styleVariant",
 				values: ["primary", "secondary", "solid"],
 				defaultValue: "primary",
+				variantTokens: {
+					primary: { surface: "color.surface.brand", text: "color.text.inverse" },
+					secondary: { surface: "color.surface.muted", text: "color.text" },
+					solid: { surface: "color.surface", text: "color.text", border: "color.border.strong" },
+				},
 			},
 			size: {
 				type: "enum",
@@ -113,6 +118,11 @@ export const componentCatalog = {
 				role: "styleVariant",
 				values: ["gray", "black", "blue"],
 				defaultValue: "gray",
+				variantTokens: {
+					gray: { surface: "color.surface.muted", text: "color.text" },
+					black: { surface: "color.surface.inverse", text: "color.text.inverse" },
+					blue: { surface: "color.surface.brand", text: "color.text.inverse" },
+				},
 			},
 		},
 	},
@@ -153,6 +163,11 @@ export const componentCatalog = {
 				role: "styleVariant",
 				values: ["primary", "secondary", "solid"],
 				defaultValue: "primary",
+				variantTokens: {
+					primary: { surface: "color.surface.brand", text: "color.text.inverse" },
+					secondary: { surface: "color.surface.muted", text: "color.text" },
+					solid: { surface: "color.surface", text: "color.text", border: "color.border.strong" },
+				},
 			},
 			size: {
 				type: "enum",
@@ -224,6 +239,10 @@ export const componentCatalog = {
 				role: "styleVariant",
 				values: ["contents", "section"],
 				defaultValue: "contents",
+				variantTokens: {
+					contents: { border: "color.border.subtle" },
+					section: { border: "color.border.strong" },
+				},
 			},
 		},
 	},
@@ -435,6 +454,12 @@ export const componentCatalog = {
 				role: "styleVariant",
 				values: ["info", "negative", "positive", "cautionary"],
 				defaultValue: "info",
+				variantTokens: {
+					info: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon.brand" },
+					negative: { surface: "color.surface.elevated", text: "color.text.error", icon: "color.icon" },
+					positive: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon" },
+					cautionary: { surface: "color.surface.elevated", text: "color.text", icon: "color.icon" },
+				},
 			},
 			title: { type: "string", role: "title" },
 			message: { type: "string", role: "content" },
@@ -522,4 +547,60 @@ export function getComponentPropContract(
 
 export function getComponentCatalogTypes(): ComponentCatalogType[] {
 	return Object.keys(componentCatalog).sort() as ComponentCatalogType[];
+}
+
+export interface CatalogAuditIssue {
+	type: string;
+	propName: string;
+	code:
+		| "variantTokens.unknown-variant"
+		| "variantTokens.invalid-token-role"
+		| "variantTokens.requires-enum";
+	message: string;
+}
+
+/**
+ * Catalog 자가 검증. variantTokens 키가 values에 포함되는지,
+ * 선언된 TokenRole이 어휘 안에 있는지 검사한다.
+ */
+export function auditComponentCatalog(): CatalogAuditIssue[] {
+	const issues: CatalogAuditIssue[] = [];
+	for (const [type, entry] of componentCatalogEntries) {
+		for (const [propName, contract] of Object.entries(entry.props)) {
+			const variantTokens = contract.variantTokens;
+			if (!variantTokens) continue;
+			if (contract.type !== "enum" || !contract.values) {
+				issues.push({
+					type,
+					propName,
+					code: "variantTokens.requires-enum",
+					message: `${type}.${propName} has variantTokens but is not an enum with values`,
+				});
+				continue;
+			}
+			const allowed = new Set(contract.values);
+			for (const [variantKey, slots] of Object.entries(variantTokens)) {
+				if (!allowed.has(variantKey)) {
+					issues.push({
+						type,
+						propName,
+						code: "variantTokens.unknown-variant",
+						message: `${type}.${propName} variantTokens has key "${variantKey}" not in values`,
+					});
+				}
+				for (const role of Object.values(slots ?? {})) {
+					if (typeof role !== "string") continue;
+					if (!isTokenRole(role)) {
+						issues.push({
+							type,
+							propName,
+							code: "variantTokens.invalid-token-role",
+							message: `${type}.${propName} variantTokens[${variantKey}] uses unknown token role "${role}"`,
+						});
+					}
+				}
+			}
+		}
+	}
+	return issues;
 }

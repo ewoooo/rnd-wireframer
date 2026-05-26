@@ -61,6 +61,12 @@ export interface ComponentPropContract {
 	 * Validation은 tokenRole이 수치 스케일일 때 값이 해당 스케일 안에 있는지 검사한다.
 	 */
 	tokenRole?: TokenRole;
+	/**
+	 * enum/styleVariant prop의 각 variant가 슬롯별로 어떤 token role을 선택하는지 선언.
+	 * 예: { primary: { surface: "color.surface.brand", text: "color.text.inverse" } }.
+	 * variantTokens 키는 반드시 values에 포함되어야 한다 (validation이 검사).
+	 */
+	variantTokens?: Record<string, Partial<Record<TokenSlot, TokenRole>>>;
 }
 
 export interface ComponentCatalogEntry {
