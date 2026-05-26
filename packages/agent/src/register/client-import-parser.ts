@@ -1,26 +1,36 @@
 import type {
+	GeneratedAreaNode,
 	GeneratedComponentNode,
 	GeneratedNodeTree,
-	GeneratedAreaNode,
 	GeneratedScreenNode,
-} from "@cx/agent";
+} from "../types";
 
-interface ClientImportMarkdownFile {
+export interface ClientImportMarkdownFile {
 	name: string;
 	content: string;
 }
 
-export interface GenerateRegisterFromClientImportInput {
+export interface ParseClientImportMarkdownBundleInput {
 	importId: string;
 	areaFiles: ClientImportMarkdownFile[];
 	screenFiles: ClientImportMarkdownFile[];
 }
 
-export function generateRegisterFromClientImport({
+export interface ClientImportValidationReport {
+	errors: string[];
+	warnings: string[];
+}
+
+export interface ParsedClientImportBundle {
+	generated: GeneratedNodeTree;
+	validation: ClientImportValidationReport;
+}
+
+export function parseClientImportMarkdownBundle({
 	importId,
 	areaFiles,
 	screenFiles,
-}: GenerateRegisterFromClientImportInput): GeneratedNodeTree {
+}: ParseClientImportMarkdownBundleInput): ParsedClientImportBundle {
 	const areas = areaFiles.map((file, index) => parseAreaFile(file, index));
 	const componentById = new Map<string, GeneratedComponentNode>();
 
@@ -47,8 +57,7 @@ export function generateRegisterFromClientImport({
 
 	const screens = screenFiles.map((file, index) => parseScreenFile(file, index));
 	const routeName = getRouteName(screens, importId);
-
-	return {
+	const generated: GeneratedNodeTree = {
 		routes: [
 			{
 				id: slugify(importId),
@@ -69,6 +78,64 @@ export function generateRegisterFromClientImport({
 			return (left.order ?? 0) - (right.order ?? 0) || left.id.localeCompare(right.id);
 		}),
 	};
+
+	return {
+		generated,
+		validation: validateClientImportGeneratedTree(generated),
+	};
+}
+
+export function validateClientImportGeneratedTree(
+	generated: GeneratedNodeTree,
+): ClientImportValidationReport {
+	const errors: string[] = [];
+	const warnings: string[] = [];
+	const areaIds = new Set((generated.areas ?? []).map((area) => area.id));
+	const componentIds = new Set((generated.components ?? []).map((component) => component.id));
+
+	if (generated.routes.length === 0) errors.push("route is required");
+	if ((generated.areas ?? []).length === 0) warnings.push("area files were not parsed");
+	if ((generated.components ?? []).length === 0) warnings.push("component rows were not parsed");
+
+	for (const route of generated.routes) {
+		if (!route.id) errors.push("route.id is required");
+		if (route.variants.length === 0) errors.push(`${route.id}: variant is required`);
+		for (const variant of route.variants) {
+			if (!variant.id) errors.push(`${route.id}: variant.id is required`);
+			if (variant.screens.length === 0) errors.push(`${variant.id}: screen is required`);
+			for (const screen of variant.screens) {
+				if (!screen.id) errors.push(`${variant.id}: screen.id is required`);
+				if ((screen.areas ?? []).length === 0) warnings.push(`${screen.id}: area refs are empty`);
+				for (const areaRef of screen.areas ?? []) {
+					if (!areaIds.has(areaRef.areaId)) {
+						errors.push(`${screen.id}: missing area ${areaRef.areaId}`);
+					}
+				}
+			}
+		}
+	}
+
+	for (const area of generated.areas ?? []) {
+		if (!area.id) errors.push("area.id is required");
+		if ((area.children ?? []).length === 0) warnings.push(`${area.id}: component refs are empty`);
+		for (const componentRef of area.children ?? []) {
+			if (!componentIds.has(componentRef.componentId)) {
+				errors.push(`${area.id}: missing component ${componentRef.componentId}`);
+			}
+		}
+	}
+
+	for (const component of generated.components ?? []) {
+		if (!component.id) errors.push("component.id is required");
+		if (!component.type || component.type === "Unknown") {
+			warnings.push(`${component.id}: component.type is unknown`);
+		}
+	}
+
+	errors.push(...findDuplicateIds("area", [...areaIds]));
+	errors.push(...findDuplicateIds("component", [...componentIds]));
+
+	return { errors, warnings };
 }
 
 function parseScreenFile(file: ClientImportMarkdownFile, index: number): GeneratedScreenNode {
@@ -126,6 +193,11 @@ function parseComponents(content: string): GeneratedComponentNode[] {
 			order: parseOrder(row.no) ?? index + 1,
 			type: row["컴포넌트 ID"] ?? "Unknown",
 			...(row.variant && row.variant !== "-" ? { props: { variant: row.variant } } : {}),
+			raw: {
+				description: row["컴포넌트 설명"],
+				variant: row.variant,
+				note: row.비고,
+			},
 		});
 	});
 
@@ -204,6 +276,18 @@ function slugify(value: string) {
 		.toLowerCase()
 		.replace(/[^a-z0-9가-힣]+/g, "-")
 		.replace(/^-+|-+$/g, "");
+}
+
+function findDuplicateIds(label: string, ids: string[]) {
+	const seen = new Set<string>();
+	const duplicates = new Set<string>();
+	for (const id of ids) {
+		if (seen.has(id)) duplicates.add(id);
+		seen.add(id);
+	}
+	return Array.from(duplicates)
+		.sort()
+		.map((id) => `${label} id is duplicated: ${id}`);
 }
 
 function isEntry(entry: readonly [string, string] | undefined): entry is readonly [string, string] {

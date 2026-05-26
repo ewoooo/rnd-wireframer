@@ -4,6 +4,7 @@ import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator"
 import { composeAssetContents } from "@cx/agent/compose-assets";
 import { composeAssetContentsWithAI } from "@cx/agent/compose-assets-ai";
 import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
+import { parseClientImportMarkdownBundle } from "@cx/agent/register/client-import-parser";
 import { registerAssets } from "@cx/agent/register-assets";
 import { materializeDecoratedAssetsToDatabaseTables } from "@cx/agent/register-assets-to-database-tables";
 import { createPatternResolver } from "@cx/agent/resolvers/pattern-resolver";
@@ -18,6 +19,9 @@ const AGENT_ASSETS_COMPOSED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.compo
 const AGENT_ASSETS_REGISTERED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.registered.json");
 const AGENT_ASSETS_DECORATED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.decorated.json");
 const AGENT_ASSETS_DB_TABLES_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.db-tables.json");
+const CLIENT_IMPORT_PARSED_PATH = path.join(AI_IMPORTS_DIR, "client-import.parsed.json");
+const CLIENT_IMPORT_VALIDATION_PATH = path.join(AI_IMPORTS_DIR, "client-import.validation.json");
+const CLIENT_IMPORT_DB_TABLES_PATH = path.join(AI_IMPORTS_DIR, "client-import.db-tables.json");
 
 export interface GenerateAgentRegisterOptions {
 	composeWithAI?: boolean;
@@ -49,6 +53,30 @@ export async function generateAgentRegister({
 	if (screenFiles.length === 0 && areaFiles.length === 0) {
 		throw new AgentGenerateError("No markdown files found in the selected client import.", 400);
 	}
+
+	const deterministicCandidate = parseClientImportMarkdownBundle({
+		importId,
+		areaFiles,
+		screenFiles,
+	});
+	const deterministicRegistry = registerAssets(deterministicCandidate.generated);
+	const deterministicComposeResult = composeAssetContents(deterministicRegistry);
+	const deterministicDecorated = decorateRegisteredAssets(deterministicComposeResult.composed, {
+		resolvePattern: createPatternResolver(),
+	});
+	const deterministicTables = materializeDecoratedAssetsToDatabaseTables(deterministicDecorated);
+	await writeDeterministicImportArtifacts({
+		generated: deterministicCandidate.generated,
+		tables: deterministicTables,
+		validation: deterministicCandidate.validation,
+	});
+	console.info("[agent-generate] wrote deterministic client import candidate", {
+		errorCount: deterministicCandidate.validation.errors.length,
+		warningCount: deterministicCandidate.validation.warnings.length,
+		screenCount: deterministicTables.screens.length,
+		areaCount: deterministicTables.areas.length,
+		componentCount: deterministicTables.components.length,
+	});
 
 	const claudeResult = await generateAssetsWithLocalClaude(
 		{
@@ -127,6 +155,9 @@ export async function generateAgentRegister({
 		writtenPaths: {
 			assets: "database/ai-imports/agent-assets.json",
 			composed: "database/ai-imports/agent-assets.composed.json",
+			deterministicDbTables: "database/ai-imports/client-import.db-tables.json",
+			deterministicParsed: "database/ai-imports/client-import.parsed.json",
+			deterministicValidation: "database/ai-imports/client-import.validation.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
 			dbTables: "database/ai-imports/agent-assets.db-tables.json",
@@ -141,6 +172,29 @@ export class AgentGenerateError extends Error {
 	) {
 		super(message);
 	}
+}
+
+async function writeDeterministicImportArtifacts(payload: {
+	generated: unknown;
+	tables: unknown;
+	validation: unknown;
+}) {
+	await mkdir(AI_IMPORTS_DIR, { recursive: true });
+	await writeFile(
+		CLIENT_IMPORT_PARSED_PATH,
+		`${JSON.stringify(payload.generated, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		CLIENT_IMPORT_VALIDATION_PATH,
+		`${JSON.stringify(payload.validation, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		CLIENT_IMPORT_DB_TABLES_PATH,
+		`${JSON.stringify(payload.tables, null, "\t")}\n`,
+		"utf8",
+	);
 }
 
 async function writeAgentImportArtifacts(payload: {
