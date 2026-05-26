@@ -96,12 +96,6 @@ supabase/
   migrations/
   seed/
 docs/
-  data-mockups/
-    1-policy-inputs/
-    2-spec-inputs/
-    3-parsed-jsons/
-    4-generation-contexts/
-    5-feedback-loops/
   development/
     DEVELOPMENT_ARCHITECTURE.md
     DATA_MAP.md
@@ -114,7 +108,7 @@ docs/
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
-화면 생성용 mock 데이터와 관계 검토 샘플은 `docs/data-mockups/`, `database/ai-imports/`, `database/tables/` 아래에 둔다. `docs/data-mockups`는 원천 입력과 단계별 fixture를 보관한다. `database/ai-imports`는 AI 생성 bundle, `database/tables`의 각 JSON 파일은 이후 실제 테이블로 전환될 임시 테이블 덤프다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+화면 생성 데이터는 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`, `database/pattern-store/` 아래에 둔다. `database/client-imports`는 업로드 원본, `database/ai-imports`는 AI 생성 후보 bundle과 table 후보, `database/tables`는 workbench가 소비하는 승인된 table dump, `database/pattern-store`는 layout preset reference catalog다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
 ## 5. FastAPI 모듈
 

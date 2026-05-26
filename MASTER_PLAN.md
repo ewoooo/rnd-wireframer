@@ -22,7 +22,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 초기 목표는 완성형 UI 빌더가 아니다. 내부 설계 문서를 검토 가능한 모바일 화면 초안으로 빠르게 변환하고, 사람이 screen/OGN 구조를 제한된 범위에서 후편집할 수 있게 만드는 것이 목표다.
 
-정책서/유즈케이스 입력, 화면 명세 입력, 생성 컨텍스트 샘플은 `docs/data-mockups/`, `database/ai-imports/`, `database/tables/`에서 단계별로 관리한다. `docs/data-mockups`는 원천 입력과 단계별 fixture를 보관한다. `database/ai-imports`는 AI 생성 bundle, `database/tables`의 각 JSON 파일은 이후 실제 테이블로 전환될 임시 테이블 덤프다. 데이터는 공급 데이터와 소비 데이터로 나누며, 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다.
+정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`, `database/pattern-store/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터, `database/pattern-store`는 공급 reference catalog다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
 
 현재 구현은 DB/API보다 로컬 렌더러 수직 슬라이스가 먼저 만들어진 상태다. 따라서 단기 제품 목표는 `database/tables -> tablesToRenderTree -> @cx/renderer -> @cx/layout/@cx/components -> apps/web` 흐름을 안정화하는 것이다. DB 적재, Agent SDK, Puck 편집은 이 수직 슬라이스가 흔들리지 않는 상태에서 단계적으로 연결한다.
 
@@ -40,7 +40,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | `packages/layout` | 1차 구현 | `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Layout.Flex`, `Layout.Grid`를 Tailwind v4 class 기반으로 렌더링하되 legacy `styles.css` export 정리 필요 |
 | `packages/component` | 1차 이관 | `ewoooo/cx-components` 기반 leaf component 일부와 token CSS 이관 |
 | `packages/token` | 1차 구현 | Tailwind v4 `@theme` generated CSS export |
-| `docs/data-mockups` | 샘플 운영 중 | policy/spec/generation context 샘플과 DBML 초안 |
+| `database/client-imports` | 구현 시작 | 사용자가 올린 screen/area 원천 import 보관 |
 | `services/api` | 골격 | FastAPI requirements와 디렉토리만 존재 |
 | `supabase` | 골격 | migrations/seed 디렉토리만 존재 |
 | `Puck editor` | 미구현 | 디렉토리 placeholder만 존재 |
@@ -82,16 +82,16 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 1. 사용자가 추후 DB read model로 대체될 `screen/`, `area/` 파일 묶음을 첨부한다.
 2. 시스템이 Markdown frontmatter와 표를 먼저 파싱해 화면, 화면 구성, 화면 전환, 케이스 분기, OGN, 상태, 컴포넌트 상세 후보 데이터를 추출한다.
 3. AI가 파싱 결과를 보정해 명명, 누락값, 관계, 상태명, 컴포넌트 코드, policy/function 참조를 정규화한다.
-4. 시스템이 보정 결과를 [2-spec-inputs examples](/Users/plusx/Documents/rnd-screen-generator/docs/data-mockups/2-spec-inputs/examples/)와 같은 구조로 변환한다.
-5. 변환된 JSON은 이후 DB 적재 또는 generation context 조합의 입력으로 사용한다.
+4. 시스템이 보정 결과를 `database/ai-imports/{importId}` 아래의 AI import 후보 산출물로 저장한다.
+5. 후보 산출물은 검증과 promote/import 단계를 통과한 뒤에만 `database/tables` 소비 데이터로 반영한다.
 
-이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 보정하는 역할을 맡는다. 최종 산출물은 `sql-screen-routes.json`, `sql-screen-source.json`, `sql-area-source.json`, `sql-component-entry.json` 형태를 기준으로 검증한다.
+이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 보정하는 역할을 맡는다. 최종 후보 산출물은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 순서와 `database/tables` row 계약을 기준으로 검증한다.
 
 ## 4. MVP 범위
 
 ### 현재 MVP 포함
 
-- `docs/data-mockups/2-spec-inputs/examples` 구조의 screen/OGN/composite fixture 관리
+- `database/tables` 구조의 screen/OGN/composite 소비 데이터 관리
 - `@cx/renderer` 기반 spec input -> wireframe schema 변환
 - `@cx/renderer` 기반 schema, metadata, screen region 계약 검증
 - `@cx/components`, `@cx/tokens`, `@cx/layout` 기반 모바일 렌더링
@@ -103,7 +103,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 ### 다음 MVP 확장
 
-- 첨부된 screen/area 파일 묶음을 `2-spec-inputs/examples` 구조로 변환
+- 첨부된 screen/area 파일 묶음을 AI import 후보 산출물로 변환
 - 정책/유즈케이스 기반 process/function/policy JSON을 generation context에 조합
 - 디자인 명세와 composite entry JSON을 renderer mapping에 반영
 - screen source 목록과 상세 조회를 mock data에서 API/read model로 교체
@@ -132,7 +132,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | Phase 0 | 완료 | 문서, 운영 원칙, 저장소 구조, React hooks policy, 테스트 기반 구성 |
 | Phase 1 | 완료에 가까움 | `@cx/agent`, `@cx/renderer`, `@cx/components`, `@cx/tokens`, `@cx/layout` 기반 패키지 수직 슬라이스 구성 |
 | Phase 2 | 진행 중 | `apps/web` 단일 제품 앱을 `database/tables` 계약 기반으로 안정화하고 `@cx/renderer` mapping 확장 |
-| Phase 3 | 다음 | 첨부 명세/parser 보정 흐름과 `docs/data-mockups` 샘플을 database table 입력으로 연결 |
+| Phase 3 | 다음 | 첨부 명세/parser 보정 흐름을 AI import 후보와 database table promote 단계로 연결 |
 | Phase 4 | 다음 | Claude 생성 계약과 Codex 검수 계약을 local-first Agent SDK 실행 흐름으로 구현 |
 | Phase 5 | 후속 | 소비 데이터 계약 기준 FastAPI read model, Supabase migration, ERD 산출물 재생성 |
 | Phase 6 | 후속 | Puck 기반 Screen/OGN 편집과 regenerate/version 저장 |

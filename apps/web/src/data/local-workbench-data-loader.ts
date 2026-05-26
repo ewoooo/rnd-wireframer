@@ -1,9 +1,7 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
 import {
-	registerWireframeNodeKinds,
 	validateWireframeSchemaFull,
 	type WireframeNode,
-	type WireframeNodeKind,
 	type WireframeSchema,
 } from "@cx/renderer";
 import {
@@ -13,14 +11,13 @@ import {
 	type DatabaseScreenSet,
 	type DatabaseScreenVariantSet,
 	tablesToRenderTrees,
-	validateSampleScreenSource,
+	validateDatabaseScreenSource,
 } from "@/adapters/tables-to-render-tree";
-import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
-import compositeSampleSet from "../../../../database/tables/components.json";
-import areaSampleSet from "../../../../database/tables/areas.json";
-import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
-import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
-import screenSampleSet from "../../../../database/tables/screens.json";
+import areasTable from "../../../../database/tables/areas.json";
+import componentsTable from "../../../../database/tables/components.json";
+import screenRoutesTable from "../../../../database/tables/screen_routes.json";
+import screenVariantsTable from "../../../../database/tables/screen_variants.json";
+import screensTable from "../../../../database/tables/screens.json";
 
 type WireframeScreenSet = {
 	screens: WireframeSchema[];
@@ -30,35 +27,30 @@ type ComponentTableSet = {
 	components: DatabaseComponentSet["composites"];
 };
 
-registerWireframeNodeKinds(
-	(componentRendererKindsSet as { mappings: Array<{ type: string; kind: WireframeNodeKind }> })
-		.mappings,
+const screenRouteSet = screenRoutesTable as unknown as DatabaseScreenRouteSet;
+const screenVariantSet = screenVariantsTable as unknown as DatabaseScreenVariantSet;
+const componentTableSet = componentsTable as unknown as ComponentTableSet;
+const areas = (areasTable as unknown as DatabaseAreaSet).areas;
+const orderedDatabaseScreens = orderDatabaseScreens(
+	(screensTable as unknown as DatabaseScreenSet).screens,
+	screenVariantSet,
+	screenRouteSet,
 );
 
-const sampleRouteSet = screenRouteSampleSet as unknown as DatabaseScreenRouteSet;
-const sampleVariantSet = screenVariantSampleSet as unknown as DatabaseScreenVariantSet;
-const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
-const areas = (areaSampleSet as unknown as DatabaseAreaSet).areas;
-const orderedSampleScreens = getOrderedSampleScreens(
-	(screenSampleSet as unknown as DatabaseScreenSet).screens,
-	sampleVariantSet,
-	sampleRouteSet,
-);
-
-const sampleScreens = tablesToRenderTrees({
-	screens: orderedSampleScreens,
+const renderedScreens = tablesToRenderTrees({
+	screens: orderedDatabaseScreens,
 	areas,
 	composites: componentTableSet.components,
 	patternStore: loadPatternStore(),
 }) satisfies WireframeScreenSet["screens"];
 
-const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
-	const sampleScreen = orderedSampleScreens[index];
+const wireframeWorkbenchData = renderedScreens.map((schema, index) => {
+	const databaseScreen = orderedDatabaseScreens[index];
 	const validation = validateWireframeSchemaFull(schema);
-	const variant = sampleVariantSet.screenVariants.find(
-		(candidate) => candidate.id === sampleScreen.screenVariantId,
+	const variant = screenVariantSet.screenVariants.find(
+		(candidate) => candidate.id === databaseScreen.screenVariantId,
 	);
-	const route = sampleRouteSet.screenRoutes.find(
+	const route = screenRouteSet.screenRoutes.find(
 		(candidate) => candidate.id === variant?.screenRouteId,
 	);
 	const areas = extractAreas(schema);
@@ -69,21 +61,21 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
 		areas,
-		screenOrder: sampleScreen.order ?? index + 1,
+		screenOrder: databaseScreen.order ?? index + 1,
 		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
 		schema,
-		screenVariantId: variant?.id ?? sampleScreen.screenVariantId ?? schema.metadata.id,
+		screenVariantId: variant?.id ?? databaseScreen.screenVariantId ?? schema.metadata.id,
 		screenVariantName: variant?.name ?? schema.metadata.title,
-		screenVariantOrder: variant?.order ?? sampleScreen.order ?? index + 1,
+		screenVariantOrder: variant?.order ?? databaseScreen.order ?? index + 1,
 		screenVariantType: variant?.variantType ?? "base",
-		sourceValidationErrors: validateSampleScreenSource(sampleScreen),
+		sourceValidationErrors: validateDatabaseScreenSource(databaseScreen),
 		validationStats: validation.stats,
 		warnings: [],
 	};
 });
 
-const areaCatalog = getAreaCatalog(sampleScreens);
+const areaCatalog = getAreaCatalog(renderedScreens);
 
 export function loadLocalWorkbenchData() {
 	return {
@@ -96,11 +88,11 @@ function extractAreas(schema: WireframeSchema) {
 	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
-		if (node.type !== "Area") return;
+		if (!isAreaNode(node)) return;
 
 		areas.push({
 			order: areas.length + 1,
-			areaCode: String(node.props?.areaCode ?? node.metadata.id),
+			areaCode: node.metadata.id,
 		});
 	});
 
@@ -121,12 +113,12 @@ function getAreaCatalog(schemas: WireframeSchema[]) {
 
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
-			if (node.type !== "Area") return;
+			if (!isAreaNode(node)) return;
 
-			const code = String(node.props?.areaCode ?? node.metadata.id);
+			const code = node.metadata.id;
 			byCode.set(code, {
 				code,
-				name: String(node.props?.name ?? node.metadata.title),
+				name: node.metadata.title,
 				usage: "section",
 				stateCount: 1,
 				compositeCount: node.children?.length ?? 0,
@@ -137,7 +129,7 @@ function getAreaCatalog(schemas: WireframeSchema[]) {
 	return Array.from(byCode.values());
 }
 
-function getOrderedSampleScreens(
+function orderDatabaseScreens(
 	screens: DatabaseScreenSet["screens"],
 	variants: DatabaseScreenVariantSet,
 	routes: DatabaseScreenRouteSet,
@@ -174,4 +166,8 @@ function forEachNode(nodes: WireframeNode[], callback: (node: WireframeNode) => 
 			forEachNode(node.children, callback);
 		}
 	}
+}
+
+function isAreaNode(node: WireframeNode) {
+	return node.type === "area.static" || node.type === "area.dynamic" || node.type === "Area";
 }

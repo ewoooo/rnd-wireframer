@@ -149,10 +149,6 @@ function extractArea(
 	compositesById: Map<string, DatabaseComponentRow>,
 	warnings: string[],
 ): DatabaseAreaRow {
-	if (!node.props || !("areaCode" in node.props)) {
-		warnings.push(`Area node ${node.metadata.id} is missing props.areaCode`);
-	}
-
 	const { areaCode: _areaCode, ...props } = node.props ?? {};
 
 	return {
@@ -224,10 +220,7 @@ function extractAreaChildren(
 }
 
 function getAreaId(node: WireframeNode) {
-	const areaCode = node.props?.areaCode;
-	return typeof areaCode === "string" && areaCode.length > 0
-		? areaCode
-		: node.metadata.id;
+	return node.metadata.id;
 }
 
 /** 정규 area type 인지 판정. legacy "Area"와 canonical "area.static"/"area.dynamic" 모두 인식. */

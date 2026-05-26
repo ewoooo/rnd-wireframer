@@ -248,59 +248,42 @@ describe("@cx/agent asset pipeline", () => {
 	});
 
 	it("converts an AI asset bundle into table rows", () => {
-		const tables = registerAssetsToTables(
-			{
-				routes: [
-					{
-						id: "mbr-join",
-						name: "회원 가입",
-						variants: [
-							{
-								id: "mbr-join-base",
-								name: "기본",
-								screens: [
-									{
-										id: "NOVA-MBR-FP-001-0",
-										name: "약관 동의",
-										surface: "page",
-										areas: [{ areaId: "ogn-mbr-term-list" }],
-									},
-								],
-							},
-						],
-					},
-				],
-				areas: [
-					{
-						id: "ogn-mbr-term-list",
-						name: "약관 목록 조회",
-						children: [{ componentId: "list-cell-term-required" }],
-					},
-				],
-				components: [
-					{
-						id: "list-cell-term-required",
-						name: "필수 약관 항목",
-						type: "list-cell",
-					},
-				],
-			},
-			{
-				screenMockData: [
-					{
-						screenId: "NOVA-MBR-FP-001-0",
-						data: {
-							termList: {
-								requiredTerm: {
-									title: "[필수] 서비스 이용약관",
+		const tables = registerAssetsToTables({
+			routes: [
+				{
+					id: "mbr-join",
+					name: "회원 가입",
+					variants: [
+						{
+							id: "mbr-join-base",
+							name: "기본",
+							screens: [
+								{
+									id: "NOVA-MBR-FP-001-0",
+									name: "약관 동의",
+									surface: "page",
+									areas: [{ areaId: "ogn-mbr-term-list" }],
 								},
-							},
+							],
 						},
-						generatedBy: "ai",
-					},
-				],
-			},
-		);
+					],
+				},
+			],
+			areas: [
+				{
+					id: "ogn-mbr-term-list",
+					name: "약관 목록 조회",
+					children: [{ componentId: "list-cell-term-required" }],
+				},
+			],
+			components: [
+				{
+					id: "list-cell-term-required",
+					name: "필수 약관 항목",
+					type: "list-cell",
+				},
+			],
+		});
 
 		expect(tables.screenRoutes).toEqual([{ code: "mbr-join", name: "회원 가입", order: 1 }]);
 		expect(tables.screenVariants).toEqual([
@@ -320,20 +303,6 @@ describe("@cx/agent asset pipeline", () => {
 			id: "list-cell-term-required",
 			type: "list-cell",
 		});
-		expect(tables.screenMockData).toEqual([
-			{
-				screenId: "NOVA-MBR-FP-001-0",
-				scenario: "default",
-				generatedBy: "ai",
-				data: {
-					termList: {
-						requiredTerm: {
-							title: "[필수] 서비스 이용약관",
-						},
-					},
-				},
-			},
-		]);
 		expect(tables.warnings).toEqual([]);
 	});
 });

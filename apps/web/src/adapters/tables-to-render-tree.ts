@@ -251,7 +251,7 @@ export function getValidationWarnings(screen?: AppScreen) {
 	return [...screen.warnings, ...validation.warnings.map((warning) => `render tree: ${warning}`)];
 }
 
-export function validateSampleScreenSource(screen: DatabaseScreenRow) {
+export function validateDatabaseScreenSource(screen: DatabaseScreenRow) {
 	const errors: string[] = [];
 	const label = screen.id ?? screen.metadata.title;
 
@@ -568,7 +568,7 @@ function tableCompositeToRenderNode(
 function requireComposite(compositeById: Map<string, DatabaseComponentRow>, compositeId: string) {
 	const composite = compositeById.get(compositeId);
 	if (!composite) {
-		throw new Error(`Missing composite sample: ${compositeId}`);
+		throw new Error(`Missing composite row: ${compositeId}`);
 	}
 	return composite;
 }

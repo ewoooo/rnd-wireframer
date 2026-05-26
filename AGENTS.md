@@ -28,8 +28,8 @@
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
-- 화면 생성용 mock 데이터와 단계별 JSON 샘플은 `docs/data-mockups/` 아래에 둔다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다.
-- 데이터는 공급 데이터와 소비 데이터로 나누고, AI import 산출물은 `database/ai-imports/`, 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
+- 원천 import는 `database/client-imports/`, AI import 후보 산출물은 `database/ai-imports/`, 승인된 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
+- `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/*.db-tables.json` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
 - AI generation 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables` 순서로 본다. `ComposedNodeTree` 이후에는 `raw`와 pending placeholder를 남기지 않는다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한 뒤 compose에서 `component.hooks`로 승격한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.

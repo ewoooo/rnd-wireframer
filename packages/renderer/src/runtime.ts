@@ -66,7 +66,9 @@ const EXTRA_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
 	["area.static", "area.static"],
 	["area.dynamic", "area.dynamic"],
 	["Accordion", "accordion"],
+	["accordion", "accordion"],
 	["ActionArea", "action"],
+	["action-area", "action"],
 ];
 
 const kindByType = new Map<string, WireframeNodeKind>(EXTRA_KIND_MAPPINGS);
@@ -83,26 +85,6 @@ for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) 
 for (const [alias, type] of Object.entries(componentCatalogAliases)) {
 	const entry = (componentCatalog as Record<string, ComponentCatalogEntry>)[type];
 	if (entry?.kind && !kindByType.has(alias)) kindByType.set(alias, entry.kind);
-}
-
-export function registerWireframeNodeKinds(
-	mappings: Array<{ type: string; kind: WireframeNodeKind }>,
-): void {
-	for (const { type, kind } of mappings) {
-		kindByType.set(type, kind);
-	}
-}
-
-export function clearWireframeNodeKindRegistry(): void {
-	kindByType.clear();
-	for (const [type, kind] of EXTRA_KIND_MAPPINGS) {
-		kindByType.set(type, kind);
-	}
-	for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
-		if (!entry.kind) continue;
-		kindByType.set(entry.type, entry.kind);
-		for (const alias of entry.aliases ?? []) kindByType.set(alias, entry.kind);
-	}
 }
 
 export function getWireframeNodeKind(node: WireframeNode): WireframeNodeKind {

@@ -6,24 +6,34 @@
 
 제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 기술 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md)를 따른다.
 
-현재 데이터는 두 타입으로 나눈다.
+현재 데이터는 아래 생명 주기로 나눈다.
 
 | 타입 | 역할 | 대표 위치 |
 |---|---|---|
-| 공급 데이터 | 화면 생성/렌더링에 필요한 원천, 어휘, 패턴, 구현 자산을 제공한다. | 첨부 명세, [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store), [packages/component](/Users/plusx/Documents/rnd-screen-generator/packages/component), [packages/layout](/Users/plusx/Documents/rnd-screen-generator/packages/layout), [packages/token](/Users/plusx/Documents/rnd-screen-generator/packages/token) |
-| AI import 데이터 | AI가 생성한 등록 후보 bundle이다. 검증 후 소비 데이터 테이블로 등록한다. | [database/ai-imports](/Users/plusx/Documents/rnd-screen-generator/database/ai-imports) |
-| 소비 데이터 | workbench, resolver, renderer가 실제 화면 단위로 소비하는 정규화 입력이다. | [database/tables](/Users/plusx/Documents/rnd-screen-generator/database/tables) |
+| 원천 import 데이터 | 사용자가 올린 수급 원본이다. 파괴적으로 수정하지 않는다. | [database/client-imports](/Users/plusx/Documents/rnd-screen-generator/database/client-imports) |
+| 공급 데이터 | 화면 생성/렌더링에 필요한 어휘, 패턴, 구현 자산을 제공한다. | [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store), [packages/component](/Users/plusx/Documents/rnd-screen-generator/packages/component), [packages/layout](/Users/plusx/Documents/rnd-screen-generator/packages/layout), [packages/token](/Users/plusx/Documents/rnd-screen-generator/packages/token) |
+| AI import 데이터 | AI가 생성한 등록 후보 bundle과 table 후보 산출물이다. 소비 데이터가 아니다. | [database/ai-imports](/Users/plusx/Documents/rnd-screen-generator/database/ai-imports) |
+| 소비 데이터 | workbench, resolver, renderer가 실제 화면 단위로 소비하는 승인된 정규화 입력이다. | [database/tables](/Users/plusx/Documents/rnd-screen-generator/database/tables) |
 
 우선순위는 소비 데이터 강화다. 공급 데이터는 소비 데이터를 만들기 위한 근거와 어휘로 쓰되, workbench가 직접 공급 원본을 해석하도록 만들지 않는다.
-`docs/data-mockups`는 원천 입력과 단계별 fixture를 보관한다. `apps/web` workbench는 `docs/data-mockups`를 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과를 소비한다.
+`apps/web` workbench는 `database/client-imports`, `database/ai-imports`, `database/pattern-store`를 화면 데이터처럼 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
+
+생명 주기 강제 규칙:
+
+- `database/client-imports`는 업로드 원본 보관소다. 원본을 수정해 정규화하지 않는다.
+- `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.db-tables.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
+- `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
+- `database/pattern-store`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
+- 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
 
 데이터 흐름 관계를 시각 검토할 때는 [DATA_FLOW.dbml](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_FLOW.dbml)을 사용한다. 이 DBML은 migration 스키마가 아니라 공급 데이터가 소비 데이터로 정규화되는 흐름과 참조 관계를 표현한 산출물이다.
 
 ## 2. 데이터 흐름
 
 ```text
+원천 import 데이터
+  └─ database/client-imports/{importId}/...
 공급 데이터
-  ├─ 첨부 screen/area 명세
   ├─ pattern preset
   ├─ @cx/components
   ├─ @cx/layout
@@ -41,14 +51,13 @@ AI import 데이터
   └─ agent-assets.db-tables.json   (MaterializedDatabaseNodeTables, DB 변환 결과)
         |
         v
-materializeDecoratedAssetsToDatabaseTables
+promote / import
         |
         v
 소비 데이터
   ├─ screen_routes.json
   ├─ screen_variants.json
   ├─ screens.json
-  ├─ screen_mock_data.json
   ├─ areas.json
   └─ components.json
         |
@@ -68,8 +77,8 @@ apps/web
 
 | 공급원 | 책임 | 소비 데이터 반영 방식 |
 |---|---|---|
-| 첨부 screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
-| 첨부 area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | `areas`, `components`, area/composite metadata |
+| `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
+| `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/composite metadata |
 | `database/pattern-store/*.json` | region/area/composite preset, layout recipe, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, `components[].pattern` |
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
@@ -78,7 +87,7 @@ apps/web
 
 공급 데이터 원칙:
 
-- 첨부 원본은 파괴적으로 수정하지 않는다.
+- 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
 - `database/pattern-store/*.json`은 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `WireframeNode` 구조로 materialize한다. `@cx/renderer`는 pattern store를 직접 읽지 않고 materialize된 node만 렌더링한다.
@@ -93,7 +102,6 @@ apps/web
 | [screen_routes.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/screen_routes.json) | `screenRoutes` | 사용자가 탐색하는 화면 흐름 단위 |
 | [screen_variants.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/screen_variants.json) | `screenVariants` | route 아래 base/edge 생성 대상 |
 | [screens.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/screens.json) | `screens` | 실제 렌더 가능한 화면 인스턴스 |
-| [screen_mock_data.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/screen_mock_data.json) | `screenMockData` | AI가 추론한 화면별 preview/mock data |
 | [areas.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/areas.json) | `areas` | 화면 region에 배치되는 OGN 섹션 |
 | [components.json](/Users/plusx/Documents/rnd-screen-generator/database/tables/components.json) | `components` | OGN 또는 screen region에서 참조하는 concrete render node |
 

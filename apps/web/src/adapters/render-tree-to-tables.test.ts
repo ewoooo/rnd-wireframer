@@ -143,7 +143,7 @@ const sectionStackPattern: PatternStorePattern = {
 
 describe("renderTreeToTables", () => {
 	it("extracts database table rows from a resolved render tree", () => {
-		const toSampleComposite = (node: WireframeNode): DatabaseComponentRow => ({
+		const toCompositeRow = (node: WireframeNode): DatabaseComponentRow => ({
 			id: node.metadata.id,
 			type: node.type,
 			version: node.componentVersion,
@@ -164,7 +164,7 @@ describe("renderTreeToTables", () => {
 			compositeById: new Map(
 				[topNavigation, intro, requiredTerm, termDetail].map((node) => [
 					node.metadata.id,
-					toSampleComposite(node),
+					toCompositeRow(node),
 				]),
 			),
 			areaById: new Map([[area.id, area]]),

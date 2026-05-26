@@ -278,8 +278,8 @@ type DisplayPreviewFlowRow = {
 | `payload` | 다음 화면에 전달되는 데이터 |
 | `followUp` | 후속 처리 설명 |
 
-## 11. Mock 파일
+## 11. Fixture 파일
 
-샘플 read model은 `docs/data-mockups/3-parsed-jsons/display-preview-screen.json`에 둔다. 이 디렉토리는 파싱된 조회용 fixture를 보관하는 위치이며, 샘플 파일은 후속 display preview fixture 작업에서 추가한다.
+샘플 read model이 필요하면 `database/ai-imports` 아래의 import/job별 후보 산출물로 둔다. 승인된 preview 입력은 `database/tables` 계약 또는 후속 API read model로 승격된 데이터만 사용한다.
 
 추가될 샘플 파일은 SQL 적재 대상이 아니라 프론트엔드 상세 화면 구현과 API 응답 계약을 검토하기 위한 기준 샘플이다.

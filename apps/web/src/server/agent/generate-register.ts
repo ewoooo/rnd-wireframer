@@ -17,14 +17,7 @@ const AGENT_ASSETS_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.json");
 const AGENT_ASSETS_COMPOSED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.composed.json");
 const AGENT_ASSETS_REGISTERED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.registered.json");
 const AGENT_ASSETS_DECORATED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.decorated.json");
-const DB_TABLES_DIR = path.join(DATABASE_DIR, "tables");
-const DB_TABLE_PATHS = {
-	screenRoutes: path.join(DB_TABLES_DIR, "screen_routes.json"),
-	screenVariants: path.join(DB_TABLES_DIR, "screen_variants.json"),
-	screens: path.join(DB_TABLES_DIR, "screens.json"),
-	areas: path.join(DB_TABLES_DIR, "areas.json"),
-	components: path.join(DB_TABLES_DIR, "components.json"),
-} as const;
+const AGENT_ASSETS_DB_TABLES_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.db-tables.json");
 
 export interface GenerateAgentRegisterOptions {
 	composeWithAI?: boolean;
@@ -136,7 +129,7 @@ export async function generateAgentRegister({
 			composed: "database/ai-imports/agent-assets.composed.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
-			dbTables: "database/tables/{screen_routes,screen_variants,screens,areas,components}.json",
+			dbTables: "database/ai-imports/agent-assets.db-tables.json",
 		},
 	};
 }
@@ -164,7 +157,6 @@ async function writeAgentImportArtifacts(payload: {
 	registry: unknown;
 }) {
 	await mkdir(AI_IMPORTS_DIR, { recursive: true });
-	await mkdir(DB_TABLES_DIR, { recursive: true });
 	await writeFile(AGENT_ASSETS_PATH, `${JSON.stringify(payload.generated, null, "\t")}\n`, "utf8");
 	await writeFile(
 		AGENT_ASSETS_COMPOSED_PATH,
@@ -181,24 +173,18 @@ async function writeAgentImportArtifacts(payload: {
 		`${JSON.stringify(payload.decorated, null, "\t")}\n`,
 		"utf8",
 	);
-	await writeDbTable(DB_TABLE_PATHS.screenRoutes, { screenRoutes: payload.decoratedTables.screenRoutes });
-	await writeDbTable(DB_TABLE_PATHS.screenVariants, {
-		screenVariants: payload.decoratedTables.screenVariants,
-	});
-	await writeDbTable(DB_TABLE_PATHS.screens, { screens: payload.decoratedTables.screens });
-	await writeDbTable(DB_TABLE_PATHS.areas, { areas: payload.decoratedTables.areas });
-	await writeDbTable(DB_TABLE_PATHS.components, { components: payload.decoratedTables.components });
+	await writeFile(
+		AGENT_ASSETS_DB_TABLES_PATH,
+		`${JSON.stringify(payload.decoratedTables, null, "\t")}\n`,
+		"utf8",
+	);
 	console.info("[agent-generate] wrote agent assets", {
 		assetsPath: AGENT_ASSETS_PATH,
 		composedPath: AGENT_ASSETS_COMPOSED_PATH,
 		registeredPath: AGENT_ASSETS_REGISTERED_PATH,
 		decoratedPath: AGENT_ASSETS_DECORATED_PATH,
-		dbTablesDir: DB_TABLES_DIR,
+		dbTablesPath: AGENT_ASSETS_DB_TABLES_PATH,
 	});
-}
-
-async function writeDbTable(filePath: string, content: Record<string, unknown>) {
-	await writeFile(filePath, `${JSON.stringify(content, null, "\t")}\n`, "utf8");
 }
 
 function countScreenShellIds(tables: { screens: Array<{ pattern?: { id: string } }> }) {

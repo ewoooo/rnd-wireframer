@@ -141,6 +141,7 @@ export const componentCatalog = {
 	},
 	CheckboxText: {
 		type: "CheckboxText",
+		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
 		aliases: ["Checkbox", "checkbox"],

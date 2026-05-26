@@ -36,8 +36,8 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-22 - Documentation Agent
+## 2026-05-26 - Data Agent
 
-- 변경: NodeTree 산출물 흐름, `component-catalog`, `hooks: NodeHook[]`, agent 책임 디렉토리, AI import artifact 이름을 기준 문서에 반영함
-- 이유: 구현은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> MaterializedDatabaseNodeTables`로 이동했는데 문서 일부가 기존 asset/events 표현을 유지하고 있었기 때문
-- 검증: `npx tsc --noEmit --incremental false`
+- 변경: `docs/data-mockups`를 제거하고, 데이터 위치를 `database/client-imports`, `database/ai-imports`, `database/tables`, `database/pattern-store` 생명 주기로 정리함
+- 이유: 원천 import, AI 후보 산출물, 승인된 소비 데이터의 경계를 파일 위치로 강제하기 위함
+- 검증: 최신 기준 문서에서 `docs/data-mockups` 참조가 제거됐고, `generate-register`가 table 후보를 `database/ai-imports/agent-assets.db-tables.json`에만 쓰도록 확인함

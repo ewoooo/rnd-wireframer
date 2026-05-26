@@ -428,8 +428,8 @@ function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
 }
 
 function getContainedAreaCode(node: WireframeNode): string | undefined {
-	if (node.type === "Area") return getAreaCode(node);
-	const childArea = node.children?.find((child) => child.type === "Area");
+	if (isAreaNode(node)) return getAreaCode(node);
+	const childArea = node.children?.find(isAreaNode);
 	return childArea ? getAreaCode(childArea) : undefined;
 }
 
@@ -576,10 +576,7 @@ function getSelectedCompositeContext(
 
 function findAreaNode(nodes: WireframeNode[], areaCode: string): WireframeNode | undefined {
 	for (const node of nodes) {
-		if (
-			node.type === "Area" &&
-			String(node.props?.areaCode ?? node.metadata.id) === areaCode
-		) {
+		if (isAreaNode(node) && node.metadata.id === areaCode) {
 			return node;
 		}
 		const childMatch = node.children ? findAreaNode(node.children, areaCode) : undefined;
@@ -626,8 +623,12 @@ function forEachCompositeNode(
 }
 
 function getAreaCode(node: WireframeNode) {
-	if (node.type !== "Area") return undefined;
-	return String(node.props?.areaCode ?? node.metadata.id);
+	if (!isAreaNode(node)) return undefined;
+	return node.metadata.id;
+}
+
+function isAreaNode(node: WireframeNode) {
+	return node.type === "area.static" || node.type === "area.dynamic" || node.type === "Area";
 }
 
 function isCompositeNode(node: WireframeNode) {
@@ -637,6 +638,8 @@ function isCompositeNode(node: WireframeNode) {
 		"Screen.Contents",
 		"Screen.Bottom",
 		"Area",
+		"area.static",
+		"area.dynamic",
 		"PageStack",
 	].includes(node.type);
 }

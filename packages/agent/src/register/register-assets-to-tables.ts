@@ -1,5 +1,4 @@
 import type {
-	GeneratedNodeMockInput,
 	GeneratedNodeTree,
 	MaterializedNodeTables,
 	RegisteredRouteNode,
@@ -8,10 +7,7 @@ import type {
 } from "../types";
 import { registerAssets } from "./register-assets";
 
-export function registerAssetsToTables(
-	input: GeneratedNodeTree,
-	mockInput: GeneratedNodeMockInput = {},
-): MaterializedNodeTables {
+export function registerAssetsToTables(input: GeneratedNodeTree): MaterializedNodeTables {
 	const registry = registerAssets(input);
 	const screenRoutes = registry.routes.map((route) => ({
 		code: route.id,
@@ -51,14 +47,6 @@ export function registerAssetsToTables(
 		screenRoutes,
 		screenVariants,
 		screens,
-		screenMockData: (mockInput.screenMockData ?? []).map((mock) => ({
-			screenId: mock.screenId,
-			scenario: mock.scenario ?? "default",
-			...(mock.generatedBy ? { generatedBy: mock.generatedBy } : {}),
-			...(mock.source ? { source: mock.source } : {}),
-			...(mock.sourceRefs ? { sourceRefs: [...mock.sourceRefs] } : {}),
-			data: { ...mock.data },
-		})),
 		areas,
 		components,
 		warnings: [...registry.warnings],

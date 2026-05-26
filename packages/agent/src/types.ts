@@ -236,29 +236,6 @@ export interface ScreenTableRow {
 	}>;
 }
 
-export interface ScreenMockDataInput {
-	screenId: string;
-	data: Record<string, unknown>;
-	scenario?: string;
-	generatedBy?: string;
-	source?: string;
-	sourceRefs?: string[];
-}
-
-export interface GeneratedNodeMockInput {
-	screenMockData?: ScreenMockDataInput[];
-}
-
-export interface ScreenMockDataTableRow {
-	screenId: string;
-	scenario: string;
-	data: Record<string, unknown>;
-	generatedBy?: string;
-	source?: string;
-	sourceRefs?: string[];
-}
-
-
 export interface ComponentTableRow {
 	id: string;
 	name: string;
@@ -272,7 +249,6 @@ export interface MaterializedNodeTables {
 	screenRoutes: ScreenRouteTableRow[];
 	screenVariants: ScreenVariantTableRow[];
 	screens: ScreenTableRow[];
-	screenMockData: ScreenMockDataTableRow[];
 	areas: AreaTableRow[];
 	components: ComponentTableRow[];
 	warnings: string[];
