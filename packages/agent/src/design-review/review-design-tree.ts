@@ -1,4 +1,4 @@
-import { getComponentCatalogEntry } from "@cx/renderer";
+import { getComponentCatalogEntry } from "@cx/components/catalog";
 import { normalizeComponentType } from "../normalize-component-type";
 import type { DecoratedAreaNode, DecoratedComponentNode, DecoratedNodeTree } from "../types";
 import {

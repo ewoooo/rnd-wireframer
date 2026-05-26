@@ -1,4 +1,4 @@
-import { componentCatalog, getComponentCatalogTypes } from "@cx/renderer";
+import { componentCatalog, getComponentCatalogTypes } from "@cx/components/catalog";
 import {
 	runClaudeQuery,
 	type RunClaudeQueryInput,
