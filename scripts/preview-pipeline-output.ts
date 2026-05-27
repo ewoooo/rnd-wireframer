@@ -7,7 +7,7 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runPipeline } from "@cx/agent/pipeline";
+import { runPipeline } from "@cx/agent/pipeline/experimental";
 import type {
 	CatalogDeck,
 	DesignDeck,

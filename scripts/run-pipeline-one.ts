@@ -7,14 +7,11 @@
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { runPipeline } from "@cx/agent/pipeline";
-import {
-	createPromotedTableFiles,
-	promoteDatabaseTablesCandidate,
-} from "@cx/agent/promote-database-tables";
+import { runPipeline } from "@cx/agent/pipeline/experimental";
+import { promoteDatabaseTablesCandidate } from "@cx/agent/promote-database-tables";
 import { loadPatternStore } from "@cx/pattern-store";
-import type { CompositionDecision } from "@cx/types/composition-output";
 import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionDecision } from "@cx/types/composition-output";
 import { errorsOf, warningsOf } from "@cx/types/validation";
 
 const ROOT = process.cwd();
@@ -72,9 +69,7 @@ async function main() {
 		const r = result.prddScreenRecord;
 		log("");
 		log("─── 1. REGISTER ───");
-		log(
-			`  screenId=${r.id} name="${r.name}" type=${r.screenType} importJobId=${r.importJobId}`,
-		);
+		log(`  screenId=${r.id} name="${r.name}" type=${r.screenType} importJobId=${r.importJobId}`);
 		log(`  areas=${r.areas?.length ?? 0} states=${r.states?.length ?? 0}`);
 		const componentCount = (r.areas ?? []).reduce(
 			(sum, a) => sum + (a.area?.children?.length ?? 0),
@@ -87,14 +82,16 @@ async function main() {
 	if (result.compose) {
 		log("");
 		log(`─── 2. COMPOSE (${result.compose.attempts.length} attempts) ───`);
-		for (const [i, a] of result.compose.attempts.entries()) {
+		for (const a of result.compose.attempts) {
 			const vr = a.validatorResult;
 			log(
 				`  attempt #${a.attempt}: parseIssues=${a.parseIssues.length} validator=${vr ? (vr.ok ? "ok" : `fail(${vr.issues.length})`) : "n/a"} retryHints=${a.retryHints?.length ?? 0}`,
 			);
 			if (vr && !vr.ok) {
 				for (const issue of vr.issues.slice(0, 5)) {
-					log(`    [${issue.severity}] ${issue.code} @ ${issue.path?.join(".") ?? "-"}: ${truncate(issue.message, 100)}`);
+					log(
+						`    [${issue.severity}] ${issue.code} @ ${issue.path?.join(".") ?? "-"}: ${truncate(issue.message, 100)}`,
+					);
 				}
 				if (vr.issues.length > 5) log(`    ... +${vr.issues.length - 5} more`);
 			}
@@ -128,7 +125,9 @@ async function main() {
 			);
 			if (vr && !vr.ok) {
 				for (const issue of vr.issues.slice(0, 5)) {
-					log(`    [${issue.severity}] ${issue.code} @ ${issue.path?.join(".") ?? "-"}: ${truncate(issue.message, 100)}`);
+					log(
+						`    [${issue.severity}] ${issue.code} @ ${issue.path?.join(".") ?? "-"}: ${truncate(issue.message, 100)}`,
+					);
 				}
 			}
 		}
@@ -160,7 +159,9 @@ async function main() {
 			log(`    screen ${s.id} variant=${s.screenVariantId} regions: ${regions}`);
 		}
 		for (const a of m.areas) {
-			log(`    area ${a.id} type=${a.type} pattern=${a.pattern?.id ?? "-"} children=${a.children.length}`);
+			log(
+				`    area ${a.id} type=${a.type} pattern=${a.pattern?.id ?? "-"} children=${a.children.length}`,
+			);
 		}
 		for (const c of m.components) {
 			log(`    comp ${c.id} type=${c.type}`);
@@ -192,7 +193,7 @@ async function main() {
 	writeJson(`${outDir}/02-compose.json`, result.compose ?? null);
 	writeJson(`${outDir}/03-decorate.json`, result.decorate ?? null);
 	writeJson(`${outDir}/04-materialized.json`, result.materialized ?? null);
-	writeFileSync(`${outDir}/summary.txt`, summary.join("\n") + "\n");
+	writeFileSync(`${outDir}/summary.txt`, `${summary.join("\n")}\n`);
 
 	log("");
 	log(`[out] ${outDir}`);

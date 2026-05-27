@@ -38,10 +38,10 @@ PRDD/source
 | `compose-screen/*` | experimental | archetype/componentPattern/layoutPattern draft를 포함한 1차 LLM composition |
 | `decorate-screen/*` | experimental | layout pattern 보정용 2차 LLM decoration |
 | `design-review/*` | experimental | design docs 근거 patch 제안/적용 |
-| `validate/validate-composition.ts` | experimental-support | composition-specific hard gate |
-| `validate/validate-decorated.ts` | experimental-support | decorated output hard gate |
+| `validate/validate-composition.ts` | experimental-support | composition-specific hard gate. `@cx/agent/validate/experimental`에서만 공개 |
+| `validate/validate-decorated.ts` | experimental-support | decorated output hard gate. `@cx/agent/validate/experimental`에서만 공개 |
 | `database/materialize-composition.ts` | experimental-support | composition/decorated output을 tables로 변환 |
-| `pipeline/run-pipeline.ts` | experimental | 기존 Register -> Compose -> Decorate -> Materialize 전체 흐름 |
+| `pipeline/run-pipeline.ts` | experimental | 기존 Register -> Compose -> Decorate -> Materialize 전체 흐름. `@cx/agent/pipeline/experimental`에서만 공개 |
 
 ## 4. Legacy Compatibility
 
@@ -60,5 +60,7 @@ PRDD/source
 - Active Pipeline 작업자는 `pipeline/draft-tables-pipeline.ts`, register, promote 경계만 수정한다.
 - Quality Report 작업자는 `@cx/types/quality-report`와 validator/report adapter를 수정한다.
 - DraftTables Generator 작업자는 prompt와 generator adapter만 수정하고 renderer/validation 계약을 바꾸지 않는다.
+- `@cx/agent/pipeline`은 active path만 export한다. 기존 2-stage LLM pipeline은 `@cx/agent/pipeline/experimental`로 import한다.
+- `@cx/agent/validate`는 active `QualityReport` adapter만 export한다. composition/decorated validator는 `@cx/agent/validate/experimental`로 import한다.
 - Experimental 모듈은 active path가 요구하지 않는 한 public root export에 추가하지 않는다.
 - 기존 experimental 테스트가 깨질 가능성이 있는 변경은 active path 테스트를 먼저 추가한 뒤 별도 정리 작업으로 다룬다.
