@@ -1,4 +1,4 @@
-import type { WireframeNode } from "@cx/renderer";
+import type { RenderTreeNode } from "@cx/renderer";
 import { describe, expect, it } from "vitest";
 import { renderTreeToTables } from "./render-tree-to-tables";
 import {
@@ -17,28 +17,28 @@ const metadata = (id: string, title: string) => ({
 	updatedAt: "2026-05-21T00:00:00Z",
 });
 
-const topNavigation: WireframeNode = {
+const topNavigation: RenderTreeNode = {
 	type: "HeaderBase",
 	componentVersion: "1.0.0",
 	metadata: metadata("top-navigation", "상단 내비게이션"),
 	props: { titleContent: "약관 동의" },
 };
 
-const intro: WireframeNode = {
+const intro: RenderTreeNode = {
 	type: "SectionHeader",
 	componentVersion: "1.0.0",
 	metadata: metadata("screen-intro", "인트로"),
 	props: { title: "약관 동의" },
 };
 
-const requiredTerm: WireframeNode = {
+const requiredTerm: RenderTreeNode = {
 	type: "ListCell",
 	componentVersion: "1.0.0",
 	metadata: metadata("requiredTerm", "필수 약관"),
 	props: { title: { bind: "termList.requiredTerm.title" } },
 };
 
-const termDetail: WireframeNode = {
+const termDetail: RenderTreeNode = {
 	type: "Accordion",
 	componentVersion: "1.0.0",
 	metadata: metadata("termDetail", "약관 상세"),
@@ -143,7 +143,7 @@ const sectionStackPattern: PatternStorePattern = {
 
 describe("renderTreeToTables", () => {
 	it("extracts database table rows from a resolved render tree", () => {
-		const toSampleComposite = (node: WireframeNode): SampleComposite => ({
+		const toSampleComposite = (node: RenderTreeNode): SampleComposite => ({
 			id: node.metadata.id,
 			type: node.type,
 			version: node.componentVersion,

@@ -1,10 +1,8 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
 import {
-	registerWireframeNodeKinds,
-	validateWireframeSchemaFull,
-	type WireframeNode,
-	type WireframeNodeKind,
-	type WireframeSchema,
+	validateRenderTreeFull,
+	type RenderTreeNode,
+	type RenderTree,
 } from "@cx/renderer";
 import {
 	type SampleCompositeSet,
@@ -15,16 +13,15 @@ import {
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
-import componentRendererKindsSet from "../../../../database/tables/component_renderer_kinds.json";
 import compositeSampleSet from "../../../../database/tables/components.json";
-import organismSampleSet from "../../../../database/tables/organisms.json";
+import organismSampleSet from "../../../../database/tables/areas.json";
 import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
 import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
 import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
 import screenSampleSet from "../../../../database/tables/screens.json";
 
 type WireframeScreenSet = {
-	screens: WireframeSchema[];
+	screens: RenderTree[];
 };
 
 type ComponentTableSet = {
@@ -39,10 +36,6 @@ type ScreenMockDataSet = {
 	}>;
 };
 
-registerWireframeNodeKinds(
-	(componentRendererKindsSet as { mappings: Array<{ type: string; kind: WireframeNodeKind }> })
-		.mappings,
-);
 
 const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
 const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
@@ -71,7 +64,7 @@ const sampleScreens = tablesToRenderTrees({
 
 const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	const sampleScreen = orderedSampleScreens[index];
-	const validation = validateWireframeSchemaFull(schema);
+	const validation = validateRenderTreeFull(schema);
 	const variant = sampleVariantSet.screenVariants.find(
 		(candidate) => candidate.id === sampleScreen.screenVariantId,
 	);
@@ -109,7 +102,7 @@ export function loadLocalWorkbenchData() {
 	};
 }
 
-function extractOrganisms(schema: WireframeSchema) {
+function extractOrganisms(schema: RenderTree) {
 	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
@@ -124,7 +117,7 @@ function extractOrganisms(schema: WireframeSchema) {
 	return areas;
 }
 
-function getOrganismCatalog(schemas: WireframeSchema[]) {
+function getOrganismCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<
 		string,
 		{
@@ -184,7 +177,7 @@ function getOrderedSampleScreens(
 	});
 }
 
-function forEachNode(nodes: WireframeNode[], callback: (node: WireframeNode) => void): void {
+function forEachNode(nodes: RenderTreeNode[], callback: (node: RenderTreeNode) => void): void {
 	for (const node of nodes) {
 		callback(node);
 		if (node.children) {

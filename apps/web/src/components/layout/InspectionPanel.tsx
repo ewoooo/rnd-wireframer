@@ -1,4 +1,4 @@
-import type { WireframeNode, WireframeSchema } from "@cx/renderer";
+import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
 import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
@@ -251,7 +251,7 @@ function AreaInspection({ area }: { area: SelectedAreaContext }) {
 	);
 }
 
-function NodePropsPanel({ node }: { node: WireframeNode }) {
+function NodePropsPanel({ node }: { node: RenderTreeNode }) {
 	const props = node.props ? JSON.stringify(node.props, null, 2) : "{}";
 	return (
 		<div className="flex flex-col gap-2">
@@ -309,7 +309,7 @@ function AreaActions({ areaCode, screenCode }: { areaCode: string; screenCode: s
 	);
 }
 
-function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: WireframeSchema; screenVariantId: string }) {
+function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: RenderTree; screenVariantId: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");

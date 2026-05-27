@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
-import { registerWireframeNodeKinds, type WireframeNodeKind } from "@cx/renderer";
+
 import { useWorkbenchStore } from "@/model/store";
 import { Canvas } from "./layout/Canvas";
 import { InspectionPanel } from "./layout/InspectionPanel";
@@ -17,7 +17,6 @@ interface AppProps {
 	initialData: {
 		screens: AppScreen[];
 		areas: AppArea[];
-		rendererKinds: Array<{ type: string; kind: WireframeNodeKind }>;
 	};
 }
 
@@ -31,7 +30,6 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 	const selectTab = useWorkbenchStore((state) => state.selectTab);
 
 	useEffect(() => {
-		registerWireframeNodeKinds(initialData.rendererKinds);
 		initializeWorkbench({
 			agentRegistry,
 			areas: initialData.areas,

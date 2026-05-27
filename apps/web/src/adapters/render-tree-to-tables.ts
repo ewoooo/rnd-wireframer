@@ -1,4 +1,4 @@
-import type { PropValue, WireframeNode, WireframeSchema, WireframeScreenNode } from "@cx/renderer";
+import type { PropValue, RenderTreeNode, RenderTree, RenderTreeScreenNode } from "@cx/renderer";
 
 import type {
 	SampleComposite,
@@ -34,7 +34,7 @@ const REGION_BY_TYPE: Record<string, RegionKey> = {
 };
 
 export function renderTreeToTables(
-	schema: WireframeSchema,
+	schema: RenderTree,
 	options: RenderTreeToTablesOptions,
 ): RenderTreeToTablesResult {
 	const warnings: string[] = [];
@@ -76,19 +76,19 @@ export function renderTreeToTables(
 	};
 }
 
-function getSingleScreenNode(schema: WireframeSchema, warnings: string[]): WireframeScreenNode {
+function getSingleScreenNode(schema: RenderTree, warnings: string[]): RenderTreeScreenNode {
 	const screenNodes = schema.children.filter((node) => node.type === "Screen");
 	if (screenNodes.length === 0) {
-		throw new Error("WireframeSchema must include a Screen node");
+		throw new Error("RenderTree must include a Screen node");
 	}
 	if (screenNodes.length > 1) {
 		warnings.push("Multiple Screen nodes found; only the first Screen node was extracted");
 	}
-	return screenNodes[0] as WireframeScreenNode;
+	return screenNodes[0] as RenderTreeScreenNode;
 }
 
 function extractRegion(
-	screenNode: WireframeScreenNode,
+	screenNode: RenderTreeScreenNode,
 	regionKey: RegionKey,
 	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
@@ -110,7 +110,7 @@ function extractRegion(
 }
 
 function extractRegionEntries(
-	nodes: WireframeNode[],
+	nodes: RenderTreeNode[],
 	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
 	warnings: string[],
@@ -119,7 +119,7 @@ function extractRegionEntries(
 }
 
 function extractRegionEntry(
-	node: WireframeNode,
+	node: RenderTreeNode,
 	compositesById: Map<string, SampleComposite>,
 	organismsById: Map<string, SampleOrganism>,
 	warnings: string[],
@@ -136,15 +136,15 @@ function extractRegionEntry(
 	if (node.type === "Organism") {
 		const organismId = getOrganismId(node);
 		organismsById.set(organismId, extractOrganism(node, organismId, compositesById, warnings));
-		return [{ kind: "organism", id: organismId }];
+		return [{ kind: "area", id: organismId }];
 	}
 
 	compositesById.set(node.metadata.id, nodeToComposite(node));
-	return [{ kind: "composite", id: node.metadata.id }];
+	return [{ kind: "component", id: node.metadata.id }];
 }
 
 function extractOrganism(
-	node: WireframeNode,
+	node: RenderTreeNode,
 	organismId: string,
 	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
@@ -171,7 +171,7 @@ function extractOrganism(
 	};
 }
 
-function nodeToComposite(node: WireframeNode): SampleComposite {
+function nodeToComposite(node: RenderTreeNode): SampleComposite {
 	return {
 		id: node.metadata.id,
 		type: node.type,
@@ -195,7 +195,7 @@ function nodeToComposite(node: WireframeNode): SampleComposite {
 }
 
 function extractOrganismChildren(
-	nodes: WireframeNode[],
+	nodes: RenderTreeNode[],
 	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
 ) {
@@ -223,18 +223,18 @@ function extractOrganismChildren(
 	return composites;
 }
 
-function getOrganismId(node: WireframeNode) {
+function getOrganismId(node: RenderTreeNode) {
 	const organismCode = node.props?.organismCode;
 	return typeof organismCode === "string" && organismCode.length > 0
 		? organismCode
 		: node.metadata.id;
 }
 
-function isGeneratedPageStack(node: WireframeNode) {
+function isGeneratedPageStack(node: RenderTreeNode) {
 	return node.type === "PageStack";
 }
 
-function isGeneratedDivider(node: WireframeNode) {
+function isGeneratedDivider(node: RenderTreeNode) {
 	return node.type === "Divider" && /-divider-\d+$/.test(node.metadata.id);
 }
 

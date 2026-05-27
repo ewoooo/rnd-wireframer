@@ -1,4 +1,4 @@
-import { WireframeNodeRenderer } from "@cx/renderer";
+import { RenderTreeNodeRenderer } from "@cx/renderer";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
@@ -45,7 +45,7 @@ export function Canvas() {
 				) : isComponentView && selectedComponent ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
 						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<WireframeNodeRenderer
+							<RenderTreeNodeRenderer
 								data={selectedComponent.screen.schema.data}
 								node={selectedComponent.node}
 							/>
@@ -54,7 +54,7 @@ export function Canvas() {
 				) : isAreaView && selectedArea ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
 						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<WireframeNodeRenderer
+							<RenderTreeNodeRenderer
 								data={selectedArea.screen.schema.data}
 								node={selectedArea.node}
 							/>

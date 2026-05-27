@@ -1,11 +1,11 @@
 import {
 	type PropValue,
-	validateWireframeSchemaFull,
-	type WireframeMetadata,
-	type WireframeNode,
-	type WireframeSchema,
-	type WireframeScreenNode,
-	type WireframeValidationStats,
+	validateRenderTreeFull,
+	type RenderTreeMetadata,
+	type RenderTreeNode,
+	type RenderTree,
+	type RenderTreeScreenNode,
+	type ValidationStats,
 } from "@cx/renderer";
 
 export const DEFAULT_WIREFRAME_SCREEN_CODE = "NOVA-MBR-FP-002-0";
@@ -22,13 +22,13 @@ export interface AppScreen {
 	screenOrder: number;
 	screenRouteId: string;
 	screenRouteName: string;
-	schema: WireframeSchema;
+	schema: RenderTree;
 	screenVariantId: string;
 	screenVariantName: string;
 	screenVariantOrder: number;
 	screenVariantType: "base" | "edge";
 	sourceValidationErrors: string[];
-	validationStats?: WireframeValidationStats;
+	validationStats?: ValidationStats;
 	warnings: string[];
 }
 
@@ -49,13 +49,13 @@ export interface AppComponent {
 }
 
 export type SampleRenderEntry =
-	| { kind: "composite"; id: string }
-	| { kind: "organism"; id: string };
+	| { kind: "component"; id: string }
+	| { kind: "area"; id: string };
 
 export interface SampleScreenRegion {
 	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
 	componentVersion?: string;
-	metadata: { title: string } & Partial<WireframeMetadata>;
+	metadata: { title: string } & Partial<RenderTreeMetadata>;
 	pattern?: {
 		id: string;
 		variant?: string;
@@ -65,8 +65,8 @@ export interface SampleScreenRegion {
 }
 
 import type {
+	AreaVariant,
 	CompositeVariant,
-	OrganismVariant,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -79,8 +79,8 @@ export {
 	loadPatternStore,
 } from "@cx/agent/pattern-store";
 export type {
+	AreaVariant,
 	CompositeVariant,
-	OrganismVariant,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -109,7 +109,7 @@ export interface SampleScreen {
 	};
 	patternId?: string;
 	patternVariant?: string;
-	theme?: WireframeSchema["theme"];
+	theme?: RenderTree["theme"];
 	data?: Record<string, unknown>;
 	screen: {
 		type: SampleScreenSurface;
@@ -233,7 +233,7 @@ export function tablesToRenderTrees({
 
 export const SCREEN_NODE_COMPONENT_VERSION = "1.0.0";
 
-function deriveSchemaMetadata(screen: SampleScreen): WireframeMetadata {
+function deriveSchemaMetadata(screen: SampleScreen): RenderTreeMetadata {
 	const id = screen.id ?? screen.metadata.title;
 	return {
 		id,
@@ -255,10 +255,10 @@ export function tablesToRenderTree({
 	organismById: Map<string, SampleOrganism>;
 	patternById?: Map<string, PatternStorePattern>;
 	screen: SampleScreen;
-}): WireframeSchema {
+}): RenderTree {
 	const screenBody = screen.screen;
 	const schemaMetadata = deriveSchemaMetadata(screen);
-	const screenNodeMetadata: WireframeMetadata = {
+	const screenNodeMetadata: RenderTreeMetadata = {
 		...schemaMetadata,
 		id: `${schemaMetadata.id}-screen-root`,
 		title: `${schemaMetadata.title} 화면`,
@@ -322,23 +322,23 @@ export function getSelectedScreen(screens: AppScreen[], selectedScreenCode: stri
 
 export function getScreenNode(screen?: AppScreen) {
 	return screen?.schema.children.find((node) => node.type === "Screen") as
-		| WireframeScreenNode
+		| RenderTreeScreenNode
 		| undefined;
 }
 
 export function getValidationErrors(screen?: AppScreen) {
 	if (!screen) return [];
-	const validation = validateWireframeSchemaFull(screen.schema);
+	const validation = validateRenderTreeFull(screen.schema);
 	return [
 		...screen.sourceValidationErrors,
-		...validation.errors.map((error) => `render tree: ${error}`),
+		...validation.issues.filter((i) => i.severity === "error").map((i) => `render tree: ${i.message}`),
 	];
 }
 
 export function getValidationStatus(screen?: AppScreen) {
 	const errors = getValidationErrors(screen);
 	const warnings = getValidationWarnings(screen);
-	const stats = screen ? validateWireframeSchemaFull(screen.schema).stats : undefined;
+	const stats = screen ? validateRenderTreeFull(screen.schema).stats : undefined;
 	return {
 		errors,
 		label:
@@ -355,8 +355,8 @@ export function getValidationStatus(screen?: AppScreen) {
 
 export function getValidationWarnings(screen?: AppScreen) {
 	if (!screen) return [];
-	const validation = validateWireframeSchemaFull(screen.schema);
-	return [...screen.warnings, ...validation.warnings.map((warning) => `render tree: ${warning}`)];
+	const validation = validateRenderTreeFull(screen.schema);
+	return [...screen.warnings, ...validation.issues.filter((i) => i.severity === "warning").map((i) => `render tree: ${i.message}`)];
 }
 
 export function validateSampleScreenSource(screen: SampleScreen) {
@@ -397,12 +397,12 @@ const REGION_ID_BY_KEY = {
 
 function tableRegionToRenderNode(
 	regionKey: "bottom" | "contents" | "header",
-	schemaMetadata: WireframeMetadata,
+	schemaMetadata: RenderTreeMetadata,
 	region: SampleScreenRegion,
 	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-): WireframeNode {
+): RenderTreeNode {
 	const regionId = REGION_ID_BY_KEY[regionKey];
 	const regionPattern = resolveRegionPattern(regionKey, region, patternById);
 	return {
@@ -424,7 +424,7 @@ function tableRegionToRenderNode(
 
 function tableRegionChildrenToRenderNodes(
 	regionId: string,
-	schemaMetadata: WireframeMetadata,
+	schemaMetadata: RenderTreeMetadata,
 	region: SampleScreenRegion,
 	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
@@ -454,17 +454,17 @@ function resolveRegionPattern(
 
 function wrapRegionChildren(
 	regionId: string,
-	schemaMetadata: WireframeMetadata,
+	schemaMetadata: RenderTreeMetadata,
 	region: SampleScreenRegion,
 	entries: SampleRenderEntry[],
-	children: WireframeNode[],
+	children: RenderTreeNode[],
 	pattern: RegionVariant | undefined,
 ) {
 	const childWrap = pattern?.childWrap;
 	if (childWrap?.kind !== "page-stack") return children;
 
-	const appliesTo = childWrap.appliesTo ?? ["composite", "organism"];
-	const wrapped: WireframeNode[] = [];
+	const appliesTo = childWrap.appliesTo ?? ["component", "area"];
+	const wrapped: RenderTreeNode[] = [];
 	children.forEach((child, index) => {
 		const entry = entries[index];
 		if (!entry || !appliesTo.includes(entry.kind)) {
@@ -483,12 +483,12 @@ function wrapRegionChildren(
 
 function createRegionPageStackNode(
 	regionId: string,
-	schemaMetadata: WireframeMetadata,
+	schemaMetadata: RenderTreeMetadata,
 	region: SampleScreenRegion,
 	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
-	child: WireframeNode,
-): WireframeNode {
+	child: RenderTreeNode,
+): RenderTreeNode {
 	return {
 		type: "PageStack",
 		componentVersion: region.componentVersion ?? SCREEN_NODE_COMPONENT_VERSION,
@@ -508,11 +508,11 @@ function createRegionPageStackNode(
 
 function createRegionDividerNode(
 	regionId: string,
-	schemaMetadata: WireframeMetadata,
+	schemaMetadata: RenderTreeMetadata,
 	region: SampleScreenRegion,
 	childWrap: NonNullable<RegionVariant["childWrap"]>,
 	index: number,
-): WireframeNode {
+): RenderTreeNode {
 	return {
 		type: "Divider",
 		componentVersion: "1.0.0",
@@ -528,9 +528,9 @@ function createRegionDividerNode(
 }
 
 function completeMetadata(
-	metadata: Pick<WireframeMetadata, "id" | "title"> & Partial<WireframeMetadata>,
-	fallback: WireframeMetadata,
-): WireframeMetadata {
+	metadata: Pick<RenderTreeMetadata, "id" | "title"> & Partial<RenderTreeMetadata>,
+	fallback: RenderTreeMetadata,
+): RenderTreeMetadata {
 	return {
 		author: fallback.author,
 		createdAt: fallback.createdAt,
@@ -574,8 +574,8 @@ function tableEntryToRenderNode(
 	compositeById: Map<string, SampleComposite>,
 	organismById: Map<string, SampleOrganism>,
 	patternById: Map<string, PatternStorePattern>,
-): WireframeNode {
-	if (entry.kind === "composite") {
+): RenderTreeNode {
+	if (entry.kind === "component") {
 		return tableCompositeToRenderNode(requireComposite(compositeById, entry.id), patternById);
 	}
 
@@ -604,7 +604,7 @@ function tableEntryToRenderNode(
 		patternById,
 		organism.pattern?.id,
 		organism.pattern?.variant,
-		"organism",
+		"area",
 	);
 
 	return {
@@ -618,7 +618,7 @@ function tableEntryToRenderNode(
 			updatedAt: organism.metadata.updatedAt,
 			description: organism.metadata.description,
 		},
-		props: mergeProps(mergeProps(organismPattern?.props, organism.props), {
+		props: mergeProps(mergeProps(organismPattern?.layoutProps, organism.props), {
 			organismCode: organism.id,
 		}),
 		children: organism.children.map((compositeRef) =>
@@ -630,7 +630,7 @@ function tableEntryToRenderNode(
 function tableCompositeToRenderNode(
 	composite: SampleComposite,
 	patternById: Map<string, PatternStorePattern>,
-): WireframeNode {
+): RenderTreeNode {
 	const compositePattern = getPatternPreset(
 		patternById,
 		composite.pattern?.id,
@@ -651,8 +651,8 @@ function tableCompositeToRenderNode(
 			updatedAt: composite.metadata.updatedAt,
 			description: composite.metadata.description,
 		},
-		props: mergeProps(compositePattern?.props, childProps),
-		events: composite.events as WireframeNode["events"],
+		props: mergeProps(compositePattern?.layoutProps, childProps),
+		events: composite.events as RenderTreeNode["events"],
 	};
 }
 
@@ -666,8 +666,8 @@ function requireComposite(compositeById: Map<string, SampleComposite>, composite
 
 type VariantByTarget<T extends PatternStoreTarget> = T extends "region"
 	? RegionVariant
-	: T extends "organism"
-		? OrganismVariant
+	: T extends "area"
+		? AreaVariant
 		: CompositeVariant;
 
 function getPatternPreset<T extends PatternStoreTarget>(

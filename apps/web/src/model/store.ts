@@ -1,5 +1,5 @@
 import type { RegisteredNodeTree } from "@cx/agent";
-import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
+import type { RenderTreeNode, RenderTreeScreenNode, ValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
 	type AppArea,
@@ -52,13 +52,13 @@ export interface AppScreenVariantOption {
 
 export interface SelectedAreaContext {
 	code: string;
-	node: WireframeNode;
+	node: RenderTreeNode;
 	screen: AppScreen;
 }
 
 export interface SelectedComponentContext {
 	code: string;
-	node: WireframeNode;
+	node: RenderTreeNode;
 	area?: SelectedAreaContext;
 	screen: AppScreen;
 }
@@ -82,7 +82,7 @@ interface WorkbenchState {
 	isComponentView: boolean;
 	isAreaView: boolean;
 	areas: AppArea[];
-	screenNode?: WireframeScreenNode;
+	screenNode?: RenderTreeScreenNode;
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
@@ -107,7 +107,7 @@ interface WorkbenchState {
 	selectedScreenCode: string;
 	validationErrors: string[];
 	validationLabel: string;
-	validationStats?: WireframeValidationStats;
+	validationStats?: ValidationStats;
 	validationSuccess: boolean;
 	validationWarnings: string[];
 }
@@ -406,7 +406,7 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 	};
 }
 
-function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
+function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
 	const areaContainerByCode = new Map(
 		nodes
 			.map((node) => {
@@ -417,7 +417,7 @@ function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
 	);
 	const nextAreaContainers = areaCodes
 		.map((areaCode) => areaContainerByCode.get(areaCode))
-		.filter(isWireframeNode);
+		.filter(isRenderTreeNode);
 	let nextAreaIndex = 0;
 
 	return nodes.map((node) => {
@@ -428,7 +428,7 @@ function reorderAreaContainers(nodes: WireframeNode[], areaCodes: string[]) {
 	});
 }
 
-function getContainedAreaCode(node: WireframeNode): string | undefined {
+function getContainedAreaCode(node: RenderTreeNode): string | undefined {
 	if (node.type === "Organism") return getOrganismCode(node);
 	const childOrganism = node.children?.find((child) => child.type === "Organism");
 	return childOrganism ? getOrganismCode(childOrganism) : undefined;
@@ -439,12 +439,12 @@ function cloneSchema<T>(schema: T): T {
 }
 
 function isAreaContainerEntry(
-	entry: readonly [string, WireframeNode] | undefined,
-): entry is readonly [string, WireframeNode] {
+	entry: readonly [string, RenderTreeNode] | undefined,
+): entry is readonly [string, RenderTreeNode] {
 	return Boolean(entry);
 }
 
-function isWireframeNode(node: WireframeNode | undefined): node is WireframeNode {
+function isRenderTreeNode(node: RenderTreeNode | undefined): node is RenderTreeNode {
 	return Boolean(node);
 }
 
@@ -576,7 +576,7 @@ function getSelectedComponentContext(
 	return undefined;
 }
 
-function findOrganismNode(nodes: WireframeNode[], organismCode: string): WireframeNode | undefined {
+function findOrganismNode(nodes: RenderTreeNode[], organismCode: string): RenderTreeNode | undefined {
 	for (const node of nodes) {
 		if (
 			node.type === "Organism" &&
@@ -591,10 +591,10 @@ function findOrganismNode(nodes: WireframeNode[], organismCode: string): Wirefra
 }
 
 function findCompositeNode(
-	nodes: WireframeNode[],
+	nodes: RenderTreeNode[],
 	compositeCode: string,
 	parentOrganismCode?: string,
-): { node: WireframeNode; parentOrganismCode?: string } | undefined {
+): { node: RenderTreeNode; parentOrganismCode?: string } | undefined {
 	for (const node of nodes) {
 		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
 		if (isCompositeNode(node) && node.metadata.id === compositeCode) {
@@ -612,9 +612,9 @@ function findCompositeNode(
 }
 
 function forEachCompositeNode(
-	nodes: WireframeNode[],
+	nodes: RenderTreeNode[],
 	parentAreaCode: string | undefined,
-	callback: (node: WireframeNode, parentAreaCode?: string) => void,
+	callback: (node: RenderTreeNode, parentAreaCode?: string) => void,
 ) {
 	for (const node of nodes) {
 		const nextParentAreaCode = getOrganismCode(node) ?? parentAreaCode;
@@ -627,12 +627,12 @@ function forEachCompositeNode(
 	}
 }
 
-function getOrganismCode(node: WireframeNode) {
+function getOrganismCode(node: RenderTreeNode) {
 	if (node.type !== "Organism") return undefined;
 	return String(node.props?.organismCode ?? node.metadata.id);
 }
 
-function isCompositeNode(node: WireframeNode) {
+function isCompositeNode(node: RenderTreeNode) {
 	return ![
 		"Screen",
 		"Screen.Header",

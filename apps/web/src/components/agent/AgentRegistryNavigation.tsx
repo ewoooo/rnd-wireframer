@@ -294,7 +294,7 @@ export function AgentRegistryNavigation({
 				</div>
 			)}
 			<div className="grid grid-cols-2 gap-2">
-				<Badge variant="secondary">{registry?.organisms.length ?? 0} organisms</Badge>
+				<Badge variant="secondary">{registry?.areas.length ?? 0} areas</Badge>
 				<Badge variant="secondary">{registry?.components.length ?? 0} components</Badge>
 			</div>
 		</div>

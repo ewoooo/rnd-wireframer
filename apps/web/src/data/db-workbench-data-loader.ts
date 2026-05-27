@@ -1,5 +1,4 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
-import { registerWireframeNodeKinds, type WireframeNodeKind } from "@cx/renderer";
 import {
 	tablesToRenderTrees,
 	validateSampleScreenSource,
@@ -11,8 +10,9 @@ import {
 	type SampleScreenVariant,
 	type SampleScreenVariantSet,
 } from "@/adapters/tables-to-render-tree";
+import type { PropValue } from "@cx/types/database-tables";
 import { createServerClient } from "@/lib/supabase/server";
-import { validateWireframeSchemaFull } from "@cx/renderer";
+import { validateRenderTreeFull } from "@cx/renderer";
 
 function toISOFallback(date: string | null | undefined) {
 	return date ?? new Date(0).toISOString();
@@ -28,22 +28,13 @@ export async function loadDbWorkbenchData() {
 		{ data: screenRows },
 		{ data: organismRows },
 		{ data: componentRows },
-		{ data: kindRows },
 	] = await Promise.all([
 		db.from("screen_routes").select("*").order("order"),
 		db.from("screen_variants").select("*").order("order"),
 		db.from("screens").select("*").order("order"),
 		db.from("organisms").select("*"),
 		db.from("components").select("*"),
-		db.from("component_renderer_kinds").select("*"),
 	]);
-
-	// ── renderer kind 등록 ─────────────────────────────────────
-	if (kindRows?.length) {
-		registerWireframeNodeKinds(
-			kindRows.map((r) => ({ type: r.type, kind: r.kind as WireframeNodeKind })),
-		);
-	}
 
 	// ── DB row → Sample* 타입 변환 ─────────────────────────────
 	const screenRoutes: SampleScreenRoute[] = (routeRows ?? []).map((r) => ({
@@ -91,7 +82,7 @@ export async function loadDbWorkbenchData() {
 			updatedAt: toISOFallback(r.updated_at),
 		},
 		pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
-		props: (r.props as Record<string, unknown>) ?? undefined,
+		props: (r.props as Record<string, PropValue>) ?? undefined,
 		children: (r.children as SampleOrganism["children"]) ?? [],
 	}));
 
@@ -138,7 +129,7 @@ export async function loadDbWorkbenchData() {
 
 	const processedScreens = sampleScreens.map((schema, index) => {
 		const raw = orderedScreens[index];
-		const validation = validateWireframeSchemaFull(schema);
+		const validation = validateRenderTreeFull(schema);
 		const variant = raw.screenVariantId ? variantById.get(raw.screenVariantId) : undefined;
 		const route = variant ? routeSet.screenRoutes.find((r) => r.id === variant.screenRouteId) : undefined;
 		const ogns = extractOrganisms(schema);
@@ -168,14 +159,13 @@ export async function loadDbWorkbenchData() {
 	return {
 		screens: processedScreens,
 		areas: organismCatalog,
-		rendererKinds: (kindRows ?? []).map((r) => ({ type: r.type, kind: r.kind as WireframeNodeKind })),
 	};
 }
 
 // ── 헬퍼 (local-workbench-data-loader 와 동일) ──────────────
-import type { WireframeNode, WireframeSchema } from "@cx/renderer";
+import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 
-function extractOrganisms(schema: WireframeSchema) {
+function extractOrganisms(schema: RenderTree) {
 	const result: Array<{ order: number; areaCode: string }> = [];
 	forEachNode(schema.children, (node) => {
 		if (node.type !== "Organism") return;
@@ -184,7 +174,7 @@ function extractOrganisms(schema: WireframeSchema) {
 	return result;
 }
 
-function getOrganismCatalog(schemas: WireframeSchema[]) {
+function getOrganismCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
@@ -196,6 +186,6 @@ function getOrganismCatalog(schemas: WireframeSchema[]) {
 	return Array.from(byCode.values());
 }
 
-function forEachNode(nodes: WireframeNode[], cb: (n: WireframeNode) => void) {
+function forEachNode(nodes: RenderTreeNode[], cb: (n: RenderTreeNode) => void) {
 	for (const n of nodes) { cb(n); if (n.children) forEachNode(n.children, cb); }
 }
