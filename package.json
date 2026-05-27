@@ -12,6 +12,7 @@
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
+		"smoke:pipeline": "tsx scripts/smoke-generation-pipeline.ts",
 		"test": "vitest run",
 		"test:watch": "vitest"
 	},

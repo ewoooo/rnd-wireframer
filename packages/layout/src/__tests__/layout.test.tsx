@@ -1,7 +1,7 @@
+import { AppScreen, Flex } from "@cx/layout";
+import type { ScreenNode } from "@cx/layout/types";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AppScreen, Flex } from "../index";
-import type { ScreenNode } from "../types";
 
 const metadata = (id: string, title: string) => ({
 	id,

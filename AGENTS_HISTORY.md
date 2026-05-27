@@ -4,16 +4,15 @@
 
 이 문서는 변경 이력만 기록한다.
 
-제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 각 책임 문서를 참조한다.
+제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 `MASTER_PLAN.md`, `AGENTS.md`와 세부 책임 문서를 참조한다.
 
-`MASTER_PLAN.md`, `AGENTS.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
+`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
 
 | 주제 | 기준 문서 |
 |---|---|
-| 제품 계획 | [MASTER_PLAN.md](./MASTER_PLAN.md) |
-| 개발 아키텍처 | [docs/development/DEVELOPMENT_ARCHITECTURE.md](./docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| 데이터 설계 | [docs/development/DATA_MAP.md](./docs/development/DATA_MAP.md) |
+| 제품 방향 | [MASTER_PLAN.md](./MASTER_PLAN.md) |
 | 에이전트 운영 | [AGENTS.md](./AGENTS.md) |
+| 프로젝트 구조 | [docs/development/PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md) |
 
 ## 2. 기록 형식
 
@@ -35,6 +34,210 @@
 ## 4. 최근 엔트리
 
 최근 주요 변경만 inline 유지한다.
+
+## 2026-05-27 - Smoke Pipeline Script
+
+- 변경: `scripts/smoke-generation-pipeline.ts`를 추가해 사용자가 `client-imports`의 Markdown 파일을 직접 지정해 md -> SourceSpec -> screen-generation AgentTaskInput -> fake agent query 흐름을 실행할 수 있게 함
+- 변경: `npm run smoke:pipeline -- --target <path>` 스크립트를 추가하고, 산출물을 기본 `tmp/pipeline/smoke/<run-id>/` 아래 고정 파일명으로 저장하도록 함
+- 이유: 임시 `tsx -e` 스모크와 매번 달라지는 timestamp 폴더 대신 재사용 가능한 테스트 파이프라인을 제공하기 위함
+- 검증: `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md`, `npx tsc --noEmit --pretty false`, `npx biome check scripts/smoke-generation-pipeline.ts package.json`
+- 후속: 실제 Claude runner 연결 시 fake runner 옵션과 real runner 옵션을 분리한다.
+
+## 2026-05-27 - Orchestration Screen Generation Input
+
+- 변경: `@cx/orchestration`에 `buildScreenGenerationAgentInput`을 추가해 `SourceSpec`을 `@cx/agent`의 `screen-generation` 입력으로 조립하도록 함
+- 변경: `@cx/orchestration/generation` public subpath와 `ScreenGenerationAgentContext`, `ScreenGenerationAgentInput` 타입을 추가함
+- 이유: md -> SourceSpec 다음 단계인 Claude 생성 요청을 순수 stage input build 책임 안에서 준비하기 위함
+- 검증: `npx vitest run packages/orchestration/src/__tests__/public-api.test.ts packages/agent/src/__tests__/agent-runtime.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration packages/agent`
+- 후속: 실제 Claude runner가 연결되면 이 입력을 `runAgentQuery(..., { taskKind: "screen-generation" })`에 전달한다.
+
+## 2026-05-27 - Pipeline Parser Issue Envelope Cleanup
+
+- 변경: `runParseMarkdownSourceCommand` 결과에서 pipeline `issues`와 `commands[].issues` 복제를 제거하고 `parseResult.issues`만 남기도록 정리함
+- 이유: parser issue와 side effect issue의 책임을 분리해 md -> SourceSpec 스모크 결과를 읽기 쉽게 만들기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/pipeline`
+- 후속: 실제 side effect runner 결과에서만 `SideEffectIssue`를 유지한다.
+
+## 2026-05-27 - Parser PRDD Table Extraction
+
+- 변경: `@cx/parser`가 PRDD Markdown의 `화면 ID`, `화면 명`, `화면 구성` 표, `컴포넌트 상세` 표를 SourceSpec으로 추출하도록 확장함
+- 변경: SourceSpec component에 `variant` optional field를 추가하고 컴포넌트 ID, 영역 번호, 표시 텍스트를 table row에서 회수하도록 함
+- 이유: 실제 `data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md` 문서에서 결정론적으로 안전한 구조 정보를 먼저 파싱하기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/pipeline`
+- 후속: 이벤트/액션/바인딩 source trace는 `hooks: NodeHook[]`와 생성 컨텍스트 계약이 확정된 뒤 별도 필드로 승격한다.
+
+## 2026-05-27 - Generation V2 Schema Version Normalize
+
+- 변경: generation-v2 schemaVersion을 `*.mock.v1`에서 정규 계약 버전 `*.v0.1`로 변경함
+- 변경: `@cx/parser` SourceSpec 타입, markdown parser 출력, parser 테스트, generation-v2 mock JSON 예시의 schemaVersion을 함께 갱신함
+- 이유: mock fixture 파일은 예시로 유지하되 JSON 내부 schemaVersion은 실제 계약 버전으로 추적하기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/pipeline docs/development/mock-schemas/generation-v2 AGENTS_HISTORY.md`
+- 후속: 각 stage DTO가 확정되면 `v0.1` 계약 문서를 별도 schema 문서로 승격한다.
+
+## 2026-05-27 - Pipeline MVP Directory Split
+
+- 변경: `@cx/pipeline` MVP 구조를 `commands`, `runner`, `executors`, `adapters`, `errors`, `testing` 디렉토리로 분리함
+- 변경: `runSideEffects`, `createNodePipelineAdapters`, memory test adapter, versioned artifact write, run log write, approved artifact apply executor를 추가함
+- 변경: 기존 `@cx/pipeline/parser` public subpath는 유지하되 markdown parse command 구현을 `commands/` 아래로 이동함
+- 이유: pipeline을 업무 흐름 판단이 아닌 승인된 side effect command 실행과 감사 가능한 결과 회수 책임으로 고정하기 위함
+- 검증: `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/pipeline AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md`
+- 후속: orchestration에서 생성할 실제 command builder와 E2E generation flow는 별도 상위 조립 레이어에서 추가한다.
+
+## 2026-05-27 - Parser MVP and Pipeline Adapter
+
+- 변경: `packages/parser`에 `@cx/parser` 패키지를 추가하고 Markdown source bundle을 SourceSpec으로 정규화하는 `parseMarkdownSourceBundle` public API를 추가함
+- 변경: parser가 파일 읽기, Claude 실행, RenderTree 생성, validation rule 판정, catalog 값 소유를 하지 않도록 README와 boundary contract를 기록함
+- 변경: `@cx/pipeline/parser`에 이미 읽힌 Markdown source를 parser로 전달하는 `runParseMarkdownSourceCommand` MVP adapter를 추가함
+- 변경: `MASTER_PLAN.md`, `AGENTS.md`, `docs/development/PROJECT_STRUCTURE.md`에 `.md -> SourceSpec -> Claude RenderTree -> validation -> renderer` 흐름의 parser 경계를 반영함
+- 이유: 빠른 E2E MVP를 위해 `.md -> SourceSpec` 변환만 먼저 순수 함수로 만들고, 파일 IO와 후속 side effect는 pipeline 경계에서 다루기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__ packages/pipeline/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/pipeline MASTER_PLAN.md AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md`
+- 후속: 실제 파일 읽기 command, Claude RenderTree 생성 runner, validation/renderer 연결은 각 패키지 책임에 맞춰 별도 단계로 붙인다.
+
+## 2026-05-27 - Validation First Implementation
+
+- 변경: `@cx/validation`에 `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` public API를 추가함
+- 변경: 공통 `ValidationReport`에 target, issues, summary(error/warning count)를 정리하고 component catalog 계약 기반 required/enum/type/unknown/readonly prop 검증을 추가함
+- 변경: RenderTree version, Screen region 구조, node type, children, display/binding/default 값과 layout props를 순수 함수로 검증하도록 구현함
+- 이유: 디자인 품질 판단이나 orchestration 결정을 하지 않고, 생성물이 계약상 렌더 가능한지와 catalog 계약을 지키는지만 기계적으로 판정하기 위함
+- 검증: `npx vitest run packages/validation/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/validation`
+- 후속: 실제 생성 DTO schema가 확정되면 `validateAgentResult`의 shape 검증을 해당 schema contract에 맞춰 좁힌다.
+
+## 2026-05-27 - Renderer Naming Cleanup
+
+- 변경: renderer public component/function 이름을 `RenderTreeView`, `RenderNodeView`, `renderJsonNode`로 정리하고 registry 타입을 `NodeRenderer`, `NodeRenderContext`, `NodeRendererDefinition`, `NodeRendererRegistry`로 변경함
+- 변경: 내부 파일명을 `render-tree-view.tsx`, `node-renderer-registry.ts`, `node-kind-map.ts`, `default-node-renderers.tsx`, `props-from-catalog.ts`, `resolve-component.ts`로 변경함
+- 이유: 렌더러가 JSON node tree를 React node tree로 변환한다는 흐름과 node renderer registry의 역할을 이름에서 드러내기 위함
+- 검증: `npx tsc --noEmit --pretty false --skipLibCheck`, `npx biome check packages/renderer apps/web/src/components/screen/RenderedScreen.tsx docs/development/PROJECT_STRUCTURE.md AGENTS_HISTORY.md`
+- 후속: `default-node-renderers.tsx`에 남아있는 renderer composite fallback을 `@cx/components` candidate component로 옮길지 검토한다.
+
+## 2026-05-27 - Renderer Functional Directory Split
+
+- 변경: `@cx/renderer` 내부를 `tree/`, `registry/`, `render/`, `nodes/`로 재배치해 RenderTree JSON 해석, renderer 연결표, 재귀 렌더 실행, 구조 node 렌더 정의의 책임을 분리함
+- 변경: component catalog는 `nodes/component`에서 read-only resolver/prop adapter로만 소비하고, area renderer는 `nodes/area` 아래로 이동함
+- 이유: 렌더러를 JSON node tree -> React node tree 변환 책임으로 제한하고 component/pattern CRUD 및 선택 책임이 섞이지 않게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false --skipLibCheck`, `npx biome check packages/renderer`
+- 후속: `nodes/default-node-definitions.tsx`를 layout/component/fallback 단위로 더 쪼개고 renderer smoke fixture 테스트를 추가한다.
+
+## 2026-05-27 - Master Plan Direction Document Restore
+
+- 변경: `MASTER_PLAN.md`를 제품 방향성, 핵심 원칙, 목표 흐름, 고도화 순서 중심의 루트 전역 문서로 다시 추가함
+- 변경: `AGENTS.md`와 `AGENTS_HISTORY.md`의 전역 문서 목록과 Product Planner/QA 기준 문서 참조를 `MASTER_PLAN.md`에 맞게 갱신함
+- 이유: 상세 구현 책임은 `PROJECT_STRUCTURE.md`와 패키지 README에 두고, 장기 고도화 방향은 별도 마스터 플랜에서 일관되게 관리하기 위함
+- 검증: `npx biome check MASTER_PLAN.md AGENTS.md AGENTS_HISTORY.md`
+- 후속: 새 생성 과정이 구체화되면 `MASTER_PLAN.md`에는 방향과 완료 기준만 갱신하고 상세 타입/API는 책임 문서에 둔다.
+
+## 2026-05-27 - Orchestration Validation Pipeline Boundary Allocation
+
+- 변경: `packages/orchestration`의 `@cx/orchestration` 패키지를 추가하고 root, `./contract`, `./types` public subpath를 할당함
+- 변경: `packages/validation`의 `@cx/validation` 패키지를 추가하고 root, `./contract`, `./types` public subpath를 할당함
+- 변경: `packages/pipline` 오타를 `packages/pipeline` / `@cx/pipeline`으로 정정하고 side effect boundary가 순수 orchestration과 validation rule 판정을 소유하지 않도록 contract를 갱신함
+- 변경: `@cx/pipeline` contract를 `side-effect-conveyor-belt`로 명시하고 승인된 side effect 명령 전달/결과 회수 책임만 갖도록 정리함
+- 변경: `AGENTS.md`와 `docs/development/PROJECT_STRUCTURE.md`에 orchestration, validation, pipeline 책임 경계를 기록함
+- 이유: 순수 업무 흐름 정의, 순수 검증, 실제 side effect 실행을 서로 다른 패키지 경계로 분리하기 위함
+- 검증: `npx vitest run packages/orchestration/src/__tests__ packages/validation/src/__tests__ packages/pipeline/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration packages/validation packages/pipeline AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md`
+- 후속: 실제 stage builder, validation rule, side effect runner 구현은 각 패키지 contract를 기준으로 후속 세션에서 추가한다.
+
+## 2026-05-27 - Pipline Side Effect Package Allocation
+
+- 변경: `packages/pipline`에 `@cx/pipline` 패키지를 추가하고 root, `./contract`, `./types` public subpath를 할당함
+- 변경: side effect boundary contract와 public result/type 표면을 추가하고 README/프로젝트 구조/운영 문서에 책임 경계를 기록함
+- 이유: 생성 산출물 파일 반영, 승인 반영, CLI 실행 등 side effect 책임을 Claude 실행, renderer, catalog 소유 책임과 분리하기 위함
+- 검증: `npx vitest run packages/pipline/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/pipline AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md`
+- 후속: 실제 파일 쓰기와 승인 반영은 생성 계약이 확정된 뒤 `@cx/pipline` contract를 기준으로 추가한다.
+
+## 2026-05-27 - Layout Package Public Boundary
+
+- 변경: `@cx/layout`에 `src/public/chrome.ts`, `src/public/primitives.ts`, `src/public/style.ts`, `src/public/types.ts`, `src/public/contract.ts` 공개 표면을 추가함
+- 변경: spacing/className helper 구현을 `src/internal/style.ts`로 이동하고, `@cx/layout/primitives`는 `Flex`, `Grid`만 노출하도록 축소함
+- 변경: renderer의 layout helper import를 `@cx/layout/primitives`에서 `@cx/layout/style`로 전환함
+- 변경: layout DTO guard(`isFlexLayoutProps`, `isGridLayoutProps`, `isScreenRegionNode`, `isScreenNode`)와 public API 테스트를 추가하고 README/프로젝트 구조 문서에 public/internal 경계를 기록함
+- 이유: layout runtime 패키지도 외부 계약과 내부 구현을 분리하되, catalog 패키지와 달리 CRUD가 아니라 component/type/guard/style helper 중심 공개 API로 관리하기 위함
+- 검증: `npx vitest run packages/layout/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout packages/renderer/src/default-renderers.tsx packages/renderer/src/renderers/area docs/development/PROJECT_STRUCTURE.md`, `npx tsx -e 'import("@cx/layout/internal/style").catch((error) => console.log(error.code ?? error.name))'`
+- 후속: renderer area layout helper가 더 커지면 `@cx/layout/style`의 공개 함수 범위를 재검토한다.
+
+## 2026-05-27 - Layout Pattern Store CRUD API
+
+- 변경: `@cx/layout-pattern-store` package exports를 루트 catalog API, `./resolver`, `./mutations`, `./types` 명시 subpath로 재정리함
+- 변경: `@cx/layout-pattern-store`에 `createLayoutPattern`, `readLayoutPattern`, `updateLayoutPattern`, `deleteLayoutPattern`, `upsertLayoutPattern` 순수 CRUD API를 추가함
+- 변경: CRUD 입력/결과/issue/change 타입을 `src/public/types.ts`에 추가하고, 내부 구현은 `src/internal/mutations.ts`로 분리함
+- 변경: layout pattern schema가 kebab-case id, non-empty variants, defaultVariant 존재, non-empty matcher, store-level duplicate id를 검증하도록 보강함
+- 변경: README에 CRUD API가 `PatternStore`를 입력받아 새 store와 change envelope를 반환하며 파일 쓰기는 하지 않는다는 공개 계약과 schema contract를 기록함
+- 변경: CRUD mutation test와 schema validation test를 별도 파일로 추가함
+- 이유: 외부와 내부의 pattern catalog 입출력 계약을 하나로 관리하되, JSON 파일 반영과 승인 workflow side effect는 패키지 바깥에 두기 위함
+- 검증: `pnpm vitest run packages/layout-pattern-store/src/__tests__`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout-pattern-store`
+- 후속: 파일 반영이 필요해지면 이 CRUD 결과를 소비하는 별도 CLI나 pipeline 단계에서 처리한다.
+
+## 2026-05-27 - Component Package Structure Split
+
+- 변경: `packages/component/src/components/`로 정본 component 구현을 이동하고, candidate 구현 위치로 `packages/component/src/candidates/`를 추가함
+- 변경: `packages/component/src/public/`에 catalog read API, CRUD mutation API, public 타입을 두고 `packages/component/src/internal/`에 stable/candidate registry 조립, public catalog assembly, audit, mutation 구현을 분리함
+- 변경: `@cx/components/mutations`, `@cx/components/resolver`, `@cx/components/types` public subpath를 추가하고 resolver에는 component alias/type/prop lookup helper를 분리함
+- 변경: `@cx/components/catalog` package export를 `src/catalog.ts` compatibility barrel로 연결하고, 기존 `src/catalog-types.ts`는 compatibility re-export로 유지함
+- 변경: `create/read/update/delete/upsert/promoteComponentCatalogEntry` 순수 CRUD API를 추가하고, mutation 결과가 새 registry와 status-free public catalog를 반환하도록 함
+- 변경: public catalog가 내부 status metadata를 노출하지 않는지, enum prop values, CRUD purity, candidate subpath 비노출을 검증하는 테스트를 추가함
+- 변경: `docs/development/PROJECT_STRUCTURE.md`에 `@cx/components` 디렉토리 책임과 public import 경계를 추가함
+- 이유: 외부 소비자는 하나의 component vocabulary만 사용하고, stable component와 candidate status는 패키지 내부 구현 경계로만 관리하기 위함
+- 검증: `npx vitest run packages/component/src/__tests__`, `npx biome check packages/component docs/development/PROJECT_STRUCTURE.md AGENTS_HISTORY.md`(기존 `Checkbox.module.css` specificity warning만 남음), `npx tsc --noEmit --pretty false --incremental false`, `npx tsx -e 'Promise.all([import("@cx/components/catalog"), import("@cx/components/resolver"), import("@cx/components/mutations")]).then(([c,r,m]) => { if (!c.componentCatalog.Button) throw new Error("missing Button"); if (r.getComponentCatalogEntry("button")?.type !== "Button") throw new Error("alias failed"); if (typeof m.createComponentCatalogEntry !== "function") throw new Error("missing mutation"); console.log(Object.keys(c.componentCatalog).length); })'`
+- 후속: 실제 candidate 구현이 생기면 `src/internal/candidate-entries.ts`에 등록하고 public catalog에는 status가 새지 않는지 유지한다.
+
+## 2026-05-27 - Layout Pattern Store Rename
+
+- 변경: `packages/pattern-store`를 `packages/layout-pattern-store`로 옮기고 패키지명을 `@cx/layout-pattern-store`로 변경함
+- 변경: 공개 API를 `src/index.ts`, `src/public/catalog.ts`, `src/public/resolver.ts`, `src/public/types.ts`로 분리하고 raw JSON import, zod schema, cache, matcher 구현을 `src/internal/`로 이동함
+- 변경: package exports에서 `data`, `schema`, `store`, `resolver` 내부 subpath를 제거하고 루트와 `types`, catalog JSON만 외부 노출하도록 축소함
+- 이유: layout pattern reference catalog임을 이름에서 명확히 하고, 외부 계약과 내부 구현의 결합을 줄이기 위함
+- 검증: `pnpm vitest run packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout-pattern-store AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md`
+- 후속: 새 소비자가 생기면 `@cx/layout-pattern-store` 루트 공개 API를 우선 사용하고 `src/internal/*` import는 금지한다.
+
+## 2026-05-27 - Outdated Planning Docs Removal
+
+- 변경: 오래된 책임 경계를 담고 있던 `MASTER_PLAN.md`, `docs/development/AGENT_MODULE_BOUNDARY.md`, `docs/development/DEVELOPMENT_ARCHITECTURE.md`, `docs/development/DATA_MAP.md`를 제거함
+- 변경: `AGENTS.md`와 `AGENTS_HISTORY.md`의 최신 기준 문서 목록에서 제거된 문서 참조를 정리함
+- 이유: 재설계 이후 제거된 `@cx/importer`, `@cx/types`, `@cx/workflow`와 `@cx/engine` projection 책임 설명이 남아 현재 책임 분리 기준과 충돌했기 때문
+- 검증: 문서 참조 검색으로 제거된 최신 기준 링크가 남지 않는지 확인
+- 후속: 제품 범위와 데이터 설계가 다시 필요해지면 현재 재설계 기준에 맞는 새 문서로 작성한다.
+
+## 2026-05-27 - Renderer Package Rename
+
+- 변경: `packages/engine` / `@cx/engine`을 `packages/renderer` / `@cx/renderer`로 이름 변경하고 앱 import, Next transpile package, workspace lockfile, 운영/프로젝트 구조 문서의 현재 기준 참조를 갱신함
+- 이유: MVP 경계에서 해당 패키지를 생성/오케스트레이션 엔진이 아니라 RenderTree JSON -> React render 전용 런타임으로 명확히 부르기 위함
+- 검증: `npx biome check apps/web/src/components/App.tsx apps/web/src/components/screen/RenderedScreen.tsx apps/web/package.json apps/web/next.config.ts packages/renderer AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md docs/development/mock-schemas/generation-v2/04-preview.mock.json package-lock.json`, `node -e "const fs=require('fs'); console.log(fs.readlinkSync('node_modules/@cx/renderer')); console.log(fs.existsSync('packages/renderer/package.json'))"`; 전체 `npx tsc --noEmit --pretty false`는 기존 `packages/layout-pattern-store` 누락 import로 실패함
+- 후속: MVP 생성 흐름 계획 시 `@cx/pipeline` 패키지를 신설하고 SourceSpec DTO parser/adapter와 Claude generation orchestration의 책임을 분리한다.
+
+## 2026-05-27 - Pattern Store Package Restore
+
+- 변경: 삭제됐던 `packages/pattern-store`를 복구하고 `@cx/types` 의존 없이 내부 `types.ts`와 `schema.ts`가 pattern/preset/ref 계약과 zod 검증을 직접 소유하도록 정리함
+- 변경: `@cx/pattern-store`의 package dependency를 `@cx/components`, `zod`로 축소하고 README/운영 문서에 package-local schema/type 경계를 기록함
+- 이유: layout pattern reference catalog는 생성 재설계 중에도 공급 데이터 어휘로 필요하지만, 제거된 공유 타입 패키지를 되살리지 않기 위함
+- 검증: `pnpm vitest run packages/pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/pattern-store AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/DATA_MAP.md`
+- 후속: 새 생성 과정에서 pattern ref 소비자가 생기면 `@cx/pattern-store` 공개 API만 주입하고 engine이 직접 import하지 않는 경계를 유지한다.
+
+## 2026-05-27 - Token Package Public Boundary
+
+- 변경: `@cx/tokens`의 공개 export를 `@cx/tokens`, `@cx/tokens/variables.css`, `@cx/tokens/tailwind.css`로 정의하고 `packages/token/README.md`에 공개/내부 경계를 문서화함
+- 변경: foundation/semantic token CSS와 TS 상수를 `packages/token/src/generated/`로 이동하고, `packages/component/src/tokens`에는 `--skt-component-*` alias와 component token 상수만 남김
+- 변경: `apps/web`이 Tailwind token utility를 소비할 수 있도록 `@cx/components/tailwind.css`를 global CSS에 추가함
+- 이유: token 원천과 component token alias가 한 패키지에 섞이지 않게 하고, generated/internal 파일의 직접 import를 막기 위함
+- 검증: `npx vitest run packages/component/src/__tests__/components.test.tsx`, `npx tsc --noEmit --pretty false`, `npx biome check packages/token packages/component/src/tokens packages/component/src/__tests__/components.test.tsx apps/web/src/app/globals.css docs/development/PROJECT_STRUCTURE.md docs/development/DEVELOPMENT_ARCHITECTURE.md AGENTS.md AGENTS_HISTORY.md`
+- 후속: 실제 token generator를 추가할 때 `packages/token/src/internal`에서 source import, normalize, validate, write 단계를 구현한다.
+
+## 2026-05-27 - Component Package Public Contract
+
+- 변경: `packages/component/README.md`를 추가해 `@cx/components` 외부 사용법, 단일 catalog 공개 원칙, `components`/`candidates`/`type`/`catalog`/`tokens`/`__tests__` 디렉토리 책임을 명시함
+- 변경: catalog 외부 공개 shape는 `stable | candidate` status를 숨기고 props, variants, usage context, AI-writable surface만 제공해야 한다는 기준을 기록함
+- 변경: `docs/design/COMPOSITION_LAYERS.md`의 기존 `RQR` candidate naming 규칙을 제거하고 `candidate -> stable` status 승격 기준으로 정리함
+- 이유: 정본 컴포넌트와 후보 컴포넌트를 패키지 내부 status로만 관리하고, 외부 소비자는 단일 component vocabulary만 사용하게 하기 위함
+- 검증: `sed -n '1,240p' packages/component/README.md`, `sed -n '20,34p' docs/design/COMPOSITION_LAYERS.md`, `rg -n "RQR|rqr" docs/design/COMPOSITION_LAYERS.md packages/component/README.md` 결과 없음, `npx biome check packages/component/README.md`는 markdown ignore 설정으로 처리 대상 없음 확인
+- 후속: 실제 디렉토리 재배치 시 README 기준에 맞춰 catalog 조립 테스트와 candidate 비노출 테스트를 추가한다.
+
+## 2026-05-27 - Claude Agent Package Boundary
+
+- 변경: `packages/agent`를 Claude Agent SDK local-first 실행 adapter 패키지로 다시 추가하고 README에 디렉토리 책임과 public adapter 호출 경계를 기록함
+- 변경: `@cx/agent/adapters`에 web 서버/API route와 CLI 스크립트가 공유할 `runAgentQuery` 진입점을 추가함
+- 변경: Codex 기반 검수 runner 기준을 폐기하고 생성/검수 모두 Claude 기반으로 문서 기준을 정리함
+- 이유: 재설계된 agent 패키지의 책임을 AI 실행, prompt/session/result adapter로 제한하고 web 버튼과 script 쿼리의 호출 shape를 통일하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/agent/src/__tests__`, `npx biome check packages/agent AGENTS_HISTORY.md`
+- 후속: Claude Agent SDK 실제 runner와 `packages/types/contract` 기반 입출력 타입을 연결한다.
 
 ## 2026-05-27 - Web App Consumer Reset
 

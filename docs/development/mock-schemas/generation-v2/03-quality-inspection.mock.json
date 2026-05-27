@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "generation-v2.quality-inspection.mock.v1",
+	"schemaVersion": "generation-v2.quality-inspection.v0.1",
 	"candidateId": "draft-NOVA-PRDD-PG-001-0-base-001",
 	"inspectionId": "quality-draft-NOVA-PRDD-PG-001-0-base-001",
 	"ok": false,

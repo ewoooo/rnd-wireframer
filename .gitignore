@@ -40,6 +40,7 @@ supabase/.temp/
 
 # Local artifacts
 .codex-artifacts/
+tmp/
 *.tsbuildinfo
 
 # Next.js auto-generated type file (regenerated on every dev/build run)

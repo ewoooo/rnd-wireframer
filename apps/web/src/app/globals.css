@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@cx/components/tailwind.css";
 @import "@cx/components/styles.css";
 
 @theme {

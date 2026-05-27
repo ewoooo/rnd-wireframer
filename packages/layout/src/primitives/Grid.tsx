@@ -1,7 +1,6 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
+import { cx, gridLayoutClassName, gridLayoutFallbackStyle } from "../internal/style";
 import { type GridLayoutProps, LAYOUT_NODE_TYPES, type LayoutGridNode } from "../types";
-
-import { cx, gridLayoutClassName, gridLayoutFallbackStyle } from "./style";
 
 export type GridProps = {
 	as?: ElementType;

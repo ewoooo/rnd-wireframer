@@ -6,13 +6,16 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./catalog": "./src/catalog.ts",
+		"./mutations": "./src/public/mutations.ts",
+		"./resolver": "./src/public/resolver.ts",
 		"./styles.css": {
 			"style": "./src/styles.css",
 			"default": "./src/styles.css"
 		},
 		"./tokens": "./src/tokens/index.ts",
 		"./tokens.css": "./src/tokens/variables.css",
-		"./tailwind.css": "./src/tailwind/theme.css"
+		"./tailwind.css": "./src/tailwind/theme.css",
+		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
 		"@cx/tokens": "0.1.0"

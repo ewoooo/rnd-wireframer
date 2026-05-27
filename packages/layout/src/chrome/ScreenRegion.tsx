@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../primitives";
+import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../internal/style";
 import type {
 	ScreenBottomNode,
 	ScreenContentsNode,

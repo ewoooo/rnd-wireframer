@@ -1,6 +1,6 @@
 "use client";
 
-import type { RenderTreeScreenNode } from "@cx/engine";
+import type { RenderTreeScreenNode } from "@cx/renderer";
 import { RenderedScreen } from "./screen/RenderedScreen";
 
 const previewScreen: RenderTreeScreenNode = {

@@ -1,10 +1,10 @@
 {
-	"schemaVersion": "generation-v2.preview.mock.v1",
+	"schemaVersion": "generation-v2.preview.v0.1",
 	"candidateId": "draft-NOVA-PRDD-PG-001-0-base-001",
 	"previewId": "preview-draft-NOVA-PRDD-PG-001-0-base-001",
 	"status": "rendered-with-warnings",
-	"engine": {
-		"package": "@cx/engine",
+	"renderer": {
+		"package": "@cx/renderer",
 		"minRendererVersion": "0.1.0",
 		"renderTreeSchemaVersion": "1.0.0"
 	},

@@ -2,27 +2,27 @@ import { readFile } from "node:fs/promises";
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AccordionInfo } from "../AccordionInfo";
-import { ActionButton } from "../ActionButton";
-import { BannerIndicaterMedium } from "../BannerIndicaterMedium";
-import { Button } from "../Button";
-import { CardContentsFilled } from "../CardContentsFilled";
-import { CardSummary } from "../CardSummary";
-import { Coupon } from "../Coupon";
-import { FilterSorting } from "../FilterSorting";
-import { Footer } from "../Footer";
-import { LegalText } from "../LegalText";
-import { ListProductHorizontal } from "../ListProductHorizontal";
-import { ListProductRow } from "../ListProductRow";
-import { ListSelected } from "../ListSelected";
-import { MapBlock } from "../MapBlock";
-import { OptionCard } from "../OptionCard";
-import { OptionList } from "../OptionList";
-import { ProductInfo } from "../ProductInfo";
-import { StoreCard } from "../StoreCard";
-import { TextButton } from "../TextButton";
-import { ThumbnailLarge } from "../ThumbnailLarge";
-import { TitleSection } from "../TitleSection";
+import { AccordionInfo } from "../components/AccordionInfo";
+import { ActionButton } from "../components/ActionButton";
+import { BannerIndicaterMedium } from "../components/BannerIndicaterMedium";
+import { Button } from "../components/Button";
+import { CardContentsFilled } from "../components/CardContentsFilled";
+import { CardSummary } from "../components/CardSummary";
+import { Coupon } from "../components/Coupon";
+import { FilterSorting } from "../components/FilterSorting";
+import { Footer } from "../components/Footer";
+import { LegalText } from "../components/LegalText";
+import { ListProductHorizontal } from "../components/ListProductHorizontal";
+import { ListProductRow } from "../components/ListProductRow";
+import { ListSelected } from "../components/ListSelected";
+import { MapBlock } from "../components/MapBlock";
+import { OptionCard } from "../components/OptionCard";
+import { OptionList } from "../components/OptionList";
+import { ProductInfo } from "../components/ProductInfo";
+import { StoreCard } from "../components/StoreCard";
+import { TextButton } from "../components/TextButton";
+import { ThumbnailLarge } from "../components/ThumbnailLarge";
+import { TitleSection } from "../components/TitleSection";
 
 describe("@cx/components", () => {
 	it("renders imported cx-components source", () => {
@@ -161,5 +161,21 @@ describe("@cx/components", () => {
 		expect(themeCss).toContain("--spacing-cx-12: var(--skt-spacing-12);");
 		expect(themeCss).toContain("--spacing-cx-none: var(--skt-spacing-none);");
 		expect(componentShimCss.trim()).toBe('@import "@cx/tokens/tailwind.css";');
+	});
+
+	it("keeps foundation tokens in @cx/tokens and component aliases in @cx/components", async () => {
+		const tokenVariablesCss = await readFile("packages/token/src/generated/variables.css", "utf8");
+		const componentVariablesCss = await readFile(
+			"packages/component/src/tokens/variables.css",
+			"utf8",
+		);
+
+		expect(tokenVariablesCss).toContain("--skt-color-text-neutral-primary:");
+		expect(tokenVariablesCss).toContain("--skt-spacing-12:");
+		expect(tokenVariablesCss).not.toContain("--skt-component-button-radius-default:");
+		expect(componentVariablesCss).toContain('@import "@cx/tokens/variables.css";');
+		expect(componentVariablesCss).toContain(
+			"--skt-component-button-radius-default: var(--skt-radius-12);",
+		);
 	});
 });
