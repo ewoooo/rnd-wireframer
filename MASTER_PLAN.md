@@ -4,7 +4,7 @@
 
 이 문서는 제품 방향성, 설계 원칙, 단계별 고도화 목표만 정의한다.
 
-에이전트 운영 기준은 [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), 패키지 경계와 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), 변경 이력은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)를 따른다.
+에이전트 운영 기준은 [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), 패키지 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 패키지 경계와 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), 변경 이력은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)를 따른다.
 
 이 문서는 상세 API, 타입, 파일 구조, 디자인 수치를 중복해서 정의하지 않는다. 세부 내용은 각 책임 문서와 패키지 README에서 관리한다.
 
@@ -17,6 +17,7 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 ## 3. 핵심 원칙
 
 - 생성 입력, 중간 산출물, 검증 결과, 미리보기 입력은 명시적 데이터 계약으로 전달한다.
+- pipeline 전반 DTO/schema 계약의 정본은 `@cx/schema`에서 관리한다.
 - Markdown/source 입력은 `@cx/parser`에서 SourceSpec으로 정규화한 뒤 생성 흐름에 전달한다.
 - 하위 패키지는 가능하면 입력값을 받아 결과값을 반환하는 순수 함수형 API를 우선한다.
 - 파일 저장, 승인 반영, CLI 실행, 외부 저장소 동기화 같은 side effect는 `@cx/pipeline` 경계에 둔다.
@@ -48,6 +49,7 @@ Markdown Source
 
 | 패키지 | 방향 |
 |---|---|
+| `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
 | `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
 | `@cx/orchestration` | stage 입력/출력 조립과 next action 결정 |
 | `@cx/validation` | 순수 검증과 validation report 반환 |
@@ -59,7 +61,7 @@ Markdown Source
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT와 CSS/Tailwind entrypoint |
 
-패키지별 실제 디렉토리와 public subpath는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 기준으로 한다.
+패키지별 책임, 주요 기능, 관계망, public subpath는 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 기준으로 한다. 실제 디렉토리 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다.
 
 ## 6. 현재 비목표
 

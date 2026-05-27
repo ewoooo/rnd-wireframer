@@ -3,13 +3,11 @@ import type { AgentRunRequest, AgentRunResult } from "../contract";
 export type AgentRunLog = {
 	taskKind: string;
 	sessionMode?: string;
-	hasRawText: boolean;
 };
 
-export function createAgentRunLog(request: AgentRunRequest, result: AgentRunResult): AgentRunLog {
+export function createAgentRunLog(_request: AgentRunRequest, result: AgentRunResult): AgentRunLog {
 	return {
-		taskKind: request.taskKind,
+		taskKind: result.taskKind,
 		sessionMode: result.session.mode,
-		hasRawText: Boolean(result.rawText),
 	};
 }

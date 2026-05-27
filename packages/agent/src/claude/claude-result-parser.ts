@@ -1,13 +1,11 @@
 export type ClaudeParsedResult = {
 	payload: unknown;
-	rawText: string;
 };
 
 export function parseClaudeJsonResult(rawText: string): ClaudeParsedResult {
 	const jsonText = extractFirstJsonBlock(rawText);
 	return {
 		payload: JSON.parse(jsonText) as unknown,
-		rawText,
 	};
 }
 

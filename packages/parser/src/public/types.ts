@@ -1,54 +1,19 @@
 import type { parserBoundary } from "./contract";
 
+export type {
+	SourceFileKind,
+	SourceSpec,
+	SourceSpecArea,
+	SourceSpecComponent,
+	SourceSpecFile,
+} from "@cx/schema";
+
+import type { SourceFileKind, SourceSpec } from "@cx/schema";
+
 export type ParserBoundary = typeof parserBoundary;
 export type ParserBoundaryName = ParserBoundary["name"];
 export type ParserOperation = ParserBoundary["owns"][number];
 export type ParserPackageName = ParserBoundary["packageName"];
-
-export type SourceFileKind = "area" | "component" | "screen" | "unknown";
-
-export type SourceSpecFile = {
-	areaCode?: string;
-	checksum: string;
-	id: string;
-	kind: SourceFileKind;
-	path: string;
-	screenCode?: string;
-	title: string;
-};
-
-export type SourceSpecArea = {
-	name: string;
-	slotHint: "bottom" | "contents" | "header" | "unknown";
-	sourceAreaNo: number;
-};
-
-export type SourceSpecComponent = {
-	label: string;
-	sourceAreaNo?: number;
-	sourceComponentId: string;
-	text?: string;
-	variant?: string;
-};
-
-export type SourceSpec = {
-	schemaVersion: "generation-v2.source-spec.v0.1";
-	sourceImport: {
-		files: SourceSpecFile[];
-		importId: string;
-		receivedAt: string;
-		sourceKind: "prdd-markdown-bundle";
-	};
-	sourceShape: {
-		components: SourceSpecComponent[];
-		screen: {
-			areas: SourceSpecArea[];
-			name: string;
-			route: string;
-			screenCode: string;
-		};
-	};
-};
 
 export type MarkdownSourceFileInput = {
 	areaCode?: string;

@@ -22,7 +22,6 @@ export type AgentRunResult = {
 		sessionId?: string;
 	};
 	payload: unknown;
-	rawText?: string;
 };
 
 export type AgentRuntime = {

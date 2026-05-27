@@ -1,3 +1,4 @@
+import { SCHEMA_VERSION } from "@cx/schema";
 import type {
 	MarkdownSourceFileInput,
 	ParseMarkdownSourceBundleInput,
@@ -9,8 +10,6 @@ import type {
 	SourceSpecComponent,
 	SourceSpecFile,
 } from "./types";
-
-const SCHEMA_VERSION = "generation-v2.source-spec.v0.1" as const;
 
 const COMPONENT_KEY_PATTERN = /^\s*(?:-|[*])?\s*(?:component|componentType)\s*[:：]\s*(.+?)\s*$/gim;
 const COMPONENT_LINE_PATTERN = /^\s*(?:-|[*])?\s*([A-Z][A-Za-z0-9]+)\s*$/gm;
@@ -60,7 +59,7 @@ export function parseMarkdownSourceBundle(
 	const screenCode = resolveScreenCode(screenInput);
 	const screenName = resolveTitle(screenInput);
 	const sourceSpec: SourceSpec = {
-		schemaVersion: SCHEMA_VERSION,
+		schemaVersion: SCHEMA_VERSION.sourceSpec,
 		sourceImport: {
 			importId: input.importId,
 			sourceKind: "prdd-markdown-bundle",

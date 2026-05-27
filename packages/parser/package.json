@@ -10,5 +10,8 @@
 		"./contract": "./src/public/contract.ts",
 		"./markdown": "./src/public/markdown.ts",
 		"./types": "./src/public/types.ts"
+	},
+	"dependencies": {
+		"@cx/schema": "0.1.0"
 	}
 }

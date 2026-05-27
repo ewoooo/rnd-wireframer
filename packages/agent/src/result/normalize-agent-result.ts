@@ -4,7 +4,6 @@ export type NormalizeAgentResultInput = {
 	request: AgentRunRequest;
 	sessionMode: AgentSessionMode;
 	payload: unknown;
-	rawText?: string;
 	sessionId?: string;
 };
 
@@ -16,6 +15,5 @@ export function normalizeAgentResult(input: NormalizeAgentResultInput): AgentRun
 			sessionId: input.sessionId,
 		},
 		payload: input.payload,
-		rawText: input.rawText,
 	};
 }

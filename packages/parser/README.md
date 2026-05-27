@@ -2,7 +2,7 @@
 
 `@cx/parser`는 Markdown 같은 원천 입력 문자열을 생성 흐름에서 사용할 SourceSpec JSON으로 정규화하는 순수 parser 패키지다.
 
-현재 MVP 범위는 `.md -> SourceSpec`만 빠르게 지원한다. 파일 읽기, Claude 호출, RenderTree 생성, 저장 side effect는 이 패키지의 책임이 아니다.
+현재 MVP 범위는 `.md -> SourceSpec`만 빠르게 지원한다. `SourceSpec` 계약의 정본은 `@cx/schema`가 소유한다. 파일 읽기, Claude 호출, RenderTree 생성, 저장 side effect는 이 패키지의 책임이 아니다.
 
 ## 책임
 
@@ -28,7 +28,7 @@
 | `@cx/parser` | 패키지 루트 public API |
 | `@cx/parser/contract` | parser boundary contract |
 | `@cx/parser/markdown` | Markdown parser public API |
-| `@cx/parser/types` | SourceSpec, parser input/result public types |
+| `@cx/parser/types` | parser input/result public types와 SourceSpec compatibility re-export |
 
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.
 

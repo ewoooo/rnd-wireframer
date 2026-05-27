@@ -28,7 +28,7 @@ describe("@cx/parser markdown MVP parser", () => {
 		expect(result.ok).toBe(true);
 		if (!result.ok) throw new Error("parse failed");
 		expect(result.sourceSpec).toMatchObject({
-			schemaVersion: "generation-v2.source-spec.v0.1",
+			schemaVersion: "source-spec.v0.1",
 			sourceImport: {
 				importId: "PRDD-2026-05-sample",
 				sourceKind: "prdd-markdown-bundle",

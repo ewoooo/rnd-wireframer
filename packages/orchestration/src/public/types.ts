@@ -1,5 +1,5 @@
 import type { AgentTaskInput } from "@cx/agent/contract";
-import type { SourceSpec } from "@cx/parser/types";
+import type { SourceSpec } from "@cx/schema";
 import type { orchestrationBoundary } from "./contract";
 
 export type OrchestrationBoundary = typeof orchestrationBoundary;

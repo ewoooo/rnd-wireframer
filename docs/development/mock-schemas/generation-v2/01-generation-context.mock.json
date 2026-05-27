@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "generation-v2.context.v0.1",
+	"schemaVersion": "generation-context.v0.1",
 	"contextId": "ctx-PRDD-2026-05-sample-NOVA-PRDD-PG-001-0",
 	"sourceImportId": "PRDD-2026-05-sample",
 	"target": {

@@ -4,13 +4,14 @@
 
 이 문서는 변경 이력만 기록한다.
 
-제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 `MASTER_PLAN.md`, `AGENTS.md`와 세부 책임 문서를 참조한다.
+제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS.md`와 세부 책임 문서를 참조한다.
 
-`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
+`AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
 
 | 주제 | 기준 문서 |
 |---|---|
 | 제품 방향 | [MASTER_PLAN.md](./MASTER_PLAN.md) |
+| 패키지 관계망 | [PACKAGE_MAP.md](./PACKAGE_MAP.md) |
 | 에이전트 운영 | [AGENTS.md](./AGENTS.md) |
 | 프로젝트 구조 | [docs/development/PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md) |
 
@@ -34,6 +35,43 @@
 ## 4. 최근 엔트리
 
 최근 주요 변경만 inline 유지한다.
+
+## 2026-05-27 - Schema Contract Package
+
+- 변경: `@cx/schema` 패키지를 추가해 generation pipeline 전반 DTO/schema 계약의 SSOT를 만들고 root export만 공개하도록 함
+- 변경: schemaVersion과 JSON Schema `$id`에서 `generation-v2` prefix를 제거하고 `source-spec.v0.1`, `render-tree.v0.1` 같은 artifact-local 버전명으로 정리함
+- 변경: `SourceSpec` 타입과 `SCHEMA_VERSION`을 `@cx/schema`로 옮기고 `@cx/parser`, `@cx/orchestration`, generation-v2 fixture가 이를 따르도록 갱신함
+- 이유: 파이프라인 전반 계약을 패키지별 타입과 mock fixture에 흩어두지 않고, AI prompt/validation/smoke output이 같은 계약명을 참조하게 하기 위함
+- 검증: `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema packages/parser packages/orchestration docs/development/mock-schemas/generation-v2`
+- 후속: RenderTree JSON Schema를 skeleton에서 실제 renderer contract 수준으로 좁힌다.
+
+## 2026-05-27 - Smoke App Promotion
+
+- 변경: `tests/smoke` 하네스를 `apps/smoke`의 `@cx/smoke` workspace app으로 격상함
+- 변경: 외부 TypeScript 사용자는 `@cx/smoke/generation`의 `runGenerationSmoke(target, options)`를 사용하고, CLI는 `apps/smoke/src/cli.ts`에서 제공하도록 정리함
+- 변경: root `smoke:pipeline` script가 `apps/smoke` CLI를 호출하도록 변경하고, `scripts/smoke-generation-pipeline.ts`는 제거함
+- 변경: `PACKAGE_MAP.md`와 `docs/development/PROJECT_STRUCTURE.md`에 `@cx/smoke` 앱과 새 `@cx/schema` 계약 패키지 관계를 반영함
+- 이유: smoke flow가 반복 실행되는 개발자용 통합 앱 성격을 갖기 시작했기 때문에 테스트 폴더보다 apps workspace에서 노출하는 편이 책임상 명확함
+- 검증: `npm install`, `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id smoke-app-check --out-dir tmp/generation-runs/smoke-app-check`, `npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id smoke-app-workspace-check --out-dir tmp/generation-runs/smoke-app-workspace-check`, `npx tsx -e 'import { runGenerationSmoke } from "@cx/smoke/generation"; console.log(typeof runGenerationSmoke)'`, `npx tsc --noEmit --pretty false`, `npx biome check --write apps/smoke package.json`, `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/agent/src/__tests__/agent-runtime.test.ts`
+- 후속: 외부 smoke case preset이 늘어나면 `@cx/smoke/generation` 아래에 case registry를 추가하되 parser/validation/renderer rule은 각 소유 패키지에 둔다.
+
+## 2026-05-27 - Generation Smoke Harness
+
+- 변경: `scripts/smoke-generation-pipeline.ts`의 실행 본문을 `tests/smoke/generation/*` 하네스로 분리하고 CLI는 인자 처리와 summary 출력만 담당하도록 축소함
+- 변경: 반복 테스트와 수동 실행이 함께 사용할 단일 노출 함수 `runGenerationSmoke(target, options)`를 `tests/smoke`에서 제공함
+- 변경: fake agent runner, artifact writer, path/run id helper, smoke result 타입을 하네스 내부 파일로 분리함
+- 이유: 앞으로 md -> SourceSpec -> orchestration -> agent 흐름의 스모크 케이스가 늘어날 때 CLI 스크립트가 비대해지는 것을 막고, 테스트 코드가 같은 실행 함수를 재사용하게 하기 위함
+- 검증: `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id smoke-harness-check --out-dir tmp/generation-runs/smoke-harness-check`, `npx tsc --noEmit --pretty false`, `npx biome check --write scripts/smoke-generation-pipeline.ts tests/smoke`, `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/agent/src/__tests__/agent-runtime.test.ts`
+- 후속: smoke case preset과 assertion helper가 필요해지면 `tests/smoke/cases`와 `tests/smoke/assertions`로 추가한다.
+
+## 2026-05-27 - Global Package Map
+
+- 변경: 루트 전역 문서 `PACKAGE_MAP.md`를 추가해 활성 패키지의 책임, 주요 기능, public surface, 관계망을 한 곳에서 볼 수 있게 함
+- 변경: `MASTER_PLAN.md`, `AGENTS.md`, `AGENTS_HISTORY.md`의 전역 문서 참조에 `PACKAGE_MAP.md`를 추가함
+- 변경: `docs/development/PROJECT_STRUCTURE.md`의 `@cx/validation` 설명을 실제 구현된 validator API 상태에 맞춰 갱신함
+- 이유: 패키지별 README와 구조 문서만으로는 전체 생성 흐름에서 어떤 패키지가 어떤 책임으로 연결되는지 한눈에 보기 어렵기 때문
+- 검증: `rg -n "PACKAGE_MAP|@cx/validation|후속 설계" PACKAGE_MAP.md MASTER_PLAN.md AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md packages/validation/README.md`로 전역 참조와 validation 설명 최신화 확인. Markdown 파일은 Biome ignore 설정상 처리 대상이 아님
+- 후속: 새 패키지나 public subpath가 생기면 `PACKAGE_MAP.md`와 해당 패키지 README를 함께 갱신한다.
 
 ## 2026-05-27 - Smoke Pipeline Script
 

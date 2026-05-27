@@ -1,0 +1,13 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "quality-inspection.v0.1",
+	"title": "quality-inspection",
+	"type": "object",
+	"required": ["schemaVersion"],
+	"properties": {
+		"schemaVersion": {
+			"const": "quality-inspection.v0.1"
+		}
+	},
+	"additionalProperties": true
+}

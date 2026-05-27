@@ -1,4 +1,4 @@
-import type { SourceSpec } from "@cx/parser/types";
+import { SCHEMA_VERSION, type SourceSpec } from "@cx/schema";
 import type { ScreenGenerationAgentInput } from "./types";
 
 export function buildScreenGenerationAgentInput(
@@ -13,6 +13,7 @@ export function buildScreenGenerationAgentInput(
 		query: [
 			"Generate a RenderTree candidate from the provided SourceSpec.",
 			"Use only the structured SourceSpec context as the source of truth.",
+			`Use RenderTree contract version: ${SCHEMA_VERSION.renderTree}.`,
 			"Return JSON only.",
 			`Screen: ${screen.screenCode} / ${screen.name}`,
 			`Route: ${screen.route}`,

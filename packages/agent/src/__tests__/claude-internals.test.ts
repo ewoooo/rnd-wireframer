@@ -50,7 +50,6 @@ describe("@cx/agent Claude internals", () => {
 			payload: {
 				ok: true,
 			},
-			rawText: '```json\n{"ok":true}\n```',
 		});
 	});
 

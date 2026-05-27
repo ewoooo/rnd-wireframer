@@ -4,12 +4,15 @@
 
 이 문서는 저장소 디렉토리와 현재 패키지 책임 경계를 정의한다.
 
-현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. 재설계 예시 schema는 먼저 `docs/development/mock-schemas/generation-v2/`에 둔다.
+패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
+
+현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약은 `@cx/schema`가 소유하고, 재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/`에 둔다.
 
 ## 2. 패키지 기준
 
 | 패키지 | 책임 |
 |---|---|
+| `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
 | `@cx/renderer` | RenderTree JSON -> React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
 | `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
@@ -20,6 +23,12 @@
 | `@cx/orchestration` | 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action 결정 |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | 승인된 side effect 명령을 순서대로 전달하고 실행 결과를 회수하는 conveyor belt |
+
+개발자용 앱:
+
+| 앱 | 책임 |
+|---|---|
+| `@cx/smoke` | generation smoke flow를 반복 실행하는 통합 앱 |
 
 제거된 패키지:
 
@@ -95,6 +104,17 @@ apps/web/src/
 
 재설계 기간에 앱은 `data`, `model`, `server`, `app/api`, `adapters` 계층을 두지 않는다. 생성, 검수, 저장, 파일 시스템 side effect, API route는 앱 책임이 아니다.
 
+`apps/smoke`는 사용자-facing 앱이 아니라 개발자-facing 통합 실행 앱이다.
+
+```text
+apps/smoke/src/
+  index.ts       public app API
+  cli.ts         smoke CLI entrypoint
+  generation/    runGenerationSmoke harness와 관련 helper
+```
+
+외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다.
+
 ## 7. `packages/token`
 
 `@cx/tokens`는 foundation/semantic token의 공개 소비 계약과 내부 생성 산출물을 분리한다.
@@ -112,11 +132,49 @@ packages/token/src/
 
 `@cx/components`의 token 파일은 `--skt-component-*` alias만 소유하고, palette/semantic/spacing/radius/typography 값은 `@cx/tokens`를 참조한다.
 
-## 8. Mock Schema
+## 8. `packages/schema`
 
-재설계 예시 schema는 `docs/development/mock-schemas/generation-v2/` 아래에 둔다. 런타임 데이터, 승인 데이터, 과거 AI import 산출물과 섞지 않는다.
+`@cx/schema`는 generation pipeline 전반의 DTO와 JSON artifact 계약을 정의하는 SSOT 패키지다. 디렉토리는 flat 구조를 유지하고, `generation-v2/` 같은 flow 이름은 경로와 schemaVersion에 넣지 않는다.
 
-## 9. `packages/parser`
+```text
+packages/schema/src/
+  index.ts
+  versions.ts
+  artifact-kind.ts
+  source-spec.ts
+  generation-context.ts
+  agent-request.ts
+  agent-result.ts
+  render-tree.ts
+  validation-report.ts
+  preview.ts
+  apply-result.ts
+  json-schema/
+```
+
+외부 패키지는 반드시 root export만 사용한다.
+
+```ts
+import { SCHEMA_VERSION, getJsonSchema } from "@cx/schema";
+import type { SourceSpec } from "@cx/schema";
+```
+
+`@cx/schema/src/*`, `@cx/schema/source-spec`, `src/json-schema/*` 직접 import는 금지한다.
+
+두지 않는 책임:
+
+- 파일 읽기/쓰기
+- Claude 실행
+- validation rule 판정
+- orchestration decision
+- React render
+- catalog 값 소유
+
+## 9. Mock Schema
+
+재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/` 아래에 둔다. 런타임 데이터, 승인 데이터, 과거 AI import 산출물과 섞지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
+
+## 10. `packages/parser`
 
 `@cx/parser`는 Markdown 같은 원천 입력 문자열을 생성 흐름에서 사용할 SourceSpec JSON으로 정규화하는 순수 parser 패키지다. MVP에서는 파일 시스템을 읽지 않고, 이미 읽힌 Markdown 문자열 묶음을 받아 SourceSpec과 parser issue를 반환한다.
 
@@ -135,7 +193,7 @@ packages/parser/src/
 - catalog 값 검증
 - validation next action 결정
 
-## 10. `packages/orchestration`
+## 11. `packages/orchestration`
 
 `@cx/orchestration`은 생성 과정의 순수한 업무 흐름을 담당한다. 현재는 패키지 책임과 public contract만 할당하고, 실제 stage builder와 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
 
@@ -154,14 +212,14 @@ packages/orchestration/src/
 - component/layout/pattern catalog 값 소유
 - 승인 데이터 직접 반영
 
-## 11. `packages/validation`
+## 12. `packages/validation`
 
-`@cx/validation`은 생성 과정의 순수 검증을 담당한다. 현재는 패키지 책임과 public contract만 할당하고, 실제 DTO/schema/reference/rule 검증은 후속 설계가 확정된 뒤 추가한다.
+`@cx/validation`은 생성 과정의 순수 검증을 담당한다. 현재는 생성물이 계약상 렌더 가능한지와 component catalog/layout props 계약을 지키는지 기계적으로 검증하는 public API를 제공한다.
 
 ```text
 packages/validation/src/
   index.ts       public barrel
-  public/        pure validation boundary contract, public types
+  public/        validation boundary contract, validators, report/issue public types
 ```
 
 두지 않는 책임:
@@ -173,7 +231,7 @@ packages/validation/src/
 - RenderTree React render
 - catalog 값 생성 또는 수정
 
-## 12. `packages/pipeline`
+## 13. `packages/pipeline`
 
 `@cx/pipeline`은 생성 과정의 side effect conveyor belt만 담당한다. MVP에서는 승인된 side effect command 배열을 순서대로 실행하고, versioned artifact/write log/approved artifact apply 결과를 감사 가능한 envelope로 반환한다.
 

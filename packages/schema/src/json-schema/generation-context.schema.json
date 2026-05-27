@@ -1,0 +1,13 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "generation-context.v0.1",
+	"title": "generation-context",
+	"type": "object",
+	"required": ["schemaVersion"],
+	"properties": {
+		"schemaVersion": {
+			"const": "generation-context.v0.1"
+		}
+	},
+	"additionalProperties": true
+}

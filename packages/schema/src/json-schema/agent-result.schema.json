@@ -1,0 +1,13 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "agent-result.v0.1",
+	"title": "agent-result",
+	"type": "object",
+	"required": ["schemaVersion"],
+	"properties": {
+		"schemaVersion": {
+			"const": "agent-result.v0.1"
+		}
+	},
+	"additionalProperties": true
+}

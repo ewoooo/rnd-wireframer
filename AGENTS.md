@@ -4,9 +4,9 @@
 
 이 문서는 에이전트 역할, 작업 인계 방식, 완료 기준만 정의한다.
 
-제품 방향성은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
+제품 방향성은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
 
-`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터/디자인 문서는 `docs/` 아래에 둔다.
+`AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터/디자인 문서는 `docs/` 아래에 둔다.
 
 ## 2. 운영 원칙
 
@@ -26,6 +26,7 @@
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
 - 재설계 기간에는 `@cx/agent`를 Claude Agent SDK 실행 adapter로만 운영한다. `@cx/layout-pattern-store`는 layout pattern reference catalog로 운영하되 내부 타입과 schema를 자체 소유한다. `@cx/importer`, `@cx/types`, `@cx/workflow` 패키지는 새 설계가 확정될 때까지 운영하지 않는다.
+- `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일이나 JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
 - `packages/parser`의 `@cx/parser` 패키지는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 parser로만 운영한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `packages/orchestration`의 `@cx/orchestration` 패키지는 생성/검수/미리보기/반영 stage의 순수 입력 조립, stage routing, next action 결정을 담당한다. 파일 쓰기, Claude 실행, 검증 rule 판정, React render 책임을 두지 않는다.

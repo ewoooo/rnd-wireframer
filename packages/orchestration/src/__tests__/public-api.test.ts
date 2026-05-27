@@ -1,6 +1,6 @@
 import { buildScreenGenerationAgentInput, orchestrationBoundary } from "@cx/orchestration";
 import type { OrchestrationDecision, OrchestrationOperation } from "@cx/orchestration/types";
-import type { SourceSpec } from "@cx/parser/types";
+import { SCHEMA_VERSION, type SourceSpec } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
 describe("@cx/orchestration public API", () => {
@@ -26,7 +26,7 @@ describe("@cx/orchestration public API", () => {
 
 	it("builds screen generation agent input from SourceSpec", () => {
 		const sourceSpec: SourceSpec = {
-			schemaVersion: "generation-v2.source-spec.v0.1",
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
 			sourceImport: {
 				files: [],
 				importId: "sample",
@@ -54,6 +54,7 @@ describe("@cx/orchestration public API", () => {
 		const input = buildScreenGenerationAgentInput(sourceSpec);
 
 		expect(input.query).toContain("Generate a RenderTree candidate");
+		expect(input.query).toContain("render-tree.v0.1");
 		expect(input.query).toContain("NOVA-PRDD-PG-001-0");
 		expect(input.context.sourceSummary).toEqual({
 			areaCount: 1,

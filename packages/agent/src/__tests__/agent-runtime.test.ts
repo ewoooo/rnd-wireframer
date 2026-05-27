@@ -28,7 +28,6 @@ describe("@cx/agent runtime", () => {
 					payload: {
 						ok: true,
 					},
-					rawText: '{"ok":true}',
 				};
 			},
 		});

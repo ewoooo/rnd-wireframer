@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "generation-v2.agent-run.v0.1",
+	"schemaVersion": "agent-result.v0.1",
 	"runId": "agent-run-draft-NOVA-PRDD-PG-001-0-base-001",
 	"provider": "claude",
 	"mode": "local",
@@ -10,7 +10,7 @@
 	"task": {
 		"kind": "generate-table-candidate",
 		"contextId": "ctx-PRDD-2026-05-sample-NOVA-PRDD-PG-001-0",
-		"expectedOutputSchema": "generation-v2.draft-candidate.v0.1"
+		"expectedOutputSchema": "draft-candidate.v0.1"
 	},
 	"inputRefs": [
 		{
