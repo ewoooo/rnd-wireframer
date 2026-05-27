@@ -430,9 +430,9 @@ function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
 }
 
 function getContainedAreaCode(node: RenderTreeNode): string | undefined {
-	if (isAreaType(node.type)) return getOrganismCode(node);
-	const childOrganism = node.children?.find((child) => isAreaType(child.type));
-	return childOrganism ? getOrganismCode(childOrganism) : undefined;
+	if (isAreaType(node.type)) return getAreaCode(node);
+	const childArea = node.children?.find((child) => isAreaType(child.type));
+	return childArea ? getAreaCode(childArea) : undefined;
 }
 
 function cloneSchema<T>(schema: T): T {
@@ -545,7 +545,7 @@ function getSelectedAreaContext(
 	selectedAreaCode: string,
 ): SelectedAreaContext | undefined {
 	for (const screen of screens) {
-		const node = findOrganismNode(screen.schema.children, selectedAreaCode);
+		const node = findAreaNode(screen.schema.children, selectedAreaCode);
 		if (node) {
 			return {
 				code: selectedAreaCode,
@@ -567,8 +567,8 @@ function getSelectedComponentContext(
 			return {
 				code: selectedComponentCode,
 				node: found.node,
-				area: found.parentOrganismCode
-					? getSelectedAreaContext([screen], found.parentOrganismCode)
+				area: found.parentAreaCode
+					? getSelectedAreaContext([screen], found.parentAreaCode)
 					: undefined,
 				screen,
 			};
@@ -577,15 +577,15 @@ function getSelectedComponentContext(
 	return undefined;
 }
 
-function findOrganismNode(nodes: RenderTreeNode[], organismCode: string): RenderTreeNode | undefined {
+function findAreaNode(nodes: RenderTreeNode[], areaCode: string): RenderTreeNode | undefined {
 	for (const node of nodes) {
 		if (
 			isAreaType(node.type) &&
-			String(node.props?.organismCode ?? node.metadata.id) === organismCode
+			String(node.props?.areaCode ?? node.metadata.id) === areaCode
 		) {
 			return node;
 		}
-		const childMatch = node.children ? findOrganismNode(node.children, organismCode) : undefined;
+		const childMatch = node.children ? findAreaNode(node.children, areaCode) : undefined;
 		if (childMatch) return childMatch;
 	}
 	return undefined;
@@ -594,18 +594,18 @@ function findOrganismNode(nodes: RenderTreeNode[], organismCode: string): Render
 function findCompositeNode(
 	nodes: RenderTreeNode[],
 	compositeCode: string,
-	parentOrganismCode?: string,
-): { node: RenderTreeNode; parentOrganismCode?: string } | undefined {
+	parentAreaCode?: string,
+): { node: RenderTreeNode; parentAreaCode?: string } | undefined {
 	for (const node of nodes) {
-		const nextParentOrganismCode = getOrganismCode(node) ?? parentOrganismCode;
+		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
 		if (isCompositeNode(node) && node.metadata.id === compositeCode) {
 			return {
 				node,
-				parentOrganismCode,
+				parentAreaCode,
 			};
 		}
 		const childMatch = node.children
-			? findCompositeNode(node.children, compositeCode, nextParentOrganismCode)
+			? findCompositeNode(node.children, compositeCode, nextParentAreaCode)
 			: undefined;
 		if (childMatch) return childMatch;
 	}
@@ -618,7 +618,7 @@ function forEachCompositeNode(
 	callback: (node: RenderTreeNode, parentAreaCode?: string) => void,
 ) {
 	for (const node of nodes) {
-		const nextParentAreaCode = getOrganismCode(node) ?? parentAreaCode;
+		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
 		if (isCompositeNode(node)) {
 			callback(node, parentAreaCode);
 		}
@@ -628,9 +628,9 @@ function forEachCompositeNode(
 	}
 }
 
-function getOrganismCode(node: RenderTreeNode) {
+function getAreaCode(node: RenderTreeNode) {
 	if (!isAreaType(node.type)) return undefined;
-	return String(node.props?.organismCode ?? node.metadata.id);
+	return String(node.props?.areaCode ?? node.metadata.id);
 }
 
 function isCompositeNode(node: RenderTreeNode) {

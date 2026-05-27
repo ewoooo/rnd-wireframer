@@ -110,39 +110,39 @@ export async function updateScreenRegions(
 	return {};
 }
 
-export async function cloneOrganism(
-	organismCode: string,
+export async function cloneArea(
+	areaCode: string,
 	screenCode: string,
-): Promise<{ error?: string; newOrganismId?: string }> {
+): Promise<{ error?: string; newAreaId?: string }> {
 	const db = createServerClient();
 
 	const { data: original, error: fetchError } = await db
 		.from("organisms")
 		.select("*")
-		.eq("id", organismCode)
+		.eq("id", areaCode)
 		.single();
 
 	if (fetchError || !original) {
-		return { error: `Organism not found: ${organismCode}` };
+		return { error: `Area not found: ${areaCode}` };
 	}
 
 	const timestamp = Date.now();
-	const newOrganismId = `${organismCode}-clone-${timestamp}`;
+	const newAreaId = `${areaCode}-clone-${timestamp}`;
 
 	const { error: insertError } = await db.from("organisms").insert({
-		id: newOrganismId,
+		id: newAreaId,
 		type: original.type,
 		version: original.version,
 		pattern_id: original.pattern_id,
 		pattern_variant: original.pattern_variant,
-		title: `${original.title ?? organismCode} (복제본)`,
+		title: `${original.title ?? areaCode} (복제본)`,
 		author: original.author,
 		props: original.props,
 		children: original.children,
 	});
 
 	if (insertError) {
-		return { error: `Failed to create organism: ${insertError.message}` };
+		return { error: `Failed to create area: ${insertError.message}` };
 	}
 
 	// 현재 screen의 contents에 원본 다음 위치에 삽입
@@ -153,7 +153,7 @@ export async function cloneOrganism(
 		.single();
 
 	if (screenFetchError || !screenRow) {
-		await db.from("organisms").delete().eq("id", newOrganismId);
+		await db.from("organisms").delete().eq("id", newAreaId);
 		return { error: `Screen not found: ${screenCode}` };
 	}
 
@@ -162,7 +162,7 @@ export async function cloneOrganism(
 	const contents = regions?.contents as Record<string, unknown> | undefined;
 	const contentsChildren = (contents?.children as Array<{ kind: string; id: string }>) ?? [];
 
-	const originalIndex = contentsChildren.findIndex((c) => c.id === organismCode);
+	const originalIndex = contentsChildren.findIndex((c) => c.id === areaCode);
 	const insertIndex = originalIndex >= 0 ? originalIndex + 1 : contentsChildren.length;
 
 	const newScreenData = {
@@ -173,7 +173,7 @@ export async function cloneOrganism(
 				...contents,
 				children: [
 					...contentsChildren.slice(0, insertIndex),
-					{ kind: "organism", id: newOrganismId },
+					{ kind: "area", id: newAreaId },
 					...contentsChildren.slice(insertIndex),
 				],
 			},
@@ -186,12 +186,12 @@ export async function cloneOrganism(
 		.eq("id", screenCode);
 
 	if (updateError) {
-		await db.from("organisms").delete().eq("id", newOrganismId);
+		await db.from("organisms").delete().eq("id", newAreaId);
 		return { error: `Failed to update screen: ${updateError.message}` };
 	}
 
 	revalidatePath("/");
-	return { newOrganismId };
+	return { newAreaId };
 }
 
 export async function deleteScreen(screenId: string): Promise<{ error?: string }> {

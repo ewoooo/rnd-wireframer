@@ -7,7 +7,7 @@ import {
 } from "@cx/renderer";
 import {
 	type SampleCompositeSet,
-	type SampleOrganism,
+	type SampleArea,
 	type SampleScreenRouteSet,
 	type SampleScreenSet,
 	type SampleScreenVariantSet,
@@ -15,7 +15,7 @@ import {
 	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
 import compositeSampleSet from "../../../../database/tables/components.json";
-import organismSampleSet from "../../../../database/tables/areas.json";
+import areaSampleSet from "../../../../database/tables/areas.json";
 import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
 import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
 import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
@@ -41,7 +41,7 @@ type ScreenMockDataSet = {
 const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
 const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
 const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
-const organisms = (organismSampleSet as unknown as { areas: SampleOrganism[] }).areas;
+const areas = (areaSampleSet as unknown as { areas: SampleArea[] }).areas;
 const mockDataByScreenId = new Map(
 	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
 		.filter((entry) => entry.scenario === "default")
@@ -58,7 +58,7 @@ const orderedSampleScreens = getOrderedSampleScreens(
 
 const sampleScreens = tablesToRenderTrees({
 	screens: orderedSampleScreens,
-	organisms,
+	areas,
 	composites: componentTableSet.components,
 	patternStore: loadPatternStore(),
 }) satisfies WireframeScreenSet["screens"];
@@ -72,14 +72,14 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	const route = sampleRouteSet.screenRoutes.find(
 		(candidate) => candidate.id === variant?.screenRouteId,
 	);
-	const organisms = extractOrganisms(schema);
+	const screenAreas = extractAreas(schema);
 
 	return {
 		code: schema.metadata.id,
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-		areas: organisms,
+		areas: screenAreas,
 		screenOrder: sampleScreen.order ?? index + 1,
 		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
@@ -94,31 +94,31 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	};
 });
 
-const organismCatalog = getOrganismCatalog(sampleScreens);
+const areaCatalog = getAreaCatalog(sampleScreens);
 
 export function loadLocalWorkbenchData() {
 	return {
-		areas: organismCatalog,
+		areas: areaCatalog,
 		screens: wireframeWorkbenchData,
 	};
 }
 
-function extractOrganisms(schema: RenderTree) {
-	const areas: Array<{ order: number; areaCode: string }> = [];
+function extractAreas(schema: RenderTree) {
+	const result: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
 		if (!isAreaType(node.type)) return;
 
-		areas.push({
-			order: areas.length + 1,
-			areaCode: String(node.props?.organismCode ?? node.metadata.id),
+		result.push({
+			order: result.length + 1,
+			areaCode: String(node.props?.areaCode ?? node.metadata.id),
 		});
 	});
 
-	return areas;
+	return result;
 }
 
-function getOrganismCatalog(schemas: RenderTree[]) {
+function getAreaCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<
 		string,
 		{
@@ -134,7 +134,7 @@ function getOrganismCatalog(schemas: RenderTree[]) {
 		forEachNode(schema.children, (node) => {
 			if (!isAreaType(node.type)) return;
 
-			const code = String(node.props?.organismCode ?? node.metadata.id);
+			const code = String(node.props?.areaCode ?? node.metadata.id);
 			byCode.set(code, {
 				code,
 				name: String(node.props?.name ?? node.metadata.title),

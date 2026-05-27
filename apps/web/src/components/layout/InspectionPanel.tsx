@@ -2,7 +2,7 @@ import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
 import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
-import { cloneOrganism, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
+import { cloneArea, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -280,13 +280,13 @@ function AreaActions({ areaCode, screenCode }: { areaCode: string; screenCode: s
 	function handleClone() {
 		startTransition(async () => {
 			setStatus("idle");
-			const result = await cloneOrganism(areaCode, screenCode);
+			const result = await cloneArea(areaCode, screenCode);
 			if (result.error) {
 				setStatus("error");
 				setMessage(result.error);
 			} else {
 				setStatus("success");
-				setMessage(`복제 완료 → ${result.newOrganismId}`);
+				setMessage(`복제 완료 → ${result.newAreaId}`);
 			}
 		});
 	}
