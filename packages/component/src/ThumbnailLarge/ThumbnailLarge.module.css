@@ -1,0 +1,50 @@
+.thumbnail {
+	position: relative;
+	display: flex;
+	width: 100%;
+	min-height: 320px;
+	aspect-ratio: 393 / 480;
+	overflow: hidden;
+	background: linear-gradient(180deg, #f4f6fb 0%, #e7ebf5 100%);
+	font-family: var(--skt-typography-font-family-base);
+}
+
+.image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.placeholder {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 32px;
+	color: #05001a;
+	background:
+		radial-gradient(circle at 70% 28%, rgba(54, 23, 206, 0.14), transparent 34%),
+		linear-gradient(160deg, rgba(255, 255, 255, 0.7), rgba(226, 230, 241, 0.45));
+}
+
+.eyebrow,
+.title {
+	display: block;
+	letter-spacing: -0.04em;
+}
+
+.eyebrow {
+	align-self: flex-start;
+	font-size: 12px;
+	font-weight: 600;
+	color: rgba(6, 12, 31, 0.5);
+}
+
+.title {
+	max-width: 220px;
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 1.2;
+}

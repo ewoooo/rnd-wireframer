@@ -10,7 +10,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	size?: ButtonSize;
 	fullWidth?: boolean;
 	rightIcon?: ReactNode;
-	children: ReactNode;
+	/** Catalog 정렬: `label` prop이 children fallback으로 동작. catalog spec과 일치. */
+	label?: string;
+	children?: ReactNode;
 }
 
 export function Button({
@@ -19,6 +21,7 @@ export function Button({
 	fullWidth = false,
 	rightIcon,
 	type = "button",
+	label,
 	children,
 	className,
 	...rest
@@ -37,7 +40,7 @@ export function Button({
 				.join(" ")}
 			{...rest}
 		>
-			{children}
+			{children ?? label}
 			{rightIcon && <span className={styles.rightIcon}>{rightIcon}</span>}
 		</button>
 	);

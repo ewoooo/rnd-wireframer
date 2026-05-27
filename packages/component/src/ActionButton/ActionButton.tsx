@@ -7,7 +7,9 @@ interface ActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	size?: ButtonSize;
 	fullWidth?: boolean;
 	rightIcon?: ReactNode;
-	children: ReactNode;
+	/** Catalog 정렬: `label` prop이 children fallback. */
+	label?: string;
+	children?: ReactNode;
 }
 
 export function ActionButton({
@@ -15,6 +17,7 @@ export function ActionButton({
 	size = "xlarge",
 	fullWidth = true,
 	rightIcon,
+	label,
 	children,
 	className,
 	...rest
@@ -29,7 +32,7 @@ export function ActionButton({
 				className={className}
 				{...rest}
 			>
-				{children}
+				{children ?? label}
 			</Button>
 		</div>
 	);

@@ -1,0 +1,1520 @@
+{
+	"patterns": [
+		{
+			"id": "component-app-bar",
+			"target": "composite",
+			"name": "앱 바",
+			"description": "단일 AppBar render component를 screen header chrome으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["AppBar"]
+				},
+				"keywords": ["AppBar", "app-bar", "appbar", "header", "chrome"],
+				"priority": 90
+			}
+		},
+		{
+			"id": "component-thumbnail-large",
+			"target": "composite",
+			"name": "대형 썸네일",
+			"description": "단일 ThumbnailLarge render component를 상품/혜택 상세의 hero media로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["media"],
+					"props": ["src", "alt", "title", "eyebrow", "backgroundColor"],
+					"spacing": {
+						"outerGap": 0
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121734",
+					"sourceFigmaNodes": ["10069:97853", "10069:97975", "10069:98026", "10069:121734"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["thumbnail-large"]
+				},
+				"keywords": ["ThumbnailLarge", "thumbnail", "hero-media", "대표이미지", "상품이미지"],
+				"priority": 90
+			}
+		},
+		{
+			"id": "component-text-field",
+			"target": "composite",
+			"name": "텍스트 필드",
+			"description": "단일 TextField render component를 field item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["text-field"]
+				},
+				"keywords": ["text-field", "field", "input"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-section-message",
+			"target": "composite",
+			"name": "섹션 메시지",
+			"description": "단일 SectionMessage render component를 message item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["section-message"]
+				},
+				"keywords": ["section-message", "message", "notice"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-button",
+			"target": "composite",
+			"name": "버튼",
+			"description": "단일 Button render component를 action item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"fullWidth": true,
+					"size": "xlarge"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["button"]
+				},
+				"keywords": ["button", "action", "cta"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-list-cell",
+			"target": "composite",
+			"name": "리스트 셀",
+			"description": "단일 ListCell render component를 list item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": ["list-cell", "list"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-accordion",
+			"target": "composite",
+			"name": "아코디언",
+			"description": "단일 Accordion render component를 expandable item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["accordion"]
+				},
+				"keywords": ["accordion", "expand"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-checkbox",
+			"target": "composite",
+			"name": "체크박스",
+			"description": "단일 Checkbox render component를 selectable item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["checkbox"]
+				},
+				"keywords": ["checkbox", "check"],
+				"priority": 80
+			}
+		},
+		{
+			"id": "component-product-info",
+			"target": "composite",
+			"name": "상품 정보 요약",
+			"description": "브랜드명, 상품명, 정상가/할인가, badge, CTA chip surface를 가진 단일 ProductInfo render component 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 8,
+				"layoutProps": {
+					"paddingX": 32,
+					"titleGap": 6,
+					"priceGap": 4,
+					"slots": ["badges", "brand", "title", "description", "price"],
+					"props": [
+						"brand",
+						"title",
+						"description",
+						"price",
+						"originalPrice",
+						"discountRate",
+						"badges"
+					],
+					"children": ["Badge"],
+					"order": ["badges", "brand", "title", "description", "priceRow"],
+					"spacing": {
+						"badgeGap": 4,
+						"titleGap": 6,
+						"priceGap": 4
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121735",
+					"sourceFigmaNodes": ["10069:97854", "10069:97976", "10069:121735"],
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"previousSourceFigmaNode": "10069:97854"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["product-info", "price-text", "badge"]
+				},
+				"keywords": ["ProductInfo", "상품명", "가격", "할인가", "brand"],
+				"priority": 95
+			}
+		},
+		{
+			"id": "component-card-summary",
+			"target": "composite",
+			"name": "요약 카드",
+			"description": "상품명, 가격, 대표 설명을 담는 CardSummary 단일 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["title", "subText", "rightText", "items", "button"],
+					"props": ["title", "subText", "rightText", "items", "buttonLabel"],
+					"children": ["Button"],
+					"order": ["header", "items", "button"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121753",
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"previousSourceFigmaNode": "10069:97858"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["card-summary"]
+				},
+				"keywords": ["CardSummary", "summary", "요약", "가격", "상품명"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "component-badge",
+			"target": "composite",
+			"name": "상태 배지",
+			"description": "판매 상태, 가입 가능 여부 같은 짧은 상태값을 표시하는 Badge 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["label"],
+					"props": ["children", "variant"],
+					"variants": ["gray", "black", "blue"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121735",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["badge"]
+				},
+				"keywords": ["Badge", "status", "상태", "가입 가능"],
+				"priority": 86
+			}
+		},
+		{
+			"id": "component-text-button",
+			"target": "composite",
+			"name": "텍스트 버튼",
+			"description": "자세히 보기, 더보기 같은 inline link action을 표시하는 TextButton 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["label"],
+					"props": ["label", "underline"],
+					"aliases": ["ButtonTextUnderline"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121753",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["text-link"]
+				},
+				"keywords": ["TextButton", "더보기", "자세히", "link"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-list-text",
+			"target": "composite",
+			"name": "리스트 텍스트",
+			"description": "라벨과 값을 한 줄로 표시하는 ListText 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["title", "subText", "price", "rightItem"],
+					"props": ["table", "title", "subText", "price", "showRightItem"],
+					"variants": ["off", "on", "dot", "firstTitle", "secondTitle"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121753",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": ["ListText", "list", "항목", "값"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-option-card",
+			"target": "composite",
+			"name": "옵션 선택 카드",
+			"description": "선택 상태 stroke와 보조 설명을 갖는 단일 OptionCard render component 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 4,
+				"layoutProps": {
+					"minHeight": 74,
+					"radius": 12,
+					"selectedStroke": "primary",
+					"slots": ["title", "description", "value"],
+					"props": ["title", "description", "value", "selected", "disabled"],
+					"states": ["default", "selected", "disabled"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121745",
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"previousSourceFigmaNode": "10069:121745"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["option-card", "select-card"]
+				},
+				"keywords": ["option", "select", "색상", "용량", "배송"],
+				"priority": 92
+			}
+		},
+		{
+			"id": "component-banner-indicator",
+			"target": "composite",
+			"name": "배너 인디케이터",
+			"description": "상품 상세 중간에 들어가는 단일 BannerIndicaterMedium carousel/banner component 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"layoutProps": {
+					"width": 369,
+					"height": 112,
+					"indicator": true,
+					"slots": ["title", "description", "image", "indicator"],
+					"props": ["title", "description", "imageUrl", "current", "total"],
+					"order": ["copy", "image", "indicator"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121782",
+					"sourceFigmaNodes": ["10069:97872", "10069:121782"],
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"previousSourceFigmaNode": "10069:97872"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["banner", "banner-indicator"]
+				},
+				"keywords": ["BannerIndicaterMedium", "banner", "carousel", "배너"],
+				"priority": 88
+			}
+		},
+		{
+			"id": "component-footer",
+			"target": "composite",
+			"name": "푸터",
+			"description": "단일 Footer render component를 하단 안내/링크 묶음으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 8,
+				"layoutProps": {
+					"slots": ["title", "description", "links"],
+					"props": ["title", "description", "links"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10228:36521",
+					"sourceFigmaNodes": ["10069:97921", "10069:98005", "10228:36521"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["footer"]
+				},
+				"keywords": ["Footer", "footer", "legal", "copyright", "푸터"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-legal-text",
+			"target": "composite",
+			"name": "법적 고지 텍스트",
+			"description": "단일 LegalText render component를 약관/유의사항 fine print 목록으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 6,
+				"layoutProps": {
+					"slots": ["title", "items"],
+					"props": ["title", "items"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10228:36557",
+					"sourceFigmaNodes": ["10228:36557", "10347:80700"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["legal-text"]
+				},
+				"keywords": ["LegalText", "legal", "notice", "약관", "유의사항"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-map-block",
+			"target": "composite",
+			"name": "지도 블록",
+			"description": "단일 MapBlock render component를 매장 안내 지도 영역으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["map", "title", "address"],
+					"props": ["title", "address"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:98025",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["map"]
+				},
+				"keywords": ["MapBlock", "map", "지도", "매장 위치"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-store-card",
+			"target": "composite",
+			"name": "매장 카드",
+			"description": "단일 StoreCard render component를 근처 매장 row로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["title", "address", "status", "distance"],
+					"props": ["title", "address", "distance", "status"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:98025",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["store-card"]
+				},
+				"keywords": ["StoreCard", "store", "매장", "거리", "영업상태"],
+				"priority": 84
+			}
+		},
+		{
+			"id": "component-title-section",
+			"target": "composite",
+			"name": "섹션 타이틀",
+			"description": "단일 TitleSection render component를 Pagestack 또는 list group의 제목 row로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"slots": ["title", "subtitle", "rightText", "badge"],
+					"props": ["title", "subtitle", "rightText", "badge"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10098:107603",
+					"sourceFigmaNodes": [
+						"0:553",
+						"0:330",
+						"10098:107603",
+						"10098:107586",
+						"10228:40518",
+						"10228:40511"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10098-107603",
+					"referenceLayer": "Page (리스트-텍스트) ContentsTitle/TextListGroup TitleSection"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["title-section"]
+				},
+				"keywords": ["TitleSection", "ContentsTitle", "section-title", "목록 타이틀"],
+				"priority": 88
+			}
+		},
+		{
+			"id": "component-info-text-list",
+			"target": "composite",
+			"name": "정보 텍스트 리스트 항목",
+			"description": "단일 InfoTextList render component를 title/category/date/badge/rightText 기반 list row로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"height": 71,
+					"slots": ["title", "category", "date", "badge", "rightText"],
+					"props": ["title", "category", "date", "badge", "rightText"],
+					"states": ["default", "withBadge", "withRightText"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10570:31539",
+					"sourceFigmaNodes": ["0:566", "0:577", "10570:31539", "10570:31433", "10570:31165"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10570-31539",
+					"referenceLayer": "Page (리스트-텍스트) Local_ListInfo/InfoTextList rows"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": ["InfoTextList", "Local_ListInfo", "이용내역", "공지사항", "텍스트 리스트"],
+				"priority": 90
+			}
+		},
+		{
+			"id": "component-chip-filter",
+			"target": "composite",
+			"name": "칩 필터",
+			"description": "단일 Chip render component를 수평 필터 chip row의 반복 item으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "horizontal",
+				"childOrder": "repeat",
+				"gap": 8,
+				"layoutProps": {
+					"height": 57,
+					"itemHeight": 37,
+					"paddingX": 32,
+					"props": ["children", "selected"],
+					"states": ["default", "selected"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58370",
+					"sourceFigmaNodes": ["10082:58370", "10082:58233", "10082:43728"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58370",
+					"referenceLayer": "Page (리스트-텍스트) Chip filter bars"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["Chip", "chip"]
+				},
+				"keywords": ["Chip", "filter-chip", "필터", "카테고리", "selected"],
+				"priority": 89
+			}
+		},
+		{
+			"id": "component-tab",
+			"target": "composite",
+			"name": "탭 내비게이션",
+			"description": "단일 Tab render component를 list category 전환용 상단 tab strip으로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "horizontal",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"height": 47,
+					"props": ["items", "activeKey"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:43727",
+					"sourceFigmaNodes": ["10082:43727"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-43727",
+					"referenceLayer": "리스트_이용안내 Contents/Tab"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["Tab", "tab"]
+				},
+				"keywords": ["Tab", "tabs", "이용안내", "category-tab"],
+				"priority": 88
+			}
+		},
+		{
+			"id": "component-search-bar",
+			"target": "composite",
+			"name": "검색 바",
+			"description": "단일 SearchBar render component를 검색/LLM 입력 affordance로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"height": 61,
+					"props": ["placeholder", "value", "variant"],
+					"defaultProps": {
+						"variant": "search"
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:43729",
+					"sourceFigmaNodes": ["10082:43729"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-43729",
+					"referenceLayer": "리스트_이용안내 Contents/SearchBar"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["search-bar"]
+				},
+				"keywords": ["SearchBar", "search-bar", "검색", "검색어"],
+				"priority": 87
+			}
+		},
+		{
+			"id": "component-accordion-notice-info",
+			"target": "composite",
+			"name": "공지 아코디언 항목",
+			"description": "단일 AccordionNoticeInfo render component를 FAQ/이용안내 expandable row로 배치하는 컴포넌트 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"collapsedHeight": 61,
+					"expandedHeight": 135,
+					"slots": ["title", "description"],
+					"props": ["title", "description", "expanded"],
+					"states": ["collapsed", "expanded"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10570:31267",
+					"sourceFigmaNodes": ["10570:31267", "10570:31269", "10570:31271", "10570:31273"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10570-31267",
+					"referenceLayer": "리스트_이용안내 AccordionList/AccordionNoticeInfo rows"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["accordion-info"]
+				},
+				"keywords": ["AccordionNoticeInfo", "AccordionList", "FAQ", "이용안내", "펼침"],
+				"priority": 90
+			}
+		},
+		{
+			"id": "composite-title-info-text-list",
+			"target": "composite",
+			"name": "타이틀 포함 정보 텍스트 리스트",
+			"description": "TitleSection 다음 InfoTextList[]와 Divider[]를 반복 배치하는 text list section composite. Pagestack 안팎의 Local_ListInfo layer를 같은 구조로 해석한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["TitleSection", "InfoTextList", "Divider"],
+					"slots": ["title", "rows"],
+					"order": ["TitleSection", "InfoTextList[]"],
+					"repeatSeparator": "Divider",
+					"spacing": {
+						"titleToListGap": 0,
+						"rowGap": 0
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10228:40516",
+					"sourceFigmaNodes": [
+						"10228:40516",
+						"10228:40518",
+						"10570:31538",
+						"10570:31539",
+						"10570:31540"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10228-40516",
+					"referenceLayer": "TextListGroup with TitleSection + Local_ListInfo"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["title-section", "list-cell"]
+				},
+				"keywords": ["TextListGroup", "TitleSection", "InfoTextList", "Divider", "목록 그룹"],
+				"priority": 95
+			}
+		},
+		{
+			"id": "composite-summary-filtered-text-list",
+			"target": "composite",
+			"name": "요약 필터 텍스트 리스트",
+			"description": "CardSummary, TitleSection, Chip filter, TextListGroup을 순서대로 결합하는 리스트-텍스트 summary/filter/list composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["CardSummary", "TitleSection", "Chip", "InfoTextList", "Divider"],
+					"slots": ["summary", "filterTitle", "filters", "list"],
+					"order": ["CardSummary", "TitleSection", "Chip", "TitleSection", "InfoTextList[]"],
+					"spacing": {
+						"summaryTop": 16,
+						"titleToChipGap": 0,
+						"chipToListGroupGap": 0
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58365",
+					"sourceFigmaNodes": [
+						"10082:58366",
+						"10082:58367",
+						"10098:107603",
+						"10082:58370",
+						"10228:40516"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58365",
+					"referenceLayer": "리스트_T플러스포인트내역 Contents"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["card-summary", "title-section", "list-cell"],
+					"anyOf": ["Chip", "chip"]
+				},
+				"keywords": [
+					"CardSummary",
+					"Chip",
+					"TextListGroup",
+					"T플러스포인트",
+					"할인내역",
+					"filtered-list"
+				],
+				"priority": 97
+			}
+		},
+		{
+			"id": "composite-summary-sectioned-info-list",
+			"target": "composite",
+			"name": "요약 섹션형 정보 리스트",
+			"description": "CardSummary 다음 Pagestack 단위 TitleSection + InfoTextList[] section을 Divider로 반복하는 이용내역 composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["CardSummary", "PageStack", "TitleSection", "InfoTextList", "Divider"],
+					"slots": ["summary", "sections"],
+					"order": ["CardSummary", "PageStack[]"],
+					"sectionWrapper": "PageStack",
+					"sectionSeparator": "Divider(type=section)",
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58058",
+					"sourceFigmaNodes": [
+						"10082:58059",
+						"10082:58060",
+						"10098:117467",
+						"10082:58066",
+						"10098:117650"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58058",
+					"referenceLayer": "리스트_이용내역 Contents"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["card-summary", "page-stack", "title-section", "list-cell"]
+				},
+				"keywords": ["CardSummary", "Pagestack", "TitleSection", "InfoTextList", "이용내역"],
+				"priority": 97
+			}
+		},
+		{
+			"id": "composite-plain-notice-list",
+			"target": "composite",
+			"name": "기본 공지 텍스트 리스트",
+			"description": "InfoTextList[]와 Divider[]만 반복하는 공지사항 list composite. 요약/필터/타이틀 없이 Local_ListInfo를 content rail에 직접 배치한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["InfoTextList", "Divider"],
+					"slots": ["rows"],
+					"order": ["InfoTextList", "Divider"],
+					"repeatSeparator": "Divider",
+					"paddingX": 32,
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10570:31164",
+					"sourceFigmaNodes": [
+						"10570:31164",
+						"10570:31165",
+						"10570:31166",
+						"10570:31167",
+						"10570:31181"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10570-31164",
+					"referenceLayer": "리스트_공지사항 Local_ListInfo"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell", "divider"]
+				},
+				"keywords": ["Local_ListInfo", "InfoTextList", "공지사항", "notice-list", "plain-list"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-tab-chip-search-accordion-list",
+			"target": "composite",
+			"name": "탭 칩 검색 아코디언 리스트",
+			"description": "Tab, Chip filter, SearchBar, AccordionNoticeInfo[]를 순서대로 결합하는 이용안내/FAQ composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["Tab", "Chip", "SearchBar", "AccordionNoticeInfo", "Divider"],
+					"slots": ["tabs", "filters", "search", "accordions"],
+					"order": ["Tab", "Chip", "SearchBar", "AccordionNoticeInfo[]"],
+					"repeatSeparator": "Divider",
+					"spacing": {
+						"tabHeight": 47,
+						"chipHeight": 57,
+						"searchHeight": 61,
+						"accordionTop": 0
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:43725",
+					"sourceFigmaNodes": [
+						"10082:43727",
+						"10082:43728",
+						"10082:43729",
+						"10570:31266",
+						"10570:31267"
+					],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-43725",
+					"referenceLayer": "리스트_이용안내 Contents"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["search-bar", "accordion-info"],
+					"anyOf": ["Tab", "tab", "Chip", "chip"]
+				},
+				"keywords": ["Tab", "Chip", "SearchBar", "AccordionNoticeInfo", "이용안내", "FAQ"],
+				"priority": 98
+			}
+		},
+		{
+			"id": "composite-product-hero-media-info",
+			"target": "composite",
+			"name": "상품 히어로 미디어 정보 조합",
+			"description": "ThumbnailLarge와 ProductInfo를 순서대로 결합하는 상품 상세 hero composite. Figma layer가 하나의 block처럼 보이지만 실제 렌더 단위는 두 component다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["ThumbnailLarge", "ProductInfo"],
+					"slots": ["media", "summary"],
+					"order": ["ThumbnailLarge", "ProductInfo"],
+					"spacing": {
+						"betweenChildren": 0,
+						"infoPaddingTop": 32,
+						"infoPaddingX": 32
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121734",
+					"sourceFigmaNodes": [
+						"10069:97853",
+						"10069:97854",
+						"10069:97975",
+						"10069:97976",
+						"10069:121734",
+						"10069:121735"
+					],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["thumbnail-large", "product-info"]
+				},
+				"keywords": ["hero", "ThumbnailLarge", "ProductInfo", "상품상세", "대표이미지"],
+				"priority": 98
+			}
+		},
+		{
+			"id": "composite-product-summary-status-list",
+			"target": "composite",
+			"name": "상품 요약 상태 목록 조합",
+			"description": "CardSummary, Badge, TextButton, ListText가 결합된 상품/요금제 요약 block. ButtonTextUnderline은 TextButton underline alias로만 매핑한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 12,
+				"layoutProps": {
+					"children": ["CardSummary", "Badge", "TextButton", "ListText"],
+					"slots": ["summary", "status", "originLink", "detailRows"],
+					"order": ["CardSummary", "Badge", "TextButton", "ListText"],
+					"spacing": {
+						"sectionGap": 12,
+						"listGap": 0
+					},
+					"gapCandidates": ["price-summary", "benefit-list"],
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121753",
+					"sourceFigmaNodes": ["10069:97902", "10069:121753", "10069:121764"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["card-summary", "badge", "text-link", "list-cell"]
+				},
+				"keywords": [
+					"CardSummary",
+					"Badge",
+					"ButtonTextUnderline",
+					"ListText",
+					"상품 요약",
+					"가격 요약"
+				],
+				"priority": 96
+			}
+		},
+		{
+			"id": "composite-store-map-list",
+			"target": "composite",
+			"name": "지도 매장 리스트 조합",
+			"description": "MapBlock 다음 StoreCard 목록을 배치하는 근처 매장 안내 composite. 지도와 매장 row는 각각 실제 component surface로 유지한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 8,
+				"layoutProps": {
+					"children": ["MapBlock", "StoreCard"],
+					"slots": ["map", "stores"],
+					"order": ["MapBlock", "StoreCard[]"],
+					"spacing": {
+						"mapToListGap": 8,
+						"storeGap": 0
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:98025",
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["map", "store-card"]
+				},
+				"keywords": ["MapBlock", "StoreCard", "nearby-store", "지도", "매장"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-footer-legal-links",
+			"target": "composite",
+			"name": "푸터 법적 고지 조합",
+			"description": "LegalText와 Footer를 결합해 약관, 판매자 정보, copyright를 표시하는 하단 legal composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 30,
+				"layoutProps": {
+					"children": ["LegalText", "Footer"],
+					"slots": ["notices", "footer"],
+					"order": ["LegalText", "Footer"],
+					"spacing": {
+						"legalToFooterGap": 30
+					},
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10228:36521",
+					"sourceFigmaNodes": ["10069:97921", "10069:98005", "10228:36521"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["legal-text", "footer"]
+				},
+				"keywords": ["LegalText", "Footer", "legal", "약관", "판매자", "copyright"],
+				"priority": 92
+			}
+		},
+		{
+			"id": "composite-product-list-filter-sort",
+			"target": "composite",
+			"name": "상품 리스트 필터 정렬 조합",
+			"description": "Page (리스트-카드) 상단에서 optional Chip filter 다음 실제 FilterSorting control row가 이어지는 상품 리스트 제어 composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["Chip", "FilterSorting"],
+					"slots": ["filters", "sort"],
+					"order": ["Chip[]?", "FilterSorting"],
+					"variants": ["요금제", "단말기", "구독상품", "혜택", "부가서비스", "인터넷"],
+					"figmaOnlyTypes": [],
+					"componentGaps": [],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "9896:91122",
+					"referenceLayer": "Page (리스트-카드)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["chip", "filter-sorting"]
+				},
+				"keywords": ["Chip", "FilterSorting", "sort", "filter", "리스트-카드", "상품목록"],
+				"priority": 96
+			}
+		},
+		{
+			"id": "composite-product-list-group-title-stack",
+			"target": "composite",
+			"name": "상품 리스트 그룹 타이틀 스택",
+			"description": "요금제 variant처럼 ProductListGroup section이 두 번 반복되고 각 group 안에 title row와 상품 card set이 쌓이는 composite. ProductListGroup은 Figma grouping layer이며 실제 component가 아니다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 16,
+				"layoutProps": {
+					"children": ["TitleSection", "ListProductHorizontal", "ListProductRow"],
+					"slots": ["groupTitle", "products"],
+					"order": ["ProductListGroup[]"],
+					"sectionWrapper": "ProductListGroup",
+					"sectionCountCandidate": 2,
+					"figmaOnlyTypes": ["ProductListGroup"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "ProductListGroup",
+							"candidateComponent": "ProductListGroup",
+							"reason": "Figma section grouping layer이며 실제 render component보다 composite boundary에 가깝다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "9896:91122",
+					"referenceLayer": "Page (리스트-카드)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["title-section"],
+					"anyOf": ["product-list-group", "list-product-horizontal", "list-product-row"]
+				},
+				"keywords": ["ProductListGroup", "TitleSection", "요금제", "sectioned", "상품목록"],
+				"priority": 95
+			}
+		},
+		{
+			"id": "composite-list-product-horizontal-card-set",
+			"target": "composite",
+			"name": "가로형 상품 카드 세트",
+			"description": "혜택, 부가서비스, 인터넷 variant에서 실제 ListProductHorizontal card가 반복되는 product card set composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 12,
+				"layoutProps": {
+					"children": ["ListProductHorizontal"],
+					"slots": ["products"],
+					"order": ["ListProductHorizontal[]"],
+					"variants": ["혜택", "부가서비스", "인터넷"],
+					"figmaOnlyTypes": [],
+					"componentGaps": [],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "9896:91122",
+					"referenceLayer": "Page (리스트-카드)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-product-horizontal"]
+				},
+				"keywords": ["ListProductHorizontal", "horizontal-card", "혜택", "부가서비스", "인터넷"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-list-product-row-card-set",
+			"target": "composite",
+			"name": "행형 상품 카드 세트",
+			"description": "단말기, 구독상품 variant에서 실제 ListProductRow card가 반복되는 product row card set composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 12,
+				"layoutProps": {
+					"children": ["ListProductRow"],
+					"slots": ["products"],
+					"order": ["ListProductRow[]"],
+					"variants": ["단말기", "구독상품"],
+					"figmaOnlyTypes": [],
+					"componentGaps": [],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "9896:91122",
+					"referenceLayer": "Page (리스트-카드)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-product-row"]
+				},
+				"keywords": ["ListProductRow", "row-card", "단말기", "구독상품", "상품목록"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-pagestack-product-card-list",
+			"target": "composite",
+			"name": "페이지스택 상품 카드 리스트",
+			"description": "AppBar 아래 Contents에서 optional Chip, FilterSorting, ProductListGroup 또는 product card set이 PageStack rail 안에 배치되는 Page (리스트-카드) 최상위 composite.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": [
+						"AppBar",
+						"PageStack",
+						"Chip",
+						"FilterSorting",
+						"ProductListGroup",
+						"ListProductHorizontal",
+						"ListProductRow"
+					],
+					"slots": ["header", "filters", "sort", "groups", "products"],
+					"order": [
+						"AppBar",
+						"PageStack(Chip[]?, FilterSorting, ProductListGroup[] | ListProductHorizontal[] | ListProductRow[])"
+					],
+					"variantMapping": {
+						"요금제": "ProductListGroup[]",
+						"단말기": "ListProductRow[]",
+						"구독상품": "ListProductRow[]",
+						"혜택": "ListProductHorizontal[]",
+						"부가서비스": "ListProductHorizontal[]",
+						"인터넷": "ListProductHorizontal[]"
+					},
+					"figmaOnlyTypes": ["ProductListGroup"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "ProductListGroup",
+							"candidateComponent": "ProductListGroup",
+							"reason": "section wrapper는 composite boundary로 남기는 것이 현재 컴포넌트 경계와 맞다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "9896:91122",
+					"referenceLayer": "Page (리스트-카드)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["page-stack"],
+					"anyOf": [
+						"chip",
+						"filter-sorting",
+						"product-list-group",
+						"list-product-horizontal",
+						"list-product-row"
+					]
+				},
+				"keywords": [
+					"Page (리스트-카드)",
+					"PageStack",
+					"ProductListGroup",
+					"ListProductHorizontal",
+					"ListProductRow"
+				],
+				"priority": 98
+			}
+		},
+		{
+			"id": "component-action-button-with-tooltip",
+			"target": "composite",
+			"name": "툴팁 포함 하단 액션 버튼",
+			"description": "단일 ActionButton render component에 optional tooltip affordance metadata를 얹어 쓰는 상품 상세 하단 CTA 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"layoutProps": {
+					"buttonHeight": 56,
+					"paddingX": 12,
+					"paddingTop": 10,
+					"paddingBottom": 36,
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121801",
+					"sourceFigmaNodes": ["10228:58801", "10069:136547", "10069:121801"],
+					"sourceFigmaReferenceRoot": "12449:8336"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["action-button"]
+				},
+				"keywords": ["ActionButton", "Tooltip", "구매", "신청", "bottom", "cta"],
+				"priority": 98
+			}
+		},
+		{
+			"id": "composite-price-accordion-selected-list",
+			"target": "composite",
+			"name": "가격 아코디언 선택 리스트",
+			"description": "Page (상세-상품)의 AccordionPriceInfo 아래 선택형 가격 row와 divider가 반복되는 가격 상세 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["AccordionPriceInfo", "ListSelected", "Divider"],
+					"slots": ["priceDisclosure", "selectedRows"],
+					"order": ["AccordionPriceInfo", "ListSelected[]"],
+					"repeatSeparator": "Divider",
+					"spacing": {
+						"accordionToRowsGap": 0,
+						"rowGap": 0
+					},
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["accordion-price-info", "list-selected"]
+				},
+				"keywords": ["AccordionPriceInfo", "ListSelected", "가격", "선택", "상품상세"],
+				"priority": 98
+			}
+		},
+		{
+			"id": "composite-product-detail-rich-image-tab",
+			"target": "composite",
+			"name": "상품 상세 이미지 탭 콘텐츠",
+			"description": "ThumbnailLarge/Thumbnail hero, ProductInfo, UnderlineTab alias, rich detail body가 이어지는 상품 상세 상단 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["ThumbnailLarge", "ProductInfo", "Tab", "TitleContents"],
+					"slots": ["media", "summary", "tabs", "detailBody"],
+					"order": ["ThumbnailLarge", "ProductInfo", "Tab", "TitleContents"],
+					"figmaOnlyTypes": ["TitleContents"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "TitleContents",
+							"candidateComponent": "TitleContents",
+							"reason": "상품 상세 본문 title/content 묶음 layer이나 packages/component에 실제 export가 없다. 현재는 TitleSection + ListText 또는 composite metadata로만 표현한다."
+						}
+					],
+					"aliases": {
+						"UnderlineTab": "Tab",
+						"Thumbnail": "ThumbnailLarge"
+					},
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["thumbnail-large", "product-info", "tab"]
+				},
+				"keywords": ["ThumbnailLarge", "ProductInfo", "UnderlineTab", "TitleContents", "상품상세"],
+				"priority": 97
+			}
+		},
+		{
+			"id": "composite-button-more-product-link",
+			"target": "composite",
+			"name": "상품 더보기 링크",
+			"description": "Page (상세-상품)의 ButtonMore/ButtonMoreProduct layer를 TextButton alias surface로 수용하는 더보기 링크 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["TextButton"],
+					"slots": ["moreLink"],
+					"order": ["TextButton"],
+					"aliases": ["ButtonMore", "ButtonMoreProduct"],
+					"componentGaps": [],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["text-button"]
+				},
+				"keywords": ["ButtonMore", "ButtonMoreProduct", "TextButton", "더보기", "상품상세"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-option-list-stack",
+			"target": "composite",
+			"name": "옵션 리스트 스택",
+			"description": "OptionList Figma grouping 아래 실제 OptionCard가 반복되는 상품 옵션 선택 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 8,
+				"layoutProps": {
+					"children": ["OptionCard"],
+					"slots": ["options"],
+					"order": ["OptionCard[]"],
+					"figmaOnlyTypes": ["OptionList"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "OptionList",
+							"candidateComponent": "OptionList",
+							"reason": "Figma의 option group wrapper이며 packages/component에는 OptionCard만 실제 export되어 있다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["option-card"]
+				},
+				"keywords": ["OptionList", "OptionCard", "옵션", "선택", "상품상세"],
+				"priority": 96
+			}
+		},
+		{
+			"id": "composite-coupon-benefit-card",
+			"target": "composite",
+			"name": "쿠폰 혜택 카드",
+			"description": "Coupon Figma layer를 현재 실제 CardContentsFilled와 Button/TextButton surface 후보로 기록하는 혜택 카드 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 12,
+				"layoutProps": {
+					"children": ["CardContentsFilled", "Button", "TextButton"],
+					"slots": ["benefitCard", "action"],
+					"order": ["CardContentsFilled", "Button? | TextButton?"],
+					"figmaOnlyTypes": ["Coupon"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "Coupon",
+							"candidateComponent": "Coupon",
+							"reason": "쿠폰 전용 visual/state surface가 Figma에 있으나 packages/component에 실제 export가 없다. 현재 CardContentsFilled 조합으로만 후보화한다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["card-contents-filled", "button", "text-button"]
+				},
+				"keywords": ["Coupon", "CardContentsFilled", "쿠폰", "혜택", "상품상세"],
+				"priority": 94
+			}
+		},
+		{
+			"id": "composite-map-card-info-list",
+			"target": "composite",
+			"name": "지도 카드 정보 리스트",
+			"description": "MapBlock 아래 CardInfo Figma row 목록이 이어지는 매장/위치 안내 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 8,
+				"layoutProps": {
+					"children": ["MapBlock", "StoreCard"],
+					"slots": ["map", "cards"],
+					"order": ["MapBlock", "StoreCard[]"],
+					"figmaOnlyTypes": ["CardInfo"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "CardInfo",
+							"candidateComponent": "CardInfo",
+							"reason": "Figma CardInfo row는 매장/정보 카드 surface 후보이나 packages/component에는 StoreCard만 실제 export되어 있다."
+						}
+					],
+					"aliases": {
+						"Map": "MapBlock",
+						"CardInfo": "StoreCard"
+					},
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["map", "store-card"]
+				},
+				"keywords": ["MapBlock", "Map", "StoreCard", "CardInfo", "지도", "매장"],
+				"priority": 95
+			}
+		},
+		{
+			"id": "composite-card-info-brand-list",
+			"target": "composite",
+			"name": "브랜드 카드 정보 리스트",
+			"description": "CardInfo/CardContentsLine 계열 Figma row를 실제 StoreCard, CardContentsFilled, ListText 후보로 정리한 브랜드 정보 리스트 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 8,
+				"layoutProps": {
+					"children": ["StoreCard", "CardContentsFilled", "ListText"],
+					"slots": ["cards"],
+					"order": ["StoreCard[] | CardContentsFilled[] | ListText[]"],
+					"figmaOnlyTypes": ["CardInfo", "CardContentsLine"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "CardInfo",
+							"candidateComponent": "CardInfo",
+							"reason": "브랜드/매장 정보 row로 쓰이는 Figma layer이나 실제 export가 없어 StoreCard 또는 CardContentsFilled 후보로만 남긴다."
+						},
+						{
+							"figmaOnlyType": "CardContentsLine",
+							"candidateComponent": "CardContentsLine",
+							"reason": "line형 card content layer이나 packages/component에는 실제 export가 없다. 현재 ListText 또는 CardContentsFilled 조합으로 표현한다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["store-card", "card-contents-filled", "list-text"]
+				},
+				"keywords": ["CardInfo", "CardContentsLine", "StoreCard", "ListText", "브랜드", "정보"],
+				"priority": 93
+			}
+		},
+		{
+			"id": "composite-product-disclosure-notice-list",
+			"target": "composite",
+			"name": "상품 고지 아코디언 리스트",
+			"description": "AccordionProductInfo와 AccordionNoticeInfo 계열 Figma disclosure를 실제 AccordionInfo variants와 Divider 반복으로 정리한 상품 고지 composite",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "repeat",
+				"gap": 0,
+				"layoutProps": {
+					"children": ["AccordionInfo", "AccordionNoticeInfo", "Divider"],
+					"slots": ["disclosures"],
+					"order": ["AccordionInfo[] | AccordionNoticeInfo[]"],
+					"repeatSeparator": "Divider",
+					"figmaOnlyTypes": ["AccordionProductInfo"],
+					"componentGaps": [
+						{
+							"figmaOnlyType": "AccordionProductInfo",
+							"candidateComponent": "AccordionProductInfo",
+							"reason": "상품 고지 전용 Figma layer이나 packages/component에는 실제 export가 없다. 현재 AccordionInfo/AccordionNoticeInfo variant로 표현한다."
+						}
+					],
+					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
+					"sourceFigmaPage": "pattern-guide",
+					"sourceFigmaNode": "10069:97828",
+					"referenceLayer": "Page (상세-상품)"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["accordion-info", "accordion-notice-info"]
+				},
+				"keywords": [
+					"AccordionProductInfo",
+					"AccordionNoticeInfo",
+					"AccordionInfo",
+					"상품고지",
+					"유의사항"
+				],
+				"priority": 96
+			}
+		}
+	]
+}

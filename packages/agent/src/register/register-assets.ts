@@ -1,46 +1,79 @@
+import { NODE_TYPES } from "@cx/types/node-types";
 import type {
+	GeneratedAreaNode,
 	GeneratedComponentNode,
 	GeneratedNodeTree,
-	GeneratedOrganismNode,
 	GeneratedRouteNode,
 	GeneratedScreenNode,
 	GeneratedVariantNode,
+	RegionSlot,
+	RegisteredAreaChildRef,
+	RegisteredAreaNode,
 	RegisteredComponentNode,
 	RegisteredNodeTree,
-	RegisteredOrganismChildRef,
-	RegisteredOrganismNode,
 	RegisteredRouteNode,
+	RegisteredScreenAreaRef,
 	RegisteredScreenNode,
-	RegisteredScreenOrganismRef,
 	RegisteredVariantNode,
 } from "../types";
 
+/**
+ * 2026-05-26: keyword 기반 inferAreaSlot 제거.
+ *
+ * 옛 휴리스틱은 description 자연어("완료 여부" 등)에서 false positive를 만들어
+ * organism content area를 잘못 bottom으로 슬롯팅했다. Client-import organism은
+ * 본질적으로 content area이므로 항상 contents 반환한다. chrome(header/bottom CTA)은
+ * Composer-AI synthesis가 담당.
+ */
+function inferAreaSlot(_ref: { areaId: string }, _area: RegisteredAreaNode | undefined): RegionSlot {
+	return "contents";
+}
+
 export function registerAssets(input: GeneratedNodeTree): RegisteredNodeTree {
 	const warnings: string[] = [];
-	const components = orderByIndex(input.components ?? []).map((component, index) =>
+	const registeredComponents = orderByIndex(input.components ?? []).map((component, index) =>
 		registerComponent(component, index, warnings),
 	);
+	const components = dedupeComponentsById(registeredComponents, warnings);
 	const componentById = new Map(components.map((component) => [component.id, component]));
-	const organisms = orderByIndex(input.organisms ?? []).map((organism, index) => {
-		return registerOrganism(organism, index, componentById, warnings);
+	const areas = orderByIndex(input.areas ?? []).map((area, index) => {
+		return registerArea(area, index, componentById, warnings);
 	});
-	const organismById = new Map(organisms.map((organism) => [organism.id, organism]));
+	const areaById = new Map(areas.map((area) => [area.id, area]));
 	const routes = orderByIndex(input.routes).map((route, index) => {
-		return registerRoute(route, index, organismById, warnings);
+		return registerRoute(route, index, areaById, warnings);
 	});
 
 	return {
 		routes,
-		organisms,
+		areas,
 		components,
 		warnings,
 	};
 }
 
+function dedupeComponentsById(
+	components: RegisteredComponentNode[],
+	warnings: string[],
+): RegisteredComponentNode[] {
+	const latestById = new Map<string, RegisteredComponentNode>();
+	const duplicateIds = new Set<string>();
+	for (const component of components) {
+		if (latestById.has(component.id)) duplicateIds.add(component.id);
+		latestById.set(component.id, component);
+	}
+
+	for (const id of [...duplicateIds].sort()) {
+		warnings.push(`Duplicate component id collapsed: ${id}`);
+	}
+
+	return components.filter((component) => latestById.get(component.id) === component);
+}
+
 function registerRoute(
 	route: GeneratedRouteNode,
 	index: number,
-	organismById: Map<string, RegisteredOrganismNode>,
+	areaById: Map<string, RegisteredAreaNode>,
 	warnings: string[],
 ): RegisteredRouteNode {
 	return {
@@ -50,7 +83,7 @@ function registerRoute(
 		order: normalizeOrder(route.order, index),
 		...(route.description ? { description: route.description } : {}),
 		variants: orderByIndex(route.variants).map((variant, variantIndex) => {
-			return registerVariant(variant, variantIndex, organismById, warnings);
+			return registerVariant(variant, variantIndex, areaById, warnings);
 		}),
 	};
 }
@@ -58,7 +91,7 @@ function registerRoute(
 function registerVariant(
 	variant: GeneratedVariantNode,
 	index: number,
-	organismById: Map<string, RegisteredOrganismNode>,
+	areaById: Map<string, RegisteredAreaNode>,
 	warnings: string[],
 ): RegisteredVariantNode {
 	return {
@@ -68,7 +101,7 @@ function registerVariant(
 		order: normalizeOrder(variant.order, index),
 		...(variant.description ? { description: variant.description } : {}),
 		screens: orderByIndex(variant.screens).map((screen, screenIndex) => {
-			return registerScreen(screen, screenIndex, organismById, warnings);
+			return registerScreen(screen, screenIndex, areaById, warnings);
 		}),
 	};
 }
@@ -76,7 +109,7 @@ function registerVariant(
 function registerScreen(
 	screen: GeneratedScreenNode,
 	index: number,
-	organismById: Map<string, RegisteredOrganismNode>,
+	areaById: Map<string, RegisteredAreaNode>,
 	warnings: string[],
 ): RegisteredScreenNode {
 	return {
@@ -84,18 +117,21 @@ function registerScreen(
 		id: screen.id,
 		name: screen.name ?? screen.id,
 		order: normalizeOrder(screen.order, index),
+		// Legacy organism path: screen type 정보 없음. Register 책임에 따라 기본값 강제.
+		screenType: NODE_TYPES.screenSurface[0],
 		...(screen.description ? { description: screen.description } : {}),
 		...(screen.surface ? { surface: screen.surface } : {}),
-		organisms: orderRefs(screen.organisms ?? [], "organismId").map((ref, refIndex) => {
-			const organism = organismById.get(ref.organismId);
-			if (!organism) {
-				warnings.push(`Missing organism: ${ref.organismId}`);
+		areas: orderRefs(screen.areas ?? [], "areaId").map((ref, refIndex) => {
+			const area = areaById.get(ref.areaId);
+			if (!area) {
+				warnings.push(`Missing area: ${ref.areaId}`);
 			}
 
-			const registeredRef: RegisteredScreenOrganismRef = {
-				organismId: ref.organismId,
+			const registeredRef: RegisteredScreenAreaRef = {
+				areaId: ref.areaId,
 				order: normalizeOrder(ref.order, refIndex),
-				...(organism ? { organism } : {}),
+				slot: inferAreaSlot(ref, area),
+				...(area ? { area } : {}),
 			};
 
 			return registeredRef;
@@ -103,26 +139,34 @@ function registerScreen(
 	};
 }
 
-function registerOrganism(
-	organism: GeneratedOrganismNode,
+function registerArea(
+	area: GeneratedAreaNode,
 	index: number,
 	componentById: Map<string, RegisteredComponentNode>,
 	warnings: string[],
-): RegisteredOrganismNode {
+): RegisteredAreaNode {
 	return {
-		level: "organism",
-		id: organism.id,
-		name: organism.name ?? organism.id,
-		order: normalizeOrder(organism.order, index),
-		...(organism.description ? { description: organism.description } : {}),
-		...(organism.layout ? { layout: organism.layout } : {}),
-		children: orderRefs(getOrganismChildren(organism), "componentId").map((ref, refIndex) => {
+		level: "area",
+		id: area.id,
+		name: area.name ?? area.id,
+		order: normalizeOrder(area.order, index),
+		...(area.key !== undefined ? { key: area.key } : {}),
+		...(area.description ? { description: area.description } : {}),
+		...(area.layout ? { layout: area.layout } : {}),
+		...(area.areaType ? { areaType: area.areaType } : {}),
+		...(area.visibility ? { visibility: area.visibility } : {}),
+		...(area.serverControl ? { serverControl: area.serverControl } : {}),
+		...(area.minCount !== undefined ? { minCount: area.minCount } : {}),
+		...(area.maxCount !== undefined ? { maxCount: area.maxCount } : {}),
+		...(area.priority !== undefined ? { priority: area.priority } : {}),
+		...(area.errorPolicy ? { errorPolicy: area.errorPolicy } : {}),
+		children: orderRefs(getAreaChildren(area), "componentId").map((ref, refIndex) => {
 			const component = componentById.get(ref.componentId);
 			if (!component) {
 				warnings.push(`Missing component: ${ref.componentId}`);
 			}
 
-			const registeredRef: RegisteredOrganismChildRef = {
+			const registeredRef: RegisteredAreaChildRef = {
 				componentId: ref.componentId,
 				order: normalizeOrder(ref.order, refIndex),
 				...(component ? { component } : {}),
@@ -133,11 +177,11 @@ function registerOrganism(
 	};
 }
 
-function getOrganismChildren(organism: GeneratedOrganismNode) {
-	const legacy = organism as GeneratedOrganismNode & {
-		components?: GeneratedOrganismNode["children"];
+function getAreaChildren(area: GeneratedAreaNode) {
+	const legacy = area as GeneratedAreaNode & {
+		components?: GeneratedAreaNode["children"];
 	};
-	return organism.children ?? legacy.components ?? [];
+	return area.children ?? legacy.components ?? [];
 }
 
 const POLICY_REF_PATTERN = /\[정책:([^\]]+)\]/g;

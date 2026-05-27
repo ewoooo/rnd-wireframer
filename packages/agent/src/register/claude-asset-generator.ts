@@ -10,7 +10,6 @@ export interface ClaudeAssetMarkdownFile {
 
 export interface ClaudeAssetGeneratorInput {
 	importId: string;
-	organismFiles: ClaudeAssetMarkdownFile[];
 	screenFiles: ClaudeAssetMarkdownFile[];
 }
 
@@ -38,6 +37,8 @@ const componentRawSchema = z.object({
 	description: z.string().optional(),
 	variant: z.string().optional(),
 	note: z.string().optional(),
+	displayText: z.string().optional(),
+	binding: z.string().optional(),
 	hooks: z
 		.array(
 			z.object({
@@ -60,12 +61,20 @@ const componentSchema = z.object({
 	raw: componentRawSchema.optional(),
 });
 
-const organismSchema = z.object({
+const areaSchema = z.object({
 	id: z.string().min(1),
 	name: z.string().optional(),
 	order: z.number().optional(),
 	description: z.string().optional(),
 	layout: z.string().optional(),
+	key: z.number().optional(),
+	areaType: z.enum(["static", "dynamic"]).optional(),
+	visibility: z.string().optional(),
+	serverControl: z.string().optional(),
+	minCount: z.number().optional(),
+	maxCount: z.number().optional(),
+	priority: z.number().optional(),
+	errorPolicy: z.string().optional(),
 	children: z
 		.array(
 			assetRefSchema.extend({
@@ -81,10 +90,10 @@ const screenSchema = z.object({
 	order: z.number().optional(),
 	description: z.string().optional(),
 	surface: z.string().optional(),
-	organisms: z
+	areas: z
 		.array(
 			assetRefSchema.extend({
-				organismId: z.string().min(1),
+				areaId: z.string().min(1),
 			}),
 		)
 		.optional(),
@@ -110,7 +119,7 @@ const registerAssetsInputSchema = z.object({
 			}),
 		)
 		.min(1),
-	organisms: z.array(organismSchema).optional(),
+	areas: z.array(areaSchema).optional(),
 	components: z.array(componentSchema).optional(),
 }) satisfies z.ZodType<GeneratedNodeTree>;
 
@@ -131,7 +140,6 @@ export async function generateAssetsWithLocalClaude(
 
 	logDebug(logger, debug, "input", {
 		importId: input.importId,
-		organismFiles: summarizeFiles(input.organismFiles),
 		promptLength: prompt.length,
 		screenFiles: summarizeFiles(input.screenFiles),
 	});
@@ -204,7 +212,7 @@ export async function generateAssetsWithLocalClaude(
 		elapsedMs: Date.now() - startedAt,
 		messageCounts: Object.fromEntries(messageCounts),
 		numTurns: resultMessage.num_turns,
-		organismCount: generated.organisms?.length ?? 0,
+		areaCount: generated.areas?.length ?? 0,
 		rawResultLength: resultMessage.result.length,
 		routeCount: generated.routes.length,
 		screenCount: generated.routes.reduce((count, route) => {
@@ -284,65 +292,80 @@ function extractJson(output: string) {
 function buildPrompt(input: ClaudeAssetGeneratorInput) {
 	return [
 		"You are the Claude Generation Agent for RND Screen Generator.",
-		"Convert the uploaded client import markdown files into GeneratedNodeTree JSON.",
+		"Convert the uploaded PRDD screen markdown files into GeneratedNodeTree JSON.",
 		"Return only data matching the provided JSON schema.",
 		"",
-		"Phase 1 scope:",
-		"- Register one Screen Route covering all provided screens.",
-		"- Register one Screen Variant per main-flow screen markdown file.",
-		'  The variant id is the main screen\'s base id with the trailing "-0" stripped',
-		"  (e.g. file NOVA-MBR-FP-001-0.md → variant id NOVA-MBR-FP-001).",
-		"  The variant name and description come from the main screen's 화면 명 / 화면 설명.",
-		"- Under each variant, register the main screen first, then its edge screens.",
-		"  Main screen: use the file's full id (e.g. NOVA-MBR-FP-001-0).",
-		'  Edge screens: read the "## 케이스 분기" table in that same file and',
-		"  register every row as a screen under the same variant using the row's",
-		"  화면 ID (e.g. NOVA-MBR-FP-001-E1) as the screen id and 화면 명 / 화면 설명",
-		"  as name / description. Edge-case screens have no organisms unless the",
-		"  markdown explicitly lists them.",
-		"- Order screens within a variant: main screen first (order 1),",
-		"  then edge screens in the order they appear in 케이스 분기 (order 2, 3, ...).",
-		"- Register Organisms and Components referenced by the screens.",
-		"- For each organism, put referenced components under organism.children.",
-		"- Do not create organism.raw or organism.components.",
-		"- Preserve IDs from the source markdown whenever present.",
-		"- Do not invent screens that are not declared in the markdown.",
-		"- Do not invent copy text that is not needed for registration.",
+		"Input shape:",
+		'- Each <screen_files> entry is one PRDD screen markdown with frontmatter ("화면 ID", "화면 명", "화면 설명", ...).',
+		"- Each screen markdown contains two tables you MUST walk row-by-row:",
+		'  - "## 화면 구성"     → area definitions for this screen',
+		'  - "## 컴포넌트 상세" → component rows, each tagged with the area it belongs to via the "영역" column (= 화면 구성 row\'s "no.")',
+		'- A "## 화면 흐름" table may also exist — only its "케이스 분기" rows are used to register edge screens.',
 		"",
-		"Component identity (required):",
-		'- For each component row in an organism\'s "## 컴포넌트 상세" table:',
-		'    component.id   = "컴포넌트 명" cell verbatim (e.g. text-field-auth-code)',
-		'    component.type = "컴포넌트 ID" cell verbatim (e.g. text-field, section-message, button,',
-		"                     action-area, list-cell, accordion, checkbox). This is the component",
-		"                     vocabulary key, NOT the row identifier. Always populate it.",
+		"Routes & variants (base screen files only by default):",
+		"- Register exactly one Screen Route covering all provided screens. route.id = importId.",
+		'- A base screen file ends with "-0" (e.g. NOVA-PRDD-PG-001-0.md). For each such file:',
+		'    variant.id = base screen id with trailing "-0" stripped (e.g. NOVA-PRDD-PG-001)',
+		'    variant.name        = base screen\'s "화면 명"',
+		'    variant.description = base screen\'s "화면 설명"',
+		"- Under each variant, register screens in this order:",
+		"    1) the base screen (order 1) using the file's full 화면 ID (e.g. NOVA-PRDD-PG-001-0)",
+		'    2) every row of that file\'s "## 화면 흐름 → 케이스 분기" rows (order 2, 3, …),',
+		"       using the row's 화면 ID as the screen id and 화면 명 / 화면 설명 as name / description.",
+		'- Local PRDD imports keep non "-0" markdown files (e.g. -1, -2, -E1) under PRDD/variants/',
+		"  as deferred source references. Do not expand those files into generated screens unless they",
+		"  are explicitly included in <screen_files> for a retry or variant-focused generation run.",
 		"",
-		"Raw field extraction (verbatim, no interpretation):",
-		'- For each component (a row in an organism\'s "## 컴포넌트 상세" table),',
-		"  populate component.raw with the table cells:",
-		'    raw.description = "컴포넌트 설명" cell verbatim',
-		'    raw.variant     = "variant" cell verbatim (use empty string or omit if "-")',
-		'    raw.note        = "비고" cell verbatim',
-		'    raw.hooks       = parse "이벤트" / "액션" / "액션 파라미터" cells into NodeHook objects',
-		"                    [{ trigger, action, target?, params? }].",
-		'                    Use trigger = "이벤트", action = "액션", target = "액션 파라미터".',
-		'                    Also set params.parameter to the same "액션 파라미터" value when present.',
-		'  Do NOT translate, summarize, or guess. Leave a field omitted if the cell is empty or "-".',
-		'- For each screen, populate screen.description with the screen markdown\'s "화면 설명" verbatim.',
-		"- Do not create screen.raw.",
-		'  Do not copy "## 화면 전환" or "## 케이스 분기" tables into any raw field.',
-		"  Screen cases must be represented as concrete screens in the variant.screens array.",
-		"- component.props and screen-level computed fields should remain empty;",
-		"  Composer (a later stage) will fill them from raw.",
+		"Area extraction (screen-embedded, one set per screen):",
+		'- For every row in a screen\'s "## 화면 구성" table, emit ONE area:',
+		"    area.id     = `${screenId}-area-${no}`   (screenId = the file's full 화면 ID; no = the row's `no.` cell verbatim)",
+		"    area.key    = the `no.` cell parsed as integer",
+		'    area.name   = the "영역 설명" cell verbatim',
+		"    area.description = same as name (omit if identical and you prefer one)",
+		'    area.layout = the "영역 레이아웃" cell verbatim (e.g. "vertical")',
+		'    area.areaType = "static" or "dynamic" — value of the "영역 유형" cell verbatim',
+		'    area.visibility   = "노출 조건" cell verbatim',
+		'    area.serverControl = "서버 제어 항목" cell verbatim (omit if "-")',
+		'    area.minCount  = "노출 개수 (최소)" cell parsed as integer (omit if "-")',
+		'    area.maxCount  = "노출 개수 (최대)" cell parsed as integer (omit if "-")',
+		'    area.priority  = "노출 우선순위" cell parsed as integer (omit if "-")',
+		'    area.errorPolicy = "오류 처리 방식" cell verbatim (omit if "-")',
+		"- Attach the screen's areas via screen.areas = [{ areaId, order }] preserving 화면 구성 order.",
+		"- Edge screens (from 케이스 분기) have no areas unless they ship their own 화면 구성 table.",
+		"",
+		"Component extraction (screen-embedded, one set per screen):",
+		'- For every row in a screen\'s "## 컴포넌트 상세" table:',
+		'    component.id   = "컴포넌트 명" cell verbatim (e.g. AppBarHeader, CardSummaryProductSummary).',
+		"                     This is the instance identity within the screen.",
+		'    component.type = "컴포넌트 ID" cell verbatim (e.g. AppBar, CardSummary). This is the design-system',
+		"                     vocabulary key — always populate.",
+		'    component.raw.description = "컴포넌트 설명" cell verbatim',
+		'    component.raw.variant     = "variant" cell verbatim (omit or empty string if "-")',
+		'    component.raw.note        = "비고" cell verbatim (omit if "-")',
+		'    component.raw.displayText = "표시 텍스트" cell verbatim — preserve newlines / "<br>" markers',
+		'    component.raw.binding     = "바인딩(소스)" cell verbatim — preserve newlines',
+		'    component.raw.hooks       = parse "이벤트" / "액션" / "액션 파라미터" cells into NodeHook objects',
+		"                                [{ trigger, action, target?, params? }].",
+		'                                Use trigger = "이벤트", action = "액션", target = "액션 파라미터".',
+		'                                Also set params.parameter to the same "액션 파라미터" value when present.',
+		'                                Omit hooks entirely if 이벤트 / 액션 are both "-".',
+		"- Attach each component to its area via that area's children:",
+		"    Find the area whose `key` equals the row's `영역` cell.",
+		"    Push `{ componentId: <component.id>, order: <row index within that area, starting at 1> }` to area.children.",
+		'- Components defined in different screens but sharing the same "컴포넌트 명" are still distinct',
+		"  instances — emit them per screen with screen-scoped order. Do NOT deduplicate across screens.",
+		"",
+		"Hard constraints:",
+		"- Do NOT translate, summarize, or guess any cell content. Leave a field omitted if the cell is empty or just '-'.",
+		"- Do NOT invent screens, areas, or components that are not present in the markdown.",
+		"- component.props and screen-level computed fields stay empty — Composer (a later stage) fills them from raw.",
+		"- Empty area.children is a bug when the screen has a 컴포넌트 상세 table with rows targeting that area.",
 		"",
 		`Import ID: ${input.importId}`,
 		"",
 		"<screen_files>",
 		...input.screenFiles.map(formatMarkdownFile),
 		"</screen_files>",
-		"",
-		"<organism_files>",
-		...input.organismFiles.map(formatMarkdownFile),
-		"</organism_files>",
 	].join("\n");
 }
 
@@ -414,14 +437,14 @@ const registerAssetsJsonSchema = {
 											order: { type: "number" },
 											description: { type: "string" },
 											surface: { type: "string" },
-											organisms: {
+											areas: {
 												type: "array",
 												items: {
 													type: "object",
 													additionalProperties: false,
-													required: ["organismId"],
+													required: ["areaId"],
 													properties: {
-														organismId: { type: "string", minLength: 1 },
+														areaId: { type: "string", minLength: 1 },
 														order: { type: "number" },
 													},
 												},
@@ -435,7 +458,7 @@ const registerAssetsJsonSchema = {
 				},
 			},
 		},
-		organisms: {
+		areas: {
 			type: "array",
 			items: {
 				type: "object",
@@ -447,6 +470,14 @@ const registerAssetsJsonSchema = {
 					order: { type: "number" },
 					description: { type: "string" },
 					layout: { type: "string" },
+					key: { type: "number" },
+					areaType: { type: "string", enum: ["static", "dynamic"] },
+					visibility: { type: "string" },
+					serverControl: { type: "string" },
+					minCount: { type: "number" },
+					maxCount: { type: "number" },
+					priority: { type: "number" },
+					errorPolicy: { type: "string" },
 					children: {
 						type: "array",
 						items: {
@@ -482,6 +513,8 @@ const registerAssetsJsonSchema = {
 							description: { type: "string" },
 							variant: { type: "string" },
 							note: { type: "string" },
+							displayText: { type: "string" },
+							binding: { type: "string" },
 							hooks: {
 								type: "array",
 								items: {

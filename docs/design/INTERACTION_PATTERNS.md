@@ -35,7 +35,7 @@
 | 화면 상황 | CTA 위치 | 원칙 |
 |---|---|---|
 | 단일 페이지 진행 | `Bottom`의 `SinglePrimaryAction` | 항상 접근 가능한 하단 `ActionButton`에 둔다 |
-| 카드에 종속된 부가 액션 | 카드/organism 내부 CTA slot | 해당 카드 의미 안에만 머문다 |
+| 카드에 종속된 부가 액션 | 카드/area 내부 CTA slot | 해당 카드 의미 안에만 머문다 |
 | 섹션 더보기 | `TitleSection` 우측 링크 또는 낮은 강도 action | primary CTA로 올리지 않는다 |
 | 오버레이 확인 | BottomSheet/Popup 자체 action slot | 오버레이 문맥 밖으로 빼지 않는다 |
 
@@ -44,7 +44,7 @@
 - 2버튼 조합은 `Secondary + Primary` 순서를 기본으로 한다. 동등한 선택이 아니면 Primary가 더 넓은 비중을 갖는다.
 - Primary CTA를 스크롤 콘텐츠 중간에 직접 배치하지 않는다.
 - `Bottom`에 Primary CTA가 있는 화면에서는 Content 내부 액션이 같은 너비, 높이, radius, pill shape, 고대비 배경, 하단 근접 위치로 보이면 `variant="secondary"`라도 CTA hierarchy 실패로 본다. 화면 안의 primary-shaped CTA는 Bottom에 1개만 허용한다.
-- 인증번호 확인, 중복확인, 재요청처럼 특정 field/form group에 종속된 액션은 field 우측 slot, compact button, text/link button, 또는 card/organism 내부 낮은 위계 slot으로 표현한다. Content 내부 full-width `ActionButton`으로 올리지 않는다.
+- 인증번호 확인, 중복확인, 재요청처럼 특정 field/form group에 종속된 액션은 field 우측 slot, compact button, text/link button, 또는 card/area 내부 낮은 위계 slot으로 표현한다. Content 내부 full-width `ActionButton`으로 올리지 않는다.
 - Content 내부 보조 액션이 필요하면 Bottom CTA와 최소 한 단계 낮은 시각 강도여야 한다: 짧은/내용 맞춤 너비, 낮은 높이, 약한 surface, field group 인접 배치, 충분한 rail 분리. Bottom CTA와 같은 361/393px rail의 큰 버튼이면 실패다.
 
 ### 폼 조합

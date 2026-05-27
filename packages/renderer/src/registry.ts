@@ -1,23 +1,23 @@
 import type { ReactNode } from "react";
-import type { RenderableWireframeNode, WireframeNodeKind } from "./runtime";
-import type { WireframeNode } from "./schema";
+import type { RenderableTreeNode, RenderTreeNodeKind } from "./runtime";
+import type { RenderTreeNode } from "./schema";
 
-export interface WireframeRenderContext {
+export interface RenderTreeRenderContext {
 	data: Record<string, unknown>;
-	node: WireframeNode;
-	renderable: RenderableWireframeNode;
+	node: RenderTreeNode;
+	renderable: RenderableTreeNode;
 	renderChildren: () => ReactNode;
 }
 
-export type WireframeRenderer = (context: WireframeRenderContext) => ReactNode;
+export type RenderTreeRenderer = (context: RenderTreeRenderContext) => ReactNode;
 
 export interface RendererDefinition {
-	kind: WireframeNodeKind;
-	render: WireframeRenderer;
+	kind: RenderTreeNodeKind;
+	render: RenderTreeRenderer;
 }
 
 export class RendererRegistry {
-	private renderers = new Map<WireframeNodeKind, WireframeRenderer>();
+	private renderers = new Map<RenderTreeNodeKind, RenderTreeRenderer>();
 
 	register(definition: RendererDefinition): void {
 		this.renderers.set(definition.kind, definition.render);
@@ -29,15 +29,15 @@ export class RendererRegistry {
 		}
 	}
 
-	get(kind: WireframeNodeKind): WireframeRenderer | undefined {
+	get(kind: RenderTreeNodeKind): RenderTreeRenderer | undefined {
 		return this.renderers.get(kind);
 	}
 
-	has(kind: WireframeNodeKind): boolean {
+	has(kind: RenderTreeNodeKind): boolean {
 		return this.renderers.has(kind);
 	}
 
-	getKinds(): WireframeNodeKind[] {
+	getKinds(): RenderTreeNodeKind[] {
 		return Array.from(this.renderers.keys()).sort();
 	}
 

@@ -1,0 +1,45 @@
+.mapBlock {
+	display: flex;
+	min-height: 156px;
+	box-sizing: border-box;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 20px;
+	border-radius: 16px;
+	background:
+		linear-gradient(90deg, rgba(6, 12, 31, 0.04) 1px, transparent 1px),
+		linear-gradient(rgba(6, 12, 31, 0.04) 1px, transparent 1px), #eef2f8;
+	background-size: 24px 24px;
+	color: #05001a;
+	font-family: var(--skt-typography-font-family-base);
+	letter-spacing: -0.04em;
+}
+
+.pin {
+	width: 14px;
+	height: 14px;
+	border: 5px solid #3617ce;
+	border-radius: 9999px;
+	background: #ffffff;
+	box-shadow: 0 6px 16px rgba(54, 23, 206, 0.24);
+}
+
+.copy {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.title {
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.address {
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.35;
+	color: rgba(6, 12, 31, 0.56);
+}

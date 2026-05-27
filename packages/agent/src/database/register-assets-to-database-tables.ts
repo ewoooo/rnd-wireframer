@@ -1,118 +1,35 @@
+import type { AreaTypeLiteral, DatabaseAreaMetadata, DatabaseAreaRow, DatabaseComponentChildEntry, DatabaseComponentMetadata, DatabaseComponentRow, DatabaseRegionChild, DatabaseScreenBody, DatabaseScreenRegion, DatabaseScreenRegionType, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenRowMetadata, DatabaseScreenVariantRow, MaterializedNodeTree } from "@cx/types/database-tables";
+import { NODE_TYPES } from "@cx/types/node-types";
+import { normalizeComponentType } from "../normalize-component-type";
 import type {
+	DecoratedAreaNode,
 	DecoratedComponentNode,
 	DecoratedNodeTree,
-	DecoratedOrganismNode,
 	DecoratedRouteNode,
 	DecoratedScreenNode,
 	DecoratedVariantNode,
-	NodeHook,
 } from "../types";
+import { REGION_METADATA_TITLE, REGION_NODE_TYPE } from "./region-constants";
 
-export interface DatabaseScreenRouteRow {
-	id: string;
-	moduleId: string;
-	name: string;
-	order: number;
-	processId: string | null;
-}
+export type {
+	AreaTypeLiteral,
+	DatabaseAreaMetadata,
+	DatabaseAreaRow,
+	DatabaseComponentChildEntry,
+	DatabaseComponentMetadata,
+	DatabaseComponentRow,
+	DatabaseRegionChild,
+	DatabaseScreenBody,
+	DatabaseScreenRegion,
+	DatabaseScreenRegionType,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenRowMetadata,
+	DatabaseScreenVariantRow,
+	MaterializedNodeTree,
+};
 
-export interface DatabaseScreenVariantRow {
-	id: string;
-	screenRouteId: string;
-	name: string;
-	order: number;
-	variantType: string;
-	followUp: string | null;
-}
-
-export interface DatabaseRegionChild {
-	kind: "composite" | "organism";
-	id: string;
-}
-
-export interface DatabaseScreenRegion {
-	type: string;
-	metadata: { title: string };
-	children: DatabaseRegionChild[];
-}
-
-export interface DatabaseScreenRowMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface DatabaseScreenBody {
-	type: "page" | "bottomsheet" | "popup";
-	regions: {
-		header: DatabaseScreenRegion;
-		contents: DatabaseScreenRegion;
-		bottom: DatabaseScreenRegion;
-	};
-}
-
-export interface DatabaseScreenRow {
-	id: string;
-	screenVariantId: string;
-	minRendererVersion: string;
-	version: string;
-	order: number;
-	pattern: { id: string; variant: string };
-	metadata: DatabaseScreenRowMetadata;
-	theme: { mode: string };
-	screen: DatabaseScreenBody;
-}
-
-export interface DatabaseOrganismMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface DatabaseOrganismRow {
-	id: string;
-	type: "Organism";
-	version: string;
-	metadata: DatabaseOrganismMetadata;
-	props: { name: string };
-	pattern: { id: string; variant: string };
-	children: Array<{ kind: "composite"; id: string }>;
-}
-
-export interface DatabaseCompositeChildEntry {
-	component: { type?: string } & Record<string, unknown>;
-	props: Record<string, unknown>;
-}
-
-export interface DatabaseCompositeMetadata {
-	title: string;
-	author: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface DatabaseComponentRow {
-	id: string;
-	type: string;
-	version: string;
-	metadata: DatabaseCompositeMetadata;
-	pattern: { id: string; variant: string };
-	children: DatabaseCompositeChildEntry[];
-	hooks: NodeHook[];
-}
-
-export interface MaterializedDatabaseNodeTables {
-	screenRoutes: DatabaseScreenRouteRow[];
-	screenVariants: DatabaseScreenVariantRow[];
-	screens: DatabaseScreenRow[];
-	organisms: DatabaseOrganismRow[];
-	components: DatabaseComponentRow[];
-	warnings: string[];
-}
-
-export interface MaterializedDatabaseNodeTablesOptions {
+export interface MaterializedNodeTreeOptions {
 	author?: string;
 	componentVersion?: string;
 	minRendererVersion?: string;
@@ -120,7 +37,7 @@ export interface MaterializedDatabaseNodeTablesOptions {
 	version?: string;
 	now?: () => string;
 	pendingPatternId?: string;
-	organismPrefix?: string;
+	areaPrefix?: string;
 }
 
 const DEFAULT_AUTHOR = "plus_x_athor_1";
@@ -129,25 +46,26 @@ const DEFAULT_VERSION = "1.0.0";
 const DEFAULT_MIN_RENDERER_VERSION = "0.1.0";
 const DEFAULT_THEME_MODE = "light";
 const DEFAULT_PENDING_PATTERN_ID = "screen-shell";
-const DEFAULT_ORGANISM_PREFIX = "ogn-";
+const DEFAULT_AREA_PREFIX = "ogn-";
 
-export function materializeDecoratedAssetsToDatabaseTables(
+export function materializeDecoratedAssetsToNodeTree(
 	decorated: DecoratedNodeTree,
-	options: MaterializedDatabaseNodeTablesOptions = {},
-): MaterializedDatabaseNodeTables {
+	options: MaterializedNodeTreeOptions = {},
+): MaterializedNodeTree {
 	const author = options.author ?? DEFAULT_AUTHOR;
 	const componentVersion = options.componentVersion ?? DEFAULT_COMPONENT_VERSION;
 	const version = options.version ?? DEFAULT_VERSION;
 	const minRendererVersion = options.minRendererVersion ?? DEFAULT_MIN_RENDERER_VERSION;
 	const themeMode = options.themeMode ?? DEFAULT_THEME_MODE;
 	const pendingPatternId = options.pendingPatternId ?? DEFAULT_PENDING_PATTERN_ID;
-	const organismPrefix = options.organismPrefix ?? DEFAULT_ORGANISM_PREFIX;
+	const areaPrefix = options.areaPrefix ?? DEFAULT_AREA_PREFIX;
 	const now = options.now ?? (() => new Date().toISOString());
 	const timestamp = now();
 	const warnings = [...decorated.warnings];
 
 	const variantById = new Map(decorated.variants.map((variant) => [variant.id, variant]));
 	const screenById = new Map(decorated.screens.map((screen) => [screen.id, screen]));
+	const componentById = new Map(decorated.components.map((component) => [component.id, component]));
 
 	const screenRoutes = decorated.routes.map((route) => toRouteRow(route));
 	const screenVariants: DatabaseScreenVariantRow[] = [];
@@ -183,32 +101,48 @@ export function materializeDecoratedAssetsToDatabaseTables(
 		}
 	}
 
-	const organisms = decorated.organisms.map((organism) =>
-		toOrganismRow(organism, {
+	const areas = decorated.areas.map((area) =>
+		toAreaRow(area, {
 			author,
 			componentVersion,
-			organismPrefix,
+			areaPrefix,
 			timestamp,
 		}),
 	);
-	const components = decorated.components.map((component) =>
-		toComponentRow(component, { author, componentVersion, timestamp }),
+	const components = dedupeComponentRowsById(
+		decorated.components.map((component) =>
+			toComponentRow(component, { author, componentById, componentVersion, timestamp }),
+		),
+		warnings,
 	);
 
 	return {
 		screenRoutes,
 		screenVariants,
 		screens,
-		organisms,
+		areas,
 		components,
 		warnings,
 	};
 }
 
-/**
- * @deprecated Use materializeDecoratedAssetsToDatabaseTables.
- */
-export const decoratedAssetsToDatabaseTables = materializeDecoratedAssetsToDatabaseTables;
+function dedupeComponentRowsById(
+	components: DatabaseComponentRow[],
+	warnings: string[],
+): DatabaseComponentRow[] {
+	const latestById = new Map<string, DatabaseComponentRow>();
+	const duplicateIds = new Set<string>();
+	for (const component of components) {
+		if (latestById.has(component.id)) duplicateIds.add(component.id);
+		latestById.set(component.id, component);
+	}
+
+	for (const id of [...duplicateIds].sort()) {
+		warnings.push(`Duplicate materialized component id collapsed: ${id}`);
+	}
+
+	return components.filter((component) => latestById.get(component.id) === component);
+}
 
 function toRouteRow(route: DecoratedRouteNode): DatabaseScreenRouteRow {
 	return {
@@ -262,23 +196,26 @@ function toScreenRow(
 			createdAt: ctx.timestamp,
 			updatedAt: ctx.timestamp,
 		},
-		theme: { mode: ctx.themeMode },
+		theme: { mode: ctx.themeMode as "light" | "dark" | "system" },
 		screen: {
-			type: "page",
+			type: NODE_TYPES.screenSurface[0],
 			regions: {
 				header: {
-					type: "Screen.Header",
-					metadata: { title: "고정 상단 영역" },
+					type: REGION_NODE_TYPE.header,
+					metadata: { title: REGION_METADATA_TITLE.header },
+					...(screen.regionPatterns?.header ? { pattern: screen.regionPatterns.header } : {}),
 					children: toRegionChildren(screen.children.header),
 				},
 				contents: {
-					type: "Screen.Contents",
-					metadata: { title: "스크롤 콘텐츠 영역" },
+					type: REGION_NODE_TYPE.contents,
+					metadata: { title: REGION_METADATA_TITLE.contents },
+					...(screen.regionPatterns?.contents ? { pattern: screen.regionPatterns.contents } : {}),
 					children: toRegionChildren(screen.children.contents),
 				},
 				bottom: {
-					type: "Screen.Bottom",
-					metadata: { title: "고정 하단 영역" },
+					type: REGION_NODE_TYPE.bottom,
+					metadata: { title: REGION_METADATA_TITLE.bottom },
+					...(screen.regionPatterns?.bottom ? { pattern: screen.regionPatterns.bottom } : {}),
 					children: toRegionChildren(screen.children.bottom),
 				},
 			},
@@ -290,45 +227,44 @@ function toRegionChildren(
 	refs: DecoratedScreenNode["children"]["contents"],
 ): DatabaseRegionChild[] {
 	return (refs ?? []).map((ref) => ({
-		kind: "organism",
-		id: ref.organismId,
+		kind: "area",
+		id: ref.areaId,
 	}));
 }
 
-interface OrganismRowContext {
+interface AreaRowContext {
 	author: string;
 	componentVersion: string;
-	organismPrefix: string;
+	areaPrefix: string;
 	timestamp: string;
 }
 
-function toOrganismRow(
-	organism: DecoratedOrganismNode,
-	ctx: OrganismRowContext,
-): DatabaseOrganismRow {
+function toAreaRow(area: DecoratedAreaNode, ctx: AreaRowContext): DatabaseAreaRow {
 	return {
-		id: organism.id,
-		type: "Organism",
+		id: area.id,
+		// Legacy organism path — area.dynamic 정보가 없으므로 static으로 강제.
+		type: NODE_TYPES.area[0],
 		version: ctx.componentVersion,
 		metadata: {
-			title: organism.name ?? organism.id,
+			title: area.name ?? area.id,
 			author: ctx.author,
 			createdAt: ctx.timestamp,
 			updatedAt: ctx.timestamp,
 		},
-		props: { name: organism.name ?? organism.id },
+		props: { name: area.name ?? area.id },
 		pattern: {
-			id: organism.pattern.id ?? derivePatternId(organism.id, ctx.organismPrefix),
-			variant: organism.pattern.variant,
+			id: area.pattern.id ?? derivePatternId(area.id, ctx.areaPrefix),
+			variant: area.pattern.variant,
 		},
-		children: [...(organism.children ?? [])]
+		children: [...(area.children ?? [])]
 			.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-			.map((ref) => ({ kind: "composite" as const, id: ref.componentId })),
+			.map((ref) => ({ kind: "component" as const, id: ref.componentId })),
 	};
 }
 
 interface ComponentRowContext {
 	author: string;
+	componentById: Map<string, DecoratedComponentNode>;
 	componentVersion: string;
 	timestamp: string;
 }
@@ -337,7 +273,7 @@ function toComponentRow(
 	component: DecoratedComponentNode,
 	ctx: ComponentRowContext,
 ): DatabaseComponentRow {
-	const type = normalizeContentComponentType(component.type || "Generic");
+	const type = normalizeComponentType(component.type || "Generic") ?? "Generic";
 	return {
 		id: component.id,
 		type,
@@ -349,14 +285,22 @@ function toComponentRow(
 			updatedAt: ctx.timestamp,
 		},
 		pattern: { id: component.pattern.id, variant: component.pattern.variant },
-		children: [{ component: { type }, props: { ...(component.props ?? {}) } }],
+		children:
+			component.children && component.children.length > 0
+				? [...component.children]
+						.sort((left, right) => (left.order ?? 0) - (right.order ?? 0))
+						.map((childRef) => {
+							const child = ctx.componentById.get(childRef.componentId);
+							const childType = normalizeComponentType(child?.type || "Generic") ?? "Generic";
+							return {
+								component: { type: childType },
+								props: { ...(child?.props ?? {}) },
+							};
+						})
+				: [{ component: { type }, props: { ...(component.props ?? {}) } }],
 		hooks: [...(component.hooks ?? [])],
+		...(component.display ? { display: component.display } : {}),
 	};
-}
-
-function normalizeContentComponentType(type: string): string {
-	if (type.toLowerCase() === "action-area") return "button";
-	return type;
 }
 
 function slugify(id: string): string {
@@ -371,10 +315,10 @@ function deriveModule(id: string): string {
 	return segments[0]?.toLowerCase() ?? id.toLowerCase();
 }
 
-function derivePatternId(organismId: string, organismPrefix: string): string {
-	let remainder = organismId;
-	if (remainder.startsWith(organismPrefix)) {
-		remainder = remainder.slice(organismPrefix.length);
+function derivePatternId(areaId: string, areaPrefix: string): string {
+	let remainder = areaId;
+	if (remainder.startsWith(areaPrefix)) {
+		remainder = remainder.slice(areaPrefix.length);
 	}
 	const firstDash = remainder.indexOf("-");
 	if (firstDash <= 0) return remainder;

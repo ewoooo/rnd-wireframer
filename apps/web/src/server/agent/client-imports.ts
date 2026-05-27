@@ -4,7 +4,6 @@ import { getDatabaseDir } from "@/server/database-paths";
 
 export interface AgentClientImportSummary {
 	id: string;
-	organismFiles: number;
 	screenFiles: number;
 }
 
@@ -31,12 +30,8 @@ export async function listClientImports(): Promise<AgentClientImportSummary[]> {
 
 export async function readClientImportMarkdownFiles(importId: string) {
 	const importDir = getClientImportDir(importId);
-	const [screenFiles, organismFiles] = await Promise.all([
-		readMarkdownFiles(path.join(importDir, "screen")),
-		readMarkdownFiles(path.join(importDir, "organism")),
-	]);
-
-	return { organismFiles, screenFiles };
+	const screenFiles = await readMarkdownFiles(path.join(importDir, "screen"));
+	return { screenFiles };
 }
 
 export async function saveUploadedClientImport(formData: FormData): Promise<UploadedClientImport> {
@@ -94,14 +89,10 @@ export class ClientImportError extends Error {
 
 async function summarizeClientImport(importId: string): Promise<AgentClientImportSummary> {
 	const importDir = getClientImportDir(importId);
-	const [screenFiles, organismFiles] = await Promise.all([
-		countMarkdownFiles(path.join(importDir, "screen")),
-		countMarkdownFiles(path.join(importDir, "organism")),
-	]);
+	const screenFiles = await countMarkdownFiles(path.join(importDir, "screen"));
 
 	return {
 		id: importId,
-		organismFiles,
 		screenFiles,
 	};
 }
@@ -155,9 +146,7 @@ function getSafeImportRelativePath(uploadPath: string, sourceRoot: string) {
 		segments.shift();
 	}
 
-	const sourceFolderIndex = segments.findIndex(
-		(segment) => segment === "screen" || segment === "organism",
-	);
+	const sourceFolderIndex = segments.findIndex((segment) => segment === "screen");
 	const relativeSegments = sourceFolderIndex >= 0 ? segments.slice(sourceFolderIndex) : segments;
 
 	return relativeSegments.length > 0 ? path.join(...relativeSegments) : "";

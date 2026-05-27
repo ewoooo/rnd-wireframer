@@ -150,23 +150,23 @@ describe("composeAssetContents", () => {
 		});
 	});
 
-	it("preserves organism and component relationships in composed node tree", () => {
+	it("preserves area and component relationships in composed node tree", () => {
 		const input: GeneratedNodeTree = {
 			routes: [{ id: "r1", variants: [{ id: "v1", screens: [{ id: "s1" }] }] }],
-			organisms: [{ id: "o1", children: [{ componentId: "x" }] }],
+			areas: [{ id: "o1", children: [{ componentId: "x" }] }],
 			components: [{ id: "x", type: "text-field", raw: { description: "test" } }],
 		};
 
 		const result = composeGenerated(input);
 
-		expect(result.composed.organisms?.[0].children).toEqual([{ componentId: "x", order: 1 }]);
+		expect(result.composed.areas?.[0].children).toEqual([{ componentId: "x", order: 1 }]);
 		expect(result.composed.components?.[0]).not.toHaveProperty("raw");
 		expect(result.strippedComponentRawIds).toEqual(["x"]);
 	});
 });
 
 describe("composeAssetContents - edge screen inheritance", () => {
-	it("copies main screen organisms to edge screens with empty organisms", () => {
+	it("copies main screen areas to edge screens with empty areas", () => {
 		const result = composeGenerated({
 			routes: [
 				{
@@ -177,10 +177,10 @@ describe("composeAssetContents - edge screen inheritance", () => {
 							screens: [
 								{
 									id: "FP-001-0",
-									organisms: [{ organismId: "ogn-term-list" }, { organismId: "ogn-term-agree" }],
+									areas: [{ areaId: "ogn-term-list" }, { areaId: "ogn-term-agree" }],
 								},
 								{ id: "FP-001-E1" },
-								{ id: "FP-001-E2", organisms: [] },
+								{ id: "FP-001-E2", areas: [] },
 							],
 						},
 					],
@@ -192,17 +192,17 @@ describe("composeAssetContents - edge screen inheritance", () => {
 		const secondEdge = result.composed.screens.find((screen) => screen.id === "FP-001-E2");
 
 		expect(firstEdge?.children.contents).toEqual([
-			{ organismId: "ogn-term-list", order: 1 },
-			{ organismId: "ogn-term-agree", order: 2 },
+			{ areaId: "ogn-term-list", order: 1 },
+			{ areaId: "ogn-term-agree", order: 2 },
 		]);
 		expect(secondEdge?.children.contents).toEqual([
-			{ organismId: "ogn-term-list", order: 1 },
-			{ organismId: "ogn-term-agree", order: 2 },
+			{ areaId: "ogn-term-list", order: 1 },
+			{ areaId: "ogn-term-agree", order: 2 },
 		]);
 		expect(result.inheritedEdgeScreenIds).toEqual(["FP-001-E1", "FP-001-E2"]);
 	});
 
-	it("does not overwrite edge screens that already declare organisms", () => {
+	it("does not overwrite edge screens that already declare areas", () => {
 		const result = composeGenerated({
 			routes: [
 				{
@@ -211,8 +211,8 @@ describe("composeAssetContents - edge screen inheritance", () => {
 						{
 							id: "v1",
 							screens: [
-								{ id: "M-0", organisms: [{ organismId: "ogn-a" }] },
-								{ id: "M-E1", organisms: [{ organismId: "ogn-custom" }] },
+								{ id: "M-0", areas: [{ areaId: "ogn-a" }] },
+								{ id: "M-E1", areas: [{ areaId: "ogn-custom" }] },
 							],
 						},
 					],
@@ -222,11 +222,11 @@ describe("composeAssetContents - edge screen inheritance", () => {
 
 		const edge = result.composed.screens.find((screen) => screen.id === "M-E1");
 
-		expect(edge?.children.contents).toEqual([{ organismId: "ogn-custom", order: 1 }]);
+		expect(edge?.children.contents).toEqual([{ areaId: "ogn-custom", order: 1 }]);
 		expect(result.inheritedEdgeScreenIds).toEqual([]);
 	});
 
-	it("does nothing when main screen also has no organisms", () => {
+	it("does nothing when main screen also has no areas", () => {
 		const result = composeGenerated({
 			routes: [
 				{

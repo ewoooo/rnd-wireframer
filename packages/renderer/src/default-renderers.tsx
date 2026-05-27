@@ -1,44 +1,171 @@
+import { AppBar, Callout, ListSelected, ListText } from "@cx/components";
+import { componentCatalog, getComponentCatalogEntry } from "@cx/components/catalog";
 import {
-	ActionButton,
-	AppBar,
-	Button,
-	Callout,
-	Divider,
-	ListText,
-	TextField,
-} from "@cx/components";
-import { Flex, Grid } from "@cx/layout/primitives";
-import { toButtonSize, toButtonVariant, toDividerType, toNumber } from "./normalize-render-props";
-import type { RendererDefinition } from "./registry";
-import { toBoolean, toText } from "./runtime";
+	cx,
+	Flex,
+	Grid,
+	spacingFallbackStyleValue,
+	spacingUtilityClass,
+} from "@cx/layout/primitives";
+import type { ComponentCatalogEntry, RenderTreeNodeKind } from "@cx/types/component-catalog";
+import { createElement } from "react";
+import { buildPropsFromCatalog } from "./catalog-props";
+import { getComponentForType } from "./component-by-type";
+import { toNumber } from "./normalize-render-props";
+import type { RendererDefinition, RenderTreeRenderer } from "./registry";
+import { areaRendererDefinitions } from "./renderers/area";
+import { toText } from "./runtime";
 import type {
-	WireframeFlexLayoutProps,
-	WireframeGridLayoutProps,
-	WireframeLayoutFlexNode,
-	WireframeLayoutGridNode,
+	RenderTreeFlexLayoutProps,
+	RenderTreeGridLayoutProps,
+	RenderTreeLayoutFlexNode,
+	RenderTreeLayoutGridNode,
 } from "./schema";
 
-export const defaultRendererDefinitions: RendererDefinition[] = [
-	{
-		kind: "header",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			return (
-				<AppBar
-					key={node.metadata.id}
-					title={toText(props.titleContent)}
-					showBack={toBoolean(props.showBackButton, true)}
-				/>
-			);
-		},
+/**
+ * Default renderer 정의.
+ *
+ * 구조적 컴포넌트(Flex, Grid, page-stack, area)는 children을 다루므로 명시 정의.
+ * 그 외 leaf 컴포넌트는 catalog의 type→component·props 정보로 **자동 렌더**한다.
+ * 새 leaf 컴포넌트를 추가할 때 이 파일을 만지지 않는다 — catalog만 갱신.
+ */
+
+const autoRenderLeaf: RenderTreeRenderer = (context) => {
+	const { node, renderable } = context;
+	const Component = getComponentForType(node.type);
+	if (!Component) {
+		const compositeRenderer = resolveCompositeRenderer(node.type);
+		if (compositeRenderer) return compositeRenderer(context);
+
+		return createElement(
+			"div",
+			{
+				key: node.metadata.id,
+				className: "rounded-lg border bg-background p-3 text-sm",
+			},
+			node.metadata.title,
+		);
+	}
+	const props = buildPropsFromCatalog(node.type, renderable.props, {
+		title: node.metadata.title,
+		description: node.metadata.description,
+	});
+	return createElement(Component, { key: node.metadata.id, ...props });
+};
+
+function resolveCompositeRenderer(type: string): RenderTreeRenderer | undefined {
+	const canonicalType = getComponentCatalogEntry(type)?.type ?? type;
+	return RENDERER_COMPOSITE_RENDERERS[canonicalType] ?? RENDERER_COMPOSITE_RENDERERS[type];
+}
+
+const RENDERER_COMPOSITE_RENDERERS: Record<string, RenderTreeRenderer> = {
+	Accordion: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			title: node.metadata.title,
+			description: node.metadata.description,
+		});
+		return (
+			<Callout key={node.metadata.id} title={toText(props.title, node.metadata.title)}>
+				{toText(props.description, "")}
+			</Callout>
+		);
 	},
+	SectionMessage: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			title: node.metadata.title,
+			description: node.metadata.description,
+		});
+		return (
+			<Callout key={node.metadata.id} title={toText(props.title, node.metadata.title)}>
+				{toText(props.description, "")}
+			</Callout>
+		);
+	},
+	ListCell: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			title: node.metadata.title,
+			subText: node.metadata.description,
+		});
+		return (
+			<ListText
+				key={node.metadata.id}
+				title={toText(props.title, node.metadata.title)}
+				subText={toText(props.subText, "")}
+			/>
+		);
+	},
+	Checkbox: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			label: node.metadata.title,
+		});
+		return (
+			<ListSelected
+				key={node.metadata.id}
+				type="checkbox"
+				label={toText(props.label, node.metadata.title)}
+				checked={
+					renderable.props.checked !== undefined ? Boolean(renderable.props.checked) : undefined
+				}
+				showButton={false}
+				showPrice={false}
+			/>
+		);
+	},
+	HeaderBase: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			titleContent: node.metadata.title,
+		});
+		return (
+			<AppBar
+				key={node.metadata.id}
+				title={toText(props.titleContent, node.metadata.title)}
+				showBack={Boolean(props.showBackButton)}
+				showLogo={Boolean(props.showLogo)}
+			/>
+		);
+	},
+	SectionHeader: ({ node, renderable }) => {
+		const props = buildPropsFromCatalog(node.type, renderable.props, {
+			title: node.metadata.title,
+			description: node.metadata.description,
+		});
+		return (
+			<section key={node.metadata.id} className="flex flex-col gap-1">
+				<h2 className="text-title-20 font-semibold text-foreground">
+					{toText(props.title, node.metadata.title)}
+				</h2>
+				{props.description !== undefined && (
+					<p className="text-body-14 text-muted-foreground">{toText(props.description, "")}</p>
+				)}
+			</section>
+		);
+	},
+};
+
+// catalog 안의 leaf 컴포넌트 kind 집합. layout-primitive는 구조 처리하므로 제외.
+const STRUCTURAL_KINDS = new Set<string>(["layout-flex", "layout-grid", "page-stack"]);
+
+const leafKinds = new Set<RenderTreeNodeKind>();
+for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
+	if (!entry.kind) continue;
+	if (entry.source === "layout-primitive") continue;
+	if (STRUCTURAL_KINDS.has(entry.kind)) continue;
+	leafKinds.add(entry.kind);
+}
+
+const leafDefinitions: RendererDefinition[] = Array.from(leafKinds).map((kind) => ({
+	kind,
+	render: autoRenderLeaf,
+}));
+
+export const defaultRendererDefinitions: RendererDefinition[] = [
 	{
 		kind: "layout-flex",
 		render: ({ node, renderable, renderChildren }) => (
 			<Flex
 				key={node.metadata.id}
-				layout={renderable.props as WireframeFlexLayoutProps}
-				node={node as WireframeLayoutFlexNode}
+				layout={renderable.props as RenderTreeFlexLayoutProps}
+				node={node as RenderTreeLayoutFlexNode}
 			>
 				{renderChildren()}
 			</Flex>
@@ -49,8 +176,8 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 		render: ({ node, renderable, renderChildren }) => (
 			<Grid
 				key={node.metadata.id}
-				layout={renderable.props as WireframeGridLayoutProps}
-				node={node as WireframeLayoutGridNode}
+				layout={renderable.props as RenderTreeGridLayoutProps}
+				node={node as RenderTreeLayoutGridNode}
 			>
 				{renderChildren()}
 			</Grid>
@@ -63,178 +190,65 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			const sectionPaddingX = toNumber(props.sectionPaddingX, 12);
 			const itemPaddingX = toNumber(props.itemPaddingX, 20);
 			const paddingY = toNumber(props.paddingY, 28);
+			const slotInsetX = toNumber(props.slotInsetX, 0);
+			const sectionGap = toNumber(props.sectionGap, 0);
+			const titleMode = String(props.titleMode ?? "none");
+			const itemTemplate = String(props.itemTemplate ?? "default-20");
+			const showTitle = titleMode === "visible";
 
 			return (
 				<section
 					key={node.metadata.id}
-					className="box-border flex w-full flex-col"
+					className={cx(
+						"box-border flex w-full flex-col",
+						spacingUtilityClass("gap", sectionGap),
+						spacingUtilityClass("py", paddingY),
+						spacingUtilityClass("px", sectionPaddingX),
+						itemTemplate === "card-0" ? "rounded-[20px] bg-white" : undefined,
+					)}
 					data-node-id={node.metadata.id}
 					data-node-type={node.type}
-					style={{ padding: `${paddingY}px ${sectionPaddingX}px` }}
+					data-page-stack-template={itemTemplate}
+					data-page-stack-title={titleMode}
+					style={{
+						gap: spacingFallbackStyleValue(sectionGap),
+						paddingBlock: spacingFallbackStyleValue(paddingY),
+						paddingInline: spacingFallbackStyleValue(sectionPaddingX),
+					}}
 				>
-					<div className="box-border flex w-full flex-col" style={{ paddingInline: itemPaddingX }}>
-						{renderChildren()}
-					</div>
-				</section>
-			);
-		},
-	},
-	{
-		kind: "divider",
-		render: ({ node, renderable }) => (
-			<div key={node.metadata.id} data-node-id={node.metadata.id} data-node-type={node.type}>
-				<Divider type={toDividerType(renderable.props.type)} />
-			</div>
-		),
-	},
-	{
-		kind: "section-header",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			return (
-				<section key={node.metadata.id} className="flex flex-col gap-2">
-					<h2 className="text-[22px] font-semibold leading-7 text-foreground">
-						{toText(props.title, node.metadata.title)}
-					</h2>
-					{props.description ? (
-						<p className="text-sm leading-5 text-muted-foreground">{toText(props.description)}</p>
-					) : null}
-				</section>
-			);
-		},
-	},
-	{
-		kind: "organism",
-		render: ({ node, renderable, renderChildren }) => {
-			const { props } = renderable;
-			const titleGap = toNumber(props.titleGap, 8);
-			const componentGap = toNumber(props.componentGap, 12);
-
-			return (
-				<section
-					key={node.metadata.id}
-					className="flex w-full min-w-0 flex-col"
-					style={{ gap: titleGap }}
-				>
-					<div className="flex w-full min-w-0 flex-col">
-						<p className="text-base font-semibold">{toText(props.name, node.metadata.title)}</p>
-					</div>
-					<div className="flex w-full min-w-0 flex-col" style={{ gap: componentGap }}>
-						{renderChildren()}
-					</div>
-				</section>
-			);
-		},
-	},
-	{
-		kind: "list-cell",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			return (
-				<div key={node.metadata.id} className="w-full min-w-0 rounded-lg border bg-background">
-					<ListText table="off" title={toText(props.title, node.metadata.title)} showRightItem />
-					{props.description ? (
-						<p className="px-4 pb-3 text-xs leading-5 text-muted-foreground">
-							{toText(props.description)}
-						</p>
-					) : null}
-				</div>
-			);
-		},
-	},
-	{
-		kind: "accordion",
-		render: ({ node, renderable }) => (
-			<Callout key={node.metadata.id} title={toText(renderable.props.title, node.metadata.title)}>
-				{toText(renderable.props.description, node.metadata.description)}
-			</Callout>
-		),
-	},
-	{
-		kind: "section-message",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			const heading = toText(props.title) || toText(props.message) || toText(node.metadata.title);
-			const body = props.title && props.message ? toText(props.message) : toText(props.description);
-			return (
-				<div key={node.metadata.id} className={getSectionMessageClassName(toText(props.variant))}>
-					<p className="text-sm font-semibold">{heading}</p>
-					{body ? <p className="mt-1 text-xs leading-5 opacity-80">{body}</p> : null}
-				</div>
-			);
-		},
-	},
-	{
-		kind: "text-field",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			return (
-				<TextField
-					key={node.metadata.id}
-					label={toText(props.label, node.metadata.title)}
-					placeholder={toText(props.placeholder, "입력해주세요")}
-					helperText={toText(props.helperText)}
-					value={toText(props.value)}
-					type={toText(props.inputType, "text")}
-					error={toBoolean(props.error)}
-				/>
-			);
-		},
-	},
-	{
-		kind: "action",
-		render: ({ node, renderable }) => {
-			const { props } = renderable;
-			const label = toText(props.title) || toText(props.label, node.metadata.title);
-			if (node.type === "ActionButton") {
-				return (
-					<div key={node.metadata.id} className="w-full min-w-0">
-						<ActionButton
-							fullWidth={toBoolean(props.fullWidth, true)}
-							size={toButtonSize(props.size)}
-							variant={toButtonVariant(props.variant)}
+					{showTitle ? (
+						<div
+							className={cx("box-border w-full", spacingUtilityClass("px", itemPaddingX))}
+							style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
 						>
-							{label}
-						</ActionButton>
-					</div>
-				);
-			}
-
-			return (
-				<div key={node.metadata.id} className="w-full min-w-0">
-					<Button
-						fullWidth={toBoolean(props.fullWidth, true)}
-						size={toButtonSize(props.size)}
-						variant={toButtonVariant(props.variant)}
+							<h2 className="m-0 text-title-20 font-semibold text-foreground">
+								{toText(node.metadata.title)}
+							</h2>
+						</div>
+					) : null}
+					<div
+						className={cx(
+							"box-border flex w-full flex-col",
+							spacingUtilityClass("px", itemPaddingX),
+						)}
+						style={{
+							paddingInline: itemPaddingX + slotInsetX,
+						}}
 					>
-						{label}
-					</Button>
-				</div>
+						{renderChildren()}
+					</div>
+				</section>
 			);
 		},
 	},
+	...areaRendererDefinitions,
+	...leafDefinitions,
 	{
 		kind: "fallback",
 		render: ({ node }) => (
 			<div key={node.metadata.id} className="rounded-lg border bg-background p-3 text-sm">
-				{node.metadata.title}
+				{toText(node.metadata.title)}
 			</div>
 		),
 	},
 ];
-
-function getSectionMessageClassName(variant: string) {
-	if (variant === "negative") {
-		return "w-full min-w-0 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive";
-	}
-
-	if (variant === "positive") {
-		return "w-full min-w-0 rounded-lg border border-emerald-500/30 bg-emerald-50 p-4 text-emerald-900";
-	}
-
-	if (variant === "cautionary") {
-		return "w-full min-w-0 rounded-lg border border-amber-500/30 bg-amber-50 p-4 text-amber-900";
-	}
-
-	return "w-full min-w-0 rounded-lg border border-primary/20 bg-primary/5 p-4 text-foreground";
-}

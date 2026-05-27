@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { composeAssetContents } from "../compose/compose-assets";
+import { materializeDecoratedAssetsToNodeTree } from "../database/register-assets-to-database-tables";
 import { decorateRegisteredAssets } from "../decorate/decorate-assets";
 import { createPatternResolver } from "../pattern/pattern-resolver";
 import { registerAssets } from "../register/register-assets";
-import { registerAssetsToTables } from "../register/register-assets-to-tables";
 import { createCxTextAgent, DEFAULT_CX_AGENT_MODEL } from "../runtime/agent-sdk-runtime";
 
 describe("@cx/agent asset pipeline", () => {
@@ -20,7 +20,7 @@ describe("@cx/agent asset pipeline", () => {
 		expect(agent.tools).toEqual([]);
 	});
 
-	it("registers routes, variants, screens, organisms, and components by order only", () => {
+	it("registers routes, variants, screens, areas, and components by order only", () => {
 		const input = {
 			routes: [
 				{
@@ -35,23 +35,23 @@ describe("@cx/agent asset pipeline", () => {
 									id: "NOVA-MBR-FP-001-0",
 									name: "약관 동의",
 									order: 2,
-									organisms: [
-										{ organismId: "ogn-mbr-term-agree", order: 2 },
-										{ organismId: "ogn-mbr-term-list", order: 1 },
+									areas: [
+										{ areaId: "ogn-mbr-term-agree", order: 2 },
+										{ areaId: "ogn-mbr-term-list", order: 1 },
 									],
 								},
 								{
 									id: "NOVA-MBR-FP-000-0",
 									name: "진입",
 									order: 1,
-									organisms: [],
+									areas: [],
 								},
 							],
 						},
 					],
 				},
 			],
-			organisms: [
+			areas: [
 				{
 					id: "ogn-mbr-term-agree",
 					name: "약관 동의",
@@ -94,7 +94,7 @@ describe("@cx/agent asset pipeline", () => {
 
 		const registry = registerAssets(input);
 		const screen = registry.routes[0].variants[0].screens[1];
-		const organism = registry.organisms[0];
+		const area = registry.areas[0];
 
 		expect(registry.warnings).toEqual([]);
 		expect(registry.components.map((component) => component.id)).toEqual([
@@ -102,7 +102,7 @@ describe("@cx/agent asset pipeline", () => {
 			"accordion-term-detail",
 			"button-next",
 		]);
-		expect(registry.organisms.map((item) => item.id)).toEqual([
+		expect(registry.areas.map((item) => item.id)).toEqual([
 			"ogn-mbr-term-list",
 			"ogn-mbr-term-agree",
 		]);
@@ -110,16 +110,79 @@ describe("@cx/agent asset pipeline", () => {
 			"NOVA-MBR-FP-000-0",
 			"NOVA-MBR-FP-001-0",
 		]);
-		expect(screen.organisms.map((ref) => ref.organismId)).toEqual([
+		expect(screen.areas.map((ref) => ref.areaId)).toEqual([
 			"ogn-mbr-term-list",
 			"ogn-mbr-term-agree",
 		]);
-		expect(organism.children.map((ref) => ref.componentId)).toEqual([
+		expect(area.children.map((ref) => ref.componentId)).toEqual([
 			"list-cell-term-required",
 			"accordion-term-detail",
 		]);
-		expect(input.routes[0].variants[0].screens[0].organisms[0].organismId).toBe(
-			"ogn-mbr-term-agree",
+		expect(input.routes[0].variants[0].screens[0].areas[0].areaId).toBe("ogn-mbr-term-agree");
+	});
+
+	it("collapses duplicate component ids before downstream materialization", () => {
+		const registry = registerAssets({
+			routes: [
+				{
+					id: "mbr-join",
+					variants: [
+						{
+							id: "base",
+							screens: [{ id: "screen-main", areas: [{ areaId: "area-main" }] }],
+						},
+					],
+				},
+			],
+			areas: [
+				{
+					id: "area-main",
+					children: [{ componentId: "button-next" }],
+				},
+			],
+			components: [
+				{ id: "button-next", name: "old", order: 1, type: "button" },
+				{ id: "button-next", name: "latest", order: 2, type: "button" },
+			],
+		});
+
+		expect(registry.components).toHaveLength(1);
+		expect(registry.components[0]?.name).toBe("latest");
+		expect(registry.areas[0]?.children[0]?.component?.name).toBe("latest");
+		expect(registry.warnings).toContain("Duplicate component id collapsed: button-next");
+	});
+
+	it("collapses duplicate component rows during materialization", () => {
+		const materialized = materializeDecoratedAssetsToNodeTree({
+			routes: [],
+			variants: [],
+			screens: [],
+			areas: [],
+			components: [
+				{
+					id: "button-next",
+					name: "old",
+					order: 1,
+					type: "button",
+					props: { label: "old" },
+					pattern: { id: "component-button", variant: "default" },
+				},
+				{
+					id: "button-next",
+					name: "latest",
+					order: 2,
+					type: "button",
+					props: { label: "latest" },
+					pattern: { id: "component-button", variant: "default" },
+				},
+			],
+			warnings: [],
+		});
+
+		expect(materialized.components).toHaveLength(1);
+		expect(materialized.components[0]?.metadata.title).toBe("latest");
+		expect(materialized.warnings).toContain(
+			"Duplicate materialized component id collapsed: button-next",
 		);
 	});
 
@@ -135,14 +198,14 @@ describe("@cx/agent asset pipeline", () => {
 								{
 									id: "NOVA-MBR-FP-001-0",
 									surface: "page",
-									organisms: [{ organismId: "ogn-mbr-term-list" }],
+									areas: [{ areaId: "ogn-mbr-term-list" }],
 								},
 							],
 						},
 					],
 				},
 			],
-			organisms: [
+			areas: [
 				{
 					id: "ogn-mbr-term-list",
 					layout: "vertical",
@@ -162,17 +225,15 @@ describe("@cx/agent asset pipeline", () => {
 		const route = decorated.routes[0];
 		const variant = decorated.variants[0];
 		const screen = decorated.screens[0];
-		const organism = decorated.organisms.find((o) => o.id === "ogn-mbr-term-list");
+		const area = decorated.areas.find((o) => o.id === "ogn-mbr-term-list");
 		const component = decorated.components.find((c) => c.id === "accordion-term-detail");
 
 		expect(route.pattern.id).toBe("screen-route");
 		expect(variant.pattern.id).toBe("screen-variant");
 		expect(screen.pattern.id).toBe("screen-shell");
-		expect(organism?.pattern.id).toBe("organism-vertical");
+		expect(area?.pattern.id).toBeTruthy();
 		expect(component?.pattern.id).toBe("component-accordion");
-		expect(screen.children.contents?.map((ref) => ref.organismId)).toEqual([
-			"ogn-mbr-term-list",
-		]);
+		expect(screen.children.contents?.map((ref) => ref.areaId)).toEqual(["ogn-mbr-term-list"]);
 	});
 
 	it("lets callers provide a custom pattern resolver", () => {
@@ -204,7 +265,7 @@ describe("@cx/agent asset pipeline", () => {
 		});
 	});
 
-	it("resolves organism layout presets from child component types", () => {
+	it("resolves area layout presets from child component types", () => {
 		const registry = registerAssets({
 			routes: [
 				{
@@ -215,14 +276,14 @@ describe("@cx/agent asset pipeline", () => {
 							screens: [
 								{
 									id: "NOVA-MBR-FP-001-0",
-									organisms: [{ organismId: "ogn-mbr-term-list" }],
+									areas: [{ areaId: "ogn-mbr-term-list" }],
 								},
 							],
 						},
 					],
 				},
 			],
-			organisms: [
+			areas: [
 				{
 					id: "ogn-mbr-term-list",
 					children: [{ componentId: "list-cell-term-required" }],
@@ -241,99 +302,9 @@ describe("@cx/agent asset pipeline", () => {
 			resolvePattern: createPatternResolver(),
 		});
 
-		expect(decorated.organisms[0].pattern.id).toBe("list-stack");
-		expect(decorated.organisms[0].pattern.reasons).toContain(
-			"composite types allOf matched (list-cell)",
+		expect(decorated.areas[0].pattern.id).toBe("list-stack");
+		expect(decorated.areas[0].pattern.reasons).toContain(
+			"component types allOf matched (list-cell)",
 		);
-	});
-
-	it("converts an AI asset bundle into table rows", () => {
-		const tables = registerAssetsToTables(
-			{
-				routes: [
-					{
-						id: "mbr-join",
-						name: "회원 가입",
-						variants: [
-							{
-								id: "mbr-join-base",
-								name: "기본",
-								screens: [
-									{
-										id: "NOVA-MBR-FP-001-0",
-										name: "약관 동의",
-										surface: "page",
-										organisms: [{ organismId: "ogn-mbr-term-list" }],
-									},
-								],
-							},
-						],
-					},
-				],
-				organisms: [
-					{
-						id: "ogn-mbr-term-list",
-						name: "약관 목록 조회",
-						children: [{ componentId: "list-cell-term-required" }],
-					},
-				],
-				components: [
-					{
-						id: "list-cell-term-required",
-						name: "필수 약관 항목",
-						type: "list-cell",
-					},
-				],
-			},
-			{
-				screenMockData: [
-					{
-						screenId: "NOVA-MBR-FP-001-0",
-						data: {
-							termList: {
-								requiredTerm: {
-									title: "[필수] 서비스 이용약관",
-								},
-							},
-						},
-						generatedBy: "ai",
-					},
-				],
-			},
-		);
-
-		expect(tables.screenRoutes).toEqual([{ code: "mbr-join", name: "회원 가입", order: 1 }]);
-		expect(tables.screenVariants).toEqual([
-			{ code: "mbr-join-base", screenRouteCode: "mbr-join", name: "기본", order: 1 },
-		]);
-		expect(tables.screens[0]).toMatchObject({
-			id: "NOVA-MBR-FP-001-0",
-			screenVariantId: "mbr-join-base",
-			surface: "page",
-			organisms: [{ organismId: "ogn-mbr-term-list", order: 1 }],
-		});
-		expect(tables.organisms[0]).toMatchObject({
-			id: "ogn-mbr-term-list",
-			children: [{ componentId: "list-cell-term-required", order: 1 }],
-		});
-		expect(tables.components[0]).toMatchObject({
-			id: "list-cell-term-required",
-			type: "list-cell",
-		});
-		expect(tables.screenMockData).toEqual([
-			{
-				screenId: "NOVA-MBR-FP-001-0",
-				scenario: "default",
-				generatedBy: "ai",
-				data: {
-					termList: {
-						requiredTerm: {
-							title: "[필수] 서비스 이용약관",
-						},
-					},
-				},
-			},
-		]);
-		expect(tables.warnings).toEqual([]);
 	});
 });

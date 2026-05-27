@@ -9,10 +9,13 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@supabase/supabase-js": "^2.49.4",
 		"@cx/agent": "0.1.0",
 		"@cx/components": "0.1.0",
 		"@cx/layout": "0.1.0",
+		"@cx/pattern-store": "0.1.0",
 		"@cx/renderer": "0.1.0",
+		"@cx/types": "0.1.0",
 		"@radix-ui/react-tooltip": "^1.2.8"
 	}
 }

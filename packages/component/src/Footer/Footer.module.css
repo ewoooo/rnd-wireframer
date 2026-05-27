@@ -1,0 +1,44 @@
+.footer {
+	display: flex;
+	width: 100%;
+	box-sizing: border-box;
+	flex-direction: column;
+	gap: 8px;
+	padding: 24px 32px 32px;
+	background: #f7f8fb;
+	color: rgba(6, 12, 31, 0.6);
+	font-family: var(--skt-typography-font-family-base);
+	letter-spacing: -0.04em;
+}
+
+.title {
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.35;
+	color: rgba(6, 12, 31, 0.72);
+}
+
+.description {
+	margin: 0;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.5;
+}
+
+.links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+}
+
+.link {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: rgba(6, 12, 31, 0.72);
+	cursor: pointer;
+	font: inherit;
+	font-size: 11px;
+	font-weight: 600;
+	text-decoration: underline;
+}

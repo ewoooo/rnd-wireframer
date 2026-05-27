@@ -1,28 +1,17 @@
+import type { RenderTreeNodeKind } from "@cx/types/component-catalog";
 import { resolveDisplayWhen, resolveProps } from "./bindings";
-import type { WireframeNode, WireframeScreenNode } from "./schema";
+import { createRendererKindMap } from "./renderer-kind-contract";
+import type { RenderTreeNode, RenderTreeScreenNode } from "./schema";
 
-export type WireframeNodeKind =
-	| "accordion"
-	| "action"
-	| "divider"
-	| "fallback"
-	| "header"
-	| "layout-flex"
-	| "layout-grid"
-	| "list-cell"
-	| "organism"
-	| "page-stack"
-	| "section-header"
-	| "section-message"
-	| "text-field";
+export type { RenderTreeNodeKind };
 
-export interface RenderableWireframeNode {
-	kind: WireframeNodeKind;
-	node: WireframeNode;
+export interface RenderableTreeNode {
+	kind: RenderTreeNodeKind;
+	node: RenderTreeNode;
 	props: Record<string, unknown>;
 }
 
-export function getScreenRegions(node: WireframeScreenNode) {
+export function getScreenRegions(node: RenderTreeScreenNode) {
 	const [headerNode, contentsNode, bottomNode] = node.children;
 
 	return {
@@ -32,14 +21,14 @@ export function getScreenRegions(node: WireframeScreenNode) {
 	};
 }
 
-export function getRenderableWireframeNode(
-	node: WireframeNode,
+export function getRenderableTreeNode(
+	node: RenderTreeNode,
 	data: Record<string, unknown>,
-): RenderableWireframeNode | undefined {
+): RenderableTreeNode | undefined {
 	if (!resolveDisplayWhen(node.display?.when, data)) return undefined;
 
 	return {
-		kind: getWireframeNodeKind(node),
+		kind: getRenderTreeNodeKind(node),
 		node,
 		props: resolveProps(node.props, data),
 	};
@@ -55,40 +44,8 @@ export function toBoolean(value: unknown, fallback = false) {
 	return Boolean(value);
 }
 
-const DEFAULT_KIND_MAPPINGS: Array<[string, WireframeNodeKind]> = [
-	["HeaderBase", "header"],
-	["Layout.Flex", "layout-flex"],
-	["Layout.Grid", "layout-grid"],
-	["PageStack", "page-stack"],
-	["Divider", "divider"],
-	["SectionHeader", "section-header"],
-	["Organism", "organism"],
-	["ListCell", "list-cell"],
-	["Accordion", "accordion"],
-	["SectionMessage", "section-message"],
-	["TextField", "text-field"],
-	["Button", "action"],
-	["ActionButton", "action"],
-	["ActionArea", "action"],
-];
+const kindByType = createRendererKindMap();
 
-const kindByType = new Map<string, WireframeNodeKind>(DEFAULT_KIND_MAPPINGS);
-
-export function registerWireframeNodeKinds(
-	mappings: Array<{ type: string; kind: WireframeNodeKind }>,
-): void {
-	for (const { type, kind } of mappings) {
-		kindByType.set(type, kind);
-	}
-}
-
-export function clearWireframeNodeKindRegistry(): void {
-	kindByType.clear();
-	for (const [type, kind] of DEFAULT_KIND_MAPPINGS) {
-		kindByType.set(type, kind);
-	}
-}
-
-export function getWireframeNodeKind(node: WireframeNode): WireframeNodeKind {
+export function getRenderTreeNodeKind(node: RenderTreeNode): RenderTreeNodeKind {
 	return kindByType.get(node.type) ?? "fallback";
 }

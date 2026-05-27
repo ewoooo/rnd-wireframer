@@ -1,4 +1,4 @@
-import type { RegisteredNodeTree } from "@cx/agent";
+import type { RegisteredNodeTree } from "@cx/agent/types";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +20,7 @@ export function AgentRegistryInspection({
 				<h2 className="text-sm font-semibold">Agent Registry</h2>
 				<InfoRow label="Source" value="database/ai-imports/agent-assets.json" />
 				<InfoRow label="Routes" value={String(registry?.routes.length ?? 0)} />
-				<InfoRow label="Organisms" value={String(registry?.organisms.length ?? 0)} />
+				<InfoRow label="Areas" value={String(registry?.areas.length ?? 0)} />
 				<InfoRow label="Components" value={String(registry?.components.length ?? 0)} />
 			</div>
 			{selectedAsset ? <SelectedAssetInspection selectedAsset={selectedAsset} /> : null}

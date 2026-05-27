@@ -1,0 +1,1 @@
+export { BannerIndicaterMedium } from "./BannerIndicaterMedium";

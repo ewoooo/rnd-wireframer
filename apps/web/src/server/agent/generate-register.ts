@@ -1,79 +1,91 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { aiSelectPatterns } from "@cx/agent/ai-pattern-selector";
 import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator";
 import { composeAssetContents } from "@cx/agent/compose-assets";
 import { composeAssetContentsWithAI } from "@cx/agent/compose-assets-ai";
+import { composeSynthesizeWithAI } from "@cx/agent/compose-synthesize-ai";
 import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
+import { aiReviewDesignTree, applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
 import { registerAssets } from "@cx/agent/register-assets";
-import { materializeDecoratedAssetsToDatabaseTables } from "@cx/agent/register-assets-to-database-tables";
+import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
 import { createPatternResolver } from "@cx/agent/resolvers/pattern-resolver";
+import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { assertValidImportId, readClientImportMarkdownFiles } from "@/server/agent/client-imports";
 import { getDatabaseDir } from "@/server/database-paths";
 
 const DATABASE_DIR = getDatabaseDir();
 const PROJECT_DIR = path.dirname(DATABASE_DIR);
 const AI_IMPORTS_DIR = path.join(DATABASE_DIR, "ai-imports");
+
+/**
+ * 모델 정렬:
+ * - Extract: Opus — Sonnet은 organism 컴포넌트 표 walk를 누락하는 사례가 반복됐다.
+ *   instruction-following 안정성을 위해 Opus로 승격.
+ * - Compose / Pattern Selector / DesignReview AI: Opus.
+ */
+const MODEL_EXTRACT = "claude-opus-4-7";
+const MODEL_COMPOSE = "claude-opus-4-7";
+const MODEL_REVIEWER = "claude-opus-4-7";
 const AGENT_ASSETS_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.json");
 const AGENT_ASSETS_COMPOSED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.composed.json");
 const AGENT_ASSETS_REGISTERED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.registered.json");
 const AGENT_ASSETS_DECORATED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.decorated.json");
-const DB_TABLES_DIR = path.join(DATABASE_DIR, "tables");
-const DB_TABLE_PATHS = {
-	screenRoutes: path.join(DB_TABLES_DIR, "screen_routes.json"),
-	screenVariants: path.join(DB_TABLES_DIR, "screen_variants.json"),
-	screens: path.join(DB_TABLES_DIR, "screens.json"),
-	organisms: path.join(DB_TABLES_DIR, "organisms.json"),
-	components: path.join(DB_TABLES_DIR, "components.json"),
-} as const;
+const AGENT_ASSETS_DESIGN_REVIEW_PATH = path.join(
+	AI_IMPORTS_DIR,
+	"agent-assets.design-review.json",
+);
+const AGENT_ASSETS_REVIEWED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.reviewed.json");
+const AGENT_ASSETS_MATERIALIZED_PATH = path.join(AI_IMPORTS_DIR, "agent-assets.materialized.json");
 
 export interface GenerateAgentRegisterOptions {
 	composeWithAI?: boolean;
+	reviewWithAI?: boolean;
 	importId: string;
 }
 
 export async function generateAgentRegister({
 	composeWithAI = true,
+	reviewWithAI = true,
 	importId,
 }: GenerateAgentRegisterOptions) {
 	assertValidImportId(importId);
 
 	console.info("[agent-generate] start", { importId, composeWithAI });
+	const patternStore = loadPatternStoreForWorkbench();
+	const resolvePattern = createPatternResolver({ patterns: patternStore.patterns });
 
-	const { organismFiles, screenFiles } = await readClientImportMarkdownFiles(importId);
+	const { screenFiles } = await readClientImportMarkdownFiles(importId);
 
 	console.info("[agent-generate] loaded markdown files", {
 		importId,
-		organismFiles: organismFiles.map((file) => ({
-			name: file.name,
-			characters: file.content.length,
-		})),
 		screenFiles: screenFiles.map((file) => ({
 			name: file.name,
 			characters: file.content.length,
 		})),
 	});
 
-	if (screenFiles.length === 0 && organismFiles.length === 0) {
-		throw new AgentGenerateError("No markdown files found in the selected client import.", 400);
+	if (screenFiles.length === 0) {
+		throw new AgentGenerateError("No screen markdown files found in the selected client import.", 400);
 	}
 
 	const claudeResult = await generateAssetsWithLocalClaude(
 		{
 			importId,
-			organismFiles,
 			screenFiles,
 		},
 		{
 			cwd: PROJECT_DIR,
 			continueSession: false,
 			debug: true,
+			model: MODEL_EXTRACT,
 		},
 	);
 	const generated = claudeResult.generated;
 	const registry = registerAssets(generated);
 	console.info("[agent-generate] registered assets", {
 		componentCount: registry.components.length,
-		organismCount: registry.organisms.length,
+		areaCount: registry.areas.length,
 		routeCount: registry.routes.length,
 		warnings: registry.warnings,
 	});
@@ -93,6 +105,7 @@ export async function generateAgentRegister({
 			cwd: PROJECT_DIR,
 			continueSession: false,
 			debug: true,
+			model: MODEL_COMPOSE,
 		});
 		console.info("[agent-generate] composed asset contents (AI)", {
 			gapCount: composeAIResult.gaps.length,
@@ -102,27 +115,98 @@ export async function generateAgentRegister({
 			sessionId: composeAIResult.sessionId,
 		});
 		composed = composeAIResult.composed;
+
+		// Composer-AI synthesis pass: chrome/CTA 등 누락 component를 추론·합성.
+		// Decorator가 다음 단계에서 region/area에 배치한다.
+		const synthResult = await composeSynthesizeWithAI(composed, {
+			cwd: PROJECT_DIR,
+			continueSession: false,
+			debug: true,
+			model: MODEL_COMPOSE,
+		});
+		console.info("[agent-generate] composed synthesis (AI)", {
+			proposalCount: synthResult.proposals.length,
+			skippedCount: synthResult.skipped.length,
+			warnings: synthResult.warnings,
+			sessionId: synthResult.sessionId,
+		});
+		composed = synthResult.composed;
 	}
 
-	const decorated = decorateRegisteredAssets(composed, {
-		resolvePattern: createPatternResolver(),
+	// AI Pattern Selector: deterministic 매칭 위에 AI 선택을 override로 얹는다.
+	const patternSelection = await aiSelectPatterns(composed, {
+		cwd: PROJECT_DIR,
+		continueSession: false,
+		debug: true,
+		model: MODEL_COMPOSE,
 	});
-	const decoratedTables = materializeDecoratedAssetsToDatabaseTables(decorated);
-	const screenShellCounts = countScreenShellIds(decoratedTables);
+	console.info("[agent-generate] ai pattern selector", {
+		selectionCount: patternSelection.selections.size,
+		skippedCount: patternSelection.skipped.length,
+		warnings: patternSelection.warnings,
+		sessionId: patternSelection.sessionId,
+	});
+	const decorated = decorateRegisteredAssets(composed, {
+		resolvePattern,
+		aiPatternSelections: patternSelection.selections,
+	});
+	const deterministicDesignReview = reviewDesignTree(decorated);
+	let designReview = deterministicDesignReview;
+	if (reviewWithAI) {
+		const aiReview = await aiReviewDesignTree(decorated, {
+			cwd: PROJECT_DIR,
+			continueSession: false,
+			debug: true,
+			model: MODEL_REVIEWER,
+		});
+		designReview = {
+			...deterministicDesignReview,
+			operations: [...deterministicDesignReview.operations, ...aiReview.designReview.operations],
+			findings: [...deterministicDesignReview.findings, ...aiReview.designReview.findings],
+			warnings: [
+				...deterministicDesignReview.warnings,
+				...aiReview.designReview.warnings,
+				...aiReview.warnings,
+				...aiReview.skippedOperations.map(
+					(skipped) => `ai-reviewer: skipped op #${skipped.index} — ${skipped.reason}`,
+				),
+			],
+		};
+		console.info("[agent-generate] design review (AI)", {
+			aiOperationCount: aiReview.designReview.operations.length,
+			aiSkippedOperationCount: aiReview.skippedOperations.length,
+			aiWarnings: aiReview.warnings,
+			sessionId: aiReview.sessionId,
+		});
+	}
+	const designReviewResult = applyDesignReview(decorated, designReview);
+	const reviewed = designReviewResult.reviewed;
+	const materialized = materializeDecoratedAssetsToNodeTree(reviewed);
+	const screenShellCounts = countScreenShellIds(materialized);
 
-	console.info("[agent-generate] decorated db tables", {
-		componentCount: decoratedTables.components.length,
-		organismCount: decoratedTables.organisms.length,
-		screenCount: decoratedTables.screens.length,
-		screenRouteCount: decoratedTables.screenRoutes.length,
-		screenVariantCount: decoratedTables.screenVariants.length,
+	console.info("[agent-generate] materialized node tree", {
+		componentCount: materialized.components.length,
+		areaCount: materialized.areas.length,
+		screenCount: materialized.screens.length,
+		screenRouteCount: materialized.screenRoutes.length,
+		screenVariantCount: materialized.screenVariants.length,
+		designReviewOperationCount: designReview.operations.length,
+		designReviewAppliedCount: designReviewResult.appliedOperationIds.length,
 		screenShellCounts,
 	});
 
-	await writeAgentImportArtifacts({ composed, decorated, decoratedTables, generated, registry });
+	await writeAgentImportArtifacts({
+		composed,
+		decorated,
+		designReview,
+		generated,
+		materialized,
+		registry,
+		reviewed,
+	});
 
 	return {
-		decoratedTables,
+		materialized,
 		generated,
 		registry,
 		runtime: {
@@ -136,7 +220,9 @@ export async function generateAgentRegister({
 			composed: "database/ai-imports/agent-assets.composed.json",
 			registered: "database/ai-imports/agent-assets.registered.json",
 			decorated: "database/ai-imports/agent-assets.decorated.json",
-			dbTables: "database/tables/{screen_routes,screen_variants,screens,organisms,components}.json",
+			designReview: "database/ai-imports/agent-assets.design-review.json",
+			materialized: "database/ai-imports/agent-assets.materialized.json",
+			reviewed: "database/ai-imports/agent-assets.reviewed.json",
 		},
 	};
 }
@@ -153,18 +239,19 @@ export class AgentGenerateError extends Error {
 async function writeAgentImportArtifacts(payload: {
 	composed: unknown;
 	decorated: unknown;
-	decoratedTables: {
+	designReview: unknown;
+	materialized: {
 		screenRoutes: unknown[];
 		screenVariants: unknown[];
 		screens: unknown[];
-		organisms: unknown[];
+		areas: unknown[];
 		components: unknown[];
 	};
 	generated: unknown;
 	registry: unknown;
+	reviewed: unknown;
 }) {
 	await mkdir(AI_IMPORTS_DIR, { recursive: true });
-	await mkdir(DB_TABLES_DIR, { recursive: true });
 	await writeFile(AGENT_ASSETS_PATH, `${JSON.stringify(payload.generated, null, "\t")}\n`, "utf8");
 	await writeFile(
 		AGENT_ASSETS_COMPOSED_PATH,
@@ -181,30 +268,36 @@ async function writeAgentImportArtifacts(payload: {
 		`${JSON.stringify(payload.decorated, null, "\t")}\n`,
 		"utf8",
 	);
-	await writeDbTable(DB_TABLE_PATHS.screenRoutes, { screenRoutes: payload.decoratedTables.screenRoutes });
-	await writeDbTable(DB_TABLE_PATHS.screenVariants, {
-		screenVariants: payload.decoratedTables.screenVariants,
-	});
-	await writeDbTable(DB_TABLE_PATHS.screens, { screens: payload.decoratedTables.screens });
-	await writeDbTable(DB_TABLE_PATHS.organisms, { organisms: payload.decoratedTables.organisms });
-	await writeDbTable(DB_TABLE_PATHS.components, { components: payload.decoratedTables.components });
+	await writeFile(
+		AGENT_ASSETS_DESIGN_REVIEW_PATH,
+		`${JSON.stringify(payload.designReview, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		AGENT_ASSETS_REVIEWED_PATH,
+		`${JSON.stringify(payload.reviewed, null, "\t")}\n`,
+		"utf8",
+	);
+	await writeFile(
+		AGENT_ASSETS_MATERIALIZED_PATH,
+		`${JSON.stringify(payload.materialized, null, "\t")}\n`,
+		"utf8",
+	);
 	console.info("[agent-generate] wrote agent assets", {
 		assetsPath: AGENT_ASSETS_PATH,
 		composedPath: AGENT_ASSETS_COMPOSED_PATH,
 		registeredPath: AGENT_ASSETS_REGISTERED_PATH,
 		decoratedPath: AGENT_ASSETS_DECORATED_PATH,
-		dbTablesDir: DB_TABLES_DIR,
+		designReviewPath: AGENT_ASSETS_DESIGN_REVIEW_PATH,
+		reviewedPath: AGENT_ASSETS_REVIEWED_PATH,
+		materializedPath: AGENT_ASSETS_MATERIALIZED_PATH,
 	});
 }
 
-async function writeDbTable(filePath: string, content: Record<string, unknown>) {
-	await writeFile(filePath, `${JSON.stringify(content, null, "\t")}\n`, "utf8");
-}
-
-function countScreenShellIds(tables: { screens: Array<{ pattern: { id: string } }> }) {
+function countScreenShellIds(materialized: { screens: Array<{ pattern?: { id: string } }> }) {
 	const counts: Record<string, number> = {};
-	for (const screen of tables.screens) {
-		const id = screen.pattern.id;
+	for (const screen of materialized.screens) {
+		const id = screen.pattern?.id ?? "(none)";
 		counts[id] = (counts[id] ?? 0) + 1;
 	}
 	return counts;

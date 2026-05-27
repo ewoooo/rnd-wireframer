@@ -6,4 +6,6 @@ export {
 	flexLayoutFallbackStyle,
 	gridLayoutClassName,
 	gridLayoutFallbackStyle,
+	spacingFallbackStyleValue,
+	spacingUtilityClass,
 } from "./style";

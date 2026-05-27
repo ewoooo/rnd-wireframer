@@ -1,0 +1,1 @@
+export { ListProductHorizontal } from "./ListProductHorizontal";

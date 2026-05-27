@@ -1,47 +1,61 @@
 import type {
+	ComposedAreaNode,
 	ComposedComponentNode,
-	ComposedOrganismNode,
+	NodeLevel,
 	PatternRef,
 	PatternResolver,
 } from "../types";
 
 const DEFAULT_VARIANT = "default";
 
-export interface OrganismResolutionInput extends ComposedOrganismNode {
-	__compositeTypes?: ReadonlySet<string>;
+/**
+ * Fallback pattern ID 상수. Resolver가 매칭에 실패했을 때 반환하는 기본값.
+ * pattern-store에 별도 등록되어 있지 않은 deterministic 값.
+ */
+const FALLBACK_PATTERN_ID = {
+	screen: "screen-shell",
+	variant: "screen-variant",
+	route: "screen-route",
+	areaWithoutLayout: "area-section",
+	areaWithLayout: (layout: string) => `area-${layout}`,
+	region: (slot: string) => `region-${slot}`,
+} as const;
+
+export interface AreaResolutionInput extends ComposedAreaNode {
+	__componentTypes?: ReadonlySet<string>;
 }
 
 import type {
+	AreaPattern,
 	CompositePattern,
-	OrganismPattern,
 	Pattern,
 	PatternResolutionSignals,
-} from "./pattern-schema";
+} from "@cx/pattern-store";
 import {
+	isAreaPattern,
 	isCompositePattern,
-	isOrganismPattern,
 	listPatterns,
 	normalizePatternId,
-} from "./pattern-store";
+} from "@cx/pattern-store";
 
 export interface PatternResolverFactoryOptions {
 	patterns?: Pattern[];
 }
 
 /**
- * Resolver chain: composite → organism → screen.
- * decorate-assets processes assets in that order so organism/screen resolution
+ * Resolver chain: composite → area → screen.
+ * decorate-assets processes assets in that order so area/screen resolution
  * can read upstream decorations from the cross-linked asset.
  */
 export function createPatternResolver(
 	options: PatternResolverFactoryOptions = {},
 ): PatternResolver {
 	const patterns = options.patterns ?? listPatterns();
-	const organismPatterns = patterns.filter(isOrganismPattern);
+	const areaPatterns = patterns.filter(isAreaPattern);
 	const compositePatterns = patterns.filter(isCompositePattern);
 
-	return ({ level, node }) => {
-		if (level === "component") {
+	const resolverByLevel = {
+		component: (node) => {
 			const component = node as ComposedComponentNode;
 			const type = component.type ?? "unknown";
 			return (
@@ -51,40 +65,46 @@ export function createPatternResolver(
 					reasons: [`component type: ${type}`],
 				}
 			);
-		}
-		if (level === "organism") {
-			const organism = node as OrganismResolutionInput;
+		},
+		area: (node) => {
+			const area = node as AreaResolutionInput;
 			return (
-				resolveOrganism(organism, organismPatterns) ?? {
-					id: organism.layout ? `organism-${organism.layout}` : "organism-section",
+				resolveArea(area, areaPatterns) ?? {
+					id: area.layout
+						? FALLBACK_PATTERN_ID.areaWithLayout(area.layout)
+						: FALLBACK_PATTERN_ID.areaWithoutLayout,
 					variant: DEFAULT_VARIANT,
-					reasons: organism.layout ? [`layout: ${organism.layout}`] : ["default organism pattern"],
+					reasons: area.layout ? [`layout: ${area.layout}`] : ["default area pattern"],
 				}
 			);
-		}
-		if (level === "screen") {
+		},
+		screen: () => ({
+			id: FALLBACK_PATTERN_ID.screen,
+			variant: DEFAULT_VARIANT,
+			reasons: ["deterministic screen shell"],
+		}),
+		region: (node) => {
+			const region = node as { slot?: string };
+			const slot = region.slot ?? "contents";
 			return {
-				id: "screen-shell",
+				id: FALLBACK_PATTERN_ID.region(slot),
 				variant: DEFAULT_VARIANT,
-				reasons: ["deterministic screen shell"],
+				reasons: [`region slot: ${slot}`],
 			};
-		}
-		if (level === "variant") {
-			return {
-				id: "screen-variant",
-				variant: DEFAULT_VARIANT,
-				reasons: ["default variant pattern"],
-			};
-		}
-		if (level === "route") {
-			return {
-				id: "screen-route",
-				variant: DEFAULT_VARIANT,
-				reasons: ["default route pattern"],
-			};
-		}
-		return undefined;
-	};
+		},
+		variant: () => ({
+			id: FALLBACK_PATTERN_ID.variant,
+			variant: DEFAULT_VARIANT,
+			reasons: ["default variant pattern"],
+		}),
+		route: () => ({
+			id: FALLBACK_PATTERN_ID.route,
+			variant: DEFAULT_VARIANT,
+			reasons: ["default route pattern"],
+		}),
+	} satisfies Record<NodeLevel, (node: unknown) => PatternRef | undefined>;
+
+	return ({ level, node }) => resolverByLevel[level]?.(node);
 }
 
 function resolveComposite(
@@ -112,49 +132,46 @@ function scoreCompositePattern(
 	return { pattern, score, reasons };
 }
 
-function resolveOrganism(
-	organism: OrganismResolutionInput,
-	candidates: OrganismPattern[],
-): PatternRef | undefined {
-	const compositeTypes = organism.__compositeTypes ?? new Set<string>();
+function resolveArea(area: AreaResolutionInput, candidates: AreaPattern[]): PatternRef | undefined {
+	const componentTypes = area.__componentTypes ?? new Set<string>();
 	const scored = candidates
-		.map((pattern) => scoreOrganismPattern(pattern, organism, compositeTypes))
+		.map((pattern) => scoreAreaPattern(pattern, area, componentTypes))
 		.filter((entry) => entry.score > 0);
 	return pickWinner(scored);
 }
 
-function scoreOrganismPattern(
-	pattern: OrganismPattern,
-	organism: ComposedOrganismNode,
-	compositeTypes: ReadonlySet<string>,
-): Scored<OrganismPattern> {
+function scoreAreaPattern(
+	pattern: AreaPattern,
+	area: ComposedAreaNode,
+	componentTypes: ReadonlySet<string>,
+): Scored<AreaPattern> {
 	const reasons: string[] = [];
 	let score = 0;
 	const resolution = pattern.resolution;
 	if (!resolution) return { pattern, score: 0, reasons };
 
-	const typeMatcher = resolution.compositeTypes;
+	const typeMatcher = resolution.componentTypes;
 	if (typeMatcher) {
-		if (typeMatcher.noneOf?.some((t) => compositeTypes.has(t))) {
+		if (typeMatcher.noneOf?.some((t) => componentTypes.has(t))) {
 			return { pattern, score: 0, reasons };
 		}
 		if (typeMatcher.allOf?.length) {
-			const missing = typeMatcher.allOf.filter((t) => !compositeTypes.has(t));
+			const missing = typeMatcher.allOf.filter((t) => !componentTypes.has(t));
 			if (missing.length > 0) return { pattern, score: 0, reasons };
 			score += 20;
-			reasons.push(`composite types allOf matched (${typeMatcher.allOf.join(", ")})`);
+			reasons.push(`component types allOf matched (${typeMatcher.allOf.join(", ")})`);
 		}
 		if (typeMatcher.anyOf?.length) {
-			const matched = typeMatcher.anyOf.filter((t) => compositeTypes.has(t));
+			const matched = typeMatcher.anyOf.filter((t) => componentTypes.has(t));
 			if (matched.length > 0) {
 				score += 10 * matched.length;
-				reasons.push(`composite types anyOf matched (${matched.join(", ")})`);
+				reasons.push(`component types anyOf matched (${matched.join(", ")})`);
 			}
 		}
 	}
 
-	score += scoreNameKeywords(resolution, organism.name, organism.description, reasons);
-	score += scoreIdPatterns(resolution, organism.id, reasons);
+	score += scoreNameKeywords(resolution, area.name, area.description, reasons);
+	score += scoreIdPatterns(resolution, area.id, reasons);
 
 	return { pattern, score, reasons };
 }
@@ -203,10 +220,12 @@ function pickWinner<TPattern extends Pattern>(
 	scored: Array<Scored<TPattern>>,
 ): PatternRef | undefined {
 	if (scored.length === 0) return undefined;
+	// priority 시스템 제거 (2026-05-26): 동점일 때 pattern id 알파벳 순으로 deterministic 결정.
+	// 다중 매칭이 의미 있는 다른 패턴을 가리키면 AI Pattern Selector가 최종 결정한다.
 	scored.sort((a, b) => {
 		const scoreDiff = b.score - a.score;
 		if (scoreDiff !== 0) return scoreDiff;
-		return (b.pattern.resolution?.priority ?? 0) - (a.pattern.resolution?.priority ?? 0);
+		return a.pattern.id.localeCompare(b.pattern.id);
 	});
 	const winner = scored[0];
 	return { id: winner.pattern.id, variant: DEFAULT_VARIANT, reasons: winner.reasons };

@@ -1,4 +1,4 @@
-import type { GeneratedNodeTree } from "@cx/agent";
+import type { GeneratedNodeTree } from "@cx/agent/types";
 import agentAssets from "../../../../database/ai-imports/agent-assets.json";
 import { runAgentPhase1Register } from "./run-agent-asset-pipeline";
 

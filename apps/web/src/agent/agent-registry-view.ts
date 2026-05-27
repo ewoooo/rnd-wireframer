@@ -2,11 +2,11 @@ import type {
 	NodeLevel,
 	RegisteredComponentNode,
 	RegisteredNodeTree,
-	RegisteredOrganismNode,
+	RegisteredAreaNode,
 	RegisteredRouteNode,
 	RegisteredScreenNode,
 	RegisteredVariantNode,
-} from "@cx/agent";
+} from "@cx/agent/types";
 
 export interface AgentNodeSelection {
 	id: string;
@@ -27,8 +27,8 @@ export type SelectedAgentAsset =
 			item: RegisteredScreenNode;
 	  }
 	| {
-			level: "organism";
-			item: RegisteredOrganismNode;
+			level: "area";
+			item: RegisteredAreaNode;
 	  }
 	| {
 			level: "component";
@@ -77,9 +77,9 @@ export function findSelectedAgentAsset(
 		}
 	}
 
-	for (const organism of registry.organisms) {
-		if (selection.level === "organism" && organism.id === selection.id) {
-			return { level: "organism", item: organism };
+	for (const area of registry.areas) {
+		if (selection.level === "area" && area.id === selection.id) {
+			return { level: "area", item: area };
 		}
 	}
 

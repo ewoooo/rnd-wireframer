@@ -12,7 +12,7 @@ export function ScrollArea({
 }: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
 	return (
 		<ScrollAreaPrimitive.Root className={cn("relative overflow-hidden", className)} {...props}>
-			<ScrollAreaPrimitive.Viewport className="size-full rounded-[inherit]">
+			<ScrollAreaPrimitive.Viewport className="size-full min-w-0 rounded-[inherit] [&>div]:!block [&>div]:min-w-0">
 				{children}
 			</ScrollAreaPrimitive.Viewport>
 			<ScrollBar />
