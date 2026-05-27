@@ -6,8 +6,10 @@ import {
 	draftTablesToMaterializedNodeTree,
 } from "@cx/agent/pipeline/prdd-draft-tables";
 import { promoteDatabaseTablesCandidate } from "@cx/agent/promote-database-tables";
+import { createQualityBacklog } from "@cx/agent/validate/quality-backlog";
 import { createQualityReport } from "@cx/agent/validate/quality-report";
 import type { DraftTablesArtifact } from "@cx/types/draft-tables";
+import type { QualityBacklog } from "@cx/types/quality-backlog";
 import type { QualityReport } from "@cx/types/quality-report";
 import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { assertValidImportId, readClientImportMarkdownFiles } from "@/server/agent/client-imports";
@@ -22,6 +24,8 @@ export interface GenerateDraftTablesOptions {
 
 export interface GenerateDraftTablesResult {
 	importId: string;
+	backlog?: QualityBacklog;
+	backlogPath: string;
 	screenCount: number;
 	results: DraftTablesScreenResult[];
 	writtenDir: string;
@@ -56,6 +60,7 @@ export async function generateDraftTablesForImport({
 	await mkdir(importOutputDir, { recursive: true });
 
 	const results: DraftTablesScreenResult[] = [];
+	const reports: QualityReport[] = [];
 	for (const screenFile of screenFiles) {
 		const stem = screenFile.name.replace(/\.md$/, "");
 		const importJobId = `draft-tables-${importId}-${stem}`;
@@ -81,6 +86,9 @@ export async function generateDraftTablesForImport({
 				? draftTablesToMaterializedNodeTree(pipelineResult.artifact.tables)
 				: null,
 		);
+		if (pipelineResult.qualityReport) {
+			reports.push(pipelineResult.qualityReport);
+		}
 
 		results.push({
 			screenFile: screenFile.name,
@@ -95,8 +103,17 @@ export async function generateDraftTablesForImport({
 		});
 	}
 
+	const backlogPath = path.join(importOutputDir, "quality-backlog.json");
+	const backlog = createQualityBacklog({
+		reports,
+		generatedAt: new Date().toISOString(),
+	});
+	await writeJson(backlogPath, backlog);
+
 	return {
 		importId,
+		backlog,
+		backlogPath: toDatabaseRelativePath(backlogPath),
 		screenCount: screenFiles.length,
 		results,
 		writtenDir: toDatabaseRelativePath(importOutputDir),

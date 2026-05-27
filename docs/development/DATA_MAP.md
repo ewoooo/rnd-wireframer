@@ -50,6 +50,7 @@ AI import 데이터
   └─ draft-tables/{importId}/{screen}.draft-tables.json
   └─ draft-tables/{importId}/{screen}.quality-report.json
   └─ draft-tables/{importId}/{screen}.materialized.json
+  └─ draft-tables/{importId}/quality-backlog.json
         |
         v
 promote / import

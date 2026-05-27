@@ -9,12 +9,13 @@
 현재 기본 narrative는 아래 하나다.
 
 ```text
-source -> DraftTables -> QualityReport -> Preview -> Promote
+source -> DraftTables -> QualityReport -> QualityBacklog -> Preview -> Promote
 ```
 
 - **source**: PRDD markdown 또는 read model 입력.
 - **DraftTables**: `database/tables` shape의 승인 전 후보.
 - **QualityReport**: renderer validation issue를 MVP quality category로 접은 검수 결과.
+- **QualityBacklog**: 반복되는 catalog/pattern/component gap을 보강 후보로 묶은 목록.
 - **Preview**: draft tables를 renderer 입력으로 projection해 확인하는 단계. preview 자체는 `@cx/renderer`가 담당한다.
 - **Promote**: 승인된 draft tables만 소비 테이블로 반영.
 
@@ -25,6 +26,7 @@ source -> DraftTables -> QualityReport -> Preview -> Promote
 ```ts
 import {
 	createQualityReport,
+	createQualityBacklog,
 	promoteDatabaseTablesCandidate,
 	registerPrddScreen,
 	runDraftTablesPipeline,
@@ -53,6 +55,7 @@ import type { GeneratedNodeTree } from "@cx/agent/types";
 | `src/register/prdd-record-builder.ts` | **Active** — parsed PRDD를 `PrddScreenRecord`로 정규화 |
 | `src/register/register-prdd-screen.ts` | **Active** — 단일 화면 register와 source invariant report |
 | `src/validate/quality-report.ts` | **Active** — detailed validation issue를 MVP quality category로 접는 report adapter |
+| `src/validate/quality-backlog.ts` | **Active** — 반복되는 catalog/pattern/component gap을 backlog로 묶는 aggregation |
 | `src/database/promote-database-tables.ts` | **Active** — 승인된 draft tables를 소비 테이블로 반영 |
 | `src/runtime/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
 | `src/compose-screen/*`, `src/decorate-screen/*`, `src/design-review/*` | **Experimental subpath only** — archetype/decorator/design-review 고도화 |
@@ -68,6 +71,7 @@ PRDD/source
 -> registerPrddScreen
 -> runDraftTablesPipeline
 -> createQualityReport
+-> createQualityBacklog
 -> renderer preview
 -> promoteDatabaseTablesCandidate
 ```

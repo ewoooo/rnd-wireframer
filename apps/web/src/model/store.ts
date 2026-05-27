@@ -1,4 +1,5 @@
 import type { RegisteredNodeTree } from "@cx/agent/types";
+import type { QualityBacklog } from "@cx/types/quality-backlog";
 import type { QualityReport } from "@cx/types/quality-report";
 import { create } from "zustand";
 import {
@@ -94,6 +95,8 @@ export interface AgentClientImport {
 
 export interface AgentDraftTablesResult {
 	importId: string;
+	backlog?: QualityBacklog;
+	backlogPath?: string;
 	screenCount: number;
 	writtenDir: string;
 	results: AgentDraftTablesScreenResult[];

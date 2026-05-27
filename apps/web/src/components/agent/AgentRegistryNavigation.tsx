@@ -359,6 +359,8 @@ function normalizeDraftTablesResult(
 	const results = payload.results ?? [];
 	return {
 		importId: payload.importId ?? fallbackImportId,
+		backlog: payload.backlog,
+		backlogPath: payload.backlogPath,
 		screenCount: payload.screenCount ?? results.length,
 		writtenDir: payload.writtenDir ?? "ai-imports/draft-tables",
 		results,
@@ -395,6 +397,20 @@ function DraftTablesResultPanel({ result }: { result: AgentDraftTablesResult }) 
 				<ResultMetric label="Errors" value={String(errorCount)} />
 				<ResultMetric label="Warnings" value={String(warningCount)} />
 			</div>
+			{result.backlog ? (
+				<div className="mt-3 rounded-md bg-secondary/40 p-2 text-xs">
+					<div className="flex items-center justify-between gap-2">
+						<span className="font-medium">Quality Backlog</span>
+						<span className="text-muted-foreground">
+							{result.backlog.summary.readyCount} ready / {result.backlog.summary.candidateCount}{" "}
+							candidate
+						</span>
+					</div>
+					{result.backlogPath ? (
+						<p className="mt-1 truncate text-[11px] text-muted-foreground">{result.backlogPath}</p>
+					) : null}
+				</div>
+			) : null}
 			<div className="mt-3 flex flex-col gap-2">
 				{result.results.map((screenResult) => (
 					<div key={screenResult.screenFile} className="rounded-md border p-2">

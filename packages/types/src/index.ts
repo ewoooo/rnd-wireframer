@@ -10,6 +10,7 @@ export * from "./node-types";
 export * from "./pattern-store";
 export * from "./pattern-store-schema";
 export * from "./prdd-screen-record";
+export * from "./quality-backlog";
 export * from "./quality-report";
 export * from "./tokens";
 export * from "./validation";

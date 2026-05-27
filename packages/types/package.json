@@ -19,6 +19,7 @@
 		"./pattern-store": "./src/pattern-store.ts",
 		"./pattern-store-schema": "./src/pattern-store-schema.ts",
 		"./prdd-screen-record": "./src/prdd-screen-record.ts",
+		"./quality-backlog": "./src/quality-backlog.ts",
 		"./quality-report": "./src/quality-report.ts",
 		"./tokens": "./src/tokens.ts",
 		"./validation": "./src/validation.ts"

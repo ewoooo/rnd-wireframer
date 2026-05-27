@@ -106,7 +106,7 @@ database/
 `database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.materialized.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
 `database/tables`는 승인된 소비 데이터만 둔다. agent pipeline과 parser는 이 디렉토리를 직접 덮어쓰지 않고 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계에서만 반영한다.
 `@cx/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `screen`, `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이다. 단, `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 pattern-store가 아니라 deterministic code와 `database/tables` 계약이 담당한다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
-active DraftTables 산출물은 `database/ai-imports/draft-tables/{importId}/` 아래에 `{screen}.draft-tables.json`, `{screen}.quality-report.json`, `{screen}.materialized.json` 이름으로 둔다. legacy Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용한다.
+active DraftTables 산출물은 `database/ai-imports/draft-tables/{importId}/` 아래에 `{screen}.draft-tables.json`, `{screen}.quality-report.json`, `{screen}.materialized.json`, `quality-backlog.json` 이름으로 둔다. legacy Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용한다.
 
 ## 7. 변경 기준
 

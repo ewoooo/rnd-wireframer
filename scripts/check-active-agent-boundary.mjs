@@ -7,6 +7,7 @@ const activeRoots = [
 	"packages/agent/src/pipeline/draft-tables-pipeline.ts",
 	"packages/agent/src/pipeline/prdd-draft-tables.ts",
 	"packages/agent/src/validate/index.ts",
+	"packages/agent/src/validate/quality-backlog.ts",
 	"packages/agent/src/validate/quality-report.ts",
 	"packages/agent/src/register/prdd-parser.ts",
 	"packages/agent/src/register/prdd-record-builder.ts",

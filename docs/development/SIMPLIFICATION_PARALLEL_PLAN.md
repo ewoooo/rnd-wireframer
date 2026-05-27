@@ -13,6 +13,7 @@ PRDD/source
 -> DraftTables
 -> RenderTree preview
 -> Quality Report
+-> Quality Backlog
 -> prompt/catalog/pattern/component 보강
 -> regenerate
 ```
@@ -126,7 +127,7 @@ runDraftTablesPipeline + validator
 - [x] `QualityReport` category와 최소 JSON 예시를 만든다.
 - [x] PRDD sample 1개로 direct-to-tables prompt를 실행한다.
 - [x] renderability 실패 원인이 report로 보이는지 확인한다.
-- [ ] 반복되는 품질 gap을 catalog/pattern/component backlog로 분리한다.
+- [x] 반복되는 품질 gap을 catalog/pattern/component backlog로 분리한다.
 
 ## 12. 진행 기록
 
@@ -141,3 +142,4 @@ runDraftTablesPipeline + validator
 - `apps/web/src/server/agent/generate-draft-tables.ts`와 `/api/agent/generate-draft-tables`를 추가해 legacy `generate-register`와 active DraftTables entrypoint를 분리했다.
 - `pnpm run lint:agent-boundary` active path import guard를 추가했다.
 - workbench store에 DraftTables 생성 결과를 구조화해 보관하고, Agent 패널에서 화면별 quality report 요약과 산출물 경로를 확인할 수 있게 했다.
+- `QualityBacklog` 계약과 `createQualityBacklog` aggregation을 추가해 반복되는 catalog/pattern/component gap을 `quality-backlog.json` 산출물로 분리했다.

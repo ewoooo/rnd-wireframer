@@ -30,6 +30,7 @@
 		"./types": "./src/types.ts",
 		"./validate": "./src/validate/index.ts",
 		"./validate/experimental": "./src/validate/experimental.ts",
+		"./validate/quality-backlog": "./src/validate/quality-backlog.ts",
 		"./validate/quality-report": "./src/validate/quality-report.ts",
 		"./deck": "./src/deck/index.ts",
 		"./compose-screen": "./src/compose-screen/index.ts",

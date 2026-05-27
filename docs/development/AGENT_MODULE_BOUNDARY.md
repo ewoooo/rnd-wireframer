@@ -11,10 +11,10 @@
 현재 기본 narrative는 아래 흐름 하나다.
 
 ```text
-source -> DraftTables -> QualityReport -> Preview -> Promote
+source -> DraftTables -> QualityReport -> QualityBacklog -> Preview -> Promote
 ```
 
-Active path는 승인 전 draft tables를 만들고, quality report로 확인하고, renderer preview를 거쳐 승인된 후보만 promote한다. preview rendering과 RenderTree validation의 소유권은 `@cx/renderer`에 있다.
+Active path는 승인 전 draft tables를 만들고, quality report/backlog로 확인하고, renderer preview를 거쳐 승인된 후보만 promote한다. preview rendering과 RenderTree validation의 소유권은 `@cx/renderer`에 있다.
 
 | Module | Status | 책임 |
 |---|---|---|
@@ -24,6 +24,7 @@ Active path는 승인 전 draft tables를 만들고, quality report로 확인하
 | `pipeline/draft-tables-pipeline.ts` | active | `source -> DraftTables -> QualityReport` orchestration |
 | `pipeline/prdd-draft-tables.ts` | active-support | PRDD register 결과를 DraftTablesBundle로 만드는 deterministic draft generator |
 | `validate/quality-report.ts` | active | renderer validation issue를 MVP quality category로 접는 report adapter |
+| `validate/quality-backlog.ts` | active | 반복되는 catalog/pattern/component gap을 보강 backlog로 묶는 report aggregation |
 | `database/promote-database-tables.ts` | active | 승인된 draft tables를 소비 테이블로 반영 |
 | `deck/build-*` | active-support | direct-to-tables prompt 입력용 catalog/design/layout deck 생성. active path의 저장/검증 기준은 아님 |
 | `runtime/agent-sdk-runtime.ts` | active-support | local-first AI runtime 연결점. active path에 자동 의존시키지 않음 |
@@ -59,14 +60,14 @@ Active path는 승인 전 draft tables를 만들고, quality report로 확인하
 - `@cx/agent` root export는 active path만 공개한다.
 - `@cx/agent/pipeline`은 `runDraftTablesPipeline` 중심의 active path만 공개한다.
 - 기존 Register -> Compose -> Decorate -> Materialize 흐름은 `@cx/agent/pipeline/experimental`에서만 공개한다.
-- `@cx/agent/validate`는 active `QualityReport` adapter만 공개한다.
+- `@cx/agent/validate`는 active `QualityReport` adapter와 `QualityBacklog` aggregation만 공개한다.
 - composition/decorated validator는 `@cx/agent/validate/experimental`에서만 공개한다.
 - legacy asset pipeline은 root export에 추가하지 않는다.
 
 ## 6. 병렬 작업 규칙
 
 - Active Pipeline 작업자는 `pipeline/draft-tables-pipeline.ts`, register, promote 경계만 수정한다.
-- Quality Report 작업자는 `@cx/types/quality-report`와 validator/report adapter를 수정한다.
+- Quality Report 작업자는 `@cx/types/quality-report`, `@cx/types/quality-backlog`, validator/report adapter를 수정한다.
 - DraftTables Generator 작업자는 prompt와 generator adapter만 수정하고 renderer/validation 계약을 바꾸지 않는다.
 - active path import guard는 `pnpm run lint:agent-boundary`로 실행한다. 이 검사는 active path가 `composition-output`, `decorated-output`, compose/decorate/design-review 모듈을 다시 import하지 못하게 막는다.
 - Experimental 모듈은 active path가 요구하지 않는 한 public root export에 추가하지 않는다.
