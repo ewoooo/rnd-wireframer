@@ -2,45 +2,56 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
+
+type ScreenRow = Database["public"]["Tables"]["screens"]["Row"];
+type VariantRow = Database["public"]["Tables"]["screen_variants"]["Row"];
+
+// Supabase workspace 환경에서 generic 타입 추론이 깨지는 경우 대비 헬퍼
+function asRow<T>(data: unknown): T {
+	return data as T;
+}
+function asRows<T>(data: unknown): T[] {
+	return (data ?? []) as T[];
+}
 
 export async function cloneScreen(screenId: string): Promise<{ error?: string; newScreenId?: string; newVariantId?: string }> {
 	const db = createServerClient();
 
-	// 원본 screen 조회
-	const { data: original, error: fetchError } = await db
+	const { data: _original, error: fetchError } = await db
 		.from("screens")
 		.select("*")
 		.eq("id", screenId)
 		.single();
 
-	if (fetchError || !original) {
+	if (fetchError || !_original) {
 		return { error: `Screen not found: ${screenId}` };
 	}
+	const original = asRow<ScreenRow>(_original);
 
-	// 원본 variant 조회
-	const { data: originalVariant } = await db
+	const { data: _originalVariant } = await db
 		.from("screen_variants")
 		.select("*")
 		.eq("id", original.screen_variant_id)
 		.single();
 
-	if (!originalVariant) {
+	if (!_originalVariant) {
 		return { error: `Variant not found: ${original.screen_variant_id}` };
 	}
+	const originalVariant = asRow<VariantRow>(_originalVariant);
 
-	// 같은 route에서 edge variant 번호 계산
-	const { data: existingVariants } = await db
+	const { data: _existingVariants } = await db
 		.from("screen_variants")
 		.select("id, order")
 		.eq("screen_route_id", originalVariant.screen_route_id)
 		.eq("variant_type", "edge");
 
-	const maxOrder = existingVariants?.reduce((max, v) => Math.max(max, v.order), 0) ?? 0;
+	const existingVariants = asRows<Pick<VariantRow, "id" | "order">>(_existingVariants);
+	const maxOrder = existingVariants.reduce((max, v) => Math.max(max, v.order), 0);
 	const timestamp = Date.now();
 	const newVariantId = `${originalVariant.id}-clone-${timestamp}`;
 	const newScreenId = `${screenId}-clone-${timestamp}`;
 
-	// 새 edge variant 생성
 	const { error: variantError } = await db.from("screen_variants").insert({
 		id: newVariantId,
 		screen_route_id: originalVariant.screen_route_id,
@@ -48,13 +59,12 @@ export async function cloneScreen(screenId: string): Promise<{ error?: string; n
 		order: maxOrder + 1,
 		variant_type: "edge",
 		follow_up: null,
-	});
+	} as never);
 
 	if (variantError) {
 		return { error: `Failed to create variant: ${variantError.message}` };
 	}
 
-	// 새 screen 생성 (원본 데이터 복사)
 	const { error: screenError } = await db.from("screens").insert({
 		id: newScreenId,
 		screen_variant_id: newVariantId,
@@ -67,10 +77,9 @@ export async function cloneScreen(screenId: string): Promise<{ error?: string; n
 		title: `${original.title ?? screenId} (복제본)`,
 		author: original.author,
 		screen: original.screen,
-	});
+	} as never);
 
 	if (screenError) {
-		// 롤백
 		await db.from("screen_variants").delete().eq("id", newVariantId);
 		return { error: `Failed to create screen: ${screenError.message}` };
 	}
@@ -84,7 +93,7 @@ export async function updateScreenTitle(screenId: string, title: string): Promis
 
 	const { error } = await db
 		.from("screens")
-		.update({ title })
+		.update({ title } as never)
 		.eq("id", screenId);
 
 	if (error) return { error: error.message };
@@ -101,7 +110,7 @@ export async function updateScreenRegions(
 
 	const { error } = await db
 		.from("screens")
-		.update({ screen })
+		.update({ screen } as never)
 		.eq("id", screenId);
 
 	if (error) return { error: error.message };
@@ -116,14 +125,15 @@ export async function updateScreenAreaOrder(
 ): Promise<{ error?: string }> {
 	const db = createServerClient();
 
-	const { data: row, error: fetchError } = await db
+	const { data: _row, error: fetchError } = await db
 		.from("screens")
 		.select("screen")
 		.eq("id", screenId)
 		.single();
 
-	if (fetchError || !row) return { error: `Screen not found: ${screenId}` };
+	if (fetchError || !_row) return { error: `Screen not found: ${screenId}` };
 
+	const row = asRow<Pick<ScreenRow, "screen">>(_row);
 	const body = row.screen as {
 		type: string;
 		regions: Record<string, { type: string; metadata: unknown; children: { kind: string; id: string }[] }>;
@@ -139,7 +149,7 @@ export async function updateScreenAreaOrder(
 		});
 	}
 
-	const { error } = await db.from("screens").update({ screen: body }).eq("id", screenId);
+	const { error } = await db.from("screens").update({ screen: body } as never).eq("id", screenId);
 	if (error) return { error: error.message };
 
 	revalidatePath("/");
@@ -149,25 +159,25 @@ export async function updateScreenAreaOrder(
 export async function deleteScreen(screenId: string): Promise<{ error?: string }> {
 	const db = createServerClient();
 
-	// screen의 variant_id 조회
-	const { data: screen } = await db
+	const { data: _screen } = await db
 		.from("screens")
 		.select("screen_variant_id")
 		.eq("id", screenId)
 		.single();
 
-	// screen 삭제
+	const screen = _screen ? asRow<Pick<ScreenRow, "screen_variant_id">>(_screen) : null;
+
 	const { error } = await db.from("screens").delete().eq("id", screenId);
 	if (error) return { error: error.message };
 
-	// variant에 screen이 더 없으면 variant도 삭제
 	if (screen?.screen_variant_id) {
-		const { data: remaining } = await db
+		const { data: _remaining } = await db
 			.from("screens")
 			.select("id")
 			.eq("screen_variant_id", screen.screen_variant_id);
 
-		if (!remaining?.length) {
+		const remaining = asRows<Pick<ScreenRow, "id">>(_remaining);
+		if (!remaining.length) {
 			await db.from("screen_variants").delete().eq("id", screen.screen_variant_id);
 		}
 	}

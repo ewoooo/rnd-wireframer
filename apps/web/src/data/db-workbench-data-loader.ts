@@ -14,6 +14,13 @@ import {
 } from "@/adapters/tables-to-render-tree";
 import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { createServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/types";
+
+type RouteRow = Database["public"]["Tables"]["screen_routes"]["Row"];
+type VariantRow = Database["public"]["Tables"]["screen_variants"]["Row"];
+type ScreenRow = Database["public"]["Tables"]["screens"]["Row"];
+type AreaRow = Database["public"]["Tables"]["organisms"]["Row"];
+type ComponentRow = Database["public"]["Tables"]["components"]["Row"];
 
 function toISOFallback(date: string | null | undefined) {
 	return date ?? new Date(0).toISOString();
@@ -39,11 +46,11 @@ export async function loadDbWorkbenchData() {
 		{ data: areaRows },
 		{ data: componentRows },
 	] = await Promise.all([
-		db.from("screen_routes").select("*").order("order"),
-		db.from("screen_variants").select("*").order("order"),
-		db.from("screens").select("*").order("order"),
-		db.from("organisms").select("*"),
-		db.from("components").select("*"),
+		db.from("screen_routes").select("*").order("order") as unknown as Promise<{ data: RouteRow[] | null }>,
+		db.from("screen_variants").select("*").order("order") as unknown as Promise<{ data: VariantRow[] | null }>,
+		db.from("screens").select("*").order("order") as unknown as Promise<{ data: ScreenRow[] | null }>,
+		db.from("organisms").select("*") as unknown as Promise<{ data: AreaRow[] | null }>,
+		db.from("components").select("*") as unknown as Promise<{ data: ComponentRow[] | null }>,
 	]);
 
 	// ── DB rows → main 타입 ─────────────────────────────────────
