@@ -1,11 +1,10 @@
 import type { RenderTreeNode } from "@cx/renderer";
-import { GripVertical, Workflow } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { useState } from "react";
-import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import {
 	getWorkbenchAreaSelectionFromData,
 	getWorkbenchComponentSelectionFromData,
@@ -16,14 +15,11 @@ import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
-	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
 	const areaOrderOverrides = useWorkbenchStore((state) => state.areaOrderOverrides);
 	const renderTrees = useWorkbenchStore((state) => state.renderTrees);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
 	const screens = useWorkbenchStore((state) => state.screens);
 	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
-	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 	const component =
@@ -47,28 +43,6 @@ export function InspectionPanel() {
 	const validation = screen
 		? getWorkbenchValidationStatusFromData(screens, renderTrees, screen.code)
 		: undefined;
-
-	if (activeTab === "agent") {
-		return (
-			<Sidebar side="right">
-				<SidebarHeader className="border-b border-sidebar-border">
-					<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-						<Workflow data-icon="inline-start" />
-						Agent
-					</h2>
-				</SidebarHeader>
-				<SidebarContent>
-					<ScrollArea className="h-[calc(100vh-88px)]">
-						<AgentRegistryInspection
-							registry={agentRegistry}
-							selectedAsset={selectedAgentAsset}
-							warnings={agentWarnings}
-						/>
-					</ScrollArea>
-				</SidebarContent>
-			</Sidebar>
-		);
-	}
 
 	if (!screen) {
 		return (

@@ -1,4 +1,3 @@
-import type { RegisteredNodeTree } from "@cx/agent/types";
 import type { RenderTree } from "@cx/renderer";
 import type { DraftTablesBundle } from "@cx/types/draft-tables";
 import type { QualityBacklog } from "@cx/types/quality-backlog";
@@ -11,12 +10,6 @@ import {
 	getInitialScreenCode,
 	getSelectedScreen,
 } from "@/adapters/tables-to-render-tree";
-import {
-	type AgentNodeSelection,
-	findSelectedAgentAsset,
-	getDefaultAgentSelection,
-	type SelectedAgentAsset,
-} from "@/agent/agent-registry-view";
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 
@@ -46,7 +39,6 @@ export interface AppScreenVariantOption {
 }
 
 interface InitializeWorkbenchInput {
-	agentRegistry?: RegisteredNodeTree;
 	areas: AppArea[];
 	components: AppComponent[];
 	renderTrees: RenderTree[];
@@ -60,8 +52,6 @@ interface WorkbenchState {
 	agentGenerationStatus: "error" | "idle" | "loading" | "success";
 	agentDraftTablesResult?: AgentDraftTablesResult;
 	agentImports: AgentClientImport[];
-	agentRegistry?: RegisteredNodeTree;
-	agentWarnings: string[];
 	areaOrderOverrides: Record<string, string[]>;
 	components: AppComponent[];
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
@@ -72,7 +62,6 @@ interface WorkbenchState {
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
-	selectAgentNode: (node: AgentNodeSelection) => void;
 	selectComponent: (componentCode: string) => void;
 	selectArea: (areaCode: string) => void;
 	selectScreenRoute: (screenRouteId: string) => void;
@@ -83,9 +72,6 @@ interface WorkbenchState {
 	setAgentGenerationStatus: (status: WorkbenchState["agentGenerationStatus"]) => void;
 	setAgentDraftTablesResult: (result?: AgentDraftTablesResult) => void;
 	setAgentImports: (imports: AgentClientImport[]) => void;
-	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
-	selectedAgentAsset?: SelectedAgentAsset;
-	selectedAgentNode: AgentNodeSelection;
 	selectedComponentCode: string;
 	selectedAreaCode: string;
 	selectedScreen?: AppScreen;
@@ -126,8 +112,6 @@ const initialWorkbenchState = {
 	agentGenerationMessage: "",
 	agentGenerationStatus: "idle" as const,
 	agentImports: [],
-	agentRegistry: undefined,
-	agentWarnings: [],
 	areaOrderOverrides: {},
 	components: [],
 	isComponentView: false,
@@ -136,11 +120,6 @@ const initialWorkbenchState = {
 	renderTrees: [],
 	screenRoutes: [],
 	screens: [],
-	selectedAgentAsset: undefined,
-	selectedAgentNode: {
-		level: "screen" as const,
-		id: "",
-	},
 	selectedComponentCode: "",
 	selectedAreaCode: "",
 	selectedScreen: undefined,
@@ -149,13 +128,9 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ agentRegistry, areas, components, renderTrees, screens }) => {
+	initializeWorkbench: ({ areas, components, renderTrees, screens }) => {
 		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
-		const selectedAgentNode =
-			agentRegistry && findSelectedAgentAsset(agentRegistry, state.selectedAgentNode)
-				? state.selectedAgentNode
-				: getDefaultAgentSelection(agentRegistry);
 		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
 			? state.selectedScreenCode
 			: getInitialScreenCode(screens);
@@ -170,15 +145,12 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
-			agentRegistry,
-			agentWarnings: agentRegistry?.warnings ?? [],
 			areaOrderOverrides: state.areaOrderOverrides,
 			components,
 			areas,
 			renderTrees,
 			screenRoutes,
 			screens,
-			selectedAgentNode,
 			selectedComponentCode,
 			selectedAreaCode,
 			selectedScreenCode,
@@ -186,20 +158,6 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
 		set({
 			...nextState,
-			...getDerivedWorkbenchState(nextState),
-		});
-	},
-	selectAgentNode: (node) => {
-		const state = get();
-		const nextState = {
-			...state,
-			activeNavigatorTab: "agent" as NavigatorTab,
-			selectedAgentNode: node,
-		};
-
-		set({
-			activeNavigatorTab: nextState.activeNavigatorTab,
-			selectedAgentNode: node,
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
@@ -321,36 +279,15 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	setAgentImports: (imports) => {
 		set({ agentImports: imports });
 	},
-	setAgentRegistry: (registry) => {
-		const state = get();
-		const selectedAgentNode = getDefaultAgentSelection(registry);
-		const nextState = {
-			...state,
-			agentGenerationStatus: "success" as const,
-			agentRegistry: registry,
-			agentWarnings: registry?.warnings ?? [],
-			selectedAgentNode,
-		};
-
-		set({
-			agentGenerationStatus: nextState.agentGenerationStatus,
-			agentRegistry: registry,
-			agentWarnings: nextState.agentWarnings,
-			selectedAgentNode,
-			...getDerivedWorkbenchState(nextState),
-		});
-	},
 }));
 
 function getDerivedWorkbenchState(
 	state: Pick<
 		WorkbenchState,
-		| "agentRegistry"
 		| "activeNavigatorTab"
 		| "components"
 		| "areas"
 		| "screens"
-		| "selectedAgentNode"
 		| "selectedComponentCode"
 		| "selectedAreaCode"
 		| "selectedScreenCode"
@@ -374,7 +311,6 @@ function getDerivedWorkbenchState(
 		activeScreen,
 		isComponentView,
 		isAreaView,
-		selectedAgentAsset: findSelectedAgentAsset(state.agentRegistry, state.selectedAgentNode),
 		selectedScreen,
 	};
 }

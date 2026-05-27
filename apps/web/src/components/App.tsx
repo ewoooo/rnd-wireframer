@@ -1,8 +1,6 @@
 "use client";
 
-import type { RegisteredNodeTree } from "@cx/agent/types";
 import { useEffect } from "react";
-import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { loadLocalWorkbenchData } from "@/data/local-workbench-data-loader";
 import { useWorkbenchStore } from "@/model/store";
@@ -10,24 +8,19 @@ import { Canvas } from "./layout/Canvas";
 import { InspectionPanel } from "./layout/InspectionPanel";
 import { NavigationPanel } from "./layout/NavigationPanel";
 
-interface AppProps {
-	agentRegistry?: RegisteredNodeTree;
-}
-
 const localWorkbenchData = loadLocalWorkbenchData();
 
-export function App({ agentRegistry = mockAgentAssetRegistry }: AppProps) {
+export function App() {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
 
 	useEffect(() => {
 		initializeWorkbench({
-			agentRegistry,
 			areas: localWorkbenchData.areas,
 			components: localWorkbenchData.components,
 			renderTrees: localWorkbenchData.renderTrees,
 			screens: localWorkbenchData.screens,
 		});
-	}, [agentRegistry, initializeWorkbench]);
+	}, [initializeWorkbench]);
 
 	return (
 		<SidebarProvider className="overflow-hidden">

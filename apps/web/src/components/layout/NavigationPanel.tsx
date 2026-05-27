@@ -9,16 +9,13 @@ import { NavigationRail } from "./NavigationRail";
 
 export function NavigationPanel() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const components = useWorkbenchStore((state) => state.components);
 	const areas = useWorkbenchStore((state) => state.areas);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
-	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
 	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 	const selectedScreenCode = useWorkbenchStore((state) => state.selectedScreenCode);
-	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 	const selectComponent = useWorkbenchStore((state) => state.selectComponent);
 	const selectArea = useWorkbenchStore((state) => state.selectArea);
 	const selectScreenRoute = useWorkbenchStore((state) => state.selectScreenRoute);
@@ -106,11 +103,7 @@ export function NavigationPanel() {
 					) : null}
 					{activeTab === "agent" ? (
 						<ScrollArea className="h-[calc(100vh-32px)]">
-							<AgentRegistryNavigation
-								registry={agentRegistry}
-								selectedNode={selectedAgentNode}
-								onSelectNode={selectAgentNode}
-							/>
+							<AgentRegistryNavigation />
 						</ScrollArea>
 					) : null}
 				</div>

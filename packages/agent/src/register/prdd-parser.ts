@@ -1,8 +1,8 @@
 /**
  * PRDD 마크다운 → 중간 표현 (ParsedPrddDocument).
  *
- * 다음 단계 (Step 3 register-assets)에서 이 중간 표현을 RegisteredNodeTree로
- * 변환한다. Region/Area 분류는 여기서 하지 않고 raw row만 보존한다.
+ * 다음 register 단계에서 이 중간 표현을 RegisteredPrddScreen으로 변환한다.
+ * Region/Area 분류는 여기서 하지 않고 raw row만 보존한다.
  */
 
 export interface ParsedPrddMeta {
@@ -178,7 +178,9 @@ function parseTable(text: string): RawTable | null {
 		.map((l) => l.trim())
 		.filter((l) => l.startsWith("|"));
 	if (lines.length < 2) return null;
-	const headers = splitRow(lines[0]!);
+	const headerLine = lines[0];
+	if (!headerLine) return null;
+	const headers = splitRow(headerLine);
 	// lines[1] = separator row (---|---), skip
 	const rows = lines.slice(2).map((l) => splitRow(l));
 	return { headers, rows };
@@ -190,7 +192,7 @@ function splitRow(line: string): string[] {
 }
 
 function cell(row: string[], headers: string[], name: string): string {
-	const idx = headers.findIndex((h) => h === name);
+	const idx = headers.indexOf(name);
 	if (idx < 0) return "";
 	return row[idx] ?? "";
 }

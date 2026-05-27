@@ -47,14 +47,9 @@ export type ValidationCode =
 	| "composition.gap.reference-missing"
 	| "composition.primitive.unknown"
 	| "composition.primitive.variant.unknown"
-	| "composition.component-pattern.unknown"
 	| "composition.prop-contract.violation"
 	| "composition.token-role.violation"
 	| "composition.design-refs.missing"
-	// ── ComponentPattern (Schema C) ──────────────────────────
-	| "component-pattern.propose.incomplete"
-	| "component-pattern.propose.scope-violation"
-	| "component-pattern.cycle"
 	// ── LayoutPattern (Schema B draft / Validator #2) ────────
 	| "layout-pattern.draft.missing"
 	| "layout-pattern.draft.unknown"
@@ -64,7 +59,6 @@ export type ValidationCode =
 	| "layout-pattern.verification.reasons-missing"
 	| "layout-pattern.verification.change-unjustified"
 	// ── GapReport (Schema D) ─────────────────────────────────
-	| "gap-report.incomplete"
 	// ── Resolver / cross-cutting ─────────────────────────────
 	| "resolver.variant.duplicate-resolve"
 	| "cross-table.invariant.mismatch";

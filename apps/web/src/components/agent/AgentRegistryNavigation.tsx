@@ -1,26 +1,13 @@
-import type { RegisteredNodeTree } from "@cx/agent/types";
 import { useEffect, useRef, useState } from "react";
-import type { AgentNodeSelection } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
 import { createWorkbenchDataFromTables } from "@/data/workbench-data-builder";
 import { type AgentDraftTablesResult, useWorkbenchStore } from "@/model/store";
 
-interface AgentRegistryNavigationProps {
-	registry?: RegisteredNodeTree;
-	selectedNode: AgentNodeSelection;
-	onSelectNode: (node: AgentNodeSelection) => void;
-}
-
-export function AgentRegistryNavigation({
-	registry,
-	selectedNode,
-	onSelectNode,
-}: AgentRegistryNavigationProps) {
+export function AgentRegistryNavigation() {
 	const imports = useWorkbenchStore((state) => state.agentImports);
 	const draftTablesResult = useWorkbenchStore((state) => state.agentDraftTablesResult);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const status = useWorkbenchStore((state) => state.agentGenerationStatus);
 	const message = useWorkbenchStore((state) => state.agentGenerationMessage);
 	const setAgentDraftTablesResult = useWorkbenchStore((state) => state.setAgentDraftTablesResult);
@@ -158,7 +145,6 @@ export function AgentRegistryNavigation({
 			setAgentDraftTablesResult(result);
 			if (result.previewTables && failedCount === 0) {
 				initializeWorkbench({
-					agentRegistry,
 					...createWorkbenchDataFromTables(result.previewTables),
 				});
 				selectTab("scn");
@@ -240,58 +226,6 @@ export function AgentRegistryNavigation({
 				{message ? <p className="mt-2 text-xs text-muted-foreground">{message}</p> : null}
 			</div>
 			{draftTablesResult ? <DraftTablesResultPanel result={draftTablesResult} /> : null}
-			<div className="flex items-center justify-between gap-2">
-				<div>
-					<p className="text-sm font-semibold">Legacy Agent Registry</p>
-					<p className="text-xs text-muted-foreground">read-only compatibility view</p>
-				</div>
-				<Badge variant="outline">{registry?.routes.length ?? 0} routes</Badge>
-			</div>
-			{registry ? (
-				registry.routes.map((route) => (
-					<div key={route.id} className="rounded-lg border bg-background p-2">
-						<AgentNodeButton
-							isSelected={selectedNode.level === "route" && selectedNode.id === route.id}
-							label={route.name}
-							meta={route.id}
-							onClick={() => onSelectNode({ level: "route", id: route.id })}
-						/>
-						<div className="mt-2 flex flex-col gap-2 border-l pl-3">
-							{route.variants.map((variant) => (
-								<div key={variant.id} className="flex flex-col gap-2">
-									<AgentNodeButton
-										isSelected={selectedNode.level === "variant" && selectedNode.id === variant.id}
-										label={variant.name}
-										meta={variant.id}
-										onClick={() => onSelectNode({ level: "variant", id: variant.id })}
-									/>
-									<div className="flex flex-col gap-1 border-l pl-3">
-										{variant.screens.map((screen) => (
-											<AgentNodeButton
-												key={screen.id}
-												isSelected={
-													selectedNode.level === "screen" && selectedNode.id === screen.id
-												}
-												label={screen.name}
-												meta={screen.id}
-												onClick={() => onSelectNode({ level: "screen", id: screen.id })}
-											/>
-										))}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				))
-			) : (
-				<div className="rounded-lg border bg-background p-3 text-sm text-muted-foreground">
-					No legacy registry is loaded.
-				</div>
-			)}
-			<div className="grid grid-cols-2 gap-2">
-				<Badge variant="secondary">{registry?.areas.length ?? 0} areas</Badge>
-				<Badge variant="secondary">{registry?.components.length ?? 0} components</Badge>
-			</div>
 		</div>
 	);
 }
@@ -432,30 +366,4 @@ async function readJsonResponse<TPayload>(
 			error: `${fallbackMessage} Non-JSON response (${response.status} ${response.statusText}).`,
 		} as TPayload & { error?: string };
 	}
-}
-
-function AgentNodeButton({
-	isSelected,
-	label,
-	meta,
-	onClick,
-}: {
-	isSelected: boolean;
-	label: string;
-	meta: string;
-	onClick: () => void;
-}) {
-	return (
-		<button
-			type="button"
-			className={cn(
-				"flex w-full flex-col gap-1 rounded-md p-2 text-left transition-colors hover:bg-accent",
-				isSelected && "bg-primary/5 text-primary ring-1 ring-primary/40",
-			)}
-			onClick={onClick}
-		>
-			<span className="truncate text-sm font-medium">{label}</span>
-			<span className="truncate text-xs text-muted-foreground">{meta}</span>
-		</button>
-	);
 }

@@ -11,10 +11,8 @@
 ```text
 apps/        제품 앱
 packages/    재사용 가능한 TypeScript 패키지
-services/    독립 실행 백엔드/worker
 database/    AI import 산출물, table dump, reference store
 docs/        개발/데이터/디자인 문서와 분석 산출물
-e2e/         제품 흐름 기준 end-to-end 테스트
 scripts/     저장소 공통 검사와 자동화 스크립트
 ```
 
@@ -47,32 +45,26 @@ packages/{name}/
 
 ## 4. `packages/agent` 구조
 
-`@cx/agent`의 기본 경로는 source를 DraftTables 후보로 만들고 QualityReport/Preview/Promote 경계로 넘기는 active path다. legacy/experimental pipeline은 subpath로만 사용한다.
+`@cx/agent`의 기본 경로는 source를 DraftTables 후보로 만들고 QualityReport/Preview/Promote 경계로 넘기는 active path다. legacy pipeline은 호환 subpath로만 사용한다.
 
 ```text
 packages/agent/src/
   register/    원천 입력 parsing/register와 invariant report
-  pipeline/    active DraftTables orchestration, experimental pipeline barrel
-  validate/    active QualityReport adapter와 experimental validator barrel
-  database/    promote/import 후보 검증, legacy/experimental materializer
-  compose/     legacy asset composition
-  decorate/    legacy asset decoration
-  design-review/  experimental design quality patch
-  pattern/     legacy/experimental resolver
-  runtime/     Agent SDK 실행 adapter
+  pipeline/    active DraftTables orchestration
+  validate/    active QualityReport adapter
+  database/    promote/import 후보 검증, PRDD tables 변환
+  compose/     PRDD 내부 composed 구조 생성
+  decorate/    PRDD 내부 pattern 적용
+  pattern/     active pattern resolver
   types.ts
   index.ts
 ```
 
-기본 계약은 `source -> DraftTables -> QualityReport -> Preview -> Promote`다. `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 흐름은 legacy/experimental subpath로 유지한다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다.
+기본 계약은 `source -> DraftTables -> QualityReport -> Preview -> Promote`다. 기존 asset tree pipeline과 design-review 흐름은 제거했다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다.
 
 ## 4.1 `packages/types` 구조
 
 `@cx/types`는 런타임 구현을 갖지 않는 공유 계약 패키지다. `database/tables` row shape, pattern-store 계약처럼 `@cx/agent`, `@cx/renderer`, `apps/web`이 동시에 참조하는 타입은 여기에서 먼저 정의한다. 특정 패키지 구현 세부 타입은 이 패키지로 올리지 않는다.
-
-## 4.2 `packages/component-pattern-store` 구조
-
-`@cx/component-pattern-store`는 Compose가 재사용하거나 제안할 semantic UI block registry다. registered/proposed componentPattern catalog를 소유하고, `@cx/pattern-store`의 screen/region/area/composite layout recipe와 섞지 않는다.
 
 ## 5. 앱 구조 규칙
 
@@ -103,7 +95,7 @@ database/
 ```
 
 `database/client-imports`는 원천 import 보관소다. parser나 AI 보정 단계가 원본을 덮어쓰지 않는다.
-`database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.materialized.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
+`database/ai-imports`는 생성 후보 산출물 보관소다. DraftTables 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
 `database/tables`는 승인된 소비 데이터만 둔다. agent pipeline과 parser는 이 디렉토리를 직접 덮어쓰지 않고 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계에서만 반영한다.
 `@cx/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `screen`, `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이다. 단, `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 pattern-store가 아니라 deterministic code와 `database/tables` 계약이 담당한다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
 active DraftTables 산출물은 `database/ai-imports/draft-tables/{importId}/` 아래에 `{screen}.draft-tables.json`, `{screen}.quality-report.json`, `{screen}.materialized.json`, `quality-backlog.json` 이름으로 둔다. legacy Claude/AI 보정 산출물은 과거 호환 데이터로만 남기며, 신규 생성 entrypoint로 사용하지 않는다.

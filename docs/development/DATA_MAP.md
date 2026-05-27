@@ -79,7 +79,7 @@ RenderTree DTO
 apps/web
 ```
 
-Legacy/experimental 생성 흐름은 별도 subpath로 유지한다. 해당 흐름의 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용하지만 active path의 기본 산출물은 아니다.
+기존 legacy asset 생성 흐름은 제거했다. 신규 후보 산출물은 DraftTables/QualityReport/QualityBacklog 단위로 관리한다.
 
 ## 3. 공급 데이터
 
@@ -89,10 +89,9 @@ Legacy/experimental 생성 흐름은 별도 subpath로 유지한다. 해당 흐�
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
-| `@cx/component-pattern-store` | primitive/componentPattern 조합으로 만든 재사용 semantic UI block registry | Compose 단계의 `reuse-pattern`, `proposedComponentPatterns` 큐레이션/재사용 |
 | `@cx/pattern-store` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 
-PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 `database/client-imports/PRDD/variants/`에 보관하며, 명시적 variant/retry 생성 또는 edge-case 검증 때만 입력으로 승격한다.
+PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 repo에 상시 보관하지 않고, 명시적 variant/retry 생성 또는 edge-case 검증 때 입력으로 다시 제공한다.
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
@@ -103,15 +102,13 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
-- archetype scaffold는 저장 데이터가 아니라 Compose 전 deterministic 골격 계약이다. 소비 데이터에는 scaffold 자체를 저장하지 않고, Compose 산출물의 `screen.archetype`과 completeness 판단, 이후 materialized row의 구조로만 반영한다.
-- `@cx/component-pattern-store`는 의미 있는 UI 조합 계약이다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
-- componentPattern은 scaffold block을 표현하는 재사용 semantic UI 조합이고, layout pattern은 screen/region/area/composite children 배치 recipe다. 두 계약을 같은 JSON이나 같은 `type` 문자열로 겸용하지 않는다.
+- layout pattern은 screen/region/area/composite children 배치 recipe다.
 - `@cx/pattern-store`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
 
-Design Review 단계는 DecoratedNodeTree 이후 디자인 품질을 보정하는 patch 단계다. `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` 같은 제한된 operation만 제안할 수 있으며, 각 finding/operation은 반드시 [docs/design](/Users/plusx/Documents/rnd-screen-generator/docs/design)의 책임 문서를 `designReferences`로 인용해야 한다. AI는 tree 전체를 재생성하지 않고 Design Review patch만 제안하며, deterministic code가 patch를 적용하고 검증한다.
+디자인 품질 보강은 QualityReport/QualityBacklog 결과와 [docs/design](/Users/plusx/Documents/rnd-screen-generator/docs/design)의 책임 문서를 근거로 수행한다. AI는 tree 전체를 재생성하지 않고 `database/tables` shape 후보만 보강하며, deterministic code가 renderer projection/validation으로 검증한다.
 
 ## 4. 소비 데이터
 

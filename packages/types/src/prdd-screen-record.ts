@@ -1,20 +1,16 @@
 import type { ScreenSurfaceType } from "./node-types";
 
 /**
- * Schema A — PRDD Screen Record.
- *
- * Register 단계가 PRDD .md를 결정론적으로 파싱해 만든 **AI Compose 입력 사이드카**.
+ * Register 단계가 PRDD .md를 결정론적으로 파싱해 만든 입력 사이드카.
  * runtime `RegisteredScreenNode`(packages/agent/src/types.ts) 와 책임이 다르다:
  *
- * - runtime `RegisteredScreenNode` — route/variant/screen tree의 노드. Composer/Decorator/Materializer가 소비.
- * - **PrddScreenRecord** — PRDD prose 1급 보존본. LLM #1 Compose가 의미 해석용으로 읽음.
+ * - runtime `RegisteredScreenNode` — legacy route/variant/screen tree의 노드.
+ * - **PrddScreenRecord** — PRDD prose 1급 보존본. Draft Tables 생성이 의미 해석용으로 읽음.
  *
  * Register가 한 PRDD에서 **두 표상을 함께** 생성한다. 둘은 다음 invariant를 공유한다:
  * - 같은 `screenId`
  * - 같은 `importJobId` (한 import 호출에서 동시 생성됨을 보증)
  * - `areas.length`, `area.children.length` 가 1:1로 추적 가능
- *
- * 자세한 계약은 database/AI-COMPOSITION-SPEC.md §2 참조.
  */
 
 export type PrddBindingOrigin = "api" | "policy" | "static" | "state";

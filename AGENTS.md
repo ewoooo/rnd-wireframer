@@ -20,9 +20,7 @@
 - Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
-- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약은 `packages/renderer/src/component-catalog.ts`의 `component-catalog`에서 관리하고 compose/AI/editor가 이를 참조한다.
-- 화면 archetype scaffold는 `packages/agent/src/compose-screen/scaffold.ts`에서 PRDD 어휘 기반으로 deterministic하게 산출하며, Compose 단계의 화면 골격 계약으로만 사용한다.
-- 재사용 가능한 semantic UI 조합인 componentPattern registry는 `packages/component-pattern-store`의 `@cx/component-pattern-store` 패키지에서 관리한다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
+- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약은 `packages/renderer/src/component-catalog.ts`의 `component-catalog`에서 관리하고 generation/review/editor가 이를 참조한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
@@ -33,10 +31,9 @@
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
 - 원천 import는 `database/client-imports/`, AI import 후보 산출물은 `database/ai-imports/`, 승인된 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
-- `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/*.materialized.json` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
-- `database/generated-decks`는 LLM prompt packaging과 감사/재현을 위한 snapshot 산출물이다. 계약 검증의 기준은 deck이 아니라 `@cx/components/catalog`, `@cx/component-pattern-store`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
-- AI generation 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 순서로 본다. `ComposedNodeTree` 이후에는 `raw`와 pending placeholder를 남기지 않는다. Design Review patch는 반드시 `docs/design/` 책임 문서를 근거로 제한된 operation만 제안한다.
-- component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한 뒤 compose에서 `component.hooks`로 승격한다.
+- `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
+- AI generation 산출물 계약은 `DraftTablesBundle -> QualityReport -> QualityBacklog -> Preview -> Promote` 순서로 본다. 후보는 `database/ai-imports/` 또는 API 응답에 머물고, 승인된 후보만 `database/tables`로 반영한다.
+- component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
@@ -48,39 +45,36 @@
 
 ```text
 원천 markdown 또는 read model
--> Register: 파서/계약 테이블이 route, variant, screen, area, component 골격과 raw를 만든다
--> Composer (LLM #1): Archetype Catalog에서 archetype을 선택(또는 propose)하고 raw를 component props/hooks 후보로 승격한다
--> Validator #1: archetypeChoice rationale, scaffold 정합성, catalog hit 등 게이트
--> Decorator (LLM #2): @cx/pattern-store의 layout pattern ref를 검증·보정한다
--> Validator #2: layoutPattern 게이트
--> Materializer: database/tables shape의 row를 만든다
--> Design Review: docs/design 근거가 있는 제한 patch만 제안/적용한다, proposed archetype/componentPattern 큐레이션
+-> Register: 파서/계약 테이블이 source record와 invariant report를 만든다
+-> Draft Tables: database/tables shape의 승인 전 후보를 만든다
+-> Quality Report: renderer validation issue를 품질 카테고리로 접는다
+-> Quality Backlog: 반복되는 component/pattern/catalog gap을 보강 후보로 묶는다
+-> Preview: draft tables를 renderer projection으로 확인한다
+-> Promote: 승인된 후보만 database/tables에 반영한다
 -> @cx/renderer: tablesToRenderTree projection과 validation 후 React render한다
 ```
 
 AI가 판단·보강하는 영역:
 
 - Register 입력이 불완전할 때 누락된 설명, 이름, raw 셀 해석 후보를 제안
-- Composer 단계의 **archetype 선택**: Archetype Catalog reuse 또는 새 archetype propose. rationale은 PRDD 근거 인용 필수 (빈 문자열 시 Validator reject)
-- Composer 단계에서 scaffold block의 present/synthetic/missing/omitted 판단, component props 기본값, hooks 후보, data binding path 후보를 보강
-- Decorator/Design Review 단계에서 pattern 선택 보정, CTA 승격, display 상태 보정, 새 component/composite/pattern 제안을 제한 operation으로 표현
+- Draft Tables 후보 생성에서 component props 기본값, hooks 후보, data binding path 후보를 보강
+- Quality Report/Backlog 근거로 pattern 선택 보정, CTA 승격, display 상태 보정, 새 component/composite/pattern 보강 후보를 제안
 - “약관 목록 조회” 같은 설명을 component `title`/`description`/`label` 후보로 풀기
 
 코드가 deterministic하게 처리해야 하는 영역:
 
 - `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성
 - PRDD 영역 번호 기반 slot 분류: `0`은 header, `999` 이상은 bottom, 그 외는 contents area
-- Archetype Catalog 노출과 archetypeChoice 검증 (catalog hit / proposedScaffold 정합성 / rationale 비어있지 않음 / requiredBlocks 설명 / allowedSyntheticBlocks 준수)
 - source area/component 순서와 sourceRef 유지
 - area id, component id, route/variant/screen id, `metadata.title`, version, schema version 생성
 - `@cx/pattern-store`의 pattern id/variant 존재 검증과 fallback report 생성
 - `@cx/renderer`의 `tablesToRenderTree` projection과 validation 실행
 - component registry 존재 확인
-- 누락 참조 리포트 생성
+- 누락 참조와 품질 backlog 생성
 
-archetype 선택을 결정론 매처에서 LLM 판단으로 옮긴 이유와 같은 맥락에서, 이 외 **의미 추론 단계는 모두 LLM이 책임지고 코드는 데이터(catalog)와 게이트(validator)만 둔다**. parser(Register)와 row materializer만 결정론이 1급으로 남는다.
+의미 추론 단계는 AI가 책임지고 코드는 데이터(catalog)와 게이트(validator)를 둔다. parser(Register), draft table 생성, promote만 결정론이 1급으로 남는다.
 
-AI가 RenderTree 전체나 `database/tables` 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 각 단계의 제한된 산출물 또는 patch를 보강하고, 최종 후보 산출물은 `MaterializedNodeTree`와 `database/tables` shape를 거쳐 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
+AI가 RenderTree 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. 최종 후보 산출물은 `database/tables` shape와 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
 
 ## 4. 디자인 패턴 문서
 

@@ -1,7 +1,7 @@
 import { errorsOf } from "@cx/types/validation";
 import { describe, expect, it } from "vitest";
 import { promoteDatabaseTablesCandidate } from "../database/promote-database-tables";
-import type { MaterializedNodeTree } from "../database/register-assets-to-database-tables";
+import type { MaterializedNodeTree } from "@cx/types/database-tables";
 
 const timestamp = "2026-05-26T00:00:00.000Z";
 

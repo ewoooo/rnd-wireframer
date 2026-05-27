@@ -20,10 +20,8 @@ npm run dev
 
 - `apps/web` — Next.js 앱
 - `packages/{token,component,layout,renderer,agent}` — 파이프라인 단계별 패키지
-- `services/api` — Python 백엔드 (별도 venv, npm workspace 아님)
-- `database/` — source imports, AI import candidates, generated decks, approved table dumps
+- `database/` — source imports, AI import candidates, approved table dumps
 - `docs/` — 디자인, 개발, 데이터 mockup 문서
-- `e2e/` — Playwright 시나리오
 
 구조가 커질 때의 배치 기준은 [PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md)를 따른다.
 
@@ -31,7 +29,6 @@ npm run dev
 
 ```bash
 bun run test         # vitest
-bun run test:e2e     # playwright
 bun run lint         # biome + react hooks 정책
 ```
 

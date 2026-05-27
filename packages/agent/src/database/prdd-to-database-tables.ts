@@ -15,7 +15,7 @@ import type {
 	DatabaseScreenRegion,
 	DatabaseScreenRegionType,
 	DatabaseScreenRow,
-} from "./register-assets-to-database-tables";
+} from "@cx/types/database-tables";
 
 export interface MaterializedPrddTables {
 	screen: DatabaseScreenRow;

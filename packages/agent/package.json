@@ -7,30 +7,18 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./agent-sdk-runtime": "./src/runtime/agent-sdk-runtime.ts",
 		"./promote-database-tables": "./src/database/promote-database-tables.ts",
 		"./pipeline/draft-tables": "./src/pipeline/draft-tables-pipeline.ts",
-		"./pipeline/experimental": "./src/pipeline/experimental.ts",
 		"./pipeline/prdd-draft-tables": "./src/pipeline/prdd-draft-tables.ts",
-		"./register-assets": "./src/register/register-assets.ts",
 		"./types": "./src/types.ts",
 		"./validate": "./src/validate/index.ts",
-		"./validate/experimental": "./src/validate/experimental.ts",
 		"./validate/quality-backlog": "./src/validate/quality-backlog.ts",
 		"./validate/quality-report": "./src/validate/quality-report.ts",
-		"./deck": "./src/deck/index.ts",
-		"./compose-screen": "./src/compose-screen/index.ts",
-		"./decorate-screen": "./src/decorate-screen/index.ts",
 		"./pipeline": "./src/pipeline/index.ts"
 	},
 	"dependencies": {
-		"@anthropic-ai/claude-agent-sdk": "^0.3.146",
-		"@cx/component-pattern-store": "0.1.0",
-		"@cx/components": "0.1.0",
 		"@cx/pattern-store": "0.1.0",
 		"@cx/renderer": "0.1.0",
-		"@cx/types": "0.1.0",
-		"@openai/agents": "^0.11.4",
-		"zod": "^4.4.3"
+		"@cx/types": "0.1.0"
 	}
 }

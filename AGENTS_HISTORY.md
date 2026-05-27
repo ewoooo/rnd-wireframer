@@ -26,15 +26,35 @@
 - 후속:
 ```
 
-새 엔트리는 가장 최근 월의 `docs/agents-history/YYYY-MM.md`에 추가한다. 월이 바뀌면 새 월 파일을 만들고 아래 인덱스에 링크를 추가한다.
+새 엔트리는 이 파일의 최근 엔트리 섹션 상단에 추가한다. 오래된 세부 로그는 필요할 때 외부 아카이브로 분리한다.
 
-## 3. 월별 인덱스
+## 3. 아카이브
 
-- [2026-05](./docs/agents-history/2026-05.md)
+- 월별 repo 내부 아카이브는 2026-05-27 감량 라운드에서 제거함
 
 ## 4. 최근 엔트리
 
-가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
+최근 주요 변경만 inline 유지한다.
+
+## 2026-05-27 - Remove Orphan Legacy Surfaces
+
+- 변경: legacy asset pipeline, design-review, deck builder, Agent SDK runtime adapter, component-pattern-store, ai-deck/component-pattern 타입, legacy web registry view와 관련 fixture 산출물을 제거함
+- 변경: AGT 탭은 client import upload와 Draft Tables 생성 패널만 남기고, 예전 Agent Registry preview/inspection 상태를 제거함
+- 이유: active 생성 경로가 DraftTables/QualityReport/Preview/Promote로 좁혀진 뒤 참조되지 않는 코드와 public export가 남아 복잡도를 다시 키우고 있었기 때문
+- 검증: 후속 타입체크/테스트에서 확인
+
+## 2026-05-27 - Remove Experimental Composition Surface
+
+- 변경: `database/client-imports/PRDD/variants/` 76개 deferred PRDD 파일, `docs/agents-history/2026-05.md`, `database/AI-COMPOSITION-SPEC.md`를 제거함
+- 변경: `compose-screen`, `decorate-screen`, composition/decorated validator, `materialize-composition`, experimental pipeline, 관련 테스트와 `@cx/types`의 `composition-output`/`decorated-output`/`gap-report` export를 제거함
+- 이유: 활성 생성 경로를 PRDD Draft Tables -> Quality Report/Backlog -> Preview/Promote로 좁히고, 사용하지 않는 2-stage composition 실험 표면과 문서 보관 비용을 줄이기 위함
+- 검증: 후속 타입체크/테스트에서 확인
+
+## 2026-05-27 - Product Summary Placeholder Values
+
+- 변경: 상품 상세 핵심 요약 화면의 운영 테이블 샘플 표시값을 첨부 화면 기준으로 `iPhone 16 Pro`, `Apple / 스마트폰 / 월 50,000원`, `가입가능`, `혜택`, `T 우주패스 제휴 혜택 제공`으로 교체함
+- 이유: `CardSummary`, `Badge`, `ListText`에 `{상품명}` 같은 PRDD 템플릿 placeholder가 그대로 노출되어 프리뷰 화면 품질을 떨어뜨렸기 때문
+- 검증: `rg -n '\\{[^}]+\\}' database/tables`, `jq empty database/tables/components.json`, `pnpm exec biome check database/tables/components.json`
 
 ## 2026-05-27 - MBR Bottom ActionButton CTA
 

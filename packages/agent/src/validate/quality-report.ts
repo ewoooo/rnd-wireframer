@@ -24,7 +24,6 @@ const CATEGORY_BY_CODE_PREFIX: Array<{
 	{ prefix: "composition.source-ref", category: "sourceTrace", owner: "source" },
 	{ prefix: "composition.source-refs", category: "sourceTrace", owner: "source" },
 	{ prefix: "composition.primitive", category: "component", owner: "component" },
-	{ prefix: "composition.component-pattern", category: "component", owner: "catalog" },
 	{ prefix: "composition.prop-contract", category: "component", owner: "component" },
 	{ prefix: "composition.visual-hierarchy", category: "hierarchy", owner: "prompt" },
 	{ prefix: "composition.completeness", category: "hierarchy", owner: "prompt" },

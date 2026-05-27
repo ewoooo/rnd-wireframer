@@ -10,25 +10,19 @@
 		"dev": "next dev apps/web",
 		"build": "next build apps/web",
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages",
-		"lint:agent-boundary": "node scripts/check-active-agent-boundary.mjs",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
 		"test": "vitest run",
-		"test:watch": "vitest",
-		"build:decks": "tsx packages/agent/src/deck/build-decks.ts",
-		"test:e2e": "playwright test",
-		"test:e2e:ui": "playwright test --ui"
+		"test:watch": "vitest"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
-		"@playwright/test": "^1.60.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
 		"@types/node": "^25.9.0",
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"jsdom": "^29.1.1",
-		"playwright": "^1.60.0",
 		"tsx": "^4.22.3",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.6"

@@ -42,7 +42,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | `packages/component` | 1차 이관 | `ewoooo/cx-components` 기반 leaf component 일부와 token CSS 이관 |
 | `packages/token` | 1차 구현 | Tailwind v4 `@theme` generated CSS export |
 | `database/client-imports` | 구현 시작 | 사용자가 올린 screen/area 원천 import 보관 |
-| `services/api` | 골격 | FastAPI requirements와 디렉토리만 존재 |
+| `services/api` | 보류 | Phase 5에서 FastAPI read model을 재시작할 때 다시 도입한다 |
 | `Puck editor` | 미구현 | 디렉토리 placeholder만 존재 |
 | `Agent SDK 생성/검수` | 미구현 | 정책과 문서만 존재 |
 | 데이터 설계 | 재등록 | 공급 데이터/소비 데이터 분리와 소비 데이터 계약 기준 재정의 |
@@ -85,7 +85,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 4. 시스템이 보정 결과를 `database/ai-imports/{importId}` 아래의 AI import 후보 산출물로 저장한다.
 5. 후보 산출물은 검증과 promote/import 단계를 통과한 뒤에만 `database/tables` 소비 데이터로 반영한다.
 
-이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과와 DecoratedNodeTree를 제한된 patch로 보정하는 역할을 맡는다. 최종 후보 산출물은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> MaterializedNodeTree` 순서와 `database/tables` row 계약을 기준으로 검증한다. Design Review patch는 반드시 `docs/design/`의 근거 문서를 참조해야 한다.
+이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 `DraftTablesBundle` 후보로 보강하는 역할을 맡는다. 최종 후보 산출물은 `DraftTablesBundle -> QualityReport -> QualityBacklog -> Preview -> Promote` 순서와 `database/tables` row 계약을 기준으로 검증한다. 디자인 품질 보강은 반드시 `docs/design/`의 근거 문서를 참조해야 한다.
 
 ## 4. MVP 범위
 
