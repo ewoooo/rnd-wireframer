@@ -61,6 +61,601 @@
 					"id": "dec-list-text-info"
 				}
 			]
+		},
+		{
+			"id": "ogn-mbr-term-list",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "약관 목록 조회",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "약관 목록 조회"
+			},
+			"pattern": {
+				"id": "accordion-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "list-cell-term-required"
+				},
+				{
+					"kind": "component",
+					"id": "list-cell-term-optional"
+				},
+				{
+					"kind": "component",
+					"id": "accordion-term-detail"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-term-error"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-term-agree",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "약관 동의",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "약관 동의"
+			},
+			"pattern": {
+				"id": "checkbox-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "checkbox-all-agree"
+				},
+				{
+					"kind": "component",
+					"id": "checkbox-term-required"
+				},
+				{
+					"kind": "component",
+					"id": "checkbox-term-optional"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-required-error"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-next"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-input",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "법정대리인 정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "법정대리인 정보 입력"
+			},
+			"pattern": {
+				"id": "field-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "text-field-guardian-name"
+				},
+				{
+					"kind": "component",
+					"id": "text-field-guardian-phone"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-guardian-info"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-guardian-error"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-guardian-request"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-guardian-result",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "법정대리인 동의 결과 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "법정대리인 동의 결과 확인"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-guardian-wait"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-guardian-expire"
+				},
+				{
+					"kind": "component",
+					"id": "button-guardian-retry"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-member-input",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "회원 정보 입력",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "회원 정보 입력"
+			},
+			"pattern": {
+				"id": "field-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "text-field-user-id"
+				},
+				{
+					"kind": "component",
+					"id": "text-field-password"
+				},
+				{
+					"kind": "component",
+					"id": "text-field-email"
+				},
+				{
+					"kind": "component",
+					"id": "text-field-phone"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-input-error"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-next-member-input"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-entry-check",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 진입 조건 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "가입 진입 조건 확인"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-entry-existing"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-entry-dormant"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-entry-withdrawn"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-select",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "인증수단 선택",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "인증수단 선택"
+			},
+			"pattern": {
+				"id": "auth-method-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "list-cell-auth-phone"
+				},
+				{
+					"kind": "component",
+					"id": "list-cell-auth-pass"
+				},
+				{
+					"kind": "component",
+					"id": "list-cell-auth-cert"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-request",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "본인인증 요청",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "본인인증 요청"
+			},
+			"pattern": {
+				"id": "auth-code-entry",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "text-field-auth-code"
+				},
+				{
+					"kind": "component",
+					"id": "list-text-auth-timer"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-auth-error"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-auth-expire"
+				},
+				{
+					"kind": "component",
+					"id": "text-button-auth-retry"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-member-status",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "회원 상태 조회",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "회원 상태 조회"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-status-dormant"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-status-withdrawn"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-status-error"
+				},
+				{
+					"kind": "component",
+					"id": "button-status-retry"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-path",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 경로 분기",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "가입 경로 분기"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-join-available"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-join-dormant"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-join-blocked"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-join-proceed"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-complete",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 완료",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "가입 완료"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-join-success"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-session-error"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-detect",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 감지 및 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 감지 및 안내"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-dormant-guide"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-dormant-error"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-dormant-release"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-eligibility",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 가능 여부 판정",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 가능 여부 판정"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-eligibility-guide"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-eligibility-block"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-eligibility-error"
+				},
+				{
+					"kind": "component",
+					"id": "action-area-eligibility-proceed"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-release",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 처리",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 처리"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-release-progress"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-release-error"
+				},
+				{
+					"kind": "component",
+					"id": "section-message-release-session-error"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-complete",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 완료 안내",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-22T05:58:12.837Z",
+				"updatedAt": "2026-05-22T05:58:12.837Z"
+			},
+			"props": {
+				"name": "휴면 해제 완료 안내"
+			},
+			"pattern": {
+				"id": "message-stack",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "section-message-complete-result"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-auth-actions",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "본인인증 확인 액션",
+				"author": "agent",
+				"createdAt": "2026-05-27T00:00:00.000Z",
+				"updatedAt": "2026-05-27T00:00:00.000Z",
+				"description": "본인인증 화면의 주 CTA를 Screen.Bottom에 고정한다."
+			},
+			"props": {
+				"hideTitle": true
+			},
+			"pattern": {
+				"id": "bottom-action-area",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "action-area-auth-confirm"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-join-actions",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "가입 완료 액션",
+				"author": "agent",
+				"createdAt": "2026-05-27T00:00:00.000Z",
+				"updatedAt": "2026-05-27T00:00:00.000Z",
+				"description": "가입 완료 화면의 주 CTA를 Screen.Bottom에 고정한다."
+			},
+			"props": {
+				"hideTitle": true
+			},
+			"pattern": {
+				"id": "bottom-action-area",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "action-area-join-done"
+				}
+			]
+		},
+		{
+			"id": "ogn-mbr-dormant-complete-actions",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "휴면 해제 완료 액션",
+				"author": "agent",
+				"createdAt": "2026-05-27T00:00:00.000Z",
+				"updatedAt": "2026-05-27T00:00:00.000Z",
+				"description": "휴면 해제 완료 화면의 주 CTA를 Screen.Bottom에 고정한다."
+			},
+			"props": {
+				"hideTitle": true
+			},
+			"pattern": {
+				"id": "bottom-action-area",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "action-area-complete-home"
+				}
+			]
 		}
 	]
 }

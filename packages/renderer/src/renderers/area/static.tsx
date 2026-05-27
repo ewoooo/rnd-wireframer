@@ -3,6 +3,7 @@ import { NODE_TYPES } from "@cx/types/node-types";
 import { toNumber } from "../../normalize-render-props";
 import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";
+import { renderAreaChildren } from "./layout";
 import type { AreaRenderableProps } from "./types";
 
 /**
@@ -13,7 +14,6 @@ export const areaStaticRendererDefinition: RendererDefinition = {
 	render: ({ node, renderable, renderChildren }) => {
 		const props = renderable.props as AreaRenderableProps;
 		const titleGap = toNumber(props.titleGap, 8);
-		const componentGap = toNumber(props.componentGap, 12);
 		const areaName = props.name === undefined ? undefined : toText(props.name, "");
 		const hideTitle = Boolean(props.hideTitle) || !areaName;
 
@@ -29,12 +29,7 @@ export const areaStaticRendererDefinition: RendererDefinition = {
 						<p className="text-base font-semibold">{areaName}</p>
 					</div>
 				)}
-				<div
-					className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", componentGap))}
-					style={{ gap: spacingFallbackStyleValue(componentGap) }}
-				>
-					{renderChildren()}
-				</div>
+				{renderAreaChildren(renderChildren(), props)}
 			</section>
 		);
 	},

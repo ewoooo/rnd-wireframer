@@ -22,6 +22,7 @@ const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
 const FALLBACK_SPACING_PROP_NAMES = new Set([
 	"componentGap",
 	"itemPaddingX",
+	"itemPaddingY",
 	"sectionPaddingX",
 	"sectionGap",
 	"slotInsetX",

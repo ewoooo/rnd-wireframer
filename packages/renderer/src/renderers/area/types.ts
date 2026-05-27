@@ -20,6 +20,9 @@ export interface AreaRenderableProps {
 	hideTitle?: boolean;
 	titleGap?: number;
 	componentGap?: number;
+	itemPaddingX?: number;
+	itemPaddingY?: number;
+	listPresentation?: "selection-list";
 	areaType?: AreaType;
 	errorPolicy?: string;
 	visibility?: string;

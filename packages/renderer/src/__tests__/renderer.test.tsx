@@ -117,6 +117,49 @@ describe("@cx/renderer registry", () => {
 		expect(screen.getByText("필수 약관")).toBeInTheDocument();
 	});
 
+	it("renders selection-list area children in a grouped list container", () => {
+		const { container } = render(
+			renderNode(
+				createNode({
+					type: "area.static",
+					props: {
+						name: "인증수단 선택",
+						componentGap: 0,
+						listPresentation: "selection-list",
+					},
+					children: [
+						createNode({
+							metadata: {
+								id: "auth-phone",
+								title: "휴대폰 본인인증",
+								author: "test",
+								createdAt: "2026-05-21T00:00:00.000Z",
+								updatedAt: "2026-05-21T00:00:00.000Z",
+							},
+						}),
+						createNode({
+							metadata: {
+								id: "auth-pass",
+								title: "PASS 인증",
+								author: "test",
+								createdAt: "2026-05-21T00:00:00.000Z",
+								updatedAt: "2026-05-21T00:00:00.000Z",
+							},
+						}),
+					],
+				}),
+				{},
+			),
+		);
+
+		expect(screen.getByText("인증수단 선택")).toBeInTheDocument();
+		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
+		expect(screen.getByText("PASS 인증")).toBeInTheDocument();
+		expect(
+			container.querySelector('[data-area-list-presentation="selection-list"]'),
+		).not.toBeNull();
+	});
+
 	it("renders checkbox aliases with label props", () => {
 		render(
 			renderNode(

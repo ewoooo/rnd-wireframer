@@ -7,6 +7,94 @@
 			"order": 1,
 			"variantType": "base",
 			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-001",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "약관 동의",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-002",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "개인정보 입력",
+			"order": 2,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-003",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "본인인증",
+			"order": 3,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-004",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "회원 검증",
+			"order": 4,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-005",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "가입 완료",
+			"order": 5,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-006",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "로그인",
+			"order": 6,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-007",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "휴면 여부 확인",
+			"order": 7,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-008",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "본인인증",
+			"order": 8,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-009",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "약관 동의",
+			"order": 9,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-010",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "휴면 해제 처리",
+			"order": 10,
+			"variantType": "base",
+			"followUp": null
+		},
+		{
+			"id": "nova-mbr-fp-011",
+			"screenRouteId": "sb-mbr-uc01_02-0513",
+			"name": "휴면 해제 완료",
+			"order": 11,
+			"variantType": "base",
+			"followUp": null
 		}
 	]
 }

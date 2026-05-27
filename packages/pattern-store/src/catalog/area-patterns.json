@@ -39,6 +39,42 @@
 			}
 		},
 		{
+			"id": "auth-method-list",
+			"target": "area",
+			"name": "인증수단 선택 리스트",
+			"description": "휴대폰 본인인증, PASS, 공동인증서처럼 인증수단 선택지를 ListCell row 묶음으로 배치하는 선택형 목록 area 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"flow": "vertical",
+					"titleGap": 8,
+					"componentGap": 0,
+					"listPresentation": "selection-list",
+					"itemPaddingX": 0,
+					"itemPaddingY": 0,
+					"divider": "between-list-rows"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["list-cell"]
+				},
+				"keywords": [
+					"auth",
+					"authentication",
+					"인증",
+					"인증수단",
+					"본인인증",
+					"PASS",
+					"공동인증서",
+					"선택"
+				],
+				"priority": 92
+			}
+		},
+		{
 			"id": "field-stack",
 			"target": "area",
 			"name": "필드 스택",
@@ -59,6 +95,33 @@
 				},
 				"keywords": ["field", "form", "입력"],
 				"priority": 80
+			}
+		},
+		{
+			"id": "auth-code-entry",
+			"target": "area",
+			"name": "인증번호 입력",
+			"description": "인증번호 입력 필드, 남은 시간 표시, 오류/만료 메시지, 재요청 보조 액션을 세로로 배치하는 인증 요청 area 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 12,
+				"layoutProps": {
+					"flow": "vertical",
+					"titleGap": 8,
+					"componentGap": 12,
+					"sectionModel": "auth-code-entry",
+					"primaryActionPlacement": "screen-bottom",
+					"secondaryActionPlacement": "inline"
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"anyOf": ["text-field", "list-text", "section-message", "text-button"],
+					"noneOf": ["button"]
+				},
+				"keywords": ["auth-code", "authentication-code", "인증번호", "남은 시간", "재요청"],
+				"priority": 91
 			}
 		},
 		{
@@ -158,7 +221,7 @@
 			"id": "bottom-action-area",
 			"target": "area",
 			"name": "하단 액션 영역",
-			"description": "Screen Bottom region에 고정되는 주요 CTA 액션을 배치하는 레이아웃 프리셋",
+			"description": "Screen Bottom region에 고정되는 주요 ActionButton CTA를 배치하는 레이아웃 프리셋",
 			"layout": {
 				"direction": "vertical",
 				"childOrder": "explicit",
@@ -172,9 +235,9 @@
 			},
 			"match": {
 				"componentTypes": {
-					"allOf": ["button"]
+					"allOf": ["action-button"]
 				},
-				"keywords": ["bottom", "action", "cta", "하단", "다음", "확인"],
+				"keywords": ["bottom", "action", "cta", "ActionButton", "하단", "다음", "확인"],
 				"priority": 95
 			}
 		},

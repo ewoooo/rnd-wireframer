@@ -5,6 +5,7 @@ import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";
 import { renderErrorPolicyFallback } from "./error-policy";
 import { resolveHasData } from "./has-data";
+import { renderAreaChildren } from "./layout";
 import type { AreaRenderableProps } from "./types";
 
 /**
@@ -19,7 +20,6 @@ export const areaDynamicRendererDefinition: RendererDefinition = {
 	render: ({ data, node, renderable, renderChildren }) => {
 		const props = renderable.props as AreaRenderableProps;
 		const titleGap = toNumber(props.titleGap, 8);
-		const componentGap = toNumber(props.componentGap, 12);
 		const areaName = props.name === undefined ? undefined : toText(props.name, "");
 		const hideTitle = Boolean(props.hideTitle) || !areaName;
 
@@ -44,12 +44,7 @@ export const areaDynamicRendererDefinition: RendererDefinition = {
 						<p className="text-base font-semibold">{areaName}</p>
 					</div>
 				)}
-				<div
-					className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", componentGap))}
-					style={{ gap: spacingFallbackStyleValue(componentGap) }}
-				>
-					{renderChildren()}
-				</div>
+				{renderAreaChildren(renderChildren(), props)}
 			</section>
 		);
 	},

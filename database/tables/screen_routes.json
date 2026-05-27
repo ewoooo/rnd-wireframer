@@ -6,6 +6,13 @@
 			"name": "NOVA-PRDD-PG-001-0",
 			"order": 1,
 			"processId": null
+		},
+		{
+			"id": "sb-mbr-uc01_02-0513",
+			"moduleId": "mbr",
+			"name": "회원 가입 및 휴면 해제",
+			"order": 1,
+			"processId": null
 		}
 	]
 }

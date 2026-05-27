@@ -1198,6 +1198,30 @@
 			}
 		},
 		{
+			"id": "component-action-button",
+			"target": "composite",
+			"name": "하단 액션 버튼",
+			"description": "Screen.Bottom의 단일 주요 CTA를 ActionButton render component로 배치하는 기본 패턴",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"buttonHeight": 56,
+					"paddingX": 20,
+					"paddingTop": 22,
+					"paddingBottom": 24
+				}
+			},
+			"match": {
+				"componentTypes": {
+					"allOf": ["action-button"]
+				},
+				"keywords": ["ActionButton", "bottom", "cta", "하단", "확인", "완료"],
+				"priority": 99
+			}
+		},
+		{
 			"id": "component-action-button-with-tooltip",
 			"target": "composite",
 			"name": "툴팁 포함 하단 액션 버튼",
