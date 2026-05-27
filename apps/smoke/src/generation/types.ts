@@ -1,5 +1,10 @@
 import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
-import type { ScreenGenerationAgentInput } from "@cx/orchestration/types";
+import type {
+	PatternLayerCandidate,
+	PatternSelectionAgentInput,
+	ScreenGenerationAgentInput,
+	ScreenRevisionAgentInput,
+} from "@cx/orchestration/types";
 import type { ParseMarkdownSourceCommandResult } from "@cx/pipeline/parser";
 import type { SideEffectExecutionResult } from "@cx/pipeline/types";
 import type { SourceSpec, ValidationReportContract } from "@cx/schema";
@@ -25,10 +30,18 @@ export type GenerationSmokeSummary = {
 export type GenerationSmokeResult = {
 	agentInput?: ScreenGenerationAgentInput;
 	agentResult?: AgentRunResult;
+	initialValidationReport?: ValidationReportContract;
 	outDir: string;
 	parseCommandResult: ParseMarkdownSourceCommandResult;
+	patternLayerCandidates?: PatternLayerCandidate[];
+	patternSelectionAgentInput?: PatternSelectionAgentInput;
+	patternSelectionAgentResult?: AgentRunResult;
+	patternSelectionRunnerRequest?: AgentRunnerRequest;
 	pipelineResult: SideEffectExecutionResult;
 	pipelineResultWrite: SideEffectExecutionResult;
+	revisionAgentInput?: ScreenRevisionAgentInput;
+	revisionAgentResult?: AgentRunResult;
+	revisionRunnerRequest?: AgentRunnerRequest;
 	runId: string;
 	runnerRequest?: AgentRunnerRequest;
 	sourcePath: string;

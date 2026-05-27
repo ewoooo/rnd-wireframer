@@ -11,7 +11,8 @@ export type ValidationTarget =
 	| "component-usage"
 	| "layout-props"
 	| "render-tree"
-	| "schema-artifact";
+	| "schema-artifact"
+	| "table-generation-result";
 
 export type ValidationSeverity = "error" | "warning";
 
@@ -26,7 +27,8 @@ export type ValidationIssueCode =
 	| "invalid-enum-value"
 	| "readonly-prop-written"
 	| "invalid-render-node"
-	| "invalid-layout-prop";
+	| "invalid-layout-prop"
+	| "unknown-pattern-ref";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;

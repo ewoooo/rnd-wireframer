@@ -6,8 +6,9 @@ import { runAgentTask } from "../runtime/run-agent-task";
 import { agentTaskCatalog } from "../tasks";
 
 describe("@cx/agent runtime", () => {
-	it("registers the three Claude task kinds", () => {
+	it("registers the Claude task kinds", () => {
 		expect(Object.keys(agentTaskCatalog)).toEqual([
+			"pattern-selection",
 			"screen-generation",
 			"screen-revision",
 			"quality-review",

@@ -36,6 +36,27 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-27 - Table-shaped Pattern Contract
+
+- 변경: `@cx/schema`에 `table-generation-result.v0.1` 계약을 추가해 `data/tables` 정본과 같은 screen/region/area/component 중간 산출물 shape를 정의함
+- 변경: RenderTree node `pattern`을 필수 `level/targetRef` 소비 계약에서 선택적 `{ id, variant }` provenance로 낮추고, pattern 강제는 table-shaped artifact에서 수행하도록 정리함
+- 변경: `@cx/validation`에 `validateTableGenerationResult`를 추가해 screen/region/area/component pattern ref가 `@cx/layout-pattern-store`의 screen/region/area/composite target에 존재하는지 검증함
+- 변경: smoke pattern 후보 resolver를 실제 layout-pattern-store resolver 기반의 screen/region/area/component 후보로 확장하고, generation payload가 `tableGenerationResult`와 `renderTree`를 함께 반환하도록 fake runner와 validation을 갱신함
+- 이유: 최종 렌더러 정본인 `data/tables/`는 pattern을 table materialization 입력으로 보유하고, 현재 `@cx/renderer`는 pattern이 아니라 materialized `type/props/children`을 소비하므로 pattern 강제 위치를 중간 산출물 계약으로 옮기기 위함
+- 검증: `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema packages/renderer packages/validation packages/orchestration apps/smoke apps/web`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id table-pattern-contract-fake-check --out-dir tmp/generation-runs/table-pattern-contract-fake-check`
+- 후속: real AI prompt 결과가 새 `tableGenerationResult + renderTree` envelope를 안정적으로 따르는지 실제 `--use-ai` smoke로 확인한다.
+
+## 2026-05-27 - Pattern Selection Stage
+
+- 변경: `@cx/agent`에 `pattern-selection` task를 추가함
+- 변경: generation plan에 `select-pattern` step을 추가하고, `@cx/orchestration`에 `buildPatternSelectionAgentInput`과 screen/area `PatternLayerCandidate` 계약을 추가함
+- 변경: smoke에 SourceSpec 기반 screen/area 레이어 후보 resolver를 추가하고, pattern selection 결과를 generation input에 주입하도록 연결함
+- 변경: revision input에도 pattern selection과 layer candidates가 이어지도록 연결함
+- 변경: smoke artifact에 `pattern-layer-candidates.json`, `pattern-selection-agent-input.json`, `pattern-selection-agent-runner-request.json`, `pattern-selection-agent-result.json`을 남기도록 확장함
+- 이유: 패턴 의미 선택은 AI stage로 분리하되, deterministic resolver는 screen/area 레이어 후보만 제공하게 해 패턴 선택 근거를 artifact로 추적하기 위함
+- 검증: `npx vitest run packages/agent/src/__tests__/agent-runtime.test.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/agent packages/orchestration apps/smoke`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id pattern-selection-fake-check --out-dir tmp/generation-runs/pattern-selection-fake-check`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id pattern-selection-real-ai-check --out-dir tmp/generation-runs/pattern-selection-real-ai-check --use-ai`
+- 후속: 정식 layout pattern catalog가 준비되면 smoke 레이어 후보 resolver를 `@cx/layout-pattern-store` resolver로 교체한다.
+
 ## 2026-05-27 - Smoke/Pipeline IO Boundary Cleanup
 
 - 변경: `@cx/pipeline`에 `source-artifact-read` side effect command와 executor를 추가해 smoke source file read를 pipeline으로 이동함

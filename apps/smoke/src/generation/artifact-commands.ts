@@ -8,6 +8,10 @@ export type GenerationSmokeArtifactInput = {
 	initialValidationReport?: unknown;
 	outDir: string;
 	parseCommandResult: unknown;
+	patternLayerCandidates?: unknown;
+	patternSelectionAgentInput?: unknown;
+	patternSelectionAgentResult?: unknown;
+	patternSelectionRunnerRequest?: unknown;
 	revisionAgentInput?: unknown;
 	revisionAgentResult?: unknown;
 	revisionRunnerRequest?: unknown;
@@ -27,6 +31,30 @@ export function createGenerationSmokeArtifactCommands(
 			input.parseCommandResult,
 		),
 		createWriteCommand("write-source-spec", input.outDir, "source-spec.json", input.sourceSpec),
+		createWriteCommand(
+			"write-pattern-layer-candidates",
+			input.outDir,
+			"pattern-layer-candidates.json",
+			input.patternLayerCandidates,
+		),
+		createWriteCommand(
+			"write-pattern-selection-agent-input",
+			input.outDir,
+			"pattern-selection-agent-input.json",
+			input.patternSelectionAgentInput,
+		),
+		createWriteCommand(
+			"write-pattern-selection-agent-runner-request",
+			input.outDir,
+			"pattern-selection-agent-runner-request.json",
+			input.patternSelectionRunnerRequest,
+		),
+		createWriteCommand(
+			"write-pattern-selection-agent-result",
+			input.outDir,
+			"pattern-selection-agent-result.json",
+			input.patternSelectionAgentResult,
+		),
 		createWriteCommand("write-agent-input", input.outDir, "agent-input.json", input.agentInput),
 		createWriteCommand(
 			"write-agent-runner-request",

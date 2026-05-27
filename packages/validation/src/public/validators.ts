@@ -5,6 +5,7 @@ import type {
 	ComponentPropType,
 } from "@cx/components/types";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
+import { findPattern } from "@cx/layout-pattern-store";
 import type { PropBinding } from "@cx/renderer";
 import type { GenerationArtifactKind } from "@cx/schema";
 import { getJsonSchema } from "@cx/schema";
@@ -146,6 +147,10 @@ export function validateAgentResult(
 		issues.push(...validateRenderTree(value.renderTree, options).issues);
 	}
 
+	if ("tableGenerationResult" in value) {
+		issues.push(...validateTableGenerationResult(value.tableGenerationResult).issues);
+	}
+
 	if ("type" in value && typeof value.type === "string") {
 		issues.push(...validateComponentUsage(value as ComponentUsageInput, options).issues);
 	}
@@ -230,6 +235,82 @@ export function validateRenderTree(
 	}
 
 	return buildReport("render-tree", issues);
+}
+
+export function validateTableGenerationResult(input: unknown): ValidationReport {
+	const schemaReport = validateSchemaArtifact("table-generation-result", input);
+	const issues = [...schemaReport.issues];
+	const value = parseJsonLikeInput(input, issues);
+	if (!isRecord(value)) return buildReport("table-generation-result", issues);
+
+	validatePatternRef(value.screen, "screen", ["screen", "pattern"], issues);
+	validateRegionPatternRef(value, "header", issues);
+	validateRegionPatternRef(value, "contents", issues);
+	validateRegionPatternRef(value, "bottom", issues);
+
+	if (Array.isArray(value.areas)) {
+		value.areas.forEach((area, index) => {
+			validatePatternRef(area, "area", ["areas", index, "pattern"], issues);
+		});
+	}
+
+	if (Array.isArray(value.components)) {
+		value.components.forEach((component, index) => {
+			validatePatternRef(component, "composite", ["components", index, "pattern"], issues);
+		});
+	}
+
+	return buildReport("table-generation-result", issues);
+}
+
+function validateRegionPatternRef(
+	input: Record<string, unknown>,
+	region: "bottom" | "contents" | "header",
+	issues: ValidationIssue[],
+) {
+	const screen = isRecord(input.screen) ? input.screen : undefined;
+	const regions =
+		isRecord(screen?.screen) && isRecord(screen.screen.regions) ? screen.screen.regions : undefined;
+	const regionRecord = isRecord(regions?.[region]) ? regions[region] : undefined;
+	validatePatternRef(
+		regionRecord,
+		"region",
+		["screen", "screen", "regions", region, "pattern"],
+		issues,
+	);
+}
+
+function validatePatternRef(
+	input: unknown,
+	target: "area" | "composite" | "region" | "screen",
+	path: Path,
+	issues: ValidationIssue[],
+) {
+	if (!isRecord(input)) return;
+	const pattern = input.pattern;
+	if (!isRecord(pattern)) return;
+
+	const id = pattern.id;
+	if (typeof id !== "string" || id.length === 0) return;
+
+	const resolved = findPattern(id, target);
+	if (!resolved) {
+		addIssue(issues, {
+			code: "unknown-pattern-ref",
+			message: `Unknown ${target} pattern ref: ${id}.`,
+			path,
+		});
+		return;
+	}
+
+	const variant = pattern.variant;
+	if (typeof variant === "string" && !resolved.variants[variant]) {
+		addIssue(issues, {
+			code: "unknown-pattern-ref",
+			message: `Unknown ${target} pattern variant: ${id}/${variant}.`,
+			path: [...path, "variant"],
+		});
+	}
 }
 
 export function validateLayoutProps(input: unknown): ValidationReport {

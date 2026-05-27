@@ -40,7 +40,48 @@ export type OrchestrationDecision = {
 	stage: OrchestrationStageKind;
 };
 
-export type ScreenGenerationAgentContext = {
+export const GENERATION_PLAN_STEP = {
+	generateRenderTree: "generate-render-tree",
+	reviseRenderTreeIfInvalid: "revise-render-tree-if-invalid",
+	selectPattern: "select-pattern",
+	validateRenderTree: "validate-render-tree",
+	writeArtifacts: "write-artifacts",
+} as const;
+
+export type GenerationPlanStepKind =
+	(typeof GENERATION_PLAN_STEP)[keyof typeof GENERATION_PLAN_STEP];
+
+export type GenerationPlanStep = {
+	id: string;
+	kind: GenerationPlanStepKind;
+};
+
+export type GenerationPlan = {
+	steps: GenerationPlanStep[];
+};
+
+export type GenerationPlanOptions = {
+	persistArtifacts?: boolean;
+	reviseInvalid?: boolean;
+	selectPattern?: boolean;
+};
+
+export type PatternLayerCandidate = {
+	constraints?: string[];
+	id: string;
+	level: "area" | "component" | "region" | "screen";
+	pattern: {
+		id: string;
+		target: "area" | "composite" | "region" | "screen";
+		variant?: string;
+	};
+	reason: string;
+	targetRef: string;
+	title: string;
+};
+
+export type PatternSelectionAgentContext = {
+	layerCandidates: PatternLayerCandidate[];
 	sourceSpec: SourceSpec;
 	sourceSummary: {
 		areaCount: number;
@@ -49,6 +90,19 @@ export type ScreenGenerationAgentContext = {
 		screenCode: string;
 		screenName: string;
 	};
+};
+
+export type PatternSelectionAgentInput = AgentTaskInput & {
+	context: PatternSelectionAgentContext;
+};
+
+export type ScreenGenerationAgentContext = PatternSelectionAgentContext & {
+	intermediateArtifact: {
+		jsonSchema: JsonSchemaDocument;
+		kind: GenerationArtifactKind;
+		schemaVersion: SchemaVersion;
+	};
+	patternSelection?: unknown;
 	targetArtifact: {
 		jsonSchema: JsonSchemaDocument;
 		kind: GenerationArtifactKind;
@@ -58,4 +112,14 @@ export type ScreenGenerationAgentContext = {
 
 export type ScreenGenerationAgentInput = AgentTaskInput & {
 	context: ScreenGenerationAgentContext;
+};
+
+export type ScreenRevisionAgentContext = ScreenGenerationAgentContext & {
+	previousCandidate: unknown;
+	validationReport: unknown;
+};
+
+export type ScreenRevisionAgentInput = AgentTaskInput & {
+	context: ScreenRevisionAgentContext;
+	previousResult: unknown;
 };

@@ -8,6 +8,7 @@ export const SCHEMA_VERSION = {
 	qualityInspection: "quality-inspection.v0.1",
 	renderTree: "render-tree.v0.1",
 	sourceSpec: "source-spec.v0.1",
+	tableGenerationResult: "table-generation-result.v0.1",
 	validationReport: "validation-report.v0.1",
 } as const;
 

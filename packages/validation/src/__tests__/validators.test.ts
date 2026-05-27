@@ -5,6 +5,7 @@ import {
 	validateLayoutProps,
 	validateRenderTree,
 	validateSchemaArtifact,
+	validateTableGenerationResult,
 } from "@cx/validation";
 import { describe, expect, it } from "vitest";
 
@@ -201,6 +202,41 @@ describe("@cx/validation validators", () => {
 	});
 });
 
+it("requires table-shaped generation records to consume real pattern refs", () => {
+	const result = validTableGenerationResult();
+	const report = validateTableGenerationResult(result);
+
+	expect(report.ok).toBe(true);
+});
+
+it("rejects table-shaped generation records with missing pattern refs", () => {
+	const result = validTableGenerationResult();
+	delete (result.areas[0] as Record<string, unknown>).pattern;
+	const report = validateSchemaArtifact("table-generation-result", result);
+
+	expect(report.ok).toBe(false);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "schema-invalid",
+			path: ["areas", 0],
+		}),
+	);
+});
+
+it("rejects table-shaped generation records with unknown pattern ids", () => {
+	const result = validTableGenerationResult();
+	result.components[0].pattern.id = "missing-component-pattern";
+	const report = validateTableGenerationResult(result);
+
+	expect(report.ok).toBe(false);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "unknown-pattern-ref",
+			path: ["components", 0, "pattern"],
+		}),
+	);
+});
+
 function validRenderTree() {
 	return {
 		version: "render-tree.v0.1",
@@ -210,11 +246,13 @@ function validRenderTree() {
 				type: "Screen",
 				componentVersion: "0.1.0",
 				metadata: { id: "screen", title: "Screen" },
+				pattern: screenPattern("screen"),
 				children: [
 					screenRegion("Screen.Header", "header"),
 					{
 						type: "Screen.Contents",
 						metadata: { id: "contents", title: "Contents" },
+						pattern: areaPattern("1"),
 						props: {
 							layout: { direction: "column", gap: 12 },
 							scroll: true,
@@ -224,6 +262,7 @@ function validRenderTree() {
 								type: "ActionButton",
 								componentVersion: "1.0.0",
 								metadata: { id: "cta", title: "CTA" },
+								pattern: areaPattern("1"),
 								props: {
 									label: "가입하기",
 									variant: "primary",
@@ -243,6 +282,7 @@ function screenRegion(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom
 		type,
 		componentVersion: "0.1.0",
 		metadata: { id, title: id },
+		pattern: id === "header" ? areaPattern("0") : screenPattern(id),
 		props: {
 			layout: { direction: "column" },
 			position: "static",
@@ -261,4 +301,74 @@ function screenRegion(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom
 	}
 
 	return base;
+}
+
+function screenPattern(targetRef: string) {
+	return {
+		id: targetRef === "screen" ? "screen-shell" : "plain-stack",
+		variant: "default",
+	};
+}
+
+function areaPattern(targetRef: string) {
+	return {
+		id: targetRef === "1" ? "product-hero-summary" : "area-app-bar",
+		variant: "default",
+	};
+}
+
+function validTableGenerationResult() {
+	return {
+		schemaVersion: "table-generation-result.v0.1",
+		screen: {
+			id: "screen-1",
+			version: "0.1.0",
+			metadata: { title: "Screen 1" },
+			screenVariantId: "screen-1",
+			pattern: { id: "commerce-detail-screen", variant: "default" },
+			screen: {
+				type: "screen.page",
+				regions: {
+					header: tableRegion("Screen.Header", "plain-stack", [{ kind: "area", id: "area-1" }]),
+					contents: tableRegion("Screen.Contents", "subscription-detail-rich-content", [
+						{ kind: "area", id: "area-2" },
+					]),
+					bottom: tableRegion("Screen.Bottom", "commerce-detail-bottom-action", []),
+				},
+			},
+		},
+		areas: [
+			{
+				id: "area-1",
+				version: "0.1.0",
+				metadata: { title: "Header area" },
+				pattern: { id: "area-app-bar", variant: "default" },
+				type: "area.dynamic",
+				children: [{ kind: "component", id: "appbar" }],
+			},
+		],
+		components: [
+			{
+				id: "appbar",
+				version: "0.1.0",
+				metadata: { title: "App bar" },
+				pattern: { id: "component-app-bar", variant: "default" },
+				type: "AppBar",
+				children: [{ component: { type: "AppBar" }, props: { title: "Screen 1" } }],
+			},
+		],
+	};
+}
+
+function tableRegion(
+	type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header",
+	patternId: string,
+	children: Array<{ kind: "area" | "component"; id: string }>,
+) {
+	return {
+		type,
+		metadata: { title: type },
+		pattern: { id: patternId, variant: "default" },
+		children,
+	};
 }

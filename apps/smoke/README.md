@@ -83,12 +83,20 @@ Current flow:
 
 ```text
 buildGenerationPlan()
+-> select-pattern
 -> generate-render-tree
 -> validate-render-tree
 -> revise-render-tree-if-invalid
 -> validate-render-tree
 -> write-artifacts
 ```
+
+`generate-render-tree` now expects the agent payload to contain both:
+
+- `tableGenerationResult`: the table-shaped intermediate artifact aligned with `data/tables/`.
+- `renderTree`: the materialized preview artifact consumed by `@cx/renderer`.
+
+`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `{ id, variant }` pattern ref from `@cx/layout-pattern-store`.
 
 To add a new generation step:
 
@@ -101,7 +109,8 @@ To add a new generation step:
 Example extension:
 
 ```text
-generate-render-tree
+select-pattern
+-> generate-render-tree
 -> validate-render-tree
 -> revise-render-tree-if-invalid
 -> review-quality
@@ -114,7 +123,7 @@ Keep these boundaries:
 - `@cx/orchestration` decides the step order and builds stage inputs.
 - `apps/smoke` executes known smoke steps for local inspection.
 - `@cx/agent` runs Claude tasks.
-- `@cx/validation` owns validation rules.
+- `@cx/validation` owns RenderTree and table-shaped generation validation rules.
 - `@cx/pipeline` reads files, writes artifacts, and writes logs.
 
 Avoid adding flow decisions directly inside the smoke harness. When a new AI or validation pass changes the generation process, represent it as a plan step first, then add the smoke executor for that step.

@@ -11,6 +11,7 @@
 - heading, key-value line, component name hint를 가볍게 추출한다.
 - PRDD 영역 번호를 `screen.regions[].children[]`의 area node로 보존한다. `0`은 `header`, `1~998`은 `contents`, `999`는 `bottom` region으로 해석한다.
 - `1-1`, `1-2`, `2-1` 같은 계층형 영역 값은 이름 없이 `sourceAreaId`로 보존하고, 해당 region의 area node가 된다.
+- PRDD `컴포넌트 상세` 표의 `표시 텍스트`, `바인딩(소스)`, `비고` 원문은 component `raw`에 보존한다.
 - 컴포넌트 catalog 목록은 소유하지 않고, Markdown에 명시된 이름 hint만 보존한다.
 - parser issue를 result envelope로 반환한다.
 

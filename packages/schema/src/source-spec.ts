@@ -17,6 +17,11 @@ export type SourceSpecRegionSlot = "bottom" | "contents" | "header" | "unknown";
 export type SourceSpecComponentNode = {
 	kind: "component";
 	label: string;
+	raw?: {
+		bindingSource?: string;
+		displayText?: string;
+		note?: string;
+	};
 	sourceComponentId: string;
 	text?: string;
 	variant?: string;

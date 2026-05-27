@@ -5,25 +5,33 @@ import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
 import { componentCatalog } from "@cx/components/catalog";
 import {
 	buildGenerationPlan,
+	buildPatternSelectionAgentInput,
 	buildScreenGenerationAgentInput,
 	buildScreenRevisionAgentInput,
 	GENERATION_PLAN_STEP,
 } from "@cx/orchestration";
 import type {
 	GenerationPlanStepKind,
+	PatternLayerCandidate,
+	PatternSelectionAgentInput,
 	ScreenGenerationAgentInput,
 	ScreenRevisionAgentInput,
 } from "@cx/orchestration/types";
 import { createNodePipelineAdapters, runSideEffects } from "@cx/pipeline";
 import type { SideEffectExecutionResult } from "@cx/pipeline/types";
 import { SCHEMA_VERSION, type SourceSpec, type ValidationReportContract } from "@cx/schema";
-import { validateRenderTree, validateSchemaArtifact } from "@cx/validation";
+import {
+	validateRenderTree,
+	validateSchemaArtifact,
+	validateTableGenerationResult,
+} from "@cx/validation";
 
 import {
 	createGenerationSmokeArtifactCommands,
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
 import { createFakeGenerationAgentRunner } from "./fake-agent-runner";
+import { resolveSmokePatternLayerCandidates } from "./pattern-layer-candidates";
 import type { GenerationSmokeOptions, GenerationSmokeResult } from "./types";
 
 export type CompletedGenerationPlanRunState = GenerationPlanRunState & {
@@ -35,6 +43,10 @@ type GenerationPlanRunState = {
 	agentInput?: ScreenGenerationAgentInput;
 	agentResult?: AgentRunResult;
 	initialValidationReport?: ValidationReportContract;
+	patternLayerCandidates?: PatternLayerCandidate[];
+	patternSelectionAgentInput?: PatternSelectionAgentInput;
+	patternSelectionAgentResult?: AgentRunResult;
+	patternSelectionRunnerRequest?: AgentRunnerRequest;
 	options: GenerationSmokeOptions;
 	outDir: string;
 	parseCommandResult: GenerationSmokeResult["parseCommandResult"];
@@ -54,6 +66,7 @@ type GenerationPlanStepExecutor = (state: GenerationPlanRunState) => Promise<voi
 const generationPlanStepExecutors = {
 	[GENERATION_PLAN_STEP.generateRenderTree]: runGenerateRenderTreeStep,
 	[GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid]: runReviseRenderTreeIfInvalidStep,
+	[GENERATION_PLAN_STEP.selectPattern]: runSelectPatternStep,
 	[GENERATION_PLAN_STEP.validateRenderTree]: runValidateRenderTreeStep,
 	[GENERATION_PLAN_STEP.writeArtifacts]: runWriteArtifactsStep,
 } satisfies Record<GenerationPlanStepKind, GenerationPlanStepExecutor>;
@@ -89,8 +102,46 @@ export async function runGenerationPlan(input: {
 	};
 }
 
+async function runSelectPatternStep(state: GenerationPlanRunState): Promise<void> {
+	const layerCandidates = resolveSmokePatternLayerCandidates(state.sourceSpec);
+	const patternSelectionInput = buildPatternSelectionAgentInput({
+		layerCandidates,
+		sourceSpec: state.sourceSpec,
+	});
+	const realRunner = createClaudeRunner({ localFirst: true });
+	const runtime = createAgentRuntime({
+		runner: state.options.useAI
+			? async (request) => {
+					state.patternSelectionRunnerRequest = request;
+					return realRunner(request);
+				}
+			: async (request) => {
+					state.patternSelectionRunnerRequest = request;
+					return {
+						payload: createFakePatternSelection(layerCandidates),
+						session: {
+							mode: request.session?.mode ?? "new",
+							sessionId: request.session?.sessionId,
+						},
+						taskKind: request.taskKind,
+					};
+				},
+	});
+
+	state.patternLayerCandidates = layerCandidates;
+	state.patternSelectionAgentInput = patternSelectionInput;
+	state.patternSelectionAgentResult = await runAgentQuery(runtime, {
+		context: patternSelectionInput.context,
+		query: patternSelectionInput.query,
+		taskKind: "pattern-selection",
+	});
+}
+
 async function runGenerateRenderTreeStep(state: GenerationPlanRunState): Promise<void> {
-	const agentInput = buildScreenGenerationAgentInput(state.sourceSpec);
+	const agentInput = buildScreenGenerationAgentInput(state.sourceSpec, {
+		layerCandidates: state.patternLayerCandidates,
+		patternSelection: state.patternSelectionAgentResult?.payload,
+	});
 	const realRunner = createClaudeRunner({ localFirst: true });
 	const runtime = createAgentRuntime({
 		runner: state.options.useAI
@@ -124,6 +175,8 @@ async function runReviseRenderTreeIfInvalidStep(state: GenerationPlanRunState): 
 
 	const previousCandidate = state.agentResult?.payload;
 	const revisionInput = buildScreenRevisionAgentInput({
+		layerCandidates: state.patternLayerCandidates,
+		patternSelection: state.patternSelectionAgentResult?.payload,
 		previousCandidate,
 		sourceSpec: state.sourceSpec,
 		validationReport: state.validationReport,
@@ -165,6 +218,10 @@ async function runWriteArtifactsStep(state: GenerationPlanRunState): Promise<voi
 		initialValidationReport: state.initialValidationReport,
 		outDir: state.outDir,
 		parseCommandResult: state.parseCommandResult,
+		patternLayerCandidates: state.patternLayerCandidates,
+		patternSelectionAgentInput: state.patternSelectionAgentInput,
+		patternSelectionAgentResult: state.patternSelectionAgentResult,
+		patternSelectionRunnerRequest: state.patternSelectionRunnerRequest,
 		revisionAgentInput: state.revisionAgentInput,
 		revisionAgentResult: state.revisionAgentResult,
 		revisionRunnerRequest: state.revisionRunnerRequest,
@@ -191,9 +248,19 @@ async function runWriteArtifactsStep(state: GenerationPlanRunState): Promise<voi
 }
 
 function createRenderTreeValidationReport(payload: unknown): ValidationReportContract {
-	const schemaReport = validateSchemaArtifact("render-tree", payload);
-	const semanticReport = validateRenderTree(payload, { componentCatalog });
-	const issues = [...schemaReport.issues, ...semanticReport.issues];
+	const renderTree = extractPayloadArtifact(payload, "renderTree");
+	const tableGenerationResult = extractPayloadArtifact(payload, "tableGenerationResult");
+	const schemaReport = validateSchemaArtifact("render-tree", renderTree);
+	const semanticReport = validateRenderTree(renderTree, { componentCatalog });
+	const tableReport =
+		tableGenerationResult === undefined
+			? createMissingArtifactReport("tableGenerationResult")
+			: validateTableGenerationResult(tableGenerationResult);
+	const issues: ValidationReportContract["issues"] = [
+		...schemaReport.issues,
+		...semanticReport.issues,
+	];
+	issues.push(...tableReport.issues);
 	const errorCount = issues.filter((issue) => issue.severity === "error").length;
 	const warningCount = issues.filter((issue) => issue.severity === "warning").length;
 
@@ -206,5 +273,49 @@ function createRenderTreeValidationReport(payload: unknown): ValidationReportCon
 			warningCount,
 		},
 		target: "render-tree",
+	};
+}
+
+function extractPayloadArtifact(payload: unknown, key: "renderTree" | "tableGenerationResult") {
+	if (!isRecord(payload)) return key === "renderTree" ? payload : undefined;
+	return payload[key] ?? (key === "renderTree" ? payload : undefined);
+}
+
+function createMissingArtifactReport(key: "tableGenerationResult"): ValidationReportContract {
+	return {
+		issues: [
+			{
+				code: "required-field-missing",
+				message: `${key} is required in the generation agent payload.`,
+				path: [key],
+				severity: "error",
+			},
+		],
+		ok: false,
+		schemaVersion: SCHEMA_VERSION.validationReport,
+		summary: {
+			errorCount: 1,
+			warningCount: 0,
+		},
+		target: "schema-artifact",
+	};
+}
+
+function isRecord(input: unknown): input is Record<string, unknown> {
+	return typeof input === "object" && input !== null && !Array.isArray(input);
+}
+
+function createFakePatternSelection(layerCandidates: PatternLayerCandidate[]) {
+	return {
+		confidence: layerCandidates.length > 0 ? 1 : 0,
+		reason:
+			"Fake smoke runner selects all resolved screen, region, area, and component layer candidates.",
+		schemaVersion: "pattern-selection.v0.1",
+		selectedCandidates: layerCandidates.map((candidate) => ({
+			id: candidate.id,
+			level: candidate.level,
+			pattern: candidate.pattern,
+			targetRef: candidate.targetRef,
+		})),
 	};
 }

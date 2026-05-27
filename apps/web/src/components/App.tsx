@@ -10,6 +10,10 @@ const previewScreen: RenderTreeScreenNode = {
 		id: "redesign-preview",
 		title: "Redesign Preview",
 	},
+	pattern: {
+		id: "screen-shell",
+		variant: "default",
+	},
 	children: [
 		{
 			type: "Screen.Header",
@@ -17,6 +21,10 @@ const previewScreen: RenderTreeScreenNode = {
 			metadata: {
 				id: "redesign-preview-header",
 				title: "Header",
+			},
+			pattern: {
+				id: "plain-stack",
+				variant: "default",
 			},
 			props: {
 				position: "static",
@@ -32,6 +40,10 @@ const previewScreen: RenderTreeScreenNode = {
 						id: "redesign-preview-appbar",
 						title: "생성 과정 재설계",
 					},
+					pattern: {
+						id: "component-app-bar",
+						variant: "default",
+					},
 					props: {
 						title: "생성 과정 재설계",
 						showBack: false,
@@ -46,6 +58,10 @@ const previewScreen: RenderTreeScreenNode = {
 			metadata: {
 				id: "redesign-preview-contents",
 				title: "Contents",
+			},
+			pattern: {
+				id: "subscription-detail-rich-content",
+				variant: "default",
 			},
 			props: {
 				layout: {
@@ -65,6 +81,10 @@ const previewScreen: RenderTreeScreenNode = {
 						title: "앱은 소비만 합니다",
 						description: "생성, 검수, 저장, API 책임은 앱 밖에서 다시 설계합니다.",
 					},
+					pattern: {
+						id: "component-section-message",
+						variant: "default",
+					},
 					props: {
 						title: "앱은 소비만 합니다",
 						children: "생성, 검수, 저장, API 책임은 앱 밖에서 다시 설계합니다.",
@@ -78,6 +98,10 @@ const previewScreen: RenderTreeScreenNode = {
 			metadata: {
 				id: "redesign-preview-bottom",
 				title: "Bottom",
+			},
+			pattern: {
+				id: "commerce-detail-bottom-action",
+				variant: "default",
 			},
 			props: {
 				position: "static",

@@ -17,4 +17,5 @@ export {
 	validateLayoutProps,
 	validateRenderTree,
 	validateSchemaArtifact,
+	validateTableGenerationResult,
 } from "./public/validators";

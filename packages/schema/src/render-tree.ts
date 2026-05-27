@@ -26,6 +26,11 @@ export type RenderTreeNodeMetadata = RenderTreeMetadata & {
 	title: string;
 };
 
+export type RenderTreeNodePattern = {
+	id: string;
+	variant?: string;
+};
+
 export type RenderTreeNodeContract = {
 	children?: RenderTreeNodeContract[];
 	componentVersion: string;
@@ -34,6 +39,7 @@ export type RenderTreeNodeContract = {
 		when?: SchemaPropBinding | boolean;
 	};
 	metadata: RenderTreeNodeMetadata;
+	pattern?: RenderTreeNodePattern;
 	props?: Record<string, SchemaPropValue>;
 	type: string;
 };

@@ -26,6 +26,17 @@ export type {
 	SourceSpecRegion,
 	SourceSpecRegionSlot,
 } from "./source-spec";
+export type {
+	TableChildRef,
+	TableGenerationArea,
+	TableGenerationComponent,
+	TableGenerationComponentChild,
+	TableGenerationMetadata,
+	TableGenerationRegion,
+	TableGenerationResultContract,
+	TableGenerationScreen,
+	TablePatternRef,
+} from "./table-generation-result";
 export type { SchemaValidationIssue, ValidationReportContract } from "./validation-report";
 export type { SchemaVersion } from "./versions";
 export { SCHEMA_VERSION } from "./versions";

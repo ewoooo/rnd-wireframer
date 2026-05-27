@@ -1,4 +1,8 @@
-export type AgentTaskKind = "screen-generation" | "screen-revision" | "quality-review";
+export type AgentTaskKind =
+	| "pattern-selection"
+	| "quality-review"
+	| "screen-generation"
+	| "screen-revision";
 
 export type AgentTaskInput = {
 	query: string;

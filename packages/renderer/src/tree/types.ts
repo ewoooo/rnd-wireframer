@@ -63,10 +63,16 @@ export interface RenderTreeNodeMetadata extends RenderTreeMetadata {
 	title: string;
 }
 
+export interface RenderTreeNodePattern {
+	id: string;
+	variant?: string;
+}
+
 export interface RenderTreeNode {
 	type: string;
 	componentVersion: string;
 	metadata: RenderTreeNodeMetadata;
+	pattern?: RenderTreeNodePattern;
 	props?: Record<string, PropValue>;
 	className?: string;
 	style?: RenderTreeStyle;

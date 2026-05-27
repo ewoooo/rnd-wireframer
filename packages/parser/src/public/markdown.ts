@@ -33,10 +33,12 @@ const COMPONENT_DETAIL_TABLE = {
 	section: "컴포넌트 상세",
 	columns: {
 		areaNo: "영역",
+		bindingSource: "바인딩(소스)",
 		componentId: "컴포넌트 ID",
 		description: "컴포넌트 설명",
 		displayText: "표시 텍스트",
 		name: "컴포넌트 명",
+		note: "비고",
 		variant: "variant",
 	},
 } as const;
@@ -253,19 +255,43 @@ function extractComponentsFromDetailTable(content: string): SourceComponentDraft
 				normalizeMarkdownCell(row[COMPONENT_DETAIL_TABLE.columns.description] ?? "") ||
 				sourceComponentId;
 			const text = normalizeDisplayText(row[COMPONENT_DETAIL_TABLE.columns.displayText]);
+			const bindingSource = normalizeOptionalCell(
+				row[COMPONENT_DETAIL_TABLE.columns.bindingSource],
+			);
+			const note = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.note]);
 			const variant = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.variant]);
 			const sourceAreaId = normalizeAreaIdCell(row[COMPONENT_DETAIL_TABLE.columns.areaNo]);
+			const raw = createComponentRawSource({
+				bindingSource,
+				displayText: text,
+				note,
+			});
 
 			return {
 				kind: "component",
 				sourceComponentId,
 				...(sourceAreaId ? { sourceAreaId } : {}),
 				label,
+				...(raw ? { raw } : {}),
 				...(text ? { text } : {}),
 				...(variant ? { variant } : {}),
 			} satisfies SourceComponentDraft;
 		})
 		.filter((component): component is SourceComponentDraft => Boolean(component));
+}
+
+function createComponentRawSource(input: {
+	bindingSource?: string;
+	displayText?: string;
+	note?: string;
+}): SourceSpecComponentNode["raw"] | undefined {
+	if (!input.bindingSource && !input.displayText && !input.note) return undefined;
+
+	return {
+		...(input.bindingSource ? { bindingSource: input.bindingSource } : {}),
+		...(input.displayText ? { displayText: input.displayText } : {}),
+		...(input.note ? { note: input.note } : {}),
+	};
 }
 
 // 표가 없을 때 component/componentType key-value 또는 대문자 컴포넌트명 라인을 힌트로 수집한다.

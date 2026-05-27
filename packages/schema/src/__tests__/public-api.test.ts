@@ -18,6 +18,9 @@ describe("@cx/schema public API", () => {
 
 	it("maps artifact kinds to schema versions and JSON schema ids", () => {
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["source-spec"]).toBe(SCHEMA_VERSION.sourceSpec);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["table-generation-result"]).toBe(
+			SCHEMA_VERSION.tableGenerationResult,
+		);
 		expect(getJsonSchema("source-spec")).toMatchObject({
 			$id: "source-spec.v0.1",
 			properties: {
@@ -34,6 +37,15 @@ describe("@cx/schema public API", () => {
 				},
 			},
 			required: ["version", "metadata", "children"],
+		});
+		expect(getJsonSchema("table-generation-result")).toMatchObject({
+			$id: "table-generation-result.v0.1",
+			properties: {
+				schemaVersion: {
+					const: "table-generation-result.v0.1",
+				},
+			},
+			required: ["schemaVersion", "screen", "areas", "components"],
 		});
 	});
 

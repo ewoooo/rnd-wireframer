@@ -10,6 +10,7 @@ export type GenerationArtifactKind =
 	| "quality-inspection"
 	| "render-tree"
 	| "source-spec"
+	| "table-generation-result"
 	| "validation-report";
 
 export const SCHEMA_VERSION_BY_ARTIFACT_KIND = {
@@ -22,5 +23,6 @@ export const SCHEMA_VERSION_BY_ARTIFACT_KIND = {
 	"quality-inspection": SCHEMA_VERSION.qualityInspection,
 	"render-tree": SCHEMA_VERSION.renderTree,
 	"source-spec": SCHEMA_VERSION.sourceSpec,
+	"table-generation-result": SCHEMA_VERSION.tableGenerationResult,
 	"validation-report": SCHEMA_VERSION.validationReport,
 } as const satisfies Record<GenerationArtifactKind, SchemaVersion>;

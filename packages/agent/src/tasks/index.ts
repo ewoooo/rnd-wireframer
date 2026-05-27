@@ -1,8 +1,10 @@
+import { patternSelectionTask } from "./pattern-selection";
 import { qualityReviewTask } from "./quality-review";
 import { screenGenerationTask } from "./screen-generation";
 import { screenRevisionTask } from "./screen-revision";
 
 export const agentTaskCatalog = {
+	"pattern-selection": patternSelectionTask,
 	"screen-generation": screenGenerationTask,
 	"screen-revision": screenRevisionTask,
 	"quality-review": qualityReviewTask,
@@ -10,4 +12,4 @@ export const agentTaskCatalog = {
 
 export type AgentTaskCatalog = typeof agentTaskCatalog;
 
-export { qualityReviewTask, screenGenerationTask, screenRevisionTask };
+export { patternSelectionTask, qualityReviewTask, screenGenerationTask, screenRevisionTask };

@@ -1,4 +1,11 @@
-import { buildScreenGenerationAgentInput, orchestrationBoundary } from "@cx/orchestration";
+import {
+	buildGenerationPlan,
+	buildPatternSelectionAgentInput,
+	buildScreenGenerationAgentInput,
+	buildScreenRevisionAgentInput,
+	GENERATION_PLAN_STEP,
+	orchestrationBoundary,
+} from "@cx/orchestration";
 import type { OrchestrationDecision, OrchestrationOperation } from "@cx/orchestration/types";
 import { SCHEMA_VERSION, type SourceSpec } from "@cx/schema";
 import { describe, expect, it } from "vitest";
@@ -74,5 +81,208 @@ describe("@cx/orchestration public API", () => {
 			screenName: "상품 상세 핵심 요약 탐색",
 		});
 		expect(input.context.sourceSpec).toBe(sourceSpec);
+	});
+
+	it("builds pattern selection agent input from layer candidates", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "상품 상세 핵심 요약 탐색",
+					regions: [],
+					route: "/nova/prdd/pg/001/0",
+					screenCode: "NOVA-PRDD-PG-001-0",
+				},
+			},
+		};
+		const layerCandidates = [
+			{
+				id: "layer.screen.composition",
+				level: "screen" as const,
+				pattern: {
+					id: "commerce-detail-screen",
+					target: "screen" as const,
+					variant: "default",
+				},
+				reason: "screen regions exist",
+				targetRef: "NOVA-PRDD-PG-001-0",
+				title: "Screen composition layer",
+			},
+		];
+
+		const input = buildPatternSelectionAgentInput({ layerCandidates, sourceSpec });
+
+		expect(input.query).toContain("Select the pattern layer strategy");
+		expect(input.context.layerCandidates).toBe(layerCandidates);
+		expect(input.context.sourceSummary.screenCode).toBe("NOVA-PRDD-PG-001-0");
+	});
+
+	it("builds a small executable generation plan", () => {
+		expect(buildGenerationPlan()).toEqual({
+			steps: [
+				{
+					id: GENERATION_PLAN_STEP.selectPattern,
+					kind: GENERATION_PLAN_STEP.selectPattern,
+				},
+				{
+					id: GENERATION_PLAN_STEP.generateRenderTree,
+					kind: GENERATION_PLAN_STEP.generateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.validateRenderTree,
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+				},
+				{
+					id: "validate-render-tree-after-revision",
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.writeArtifacts,
+					kind: GENERATION_PLAN_STEP.writeArtifacts,
+				},
+			],
+		});
+
+		expect(buildGenerationPlan({ persistArtifacts: false })).toEqual({
+			steps: [
+				{
+					id: GENERATION_PLAN_STEP.selectPattern,
+					kind: GENERATION_PLAN_STEP.selectPattern,
+				},
+				{
+					id: GENERATION_PLAN_STEP.generateRenderTree,
+					kind: GENERATION_PLAN_STEP.generateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.validateRenderTree,
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+				},
+				{
+					id: "validate-render-tree-after-revision",
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+			],
+		});
+
+		expect(buildGenerationPlan({ reviseInvalid: false })).toEqual({
+			steps: [
+				{
+					id: GENERATION_PLAN_STEP.selectPattern,
+					kind: GENERATION_PLAN_STEP.selectPattern,
+				},
+				{
+					id: GENERATION_PLAN_STEP.generateRenderTree,
+					kind: GENERATION_PLAN_STEP.generateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.validateRenderTree,
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.writeArtifacts,
+					kind: GENERATION_PLAN_STEP.writeArtifacts,
+				},
+			],
+		});
+
+		expect(buildGenerationPlan({ selectPattern: false })).toEqual({
+			steps: [
+				{
+					id: GENERATION_PLAN_STEP.generateRenderTree,
+					kind: GENERATION_PLAN_STEP.generateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.validateRenderTree,
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
+				},
+				{
+					id: "validate-render-tree-after-revision",
+					kind: GENERATION_PLAN_STEP.validateRenderTree,
+				},
+				{
+					id: GENERATION_PLAN_STEP.writeArtifacts,
+					kind: GENERATION_PLAN_STEP.writeArtifacts,
+				},
+			],
+		});
+	});
+
+	it("builds screen revision agent input from a validation report", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "상품 상세 핵심 요약 탐색",
+					regions: [],
+					route: "/nova/prdd/pg/001/0",
+					screenCode: "NOVA-PRDD-PG-001-0",
+				},
+			},
+		};
+		const previousCandidate = { version: "render-tree.v0.1" };
+		const layerCandidates = [
+			{
+				id: "layer.screen.composition",
+				level: "screen" as const,
+				pattern: {
+					id: "commerce-detail-screen",
+					target: "screen" as const,
+					variant: "default",
+				},
+				reason: "screen regions exist",
+				targetRef: "NOVA-PRDD-PG-001-0",
+				title: "Screen composition layer",
+			},
+		];
+		const patternSelection = {
+			selectedCandidates: [{ id: "layer.screen.composition" }],
+		};
+		const validationReport = {
+			ok: false,
+			issues: [{ code: "required-field-missing", message: "layout missing" }],
+		};
+
+		const input = buildScreenRevisionAgentInput({
+			layerCandidates,
+			patternSelection,
+			previousCandidate,
+			sourceSpec,
+			validationReport,
+		});
+
+		expect(input.query).toContain("Revise the previous RenderTree candidate");
+		expect(input.query).toContain("Top-level children must contain a Screen root node");
+		expect(input.query).toContain(
+			'Use props.position values only from "fixed", "sticky", or "static"',
+		);
+		expect(input.context.layerCandidates).toBe(layerCandidates);
+		expect(input.context.patternSelection).toBe(patternSelection);
+		expect(input.context.previousCandidate).toBe(previousCandidate);
+		expect(input.context.validationReport).toBe(validationReport);
+		expect(input.previousResult).toBe(previousCandidate);
 	});
 });

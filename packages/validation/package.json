@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@cx/components": "0.1.0",
 		"@cx/layout": "0.1.0",
+		"@cx/layout-pattern-store": "0.1.0",
 		"@cx/renderer": "0.1.0",
 		"@cx/schema": "0.1.0",
 		"ajv": "^8.20.0"
