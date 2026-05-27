@@ -124,8 +124,8 @@ runDraftTablesPipeline + validator
 - [x] `packages/agent` 하위 모듈을 active/experimental/legacy로 분류한다.
 - [x] `DraftTablesBundle` 계약 이름과 저장 위치를 정한다.
 - [x] `QualityReport` category와 최소 JSON 예시를 만든다.
-- [ ] PRDD sample 1개로 direct-to-tables prompt를 실행한다.
-- [ ] renderability 실패 원인이 report로 보이는지 확인한다.
+- [x] PRDD sample 1개로 direct-to-tables prompt를 실행한다.
+- [x] renderability 실패 원인이 report로 보이는지 확인한다.
 - [ ] 반복되는 품질 gap을 catalog/pattern/component backlog로 분리한다.
 
 ## 12. 진행 기록
@@ -136,3 +136,7 @@ runDraftTablesPipeline + validator
 - `@cx/types`에 `DraftTablesBundle`, `DraftTablesArtifact`, `QualityReport` v1 타입을 추가했다.
 - `@cx/agent`에 active path 진입점 `runDraftTablesPipeline`을 추가했다.
 - 기존 detailed validation issue를 MVP quality category로 접는 `createQualityReport` adapter를 추가했다.
+- `@cx/agent/pipeline`, `@cx/agent/validate`의 기본 barrel을 active path 중심으로 줄이고, 기존 2-stage 흐름을 experimental subpath로 이동했다.
+- `scripts/run-draft-tables.ts` active runner를 추가하고 기존 pipeline scripts를 experimental runner로 명시했다.
+- `apps/web/src/server/agent/generate-draft-tables.ts`와 `/api/agent/generate-draft-tables`를 추가해 legacy `generate-register`와 active DraftTables entrypoint를 분리했다.
+- `pnpm run lint:agent-boundary` active path import guard를 추가했다.

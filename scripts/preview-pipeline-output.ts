@@ -1,6 +1,10 @@
 /**
- * 현재 코드의 전체 pipeline을 실행한 뒤 database/tables/preview/ 로 떨궈 apps/web 가 볼 수 있게 한다.
+ * EXPERIMENTAL 2-STAGE PREVIEW RUNNER.
+ *
+ * 현재 코드의 experimental runPipeline(compose + decorate)을 실행한 뒤
+ * database/tables/preview/ 로 떨궈 apps/web 가 볼 수 있게 한다.
  * 운영 tables 는 --overwrite 가 있을 때만 덮어쓴다.
+ * 기본 active path는 run-draft-tables.ts를 사용한다.
  *
  * 사용: pnpm tsx scripts/preview-pipeline-output.ts [PRDD 경로] [--overwrite]
  */
@@ -42,6 +46,9 @@ async function main(): Promise<void> {
 		),
 	]);
 
+	console.log(
+		"[preview][experimental] 2-stage LLM preview runner. Active draft tables path: scripts/run-draft-tables.ts",
+	);
 	console.log(`[preview] running pipeline for ${prddPath}`);
 	const startedAt = Date.now();
 	const result = await runPipeline(

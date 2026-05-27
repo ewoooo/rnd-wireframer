@@ -1,5 +1,8 @@
 /**
- * 단일 PRDD를 LLM 포함 runPipeline에 통과시키고 결과를 자세히 들여다본다.
+ * EXPERIMENTAL 2-STAGE RUNNER.
+ *
+ * 단일 PRDD를 LLM 포함 experimental runPipeline(compose + decorate)에 통과시키고
+ * 결과를 자세히 들여다본다. 기본 active path는 run-draft-tables.ts를 사용한다.
  * 콘솔에는 사람이 보는 5블록 요약을, 디스크에는 단계별 raw JSON을 떨군다.
  *
  * 사용: pnpm tsx scripts/run-pipeline-one.ts [prdd-filename]
@@ -42,6 +45,9 @@ const log = (line = "") => {
 async function main() {
 	const importJobId = `pipeline-smoke-${ts}`;
 
+	log(
+		"[experimental] 2-stage LLM pipeline runner. Active draft tables path: scripts/run-draft-tables.ts",
+	);
 	log(`[run] target=${target}`);
 	log(
 		`[run] decks: ${catalogDeck.primitives.length} primitives, ${layoutPatternStoreDeck.patterns.length} layoutPatterns, ${designDeck.documents.length} designDocs`,

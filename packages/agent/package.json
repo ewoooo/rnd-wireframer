@@ -22,6 +22,7 @@
 		"./pattern-store": "./src/pattern/pattern-store.ts",
 		"./pipeline/draft-tables": "./src/pipeline/draft-tables-pipeline.ts",
 		"./pipeline/experimental": "./src/pipeline/experimental.ts",
+		"./pipeline/prdd-draft-tables": "./src/pipeline/prdd-draft-tables.ts",
 		"./register-assets": "./src/register/register-assets.ts",
 		"./register-assets-to-database-tables": "./src/database/register-assets-to-database-tables.ts",
 		"./resolvers/pattern-resolver": "./src/pattern/pattern-resolver.ts",
