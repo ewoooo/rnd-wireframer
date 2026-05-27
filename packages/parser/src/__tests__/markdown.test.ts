@@ -41,9 +41,12 @@ describe("@cx/parser markdown MVP parser", () => {
 				},
 			},
 		});
-		expect(result.sourceSpec.sourceShape.screen.areas.length).toBeGreaterThan(0);
 		expect(
-			result.sourceSpec.sourceShape.components.map((component) => component.sourceComponentId),
+			result.sourceSpec.sourceShape.screen.regions.flatMap((region) =>
+				region.children.flatMap((area) =>
+					area.children.map((component) => component.sourceComponentId),
+				),
+			),
 		).toEqual(["CardSummary", "ActionButton"]);
 	});
 
@@ -95,27 +98,45 @@ describe("@cx/parser markdown MVP parser", () => {
 		expect(result.sourceSpec.sourceShape.screen).toMatchObject({
 			screenCode: "NOVA-PRDD-PG-001-0",
 			name: "상품 상세 핵심 요약 탐색",
-			areas: [
-				{ sourceAreaNo: 0, slotHint: "header", name: "화면 상단 네비게이션" },
-				{ sourceAreaNo: 1, slotHint: "contents", name: "상품 요약·핵심 속성 표시 영역" },
+			regions: [
+				{
+					slot: "header",
+					children: [
+						{
+							kind: "area",
+							sourceAreaId: "0",
+							children: [
+								{
+									kind: "component",
+									sourceComponentId: "AppBar",
+									label: "AppBarHeader",
+									text: "title: 상품 상세 핵심 요약 탐색",
+									variant: "WithBack",
+								},
+							],
+						},
+					],
+				},
+				{
+					slot: "contents",
+					children: [
+						{
+							kind: "area",
+							sourceAreaId: "1",
+							children: [
+								{
+									kind: "component",
+									sourceComponentId: "Badge",
+									label: "BadgeProductStatus",
+									text: "badge: {판매 상태}",
+									variant: "blue",
+								},
+							],
+						},
+					],
+				},
 			],
 		});
-		expect(result.sourceSpec.sourceShape.components).toEqual([
-			{
-				sourceAreaNo: 0,
-				sourceComponentId: "AppBar",
-				label: "AppBarHeader",
-				text: "title: 상품 상세 핵심 요약 탐색",
-				variant: "WithBack",
-			},
-			{
-				sourceAreaNo: 1,
-				sourceComponentId: "Badge",
-				label: "BadgeProductStatus",
-				text: "badge: {판매 상태}",
-				variant: "blue",
-			},
-		]);
 	});
 
 	it("maps reserved PRDD area numbers to screen slots even when text is ambiguous", () => {
@@ -148,14 +169,28 @@ describe("@cx/parser markdown MVP parser", () => {
 
 		expect(result.ok).toBe(true);
 		if (!result.ok) throw new Error("parse failed");
-		expect(result.sourceSpec.sourceShape.screen.areas).toEqual([
-			{ sourceAreaNo: 0, slotHint: "header", name: "공통 영역" },
-			{ sourceAreaNo: 1, slotHint: "unknown", name: "상품 정보" },
-			{ sourceAreaNo: 999, slotHint: "bottom", name: "공통 영역" },
-		]);
-		expect(result.sourceSpec.sourceShape.components).toEqual([
-			expect.objectContaining({ sourceAreaNo: 0, sourceComponentId: "AppBar" }),
-			expect.objectContaining({ sourceAreaNo: 999, sourceComponentId: "Button" }),
+		expect(result.sourceSpec.sourceShape.screen.regions).toEqual([
+			{
+				slot: "header",
+				children: [
+					{
+						kind: "area",
+						sourceAreaId: "0",
+						children: [expect.objectContaining({ sourceComponentId: "AppBar" })],
+					},
+				],
+			},
+			{ slot: "contents", children: [{ kind: "area", sourceAreaId: "1", children: [] }] },
+			{
+				slot: "bottom",
+				children: [
+					{
+						kind: "area",
+						sourceAreaId: "999",
+						children: [expect.objectContaining({ sourceComponentId: "Button" })],
+					},
+				],
+			},
 		]);
 	});
 
@@ -183,9 +218,76 @@ describe("@cx/parser markdown MVP parser", () => {
 
 		expect(result.ok).toBe(true);
 		if (!result.ok) throw new Error("parse failed");
-		expect(result.sourceSpec.sourceShape.screen.areas).toEqual([
-			{ sourceAreaNo: 0, slotHint: "header", name: "screen.header" },
-			{ sourceAreaNo: 999, slotHint: "bottom", name: "screen.bottom" },
+		expect(result.sourceSpec.sourceShape.screen.regions).toEqual([
+			{
+				slot: "header",
+				children: [
+					{
+						kind: "area",
+						sourceAreaId: "0",
+						children: [expect.objectContaining({ sourceComponentId: "AppBar" })],
+					},
+				],
+			},
+			{
+				slot: "bottom",
+				children: [
+					{
+						kind: "area",
+						sourceAreaId: "999",
+						children: [expect.objectContaining({ sourceComponentId: "Button" })],
+					},
+				],
+			},
+		]);
+	});
+
+	it("keeps hierarchical content area ids as area nodes under the contents region", () => {
+		const result = parseMarkdownSourceBundle({
+			importId: "hierarchical-area-prdd",
+			files: [
+				{
+					kind: "screen",
+					path: "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
+					content: [
+						"---",
+						"화면 ID: NOVA-PRDD-PG-001-0",
+						"화면 명: 상품 상세 핵심 요약 탐색",
+						"---",
+						"## 컴포넌트 상세",
+						"| 영역 | no. | 컴포넌트 명 | 컴포넌트 설명 | 컴포넌트 ID | variant | 표시 텍스트 |",
+						"|------|-----|------------|---------------|-------------|---------|-------------|",
+						"| 1-1 | 1 | 상품 요약 | 상품 요약 | CardSummary | text | title: 상품 |",
+						"| 1-2 | 2 | 판매 상태 | 상태 배지 | Badge | blue | badge: 판매중 |",
+						"| 2-1 | 3 | 상품 정보 | 정보 목록 | ListText | on | title: 상품 유형 |",
+					].join("\n"),
+				},
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) throw new Error("parse failed");
+		expect(result.sourceSpec.sourceShape.screen.regions).toEqual([
+			{
+				slot: "contents",
+				children: [
+					{
+						kind: "area",
+						sourceAreaId: "1-1",
+						children: [expect.objectContaining({ sourceComponentId: "CardSummary" })],
+					},
+					{
+						kind: "area",
+						sourceAreaId: "1-2",
+						children: [expect.objectContaining({ sourceComponentId: "Badge" })],
+					},
+					{
+						kind: "area",
+						sourceAreaId: "2-1",
+						children: [expect.objectContaining({ sourceComponentId: "ListText" })],
+					},
+				],
+			},
 		]);
 	});
 });

@@ -7,7 +7,7 @@ import type { AgentRunnerRequest } from "@cx/agent/contract";
 import { componentCatalog } from "@cx/components/catalog";
 import { buildScreenGenerationAgentInput } from "@cx/orchestration";
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
-import { SCHEMA_VERSION, type ValidationReportContract } from "@cx/schema";
+import { SCHEMA_VERSION, type SourceSpec, type ValidationReportContract } from "@cx/schema";
 import { validateRenderTree, validateSchemaArtifact } from "@cx/validation";
 
 import { writeGenerationSmokeArtifacts } from "./artifacts";
@@ -147,8 +147,8 @@ function createGenerationSmokeSummary(input: {
 
 	return {
 		agentPayload: input.agentResult?.payload,
-		areaCount: screen?.areas.length ?? 0,
-		componentCount: sourceSpec?.sourceShape.components.length ?? 0,
+		areaCount: sourceSpec ? countSourceAreas(sourceSpec) : 0,
+		componentCount: sourceSpec ? countSourceComponents(sourceSpec) : 0,
 		ok: input.parseCommandResult.ok,
 		outDir: input.outDir,
 		screenCode: screen?.screenCode,
@@ -156,6 +156,21 @@ function createGenerationSmokeSummary(input: {
 		sourcePath: input.sourcePath,
 		validationOk: input.validationReport?.ok,
 	};
+}
+
+function countSourceAreas(sourceSpec: SourceSpec): number {
+	return sourceSpec.sourceShape.screen.regions.reduce(
+		(count, region) => count + region.children.length,
+		0,
+	);
+}
+
+function countSourceComponents(sourceSpec: SourceSpec): number {
+	return sourceSpec.sourceShape.screen.regions.reduce(
+		(count, region) =>
+			count + region.children.reduce((areaCount, area) => areaCount + area.children.length, 0),
+		0,
+	);
 }
 
 function createRenderTreeValidationReport(payload: unknown): ValidationReportContract {

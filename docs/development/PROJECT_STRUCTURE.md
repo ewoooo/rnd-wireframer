@@ -179,6 +179,7 @@ RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `me
 ## 10. `packages/parser`
 
 `@cx/parser`는 Markdown 같은 원천 입력 문자열을 생성 흐름에서 사용할 SourceSpec JSON으로 정규화하는 순수 parser 패키지다. MVP에서는 파일 시스템을 읽지 않고, 이미 읽힌 Markdown 문자열 묶음을 받아 SourceSpec과 parser issue를 반환한다.
+SourceSpec의 원문 구조는 `screen.regions[].children[]` 아래 area node로 보존하며, area node는 이름 없이 `sourceAreaId`와 component children만 갖는다.
 
 ```text
 packages/parser/src/

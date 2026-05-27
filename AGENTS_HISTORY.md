@@ -645,6 +645,14 @@
 - 이유: 병렬 작업선이 공통으로 의존할 최소 계약과 active path 표면을 먼저 고정해, 생성 파이프라인 단순화와 품질 리포트 작업을 동시에 진행할 수 있게 하기 위함
 - 검증: `pnpm vitest run packages/agent/src/__tests__/quality-report.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/types/src/draft-tables.ts packages/types/src/quality-report.ts packages/types/src/index.ts packages/types/package.json packages/agent/src/pipeline/draft-tables-pipeline.ts packages/agent/src/pipeline/index.ts packages/agent/src/index.ts packages/agent/src/validate/quality-report.ts packages/agent/src/validate/index.ts packages/agent/src/__tests__/quality-report.test.ts packages/agent/package.json docs/development/SIMPLIFICATION_PARALLEL_PLAN.md docs/development/AGENT_MODULE_BOUNDARY.md`
 
+## 2026-05-27 - SourceSpec Region Tree Outline
+
+- 변경: SourceSpec `sourceShape`를 flat `screen.areas + components[]`에서 `screen.regions[].children[]` tree outline으로 변경함
+- 변경: header, contents, bottom 모두 region children 아래 area node를 두는 동일 구조로 맞추고, area node는 이름 없이 `sourceAreaId`와 component children만 갖도록 함
+- 변경: parser가 `0 -> header`, `1~998 -> contents`, `999 -> bottom` 규칙을 적용하고 `1-1`, `1-2`, `2-1` 같은 계층형 area id를 문자열 그대로 area node로 보존하도록 함
+- 이유: Claude가 SourceSpec을 RenderTree로 바꿀 때 area/component 관계를 숫자 join으로 재추론하지 않고, 원문 구조를 바로 따라가게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx biome check packages/parser packages/schema packages/orchestration packages/pipeline apps/smoke docs/development/mock-schemas/generation-v2/00-source-spec.mock.json`, `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id source-regions-tree --out-dir tmp/generation-runs/source-regions-tree`
+
 ## 2026-05-27 - Parser Reserved Area Slots
 
 - 변경: `@cx/parser`가 PRDD 예약 영역 번호를 우선 해석하도록 보강함. `0`은 `screen.header`, `999`는 `screen.bottom` 대상 slotHint로 고정한다.

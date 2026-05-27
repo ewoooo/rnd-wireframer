@@ -9,7 +9,8 @@
 - Markdown 문자열을 SourceSpec JSON으로 변환한다.
 - 원본 파일 path, source id, sourceRef에 필요한 최소 metadata를 보존한다.
 - heading, key-value line, component name hint를 가볍게 추출한다.
-- PRDD 예약 영역 번호를 SourceSpec slot hint로 보존한다. `0`은 `screen.header`, `999`는 `screen.bottom` 대상으로 해석한다.
+- PRDD 영역 번호를 `screen.regions[].children[]`의 area node로 보존한다. `0`은 `header`, `1~998`은 `contents`, `999`는 `bottom` region으로 해석한다.
+- `1-1`, `1-2`, `2-1` 같은 계층형 영역 값은 이름 없이 `sourceAreaId`로 보존하고, 해당 region의 area node가 된다.
 - 컴포넌트 catalog 목록은 소유하지 않고, Markdown에 명시된 이름 hint만 보존한다.
 - parser issue를 result envelope로 반환한다.
 

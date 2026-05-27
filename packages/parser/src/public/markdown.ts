@@ -209,7 +209,7 @@ function extractAreasFromScreenMarkdown(content: string): SourceAreaDraft[] {
 	const headings = extractHeadings(content).filter((heading) =>
 		/(area|영역|섹션|ogn|cta|header|bottom|contents|본문|하단|상단)/i.test(heading),
 	);
-	return headings.map((heading, index) => ({
+	return headings.map((_heading, index) => ({
 		sourceAreaId: String((index + 1) * 10),
 	}));
 }
@@ -340,10 +340,11 @@ function appendImplicitAreas(
 	const implicitAreas: SourceAreaDraft[] = [];
 
 	for (const component of components) {
-		if (!component.sourceAreaId || areaIds.has(component.sourceAreaId)) continue;
+		const sourceAreaId = component.sourceAreaId ?? "unknown";
+		if (areaIds.has(sourceAreaId)) continue;
 
-		areaIds.add(component.sourceAreaId);
-		implicitAreas.push({ sourceAreaId: component.sourceAreaId });
+		areaIds.add(sourceAreaId);
+		implicitAreas.push({ sourceAreaId });
 	}
 
 	return [...areas, ...implicitAreas].sort((left, right) =>
@@ -361,7 +362,7 @@ function buildRegions(
 	for (const area of areas) {
 		const slot = inferRegionSlotFromAreaId(area.sourceAreaId);
 		const children = components
-			.filter((component) => component.sourceAreaId === area.sourceAreaId)
+			.filter((component) => (component.sourceAreaId ?? "unknown") === area.sourceAreaId)
 			.map(toComponentNode);
 		const areaNode: SourceSpecAreaNode = {
 			kind: "area",
@@ -496,8 +497,8 @@ function parseAreaRootNo(sourceAreaId: string): number | undefined {
 
 // 계층형 area id를 1, 1-1, 1-2, 2 순서로 정렬한다.
 function compareAreaId(left: string, right: string): number {
-	const leftParts = left.split("-").map((part) => Number.parseInt(part, 10));
-	const rightParts = right.split("-").map((part) => Number.parseInt(part, 10));
+	const leftParts = left.split("-").map(parseAreaSortPart);
+	const rightParts = right.split("-").map(parseAreaSortPart);
 	const length = Math.max(leftParts.length, rightParts.length);
 
 	for (let index = 0; index < length; index += 1) {
@@ -507,6 +508,11 @@ function compareAreaId(left: string, right: string): number {
 	}
 
 	return left.localeCompare(right);
+}
+
+function parseAreaSortPart(part: string): number {
+	const parsed = Number.parseInt(part, 10);
+	return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
 }
 
 // path의 파일명을 SourceSpec id fallback에 사용할 안전한 slug로 바꾼다.

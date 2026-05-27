@@ -28,36 +28,51 @@
 			"screenCode": "NOVA-PRDD-PG-001-0",
 			"name": "상품 상세",
 			"route": "/product/detail",
-			"areas": [
+			"regions": [
 				{
-					"sourceAreaNo": 0,
-					"slotHint": "header",
-					"name": "상단 앱바"
+					"slot": "header",
+					"children": [
+						{
+							"kind": "area",
+							"sourceAreaId": "0",
+							"children": []
+						}
+					]
 				},
 				{
-					"sourceAreaNo": 10,
-					"slotHint": "contents",
-					"name": "상품 요약"
+					"slot": "contents",
+					"children": [
+						{
+							"kind": "area",
+							"sourceAreaId": "10",
+							"children": [
+								{
+									"kind": "component",
+									"sourceComponentId": "CardSummary",
+									"label": "상품 핵심 요약",
+									"text": "iPhone 16 Pro"
+								}
+							]
+						}
+					]
 				},
 				{
-					"sourceAreaNo": 999,
-					"slotHint": "bottom",
-					"name": "가입 CTA"
+					"slot": "bottom",
+					"children": [
+						{
+							"kind": "area",
+							"sourceAreaId": "999",
+							"children": [
+								{
+									"kind": "component",
+									"sourceComponentId": "ActionButton",
+									"label": "가입하기"
+								}
+							]
+						}
+					]
 				}
 			]
-		},
-		"components": [
-			{
-				"sourceComponentId": "CardSummary",
-				"sourceAreaNo": 10,
-				"label": "상품 핵심 요약",
-				"text": "iPhone 16 Pro"
-			},
-			{
-				"sourceComponentId": "ActionButton",
-				"sourceAreaNo": 999,
-				"label": "가입하기"
-			}
-		]
+		}
 	}
 }

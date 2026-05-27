@@ -56,9 +56,10 @@ describe("@cx/pipeline public API", () => {
 		expect(result.parseResult.ok).toBe(true);
 		if (!result.parseResult.ok) throw new Error("parse failed");
 		expect(result.parseResult.sourceSpec.sourceShape.screen.name).toBe("샘플 화면");
-		expect(result.parseResult.sourceSpec.sourceShape.components[0]?.sourceComponentId).toBe(
-			"ActionButton",
-		);
+		expect(
+			result.parseResult.sourceSpec.sourceShape.screen.regions[0]?.children[0]?.children[0]
+				?.sourceComponentId,
+		).toBe("ActionButton");
 	});
 
 	it("runs MVP side effect commands with injectable adapters", async () => {

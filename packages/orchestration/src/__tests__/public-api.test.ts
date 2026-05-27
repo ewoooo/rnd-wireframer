@@ -35,19 +35,29 @@ describe("@cx/orchestration public API", () => {
 			},
 			sourceShape: {
 				screen: {
-					areas: [{ name: "화면 상단 네비게이션", slotHint: "header", sourceAreaNo: 0 }],
 					name: "상품 상세 핵심 요약 탐색",
+					regions: [
+						{
+							slot: "header",
+							children: [
+								{
+									kind: "area",
+									sourceAreaId: "0",
+									children: [
+										{
+											kind: "component",
+											label: "AppBarHeader",
+											sourceComponentId: "AppBar",
+											variant: "WithBack",
+										},
+									],
+								},
+							],
+						},
+					],
 					route: "/nova/prdd/pg/001/0",
 					screenCode: "NOVA-PRDD-PG-001-0",
 				},
-				components: [
-					{
-						label: "AppBarHeader",
-						sourceAreaNo: 0,
-						sourceComponentId: "AppBar",
-						variant: "WithBack",
-					},
-				],
 			},
 		};
 

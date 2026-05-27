@@ -50,6 +50,14 @@ import schema from "@cx/schema/src/json-schema/source-spec.schema.json";
 - `getJsonSchema("render-tree")`는 `version`, `metadata`, `children`, node `componentVersion` 같은 구조 계약을 반환한다.
 - 컴포넌트별 `props` 세부 계약은 `@cx/components/catalog`를 소비하는 `@cx/validation`에서 확인한다.
 
+## SourceSpec Contract
+
+- SourceSpec은 원문 Markdown이 말하는 구조를 `screen.regions[].children[]` outline으로 보존한다.
+- 각 region의 `children`에는 `area` node만 둔다. header, contents, bottom 모두 같은 구조를 사용한다.
+- area node는 이름을 갖지 않고 `sourceAreaId`와 component children만 갖는다.
+- PRDD area id `0`은 header, `1~998`은 contents, `999`는 bottom region으로 해석한다.
+- `1-1`, `1-2`, `2-1` 같은 계층형 area id는 문자열 그대로 보존한다.
+
 ## Version Naming
 
 schemaVersion에는 generation flow 이름을 넣지 않는다. 버전은 artifact 자체의 계약 버전으로 표현한다.

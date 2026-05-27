@@ -47,10 +47,9 @@ describe("@cx/schema public API", () => {
 				sourceKind: "prdd-markdown-bundle",
 			},
 			sourceShape: {
-				components: [],
 				screen: {
-					areas: [],
 					name: "샘플",
+					regions: [],
 					route: "/sample",
 					screenCode: "SAMPLE",
 				},
@@ -70,10 +69,9 @@ describe("@cx/schema public API", () => {
 				sourceKind: "prdd-markdown-bundle",
 			},
 			sourceShape: {
-				components: [],
 				screen: {
-					areas: [],
 					name: "샘플",
+					regions: [],
 					route: "/sample",
 					screenCode: "SAMPLE",
 				},
