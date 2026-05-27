@@ -6,20 +6,18 @@
 
 ## 공개 import
 
-패키지 루트에서는 브라우저 번들에서도 안전한 deterministic 기능만 import할 수 있다.
+패키지 루트에서는 MVP active path에 필요한 deterministic 기능만 import할 수 있다.
 
 ```ts
 import {
-	applyDesignReview,
-	composeAssetContents,
-	decorateRegisteredAssets,
-	materializeDecoratedAssetsToNodeTree,
-	registerAssets,
-	reviewDesignTree,
+	createQualityReport,
+	promoteDatabaseTablesCandidate,
+	registerPrddScreen,
+	runDraftTablesPipeline,
 } from "@cx/agent";
 ```
 
-Agent SDK처럼 Node.js 런타임 전용 의존성을 가진 기능은 반드시 서버/API 코드에서 subpath로 import한다. 패키지 루트에서 export하지 않는다.
+고도화/실험/legacy 파이프라인은 반드시 subpath로 import한다. 패키지 루트에서 export하지 않는다.
 
 ```ts
 import { createCxTextAgent } from "@cx/agent/agent-sdk-runtime";
@@ -36,6 +34,8 @@ import type { GeneratedNodeTree } from "@cx/agent/types";
 
 | 경로 | 책임 |
 |---|---|
+| `src/pipeline/draft-tables-pipeline.ts` | **Active pipeline** — PRDD/source를 register한 뒤 `database/tables` shape draft와 optional quality report를 생성 |
+| `src/validate/quality-report.ts` | detailed validation issue를 MVP quality category로 접는 report adapter |
 | `src/runtime/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
 | `src/register/claude-asset-generator.ts` | Claude Agent SDK local session 기반 `GeneratedNodeTree` 생성. screen case는 개별 screen으로 materialize하고 화면 설명은 `screen.description`에 둠 |
 | `src/register/register-assets.ts` | **Register** — `GeneratedNodeTree`를 `RegisteredNodeTree`로 정렬/정규화하고 raw를 보존 |
