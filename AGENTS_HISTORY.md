@@ -315,6 +315,21 @@
 - 이유: 생성 과정에서 deck이 중간 병목이나 별도 SOT처럼 해석되는 것을 막고, deck은 LLM 입력용 요약 번들로만 취급하기 위함
 - 검증: 문서 변경만 수행
 
+## 2026-05-27 - Simplification Parallel Plan
+
+- 변경: 생성 파이프라인 고도화를 유지하되 MVP active path를 `source -> draft tables -> validate -> preview -> quality report -> promote`로 단순화하는 병렬 실행 계획을 추가함
+- 변경: `docs/development/SIMPLIFICATION_PARALLEL_PLAN.md`에 Active Pipeline, Quality Report, DraftTables Generator, Validation Collapse, Preview Feedback, Catalog Quality Loop, Documentation Boundary 작업선을 분리함
+- 이유: 화면 제작 품질 향상에 직접 연결되지 않는 중간 표상과 검증 복잡도를 줄이고, 렌더 결과 기반 품질 개선 루프를 병렬로 빠르게 돌리기 위함
+- 검증: 문서 변경만 수행함
+
+## 2026-05-27 - Simplification Parallel Work Start
+
+- 변경: `docs/development/AGENT_MODULE_BOUNDARY.md`를 추가해 `packages/agent` 모듈을 active/experimental/legacy로 분류함
+- 변경: `@cx/types`에 `DraftTablesBundle`, `DraftTablesArtifact`, `QualityReport` v1 타입을 추가하고 package export를 연결함
+- 변경: `@cx/agent`에 active path 진입점 `runDraftTablesPipeline`과 validation issue를 MVP quality category로 접는 `createQualityReport` adapter를 추가함
+- 이유: 병렬 작업선이 공통으로 의존할 최소 계약과 active path 표면을 먼저 고정해, 생성 파이프라인 단순화와 품질 리포트 작업을 동시에 진행할 수 있게 하기 위함
+- 검증: `pnpm vitest run packages/agent/src/__tests__/quality-report.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/types/src/draft-tables.ts packages/types/src/quality-report.ts packages/types/src/index.ts packages/types/package.json packages/agent/src/pipeline/draft-tables-pipeline.ts packages/agent/src/pipeline/index.ts packages/agent/src/index.ts packages/agent/src/validate/quality-report.ts packages/agent/src/validate/index.ts packages/agent/src/__tests__/quality-report.test.ts packages/agent/package.json docs/development/SIMPLIFICATION_PARALLEL_PLAN.md docs/development/AGENT_MODULE_BOUNDARY.md`
+
 ## 2026-05-26 - Decorator Vocabulary Retry Hints
 
 - 변경: layoutPattern validator가 unknown/incompatible ID를 발견하면 node kind에 맞는 `suggestions[]` 후보를 issue data와 retry hint에 포함하도록 보강함
