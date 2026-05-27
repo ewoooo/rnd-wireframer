@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
 import type { AgentRunner } from "../contract";
+import { resolveClaudeGenerationModel } from "./claude-model";
 import { parseClaudeJsonResult } from "./claude-result-parser";
 
 const execFileAsync = promisify(execFile);
@@ -16,6 +17,8 @@ export type CreateClaudeAgentSdkRunnerOptions = {
 export function createClaudeAgentSdkRunner(
 	options: CreateClaudeAgentSdkRunnerOptions = {},
 ): AgentRunner {
+	const model = resolveClaudeGenerationModel(options.model);
+
 	return async (request) => {
 		const prompt = [
 			request.prompt.user,
@@ -32,7 +35,8 @@ export function createClaudeAgentSdkRunner(
 			"",
 			"--system-prompt",
 			request.prompt.system,
-			...(options.model ? ["--model", options.model] : []),
+			"--model",
+			model,
 			prompt,
 		];
 		const { stdout } = await execFileAsync(options.claudeBin ?? "claude", args, {

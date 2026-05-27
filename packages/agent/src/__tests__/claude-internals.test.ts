@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseClaudeJsonResult, resolveClaudeAvailability } from "../claude";
+import {
+	DEFAULT_CLAUDE_GENERATION_MODEL,
+	parseClaudeJsonResult,
+	resolveClaudeAvailability,
+	resolveClaudeGenerationModel,
+} from "../claude";
 import { assertClaudeResumeAllowed } from "../claude/claude-session-policy";
 import { normalizeAgentError } from "../result";
 import { createMemorySessionStore } from "../session";
@@ -51,6 +56,25 @@ describe("@cx/agent Claude internals", () => {
 				ok: true,
 			},
 		});
+	});
+
+	it("resolves the Claude generation model from explicit, env, and package defaults", () => {
+		const previousModel = process.env.CLAUDE_GENERATION_MODEL;
+		process.env.CLAUDE_GENERATION_MODEL = " claude-env-model ";
+
+		try {
+			expect(resolveClaudeGenerationModel(" claude-explicit-model ")).toBe("claude-explicit-model");
+			expect(resolveClaudeGenerationModel()).toBe("claude-env-model");
+
+			delete process.env.CLAUDE_GENERATION_MODEL;
+			expect(resolveClaudeGenerationModel()).toBe(DEFAULT_CLAUDE_GENERATION_MODEL);
+		} finally {
+			if (previousModel === undefined) {
+				delete process.env.CLAUDE_GENERATION_MODEL;
+			} else {
+				process.env.CLAUDE_GENERATION_MODEL = previousModel;
+			}
+		}
 	});
 
 	it("stores local session metadata in memory for package-level tests", () => {

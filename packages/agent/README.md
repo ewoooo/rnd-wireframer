@@ -39,6 +39,7 @@ import { createClaudeRunner } from "@cx/agent/claude";
 ```
 
 외부 caller는 `createAgentRuntime`으로 runtime을 만들고, `runAgentQuery`에 task kind와 사용자 query를 넘긴다.
+`createClaudeRunner`는 caller가 `model`을 넘기면 그 값을 사용하고, 없으면 `CLAUDE_GENERATION_MODEL`, 그것도 없으면 agent 패키지 기본 모델 `claude-opus-4-7`을 Claude CLI `--model`로 전달한다.
 
 ```ts
 const runtime = createAgentRuntime({
@@ -56,7 +57,7 @@ const result = await runAgentQuery(runtime, {
 });
 ```
 
-현재 `createClaudeRunner`는 Claude Agent SDK 실제 호출이 연결되기 전까지 placeholder runner다. 호출 계약과 import 경로를 먼저 고정하기 위한 entrypoint이며, 실제 local session 연결은 `src/claude/claude-agent-sdk-runner.ts`에서 구현한다.
+`createClaudeRunner`의 실제 local session 연결은 `src/claude/claude-agent-sdk-runner.ts`에서 관리한다.
 
 ### Web에서 사용할 때
 

@@ -747,3 +747,11 @@
 - 변경: `components.json` row를 component render row로 정리하고, `composite`는 2개 이상의 `@cx/components`가 결합된 wrapper 의미로만 남기도록 계약/코드/문서를 갱신함
 - 이유: 일반 component row를 composite라고 부르면 합성 컴포넌트와 단일 컴포넌트 참조의 경계가 다시 흐려지기 때문
 - 검증: `npx tsc --noEmit --incremental false`, `npm test -- --run apps/web/src/adapters packages/agent packages/renderer`, 관련 파일 `npx biome check`
+
+## 2026-05-27 - Agent Runtime Model Default
+
+- 변경: `@cx/agent` Claude runner가 `model` 옵션, `CLAUDE_GENERATION_MODEL`, 패키지 기본값 순서로 생성 모델을 해석하도록 추가함
+- 변경: 기본 생성 모델을 `claude-opus-4-7`로 명시하고 Claude CLI 호출에 항상 `--model`을 전달하도록 조정함
+- 이유: 파이프라인 AI 실행 모델이 호출부/CLI 기본값에 암묵적으로 의존하지 않게 하기 위함
+- 검증: `npm test -- packages/agent/src/__tests__/claude-internals.test.ts`, `npx biome check packages/agent/src/claude/claude-model.ts packages/agent/src/claude/claude-agent-sdk-runner.ts packages/agent/src/claude/index.ts packages/agent/src/__tests__/claude-internals.test.ts`
+- 참고: `npx tsc --noEmit --pretty false`는 기존 smoke/pipeline 변경 상태의 누락 파일과 `source-artifact-read` executor registry 타입 오류로 실패함
