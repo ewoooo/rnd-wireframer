@@ -47,3 +47,4 @@ next-env.d.ts
 
 .gstack/
 database/pipeline-runs/
+database/tables/.backup-before-preview/
