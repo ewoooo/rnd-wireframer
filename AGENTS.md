@@ -25,6 +25,7 @@
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
 - 공유 row/pattern 계약 타입은 `packages/types`의 `@cx/types` 패키지에서 관리한다.
+- layout pattern store의 JSON 원천, schema, 조회 helper는 `packages/pattern-store`의 `@cx/pattern-store` 패키지에서 관리한다. `@cx/renderer`는 이 패키지를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다.
 - `sdui-renderer`의 schema, binding, registry, validation, table shape -> RenderTree projection, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.

@@ -1,5 +1,5 @@
+import { patternSchema, patternStoreSchema } from "@cx/pattern-store/schema";
 import { describe, expect, it } from "vitest";
-import { patternSchema, patternStoreSchema } from "../pattern/pattern-schema";
 
 describe("pattern schema", () => {
 	it("normalizes catalog layout patterns into variant-based pattern contracts", () => {

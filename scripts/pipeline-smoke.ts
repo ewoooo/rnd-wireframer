@@ -20,10 +20,10 @@ async function main(): Promise<void> {
 	const prddSource = await readFile(prddPath, "utf8");
 
 	const [catalogDeck, designDeck, layoutPatternStoreDeck] = await Promise.all([
-		loadJson<CatalogDeck>(resolve(ROOT, "database/catalog/generated/catalog-deck.json")),
-		loadJson<DesignDeck>(resolve(ROOT, "database/catalog/generated/design-deck.json")),
+		loadJson<CatalogDeck>(resolve(ROOT, "database/generated-decks/catalog-deck.json")),
+		loadJson<DesignDeck>(resolve(ROOT, "database/generated-decks/design-deck.json")),
 		loadJson<LayoutPatternStoreDeck>(
-			resolve(ROOT, "database/catalog/generated/layout-pattern-store-deck.json"),
+			resolve(ROOT, "database/generated-decks/layout-pattern-store-deck.json"),
 		),
 	]);
 

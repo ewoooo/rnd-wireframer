@@ -25,7 +25,7 @@ export function Sidebar({
 			data-side={side}
 			data-slot="sidebar"
 			className={cn(
-				"flex h-svh min-h-0 w-full flex-col bg-sidebar text-sidebar-foreground",
+				"flex h-svh min-h-0 min-w-0 w-full flex-col overflow-hidden bg-sidebar text-sidebar-foreground",
 				side === "left" && "border-r border-sidebar-border",
 				side === "right" && "border-l border-sidebar-border",
 				className,
@@ -61,7 +61,7 @@ export function SidebarContent({ className, ...props }: React.ComponentProps<"di
 		<div
 			data-sidebar="content"
 			data-slot="sidebar-content"
-			className={cn("flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-4", className)}
+			className={cn("flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-auto p-4", className)}
 			{...props}
 		/>
 	);

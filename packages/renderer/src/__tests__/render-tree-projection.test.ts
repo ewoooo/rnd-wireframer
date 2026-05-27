@@ -86,6 +86,10 @@ const patterns: RenderTreePatternStorePattern[] = [
 					kind: "page-stack",
 					appliesTo: ["area"],
 					divider: { type: "section" },
+					itemTemplate: "card-0",
+					sectionGap: 12,
+					slotInsetX: 4,
+					titleMode: "hidden",
 				},
 			},
 		},
@@ -122,6 +126,12 @@ describe("tablesToRenderTree", () => {
 		const componentNode = areaNode?.children?.[0];
 
 		expect(sectionNode?.type).toBe("PageStack");
+		expect(sectionNode?.props).toMatchObject({
+			itemTemplate: "card-0",
+			sectionGap: 12,
+			slotInsetX: 4,
+			titleMode: "hidden",
+		});
 		expect(areaNode?.props).toEqual({
 			areaCode: area.id,
 			componentGap: 8,

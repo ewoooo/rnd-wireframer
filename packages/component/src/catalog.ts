@@ -64,10 +64,27 @@ export const componentCatalog = {
 		source: "layout-primitive",
 		version: "1.0.0",
 		description: "Region inset wrapper. Edge padding + safe-area aware vertical stack.",
+		aliases: ["Pagestack", "pagestack", "Default 20/PagestackItemTemplate"],
 		props: {
 			gap: { type: "number", role: "layout", tokenRole: "spacing" },
 			paddingX: { type: "number", role: "layout", tokenRole: "spacing" },
 			paddingY: { type: "number", role: "layout", tokenRole: "spacing" },
+			itemPaddingX: { type: "number", role: "layout", tokenRole: "spacing" },
+			sectionPaddingX: { type: "number", role: "layout", tokenRole: "spacing" },
+			sectionGap: { type: "number", role: "layout", tokenRole: "spacing" },
+			slotInsetX: { type: "number", role: "layout", tokenRole: "spacing" },
+			itemTemplate: {
+				type: "enum",
+				role: "styleVariant",
+				values: ["card-0", "default-20", "plain"],
+				defaultValue: "default-20",
+			},
+			titleMode: {
+				type: "enum",
+				role: "visibility",
+				values: ["hidden", "none", "visible"],
+				defaultValue: "none",
+			},
 		},
 	},
 	ActionButton: {
@@ -105,6 +122,7 @@ export const componentCatalog = {
 		kind: "header",
 		source: "react-component",
 		version: "1.0.0",
+		aliases: ["app-bar", "appbar", "AppBarHeaderTopNav"],
 		props: {
 			title: { type: "string", role: "title" },
 			showBack: { type: "boolean", role: "visibility", defaultValue: false },
@@ -117,6 +135,7 @@ export const componentCatalog = {
 		kind: "badge",
 		source: "react-component",
 		version: "1.0.0",
+		aliases: ["badge", "BadgeProductStatus"],
 		props: {
 			children: { type: "string", role: "content", required: true },
 			variant: {
@@ -138,7 +157,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Medium banner carousel item with an indicator, matching Figma spelling.",
-		aliases: ["BannerIndicatorMedium", "banner-indicator", "banner"],
+		aliases: ["BannerIndicatorMedium", "banner-indicator", "banner", "carousel-banner"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			description: { type: "string", role: "description" },
@@ -213,7 +232,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Summary card for product, rating, price, or calculation sections.",
-		aliases: ["card-summary"],
+		aliases: ["card-summary", "CardSummaryProductSummary", "Local_Summary"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			subText: { type: "string", role: "description" },
@@ -240,7 +259,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Notice accordion for PRDD detail/spec information sections.",
-		aliases: ["accordion-notice-info"],
+		aliases: ["accordion-notice-info", "AccordionList", "faq-accordion", "notice-accordion"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			description: { type: "string", role: "description" },
@@ -283,6 +302,8 @@ export const componentCatalog = {
 		type: "Chip",
 		source: "react-component",
 		version: "1.0.0",
+		description: "Selectable horizontal filter chip item.",
+		aliases: ["chip", "filter-chip", "ChipFilter", "Local_Chips"],
 		props: {
 			children: { type: "string", role: "content", required: true },
 			selected: { type: "boolean", role: "state", defaultValue: false },
@@ -293,6 +314,7 @@ export const componentCatalog = {
 		kind: "divider",
 		source: "react-component",
 		version: "1.0.0",
+		aliases: ["divider", "section-divider", "content-divider"],
 		props: {
 			type: {
 				type: "enum",
@@ -312,11 +334,27 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Low-emphasis legal/help footer for detail screens.",
-		aliases: ["footer"],
+		aliases: ["footer", "FooterLegal", "legal-footer"],
 		props: {
 			title: { type: "string", role: "title" },
 			description: { type: "string", role: "description" },
 			links: { type: "array", role: "data" },
+		},
+	},
+	FilterSorting: {
+		type: "FilterSorting",
+		kind: "filter-sorting",
+		source: "react-component",
+		version: "1.0.0",
+		description: "List result count, filter, and sort control row for browse screens.",
+		aliases: ["filter-sorting", "filter-sort", "FilterSort", "SortFilter"],
+		props: {
+			countLabel: { type: "string", role: "label", defaultValue: "전체 0개" },
+			filterLabel: { type: "string", role: "label", defaultValue: "필터" },
+			sortLabel: { type: "string", role: "label", defaultValue: "추천순" },
+			showFilter: { type: "boolean", role: "visibility", defaultValue: true },
+			showSort: { type: "boolean", role: "visibility", defaultValue: true },
+			activeFilterCount: { type: "number", role: "state", defaultValue: 0 },
 		},
 	},
 	HeaderBase: {
@@ -338,6 +376,8 @@ export const componentCatalog = {
 		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
+		description: "Text list row with title, category/date, optional badge, or right-side value.",
+		aliases: ["info-text-list", "InfoTextListDefault", "InfoTextListWithBadge", "Local_ListInfo"],
 		props: {
 			title: { type: "string", role: "title" },
 			category: { type: "string", role: "description" },
@@ -352,7 +392,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Fine print list for product legal notices.",
-		aliases: ["legal-text"],
+		aliases: ["legal-text", "LegalNotice", "legal-notice"],
 		props: {
 			title: { type: "string", role: "title" },
 			items: { type: "array", role: "data", required: true },
@@ -371,11 +411,56 @@ export const componentCatalog = {
 			checked: { type: "boolean", role: "state" },
 		},
 	},
+	ListProductHorizontal: {
+		type: "ListProductHorizontal",
+		kind: "product-card",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Horizontal product card row for SKT card-list browse screens.",
+		aliases: ["list-product-horizontal", "product-horizontal-card", "horizontal-product-card"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			brand: { type: "string", role: "label" },
+			description: { type: "string", role: "description" },
+			price: { type: "string", role: "value" },
+			originalPrice: { type: "string", role: "value" },
+			discountRate: { type: "string", role: "value" },
+			imageUrl: { type: "string", role: "data" },
+			imageAlt: { type: "string", role: "description" },
+			badges: { type: "array", role: "data" },
+			meta: { type: "string", role: "data" },
+			benefitText: { type: "string", role: "description" },
+			ctaLabel: { type: "string", role: "label" },
+		},
+	},
+	ListProductRow: {
+		type: "ListProductRow",
+		kind: "product-card",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Large product row card for SKT device/subscription browse screens.",
+		aliases: ["list-product-row", "product-row-card", "row-product-card"],
+		props: {
+			title: { type: "string", role: "title", required: true },
+			brand: { type: "string", role: "label" },
+			description: { type: "string", role: "description" },
+			price: { type: "string", role: "value" },
+			originalPrice: { type: "string", role: "value" },
+			discountRate: { type: "string", role: "value" },
+			imageUrl: { type: "string", role: "data" },
+			imageAlt: { type: "string", role: "description" },
+			badges: { type: "array", role: "data" },
+			specs: { type: "array", role: "data" },
+			benefitText: { type: "string", role: "description" },
+			ctaLabel: { type: "string", role: "label" },
+		},
+	},
 	ListSelected: {
 		type: "ListSelected",
 		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
+		aliases: ["list-selected"],
 		props: {
 			type: {
 				type: "enum",
@@ -411,6 +496,7 @@ export const componentCatalog = {
 		kind: "list-cell",
 		source: "react-component",
 		version: "1.0.0",
+		aliases: ["list-text", "ListTextProductInfo"],
 		props: {
 			table: {
 				type: "enum",
@@ -430,7 +516,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Map placeholder block for nearby store sections.",
-		aliases: ["Map", "map"],
+		aliases: ["Map", "map", "map-block"],
 		props: {
 			title: { type: "string", role: "title" },
 			address: { type: "string", role: "description" },
@@ -442,7 +528,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Selectable product option card for commerce detail patterns.",
-		aliases: ["option-card", "select-card"],
+		aliases: ["option-card", "select-card", "OptionSelectCard"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			description: { type: "string", role: "description" },
@@ -457,7 +543,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Product summary block for commerce detail hero sections.",
-		aliases: ["product-info"],
+		aliases: ["product-info", "ProductInfoSummary"],
 		props: {
 			brand: { type: "string", role: "label" },
 			title: { type: "string", role: "title", required: true },
@@ -484,7 +570,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Nearby store list item for product detail patterns.",
-		aliases: ["store-card"],
+		aliases: ["store-card", "StoreListItem", "nearby-store-card"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			address: { type: "string", role: "description" },
@@ -534,6 +620,8 @@ export const componentCatalog = {
 		type: "Tab",
 		source: "react-component",
 		version: "1.0.0",
+		description: "Top tab navigation strip for switching list categories.",
+		aliases: ["tab", "tabs", "UnderlineTab", "TabNavigation"],
 		props: {
 			items: { type: "array", role: "data", required: true },
 			activeKey: { type: "string", role: "state", required: true },
@@ -544,8 +632,17 @@ export const componentCatalog = {
 		kind: "text-link",
 		source: "react-component",
 		version: "1.0.0",
-		description: "Inline text button, including underline link variants in PRDD specs.",
-		aliases: ["ButtonTextUnderline", "button-text-underline", "text-button"],
+		description:
+			"Inline text button, including underline link and Figma ButtonMore affordance variants in PRDD specs.",
+		aliases: [
+			"ButtonTextUnderline",
+			"ButtonMore",
+			"ButtonMoreProduct",
+			"button-text-underline",
+			"button-more",
+			"button-more-product",
+			"text-button",
+		],
 		props: {
 			label: { type: "string", role: "label", required: true },
 			underline: { type: "boolean", role: "styleVariant", defaultValue: false },
@@ -573,13 +670,31 @@ export const componentCatalog = {
 			rightElement: { type: "node", role: "slot", aiWritable: false },
 		},
 	},
+	SearchBar: {
+		type: "SearchBar",
+		kind: "search-bar",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Rounded search input with search and LLM action variants from SKT GenUI.",
+		aliases: ["search-bar", "SearchInput", "SearchBarLLM"],
+		props: {
+			placeholder: { type: "string", role: "description", defaultValue: "검색" },
+			value: { type: "string", role: "value" },
+			variant: {
+				type: "enum",
+				role: "styleVariant",
+				values: ["search", "llm"],
+				defaultValue: "search",
+			},
+		},
+	},
 	TitleSection: {
 		type: "TitleSection",
 		kind: "title-section",
 		source: "react-component",
 		version: "1.0.0",
 		description: "Section title row used by PRDD and SKT Next UI section stacks.",
-		aliases: ["title-section", "TitleContents"],
+		aliases: ["title-section", "TitleContents", "ContentsTitle", "TextListGroupTitle"],
 		props: {
 			title: { type: "string", role: "title", required: true },
 			subtitle: { type: "string", role: "description" },
@@ -593,7 +708,7 @@ export const componentCatalog = {
 		source: "react-component",
 		version: "1.0.0",
 		description: "Large product visual block used at the top of commerce detail screens.",
-		aliases: ["thumbnail-large"],
+		aliases: ["thumbnail-large", "hero-media", "ProductThumbnailLarge"],
 		props: {
 			src: { type: "string", role: "data" },
 			alt: { type: "string", role: "description" },

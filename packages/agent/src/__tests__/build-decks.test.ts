@@ -63,9 +63,9 @@ describe("deck builders", () => {
 		expect(deck.documents).toEqual([]);
 	});
 
-	it("buildLayoutPatternStoreDeck excludes pattern-index by default", async () => {
+	it("buildLayoutPatternStoreDeck reads canonical pattern catalog files", async () => {
 		const deck = await buildLayoutPatternStoreDeck({
-			patternStoreRoot: resolve(ROOT, "database", "pattern-store"),
+			patternStoreRoot: resolve(ROOT, "packages", "pattern-store", "src", "catalog"),
 			version: "test",
 		});
 		expect(deck.patterns.length).toBeGreaterThan(0);
@@ -80,7 +80,7 @@ describe("deck builders", () => {
 
 	it("buildLayoutPatternStoreDeck maps target → appliesTo", async () => {
 		const deck = await buildLayoutPatternStoreDeck({
-			patternStoreRoot: resolve(ROOT, "database", "pattern-store"),
+			patternStoreRoot: resolve(ROOT, "packages", "pattern-store", "src", "catalog"),
 			version: "test",
 		});
 		const screenPatterns = deck.patterns.filter((p) => p.appliesTo.includes("screen"));

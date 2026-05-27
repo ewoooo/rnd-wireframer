@@ -36,12 +36,59 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-26 - Generation Surface Cleanup
+## 2026-05-27 - Pattern Store Package Migration
 
-- 변경: 존재하지 않는 `register/client-import-parser` public export와 legacy `register-assets-to-tables` helper/export/test/docs 참조를 제거함
-- 변경: 현재 코드에서 import하지 않는 Puck/Supabase/React Query/Form/Sonner 의존성을 root dependency에서 제거하고 npm/bun lockfile을 갱신함
-- 이유: 생성 파이프라인과 직접 연결되지 않는 오래된 public surface와 선설치 의존성이 남아 있으면 실제 생성 경계와 후속 구현 우선순위가 흐려지기 때문
-- 검증: `pnpm vitest run packages/agent/src/__tests__/agent.test.ts packages/agent/src/__tests__/build-decks.test.ts packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts`, `pnpm exec tsc --noEmit --pretty false`
+- 변경: `database/pattern-store/*.json` 원천을 `packages/pattern-store/src/catalog/*.json`로 이동하고 `@cx/pattern-store` 패키지에 schema/store/resolver/barrel export를 추가함
+- 변경: 모호한 정적 `pattern-index.json`은 제거하고, 필요한 요약 인덱스는 canonical catalog에서 `listPatternSummaries()`로 파생하도록 정리함
+- 변경: `packages/agent`의 pattern schema/store는 호환 re-export로 낮추고, agent/web/deck/materializer가 `@cx/pattern-store` 공개 API를 사용하도록 정리함
+- 변경: `@cx/renderer`는 option B 경계대로 `@cx/pattern-store`를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다는 문서 계약을 갱신함
+- 이유: pattern store가 레이아웃 recipe 책임을 가진 공유 계약으로 커졌기 때문에 database reference 파일보다 패키지 API로 운영하는 편이 agent, web, deck builder, renderer injection 경계를 명확히 하기 때문
+- 검증: `npm test -- packages/pattern-store/src/__tests__/pattern-store.test.ts packages/agent/src/__tests__/pattern-schema.test.ts packages/agent/src/__tests__/materialize-composition.test.ts packages/agent/src/__tests__/build-decks.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/pattern-store packages/agent/src/database/materialize-composition.ts packages/agent/src/pattern packages/agent/src/__tests__/pattern-schema.test.ts packages/agent/src/__tests__/materialize-composition.test.ts packages/agent/src/__tests__/build-decks.test.ts apps/web/src/data/pattern-store-loader.ts packages/component/src/catalog.ts database/README.md database/AI-COMPOSITION-SPEC.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/DATA_MAP.md docs/development/PROJECT_STRUCTURE.md MASTER_PLAN.md AGENTS.md packages/agent/README.md packages/agent/AGENTS.md`, `jq empty packages/pattern-store/src/catalog/*.json`, `npm run build:decks`
+
+## 2026-05-27 - ButtonMore TextButton Absorption
+
+- 변경: `TextButton` component catalog alias에 `ButtonMore`, `ButtonMoreProduct`, `button-more`, `button-more-product`를 추가해 Figma 더보기 레이어를 실제 render surface로 흡수함
+- 변경: `product-more-link-area`, `rich-image-tab-area`, `composite-button-more-product-link` pattern metadata에서 ButtonMore 계열을 component gap이 아니라 `TextButton` alias/expected child로 정리함
+- 이유: ButtonMore 계열은 독립 복합 컴포넌트라기보다 인라인 더보기 액션 surface라서 새 component를 늘리기보다 기존 `TextButton`으로 흡수하는 편이 component/composite 경계를 더 단단하게 지키기 때문
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/renderer/src/__tests__/component-catalog.test.ts packages/component/src/__tests__/components.test.tsx`, `pnpm vitest run packages/agent/src/__tests__/pattern-schema.test.ts`
+
+## 2026-05-27 - PageStack Section Model Hardening
+
+- 변경: `ChildWrapPreset`/pattern schema/design-review schema에 `titleMode`, `itemTemplate`, `slotInsetX`, `sectionGap`을 추가해 Figma Pagestack의 ContentsTitle hidden/visible, Card 0/Default 20 template, slot inset, section gap 힌트를 보존할 수 있게 함
+- 변경: `PageStack` catalog props와 RenderTree projection/renderer를 확장해 region `childWrap`의 PageStack subtype 값이 실제 render props와 wrapper data attribute/title rendering으로 이어지게 함
+- 변경: 대표 region pattern의 `childWrap`에 PageStack subtype 값을 채워 상세/리스트/카드 섹션 골격이 deck과 renderer에 더 명시적으로 전달되도록 함
+- 이유: 컴포넌트를 추가해도 PageStack 섹션 rhythm과 title/template/slot 구조가 흐리면 레퍼런스 대비 화면 밀도가 계속 약해지기 때문
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/agent/src/__tests__/pattern-schema.test.ts packages/renderer/src/__tests__/render-tree-projection.test.ts packages/component/src/__tests__/catalog-audit.test.ts packages/renderer/src/__tests__/component-catalog.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/types/src/pattern-store.ts packages/agent/src/pattern/pattern-schema.ts packages/agent/src/design-review/design-review-schema.ts packages/component/src/catalog.ts packages/renderer/src/validation.ts packages/renderer/src/render-tree-projection.ts packages/renderer/src/default-renderers.tsx packages/renderer/src/__tests__/render-tree-projection.test.ts database/pattern-store/region-patterns.json`
+
+## 2026-05-26 - Filter Sorting Component Surface
+
+- 변경: `@cx/components`에 `FilterSorting` 실제 render component를 추가하고 public export, component catalog, renderer shared kind(`filter-sorting`)에 연결함
+- 변경: 리스트-카드 pattern metadata에서 `FilterSorting`을 figma-only gap에서 실제 component surface로 승격하고, chip/sort area와 product-list control composite 설명을 갱신함
+- 이유: 카드 리스트 화면 상단의 결과 개수/필터/정렬 제어줄이 fallback이면 탐색 화면의 구조와 조작 affordance가 약해지기 때문
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/component/src/__tests__/components.test.tsx packages/component/src/__tests__/catalog-audit.test.ts packages/renderer/src/__tests__/component-catalog.test.ts packages/agent/src/__tests__/pattern-schema.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/component/src/FilterSorting/FilterSorting.tsx packages/component/src/FilterSorting/FilterSorting.module.css packages/component/src/FilterSorting/index.ts packages/component/src/index.ts packages/component/src/catalog.ts packages/types/src/component-catalog.ts packages/renderer/src/__tests__/component-catalog.test.ts packages/component/src/__tests__/components.test.tsx database/pattern-store/area-patterns.json database/pattern-store/composite-patterns.json database/pattern-store/pattern-index.json`
+
+## 2026-05-26 - Product List Card Component Surface
+
+- 변경: `@cx/components`에 `ListProductHorizontal`, `ListProductRow` 실제 render component를 추가하고 public export, component catalog, renderer shared kind(`product-card`)에 연결함
+- 변경: 리스트-카드 pattern metadata에서 `ListProductHorizontal`/`ListProductRow`를 figma-only gap에서 실제 component surface로 승격하고, 관련 area/composite/region 설명을 갱신함
+- 이유: `Page (리스트-카드)` 패턴은 촘촘해졌지만 상품 카드 row가 fallback이면 화면 밀도가 레퍼런스보다 크게 떨어지기 때문
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/component/src/__tests__/components.test.tsx packages/component/src/__tests__/catalog-audit.test.ts packages/renderer/src/__tests__/component-catalog.test.ts packages/agent/src/__tests__/pattern-schema.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/component/src/ListProductHorizontal/ListProductHorizontal.tsx packages/component/src/ListProductHorizontal/ListProductHorizontal.module.css packages/component/src/ListProductHorizontal/index.ts packages/component/src/ListProductRow/ListProductRow.tsx packages/component/src/ListProductRow/ListProductRow.module.css packages/component/src/ListProductRow/index.ts packages/component/src/index.ts packages/component/src/catalog.ts packages/types/src/component-catalog.ts packages/renderer/src/__tests__/component-catalog.test.ts packages/component/src/__tests__/components.test.tsx database/pattern-store/area-patterns.json database/pattern-store/composite-patterns.json database/pattern-store/region-patterns.json database/pattern-store/pattern-index.json`
+
+## 2026-05-26 - Figma Product Detail Subtype Pattern QA
+
+- 변경: Figma `SKT GenUI Test 0514` `Page (상세-상품)` section(node `10069:97828`)의 구독상품/기프티콘/혜택브랜드/단말기 variants를 region/area/composite subtype별 pattern-store metadata로 보강함
+- 변경: `price-accordion`, `delivery-info`, `rich-image-tab`, `product-more-link`, `option-list`, `coupon-benefit`, `map-store-list`, `brand-benefit-list`, `product-disclosure`, `bottom-cta` scaffold block 어휘를 추가하고, 상세 계열은 `commerce-detail`, 목록 계열은 `list-browse`로 유지되도록 회귀 테스트를 보강함
+- 변경: `ButtonMore`, `ButtonMoreProduct`, `OptionList`, `Coupon`, `CardInfo`, `CardContentsLine`, `AccordionProductInfo` 등은 아직 독립 render component로 확정하지 않고 figma-only/component gap으로 추적함
+- 이유: 기존 상세-상품 패턴이 큰 덩어리 중심이라 variant별 실제 화면 밀도와 섹션 차이를 Compose scaffold가 충분히 요구하기 어려웠기 때문
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/agent/src/__tests__/pattern-schema.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/component/src/__tests__/catalog-audit.test.ts packages/renderer/src/__tests__/component-catalog.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check database/pattern-store/screen-patterns.json database/pattern-store/region-patterns.json database/pattern-store/area-patterns.json database/pattern-store/composite-patterns.json database/pattern-store/pattern-index.json packages/agent/src/compose-screen/scaffold.ts packages/agent/src/compose-screen/schema.ts packages/agent/src/__tests__/compose-screen.test.ts packages/types/src/composition-output.ts packages/component/src/catalog.ts packages/component/src/index.ts packages/renderer/src/__tests__/component-catalog.test.ts`
+
+## 2026-05-26 - Figma Card List Pattern Scaffold QA
+
+- 변경: Figma `SKT GenUI Test 0514` `Page (리스트-카드)` section(node `9896:91122`)의 요금제/단말기/구독상품/혜택/부가서비스/인터넷 variants를 screen/region/area/composite layer별 pattern-store metadata로 보강함
+- 변경: `card-list`, `product-list`, `product-list-group`, `product-list-horizontal`, `product-list-row` scaffold block 어휘를 추가하고, 카드형 상품 목록 계열이 `commerce-detail`로 오탐되지 않도록 list-browse keyword weighting과 테스트를 보강함
+- 변경: `FilterSorting`, `ProductListGroup`, `ListProductHorizontal`, `ListProductRow`는 아직 실제 `@cx/components` export가 아니므로 pattern metadata의 figma-only/component gap으로만 추적하고, `StatusBar`는 기존 phone chrome 책임으로 계속 제외함
+- 이유: 카드 리스트 계열의 화면 밀도를 chip/filter-sort/product card set/page-stack subtype별 scaffold로 끌어올리되, 실제 없는 component surface를 renderable component처럼 오인하지 않게 하기 위함
+- 검증: `jq empty database/pattern-store/*.json`, `pnpm build:decks`, `pnpm vitest run packages/agent/src/__tests__/pattern-schema.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/component/src/__tests__/catalog-audit.test.ts packages/renderer/src/__tests__/component-catalog.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check database/pattern-store/screen-patterns.json database/pattern-store/region-patterns.json database/pattern-store/area-patterns.json database/pattern-store/composite-patterns.json database/pattern-store/pattern-index.json packages/agent/src/compose-screen/scaffold.ts packages/agent/src/compose-screen/schema.ts packages/agent/src/__tests__/compose-screen.test.ts packages/types/src/composition-output.ts packages/component/src/catalog.ts packages/component/src/index.ts packages/renderer/src/__tests__/component-catalog.test.ts`
 
 ## 2026-05-26 - Design Foundation Deck Inclusion
 
@@ -127,6 +174,21 @@
 - 변경: selection mode별 component type 추출을 switch 대신 `SELECTION_TYPE_READERS` 계약 테이블로 정리함
 - 이유: Decorate가 검증한 area-level `finalLayoutPattern`이 materialized 화면 입력에서 사라지지 않게 하고, Compose/Decorate traceability를 화면 생성 단계까지 유지하기 위함
 - 검증: `pnpm vitest run packages/agent/src/__tests__/materialize-composition.test.ts packages/agent/src/__tests__/register-prdd-screen.test.ts packages/agent/src/__tests__/prdd-record-builder.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/agent/src/database/materialize-composition.ts packages/agent/src/__tests__/materialize-composition.test.ts packages/agent/src/pipeline/run-pipeline.ts packages/agent/src/pipeline/index.ts scripts/pipeline-smoke.ts`
+
+## 2026-05-26 - Commerce Detail Scaffold Vocabulary
+
+- 변경: Figma `SKT GenUI Test 0514` fileKey `ovg86eZdOa16MRWkuQXY7s`, node `12449:8336`의 `Page (상세-정보입력)` 레이어를 확인해 상세/장바구니/결제 화면의 반복 block metadata를 scaffold 어휘에 반영함
+- 변경: `commerce-detail` required block에 `price-summary`, `benefit-list`, `sticky-cta`를 추가하고 optional block에 `hero-media`, `option-grid`, `disclosure-list`를 추가함
+- 변경: commerce PRDD resolver keyword를 상품/가격/판매/혜택 외 구독, 결제, 할인, 쿠폰, 장바구니, 주문, 배송, 옵션, 요금제, 선물가로 넓히고 오탐이 큰 `상세` 단독 키워드는 제거함
+- 이유: deterministic scaffold가 Figma page metadata의 상품 sheet, 가격 요약, 혜택/할인 목록, 옵션 선택, 약관/유의사항, 하단 고정 CTA 구조를 수용하게 하기 위함
+- 검증: `npx vitest run packages/agent/src/__tests__/compose-screen.test.ts`, `npx tsc --noEmit`
+
+## 2026-05-26 - AI Context Deck SOT Boundary
+
+- 변경: `database/catalog/generated/`를 `database/generated-decks/`로 리네임하고, 원천 catalog가 아니라 재생성 가능한 AI prompt/validation context deck 산출물로 문서화함
+- 변경: `AI-COMPOSITION-SPEC.md`의 Build-time Decks 절을 AI Context Decks로 정리하고, `@cx/components/catalog`, `database/pattern-store`, `docs/design`, `@cx/tokens`, `@cx/layout`을 우선 SOT로 명시함
+- 이유: 생성 과정에서 deck이 중간 병목이나 별도 SOT처럼 해석되는 것을 막고, deck은 LLM 입력용 요약 번들로만 취급하기 위함
+- 검증: 문서 변경만 수행
 
 ## 2026-05-26 - Decorator Vocabulary Retry Hints
 

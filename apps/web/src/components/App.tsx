@@ -29,8 +29,8 @@ export function App({ agentRegistry = mockAgentAssetRegistry }: AppProps) {
 	}, [agentRegistry, initializeWorkbench]);
 
 	return (
-		<SidebarProvider>
-			<div className="grid min-h-screen w-screen grid-cols-[380px_minmax(420px,1fr)_360px]">
+		<SidebarProvider className="overflow-hidden">
+			<div className="grid h-svh min-w-0 flex-1 grid-cols-[clamp(280px,18.5vw,380px)_minmax(0,1fr)_clamp(280px,17.5vw,360px)] overflow-hidden">
 				<NavigationPanel />
 				<Canvas />
 				<InspectionPanel />

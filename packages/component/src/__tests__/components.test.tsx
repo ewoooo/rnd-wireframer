@@ -8,8 +8,11 @@ import { BannerIndicaterMedium } from "../BannerIndicaterMedium";
 import { Button } from "../Button";
 import { CardContentsFilled } from "../CardContentsFilled";
 import { CardSummary } from "../CardSummary";
+import { FilterSorting } from "../FilterSorting";
 import { Footer } from "../Footer";
 import { LegalText } from "../LegalText";
+import { ListProductHorizontal } from "../ListProductHorizontal";
+import { ListProductRow } from "../ListProductRow";
 import { ListSelected } from "../ListSelected";
 import { MapBlock } from "../MapBlock";
 import { OptionCard } from "../OptionCard";
@@ -76,21 +79,39 @@ describe("@cx/components", () => {
 				/>
 				<OptionCard title="월간 이용권" value="9,900원" selected />
 				<BannerIndicaterMedium title="추천 혜택" current={1} total={3} />
+				<FilterSorting countLabel="전체 12개" sortLabel="인기순" activeFilterCount={2} />
 				<MapBlock title="가까운 매장" address="서울 중구" />
+				<ListProductHorizontal
+					brand="T 우주"
+					title="우주패스 all"
+					price="월 9,900원"
+					benefitText="제휴 혜택 제공"
+				/>
+				<ListProductRow
+					brand="Apple"
+					title="iPhone 16 Pro"
+					price="월 50,000원"
+					specs={["256GB", "5G"]}
+				/>
 				<StoreCard title="T 월드 시청점" address="서울 중구" distance="320m" />
 				<LegalText title="유의사항" items={["가입 전 약관을 확인하세요"]} />
 				<Footer title="고객센터" links={["이용약관"]} />
 			</>,
 		);
 
-		expect(screen.getAllByText("T 우주")).toHaveLength(2);
+		expect(screen.getAllByText("T 우주")).toHaveLength(3);
 		expect(screen.getAllByText("프리미엄 구독")).toHaveLength(2);
 		expect(screen.getByRole("button", { name: /월간 이용권/ })).toHaveAttribute(
 			"aria-pressed",
 			"true",
 		);
 		expect(screen.getByText("추천 혜택")).toBeInTheDocument();
+		expect(screen.getByText("전체 12개")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /필터/ })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "인기순" })).toBeInTheDocument();
 		expect(screen.getByLabelText("가까운 매장")).toBeInTheDocument();
+		expect(screen.getByText("우주패스 all")).toBeInTheDocument();
+		expect(screen.getByText("iPhone 16 Pro")).toBeInTheDocument();
 		expect(screen.getByText("T 월드 시청점")).toBeInTheDocument();
 		expect(screen.getByText("가입 전 약관을 확인하세요")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: "이용약관" })).toBeInTheDocument();

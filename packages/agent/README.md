@@ -46,9 +46,9 @@ import type { GeneratedNodeTree } from "@cx/agent/types";
 | `src/design-review/design-review-schema.ts` | **Design Review schema** — 디자인 품질 검수 patch와 `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` operation 계약 |
 | `src/design-review/review-design-tree.ts` | **Design Review reviewer** — `docs/design/` 근거를 참조해 CTA 승격 같은 보수적 deterministic 디자인 검수 proposal 생성 |
 | `src/design-review/apply-design-review.ts` | **Design Review apply** — schema를 통과한 patch만 `DecoratedNodeTree`에 적용해 reviewed tree를 생성 |
-| `src/pattern/pattern-schema.ts` | pattern-store JSON schema와 layout preset 타입 |
-| `src/pattern/pattern-store.ts` | `database/pattern-store` reference catalog loader |
-| `src/pattern/pattern-resolver.ts` | pattern catalog에서 children layout preset을 고르는 resolver |
+| `src/pattern/pattern-schema.ts` | `@cx/pattern-store/schema` 호환 re-export |
+| `src/pattern/pattern-store.ts` | `@cx/pattern-store` 호환 re-export |
+| `src/pattern/pattern-resolver.ts` | `@cx/pattern-store` catalog에서 children layout preset을 고르는 agent 전용 resolver |
 | `src/database/register-assets-to-database-tables.ts` | **DB transformer** — reviewed `DecoratedNodeTree`를 `MaterializedNodeTree` row shape로 materialize한다. screen region shell은 코드 계약으로 생성 |
 | `src/types.ts` | agent NodeTree, pattern, hook, table row 타입 |
 | `src/index.ts` | 패키지 공개 export 집약 |
@@ -82,7 +82,7 @@ md (client-imports) 또는 read model
 
 **단계 내부는 두 패스로 구성**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 비용 0의 안전한 기본값을 만들고, (2)가 빈 곳/의심 케이스를 보강한다. Decorator의 (2)는 marketplace(Vendor↔Consumer) 협상으로 진행할 예정 (설계 진행 중).
 
-**외부 의존 경계**: markdown 파싱은 오직 Register에서만. Composer/Decorator/Design Review/DB는 이전 단계 산출물, `component-catalog`, pattern-store 카탈로그, `docs/design/` 근거 문서만 참조한다. Design Review의 판단값은 `design-review-contracts.ts`와 `database/pattern-store`가 소유하고, reviewer/apply 함수 안에 component id, CTA label, region area pattern 같은 값을 직접 박지 않는다.
+**외부 의존 경계**: markdown 파싱은 오직 Register에서만. Composer/Decorator/Design Review/DB는 이전 단계 산출물, `component-catalog`, `@cx/pattern-store` 카탈로그, `docs/design/` 근거 문서만 참조한다. Design Review의 판단값은 `design-review-contracts.ts`와 `@cx/pattern-store`가 소유하고, reviewer/apply 함수 안에 component id, CTA label, region area pattern 같은 값을 직접 박지 않는다.
 
 Claude 생성은 로컬 Claude 실행 파일을 우선 사용한다. 각 생성 요청은 기본적으로 새 세션에서 실행하며, 이전 대화를 이어야 하는 명시적 검수/재시도 흐름에서만 `continueSession: true`를 전달한다.
 

@@ -1,3 +1,4 @@
+import { componentCatalog } from "@cx/components/catalog";
 import type {
 	CatalogDeck,
 	ComponentCatalog,
@@ -7,7 +8,6 @@ import type {
 	PrimitiveCard,
 	TokenRole,
 } from "@cx/types";
-import { componentCatalog } from "@cx/components/catalog";
 
 import { readJsonDirSafe } from "./fs-utils";
 

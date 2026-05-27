@@ -1,3 +1,4 @@
+import { getComponentCatalogEntry } from "@cx/components/catalog";
 import {
 	BUILT_IN_NODE_TYPES,
 	getNumericTokenScale,
@@ -7,7 +8,6 @@ import {
 	type ValidationResult,
 	type ValidationStats,
 } from "@cx/types";
-import { getComponentCatalogEntry } from "@cx/components/catalog";
 import type { ComponentRegistry } from "./component-registry";
 import { getRenderTreeNodeKind } from "./runtime";
 import {
@@ -29,6 +29,8 @@ const FALLBACK_SPACING_PROP_NAMES = new Set([
 	"componentGap",
 	"itemPaddingX",
 	"sectionPaddingX",
+	"sectionGap",
+	"slotInsetX",
 	"titleGap",
 ]);
 const REQUIRED_SCREEN_REGION_TYPE_SET = new Set<string>(REQUIRED_SCREEN_REGION_TYPES);
@@ -205,7 +207,9 @@ export const screenRegionContractCheck: ValidationCheck = (tree) => {
 					.map((node) => `${node.type}(${node.metadata.id})`)
 					.join(", ")}`,
 				nodeId: screenId,
-				data: { invalidChildren: invalidChildren.map((n) => ({ type: n.type, id: n.metadata.id })) },
+				data: {
+					invalidChildren: invalidChildren.map((n) => ({ type: n.type, id: n.metadata.id })),
+				},
 			});
 		}
 

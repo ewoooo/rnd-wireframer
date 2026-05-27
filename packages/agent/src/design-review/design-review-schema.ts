@@ -119,7 +119,7 @@ const patternResolutionSchema = z
 	.optional();
 
 const patternVariantSchema = z.object({
-	childOrder: z.literal("explicit").optional(),
+	childOrder: z.enum(["explicit", "repeat"]).optional(),
 	direction: z.enum(["horizontal", "vertical"]).optional(),
 	gap: z.number().optional(),
 	paddingX: z.number().optional(),
@@ -131,8 +131,12 @@ const patternVariantSchema = z.object({
 			appliesTo: z.array(z.enum(["component", "area"])).optional(),
 			divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
 			itemPaddingX: z.number().optional(),
+			itemTemplate: z.enum(["card-0", "default-20", "plain"]).optional(),
 			paddingY: z.number().optional(),
 			sectionPaddingX: z.number().optional(),
+			sectionGap: z.number().optional(),
+			slotInsetX: z.number().optional(),
+			titleMode: z.enum(["hidden", "none", "visible"]).optional(),
 		})
 		.optional(),
 });

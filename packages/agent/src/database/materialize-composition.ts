@@ -1,3 +1,7 @@
+import {
+	resolveCompositePatternByComponentType,
+	resolveRegionPatternFromScreenPattern,
+} from "@cx/pattern-store/resolver";
 import type {
 	CompositionArea,
 	CompositionDecision,
@@ -57,19 +61,11 @@ export const COMPONENT_FALLBACK_PATTERN: DatabasePatternRef = {
 	id: "component-card-summary",
 	variant: "default",
 };
-export const DEFAULT_REGION_PATTERN_BY_TYPE = {
+export const REGION_FALLBACK_PATTERN_BY_TYPE = {
 	"Screen.Bottom": { id: "commerce-detail-bottom-action", variant: "default" },
 	"Screen.Contents": { id: "commerce-detail-content-stack", variant: "default" },
 	"Screen.Header": { id: "plain-stack", variant: "default" },
 } satisfies Record<ScreenRegionType, DatabasePatternRef>;
-
-const COMPONENT_PATTERN_BY_TYPE: Record<string, DatabasePatternRef> = {
-	AppBar: { id: "component-app-bar", variant: "default" },
-	Badge: { id: "component-badge", variant: "default" },
-	CardSummary: { id: "component-card-summary", variant: "default" },
-	ListText: { id: "component-list-text", variant: "default" },
-	TextButton: { id: "component-text-button", variant: "default" },
-};
 
 export const AREA_FALLBACK_PATTERN: DatabasePatternRef = {
 	id: "area-vertical",
@@ -129,6 +125,7 @@ export function materializeComposition(input: MaterializeCompositionInput): Mate
 	// screen body — region 3개로 children 분배
 	const regions = buildRegions({
 		composition: input.composition,
+		screenPattern: pickPattern(input.decorated.screen.finalLayoutPattern),
 	});
 
 	const screen: DatabaseScreenBody = {
@@ -278,7 +275,10 @@ function toAreaRow(
 	};
 }
 
-function buildRegions(args: { composition: CompositionOutput }): DatabaseScreenBody["regions"] {
+function buildRegions(args: {
+	composition: CompositionOutput;
+	screenPattern: DatabasePatternRef;
+}): DatabaseScreenBody["regions"] {
 	const groups = new Map<"bottom" | "contents" | "header", CompositionArea[]>();
 	groups.set("header", []);
 	groups.set("contents", []);
@@ -287,21 +287,48 @@ function buildRegions(args: { composition: CompositionOutput }): DatabaseScreenB
 		groups.get(area.slot)?.push(area);
 	}
 	return {
-		header: buildRegion("Screen.Header", groups.get("header") ?? []),
-		contents: buildRegion("Screen.Contents", groups.get("contents") ?? []),
-		bottom: buildRegion("Screen.Bottom", groups.get("bottom") ?? []),
+		header: buildRegion("Screen.Header", groups.get("header") ?? [], args),
+		contents: buildRegion("Screen.Contents", groups.get("contents") ?? [], args),
+		bottom: buildRegion("Screen.Bottom", groups.get("bottom") ?? [], args),
 	};
 }
 
-function buildRegion(type: ScreenRegionType, areas: CompositionArea[]): DatabaseScreenRegion {
+function buildRegion(
+	type: ScreenRegionType,
+	areas: CompositionArea[],
+	context: { composition: CompositionOutput; screenPattern: DatabasePatternRef },
+): DatabaseScreenRegion {
 	return {
 		type,
 		metadata: { title: type },
-		pattern: DEFAULT_REGION_PATTERN_BY_TYPE[type],
+		pattern: resolveRegionPattern(type, context),
 		children: areas.map((area) => ({ kind: "area", id: area.areaId })),
 	};
 }
 
 function resolveComponentPattern(type: string): DatabasePatternRef {
-	return COMPONENT_PATTERN_BY_TYPE[type] ?? COMPONENT_FALLBACK_PATTERN;
+	return resolveCompositePatternByComponentType(type) ?? COMPONENT_FALLBACK_PATTERN;
+}
+
+function resolveRegionPattern(
+	type: ScreenRegionType,
+	context: { composition: CompositionOutput; screenPattern: DatabasePatternRef },
+): DatabasePatternRef {
+	return resolveRegionPatternFromScreenPattern({
+		compositionText: screenTextSignals(context.composition),
+		fallbackByType: REGION_FALLBACK_PATTERN_BY_TYPE,
+		screenPattern: context.screenPattern,
+		type,
+	});
+}
+
+function screenTextSignals(composition: CompositionOutput): string {
+	return [
+		composition.screen.intent,
+		composition.screen.primaryUserGoal,
+		composition.screen.archetype,
+		...composition.areas.map((area) => area.intent),
+	]
+		.join(" ")
+		.toLowerCase();
 }

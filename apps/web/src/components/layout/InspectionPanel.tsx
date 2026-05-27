@@ -59,25 +59,19 @@ export function InspectionPanel() {
 	if (!screen) {
 		return (
 			<Sidebar side="right">
-				<SidebarHeader>
+				<SidebarContent>
 					<h2 className="text-base font-semibold leading-none tracking-normal">관련 정보</h2>
-				</SidebarHeader>
+				</SidebarContent>
 			</Sidebar>
 		);
 	}
 
 	return (
 		<Sidebar side="right">
-			<SidebarHeader className="border-b border-sidebar-border">
-				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-					<Workflow data-icon="inline-start" />
-					Information
-				</h2>
-			</SidebarHeader>
-			<SidebarContent>
-				<ScrollArea className="h-[calc(100vh-88px)]">
-					<div className="flex flex-col gap-4 pr-3">
-						<div className="flex flex-col gap-2">
+			<SidebarContent className="overflow-hidden">
+				<ScrollArea className="h-screen">
+					<div className="flex min-w-0 flex-col gap-4">
+						<div className="flex min-w-0 flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
 								label="Route"
@@ -187,16 +181,12 @@ function ConnectedAreaList({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="flex items-center justify-between gap-3">
-				<h2 className="text-sm font-semibold">연결 OGN</h2>
-				<Badge variant="outline">local order</Badge>
-			</div>
 			<ul className="flex flex-col gap-2">
 				{screenAreas.map((screenArea) => (
-					<li key={screenArea.areaCode}>
+					<li className="min-w-0" key={screenArea.areaCode}>
 						<button
 							aria-disabled={!canReorder}
-							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
+							className="flex w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
 							data-dragging={draggedAreaCode === screenArea.areaCode}
 							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode}
 							draggable={canReorder}
@@ -218,12 +208,14 @@ function ConnectedAreaList({
 						>
 							<div className="flex min-w-0 items-center gap-2">
 								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
-								<div className="flex min-w-0 flex-col gap-1">
+								<div className="flex min-w-0 font-mono gap-1">
 									<span className="truncate text-sm font-medium">{screenArea.areaCode}</span>
-									<span className="text-xs text-muted-foreground">order {screenArea.order}</span>
+									<span className="text-xs text-muted-foreground"> {screenArea.order}</span>
 								</div>
 							</div>
-							<Badge variant="outline">section</Badge>
+							<Badge className="shrink-0" variant="outline">
+								section
+							</Badge>
 						</button>
 					</li>
 				))}
@@ -256,7 +248,6 @@ function ComponentInspection({
 		<>
 			<Separator />
 			<div className="flex flex-col gap-2">
-				<h2 className="text-sm font-semibold">선택 COMP</h2>
 				<InfoRow label="Component id" value={component.code} />
 				<InfoRow label="Type" value={component.node.type} />
 				<InfoRow label="Source screen" value={screenCode ?? component.screenCode} />
@@ -267,16 +258,16 @@ function ComponentInspection({
 	);
 }
 
-function AreaInspection({
-	area,
-	screenCode,
-}: {
-	area: WorkbenchRenderSelection;
-	screenCode?: string;
-}) {
+function AreaInspection({ area }: { area: WorkbenchRenderSelection }) {
 	return (
 		<>
 			<Separator />
+			<div className="flex min-w-0 flex-col gap-2">
+				<InfoRow label="Area id" value={area.code} />
+				<InfoRow label="Type" value={area.node.type} />
+				<InfoRow label="Source screen" value={area.screenCode} />
+			</div>
+			<NodePropsPanel node={area.node} />
 		</>
 	);
 }
@@ -296,9 +287,9 @@ function NodePropsPanel({ node }: { node: RenderTreeNode }) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex items-center justify-between gap-3 rounded-lg border bg-background p-3">
-			<span className="text-xs text-muted-foreground">{label}</span>
-			<span className="truncate text-sm font-medium">{value}</span>
+		<div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border bg-background p-3">
+			<span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+			<span className="min-w-0 truncate text-right text-sm font-medium">{value}</span>
 		</div>
 	);
 }

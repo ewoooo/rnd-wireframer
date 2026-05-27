@@ -11,19 +11,19 @@
 | 타입 | 역할 | 대표 위치 |
 |---|---|---|
 | 원천 import 데이터 | 사용자가 올린 수급 원본이다. 파괴적으로 수정하지 않는다. | [database/client-imports](/Users/plusx/Documents/rnd-screen-generator/database/client-imports) |
-| 공급 데이터 | 화면 생성/렌더링에 필요한 어휘, 패턴, 구현 자산을 제공한다. | [database/pattern-store](/Users/plusx/Documents/rnd-screen-generator/database/pattern-store), [packages/component](/Users/plusx/Documents/rnd-screen-generator/packages/component), [packages/layout](/Users/plusx/Documents/rnd-screen-generator/packages/layout), [packages/token](/Users/plusx/Documents/rnd-screen-generator/packages/token) |
+| 공급 데이터 | 화면 생성/렌더링에 필요한 어휘, 패턴, 구현 자산을 제공한다. | [packages/pattern-store](/Users/plusx/Documents/rnd-screen-generator/packages/pattern-store), [packages/component](/Users/plusx/Documents/rnd-screen-generator/packages/component), [packages/layout](/Users/plusx/Documents/rnd-screen-generator/packages/layout), [packages/token](/Users/plusx/Documents/rnd-screen-generator/packages/token) |
 | AI import 데이터 | AI가 생성한 등록 후보 bundle과 table 후보 산출물이다. 소비 데이터가 아니다. | [database/ai-imports](/Users/plusx/Documents/rnd-screen-generator/database/ai-imports) |
 | 소비 데이터 | workbench, resolver, renderer가 실제 화면 단위로 소비하는 승인된 정규화 입력이다. | [database/tables](/Users/plusx/Documents/rnd-screen-generator/database/tables) |
 
 우선순위는 소비 데이터 강화다. 공급 데이터는 소비 데이터를 만들기 위한 근거와 어휘로 쓰되, workbench가 직접 공급 원본을 해석하도록 만들지 않는다.
-`apps/web` workbench는 `database/client-imports`, `database/ai-imports`, `database/pattern-store`를 화면 데이터처럼 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
+`apps/web` workbench는 `database/client-imports`, `database/ai-imports`, `@cx/pattern-store`를 화면 데이터처럼 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
 
 생명 주기 강제 규칙:
 
 - `database/client-imports`는 업로드 원본 보관소다. 원본을 수정해 정규화하지 않는다.
 - `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.materialized.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
 - `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
-- `database/pattern-store`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
+- `@cx/pattern-store`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
 
 데이터 흐름 관계를 시각 검토할 때는 [DATA_FLOW.dbml](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_FLOW.dbml)을 사용한다. 이 DBML은 migration 스키마가 아니라 공급 데이터가 소비 데이터로 정규화되는 흐름과 참조 관계를 표현한 산출물이다.
@@ -88,7 +88,7 @@ apps/web
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
-| `database/pattern-store/*.json` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
+| `@cx/pattern-store` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
@@ -99,7 +99,7 @@ apps/web
 
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
-- `database/pattern-store/*.json`은 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
+- `@cx/pattern-store`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
@@ -123,7 +123,7 @@ Design Review 단계는 DecoratedNodeTree 이후 디자인 품질을 보정하�
 `component`와 `composite`는 **서로 다른 범위의 어휘**다.
 
 - **component** — `database/tables/components.json`의 일반 render row다. 단일 `@cx/components` leaf일 수도 있고, 후속 composite wrapper일 수도 있다. region/area child entry는 이 row를 `kind: "component"`로 참조한다.
-- **composite** — 최소 2개 이상의 `@cx/components`를 결합한 합성 컴포넌트다. `database/pattern-store/composite-patterns.json`은 이 합성 wrapper 내부의 children/slot layout만 다룬다.
+- **composite** — 최소 2개 이상의 `@cx/components`를 결합한 합성 컴포넌트다. `@cx/pattern-store`의 `composite-patterns.json`은 이 합성 wrapper 내부의 children/slot layout만 다룬다.
 - **catalog source** — `source: "react-component" | "renderer-composite" | "layout-primitive"`는 `packages/renderer/src/component-catalog.ts`에서 구현 출처를 설명하는 보조 정보다.
 
 따라서 일반 render row를 composite라고 부르지 않는다. composite 용어는 합성 wrapper가 실제로 존재할 때만 쓴다.
@@ -344,7 +344,7 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 - region child의 `{ kind: "component", id }`는 존재하는 `components[].id`를 참조한다.
 - region child의 `{ kind: "area", id }`는 존재하는 `areas[].id`를 참조한다.
 - `areas[].children[].id`는 존재하는 `components[].id`를 참조한다.
-- `screens[].pattern.id`는 공급 `database/pattern-store/*.json`의 `patterns[].id`를 참조한다.
+- `screens[].pattern.id`는 공급 `@cx/pattern-store`의 `patterns[].id`를 참조한다.
 - 모든 node/table `id`는 같은 RenderTree 안에서 중복되지 않아야 한다.
 - `@cx/renderer`의 `tablesToRenderTree` 결과는 `@cx/renderer` validation을 통과해야 한다.
 

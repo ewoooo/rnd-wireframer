@@ -1,0 +1,737 @@
+{
+	"patterns": [
+		{
+			"id": "section-stack",
+			"target": "region",
+			"name": "섹션 스택",
+			"description": "Region children을 섹션 단위 PageStack으로 감싸고 divider로 구분하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["component", "area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"titleMode": "none",
+					"itemTemplate": "default-20",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section"
+					}
+				}
+			}
+		},
+		{
+			"id": "plain-stack",
+			"target": "region",
+			"name": "기본 스택",
+			"description": "Region children을 명시 순서대로 세로 배치하는 레이아웃 프리셋",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0
+			}
+		},
+		{
+			"id": "commerce-detail-content-stack",
+			"target": "region",
+			"name": "상품 상세 콘텐츠 스택",
+			"description": "상단 hero/summary 뒤로 Pagestack section, Divider, Footer legal block이 순차로 흐르는 scrollable 상품 상세 contents region 패턴. Figma `SKT GenUI Test 0514` 상세-상품 variants의 contents 흐름을 반영한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"titleMode": "hidden",
+					"itemTemplate": "default-20",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section"
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121733",
+					"sourceFigmaNodes": ["10069:97830", "10069:97928", "10069:98027", "10069:121733"],
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121733",
+					"referenceLayer": "상세-상품 Contents variants",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"clipToViewport": true,
+					"sectionModel": "page-stack",
+					"sectionDivider": "between-sections",
+					"footer": {
+						"position": "after-sections",
+						"kind": "legal-footer"
+					},
+					"previousSourceFigmaNode": "12449:8336"
+				}
+			}
+		},
+		{
+			"id": "commerce-detail-bottom-action",
+			"target": "region",
+			"name": "상품 상세 하단 액션",
+			"description": "safe area 위에 고정되는 상품 상세 bottom action region 패턴. Figma `SKT GenUI Test 0514` 상세-상품 variants처럼 구매/가입 흐름에서 primary CTA를 우선하고 필요 시 secondary CTA 또는 tooltip을 함께 배치한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 10,
+				"paddingX": 12,
+				"paddingY": 10,
+				"layoutProps": {
+					"bottomSafeArea": 36,
+					"buttonHeight": 56,
+					"sticky": true,
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121801",
+					"sourceFigmaNodes": ["10228:58801", "10069:136547", "10069:121801"],
+					"sourceFigmaReferenceRoot": "12449:8336",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121801",
+					"referenceLayer": "상세-상품 ActionButton variants",
+					"actionLayout": {
+						"kind": "cta-row",
+						"primary": "right-or-full-width",
+						"secondary": "optional-left"
+					},
+					"tooltip": "optional-above-cta",
+					"previousSourceFigmaNode": "10228:58801"
+				}
+			}
+		},
+		{
+			"id": "subscription-detail-rich-content",
+			"target": "region",
+			"name": "구독상품 상세 리치 콘텐츠",
+			"description": "Figma node `10069:97829` 상세_구독상품 variant의 Contents subtype. ThumbnailLarge와 ProductInfo summary 뒤로 가격 accordion, banner source layer, tabbed image detail, 추천 상품 carousel source layer, 고지 accordion list, Footer가 긴 page-stack으로 이어진다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section"
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:97830",
+					"sourceFigmaReferenceRoot": "10069:97828",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-97830",
+					"referenceLayer": "Page (상세-상품) / 상세_구독상품 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "subscription-rich-product-detail",
+					"contentOrder": [
+						"thumbnail",
+						"product-info",
+						"price-accordion-pair",
+						"banner-horizontal-medium-source-layer",
+						"tabbed-image-detail",
+						"product-info-accordion",
+						"related-product-carousel-source-layer",
+						"disclosure-accordion-list",
+						"footer"
+					],
+					"componentRoles": {
+						"hero": "ThumbnailLarge",
+						"summary": "ProductInfo",
+						"priceDisclosure": "AccordionPriceInfo",
+						"noticeDisclosure": "AccordionNoticeInfo",
+						"footer": "Footer"
+					},
+					"sourceLayerRoles": {
+						"banner": "BannerHorizontalMedium",
+						"tabs": "UnderlineTab",
+						"detailImage": "Image",
+						"moreButton": "ButtonMore",
+						"carousel": "CarouselProduct"
+					},
+					"disclosure": {
+						"initialState": "collapsed",
+						"expandedBody": "inline",
+						"hooks": ["toggle-expanded"]
+					}
+				}
+			}
+		},
+		{
+			"id": "gifticon-detail-compact-content",
+			"target": "region",
+			"name": "기프티콘 상세 컴팩트 콘텐츠",
+			"description": "Figma node `10069:97927` 상세_기프티콘 variant의 Contents subtype. ThumbnailLarge/ProductInfo summary 다음 상품 더보기 source layer와 Divider, 짧은 AccordionNoticeInfo disclosure, Footer 성격의 안내 블록으로 마무리되는 compact detail 흐름이다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:97928",
+					"sourceFigmaReferenceRoot": "10069:97828",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-97928",
+					"referenceLayer": "Page (상세-상품) / 상세_기프티콘 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "gifticon-compact-product-detail",
+					"contentOrder": [
+						"thumbnail",
+						"product-info",
+						"button-more-product-source-layer",
+						"divider",
+						"notice-disclosure",
+						"footer-note"
+					],
+					"componentRoles": {
+						"hero": "ThumbnailLarge",
+						"summary": "ProductInfo",
+						"noticeDisclosure": "AccordionNoticeInfo",
+						"footer": "Footer"
+					},
+					"sourceLayerRoles": {
+						"moreButton": "ButtonMoreProduct",
+						"divider": "Divider"
+					},
+					"disclosure": {
+						"initialState": "collapsed",
+						"expandedBody": "inline",
+						"hooks": ["toggle-expanded"]
+					}
+				}
+			}
+		},
+		{
+			"id": "benefit-brand-detail-content",
+			"target": "region",
+			"name": "혜택 브랜드 상세 콘텐츠",
+			"description": "Figma node `10069:98025` 상세_혜택브랜드 variant의 Contents subtype. ThumbnailLarge/ProductInfo 이후 CardContentsLine source layer, 긴 notice accordion, Coupon source layer, MapBlock과 CardInfo source layer 리스트가 브랜드/매장 정보 섹션으로 이어진다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section"
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:98027",
+					"sourceFigmaReferenceRoot": "10069:97828",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-98027",
+					"referenceLayer": "Page (상세-상품) / 상세_혜택브랜드 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "benefit-brand-detail",
+					"contentOrder": [
+						"thumbnail",
+						"product-info",
+						"card-contents-line-source-layer",
+						"long-notice-accordion",
+						"coupon-source-layer",
+						"map",
+						"nearby-card-info-list-source-layer",
+						"brand-card-info-list-source-layer"
+					],
+					"componentRoles": {
+						"hero": "ThumbnailLarge",
+						"summary": "ProductInfo",
+						"noticeDisclosure": "AccordionNoticeInfo",
+						"map": "MapBlock"
+					},
+					"sourceLayerRoles": {
+						"benefitLine": "CardContentsLine",
+						"coupon": "Coupon",
+						"storeInfoList": "CardInfo",
+						"brandInfoList": "CardInfo"
+					},
+					"list": {
+						"kind": "brand-store-info-list",
+						"grouping": "map-nearby-and-brand",
+						"itemSourceLayerRole": "CardInfo"
+					}
+				}
+			}
+		},
+		{
+			"id": "device-detail-option-content",
+			"target": "region",
+			"name": "단말기 상세 옵션 콘텐츠",
+			"description": "Figma node `10069:121732` 상세_단말기 variant의 Contents subtype. ThumbnailLarge/ProductInfo 다음 OptionList source layer page-stack, banner source layer, tabbed long image detail, disclosure accordion list, Footer가 이어지는 단말기 구매 옵션 중심 상세 흐름이다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 28,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section"
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10069:121733",
+					"sourceFigmaReferenceRoot": "10069:97828",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121733",
+					"referenceLayer": "Page (상세-상품) / 상세_단말기 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "device-option-product-detail",
+					"contentOrder": [
+						"thumbnail",
+						"product-info",
+						"option-list-pagestacks-source-layer",
+						"banner-horizontal-medium-source-layer",
+						"tabbed-long-image-detail",
+						"disclosure-accordion-list",
+						"footer"
+					],
+					"componentRoles": {
+						"hero": "ThumbnailLarge",
+						"summary": "ProductInfo",
+						"noticeDisclosure": "AccordionNoticeInfo",
+						"footer": "Footer"
+					},
+					"sourceLayerRoles": {
+						"options": "OptionList",
+						"banner": "BannerHorizontalMedium",
+						"tabs": "UnderlineTab",
+						"detailImage": "Image",
+						"moreButton": "ButtonMore"
+					},
+					"options": {
+						"kind": "purchase-option-stack",
+						"sourceLayerRole": "OptionList",
+						"stateDriven": true
+					},
+					"disclosure": {
+						"initialState": "collapsed",
+						"expandedBody": "inline",
+						"hooks": ["toggle-expanded"]
+					}
+				}
+			}
+		},
+		{
+			"id": "summary-text-list-content",
+			"target": "region",
+			"name": "요약 포함 텍스트 리스트 콘텐츠",
+			"description": "이용내역/T플러스포인트내역처럼 상단 summary 다음 PageStack list section이 이어지는 list-text Contents region 패턴. summary와 list group은 여러 component를 조합하는 region 수준 결합 패턴이며 단일 render component로 취급하지 않는다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 24,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section",
+						"between": ["summary", "list-section"]
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58057",
+					"sourceFigmaNodes": ["10082:58057", "10082:58364"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58057",
+					"referenceLayer": "리스트-텍스트 Contents / 리스트_이용내역, 리스트_T플러스포인트내역",
+					"contentWidth": 393,
+					"headerHeight": 107,
+					"scroll": "vertical",
+					"sectionModel": "summary-plus-page-stack-list",
+					"contentOrder": ["summary", "pagestack-list-sections"],
+					"variants": [
+						{
+							"name": "리스트_이용내역",
+							"sourceFigmaNode": "10082:58057",
+							"dataRole": "usage-history"
+						},
+						{
+							"name": "리스트_T플러스포인트내역",
+							"sourceFigmaNode": "10082:58364",
+							"dataRole": "point-history"
+						}
+					],
+					"summary": {
+						"position": "first",
+						"role": "total-or-balance",
+						"surface": "summary-block"
+					},
+					"list": {
+						"kind": "text-list",
+						"grouping": "sectioned",
+						"itemDensity": "comfortable",
+						"emptyState": "optional"
+					}
+				}
+			}
+		},
+		{
+			"id": "summary-title-filter-text-list-content",
+			"target": "region",
+			"name": "요약 제목 필터 텍스트 리스트 콘텐츠",
+			"description": "할인내역처럼 summary 아래 title, chip filter, text list group이 한 흐름으로 이어지는 Contents region 패턴. 필터와 리스트는 region 결합 구조이며 실제 component 여부는 `packages/component` export와 component catalog를 따른다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 24,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section",
+						"between": ["summary", "filterable-list-section"]
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58227",
+					"sourceFigmaNodes": ["10082:58227"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58227",
+					"referenceLayer": "리스트-텍스트 Contents / 리스트_할인내역",
+					"contentWidth": 393,
+					"headerHeight": 107,
+					"scroll": "vertical",
+					"sectionModel": "summary-title-chip-text-list",
+					"contentOrder": ["summary", "section-title", "chip-filter", "text-list-group"],
+					"summary": {
+						"position": "first",
+						"role": "discount-total",
+						"surface": "summary-block"
+					},
+					"filter": {
+						"position": "after-title",
+						"kind": "chip-row",
+						"selection": "single",
+						"scroll": "horizontal"
+					},
+					"list": {
+						"kind": "text-list",
+						"grouping": "filtered-group",
+						"itemDensity": "comfortable",
+						"stateDriven": true
+					}
+				}
+			}
+		},
+		{
+			"id": "filterable-text-list-content",
+			"target": "region",
+			"name": "필터형 텍스트 리스트 콘텐츠",
+			"description": "summary가 없거나 선택적으로만 존재하고 title/chip/search 같은 제어 영역 뒤에 text list가 이어지는 범용 filterable list-text Contents region 패턴. 공지/안내/내역 변형의 공통 제어부를 표현하기 위한 region 결합 패턴이다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:58227",
+					"sourceFigmaNodes": ["10082:58227", "10082:43724"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58227",
+					"referenceLayer": "리스트-텍스트 Contents / filterable list variants",
+					"contentWidth": 393,
+					"headerHeight": 107,
+					"scroll": "vertical",
+					"contentOrder": [
+						"optional-summary",
+						"optional-tabs",
+						"optional-chip-filter",
+						"optional-search",
+						"text-list-group"
+					],
+					"controls": {
+						"tabs": "optional",
+						"chipFilter": "optional",
+						"search": "optional"
+					},
+					"list": {
+						"kind": "text-list",
+						"grouping": "flat-or-sectioned",
+						"stateDriven": true
+					}
+				}
+			}
+		},
+		{
+			"id": "plain-notice-list-content",
+			"target": "region",
+			"name": "공지사항 기본 리스트 콘텐츠",
+			"description": "공지사항처럼 별도 summary 없이 plain notice list가 상단부터 이어지는 Contents region 패턴. 항목은 텍스트 중심 list row의 반복 결합으로 보며 개별 row component 계약은 component catalog에서만 판단한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:47225",
+					"sourceFigmaNodes": ["10082:47225"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-47225",
+					"referenceLayer": "리스트-텍스트 Contents / 리스트_공지사항",
+					"contentWidth": 393,
+					"headerHeight": 107,
+					"scroll": "vertical",
+					"sectionModel": "plain-notice-list",
+					"contentOrder": ["notice-list-group"],
+					"list": {
+						"kind": "notice-text-list",
+						"grouping": "flat",
+						"itemDensity": "comfortable",
+						"supportsNewBadge": true,
+						"supportsDateMeta": true
+					}
+				}
+			}
+		},
+		{
+			"id": "faq-guide-list-content",
+			"target": "region",
+			"name": "이용안내 FAQ 리스트 콘텐츠",
+			"description": "이용안내처럼 tab, chip, search 제어부 뒤에 accordion list가 이어지는 Contents region 패턴. Accordion은 region/area 조합 방식이며 문자열 events가 아니라 hook 계약으로 상호작용이 승격되어야 한다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaFile": "SKT GenUI Test 0514",
+					"sourceFigmaNode": "10082:43724",
+					"sourceFigmaNodes": ["10082:43724"],
+					"sourceFigmaReferenceRoot": "10042:46203",
+					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-43724",
+					"referenceLayer": "리스트-텍스트 Contents / 리스트_이용안내",
+					"contentWidth": 393,
+					"headerHeight": 107,
+					"scroll": "vertical",
+					"sectionModel": "tab-chip-search-accordion-list",
+					"contentOrder": ["tab", "chip-filter", "search", "accordion-list"],
+					"controls": {
+						"tabs": {
+							"position": "top",
+							"selection": "single"
+						},
+						"chipFilter": {
+							"position": "under-tabs",
+							"selection": "single",
+							"scroll": "horizontal"
+						},
+						"search": {
+							"position": "under-chip-filter",
+							"role": "keyword-filter"
+						}
+					},
+					"list": {
+						"kind": "accordion-list",
+						"grouping": "faq-guide",
+						"initialState": "collapsed",
+						"expandedBody": "inline",
+						"hooks": ["toggle-expanded", "filter-by-tab", "filter-by-chip", "search-keyword"]
+					}
+				}
+			}
+		},
+		{
+			"id": "product-card-sectioned-list-content",
+			"target": "region",
+			"name": "섹션형 상품 카드 리스트 콘텐츠",
+			"description": "Page (리스트-카드) 요금제 variant처럼 optional chip 제어부와 filter/sort row 다음 ProductListGroup source layer가 2개 섹션으로 이어지는 Contents region 패턴. ProductListGroup과 card row 이름은 Figma/source layer role이며 실제 render component 계약은 component catalog를 따른다.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"childWrap": {
+					"kind": "page-stack",
+					"appliesTo": ["area"],
+					"sectionPaddingX": 12,
+					"itemPaddingX": 20,
+					"paddingY": 24,
+					"titleMode": "hidden",
+					"itemTemplate": "card-0",
+					"slotInsetX": 0,
+					"sectionGap": 0,
+					"divider": {
+						"type": "section",
+						"between": ["product-list-groups"]
+					}
+				},
+				"layoutProps": {
+					"sourceFigmaNode": "9896:91122",
+					"sourceFigmaReferenceRoot": "9896:91122",
+					"referenceLayer": "Page (리스트-카드) / 리스트_요금제 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "chip-sort-sectioned-product-card-list",
+					"contentOrder": ["optional-chip-filter", "filter-sorting", "product-list-groups"],
+					"variants": [
+						{
+							"name": "리스트_요금제",
+							"sectionCount": 2,
+							"cardPresentation": "horizontal-card"
+						}
+					],
+					"controls": {
+						"chipFilter": {
+							"position": "before-sort",
+							"selection": "single",
+							"scroll": "horizontal",
+							"optional": true
+						},
+						"filterSorting": {
+							"position": "before-list",
+							"role": "count-filter-sort"
+						}
+					},
+					"list": {
+						"kind": "product-card-list",
+						"grouping": "sectioned",
+						"sectionSourceLayerRole": "ProductListGroup",
+						"itemSourceLayerRole": "ListProductHorizontal",
+						"itemPresentation": "horizontal-card",
+						"stateDriven": true
+					}
+				}
+			}
+		},
+		{
+			"id": "product-card-flat-row-list-content",
+			"target": "region",
+			"name": "행형 상품 카드 리스트 콘텐츠",
+			"description": "Page (리스트-카드) 단말기/구독상품 variants처럼 filter/sort row 다음 실제 ListProductRow card가 flat list로 반복되는 Contents region 패턴.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaNode": "9896:91122",
+					"sourceFigmaReferenceRoot": "9896:91122",
+					"referenceLayer": "Page (리스트-카드) / 리스트_단말기, 리스트_구독상품 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "sort-flat-row-product-card-list",
+					"contentOrder": ["filter-sorting", "product-row-card-list"],
+					"variants": [
+						{
+							"name": "리스트_단말기",
+							"cardPresentation": "row-card"
+						},
+						{
+							"name": "리스트_구독상품",
+							"cardPresentation": "row-card"
+						}
+					],
+					"controls": {
+						"filterSorting": {
+							"position": "before-list",
+							"role": "count-filter-sort"
+						}
+					},
+					"list": {
+						"kind": "product-card-list",
+						"grouping": "flat",
+						"itemSourceLayerRole": "ListProductRow",
+						"itemPresentation": "row-card",
+						"stateDriven": true
+					}
+				}
+			}
+		},
+		{
+			"id": "product-card-flat-horizontal-list-content",
+			"target": "region",
+			"name": "가로형 상품 카드 리스트 콘텐츠",
+			"description": "Page (리스트-카드) 혜택/부가서비스/인터넷 variants처럼 filter/sort row 다음 실제 ListProductHorizontal card가 flat list로 반복되는 Contents region 패턴.",
+			"layout": {
+				"direction": "vertical",
+				"childOrder": "explicit",
+				"gap": 0,
+				"layoutProps": {
+					"sourceFigmaNode": "9896:91122",
+					"sourceFigmaReferenceRoot": "9896:91122",
+					"referenceLayer": "Page (리스트-카드) / 리스트_혜택, 리스트_부가서비스, 리스트_인터넷 Contents",
+					"contentWidth": 393,
+					"scroll": "vertical",
+					"sectionModel": "sort-flat-horizontal-product-card-list",
+					"contentOrder": ["filter-sorting", "product-horizontal-card-list"],
+					"variants": [
+						{
+							"name": "리스트_혜택",
+							"cardPresentation": "horizontal-card"
+						},
+						{
+							"name": "리스트_부가서비스",
+							"cardPresentation": "horizontal-card"
+						},
+						{
+							"name": "리스트_인터넷",
+							"cardPresentation": "horizontal-card"
+						}
+					],
+					"controls": {
+						"filterSorting": {
+							"position": "before-list",
+							"role": "count-filter-sort"
+						}
+					},
+					"list": {
+						"kind": "product-card-list",
+						"grouping": "flat",
+						"itemSourceLayerRole": "ListProductHorizontal",
+						"itemPresentation": "horizontal-card",
+						"stateDriven": true
+					}
+				}
+			}
+		}
+	]
+}

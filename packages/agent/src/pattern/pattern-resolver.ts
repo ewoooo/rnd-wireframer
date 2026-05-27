@@ -30,13 +30,13 @@ import type {
 	CompositePattern,
 	Pattern,
 	PatternResolutionSignals,
-} from "./pattern-schema";
+} from "@cx/pattern-store";
 import {
 	isAreaPattern,
 	isCompositePattern,
 	listPatterns,
 	normalizePatternId,
-} from "./pattern-store";
+} from "@cx/pattern-store";
 
 export interface PatternResolverFactoryOptions {
 	patterns?: Pattern[];

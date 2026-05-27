@@ -4,7 +4,7 @@ import {
 	type RunClaudeQueryResult,
 	runClaudeQuery,
 } from "../llm";
-import { listPatterns } from "../pattern/pattern-store";
+import { listPatterns } from "@cx/pattern-store";
 import type { ComposedAreaNode, ComposedNodeTree, PatternRef } from "../types";
 
 /**

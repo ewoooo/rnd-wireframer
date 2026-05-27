@@ -190,28 +190,50 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 			const sectionPaddingX = toNumber(props.sectionPaddingX, 12);
 			const itemPaddingX = toNumber(props.itemPaddingX, 20);
 			const paddingY = toNumber(props.paddingY, 28);
+			const slotInsetX = toNumber(props.slotInsetX, 0);
+			const sectionGap = toNumber(props.sectionGap, 0);
+			const titleMode = String(props.titleMode ?? "none");
+			const itemTemplate = String(props.itemTemplate ?? "default-20");
+			const showTitle = titleMode === "visible";
 
 			return (
 				<section
 					key={node.metadata.id}
 					className={cx(
 						"box-border flex w-full flex-col",
+						spacingUtilityClass("gap", sectionGap),
 						spacingUtilityClass("py", paddingY),
 						spacingUtilityClass("px", sectionPaddingX),
+						itemTemplate === "card-0" ? "rounded-[20px] bg-white" : undefined,
 					)}
 					data-node-id={node.metadata.id}
 					data-node-type={node.type}
+					data-page-stack-template={itemTemplate}
+					data-page-stack-title={titleMode}
 					style={{
+						gap: spacingFallbackStyleValue(sectionGap),
 						paddingBlock: spacingFallbackStyleValue(paddingY),
 						paddingInline: spacingFallbackStyleValue(sectionPaddingX),
 					}}
 				>
+					{showTitle ? (
+						<div
+							className={cx("box-border w-full", spacingUtilityClass("px", itemPaddingX))}
+							style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
+						>
+							<h2 className="m-0 text-title-20 font-semibold text-foreground">
+								{toText(node.metadata.title)}
+							</h2>
+						</div>
+					) : null}
 					<div
 						className={cx(
 							"box-border flex w-full flex-col",
 							spacingUtilityClass("px", itemPaddingX),
 						)}
-						style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
+						style={{
+							paddingInline: itemPaddingX + slotInsetX,
+						}}
 					>
 						{renderChildren()}
 					</div>

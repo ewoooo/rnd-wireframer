@@ -22,7 +22,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 초기 목표는 완성형 UI 빌더가 아니다. 내부 설계 문서를 검토 가능한 모바일 화면 초안으로 빠르게 변환하고, 사람이 screen/OGN 구조를 제한된 범위에서 후편집할 수 있게 만드는 것이 목표다.
 
-정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`, `database/pattern-store/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터, `database/pattern-store`는 공급 reference catalog다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
+정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터다. 공급 reference catalog인 layout pattern store는 `@cx/pattern-store` 패키지가 소유한다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
 
 현재 구현은 DB/API보다 로컬 렌더러 수직 슬라이스가 먼저 만들어진 상태다. 따라서 단기 제품 목표는 `database/tables -> @cx/renderer tablesToRenderTree -> RenderTree -> @cx/renderer React render -> @cx/layout/@cx/components -> apps/web` 흐름을 안정화하는 것이다. DB 적재, Agent SDK, Puck 편집은 이 수직 슬라이스가 흔들리지 않는 상태에서 단계적으로 연결한다.
 

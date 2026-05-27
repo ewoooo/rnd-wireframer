@@ -1,11 +1,11 @@
 import { componentCatalog, getComponentCatalogTypes } from "@cx/components/catalog";
+import { listPatterns } from "@cx/pattern-store";
 import {
 	runClaudeQuery,
 	type RunClaudeQueryInput,
 	type RunClaudeQueryOptions,
 	type RunClaudeQueryResult,
 } from "../llm";
-import { listPatterns } from "../pattern/pattern-store";
 import type { DecoratedNodeTree, DecoratedScreenNode } from "../types";
 import { DESIGN_REFERENCE_PATHS, REGION_SLOTS } from "./design-review-contracts";
 import {

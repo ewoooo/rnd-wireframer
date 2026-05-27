@@ -3,11 +3,11 @@ import type { LayoutPatternCard, LayoutPatternNodeKind, LayoutPatternStoreDeck }
 import { readJsonDirSafe } from "./fs-utils";
 
 export interface BuildLayoutPatternStoreDeckOptions {
-	/** database/pattern-store 디렉터리 */
+	/** @cx/pattern-store catalog 디렉터리 */
 	patternStoreRoot: string;
 	version: string;
 	builtAt?: string;
-	/** pattern-index.json 같은 메타 파일은 제외. 기본 ["pattern-index"]. */
+	/** 파생/메타 파일을 같은 디렉터리에 둘 경우 제외할 basename 목록. */
 	excludeFileBasenames?: string[];
 }
 
@@ -34,8 +34,10 @@ const KNOWN_TARGETS: ReadonlySet<LayoutPatternNodeKind> = new Set([
 export async function buildLayoutPatternStoreDeck(
 	options: BuildLayoutPatternStoreDeckOptions,
 ): Promise<LayoutPatternStoreDeck> {
-	const exclude = new Set(options.excludeFileBasenames ?? ["pattern-index"]);
-	const files = await readJsonDirSafe<RawPatternFile & { __filename?: string }>(options.patternStoreRoot);
+	const exclude = new Set(options.excludeFileBasenames ?? []);
+	const files = await readJsonDirSafe<RawPatternFile & { __filename?: string }>(
+		options.patternStoreRoot,
+	);
 
 	// readJsonDirSafe 가 파일명을 안 넘기므로 디렉터리를 다시 훑어 파일별로 패턴을 모은다
 	const dirContents = await loadDirByName(options.patternStoreRoot, exclude);
@@ -102,12 +104,14 @@ function toCard(raw: RawLayoutPattern, sourceBasename: string): LayoutPatternCar
 }
 
 function mapTarget(target: string): LayoutPatternNodeKind[] {
-	return KNOWN_TARGETS.has(target as LayoutPatternNodeKind) ? [target as LayoutPatternNodeKind] : [];
+	return KNOWN_TARGETS.has(target as LayoutPatternNodeKind)
+		? [target as LayoutPatternNodeKind]
+		: [];
 }
 
 function normalizeVariants(variants: RawLayoutPattern["variants"]): string[] {
 	if (!variants) return [];
 	return variants
-		.map((v) => (typeof v === "string" ? v : v.name ?? v.id))
+		.map((v) => (typeof v === "string" ? v : (v.name ?? v.id)))
 		.filter((name): name is string => typeof name === "string");
 }

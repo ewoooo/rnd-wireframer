@@ -7,12 +7,16 @@ export type ChildWrapPreset = {
 	appliesTo?: Array<"component" | "area">;
 	divider?: { type: "contents" | "section" };
 	itemPaddingX?: number;
+	itemTemplate?: "card-0" | "default-20" | "plain";
 	paddingY?: number;
 	sectionPaddingX?: number;
+	sectionGap?: number;
+	slotInsetX?: number;
+	titleMode?: "hidden" | "none" | "visible";
 };
 
 export type ChildrenLayoutPreset = {
-	childOrder?: "explicit";
+	childOrder?: "explicit" | "repeat";
 	childWrap?: ChildWrapPreset;
 	direction?: "horizontal" | "vertical";
 	gap?: number;

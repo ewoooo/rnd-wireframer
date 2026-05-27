@@ -1,7 +1,7 @@
 import { getComponentCatalogEntry } from "@cx/renderer";
 import { NODE_TYPES } from "@cx/types";
 import { normalizeComponentType } from "../normalize-component-type";
-import { isCompositePattern, listPatterns } from "../pattern/pattern-store";
+import { isCompositePattern, listPatterns } from "@cx/pattern-store";
 import type {
 	DecoratedAreaNode,
 	DecoratedComponentNode,

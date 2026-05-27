@@ -19,14 +19,12 @@ export interface BuildAllDecksResult {
 }
 
 /**
- * 세 deck 을 한 번에 빌드해 database/catalog/generated/ 에 출력.
+ * 세 deck 을 한 번에 빌드해 database/generated-decks/ 에 출력.
  * SPEC §6 참조.
  */
-export async function buildAllDecks(
-	options: BuildAllDecksOptions,
-): Promise<BuildAllDecksResult> {
+export async function buildAllDecks(options: BuildAllDecksOptions): Promise<BuildAllDecksResult> {
 	const root = options.repoRoot ?? process.cwd();
-	const outDir = resolve(root, "database", "catalog", "generated");
+	const outDir = resolve(root, "database", "generated-decks");
 
 	const catalogPromise = buildCatalogDeck({
 		componentPatternsRoot: resolve(root, "database", "component-patterns"),
@@ -39,7 +37,7 @@ export async function buildAllDecks(
 		builtAt: options.builtAt,
 	});
 	const layoutPromise = buildLayoutPatternStoreDeck({
-		patternStoreRoot: resolve(root, "database", "pattern-store"),
+		patternStoreRoot: resolve(root, "packages", "pattern-store", "src", "catalog"),
 		version: options.version,
 		builtAt: options.builtAt,
 	});
@@ -74,8 +72,7 @@ async function main(): Promise<void> {
 }
 
 const invokedAsScript =
-	typeof process !== "undefined" &&
-	import.meta.url === `file://${process.argv[1]}`;
+	typeof process !== "undefined" && import.meta.url === `file://${process.argv[1]}`;
 
 if (invokedAsScript) {
 	main().catch((err) => {

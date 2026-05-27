@@ -220,6 +220,29 @@ describe("materializeComposition", () => {
 		});
 		const comp = tree.components.find((c) => c.id === "dec-1");
 		expect(comp?.pattern).toEqual({ id: "component-card-summary", variant: "default" });
+		const appBar = tree.components.find((c) => c.id === "dec-appbar");
+		expect(appBar?.pattern).toEqual({ id: "component-app-bar", variant: "default" });
+	});
+
+	it("screen pattern layoutProps 의 variant 힌트로 contents region pattern을 채운다", () => {
+		const composition = makeComposition();
+		composition.screen.intent = "리스트_단말기 상품 목록";
+		const decorated = makeDecorated();
+		decorated.screen.finalLayoutPattern = {
+			layoutPatternId: "card-list-screen",
+			variant: "default",
+		};
+
+		const tree = materializeComposition({
+			prddScreenRecord: makeRecord(),
+			composition,
+			decorated,
+		});
+
+		expect(tree.screens[0].screen.regions.contents.pattern).toEqual({
+			id: "product-card-flat-row-list-content",
+			variant: "default",
+		});
 	});
 
 	it("decision props 를 leaf component child props 로 전달한다", () => {

@@ -19,6 +19,10 @@ describe("@cx/renderer component-catalog", () => {
 	it("resolves renderer composite aliases", () => {
 		expect(getComponentCatalogEntry("section-message")?.type).toBe("SectionMessage");
 		expect(getComponentCatalogEntry("text-field")?.type).toBe("TextField");
+		expect(getComponentCatalogEntry("search-bar")).toMatchObject({
+			type: "SearchBar",
+			kind: "search-bar",
+		});
 		expect(getComponentCatalogEntry("button")?.type).toBe("Button");
 		expect(getComponentCatalogEntry("checkbox")).toMatchObject({
 			type: "Checkbox",
@@ -44,6 +48,10 @@ describe("@cx/renderer component-catalog", () => {
 			type: "Footer",
 			kind: "footer",
 		});
+		expect(getComponentCatalogEntry("filter-sorting")).toMatchObject({
+			type: "FilterSorting",
+			kind: "filter-sorting",
+		});
 		expect(getComponentCatalogEntry("legal-text")).toMatchObject({
 			type: "LegalText",
 			kind: "legal-text",
@@ -52,11 +60,27 @@ describe("@cx/renderer component-catalog", () => {
 			type: "MapBlock",
 			kind: "map",
 		});
+		expect(getComponentCatalogEntry("list-product-horizontal")).toMatchObject({
+			type: "ListProductHorizontal",
+			kind: "product-card",
+		});
+		expect(getComponentCatalogEntry("list-product-row")).toMatchObject({
+			type: "ListProductRow",
+			kind: "product-card",
+		});
 		expect(getComponentCatalogEntry("store-card")).toMatchObject({
 			type: "StoreCard",
 			kind: "store-card",
 		});
 		expect(getComponentCatalogEntry("ButtonTextUnderline")).toMatchObject({
+			type: "TextButton",
+			kind: "text-link",
+		});
+		expect(getComponentCatalogEntry("ButtonMore")).toMatchObject({
+			type: "TextButton",
+			kind: "text-link",
+		});
+		expect(getComponentCatalogEntry("ButtonMoreProduct")).toMatchObject({
 			type: "TextButton",
 			kind: "text-link",
 		});
@@ -88,11 +112,15 @@ describe("@cx/renderer component-catalog", () => {
 				"ActionButton",
 				"Button",
 				"CardSummary",
+				"FilterSorting",
 				"HeaderBase",
+				"ListProductHorizontal",
+				"ListProductRow",
 				"ListCell",
 				"MapBlock",
 				"OptionCard",
 				"ProductInfo",
+				"SearchBar",
 				"StoreCard",
 				"TextField",
 				"TitleSection",

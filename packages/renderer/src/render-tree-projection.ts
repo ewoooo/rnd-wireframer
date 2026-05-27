@@ -272,8 +272,12 @@ function createRegionPageStackNode(
 		},
 		props: {
 			itemPaddingX: childWrap.itemPaddingX ?? 20,
+			itemTemplate: childWrap.itemTemplate ?? "default-20",
 			paddingY: childWrap.paddingY ?? 28,
 			sectionPaddingX: childWrap.sectionPaddingX ?? 12,
+			sectionGap: childWrap.sectionGap ?? 0,
+			slotInsetX: childWrap.slotInsetX ?? 0,
+			titleMode: childWrap.titleMode ?? "none",
 		},
 		children: [child],
 	};

@@ -41,13 +41,13 @@ async function main(): Promise<void> {
 	const prddScreenRecord = composeOut.input;
 
 	const catalogDeck = await loadJson<CatalogDeck>(
-		resolve(ROOT, "database/catalog/generated/catalog-deck.json"),
+		resolve(ROOT, "database/generated-decks/catalog-deck.json"),
 	);
 	const designDeck = await loadJson<DesignDeck>(
-		resolve(ROOT, "database/catalog/generated/design-deck.json"),
+		resolve(ROOT, "database/generated-decks/design-deck.json"),
 	);
 	const layoutPatternStoreDeck = await loadJson<LayoutPatternStoreDeck>(
-		resolve(ROOT, "database/catalog/generated/layout-pattern-store-deck.json"),
+		resolve(ROOT, "database/generated-decks/layout-pattern-store-deck.json"),
 	);
 
 	console.log("[smoke] decorating screen", composition.screen.screenId);

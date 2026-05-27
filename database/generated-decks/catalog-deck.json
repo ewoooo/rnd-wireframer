@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-05-26T10:43:56.140Z",
+  "builtAt": "2026-05-27T00:22:56.092Z",
   "version": "0.1.0",
   "primitives": [
     {
@@ -180,9 +180,71 @@
             "role": "layout",
             "tokenRole": "spacing"
           }
+        },
+        {
+          "name": "itemPaddingX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "sectionPaddingX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "sectionGap",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "slotInsetX",
+          "contract": {
+            "type": "number",
+            "role": "layout",
+            "tokenRole": "spacing"
+          }
+        },
+        {
+          "name": "itemTemplate",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "card-0",
+              "default-20",
+              "plain"
+            ],
+            "defaultValue": "default-20"
+          }
+        },
+        {
+          "name": "titleMode",
+          "contract": {
+            "type": "enum",
+            "role": "visibility",
+            "values": [
+              "hidden",
+              "none",
+              "visible"
+            ],
+            "defaultValue": "none"
+          }
         }
       ],
-      "variants": [],
+      "variants": [
+        "card-0",
+        "default-20",
+        "plain"
+      ],
       "tokensExpected": [
         "spacing"
       ],
@@ -759,7 +821,7 @@
     {
       "id": "Chip",
       "name": "Chip",
-      "description": "",
+      "description": "Selectable horizontal filter chip item.",
       "props": [
         {
           "name": "children",
@@ -847,6 +909,64 @@
       "exampleUsage": ""
     },
     {
+      "id": "FilterSorting",
+      "name": "FilterSorting",
+      "description": "List result count, filter, and sort control row for browse screens.",
+      "props": [
+        {
+          "name": "countLabel",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "defaultValue": "전체 0개"
+          }
+        },
+        {
+          "name": "filterLabel",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "defaultValue": "필터"
+          }
+        },
+        {
+          "name": "sortLabel",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "defaultValue": "추천순"
+          }
+        },
+        {
+          "name": "showFilter",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        },
+        {
+          "name": "showSort",
+          "contract": {
+            "type": "boolean",
+            "role": "visibility",
+            "defaultValue": true
+          }
+        },
+        {
+          "name": "activeFilterCount",
+          "contract": {
+            "type": "number",
+            "role": "state",
+            "defaultValue": 0
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
       "id": "HeaderBase",
       "name": "HeaderBase",
       "description": "Renderer header node mapped to AppBar.",
@@ -889,7 +1009,7 @@
     {
       "id": "InfoTextList",
       "name": "InfoTextList",
-      "description": "",
+      "description": "Text list row with title, category/date, optional badge, or right-side value.",
       "props": [
         {
           "name": "title",
@@ -988,6 +1108,196 @@
           "contract": {
             "type": "boolean",
             "role": "state"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListProductHorizontal",
+      "name": "ListProductHorizontal",
+      "description": "Horizontal product card row for SKT card-list browse screens.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "brand",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "price",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "originalPrice",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "discountRate",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "imageUrl",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "imageAlt",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "badges",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        },
+        {
+          "name": "meta",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "benefitText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "ctaLabel",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "ListProductRow",
+      "name": "ListProductRow",
+      "description": "Large product row card for SKT device/subscription browse screens.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "required": true
+          }
+        },
+        {
+          "name": "brand",
+          "contract": {
+            "type": "string",
+            "role": "label"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "price",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "originalPrice",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "discountRate",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "imageUrl",
+          "contract": {
+            "type": "string",
+            "role": "data"
+          }
+        },
+        {
+          "name": "imageAlt",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "badges",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        },
+        {
+          "name": "specs",
+          "contract": {
+            "type": "array",
+            "role": "data"
+          }
+        },
+        {
+          "name": "benefitText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "ctaLabel",
+          "contract": {
+            "type": "string",
+            "role": "label"
           }
         }
       ],
@@ -1454,7 +1764,7 @@
     {
       "id": "Tab",
       "name": "Tab",
-      "description": "",
+      "description": "Top tab navigation strip for switching list categories.",
       "props": [
         {
           "name": "items",
@@ -1480,7 +1790,7 @@
     {
       "id": "TextButton",
       "name": "TextButton",
-      "description": "Inline text button, including underline link variants in PRDD specs.",
+      "description": "Inline text button, including underline link and Figma ButtonMore affordance variants in PRDD specs.",
       "props": [
         {
           "name": "label",
@@ -1577,6 +1887,46 @@
         }
       ],
       "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "SearchBar",
+      "name": "SearchBar",
+      "description": "Rounded search input with search and LLM action variants from SKT GenUI.",
+      "props": [
+        {
+          "name": "placeholder",
+          "contract": {
+            "type": "string",
+            "role": "description",
+            "defaultValue": "검색"
+          }
+        },
+        {
+          "name": "value",
+          "contract": {
+            "type": "string",
+            "role": "value"
+          }
+        },
+        {
+          "name": "variant",
+          "contract": {
+            "type": "enum",
+            "role": "styleVariant",
+            "values": [
+              "search",
+              "llm"
+            ],
+            "defaultValue": "search"
+          }
+        }
+      ],
+      "variants": [
+        "search",
+        "llm"
+      ],
       "tokensExpected": [],
       "exampleUsage": ""
     },

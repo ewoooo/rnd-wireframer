@@ -1,4 +1,4 @@
-import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 /**
@@ -44,5 +44,5 @@ export async function writeJson(path: string, data: unknown): Promise<void> {
 	const json = JSON.stringify(data, null, 2);
 	const dir = path.slice(0, path.lastIndexOf("/"));
 	if (dir) await mkdir(dir, { recursive: true });
-	await writeFile(path, json + "\n", "utf8");
+	await writeFile(path, `${json}\n`, "utf8");
 }

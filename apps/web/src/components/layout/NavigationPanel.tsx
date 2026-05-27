@@ -29,10 +29,10 @@ export function NavigationPanel() {
 		<Sidebar side="left">
 			<SidebarContent className="flex-row gap-0 overflow-hidden p-0">
 				<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
-				<div className="min-w-0 flex-1 p-2">
+				<div className="min-w-0 flex-1 overflow-hidden p-2">
 					{activeTab === "scn" ? (
 						<ScrollArea className="h-[calc(100vh-32px)]">
-							<div className="flex flex-col gap-2">
+							<div className="flex min-w-0 flex-col gap-2">
 								{screenRoutes.map((route) => (
 									<ScreenRouteCard
 										key={route.code}
@@ -54,19 +54,21 @@ export function NavigationPanel() {
 										type="button"
 										key={area.code}
 										className={cn(
-											"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
+											"min-w-0 rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
 											area.code === selectedAreaCode && "border-primary bg-primary/5",
 										)}
 										onClick={() => selectArea(area.code)}
 									>
-										<div className="flex items-center justify-between gap-2">
-											<p className="text-sm font-medium">{area.name}</p>
-											<Badge variant="secondary">{area.usage}</Badge>
+										<div className="flex min-w-0 items-center justify-between gap-2">
+											<p className="min-w-0 truncate text-sm font-medium">{area.name}</p>
+											<Badge className="shrink-0" variant="secondary">
+												{area.usage}
+											</Badge>
 										</div>
-										<p className="mt-1 text-xs text-muted-foreground">{area.code}</p>
-										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-											<span>{area.stateCount} states</span>
-											<span>{area.componentCount} components</span>
+										<p className="mt-1 truncate text-xs text-muted-foreground">{area.code}</p>
+										<div className="mt-3 flex min-w-0 gap-2 text-xs text-muted-foreground">
+											<span className="shrink-0">{area.stateCount} states</span>
+											<span className="truncate">{area.componentCount} components</span>
 										</div>
 									</button>
 								))}
@@ -81,19 +83,21 @@ export function NavigationPanel() {
 										type="button"
 										key={component.code}
 										className={cn(
-											"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
+											"min-w-0 rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
 											component.code === selectedComponentCode && "border-primary bg-primary/5",
 										)}
 										onClick={() => selectComponent(component.code)}
 									>
-										<div className="flex items-center justify-between gap-2">
-											<p className="truncate text-sm font-medium">{component.name}</p>
-											<Badge variant="secondary">{component.type}</Badge>
+										<div className="flex min-w-0 items-center justify-between gap-2">
+											<p className="min-w-0 truncate text-sm font-medium">{component.name}</p>
+											<Badge className="shrink-0" variant="secondary">
+												{component.type}
+											</Badge>
 										</div>
 										<p className="mt-1 truncate text-xs text-muted-foreground">{component.code}</p>
-										<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-											<span>{component.sourceScreenCode}</span>
-											<span>{component.parentAreaCode ?? "screen"}</span>
+										<div className="mt-3 flex min-w-0 gap-2 text-xs text-muted-foreground">
+											<span className="min-w-0 truncate">{component.sourceScreenCode}</span>
+											<span className="shrink-0">{component.parentAreaCode ?? "screen"}</span>
 										</div>
 									</button>
 								))}
