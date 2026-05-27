@@ -8,6 +8,7 @@ import { BannerIndicaterMedium } from "../BannerIndicaterMedium";
 import { Button } from "../Button";
 import { CardContentsFilled } from "../CardContentsFilled";
 import { CardSummary } from "../CardSummary";
+import { Coupon } from "../Coupon";
 import { FilterSorting } from "../FilterSorting";
 import { Footer } from "../Footer";
 import { LegalText } from "../LegalText";
@@ -16,6 +17,7 @@ import { ListProductRow } from "../ListProductRow";
 import { ListSelected } from "../ListSelected";
 import { MapBlock } from "../MapBlock";
 import { OptionCard } from "../OptionCard";
+import { OptionList } from "../OptionList";
 import { ProductInfo } from "../ProductInfo";
 import { StoreCard } from "../StoreCard";
 import { TextButton } from "../TextButton";
@@ -78,6 +80,15 @@ describe("@cx/components", () => {
 					badges={["혜택"]}
 				/>
 				<OptionCard title="월간 이용권" value="9,900원" selected />
+				<OptionList
+					title="색상 선택"
+					items={[
+						{ id: "black", title: "블랙", value: "선택됨" },
+						{ id: "white", title: "화이트", value: "재고 있음" },
+					]}
+					selectedId="black"
+				/>
+				<Coupon title="제휴 할인 쿠폰" benefitText="5,000원 할인" ctaLabel="받기" />
 				<BannerIndicaterMedium title="추천 혜택" current={1} total={3} />
 				<FilterSorting countLabel="전체 12개" sortLabel="인기순" activeFilterCount={2} />
 				<MapBlock title="가까운 매장" address="서울 중구" />
@@ -105,6 +116,10 @@ describe("@cx/components", () => {
 			"aria-pressed",
 			"true",
 		);
+		expect(screen.getByText("색상 선택")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: /블랙/ })).toHaveAttribute("aria-pressed", "true");
+		expect(screen.getByLabelText("제휴 할인 쿠폰")).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "받기" })).toBeInTheDocument();
 		expect(screen.getByText("추천 혜택")).toBeInTheDocument();
 		expect(screen.getByText("전체 12개")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: /필터/ })).toBeInTheDocument();

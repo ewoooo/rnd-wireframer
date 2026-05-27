@@ -79,6 +79,11 @@ function makeInput(): DecorateScreenInput {
 			primaryUserGoal: "",
 			strategy: "detail-reading",
 			archetype: "generic-detail",
+			archetypeChoice: {
+				source: "catalog",
+				archetype: "generic-detail",
+				rationale: "test fixture: generic detail surface",
+			},
 			completeness: {
 				requiredBlocks: ["navigation", "hero-summary", "primary-facts"],
 				presentBlocks: ["hero-summary", "primary-facts"],

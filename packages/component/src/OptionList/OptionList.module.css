@@ -1,0 +1,47 @@
+.optionList {
+	display: flex;
+	width: 100%;
+	box-sizing: border-box;
+	flex-direction: column;
+	gap: 12px;
+	font-family: var(--skt-typography-font-family-base);
+	color: #05001a;
+	letter-spacing: 0;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 800;
+	line-height: 1.35;
+}
+
+.description {
+	margin: 0;
+	color: rgba(6, 12, 31, 0.56);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+.grid,
+.list {
+	display: grid;
+	width: 100%;
+	box-sizing: border-box;
+	gap: 8px;
+}
+
+.grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.list {
+	grid-template-columns: minmax(0, 1fr);
+}

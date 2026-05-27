@@ -1,40 +1,77 @@
 /**
- * pipeline-smoke 출력을 database/tables/preview/ 로 떼서 apps/web 가 볼 수 있게 한다.
- * 운영 tables 는 건드리지 않는다.
+ * 현재 코드의 전체 pipeline을 실행한 뒤 database/tables/preview/ 로 떨궈 apps/web 가 볼 수 있게 한다.
+ * 운영 tables 는 --overwrite 가 있을 때만 덮어쓴다.
  *
- * 사용: pnpm tsx scripts/preview-pipeline-output.ts
- *      그다음 apps/web 의 loader 를 preview 디렉터리로 가리키거나, 임시로 운영 tables 를 덮어쓴다.
+ * 사용: pnpm tsx scripts/preview-pipeline-output.ts [PRDD 경로] [--overwrite]
  */
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { materializeComposition } from "@cx/agent/materialize-composition";
+import { runPipeline } from "@cx/agent/pipeline";
 import type {
-	CompositionOutput,
-	DecoratedOutput,
+	CatalogDeck,
+	DesignDeck,
+	LayoutPatternStoreDeck,
 	MaterializedNodeTree,
-	PrddScreenRecord,
 	PropValue,
 } from "@cx/types";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const DEFAULT_PRDD_PATH = resolve(
+	ROOT,
+	"database/client-imports/PRDD/screen/NOVA-PRDD-PG-001-0.md",
+);
 
-interface PipelinePreviewResult {
-	composition?: CompositionOutput;
-	decorated?: DecoratedOutput;
-	materialized?: MaterializedNodeTree;
-	prddScreenRecord?: PrddScreenRecord;
+async function loadJson<T>(path: string): Promise<T> {
+	return JSON.parse(await readFile(path, "utf8")) as T;
 }
 
 async function main(): Promise<void> {
-	const overwriteTables = process.argv.includes("--overwrite");
-	const src = resolve(ROOT, "database/ai-imports/pipeline-smoke-output.json");
-	const data = JSON.parse(await readFile(src, "utf8"));
-	const m = toPreviewMaterialized(data?.result);
-	if (!m) {
-		console.error("[preview] no materialized output");
+	const args = process.argv.slice(2);
+	const overwriteTables = args.includes("--overwrite");
+	const prddArg = args.find((arg) => !arg.startsWith("--"));
+	const prddPath = prddArg ? resolve(ROOT, prddArg) : DEFAULT_PRDD_PATH;
+	const prddSource = await readFile(prddPath, "utf8");
+	const importJobId = `pipeline-preview-${Date.now()}`;
+
+	const [catalogDeck, designDeck, layoutPatternStoreDeck] = await Promise.all([
+		loadJson<CatalogDeck>(resolve(ROOT, "database/generated-decks/catalog-deck.json")),
+		loadJson<DesignDeck>(resolve(ROOT, "database/generated-decks/design-deck.json")),
+		loadJson<LayoutPatternStoreDeck>(
+			resolve(ROOT, "database/generated-decks/layout-pattern-store-deck.json"),
+		),
+	]);
+
+	console.log(`[preview] running pipeline for ${prddPath}`);
+	const startedAt = Date.now();
+	const result = await runPipeline(
+		{
+			prddSource,
+			catalogDeck,
+			designDeck,
+			layoutPatternStoreDeck,
+			importJobId,
+		},
+		{ composeMaxRetries: 2, decorateMaxRetries: 2 },
+	);
+	const elapsedMs = Date.now() - startedAt;
+	if (!result.ok || !result.materialized) {
+		console.error(`[preview] pipeline failed at ${result.stage}`);
+		for (const issue of result.issues.slice(0, 12)) {
+			console.error(`  - ${issue.code}: ${issue.message}`);
+		}
+		for (const violation of result.invariantViolations.slice(0, 12)) {
+			console.error(`  - ${violation.code}: ${violation.message}`);
+		}
 		process.exit(1);
 	}
+
+	const auditPath = resolve(ROOT, "database/ai-imports/pipeline-preview-output.json");
+	await mkdir(dirname(auditPath), { recursive: true });
+	await writeFile(auditPath, JSON.stringify({ result, elapsedMs }, null, 2));
+	console.log(`[preview] pipeline done in ${elapsedMs}ms; audit written to ${auditPath}`);
+
+	const m = result.materialized;
 	applyPreviewSampleData(m);
 
 	const previewDir = resolve(ROOT, "database/tables/preview");
@@ -91,17 +128,6 @@ async function main(): Promise<void> {
 			"[preview] tip: re-run with --overwrite to put pipeline output into database/tables/",
 		);
 	}
-}
-
-function toPreviewMaterialized(result: PipelinePreviewResult | undefined) {
-	if (result?.prddScreenRecord && result?.composition && result?.decorated) {
-		return materializeComposition({
-			prddScreenRecord: result.prddScreenRecord,
-			composition: result.composition,
-			decorated: result.decorated,
-		});
-	}
-	return result?.materialized;
 }
 
 const PREVIEW_SAMPLE_VALUES: Record<string, string> = {

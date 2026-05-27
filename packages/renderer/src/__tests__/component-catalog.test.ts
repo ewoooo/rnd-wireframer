@@ -28,6 +28,10 @@ describe("@cx/renderer component-catalog", () => {
 			type: "Checkbox",
 			kind: "checkbox",
 		});
+		expect(getComponentCatalogEntry("Local_Coupon")).toMatchObject({
+			type: "Coupon",
+			kind: "coupon",
+		});
 		expect(getComponentCatalogEntry("product-info")).toMatchObject({
 			type: "ProductInfo",
 			kind: "product-info",
@@ -39,6 +43,10 @@ describe("@cx/renderer component-catalog", () => {
 		expect(getComponentCatalogEntry("option-card")).toMatchObject({
 			type: "OptionCard",
 			kind: "option-card",
+		});
+		expect(getComponentCatalogEntry("OptionList")).toMatchObject({
+			type: "OptionList",
+			kind: "option-list",
 		});
 		expect(getComponentCatalogEntry("banner-indicator")).toMatchObject({
 			type: "BannerIndicaterMedium",
@@ -112,6 +120,7 @@ describe("@cx/renderer component-catalog", () => {
 				"ActionButton",
 				"Button",
 				"CardSummary",
+				"Coupon",
 				"FilterSorting",
 				"HeaderBase",
 				"ListProductHorizontal",
@@ -119,6 +128,7 @@ describe("@cx/renderer component-catalog", () => {
 				"ListCell",
 				"MapBlock",
 				"OptionCard",
+				"OptionList",
 				"ProductInfo",
 				"SearchBar",
 				"StoreCard",

@@ -35,6 +35,7 @@
   └─ database/client-imports/{importId}/...
 공급 데이터
   ├─ pattern preset
+  ├─ componentPattern registry
   ├─ @cx/components
   ├─ @cx/layout
   ├─ @cx/tokens
@@ -42,6 +43,9 @@
         |
         v
 parser / normalizer / resolver
+  ├─ archetype scaffold
+  ├─ componentPattern selection/proposal
+  └─ layoutPattern draft
         |
         v
 AI import 데이터
@@ -102,7 +106,9 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
+- archetype scaffold는 저장 데이터가 아니라 Compose 전 deterministic 골격 계약이다. 소비 데이터에는 scaffold 자체를 저장하지 않고, Compose 산출물의 `screen.archetype`과 completeness 판단, 이후 materialized row의 구조로만 반영한다.
 - `@cx/component-pattern-store`는 의미 있는 UI 조합 계약이다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
+- componentPattern은 scaffold block을 표현하는 재사용 semantic UI 조합이고, layout pattern은 screen/region/area/composite children 배치 recipe다. 두 계약을 같은 JSON이나 같은 `type` 문자열로 겸용하지 않는다.
 - `@cx/pattern-store`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.

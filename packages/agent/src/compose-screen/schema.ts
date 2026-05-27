@@ -252,12 +252,36 @@ const CompositionArea = z.object({
 	designRefs: z.array(DesignReference),
 });
 
+const NonEmptyString = z.string().min(1);
+
+const ProposedArchetypeScaffold = z.object({
+	archetype: NonEmptyString,
+	strategy: ScreenStrategy,
+	requiredBlocks: z.array(ArchetypeBlockId),
+	optionalBlocks: z.array(ArchetypeBlockId),
+	allowedSyntheticBlocks: z.array(ArchetypeBlockId),
+	rationale: NonEmptyString,
+});
+
+const ArchetypeChoice = z
+	.object({
+		source: z.enum(["catalog", "proposed"]),
+		archetype: NonEmptyString,
+		rationale: NonEmptyString,
+		proposedScaffold: ProposedArchetypeScaffold.optional(),
+	})
+	.refine((value) => value.source !== "proposed" || value.proposedScaffold !== undefined, {
+		message: "archetypeChoice.proposedScaffold is required when source=proposed",
+		path: ["proposedScaffold"],
+	});
+
 const CompositionScreen = z.object({
 	screenId: z.string(),
 	intent: z.string(),
 	primaryUserGoal: z.string(),
 	strategy: ScreenStrategy,
-	archetype: ScreenArchetype,
+	archetype: z.union([ScreenArchetype, NonEmptyString]),
+	archetypeChoice: ArchetypeChoice,
 	completeness: z.object({
 		requiredBlocks: z.array(ArchetypeBlockId),
 		presentBlocks: z.array(ArchetypeBlockId),

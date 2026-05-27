@@ -53,25 +53,26 @@ PRDD.md
    │  - PRDD prose를 자르거나 요약하지 않고 1급 필드로 보존
    │  - catalog 매칭 가능성만 표시하고 최종 composition 결정은 하지 않음
    ▼
-[Archetype Scaffold = deterministic]
-   │  - screen archetype과 최소 block 골격 계약 생성
-   │  - 화면별 수동 체크리스트가 아니라 archetype별 재사용 scaffold
-   │  - 비즈니스 사실은 생성하지 않고 expected/optional/synthetic 허용 범위만 제공
-   ▼
 [Compose = LLM #1]                 ← 화면 단위 1회 호출
    │  - Schema A 입력
-   │  - Archetype Scaffold 입력
+   │  - Archetype Catalog 입력 (deterministic 데이터. 매처 없음. archetype 선택은 LLM 책임)
    │  - 카탈로그 카드덱(설계 1) prior
    │  - docs/design 기반 design deck prior
    │  - layoutPatternStore prior
+   │  - **archetype 선택**: catalog에서 reuse 또는 propose-archetype
+   │     · source="catalog": 기존 archetype 재사용 (rationale 필수)
+   │     · source="proposed": 새 archetype 정의 동봉 (proposedScaffold + rationale 필수)
    │  - 각 슬롯에서 reuse-primitive / reuse-pattern / propose-pattern / report-gap
    │  - componentPattern 결정
    │  - layoutPattern 1차 결정
-   │  - 출력: Schema B composed.json + (Schema C proposed componentPattern 드래프트) + (Schema D gap reports)
+   │  - 출력: Schema B composed.json (screen.archetypeChoice 포함) +
+   │           (Schema C proposed componentPattern 드래프트) + (Schema D gap reports)
    ▼
 [Contract Validator #1] ★1급 게이트
    │  catalog hit / variant 존재 / ComponentPropContract / TokenRole /
    │  variantTokens / DAG / propose 5종 세트 / Resolver 룰
+   │  archetypeChoice rationale 필수 / catalog 또는 proposedScaffold 정합성 /
+   │  archetype scaffold requiredBlocks 설명 / allowedSyntheticBlocks 준수
    │  위반 시 → 좁은 재시도 (위반 노드/슬롯만 LLM #1에 다시)
    ▼
 [Decorate = LLM #2]                ← 화면 단위 1회 호출
@@ -95,10 +96,10 @@ PRDD.md
 ```
 
 **LLM 책임 분리**:
-- **LLM #1 (Compose)**: componentPattern + layoutPattern 1차안. "어떤 UI 블록을 어디에 놓고, 어떤 design/layout pattern으로 조립하는가."
+- **LLM #1 (Compose)**: archetype 선택 + componentPattern + layoutPattern 1차안. "어떤 화면 원형을 쓰고, 어떤 UI 블록을 어디에 놓고, 어떤 design/layout pattern으로 조립하는가."
 - **LLM #2 (Decorate)**: layoutPattern 검증·보정. Compose의 layoutPattern 1차안을 유지하는 것을 기본으로 하고, 누락·비호환·명백한 품질 문제만 보정한다.
 - Compose는 `docs/design/` 책임 문서를 근거로 화면 골격, area role, componentPattern, layoutPattern을 함께 결정한다.
-- Archetype Scaffold는 코드가 만든 얇은 설계도다. Compose는 이 설계도를 채우고, 채울 수 없는 block을 `missingBlocks`/`gapReports`로 설명한다.
+- Archetype Catalog는 코드가 노출하는 데이터 테이블이다. 어떤 archetype을 고를지는 LLM이 판단하고 (`archetypeChoice.source="catalog"`), catalog 밖이 필요하면 `source="proposed"`로 새 scaffold를 동봉한다. 둘 다 PRDD 근거 인용(`rationale`)이 빈 문자열이면 Validator가 거부한다. Compose는 선택한 scaffold를 채우고, 채울 수 없는 block을 `missingBlocks`/`gapReports`로 설명한다.
 - Decorate는 트리 구조·prop·binding **절대 변경 금지**. layoutPattern 검증 결과와 보정 사유만 추가한다.
 
 **layoutPattern 핸드오프 규칙** (Compose draft → Decorate verification):

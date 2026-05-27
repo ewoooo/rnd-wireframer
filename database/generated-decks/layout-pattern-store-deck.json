@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-05-27T00:22:56.094Z",
+  "builtAt": "2026-05-27T01:16:05.440Z",
   "version": "0.1.0",
   "patterns": [
     {
@@ -214,7 +214,7 @@
     {
       "id": "option-list-section-area",
       "name": "옵션 리스트 섹션 영역",
-      "description": "단말기 상세의 색상/용량/배송/요금제 OptionList 섹션을 보존하는 subtype. OptionList는 아직 실제 컴포넌트로 단정하지 않는다.",
+      "description": "단말기 상세의 색상/용량/배송/요금제 OptionList 섹션을 실제 OptionList surface로 배치하는 subtype.",
       "variants": [
         "default"
       ],
@@ -225,7 +225,7 @@
     {
       "id": "coupon-benefit-area",
       "name": "쿠폰 혜택 영역",
-      "description": "혜택브랜드 상세에서 Coupon layer를 별도 혜택 블록으로 배치하는 subtype. Coupon은 package 컴포넌트로 확정하지 않는다.",
+      "description": "혜택브랜드 상세에서 Coupon layer를 실제 Coupon surface로 배치하는 혜택 블록 subtype.",
       "variants": [
         "default"
       ],
@@ -908,7 +908,7 @@
     {
       "id": "composite-coupon-benefit-card",
       "name": "쿠폰 혜택 카드",
-      "description": "Coupon Figma layer를 현재 실제 CardContentsFilled와 Button/TextButton surface 후보로 기록하는 혜택 카드 composite",
+      "description": "Coupon Figma layer를 실제 Coupon surface로 배치하는 혜택 카드 composite",
       "variants": [
         "default"
       ],

@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-05-27T00:22:56.092Z",
+  "builtAt": "2026-05-27T01:16:05.435Z",
   "version": "0.1.0",
   "primitives": [
     {
@@ -1116,6 +1116,62 @@
       "exampleUsage": ""
     },
     {
+      "id": "Coupon",
+      "name": "Coupon",
+      "description": "Coupon benefit card for commerce detail and brand benefit screens.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title",
+            "defaultValue": "혜택 쿠폰"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "benefitText",
+          "contract": {
+            "type": "string",
+            "role": "value",
+            "defaultValue": "쿠폰 혜택 제공"
+          }
+        },
+        {
+          "name": "conditionText",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "ctaLabel",
+          "contract": {
+            "type": "string",
+            "role": "label",
+            "defaultValue": "쿠폰 받기"
+          }
+        },
+        {
+          "name": "disabled",
+          "contract": {
+            "type": "boolean",
+            "role": "state",
+            "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
       "id": "ListProductHorizontal",
       "name": "ListProductHorizontal",
       "description": "Horizontal product card row for SKT card-list browse screens.",
@@ -1532,6 +1588,57 @@
             "type": "boolean",
             "role": "state",
             "defaultValue": false
+          }
+        }
+      ],
+      "variants": [],
+      "tokensExpected": [],
+      "exampleUsage": ""
+    },
+    {
+      "id": "OptionList",
+      "name": "OptionList",
+      "description": "Option section wrapper for device detail screens, rendering repeated OptionCard selections.",
+      "props": [
+        {
+          "name": "title",
+          "contract": {
+            "type": "string",
+            "role": "title"
+          }
+        },
+        {
+          "name": "description",
+          "contract": {
+            "type": "string",
+            "role": "description"
+          }
+        },
+        {
+          "name": "items",
+          "contract": {
+            "type": "array",
+            "role": "data",
+            "defaultValue": []
+          }
+        },
+        {
+          "name": "columns",
+          "contract": {
+            "type": "enum",
+            "role": "layout",
+            "values": [
+              "1",
+              "2"
+            ],
+            "defaultValue": "2"
+          }
+        },
+        {
+          "name": "selectedId",
+          "contract": {
+            "type": "string",
+            "role": "state"
           }
         }
       ],

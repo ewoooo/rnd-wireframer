@@ -250,6 +250,30 @@ export interface CompositionArea {
 	designRefs: DesignReference[];
 }
 
+/**
+ * Compose LLM이 선택한 archetype. catalog에서 고르거나 새 archetype을 제안한다.
+ * rationale은 빈 문자열 금지 — Validator가 거부한다.
+ */
+export interface ArchetypeChoice {
+	source: "catalog" | "proposed";
+	/** source="catalog"면 ScreenArchetype, "proposed"면 새 id (소문자-kebab) */
+	archetype: string;
+	/** PRDD 근거 인용. 빈 문자열이면 reject */
+	rationale: string;
+	/** source="proposed"일 때만 동봉. catalog에 없는 새 scaffold 정의 */
+	proposedScaffold?: ProposedArchetypeScaffold;
+}
+
+export interface ProposedArchetypeScaffold {
+	archetype: string;
+	strategy: ScreenStrategy;
+	requiredBlocks: ArchetypeBlockId[];
+	optionalBlocks: ArchetypeBlockId[];
+	allowedSyntheticBlocks: ArchetypeBlockId[];
+	/** 왜 기존 catalog로 표현 불가한지 근거. 빈 문자열이면 reject */
+	rationale: string;
+}
+
 export interface CompositionScreen {
 	screenId: string;
 	/** PRDD 전체를 읽은 화면 목적 */
@@ -257,8 +281,10 @@ export interface CompositionScreen {
 	/** 사용자가 이 화면에서 달성해야 하는 일 */
 	primaryUserGoal: string;
 	strategy: ScreenStrategy;
-	/** deterministic scaffold resolver가 고른 화면 원형 */
-	archetype: ScreenArchetype;
+	/** LLM이 고른 archetype. archetypeChoice에서 derive된 redundant projection. */
+	archetype: ScreenArchetype | string;
+	/** Compose LLM #1이 결정한 archetype 선택 (catalog reuse 또는 propose). */
+	archetypeChoice: ArchetypeChoice;
 	/** archetype scaffold 대비 Compose가 채운/합성/누락 처리한 block 현황 */
 	completeness: {
 		requiredBlocks: ArchetypeBlockId[];

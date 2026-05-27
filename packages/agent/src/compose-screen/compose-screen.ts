@@ -12,7 +12,7 @@ import { validateComposition } from "../validate/validate-composition";
 
 import { buildInitialPrompt, buildRetryPrompt, COMPOSE_SYSTEM_PROMPT } from "./build-prompt";
 import { parseCompositionOutput } from "./parse-output";
-import { type ArchetypeScaffold, buildArchetypeScaffold } from "./scaffold";
+import { type ArchetypeScaffold } from "./scaffold";
 import { compositionOutputJsonSchema } from "./schema";
 
 /**
@@ -34,7 +34,8 @@ export interface ComposeScreenInput {
 	layoutPatternStoreDeck: LayoutPatternStoreDeck;
 	/** Validator 기준. 미지정 시 SSOT에서 직접 조회한다. */
 	validationContext?: ValidatorContext;
-	archetypeScaffold?: ArchetypeScaffold;
+	/** prompt prior로 주입할 archetype catalog. 미지정 시 SSOT 전체 목록. */
+	archetypeCatalog?: ArchetypeScaffold[];
 }
 
 export type LlmQueryFn = (input: {
@@ -79,11 +80,8 @@ export async function composeScreen(
 
 	const jsonSchema = compositionOutputJsonSchema();
 	const attempts: ComposeAttempt[] = [];
-	const archetypeScaffold =
-		input.archetypeScaffold ?? buildArchetypeScaffold(input.prddScreenRecord);
-	const promptInput = { ...input, archetypeScaffold };
 
-	let prompt = wrapSystemPrompt(buildInitialPrompt(promptInput));
+	let prompt = wrapSystemPrompt(buildInitialPrompt(input));
 	let lastOutput: CompositionOutput | undefined;
 	let lastIssues: ValidationIssue[] = [];
 
@@ -108,7 +106,6 @@ export async function composeScreen(
 		const validatorResult = validateComposition(parsed.output, {
 			validationContext: input.validationContext,
 			prddScreenRecord: input.prddScreenRecord,
-			archetypeScaffold,
 		});
 		attemptRecord.validatorResult = validatorResult;
 		attemptRecord.retryHints = validatorResult.retryHints;

@@ -135,6 +135,11 @@ function makeOutput(overrides: Partial<CompositionOutput> = {}): CompositionOutp
 			primaryUserGoal: "verify validator",
 			strategy: "detail-reading",
 			archetype: "generic-detail",
+			archetypeChoice: {
+				source: "catalog",
+				archetype: "generic-detail",
+				rationale: "PRDD describes a generic detail page with summary and facts",
+			},
 			completeness: {
 				requiredBlocks: ["navigation", "hero-summary", "primary-facts"],
 				presentBlocks: ["hero-summary", "primary-facts"],

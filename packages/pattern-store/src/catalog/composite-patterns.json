@@ -1335,17 +1335,11 @@
 				"childOrder": "repeat",
 				"gap": 8,
 				"layoutProps": {
-					"children": ["OptionCard"],
+					"children": ["OptionList"],
 					"slots": ["options"],
-					"order": ["OptionCard[]"],
-					"figmaOnlyTypes": ["OptionList"],
-					"componentGaps": [
-						{
-							"figmaOnlyType": "OptionList",
-							"candidateComponent": "OptionList",
-							"reason": "Figma의 option group wrapper이며 packages/component에는 OptionCard만 실제 export되어 있다."
-						}
-					],
+					"order": ["OptionList"],
+					"aliases": ["Local_OptionList"],
+					"componentGaps": [],
 					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
 					"sourceFigmaPage": "pattern-guide",
 					"sourceFigmaNode": "10069:97828",
@@ -1354,7 +1348,7 @@
 			},
 			"match": {
 				"componentTypes": {
-					"allOf": ["option-card"]
+					"allOf": ["option-list"]
 				},
 				"keywords": ["OptionList", "OptionCard", "옵션", "선택", "상품상세"],
 				"priority": 96
@@ -1364,23 +1358,17 @@
 			"id": "composite-coupon-benefit-card",
 			"target": "composite",
 			"name": "쿠폰 혜택 카드",
-			"description": "Coupon Figma layer를 현재 실제 CardContentsFilled와 Button/TextButton surface 후보로 기록하는 혜택 카드 composite",
+			"description": "Coupon Figma layer를 실제 Coupon surface로 배치하는 혜택 카드 composite",
 			"layout": {
 				"direction": "vertical",
 				"childOrder": "explicit",
 				"gap": 12,
 				"layoutProps": {
-					"children": ["CardContentsFilled", "Button", "TextButton"],
-					"slots": ["benefitCard", "action"],
-					"order": ["CardContentsFilled", "Button? | TextButton?"],
-					"figmaOnlyTypes": ["Coupon"],
-					"componentGaps": [
-						{
-							"figmaOnlyType": "Coupon",
-							"candidateComponent": "Coupon",
-							"reason": "쿠폰 전용 visual/state surface가 Figma에 있으나 packages/component에 실제 export가 없다. 현재 CardContentsFilled 조합으로만 후보화한다."
-						}
-					],
+					"children": ["Coupon"],
+					"slots": ["coupon"],
+					"order": ["Coupon"],
+					"aliases": ["Local_Coupon"],
+					"componentGaps": [],
 					"sourceFigmaFile": "SKT_SDUI_Test_0513_2",
 					"sourceFigmaPage": "pattern-guide",
 					"sourceFigmaNode": "10069:97828",
@@ -1389,9 +1377,9 @@
 			},
 			"match": {
 				"componentTypes": {
-					"anyOf": ["card-contents-filled", "button", "text-button"]
+					"anyOf": ["Coupon", "coupon"]
 				},
-				"keywords": ["Coupon", "CardContentsFilled", "쿠폰", "혜택", "상품상세"],
+				"keywords": ["Coupon", "Local_Coupon", "쿠폰", "혜택", "상품상세"],
 				"priority": 94
 			}
 		},

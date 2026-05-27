@@ -1,7 +1,6 @@
 import type { CompositionDecision, CompositionOutput } from "@cx/types/composition-output";
 import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import type { ValidationIssue, ValidationResult } from "@cx/types/validation";
-import type { ArchetypeScaffold } from "../compose-screen/scaffold";
 import type { CatalogIndex, DesignIndex, LayoutPatternIndex } from "./rules/shared/deck-lookup";
 
 /**
@@ -14,8 +13,6 @@ export interface ValidatorDeps {
 	validationContext?: ValidatorContext;
 	/** sourceRef 추적 대조용 PRDD Screen Record (Schema A). */
 	prddScreenRecord: PrddScreenRecord;
-	/** deterministic screen archetype scaffold. 미지정 시 validator가 PRDD에서 재계산. */
-	archetypeScaffold?: ArchetypeScaffold;
 }
 
 export interface ValidatorContext {

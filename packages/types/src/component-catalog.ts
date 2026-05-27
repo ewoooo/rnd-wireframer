@@ -14,6 +14,7 @@ export type RenderTreeNodeKind =
 	| "card-contents"
 	| "card-summary"
 	| "checkbox"
+	| "coupon"
 	| "divider"
 	| "fallback"
 	| "filter-sorting"
@@ -25,6 +26,7 @@ export type RenderTreeNodeKind =
 	| "list-cell"
 	| "map"
 	| "option-card"
+	| "option-list"
 	| AreaType
 	| "page-stack"
 	| "product-card"

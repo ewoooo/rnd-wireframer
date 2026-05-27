@@ -6,8 +6,8 @@
       "metadata": {
         "title": "화면 제목 표시 및 뒤로가기 제공",
         "author": "agent",
-        "createdAt": "2026-05-26T10:44:01.590Z",
-        "updatedAt": "2026-05-26T10:44:01.590Z",
+        "createdAt": "2026-05-27T01:12:38.038Z",
+        "updatedAt": "2026-05-27T01:12:38.038Z",
         "description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
       },
       "pattern": {
@@ -41,8 +41,8 @@
       "metadata": {
         "title": "상품명·유형·대표 가격을 핵심 요약 카드로 노출",
         "author": "agent",
-        "createdAt": "2026-05-26T10:44:01.590Z",
-        "updatedAt": "2026-05-26T10:44:01.590Z",
+        "createdAt": "2026-05-27T01:12:38.038Z",
+        "updatedAt": "2026-05-27T01:12:38.038Z",
         "description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
       },
       "pattern": {
@@ -68,8 +68,8 @@
       "metadata": {
         "title": "가입 가능성(판매 상태) 강조",
         "author": "agent",
-        "createdAt": "2026-05-26T10:44:01.590Z",
-        "updatedAt": "2026-05-26T10:44:01.590Z",
+        "createdAt": "2026-05-27T01:12:38.038Z",
+        "updatedAt": "2026-05-27T01:12:38.038Z",
         "description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
       },
       "pattern": {
@@ -96,8 +96,8 @@
       "metadata": {
         "title": "상품정보 자세히 보기 화면으로 이동",
         "author": "agent",
-        "createdAt": "2026-05-26T10:44:01.590Z",
-        "updatedAt": "2026-05-26T10:44:01.590Z",
+        "createdAt": "2026-05-27T01:12:38.038Z",
+        "updatedAt": "2026-05-27T01:12:38.038Z",
         "description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
       },
       "pattern": {
@@ -130,12 +130,12 @@
       "metadata": {
         "title": "상품정보 항목별 값을 표준 섹션 순서로 표시",
         "author": "agent",
-        "createdAt": "2026-05-26T10:44:01.590Z",
-        "updatedAt": "2026-05-26T10:44:01.590Z",
+        "createdAt": "2026-05-27T01:12:38.038Z",
+        "updatedAt": "2026-05-27T01:12:38.038Z",
         "description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
       },
       "pattern": {
-        "id": "component-list-text",
+        "id": "component-info-text-list",
         "variant": "default"
       },
       "type": "ListText",

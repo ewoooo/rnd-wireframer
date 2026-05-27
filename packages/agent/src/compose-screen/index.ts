@@ -8,7 +8,12 @@ export {
 	type LlmQueryFn,
 } from "./compose-screen";
 export { type ParseCompositionResult, parseCompositionOutput } from "./parse-output";
-export { type ArchetypeScaffold, buildArchetypeScaffold } from "./scaffold";
+export {
+	ARCHETYPE_SCAFFOLD_CATALOG,
+	type ArchetypeScaffold,
+	listArchetypeCatalog,
+	lookupArchetypeScaffold,
+} from "./scaffold";
 export {
 	CompositionOutputSchema,
 	type CompositionOutputZ,

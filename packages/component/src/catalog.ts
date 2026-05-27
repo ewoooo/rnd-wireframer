@@ -1,4 +1,8 @@
-import type { ComponentCatalog, ComponentCatalogEntry, ComponentPropContract } from "@cx/types/component-catalog";
+import type {
+	ComponentCatalog,
+	ComponentCatalogEntry,
+	ComponentPropContract,
+} from "@cx/types/component-catalog";
 import { isTokenRole } from "@cx/types/tokens";
 export const componentCatalog = {
 	"Layout.Flex": {
@@ -406,6 +410,22 @@ export const componentCatalog = {
 			checked: { type: "boolean", role: "state" },
 		},
 	},
+	Coupon: {
+		type: "Coupon",
+		kind: "coupon",
+		source: "react-component",
+		version: "1.0.0",
+		description: "Coupon benefit card for commerce detail and brand benefit screens.",
+		aliases: ["coupon", "Coupon", "Local_Coupon", "coupon-benefit"],
+		props: {
+			title: { type: "string", role: "title", defaultValue: "혜택 쿠폰" },
+			description: { type: "string", role: "description" },
+			benefitText: { type: "string", role: "value", defaultValue: "쿠폰 혜택 제공" },
+			conditionText: { type: "string", role: "description" },
+			ctaLabel: { type: "string", role: "label", defaultValue: "쿠폰 받기" },
+			disabled: { type: "boolean", role: "state", defaultValue: false },
+		},
+	},
 	ListProductHorizontal: {
 		type: "ListProductHorizontal",
 		kind: "product-card",
@@ -530,6 +550,27 @@ export const componentCatalog = {
 			value: { type: "string", role: "value" },
 			selected: { type: "boolean", role: "state", defaultValue: false },
 			disabled: { type: "boolean", role: "state", defaultValue: false },
+		},
+	},
+	OptionList: {
+		type: "OptionList",
+		kind: "option-list",
+		source: "react-component",
+		version: "1.0.0",
+		description:
+			"Option section wrapper for device detail screens, rendering repeated OptionCard selections.",
+		aliases: ["option-list", "Local_OptionList", "OptionList"],
+		props: {
+			title: { type: "string", role: "title" },
+			description: { type: "string", role: "description" },
+			items: { type: "array", role: "data", defaultValue: [] },
+			columns: {
+				type: "enum",
+				role: "layout",
+				values: ["1", "2"],
+				defaultValue: "2",
+			},
+			selectedId: { type: "string", role: "state" },
 		},
 	},
 	ProductInfo: {

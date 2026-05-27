@@ -2,7 +2,7 @@ import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/
 import type { CompositionOutput } from "@cx/types/composition-output";
 import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import type { RetryHint } from "../validate/types";
-import type { ArchetypeScaffold } from "./scaffold";
+import { type ArchetypeScaffold, listArchetypeCatalog } from "./scaffold";
 import { compositionOutputJsonSchema } from "./schema";
 
 /**
@@ -19,24 +19,29 @@ export interface PromptInputs {
 	catalogDeck: CatalogDeck;
 	designDeck: DesignDeck;
 	layoutPatternStoreDeck: LayoutPatternStoreDeck;
-	archetypeScaffold: ArchetypeScaffold;
+	/** archetype 카탈로그를 주입하면 그것을 prior로 쓰고, 미지정 시 SSOT의 전체 목록을 사용. */
+	archetypeCatalog?: ArchetypeScaffold[];
 }
 
 export const COMPOSE_SYSTEM_PROMPT = `당신은 화면 컴포지션을 결정하는 AI Composer다.
 
 책임:
 - 주어진 PrddScreenRecord(Schema A)를 읽어 화면을 구성한다.
+- Archetype Catalog에서 화면 의도에 가장 맞는 archetype을 **직접 선택**한다 (screen.archetypeChoice.source="catalog").
+- 카탈로그의 어떤 archetype으로도 화면 의도를 표현할 수 없을 때만 새 archetype을 propose한다 (screen.archetypeChoice.source="proposed", proposedScaffold 동봉). 기존 catalog에 hit 가능하면 propose 금지.
 - 카탈로그의 primitives 와 registered componentPatterns 를 **우선** 사용한다.
 - 기존 컴포넌트 조합으로 의도를 표현 못 하면 새 componentPattern 을 propose 한다.
 - 어떤 primitive 로도 표현할 수 없으면 gap-report 를 발행한다.
 - 각 area / decision 의 layoutPattern 1차안(draft)도 함께 작성한다.
-- deterministic Archetype Scaffold 를 화면 골격 계약으로 사용하고, 필요한 block의 present/synthetic/missing 상태를 screen.completeness에 기록한다.
+- 선택한 archetype scaffold의 requiredBlocks를 present/synthetic/missing/omitted 중 하나로 반드시 설명한다.
 
 금지:
 - primitives 를 발명하지 않는다 (없으면 gap-report).
 - proposed componentPattern 이 다른 proposed 를 참조하지 않는다.
 - Schema A 의 원문 필드를 덮어쓰지 않는다.
 - 비즈니스 사실(가격, 조건, 혜택, 정책)을 근거 없이 창작하지 않는다. 구조적 section/header/divider 등 허용된 synthetic block만 합성한다.
+- archetypeChoice.rationale은 **빈 문자열 금지**. PRDD 근거(intent, useCase, area role 등) 인용 필수.
+- source="proposed"일 때 proposedScaffold.rationale도 **빈 문자열 금지**. 왜 기존 catalog로 부족한지 명시.
 
 출력:
 - 한 번에 화면 한 장 분량의 Schema B (CompositionOutput) JSON.
@@ -46,7 +51,7 @@ export const COMPOSE_SYSTEM_PROMPT = `당신은 화면 컴포지션을 결정하
 - 모든 decision 은 Schema A 의 원천을 sourceRef / sourceRefs 로 추적한다.
 - screen / area 에는 designRefs[] 가 반드시 있어야 한다 (decision-level 은 선택).
 - 모든 area 와 screen 에 layoutPatternDraft 가 있어야 한다.
-- screen.archetype 은 Scaffold의 archetype과 같아야 하고, screen.strategy는 Scaffold의 strategy를 우선 사용한다.
+- screen.archetype 은 archetypeChoice.archetype 과 동일하다. screen.strategy 는 선택한 scaffold의 strategy를 따른다.
 - 응답은 JSON 객체만 출력하고 markdown code fence 나 설명문을 추가하지 않는다.`;
 
 export function buildInitialPrompt(inputs: PromptInputs): string {
@@ -63,12 +68,15 @@ export function buildInitialPrompt(inputs: PromptInputs): string {
 	sections.push("```");
 
 	sections.push("");
-	sections.push("## Archetype Scaffold (deterministic, 화면 골격 계약)");
+	sections.push("## Archetype Catalog (이 중에서 하나를 선택하거나, 부족하면 propose)");
 	sections.push("```json");
-	sections.push(JSON.stringify(inputs.archetypeScaffold, null, 2));
+	sections.push(JSON.stringify(inputs.archetypeCatalog ?? listArchetypeCatalog(), null, 2));
 	sections.push("```");
 	sections.push(
-		"requiredBlocks 는 presentBlocks / syntheticBlocks / missingBlocks / omittedBlocks 중 하나로 반드시 설명한다. allowedSyntheticBlocks 밖의 block은 syntheticBlocks에 넣지 않는다.",
+		"화면 의도와 가장 맞는 archetype 하나를 골라 screen.archetypeChoice.source=\"catalog\"로 출력한다. 어떤 catalog 항목도 의도를 표현하지 못할 때만 source=\"proposed\"로 proposedScaffold를 동봉한다. archetypeChoice.rationale과 (propose 시) proposedScaffold.rationale은 PRDD 근거 인용이 들어가야 하고 빈 문자열은 거부된다.",
+	);
+	sections.push(
+		"선택한 scaffold의 requiredBlocks 는 screen.completeness 에서 presentBlocks / syntheticBlocks / missingBlocks / omittedBlocks 중 하나로 반드시 설명한다. allowedSyntheticBlocks 밖의 block은 syntheticBlocks에 넣지 않는다.",
 	);
 
 	sections.push("");
