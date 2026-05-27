@@ -1,4 +1,5 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
+import { isAreaType } from "@cx/types/node-types";
 import {
 	validateRenderTreeFull,
 	type RenderTreeNode,
@@ -6,7 +7,7 @@ import {
 } from "@cx/renderer";
 import {
 	type SampleCompositeSet,
-	type SampleOrganismSet,
+	type SampleOrganism,
 	type SampleScreenRouteSet,
 	type SampleScreenSet,
 	type SampleScreenVariantSet,
@@ -40,7 +41,7 @@ type ScreenMockDataSet = {
 const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
 const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
 const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
-const organisms = (organismSampleSet as unknown as SampleOrganismSet).organisms;
+const organisms = (organismSampleSet as unknown as { areas: SampleOrganism[] }).areas;
 const mockDataByScreenId = new Map(
 	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
 		.filter((entry) => entry.scenario === "default")
@@ -106,7 +107,7 @@ function extractOrganisms(schema: RenderTree) {
 	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
-		if (node.type !== "Organism") return;
+		if (!isAreaType(node.type)) return;
 
 		areas.push({
 			order: areas.length + 1,
@@ -131,7 +132,7 @@ function getOrganismCatalog(schemas: RenderTree[]) {
 
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
-			if (node.type !== "Organism") return;
+			if (!isAreaType(node.type)) return;
 
 			const code = String(node.props?.organismCode ?? node.metadata.id);
 			byCode.set(code, {

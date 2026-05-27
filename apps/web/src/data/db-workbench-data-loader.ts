@@ -11,6 +11,7 @@ import {
 	type SampleScreenVariantSet,
 } from "@/adapters/tables-to-render-tree";
 import type { PropValue } from "@cx/types/database-tables";
+import { isAreaType } from "@cx/types/node-types";
 import { createServerClient } from "@/lib/supabase/server";
 import { validateRenderTreeFull } from "@cx/renderer";
 
@@ -73,7 +74,7 @@ export async function loadDbWorkbenchData() {
 
 	const organisms: SampleOrganism[] = (organismRows ?? []).map((r) => ({
 		id: r.id,
-		type: "Organism" as const,
+		type: r.type as SampleOrganism["type"],
 		version: r.version,
 		metadata: {
 			title: r.title ?? "",
@@ -168,7 +169,7 @@ import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 function extractOrganisms(schema: RenderTree) {
 	const result: Array<{ order: number; areaCode: string }> = [];
 	forEachNode(schema.children, (node) => {
-		if (node.type !== "Organism") return;
+		if (!isAreaType(node.type)) return;
 		result.push({ order: result.length + 1, areaCode: String(node.props?.organismCode ?? node.metadata.id) });
 	});
 	return result;
@@ -178,7 +179,7 @@ function getOrganismCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
-			if (node.type !== "Organism") return;
+			if (!isAreaType(node.type)) return;
 			const code = String(node.props?.organismCode ?? node.metadata.id);
 			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, componentCount: node.children?.length ?? 0 });
 		});

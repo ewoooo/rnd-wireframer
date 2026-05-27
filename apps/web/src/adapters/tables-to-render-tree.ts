@@ -7,6 +7,7 @@ import {
 	type RenderTreeScreenNode,
 	type ValidationStats,
 } from "@cx/renderer";
+import type { AreaType } from "@cx/types/node-types";
 
 export const DEFAULT_WIREFRAME_SCREEN_CODE = "NOVA-MBR-FP-002-0";
 
@@ -133,7 +134,7 @@ export interface SampleOrganismMetadata {
 
 export interface SampleOrganism {
 	id: string;
-	type: "Organism";
+	type: AreaType;
 	version: string;
 	metadata: SampleOrganismMetadata;
 	pattern?: {
@@ -141,7 +142,7 @@ export interface SampleOrganism {
 		variant?: string;
 	};
 	props?: Record<string, PropValue>;
-	children: Array<{ kind: "composite"; id: string }>;
+	children: Array<{ kind: "component"; id: string }>;
 }
 
 export interface SampleCompositeChildEntry {
@@ -582,7 +583,7 @@ function tableEntryToRenderNode(
 	const organism = organismById.get(entry.id);
 	if (!organism) {
 		return {
-			type: "Organism",
+			type: "area.static",
 			componentVersion: "1.0.0",
 			metadata: {
 				id: entry.id,

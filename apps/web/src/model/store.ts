@@ -1,5 +1,6 @@
 import type { RegisteredNodeTree } from "@cx/agent";
 import type { RenderTreeNode, RenderTreeScreenNode, ValidationStats } from "@cx/renderer";
+import { isAreaType } from "@cx/types/node-types";
 import { create } from "zustand";
 import {
 	type AppArea,
@@ -429,8 +430,8 @@ function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
 }
 
 function getContainedAreaCode(node: RenderTreeNode): string | undefined {
-	if (node.type === "Organism") return getOrganismCode(node);
-	const childOrganism = node.children?.find((child) => child.type === "Organism");
+	if (isAreaType(node.type)) return getOrganismCode(node);
+	const childOrganism = node.children?.find((child) => isAreaType(child.type));
 	return childOrganism ? getOrganismCode(childOrganism) : undefined;
 }
 
@@ -579,7 +580,7 @@ function getSelectedComponentContext(
 function findOrganismNode(nodes: RenderTreeNode[], organismCode: string): RenderTreeNode | undefined {
 	for (const node of nodes) {
 		if (
-			node.type === "Organism" &&
+			isAreaType(node.type) &&
 			String(node.props?.organismCode ?? node.metadata.id) === organismCode
 		) {
 			return node;
@@ -628,17 +629,13 @@ function forEachCompositeNode(
 }
 
 function getOrganismCode(node: RenderTreeNode) {
-	if (node.type !== "Organism") return undefined;
+	if (!isAreaType(node.type)) return undefined;
 	return String(node.props?.organismCode ?? node.metadata.id);
 }
 
 function isCompositeNode(node: RenderTreeNode) {
-	return ![
-		"Screen",
-		"Screen.Header",
-		"Screen.Contents",
-		"Screen.Bottom",
-		"Organism",
-		"PageStack",
-	].includes(node.type);
+	if (isAreaType(node.type)) return false;
+	return !["Screen", "Screen.Header", "Screen.Contents", "Screen.Bottom", "PageStack"].includes(
+		node.type,
+	);
 }

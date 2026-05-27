@@ -1,4 +1,5 @@
 import type { PropValue, RenderTreeNode, RenderTree, RenderTreeScreenNode } from "@cx/renderer";
+import { type AreaType, isAreaType } from "@cx/types/node-types";
 
 import type {
 	SampleComposite,
@@ -133,7 +134,7 @@ function extractRegionEntry(
 		return [];
 	}
 
-	if (node.type === "Organism") {
+	if (isAreaType(node.type)) {
 		const organismId = getOrganismId(node);
 		organismsById.set(organismId, extractOrganism(node, organismId, compositesById, warnings));
 		return [{ kind: "area", id: organismId }];
@@ -157,7 +158,7 @@ function extractOrganism(
 
 	return {
 		id: organismId,
-		type: "Organism",
+		type: (isAreaType(node.type) ? node.type : "area.static") as AreaType,
 		version: node.componentVersion,
 		metadata: {
 			title: node.metadata.title,
@@ -210,14 +211,14 @@ function extractOrganismChildren(
 			warnings.push(`Dropped generated divider wrapper: ${node.metadata.id}`);
 			continue;
 		}
-		if (node.type === "Organism") {
+		if (isAreaType(node.type)) {
 			warnings.push(
-				`Nested Organism node was not extracted as an organism table row: ${node.metadata.id}`,
+				`Nested area node was not extracted as an organism table row: ${node.metadata.id}`,
 			);
 			continue;
 		}
 		compositesById.set(node.metadata.id, nodeToComposite(node));
-		composites.push({ kind: "composite", id: node.metadata.id });
+		composites.push({ kind: "component", id: node.metadata.id });
 	}
 
 	return composites;
