@@ -1,17 +1,34 @@
+import { componentCatalog } from "@cx/components/catalog";
+import { loadPatternStore } from "@cx/pattern-store";
 import type {
 	CatalogDeck,
 	ComponentPatternCard,
 	DesignDeck,
 	DesignDocumentCard,
-	DesignDocumentId,
 	LayoutPatternCard,
+	LayoutPatternNodeKind,
 	LayoutPatternStoreDeck,
 	PrimitiveCard,
-} from "@cx/types";
+} from "@cx/types/ai-deck";
+import type {
+	ComponentCatalog,
+	ComponentCatalogEntry,
+	ComponentPropContract,
+} from "@cx/types/component-catalog";
+import type { DesignDocumentId } from "@cx/types/composition-output";
+import type { PatternStorePattern } from "@cx/types/pattern-store";
+import type { TokenRole } from "@cx/types/tokens";
+import type { ValidatorContext, ValidatorDeps } from "../../types";
 
 /**
- * Validator가 deck을 빠르게 조회하기 위한 lookup 헬퍼.
- * 룰 파일들은 반드시 이 모듈을 통해 deck에 접근한다 (raw deck traversal 금지).
+ * Validator lookup helper.
+ *
+ * 기본 validation 기준은 deck snapshot이 아니라 SSOT다:
+ * - @cx/components/catalog
+ * - @cx/pattern-store
+ * - @cx/types DesignDocumentId
+ *
+ * deck index 함수는 LLM context snapshot 호환/테스트용으로만 남긴다.
  */
 
 export interface CatalogIndex {
@@ -38,25 +55,40 @@ export function indexCatalogDeck(deck: CatalogDeck): CatalogIndex {
 	};
 }
 
+export function indexComponentCatalog(catalog: ComponentCatalog = componentCatalog): CatalogIndex {
+	return {
+		primitives: new Map(
+			Object.entries(catalog).map(([type, entry]) => [type, toPrimitiveCard(type, entry)]),
+		),
+		componentPatterns: new Map(),
+		registeredComponentPatternIds: new Set(),
+	};
+}
+
 export interface LayoutPatternIndex {
 	patterns: ReadonlyMap<string, LayoutPatternCard>;
 	byNodeKind: ReadonlyMap<string, LayoutPatternCard[]>;
 }
 
 export function indexLayoutPatternStoreDeck(deck: LayoutPatternStoreDeck): LayoutPatternIndex {
+	return indexLayoutPatternCards(deck.patterns);
+}
+
+export function indexPatternStore(patterns = loadPatternStore().patterns): LayoutPatternIndex {
+	return indexLayoutPatternCards(patterns.map(toLayoutPatternCard));
+}
+
+function indexLayoutPatternCards(cards: LayoutPatternCard[]): LayoutPatternIndex {
 	const byNodeKind = new Map<string, LayoutPatternCard[]>();
-	for (const pattern of deck.patterns) {
+	for (const pattern of cards) {
 		for (const nodeKind of pattern.appliesTo) {
 			const list = byNodeKind.get(nodeKind);
-			if (list) {
-				list.push(pattern);
-			} else {
-				byNodeKind.set(nodeKind, [pattern]);
-			}
+			if (list) list.push(pattern);
+			else byNodeKind.set(nodeKind, [pattern]);
 		}
 	}
 	return {
-		patterns: new Map(deck.patterns.map((p) => [p.id, p])),
+		patterns: new Map(cards.map((p) => [p.id, p])),
 		byNodeKind,
 	};
 }
@@ -68,6 +100,59 @@ export interface DesignIndex {
 export function indexDesignDeck(deck: DesignDeck): DesignIndex {
 	return {
 		documents: new Map(deck.documents.map((d) => [d.id, d])),
+	};
+}
+
+export const DESIGN_DOCUMENT_IDS = [
+	"COMPOSITION_LAYERS.md",
+	"DESIGN_FOUNDATION.md",
+	"LAYOUT_SPACING_CONTRACT.md",
+	"SECTION_PATTERNS.md",
+	"SCREEN_PATTERN_SUMMARY.md",
+	"COMPONENT_INVENTORY.md",
+	"INTERACTION_PATTERNS.md",
+	"VISUAL_FOUNDATION_OBSERVATIONS.md",
+] as const satisfies readonly DesignDocumentId[];
+
+export function indexDesignDocuments(
+	ids: readonly DesignDocumentId[] = DESIGN_DOCUMENT_IDS,
+): DesignIndex {
+	return {
+		documents: new Map(
+			ids.map((id) => [
+				id,
+				{
+					id,
+					title: id,
+					responsibility: "",
+					rules: [],
+				} satisfies DesignDocumentCard,
+			]),
+		),
+	};
+}
+
+export function getValidatorContext(deps: ValidatorDeps): ValidatorContext {
+	return deps.validationContext ?? buildDefaultValidatorContext();
+}
+
+export function buildDefaultValidatorContext(): ValidatorContext {
+	return {
+		catalog: indexComponentCatalog(),
+		design: indexDesignDocuments(),
+		layoutPatterns: indexPatternStore(),
+	};
+}
+
+export function buildSnapshotValidatorContext(args: {
+	catalogDeck: CatalogDeck;
+	designDeck: DesignDeck;
+	layoutPatternStoreDeck: LayoutPatternStoreDeck;
+}): ValidatorContext {
+	return {
+		catalog: indexCatalogDeck(args.catalogDeck),
+		design: indexDesignDeck(args.designDeck),
+		layoutPatterns: indexLayoutPatternStoreDeck(args.layoutPatternStoreDeck),
 	};
 }
 
@@ -151,4 +236,43 @@ function tokenize(value: string): Set<string> {
 			.split(/[^a-z0-9가-힣]+/)
 			.filter((token) => token.length >= 2),
 	);
+}
+
+function toPrimitiveCard(type: string, entry: ComponentCatalogEntry): PrimitiveCard {
+	const propsList: Array<{ name: string; contract: ComponentPropContract }> = [];
+	const tokenRoles = new Set<TokenRole>();
+	let variants: string[] = [];
+
+	for (const [name, contract] of Object.entries(entry.props)) {
+		propsList.push({ name, contract });
+		if (contract.tokenRole) tokenRoles.add(contract.tokenRole);
+		if (contract.role === "styleVariant" && contract.values && variants.length === 0) {
+			variants = [...contract.values];
+		}
+	}
+
+	return {
+		id: type,
+		name: type,
+		description: entry.description ?? "",
+		props: propsList,
+		variants,
+		tokensExpected: [...tokenRoles],
+		tokenSlots: entry.tokens,
+		exampleUsage: "",
+	};
+}
+
+function toLayoutPatternCard(pattern: PatternStorePattern): LayoutPatternCard {
+	return {
+		id: pattern.id,
+		name: pattern.name,
+		description: pattern.description ?? "",
+		variants: Object.keys(pattern.variants),
+		appliesTo: [mapPatternTarget(pattern.target)],
+	};
+}
+
+function mapPatternTarget(target: PatternStorePattern["target"]): LayoutPatternNodeKind {
+	return target;
 }

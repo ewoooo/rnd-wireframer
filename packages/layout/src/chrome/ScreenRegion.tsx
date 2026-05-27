@@ -1,4 +1,4 @@
-import { NODE_TYPES } from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
 import type { CSSProperties, ReactNode } from "react";
 import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../primitives";
 import type {

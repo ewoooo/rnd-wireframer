@@ -1,5 +1,4 @@
-import type { ValidationIssue } from "@cx/types";
-
+import type { ValidationIssue } from "@cx/types/validation";
 import type { RetryHint, RetryScope } from "./types";
 
 /**

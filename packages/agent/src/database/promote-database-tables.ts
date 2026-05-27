@@ -1,18 +1,7 @@
 import { tablesToRenderTrees, validateRenderTreeFull } from "@cx/renderer";
-import {
-	type DatabaseAreaRow,
-	type DatabaseComponentRow,
-	type DatabaseRegionChild,
-	type DatabaseScreenRouteRow,
-	type DatabaseScreenRow,
-	type DatabaseScreenVariantRow,
-	errorsOf,
-	type MaterializedNodeTree,
-	type PatternStore,
-	type ValidationIssue,
-	type ValidationResult,
-} from "@cx/types";
-
+import type { DatabaseAreaRow, DatabaseComponentRow, DatabaseRegionChild, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenVariantRow, MaterializedNodeTree } from "@cx/types/database-tables";
+import type { PatternStore } from "@cx/types/pattern-store";
+import { errorsOf, type ValidationIssue, type ValidationResult } from "@cx/types/validation";
 export interface PromoteDatabaseTablesOptions {
 	patternStore?: PatternStore;
 	strictRendererCoverage?: boolean;

@@ -1,14 +1,7 @@
-import type {
-	CompositionDecision,
-	CompositionOutput,
-	DesignDeck,
-	DecoratedOutput,
-	LayoutPatternDraft,
-	LayoutPatternVerification,
-	ValidationIssue,
-} from "@cx/types";
-
-import { indexDesignDeck } from "../shared/deck-lookup";
+import type { CompositionDecision, CompositionOutput, LayoutPatternDraft } from "@cx/types/composition-output";
+import type { DecoratedOutput, LayoutPatternVerification } from "@cx/types/decorated-output";
+import type { ValidationIssue } from "@cx/types/validation";
+import type { DesignIndex } from "../shared/deck-lookup";
 import { makeIssue } from "../shared/issue";
 
 /**
@@ -24,10 +17,9 @@ import { makeIssue } from "../shared/issue";
 export function checkDraftHandoff(
 	decorated: DecoratedOutput,
 	composition: CompositionOutput,
-	designDeck: DesignDeck,
+	designIndex: DesignIndex,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const designIndex = indexDesignDeck(designDeck);
 
 	// screen
 	verifyChange(
@@ -175,7 +167,7 @@ function verifyChange(
 				makeIssue(
 					"composition.design-refs.missing",
 					"reference",
-					`layoutPattern verification designRef.document "${ref.document}" 가 designDeck에 등록되지 않음`,
+					`layoutPattern verification designRef.document "${ref.document}" 가 design docs에 등록되지 않음`,
 					{
 						path: [...extras.path, "designRefs", index, "document"],
 						nodeId: extras.nodeId,

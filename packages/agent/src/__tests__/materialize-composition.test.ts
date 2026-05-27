@@ -1,4 +1,6 @@
-import type { CompositionOutput, DecoratedOutput, PrddScreenRecord } from "@cx/types";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import { describe, expect, it } from "vitest";
 
 import { materializeComposition } from "../database/materialize-composition";

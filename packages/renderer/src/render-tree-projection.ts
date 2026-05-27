@@ -1,20 +1,6 @@
-import {
-	NODE_TYPES,
-	type AreaVariant as RenderTreeAreaVariant,
-	type ChildrenLayoutPreset as RenderTreeChildrenLayoutPreset,
-	type ChildWrapPreset as RenderTreeChildWrapPreset,
-	type CompositeVariant as RenderTreeCompositeVariant,
-	type PatternLayoutProps as RenderTreePatternLayoutProps,
-	type PatternStore as RenderTreePatternStore,
-	type PatternStorePattern as RenderTreePatternStorePattern,
-	type PatternStoreTarget as RenderTreePatternStoreTarget,
-	type RegionVariant as RenderTreeRegionVariant,
-	type DatabaseAreaRow as RenderTreeTableAreaRow,
-	type DatabaseComponentRow as RenderTreeTableComponentRow,
-	type DatabaseRegionChild as RenderTreeTableRegionChild,
-	type DatabaseScreenRegion as RenderTreeTableScreenRegion,
-	type DatabaseScreenRow as RenderTreeTableScreenRow,
-} from "@cx/types";
+import type { DatabaseAreaRow as RenderTreeTableAreaRow, DatabaseComponentRow as RenderTreeTableComponentRow, DatabaseRegionChild as RenderTreeTableRegionChild, DatabaseScreenRegion as RenderTreeTableScreenRegion, DatabaseScreenRow as RenderTreeTableScreenRow } from "@cx/types/database-tables";
+import { NODE_TYPES } from "@cx/types/node-types";
+import type { AreaVariant as RenderTreeAreaVariant, ChildrenLayoutPreset as RenderTreeChildrenLayoutPreset, ChildWrapPreset as RenderTreeChildWrapPreset, CompositeVariant as RenderTreeCompositeVariant, PatternLayoutProps as RenderTreePatternLayoutProps, PatternStore as RenderTreePatternStore, PatternStorePattern as RenderTreePatternStorePattern, PatternStoreTarget as RenderTreePatternStoreTarget, RegionVariant as RenderTreeRegionVariant } from "@cx/types/pattern-store";
 import type { PropValue, RenderTree, RenderTreeMetadata, RenderTreeNode } from "./schema";
 
 export const SCREEN_NODE_COMPONENT_VERSION = "1.0.0";

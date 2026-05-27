@@ -1,5 +1,5 @@
-import type { DecoratedOutput, LayoutPatternVerification, ValidationIssue } from "@cx/types";
-
+import type { DecoratedOutput, LayoutPatternVerification } from "@cx/types/decorated-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import { makeIssue } from "../shared/issue";
 
 /**

@@ -1,4 +1,4 @@
-import { errorsOf } from "@cx/types";
+import { errorsOf } from "@cx/types/validation";
 import { describe, expect, it } from "vitest";
 import { promoteDatabaseTablesCandidate } from "../database/promote-database-tables";
 import type { MaterializedNodeTree } from "../database/register-assets-to-database-tables";

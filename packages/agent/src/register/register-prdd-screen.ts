@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import type { PrddScreenRecord, ScreenSurfaceType } from "@cx/types";
+import type { ScreenSurfaceType } from "@cx/types/node-types";
 
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import type { RegisteredAreaNode, RegisteredComponentNode, RegisteredScreenNode } from "../types";
 import { parsePrddMarkdown } from "./prdd-parser";
 import { buildPrddScreenRecord } from "./prdd-record-builder";

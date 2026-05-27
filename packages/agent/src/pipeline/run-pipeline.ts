@@ -1,14 +1,9 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DecoratedOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	MaterializedNodeTree,
-	PrddScreenRecord,
-	ValidationIssue,
-} from "@cx/types";
-
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { MaterializedNodeTree } from "@cx/types/database-tables";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
+import type { ValidationIssue } from "@cx/types/validation";
 import {
 	type LlmQueryFn as ComposeQueryFn,
 	type ComposeScreenResult,

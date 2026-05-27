@@ -1,10 +1,4 @@
-import type {
-	ValidationCode,
-	ValidationIssue,
-	ValidationLayer,
-	ValidationSeverity,
-} from "@cx/types";
-
+import type { ValidationCode, ValidationIssue, ValidationLayer, ValidationSeverity } from "@cx/types/validation";
 export interface IssueExtras {
 	severity?: ValidationSeverity;
 	path?: ReadonlyArray<string | number>;

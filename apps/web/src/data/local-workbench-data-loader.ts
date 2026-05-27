@@ -8,14 +8,8 @@ import {
 	tablesToRenderTrees,
 	validateRenderTreeFull,
 } from "@cx/renderer";
-import {
-	errorsOf,
-	getNodeTypeFamily,
-	isAreaType,
-	NODE_TYPES,
-	type ValidationStats as RenderTreeValidationStats,
-	warningsOf,
-} from "@cx/types";
+import { getNodeTypeFamily, isAreaType, NODE_TYPES } from "@cx/types/node-types";
+import { errorsOf, type ValidationStats as RenderTreeValidationStats, warningsOf } from "@cx/types/validation";
 import {
 	type AppComponent,
 	type DatabaseScreenRouteSet,

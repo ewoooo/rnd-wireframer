@@ -1,6 +1,6 @@
-import type { CompositionOutput, ValidationIssue } from "@cx/types";
-
-import { indexDesignDeck } from "../shared/deck-lookup";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
+import { getValidatorContext } from "../shared/deck-lookup";
 import { makeIssue } from "../shared/issue";
 import type { ValidatorDeps } from "../../types";
 
@@ -8,14 +8,14 @@ import type { ValidatorDeps } from "../../types";
  * Rule: designRefs (SPEC §7.1 design reference)
  * - screen.designRefs / area.designRefs 는 필수 (비어있지 않음)
  * - decision.designRefs 는 optional — 검사하지 않음
- * - 모든 designRef.document 는 designDeck에 등록된 문서여야 함
+ * - 모든 designRef.document 는 design docs에 등록된 문서여야 함
  */
 export function checkDesignRefs(
 	output: CompositionOutput,
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexDesignDeck(deps.designDeck);
+	const index = getValidatorContext(deps).design;
 
 	function verifyRefs(
 		refs: { document: string; section?: string; reason: string }[] | undefined,
@@ -40,7 +40,7 @@ export function checkDesignRefs(
 					makeIssue(
 						"composition.design-refs.missing",
 						"reference",
-						`designRef.document "${ref.document}" 가 designDeck에 등록되지 않음`,
+						`designRef.document "${ref.document}" 가 design docs에 등록되지 않음`,
 						{
 							path: [...extras.path, j, "document"],
 							nodeId: extras.nodeId,

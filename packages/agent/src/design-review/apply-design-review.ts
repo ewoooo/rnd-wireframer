@@ -1,5 +1,5 @@
 import { getComponentCatalogEntry } from "@cx/renderer";
-import { NODE_TYPES } from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
 import { normalizeComponentType } from "../normalize-component-type";
 import { isCompositePattern, listPatterns } from "@cx/pattern-store";
 import type {

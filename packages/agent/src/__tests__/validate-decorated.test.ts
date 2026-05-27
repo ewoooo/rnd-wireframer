@@ -1,13 +1,10 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DecoratedOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-} from "@cx/types";
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import { describe, expect, it } from "vitest";
 
+import { buildSnapshotValidatorContext } from "../validate/rules/shared/deck-lookup";
 import { type ValidateDecoratedDeps, validateDecorated } from "../validate/validate-decorated";
 
 function makeBase(): {
@@ -173,7 +170,18 @@ function makeBase(): {
 	return {
 		composition,
 		decorated,
-		deps: { catalogDeck, designDeck, layoutPatternStoreDeck, prddScreenRecord, composition },
+		deps: {
+			catalogDeck,
+			designDeck,
+			layoutPatternStoreDeck,
+			validationContext: buildSnapshotValidatorContext({
+				catalogDeck,
+				designDeck,
+				layoutPatternStoreDeck,
+			}),
+			prddScreenRecord,
+			composition,
+		},
 	};
 }
 

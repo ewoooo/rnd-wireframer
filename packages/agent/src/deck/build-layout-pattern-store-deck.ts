@@ -1,5 +1,4 @@
-import type { LayoutPatternCard, LayoutPatternNodeKind, LayoutPatternStoreDeck } from "@cx/types";
-
+import type { LayoutPatternCard, LayoutPatternNodeKind, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
 import { readJsonDirSafe } from "./fs-utils";
 
 export interface BuildLayoutPatternStoreDeckOptions {

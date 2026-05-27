@@ -1,11 +1,7 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DecoratedOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-} from "@cx/types";
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -14,6 +10,7 @@ import {
 	type LlmQueryFn,
 } from "../decorate-screen/decorate-screen";
 import type { RunClaudeQueryResult } from "../llm/claude-session";
+import { buildSnapshotValidatorContext } from "../validate/rules/shared/deck-lookup";
 
 function makeInput(): DecorateScreenInput {
 	const catalogDeck: CatalogDeck = {
@@ -126,7 +123,18 @@ function makeInput(): DecorateScreenInput {
 		gapReports: [],
 		warnings: [],
 	};
-	return { composition, catalogDeck, designDeck, layoutPatternStoreDeck, prddScreenRecord };
+	return {
+		composition,
+		catalogDeck,
+		designDeck,
+		layoutPatternStoreDeck,
+		validationContext: buildSnapshotValidatorContext({
+			catalogDeck,
+			designDeck,
+			layoutPatternStoreDeck,
+		}),
+		prddScreenRecord,
+	};
 }
 
 function makeAcceptedDecorated(): DecoratedOutput {

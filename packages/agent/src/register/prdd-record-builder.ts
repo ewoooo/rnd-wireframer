@@ -1,18 +1,5 @@
-import type {
-	EventHook,
-	PrddArea,
-	PrddAreaChange,
-	PrddAreaSlot,
-	PrddBinding,
-	PrddBindingOrigin,
-	PrddComponentEntry,
-	PrddScreenFlow,
-	PrddScreenRecord,
-	PrddScreenState,
-	PrddVisibilityHint,
-	ScreenSurfaceType,
-} from "@cx/types";
-
+import type { ScreenSurfaceType } from "@cx/types/node-types";
+import type { EventHook, PrddArea, PrddAreaChange, PrddAreaSlot, PrddBinding, PrddBindingOrigin, PrddComponentEntry, PrddScreenFlow, PrddScreenRecord, PrddScreenState, PrddVisibilityHint } from "@cx/types/prdd-screen-record";
 import type {
 	ParsedAreaRow,
 	ParsedBindingSource,

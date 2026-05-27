@@ -1,4 +1,5 @@
-import { errorsOf, getNodeTypeFamily, warningsOf } from "@cx/types";
+import { getNodeTypeFamily } from "@cx/types/node-types";
+import { errorsOf, warningsOf } from "@cx/types/validation";
 import { describe, expect, it } from "vitest";
 
 import {

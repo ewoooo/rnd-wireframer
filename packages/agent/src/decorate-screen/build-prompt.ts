@@ -1,10 +1,6 @@
-import type {
-	CompositionOutput,
-	DecoratedOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-} from "@cx/types";
-
+import type { DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
 import type { RetryHint } from "../validate/types";
 import { decoratedOutputJsonSchema } from "./schema";
 

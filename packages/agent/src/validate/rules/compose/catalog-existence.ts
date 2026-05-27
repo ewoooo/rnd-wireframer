@@ -1,11 +1,11 @@
-import type { CompositionOutput, ValidationIssue } from "@cx/types";
-
-import { indexCatalogDeck, primitiveHasVariant } from "../shared/deck-lookup";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
+import { getValidatorContext, primitiveHasVariant } from "../shared/deck-lookup";
 import { makeIssue } from "../shared/issue";
 import type { ValidatorDeps } from "../../types";
 
 /**
- * Rule: reuse-primitive / reuse-pattern decision의 ref가 catalog deck에 존재하고,
+ * Rule: reuse-primitive / reuse-pattern decision의 ref가 catalog에 존재하고,
  * 지정 variant가 카드 variants 목록 안에 있는지 검사한다. (SPEC §7.1 primitive 존재 / primitive variant / componentPattern 존재)
  */
 export function checkCatalogExistence(
@@ -13,7 +13,7 @@ export function checkCatalogExistence(
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexCatalogDeck(deps.catalogDeck);
+	const index = getValidatorContext(deps).catalog;
 
 	output.decisions.forEach((decision, i) => {
 		const sel = decision.selection;

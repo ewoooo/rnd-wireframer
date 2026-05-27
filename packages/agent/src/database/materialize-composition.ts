@@ -2,28 +2,11 @@ import {
 	resolveCompositePatternByComponentType,
 	resolveRegionPatternFromScreenPattern,
 } from "@cx/pattern-store/resolver";
-import type {
-	CompositionArea,
-	CompositionDecision,
-	CompositionOutput,
-	CompositionSelection,
-	DatabaseAreaRow,
-	DatabaseComponentRow,
-	DatabasePatternRef,
-	DatabaseScreenBody,
-	DatabaseScreenRegion,
-	DatabaseScreenRouteRow,
-	DatabaseScreenRow,
-	DatabaseScreenVariantRow,
-	DecoratedOutput,
-	LayoutPatternVerification,
-	MaterializedNodeTree,
-	NodeHook,
-	NodeMetadata,
-	PrddScreenRecord,
-	ScreenRegionType,
-} from "@cx/types";
-
+import type { CompositionArea, CompositionDecision, CompositionOutput, CompositionSelection } from "@cx/types/composition-output";
+import type { DatabaseAreaRow, DatabaseComponentRow, DatabasePatternRef, DatabaseScreenBody, DatabaseScreenRegion, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenVariantRow, MaterializedNodeTree, NodeHook, NodeMetadata } from "@cx/types/database-tables";
+import type { DecoratedOutput, LayoutPatternVerification } from "@cx/types/decorated-output";
+import type { ScreenRegionType } from "@cx/types/node-types";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 /**
  * Materializer — CompositionOutput + DecoratedOutput + PrddScreenRecord → DB row shape.
  *

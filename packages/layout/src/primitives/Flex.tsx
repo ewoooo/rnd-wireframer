@@ -1,4 +1,4 @@
-import { NODE_TYPES } from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
 import type { CSSProperties, ElementType, ReactNode } from "react";
 import type { FlexLayoutProps, LayoutFlexNode } from "../types";
 

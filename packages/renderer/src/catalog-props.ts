@@ -1,5 +1,5 @@
 import { getComponentCatalogEntry } from "@cx/components/catalog";
-import type { ComponentPropContract, ComponentPropType } from "@cx/types";
+import type { ComponentPropContract, ComponentPropType } from "@cx/types/component-catalog";
 import { toText } from "./runtime";
 
 /**

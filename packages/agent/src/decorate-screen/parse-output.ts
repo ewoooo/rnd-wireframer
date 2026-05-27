@@ -1,5 +1,5 @@
-import type { DecoratedOutput, ValidationIssue } from "@cx/types";
-
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import { makeIssue } from "../validate/rules/shared/issue";
 import { DecoratedOutputSchema } from "./schema";
 

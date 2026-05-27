@@ -1,10 +1,5 @@
-import type {
-	DesignDeck,
-	DesignDocumentAppliesTo,
-	DesignDocumentCard,
-	DesignDocumentId,
-} from "@cx/types";
-
+import type { DesignDeck, DesignDocumentAppliesTo, DesignDocumentCard } from "@cx/types/ai-deck";
+import type { DesignDocumentId } from "@cx/types/composition-output";
 import { readMarkdownDir } from "./fs-utils";
 
 export interface BuildDesignDeckOptions {

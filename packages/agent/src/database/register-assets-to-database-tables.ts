@@ -1,21 +1,5 @@
-import {
-	type AreaTypeLiteral,
-	type DatabaseAreaMetadata,
-	type DatabaseAreaRow,
-	type DatabaseComponentChildEntry,
-	type DatabaseComponentMetadata,
-	type DatabaseComponentRow,
-	type DatabaseRegionChild,
-	type DatabaseScreenBody,
-	type DatabaseScreenRegion,
-	type DatabaseScreenRegionType,
-	type DatabaseScreenRouteRow,
-	type DatabaseScreenRow,
-	type DatabaseScreenRowMetadata,
-	type DatabaseScreenVariantRow,
-	type MaterializedNodeTree,
-	NODE_TYPES,
-} from "@cx/types";
+import type { AreaTypeLiteral, DatabaseAreaMetadata, DatabaseAreaRow, DatabaseComponentChildEntry, DatabaseComponentMetadata, DatabaseComponentRow, DatabaseRegionChild, DatabaseScreenBody, DatabaseScreenRegion, DatabaseScreenRegionType, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenRowMetadata, DatabaseScreenVariantRow, MaterializedNodeTree } from "@cx/types/database-tables";
+import { NODE_TYPES } from "@cx/types/node-types";
 import { normalizeComponentType } from "../normalize-component-type";
 import type {
 	DecoratedAreaNode,

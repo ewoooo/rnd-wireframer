@@ -1,11 +1,6 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-} from "@cx/types";
-
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import type { RetryHint } from "../validate/types";
 import type { ArchetypeScaffold } from "./scaffold";
 import { compositionOutputJsonSchema } from "./schema";

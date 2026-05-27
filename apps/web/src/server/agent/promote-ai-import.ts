@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promoteDatabaseTablesCandidate } from "@cx/agent/promote-database-tables";
-import { errorsOf, warningsOf } from "@cx/types";
+import { errorsOf, warningsOf } from "@cx/types/validation";
 import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
 import { getDatabaseDir } from "@/server/database-paths";
 

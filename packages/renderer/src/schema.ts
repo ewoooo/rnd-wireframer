@@ -1,12 +1,5 @@
-import { NODE_TYPES } from "@cx/types";
-import type {
-	FlexLayoutProps,
-	GridLayoutProps,
-	NodeDisplay,
-	NodeMetadata,
-	PropBinding,
-	PropValue,
-} from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
+import type { FlexLayoutProps, GridLayoutProps, NodeDisplay, NodeMetadata, PropBinding, PropValue } from "@cx/types/database-tables";
 import { z } from "zod";
 
 export type { PropBinding, PropValue };

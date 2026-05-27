@@ -1,7 +1,8 @@
-import type { DecoratedOutput, LayoutPatternVerification, ValidationIssue } from "@cx/types";
+import type { DecoratedOutput, LayoutPatternVerification } from "@cx/types/decorated-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import type { ValidatorDeps } from "../../types";
 import {
-	indexLayoutPatternStoreDeck,
+	getValidatorContext,
 	layoutPatternHasVariant,
 	suggestLayoutPatterns,
 } from "../shared/deck-lookup";
@@ -15,7 +16,7 @@ export function checkLayoutPatternFinal(
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexLayoutPatternStoreDeck(deps.layoutPatternStoreDeck);
+	const index = getValidatorContext(deps).layoutPatterns;
 
 	function check(
 		verification: LayoutPatternVerification,

@@ -1,10 +1,5 @@
-import type {
-	ArchetypeBlockId,
-	PrddScreenRecord,
-	ScreenArchetype,
-	ScreenStrategy,
-} from "@cx/types";
-
+import type { ArchetypeBlockId, ScreenArchetype, ScreenStrategy } from "@cx/types/composition-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 export interface ArchetypeScaffold {
 	archetype: ScreenArchetype;
 	strategy: ScreenStrategy;

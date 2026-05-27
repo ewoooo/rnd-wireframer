@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { query, type SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import { getComponentCatalogEntry } from "@cx/components/catalog";
-import type { ComponentPropContract } from "@cx/types";
+import type { ComponentPropContract } from "@cx/types/component-catalog";
 import { z } from "zod";
 import type {
 	ComposedAreaNode,

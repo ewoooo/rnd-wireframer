@@ -1,5 +1,5 @@
-import type { FlexLayoutProps, GridLayoutProps, NODE_TYPES } from "@cx/types";
-
+import type { FlexLayoutProps, GridLayoutProps } from "@cx/types/database-tables";
+import type { NODE_TYPES } from "@cx/types/node-types";
 export type { FlexLayoutProps, GridLayoutProps };
 
 export type LayoutMetadata = {

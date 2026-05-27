@@ -1,4 +1,4 @@
-import type { RenderTreeNodeKind } from "@cx/types";
+import type { RenderTreeNodeKind } from "@cx/types/component-catalog";
 import { resolveDisplayWhen, resolveProps } from "./bindings";
 import { createRendererKindMap } from "./renderer-kind-contract";
 import type { RenderTreeNode, RenderTreeScreenNode } from "./schema";

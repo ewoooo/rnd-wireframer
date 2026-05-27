@@ -1,4 +1,5 @@
-import type { ArchetypeBlockId, CompositionOutput, ValidationIssue } from "@cx/types";
+import type { ArchetypeBlockId, CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import { buildArchetypeScaffold } from "../../../compose-screen/scaffold";
 import type { ValidatorDeps } from "../../types";
 

@@ -1,7 +1,8 @@
-import type { CompositionOutput, LayoutPatternDraft, ValidationIssue } from "@cx/types";
+import type { CompositionOutput, LayoutPatternDraft } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import type { ValidatorDeps } from "../../types";
 import {
-	indexLayoutPatternStoreDeck,
+	getValidatorContext,
 	layoutPatternHasVariant,
 	suggestLayoutPatterns,
 } from "../shared/deck-lookup";
@@ -18,7 +19,7 @@ export function checkLayoutDraft(
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexLayoutPatternStoreDeck(deps.layoutPatternStoreDeck);
+	const index = getValidatorContext(deps).layoutPatterns;
 
 	function verifyDraft(
 		draft: LayoutPatternDraft | undefined,

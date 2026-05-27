@@ -1,19 +1,14 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DecoratedOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-	ValidationIssue,
-} from "@cx/types";
-
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { DecoratedOutput } from "@cx/types/decorated-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
+import type { ValidationIssue } from "@cx/types/validation";
 import {
 	type RunClaudeQueryOptions,
 	type RunClaudeQueryResult,
 	runClaudeQuery,
 } from "../llm/claude-session";
-import type { RetryHint, ValidatorResult } from "../validate/types";
+import type { RetryHint, ValidatorContext, ValidatorResult } from "../validate/types";
 import { validateDecorated } from "../validate/validate-decorated";
 
 import {
@@ -42,6 +37,8 @@ export interface DecorateScreenInput {
 	designDeck: DesignDeck;
 	layoutPatternStoreDeck: LayoutPatternStoreDeck;
 	prddScreenRecord: PrddScreenRecord;
+	/** Validator 기준. 미지정 시 SSOT에서 직접 조회한다. */
+	validationContext?: ValidatorContext;
 }
 
 export type LlmQueryFn = (input: {
@@ -121,6 +118,7 @@ export async function decorateScreen(
 			catalogDeck: input.catalogDeck,
 			designDeck: input.designDeck,
 			layoutPatternStoreDeck: input.layoutPatternStoreDeck,
+			validationContext: input.validationContext,
 			prddScreenRecord: input.prddScreenRecord,
 			composition: input.composition,
 		});

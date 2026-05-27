@@ -1,13 +1,7 @@
 import { getComponentCatalogEntry } from "@cx/components/catalog";
-import {
-	BUILT_IN_NODE_TYPES,
-	getNumericTokenScale,
-	SPACING_TOKEN_SET,
-	type TokenRole,
-	type ValidationIssue,
-	type ValidationResult,
-	type ValidationStats,
-} from "@cx/types";
+import { BUILT_IN_NODE_TYPES } from "@cx/types/node-types";
+import { getNumericTokenScale, SPACING_TOKEN_SET, type TokenRole } from "@cx/types/tokens";
+import type { ValidationIssue, ValidationResult, ValidationStats } from "@cx/types/validation";
 import type { ComponentRegistry } from "./component-registry";
 import { getRenderTreeNodeKind } from "./runtime";
 import {

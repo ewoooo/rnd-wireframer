@@ -1,4 +1,4 @@
-import { NODE_TYPES, type ScreenRegionType } from "@cx/types";
+import { NODE_TYPES, type ScreenRegionType } from "@cx/types/node-types";
 import type { RegionSlot } from "../types";
 
 /**

@@ -1,21 +1,5 @@
-import type {
-	AreaPattern,
-	AreaVariant,
-	ChildrenLayoutPreset,
-	ChildWrapPreset,
-	CompositePattern,
-	CompositeVariant,
-	Pattern,
-	PatternResolutionSignals,
-	PatternStore,
-	PatternStorePattern,
-	PatternStoreTarget,
-	RegionPattern,
-	RegionVariant,
-	ScreenPattern,
-	ScreenVariant,
-} from "@cx/types";
-import { patternStoreSchema } from "@cx/types";
+import type { AreaPattern, AreaVariant, ChildrenLayoutPreset, ChildWrapPreset, CompositePattern, CompositeVariant, Pattern, PatternResolutionSignals, PatternStore, PatternStorePattern, PatternStoreTarget, RegionPattern, RegionVariant, ScreenPattern, ScreenVariant } from "@cx/types/pattern-store";
+import { patternStoreSchema } from "@cx/types/pattern-store-schema";
 import { patternCatalogSets } from "./data";
 
 export type {

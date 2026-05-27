@@ -1,4 +1,4 @@
-import { NODE_TYPES } from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
 import type { RegionSlot, ScreenSurfaceType } from "../types";
 
 export type PrddAreaSlot = RegionSlot;

@@ -1,18 +1,13 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-	ValidationIssue,
-} from "@cx/types";
-
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
+import type { ValidationIssue } from "@cx/types/validation";
 import {
 	type RunClaudeQueryOptions,
 	type RunClaudeQueryResult,
 	runClaudeQuery,
 } from "../llm/claude-session";
-import type { RetryHint, ValidatorResult } from "../validate/types";
+import type { RetryHint, ValidatorContext, ValidatorResult } from "../validate/types";
 import { validateComposition } from "../validate/validate-composition";
 
 import { buildInitialPrompt, buildRetryPrompt, COMPOSE_SYSTEM_PROMPT } from "./build-prompt";
@@ -37,6 +32,8 @@ export interface ComposeScreenInput {
 	catalogDeck: CatalogDeck;
 	designDeck: DesignDeck;
 	layoutPatternStoreDeck: LayoutPatternStoreDeck;
+	/** Validator 기준. 미지정 시 SSOT에서 직접 조회한다. */
+	validationContext?: ValidatorContext;
 	archetypeScaffold?: ArchetypeScaffold;
 }
 
@@ -112,6 +109,7 @@ export async function composeScreen(
 			catalogDeck: input.catalogDeck,
 			designDeck: input.designDeck,
 			layoutPatternStoreDeck: input.layoutPatternStoreDeck,
+			validationContext: input.validationContext,
 			prddScreenRecord: input.prddScreenRecord,
 			archetypeScaffold,
 		});

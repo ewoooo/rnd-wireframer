@@ -1,10 +1,6 @@
-import type {
-	CatalogDeck,
-	CompositionOutput,
-	DesignDeck,
-	LayoutPatternStoreDeck,
-	PrddScreenRecord,
-} from "@cx/types";
+import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -15,6 +11,7 @@ import {
 import { parseCompositionOutput } from "../compose-screen/parse-output";
 import { buildArchetypeScaffold } from "../compose-screen/scaffold";
 import type { RunClaudeQueryResult } from "../llm/claude-session";
+import { buildSnapshotValidatorContext } from "../validate/rules/shared/deck-lookup";
 
 function makeDecks(): Omit<ComposeScreenInput, "prddScreenRecord"> {
 	const catalogDeck: CatalogDeck = {
@@ -58,7 +55,16 @@ function makeDecks(): Omit<ComposeScreenInput, "prddScreenRecord"> {
 			},
 		],
 	};
-	return { catalogDeck, designDeck, layoutPatternStoreDeck };
+	return {
+		catalogDeck,
+		designDeck,
+		layoutPatternStoreDeck,
+		validationContext: buildSnapshotValidatorContext({
+			catalogDeck,
+			designDeck,
+			layoutPatternStoreDeck,
+		}),
+	};
 }
 
 function makePrdd(): PrddScreenRecord {

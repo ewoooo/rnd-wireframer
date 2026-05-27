@@ -7,7 +7,7 @@ import {
 	spacingFallbackStyleValue,
 	spacingUtilityClass,
 } from "@cx/layout/primitives";
-import type { ComponentCatalogEntry, RenderTreeNodeKind } from "@cx/types";
+import type { ComponentCatalogEntry, RenderTreeNodeKind } from "@cx/types/component-catalog";
 import { createElement } from "react";
 import { buildPropsFromCatalog } from "./catalog-props";
 import { getComponentForType } from "./component-by-type";

@@ -1,14 +1,7 @@
 import { componentCatalog } from "@cx/components/catalog";
-import type {
-	CatalogDeck,
-	ComponentCatalog,
-	ComponentCatalogEntry,
-	ComponentPatternCard,
-	ComponentPropContract,
-	PrimitiveCard,
-	TokenRole,
-} from "@cx/types";
-
+import type { CatalogDeck, ComponentPatternCard, PrimitiveCard } from "@cx/types/ai-deck";
+import type { ComponentCatalog, ComponentCatalogEntry, ComponentPropContract } from "@cx/types/component-catalog";
+import type { TokenRole } from "@cx/types/tokens";
 import { readJsonDirSafe } from "./fs-utils";
 
 export interface BuildCatalogDeckOptions {

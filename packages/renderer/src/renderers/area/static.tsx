@@ -1,5 +1,5 @@
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/primitives";
-import { NODE_TYPES } from "@cx/types";
+import { NODE_TYPES } from "@cx/types/node-types";
 import { toNumber } from "../../normalize-render-props";
 import type { RendererDefinition } from "../../registry";
 import { toText } from "../../runtime";

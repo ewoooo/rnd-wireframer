@@ -1,11 +1,8 @@
-import type {
-	ComponentPropContract,
-	CompositionOutput,
-	PrimitiveCard,
-	ValidationIssue,
-} from "@cx/types";
-
-import { indexCatalogDeck } from "../shared/deck-lookup";
+import type { PrimitiveCard } from "@cx/types/ai-deck";
+import type { ComponentPropContract } from "@cx/types/component-catalog";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
+import { getValidatorContext } from "../shared/deck-lookup";
 import { makeIssue } from "../shared/issue";
 import type { ValidatorDeps } from "../../types";
 
@@ -24,7 +21,7 @@ export function checkPropContract(
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexCatalogDeck(deps.catalogDeck);
+	const index = getValidatorContext(deps).catalog;
 
 	output.decisions.forEach((decision, i) => {
 		if (decision.selection.mode !== "reuse-primitive") return;

@@ -1,4 +1,5 @@
-import type { CompositionOutput, ValidationIssue } from "@cx/types";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import { buildRetryHints } from "./retry-hint";
 import { checkArchetypeCompleteness } from "./rules/compose/archetype-completeness";
 import { checkAreaShape } from "./rules/compose/area-shape";
@@ -10,6 +11,7 @@ import { checkModeSelection } from "./rules/compose/mode-selection";
 import { checkPropContract } from "./rules/compose/prop-contract";
 import { checkProposePattern } from "./rules/compose/propose-pattern";
 import { checkSourceTracing } from "./rules/compose/source-tracing";
+import { getValidatorContext } from "./rules/shared/deck-lookup";
 import type { ValidatorDeps, ValidatorResult } from "./types";
 
 /**
@@ -24,17 +26,18 @@ export function validateComposition(
 	deps: ValidatorDeps,
 ): ValidatorResult<CompositionOutput> {
 	const issues: ValidationIssue[] = [];
+	const resolvedDeps = { ...deps, validationContext: getValidatorContext(deps) };
 
 	issues.push(...checkModeSelection(output));
-	issues.push(...checkArchetypeCompleteness(output, deps));
-	issues.push(...checkCatalogExistence(output, deps));
-	issues.push(...checkSourceTracing(output, deps));
-	issues.push(...checkProposePattern(output, deps));
-	issues.push(...checkLayoutDraft(output, deps));
-	issues.push(...checkDesignRefs(output, deps));
+	issues.push(...checkArchetypeCompleteness(output, resolvedDeps));
+	issues.push(...checkCatalogExistence(output, resolvedDeps));
+	issues.push(...checkSourceTracing(output, resolvedDeps));
+	issues.push(...checkProposePattern(output, resolvedDeps));
+	issues.push(...checkLayoutDraft(output, resolvedDeps));
+	issues.push(...checkDesignRefs(output, resolvedDeps));
 	issues.push(...checkAreaShape(output));
 	issues.push(...checkGapReport(output));
-	issues.push(...checkPropContract(output, deps));
+	issues.push(...checkPropContract(output, resolvedDeps));
 
 	const hasError = issues.some((issue) => issue.severity === "error");
 	return {

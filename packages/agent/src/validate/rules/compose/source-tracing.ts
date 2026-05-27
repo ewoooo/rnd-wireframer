@@ -1,5 +1,5 @@
-import type { CompositionOutput, CompositionSourceRef, ValidationIssue } from "@cx/types";
-
+import type { CompositionOutput, CompositionSourceRef } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
 import { makeIssue } from "../shared/issue";
 import type { ValidatorDeps } from "../../types";
 

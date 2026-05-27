@@ -51,20 +51,11 @@ export type {
 	DatabaseScreenVariantRow,
 } from "@cx/types";
 
-import {
-	type AreaVariant,
-	type CompositeVariant,
-	type DatabaseScreenRegion,
-	type DatabaseScreenRouteRow,
-	type DatabaseScreenRow,
-	type DatabaseScreenVariantRow,
-	NODE_TYPES,
-	type PatternStore,
-	type PatternStorePattern,
-	type PatternStoreTarget,
-	type RegionVariant,
-} from "@cx/types";
+import type { DatabaseScreenRegion, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenVariantRow } from "@cx/types/database-tables";
 
+import { NODE_TYPES } from "@cx/types/node-types";
+
+import type { AreaVariant, CompositeVariant, PatternStore, PatternStorePattern, PatternStoreTarget, RegionVariant } from "@cx/types/pattern-store";
 // JSON 묶음 wrapper — 단순 plural 컨테이너라 inline 타입 alias.
 export type DatabaseScreenRouteSet = { screenRoutes: DatabaseScreenRouteRow[] };
 export type DatabaseScreenVariantSet = { screenVariants: DatabaseScreenVariantRow[] };

@@ -1,11 +1,7 @@
-import type {
-	ComponentPattern,
-	ComponentPatternNode,
-	CompositionOutput,
-	ValidationIssue,
-} from "@cx/types";
-
-import { indexCatalogDeck } from "../shared/deck-lookup";
+import type { ComponentPattern, ComponentPatternNode } from "@cx/types/component-pattern";
+import type { CompositionOutput } from "@cx/types/composition-output";
+import type { ValidationIssue } from "@cx/types/validation";
+import { getValidatorContext } from "../shared/deck-lookup";
 import { makeIssue } from "../shared/issue";
 import type { ValidatorDeps } from "../../types";
 
@@ -22,7 +18,7 @@ export function checkProposePattern(
 	deps: ValidatorDeps,
 ): ValidationIssue[] {
 	const issues: ValidationIssue[] = [];
-	const index = indexCatalogDeck(deps.catalogDeck);
+	const index = getValidatorContext(deps).catalog;
 
 	output.proposedComponentPatterns.forEach((pattern, i) => {
 		// 5종 세트

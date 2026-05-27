@@ -1,5 +1,5 @@
-import type { NodeDisplay, NodeHook, ScreenSurfaceType } from "@cx/types";
-
+import type { NodeDisplay, NodeHook } from "@cx/types/database-tables";
+import type { ScreenSurfaceType } from "@cx/types/node-types";
 export type { NodeDisplay, NodeHook, ScreenSurfaceType };
 
 export type NodeLevel = "route" | "variant" | "screen" | "region" | "area" | "component";
