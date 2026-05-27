@@ -143,3 +143,4 @@ runDraftTablesPipeline + validator
 - `pnpm run lint:agent-boundary` active path import guard를 추가했다.
 - workbench store에 DraftTables 생성 결과를 구조화해 보관하고, Agent 패널에서 화면별 quality report 요약과 산출물 경로를 확인할 수 있게 했다.
 - `QualityBacklog` 계약과 `createQualityBacklog` aggregation을 추가해 반복되는 catalog/pattern/component gap을 `quality-backlog.json` 산출물로 분리했다.
+- workbench table loader를 재사용 가능한 builder로 분리하고, DraftTables 생성 성공 시 preview tables를 앱 상태에 주입해 화면 탭에서 즉시 렌더 확인할 수 있게 했다.

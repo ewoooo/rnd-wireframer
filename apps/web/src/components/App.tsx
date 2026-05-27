@@ -24,6 +24,7 @@ export function App({ agentRegistry = mockAgentAssetRegistry }: AppProps) {
 			agentRegistry,
 			areas: localWorkbenchData.areas,
 			components: localWorkbenchData.components,
+			renderTrees: localWorkbenchData.renderTrees,
 			screens: localWorkbenchData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench]);

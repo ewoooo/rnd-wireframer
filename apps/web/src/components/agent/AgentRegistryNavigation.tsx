@@ -4,6 +4,7 @@ import type { AgentNodeSelection } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
+import { createWorkbenchDataFromTables } from "@/data/workbench-data-builder";
 import { type AgentDraftTablesResult, useWorkbenchStore } from "@/model/store";
 
 interface AgentRegistryNavigationProps {
@@ -19,6 +20,7 @@ export function AgentRegistryNavigation({
 }: AgentRegistryNavigationProps) {
 	const imports = useWorkbenchStore((state) => state.agentImports);
 	const draftTablesResult = useWorkbenchStore((state) => state.agentDraftTablesResult);
+	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const status = useWorkbenchStore((state) => state.agentGenerationStatus);
 	const message = useWorkbenchStore((state) => state.agentGenerationMessage);
 	const setAgentDraftTablesResult = useWorkbenchStore((state) => state.setAgentDraftTablesResult);
@@ -26,6 +28,8 @@ export function AgentRegistryNavigation({
 	const setAgentGenerationStatus = useWorkbenchStore((state) => state.setAgentGenerationStatus);
 	const setAgentImports = useWorkbenchStore((state) => state.setAgentImports);
 	const setAgentRegistry = useWorkbenchStore((state) => state.setAgentRegistry);
+	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
+	const selectTab = useWorkbenchStore((state) => state.selectTab);
 	const [selectedImportId, setSelectedImportId] = useState("");
 	const [uploadStatus, setUploadStatus] = useState<"error" | "idle" | "loading" | "success">(
 		"idle",
@@ -154,6 +158,13 @@ export function AgentRegistryNavigation({
 			const result = normalizeDraftTablesResult(payload, selectedImportId);
 			const failedCount = result.results.filter((screenResult) => !screenResult.ok).length;
 			setAgentDraftTablesResult(result);
+			if (result.previewTables && failedCount === 0) {
+				initializeWorkbench({
+					agentRegistry,
+					...createWorkbenchDataFromTables(result.previewTables),
+				});
+				selectTab("scn");
+			}
 			setAgentGenerationStatus(failedCount > 0 ? "error" : "success");
 			setAgentGenerationMessage(
 				`Generated draft tables for ${result.screenCount} screens at ${result.writtenDir}`,

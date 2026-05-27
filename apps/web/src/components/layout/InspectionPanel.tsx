@@ -7,11 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import {
-	getWorkbenchAreaSelection,
-	getWorkbenchComponentSelection,
-	getWorkbenchValidationStatus,
+	getWorkbenchAreaSelectionFromData,
+	getWorkbenchComponentSelectionFromData,
+	getWorkbenchValidationStatusFromData,
 	type WorkbenchRenderSelection,
-} from "@/data/local-workbench-data-loader";
+} from "@/data/workbench-data-builder";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
@@ -19,20 +19,34 @@ export function InspectionPanel() {
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
 	const areaOrderOverrides = useWorkbenchStore((state) => state.areaOrderOverrides);
+	const renderTrees = useWorkbenchStore((state) => state.renderTrees);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
+	const screens = useWorkbenchStore((state) => state.screens);
 	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 	const component =
 		activeTab === "comp"
-			? getWorkbenchComponentSelection(selectedComponentCode, areaOrderOverrides)
+			? getWorkbenchComponentSelectionFromData(
+					screens,
+					renderTrees,
+					selectedComponentCode,
+					areaOrderOverrides,
+				)
 			: undefined;
 	const area =
 		activeTab === "ogn"
-			? getWorkbenchAreaSelection(selectedAreaCode, areaOrderOverrides)
+			? getWorkbenchAreaSelectionFromData(
+					screens,
+					renderTrees,
+					selectedAreaCode,
+					areaOrderOverrides,
+				)
 			: undefined;
-	const validation = screen ? getWorkbenchValidationStatus(screen.code) : undefined;
+	const validation = screen
+		? getWorkbenchValidationStatusFromData(screens, renderTrees, screen.code)
+		: undefined;
 
 	if (activeTab === "agent") {
 		return (

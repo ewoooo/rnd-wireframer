@@ -3,12 +3,12 @@ import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import {
-	getWorkbenchAreaSelection,
-	getWorkbenchComponentSelection,
-	getWorkbenchScreenData,
-	getWorkbenchScreenNode,
+	getWorkbenchAreaSelectionFromData,
+	getWorkbenchComponentSelectionFromData,
+	getWorkbenchScreenDataFromData,
+	getWorkbenchScreenNodeFromData,
 	type WorkbenchRenderSelection,
-} from "@/data/local-workbench-data-loader";
+} from "@/data/workbench-data-builder";
 import { useWorkbenchStore } from "@/model/store";
 import { RenderedScreen } from "../screen/RenderedScreen";
 
@@ -18,6 +18,8 @@ export function Canvas() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const areaOrderOverrides = useWorkbenchStore((state) => state.areaOrderOverrides);
+	const renderTrees = useWorkbenchStore((state) => state.renderTrees);
+	const screens = useWorkbenchStore((state) => state.screens);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
 	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
@@ -26,15 +28,22 @@ export function Canvas() {
 
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 	const selectedComponent = isComponentView
-		? getWorkbenchComponentSelection(selectedComponentCode, areaOrderOverrides)
+		? getWorkbenchComponentSelectionFromData(
+				screens,
+				renderTrees,
+				selectedComponentCode,
+				areaOrderOverrides,
+			)
 		: undefined;
 	const selectedArea = isAreaView
-		? getWorkbenchAreaSelection(selectedAreaCode, areaOrderOverrides)
+		? getWorkbenchAreaSelectionFromData(screens, renderTrees, selectedAreaCode, areaOrderOverrides)
 		: undefined;
 	const screenNode = selectedScreen
-		? getWorkbenchScreenNode(selectedScreen.code, areaOrderOverrides)
+		? getWorkbenchScreenNodeFromData(renderTrees, selectedScreen.code, areaOrderOverrides)
 		: undefined;
-	const screenData = selectedScreen ? getWorkbenchScreenData(selectedScreen.code) : undefined;
+	const screenData = selectedScreen
+		? getWorkbenchScreenDataFromData(renderTrees, selectedScreen.code)
+		: undefined;
 
 	return (
 		<SidebarInset>

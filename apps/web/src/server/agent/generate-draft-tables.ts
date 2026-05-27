@@ -26,6 +26,7 @@ export interface GenerateDraftTablesResult {
 	importId: string;
 	backlog?: QualityBacklog;
 	backlogPath: string;
+	previewTables?: DraftTablesArtifact["tables"];
 	screenCount: number;
 	results: DraftTablesScreenResult[];
 	writtenDir: string;
@@ -61,6 +62,14 @@ export async function generateDraftTablesForImport({
 
 	const results: DraftTablesScreenResult[] = [];
 	const reports: QualityReport[] = [];
+	const previewTables: DraftTablesArtifact["tables"] = {
+		screenRoutes: [],
+		screenVariants: [],
+		screens: [],
+		areas: [],
+		components: [],
+		warnings: [],
+	};
 	for (const screenFile of screenFiles) {
 		const stem = screenFile.name.replace(/\.md$/, "");
 		const importJobId = `draft-tables-${importId}-${stem}`;
@@ -89,6 +98,14 @@ export async function generateDraftTablesForImport({
 		if (pipelineResult.qualityReport) {
 			reports.push(pipelineResult.qualityReport);
 		}
+		if (pipelineResult.artifact) {
+			previewTables.screenRoutes.push(...pipelineResult.artifact.tables.screenRoutes);
+			previewTables.screenVariants.push(...pipelineResult.artifact.tables.screenVariants);
+			previewTables.screens.push(...pipelineResult.artifact.tables.screens);
+			previewTables.areas.push(...pipelineResult.artifact.tables.areas);
+			previewTables.components.push(...pipelineResult.artifact.tables.components);
+			previewTables.warnings?.push(...(pipelineResult.artifact.tables.warnings ?? []));
+		}
 
 		results.push({
 			screenFile: screenFile.name,
@@ -114,6 +131,7 @@ export async function generateDraftTablesForImport({
 		importId,
 		backlog,
 		backlogPath: toDatabaseRelativePath(backlogPath),
+		previewTables,
 		screenCount: screenFiles.length,
 		results,
 		writtenDir: toDatabaseRelativePath(importOutputDir),

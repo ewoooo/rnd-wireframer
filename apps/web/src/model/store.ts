@@ -1,4 +1,6 @@
 import type { RegisteredNodeTree } from "@cx/agent/types";
+import type { RenderTree } from "@cx/renderer";
+import type { DraftTablesBundle } from "@cx/types/draft-tables";
 import type { QualityBacklog } from "@cx/types/quality-backlog";
 import type { QualityReport } from "@cx/types/quality-report";
 import { create } from "zustand";
@@ -47,6 +49,7 @@ interface InitializeWorkbenchInput {
 	agentRegistry?: RegisteredNodeTree;
 	areas: AppArea[];
 	components: AppComponent[];
+	renderTrees: RenderTree[];
 	screens: AppScreen[];
 }
 
@@ -65,6 +68,7 @@ interface WorkbenchState {
 	isComponentView: boolean;
 	isAreaView: boolean;
 	areas: AppArea[];
+	renderTrees: RenderTree[];
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
@@ -97,6 +101,7 @@ export interface AgentDraftTablesResult {
 	importId: string;
 	backlog?: QualityBacklog;
 	backlogPath?: string;
+	previewTables?: DraftTablesBundle;
 	screenCount: number;
 	writtenDir: string;
 	results: AgentDraftTablesScreenResult[];
@@ -128,6 +133,7 @@ const initialWorkbenchState = {
 	isComponentView: false,
 	isAreaView: false,
 	areas: [],
+	renderTrees: [],
 	screenRoutes: [],
 	screens: [],
 	selectedAgentAsset: undefined,
@@ -143,7 +149,7 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ agentRegistry, areas, components, screens }) => {
+	initializeWorkbench: ({ agentRegistry, areas, components, renderTrees, screens }) => {
 		const screenRoutes = getScreenRouteCatalog(screens);
 		const state = get();
 		const selectedAgentNode =
@@ -169,6 +175,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			areaOrderOverrides: state.areaOrderOverrides,
 			components,
 			areas,
+			renderTrees,
 			screenRoutes,
 			screens,
 			selectedAgentNode,
