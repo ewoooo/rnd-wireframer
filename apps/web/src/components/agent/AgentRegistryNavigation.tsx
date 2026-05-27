@@ -126,7 +126,45 @@ export function AgentRegistryNavigation({
 		}
 	}
 
-	async function handleGenerate() {
+	async function handleGenerateDraftTables() {
+		if (!selectedImportId || status === "loading") return;
+		setAgentGenerationStatus("loading");
+		setAgentGenerationMessage("");
+
+		try {
+			const response = await fetch("/api/agent/generate-draft-tables", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ importId: selectedImportId }),
+			});
+			const payload = await readJsonResponse<{
+				error?: string;
+				importId?: string;
+				results?: Array<{ ok: boolean; screenFile: string }>;
+				screenCount?: number;
+				writtenDir?: string;
+			}>(response, "Failed to generate draft tables.");
+
+			if (!response.ok) {
+				throw new Error(payload.error ?? "Failed to generate draft tables.");
+			}
+
+			const failedCount = payload.results?.filter((result) => !result.ok).length ?? 0;
+			setAgentGenerationStatus(failedCount > 0 ? "error" : "success");
+			setAgentGenerationMessage(
+				`Generated draft tables for ${payload.screenCount ?? payload.results?.length ?? 0} screens at ${payload.writtenDir ?? "database/ai-imports/draft-tables"}`,
+			);
+		} catch (error) {
+			setAgentGenerationStatus("error");
+			setAgentGenerationMessage(
+				error instanceof Error ? error.message : "Failed to generate draft tables.",
+			);
+		}
+	}
+
+	async function handleGenerateLegacyRegister() {
 		if (!selectedImportId || status === "loading") return;
 		setAgentGenerationStatus("loading");
 		setAgentGenerationMessage("");
@@ -152,7 +190,7 @@ export function AgentRegistryNavigation({
 
 			setAgentRegistry(payload.registry);
 			setAgentGenerationMessage(
-				`Generated via ${payload.runtime?.provider ?? "agent"} ${payload.writtenPath ?? "agent-assets.json"}`,
+				`Generated legacy register via ${payload.runtime?.provider ?? "agent"} ${payload.writtenPath ?? "agent-assets.json"}`,
 			);
 		} catch (error) {
 			setAgentGenerationStatus("error");
@@ -208,9 +246,7 @@ export function AgentRegistryNavigation({
 								onClick={() => setSelectedImportId(item.id)}
 							>
 								<p className="truncate text-sm font-medium">{item.id}</p>
-								<p className="text-xs text-muted-foreground">
-									{item.screenFiles} screens
-								</p>
+								<p className="text-xs text-muted-foreground">{item.screenFiles} screens</p>
 							</button>
 						))}
 						<label className="flex items-center gap-2 rounded-md border bg-secondary/30 px-2 py-1.5 text-xs">
@@ -222,20 +258,32 @@ export function AgentRegistryNavigation({
 								disabled={status === "loading"}
 							/>
 							<span className="flex-1">
-								<span className="font-medium">Composer AI inspection</span>
+								<span className="font-medium">Legacy Composer AI inspection</span>
 								<span className="ml-1 text-muted-foreground">
 									(placeholder/helperText 자동 합성)
 								</span>
 							</span>
 						</label>
-						<Button type="button" onClick={handleGenerate} disabled={status === "loading"}>
+						<Button
+							type="button"
+							onClick={handleGenerateDraftTables}
+							disabled={status === "loading"}
+						>
+							{status === "loading" ? "Generating draft tables..." : "Generate Draft Tables"}
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={handleGenerateLegacyRegister}
+							disabled={status === "loading"}
+						>
 							{status === "loading"
 								? composeWithAI
-									? "Generating with AI inspection..."
-									: "Generating..."
+									? "Generating legacy with AI inspection..."
+									: "Generating legacy..."
 								: composeWithAI
-									? "Generate Register + AI Compose"
-									: "Generate Register JSON"}
+									? "Legacy Register + AI Compose"
+									: "Legacy Register JSON"}
 						</Button>
 					</div>
 				) : (
@@ -247,7 +295,7 @@ export function AgentRegistryNavigation({
 			</div>
 			<div className="flex items-center justify-between gap-2">
 				<div>
-					<p className="text-sm font-semibold">Agent Registry</p>
+					<p className="text-sm font-semibold">Legacy Agent Registry</p>
 					<p className="text-xs text-muted-foreground">database/ai-imports/agent-assets.json</p>
 				</div>
 				<Badge variant="outline">{registry?.routes.length ?? 0} routes</Badge>
