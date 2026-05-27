@@ -15,9 +15,9 @@ export interface AppScreen {
 	description?: string;
 	module: string;
 	name: string;
-	organisms: Array<{
+	areas: Array<{
 		order: number;
-		organismCode: string;
+		areaCode: string;
 	}>;
 	screenOrder: number;
 	screenRouteId: string;
@@ -32,12 +32,20 @@ export interface AppScreen {
 	warnings: string[];
 }
 
-export interface AppOrganism {
+export interface AppArea {
 	code: string;
-	compositeCount: number;
+	componentCount: number;
 	name: string;
 	stateCount: number;
 	usage: string;
+}
+
+export interface AppComponent {
+	code: string;
+	name: string;
+	parentAreaCode?: string;
+	sourceScreenCode: string;
+	type: string;
 }
 
 export type SampleRenderEntry =

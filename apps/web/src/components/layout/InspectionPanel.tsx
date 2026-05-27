@@ -1,7 +1,8 @@
-import type { WireframeNode } from "@cx/renderer";
+import type { WireframeNode, WireframeSchema } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
-import { cloneScreen, deleteScreen, updateScreenTitle } from "@/app/actions/screen-actions";
+import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
+import { cloneOrganism, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,7 @@ export function InspectionPanel() {
 					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
 				) : (
 					<div className="flex flex-col gap-4">
-						<ScreenActions screenCode={screen.code} screenName={screen.name} screenVariantId={screen.screenVariantId} />
+						<ScreenActions screenCode={screen.code} screenName={screen.name} schema={screen.schema} screenVariantId={screen.screenVariantId} />
 						<div className="flex flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
@@ -66,7 +67,7 @@ export function InspectionPanel() {
 						<ConnectedAreaList
 							onReorder={reorderScreenAreas}
 							screenCode={screen.code}
-							screenAreas={screen.organisms}
+							screenAreas={screen.areas}
 						/>
 						<Separator />
 						<div className="flex flex-col gap-2">
@@ -137,7 +138,7 @@ function ConnectedAreaList({
 }: {
 	onReorder: (screenCode: string, areaCodes: string[]) => void;
 	screenCode: string;
-	screenAreas: Array<{ order: number; organismCode: string }>;
+	screenAreas: Array<{ order: number; areaCode: string }>;
 }) {
 	const [draggedAreaCode, setDraggedAreaCode] = useState("");
 	const canReorder = screenAreas.length > 1;
@@ -148,7 +149,7 @@ function ConnectedAreaList({
 			return;
 		}
 
-		const previousAreaCodes = screenAreas.map((area) => area.organismCode);
+		const previousAreaCodes = screenAreas.map((area) => area.areaCode);
 		const nextAreaCodes = moveItemBefore(previousAreaCodes, draggedAreaCode, targetAreaCode);
 
 		onReorder(screenCode, nextAreaCodes);
@@ -163,28 +164,28 @@ function ConnectedAreaList({
 			</div>
 			<ul className="flex flex-col gap-2">
 				{screenAreas.map((screenArea) => (
-					<li key={screenArea.organismCode}>
+					<li key={screenArea.areaCode}>
 						<button
 							aria-disabled={!canReorder}
 							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
-							data-dragging={draggedAreaCode === screenArea.organismCode}
-							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.organismCode}
+							data-dragging={draggedAreaCode === screenArea.areaCode}
+							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode}
 							draggable={canReorder}
 							onDragEnd={() => setDraggedAreaCode("")}
 							onDragOver={(event) => { if (canReorder) event.preventDefault(); }}
 							onDragStart={(event) => {
 								if (!canReorder) return;
 								event.dataTransfer.effectAllowed = "move";
-								event.dataTransfer.setData("text/plain", screenArea.organismCode);
-								setDraggedAreaCode(screenArea.organismCode);
+								event.dataTransfer.setData("text/plain", screenArea.areaCode);
+								setDraggedAreaCode(screenArea.areaCode);
 							}}
-							onDrop={(event) => { event.preventDefault(); handleDrop(screenArea.organismCode); }}
+							onDrop={(event) => { event.preventDefault(); handleDrop(screenArea.areaCode); }}
 							type="button"
 						>
 							<div className="flex min-w-0 items-center gap-2">
 								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
 								<div className="flex min-w-0 flex-col gap-1">
-									<span className="truncate text-sm font-medium">{screenArea.organismCode}</span>
+									<span className="truncate text-sm font-medium">{screenArea.areaCode}</span>
 									<span className="text-xs text-muted-foreground">order {screenArea.order}</span>
 								</div>
 							</div>
@@ -230,6 +231,7 @@ function AreaInspection({ area }: { area: SelectedAreaContext }) {
 				<InfoRow label="Source screen" value={area.screen.code} />
 				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
 			</div>
+			<AreaActions areaCode={area.code} screenCode={area.screen.code} />
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">컴포넌트</h2>
 				{area.node.children?.map((child, index) => (
@@ -270,13 +272,68 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 	);
 }
 
-function ScreenActions({ screenCode, screenName, screenVariantId }: { screenCode: string; screenName: string; screenVariantId: string }) {
+function AreaActions({ areaCode, screenCode }: { areaCode: string; screenCode: string }) {
+	const [isPending, startTransition] = useTransition();
+	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+	const [message, setMessage] = useState("");
+
+	function handleClone() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await cloneOrganism(areaCode, screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage(`복제 완료 → ${result.newOrganismId}`);
+			}
+		});
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
+			<div className="flex items-center justify-between gap-2">
+				<span className="text-xs font-semibold text-muted-foreground">OGN 작업</span>
+				<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
+					<Copy className="mr-1 size-3" />
+					{isPending ? "복제 중..." : "복제"}
+				</Button>
+			</div>
+			{status !== "idle" && (
+				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
+					{message}
+				</p>
+			)}
+		</div>
+	);
+}
+
+function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: WireframeSchema; screenVariantId: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");
 	const [editingTitle, setEditingTitle] = useState(false);
 	const [title, setTitle] = useState(screenName);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+
+	function handleSave() {
+		startTransition(async () => {
+			setStatus("idle");
+			const { screens: { screens: [sampleScreen] }, warnings } = renderTreeToTables(schema, { screenVariantId });
+			if (warnings.length > 0) {
+				console.warn("[ScreenActions] renderTreeToTables warnings:", warnings);
+			}
+			const result = await updateScreenRegions(screenCode, sampleScreen.screen);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage("저장 완료");
+			}
+		});
+	}
 
 	function handleClone() {
 		startTransition(async () => {
@@ -327,6 +384,10 @@ function ScreenActions({ screenCode, screenName, screenVariantId }: { screenCode
 			<div className="flex items-center justify-between gap-2">
 				<span className="text-xs font-semibold text-muted-foreground">화면 작업</span>
 				<div className="flex gap-1">
+					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleSave}>
+						<Save className="mr-1 size-3" />
+						{isPending ? "저장 중..." : "저장"}
+					</Button>
 					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
 						<Copy className="mr-1 size-3" />
 						{isPending ? "복제 중..." : "복제"}

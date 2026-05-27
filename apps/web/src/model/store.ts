@@ -2,7 +2,7 @@ import type { RegisteredNodeTree } from "@cx/agent";
 import type { WireframeNode, WireframeScreenNode, WireframeValidationStats } from "@cx/renderer";
 import { create } from "zustand";
 import {
-	type AppOrganism,
+	type AppArea,
 	type AppScreen,
 	getInitialScreenCode,
 	getScreenNode,
@@ -65,7 +65,7 @@ export interface SelectedComponentContext {
 
 interface InitializeWorkbenchInput {
 	agentRegistry?: RegisteredNodeTree;
-	areas: AppOrganism[];
+	areas: AppArea[];
 	screens: AppScreen[];
 }
 
@@ -81,7 +81,7 @@ interface WorkbenchState {
 	initializeWorkbench: (input: InitializeWorkbenchInput) => void;
 	isComponentView: boolean;
 	isAreaView: boolean;
-	areas: AppOrganism[];
+	areas: AppArea[];
 	screenNode?: WireframeScreenNode;
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
@@ -381,14 +381,14 @@ function getDerivedWorkbenchState(
 
 function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): AppScreen {
 	const areaByCode = new Map(
-		screen.organisms.map((organism) => [organism.organismCode, organism]),
+		screen.areas.map((area) => [area.areaCode, area]),
 	);
-	const nextOrganisms = areaCodes.map((areaCode, index) => {
-		const organism = areaByCode.get(areaCode);
+	const nextAreas = areaCodes.map((areaCode, index) => {
+		const area = areaByCode.get(areaCode);
 		return {
-			...organism,
+			...area,
 			order: index + 1,
-			organismCode: areaCode,
+			areaCode: areaCode,
 		};
 	});
 	const schema = cloneSchema(screen.schema);
@@ -401,7 +401,7 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 
 	return {
 		...screen,
-		organisms: nextOrganisms,
+		areas: nextAreas,
 		schema,
 	};
 }

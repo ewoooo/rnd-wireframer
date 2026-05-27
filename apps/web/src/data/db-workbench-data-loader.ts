@@ -148,7 +148,7 @@ export async function loadDbWorkbenchData() {
 			name: schema.metadata.title,
 			description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 			module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-			organisms: ogns,
+			areas: ogns,
 			screenOrder: raw.order ?? index + 1,
 			screenRouteId: route?.id ?? "unknown-route",
 			screenRouteName: route?.name ?? "Unknown route",
@@ -167,7 +167,7 @@ export async function loadDbWorkbenchData() {
 
 	return {
 		screens: processedScreens,
-		organisms: organismCatalog,
+		areas: organismCatalog,
 		rendererKinds: (kindRows ?? []).map((r) => ({ type: r.type, kind: r.kind as WireframeNodeKind })),
 	};
 }
@@ -176,21 +176,21 @@ export async function loadDbWorkbenchData() {
 import type { WireframeNode, WireframeSchema } from "@cx/renderer";
 
 function extractOrganisms(schema: WireframeSchema) {
-	const result: Array<{ order: number; organismCode: string }> = [];
+	const result: Array<{ order: number; areaCode: string }> = [];
 	forEachNode(schema.children, (node) => {
 		if (node.type !== "Organism") return;
-		result.push({ order: result.length + 1, organismCode: String(node.props?.organismCode ?? node.metadata.id) });
+		result.push({ order: result.length + 1, areaCode: String(node.props?.organismCode ?? node.metadata.id) });
 	});
 	return result;
 }
 
 function getOrganismCatalog(schemas: WireframeSchema[]) {
-	const byCode = new Map<string, { code: string; compositeCount: number; name: string; stateCount: number; usage: string }>();
+	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
 			if (node.type !== "Organism") return;
 			const code = String(node.props?.organismCode ?? node.metadata.id);
-			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, compositeCount: node.children?.length ?? 0 });
+			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, componentCount: node.children?.length ?? 0 });
 		});
 	}
 	return Array.from(byCode.values());

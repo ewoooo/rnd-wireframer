@@ -4,7 +4,7 @@ import type { RegisteredNodeTree } from "@cx/agent";
 import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import type { AppOrganism, AppScreen } from "@/adapters/tables-to-render-tree";
+import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
 import { registerWireframeNodeKinds, type WireframeNodeKind } from "@cx/renderer";
 import { useWorkbenchStore } from "@/model/store";
 import { Canvas } from "./layout/Canvas";
@@ -16,7 +16,7 @@ interface AppProps {
 	agentRegistry?: RegisteredNodeTree;
 	initialData: {
 		screens: AppScreen[];
-		organisms: AppOrganism[];
+		areas: AppArea[];
 		rendererKinds: Array<{ type: string; kind: WireframeNodeKind }>;
 	};
 }
@@ -34,7 +34,7 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		registerWireframeNodeKinds(initialData.rendererKinds);
 		initializeWorkbench({
 			agentRegistry,
-			areas: initialData.organisms,
+			areas: initialData.areas,
 			screens: initialData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);

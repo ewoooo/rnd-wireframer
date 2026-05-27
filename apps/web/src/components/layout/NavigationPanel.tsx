@@ -124,7 +124,7 @@ export function NavigationPanel() {
 									<p className="mt-1 text-xs text-muted-foreground">{area.code}</p>
 									<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
 										<span>{area.stateCount} states</span>
-										<span>{area.compositeCount} components</span>
+										<span>{area.componentCount} components</span>
 									</div>
 								</button>
 							))}

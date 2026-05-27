@@ -85,7 +85,7 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-		organisms,
+		areas: organisms,
 		screenOrder: sampleScreen.order ?? index + 1,
 		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
@@ -104,24 +104,24 @@ const organismCatalog = getOrganismCatalog(sampleScreens);
 
 export function loadLocalWorkbenchData() {
 	return {
-		organisms: organismCatalog,
+		areas: organismCatalog,
 		screens: wireframeWorkbenchData,
 	};
 }
 
 function extractOrganisms(schema: WireframeSchema) {
-	const organisms: Array<{ order: number; organismCode: string }> = [];
+	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
 		if (node.type !== "Organism") return;
 
-		organisms.push({
-			order: organisms.length + 1,
-			organismCode: String(node.props?.organismCode ?? node.metadata.id),
+		areas.push({
+			order: areas.length + 1,
+			areaCode: String(node.props?.organismCode ?? node.metadata.id),
 		});
 	});
 
-	return organisms;
+	return areas;
 }
 
 function getOrganismCatalog(schemas: WireframeSchema[]) {
@@ -129,7 +129,7 @@ function getOrganismCatalog(schemas: WireframeSchema[]) {
 		string,
 		{
 			code: string;
-			compositeCount: number;
+			componentCount: number;
 			name: string;
 			stateCount: number;
 			usage: string;
@@ -146,7 +146,7 @@ function getOrganismCatalog(schemas: WireframeSchema[]) {
 				name: String(node.props?.name ?? node.metadata.title),
 				usage: "section",
 				stateCount: 1,
-				compositeCount: node.children?.length ?? 0,
+				componentCount: node.children?.length ?? 0,
 			});
 		});
 	}
