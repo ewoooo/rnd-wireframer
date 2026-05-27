@@ -1,4 +1,3 @@
-import { NODE_TYPES } from "@cx/types/node-types";
 import type { CSSProperties, ReactNode } from "react";
 import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../primitives";
 import type {
@@ -7,6 +6,7 @@ import type {
 	ScreenHeaderNode,
 	ScreenRegionNode,
 } from "../types";
+import { LAYOUT_NODE_TYPES } from "../types";
 
 type ScreenRegionRenderContract<TNode extends ScreenRegionNode = ScreenRegionNode> = {
 	className: string;
@@ -17,9 +17,9 @@ type ScreenRegionRenderContract<TNode extends ScreenRegionNode = ScreenRegionNod
 	getZIndex?: (node: TNode) => number | undefined;
 };
 
-const SCREEN_HEADER_TYPE = NODE_TYPES.screenRegion[0] as ScreenHeaderNode["type"];
-const SCREEN_CONTENTS_TYPE = NODE_TYPES.screenRegion[1] as ScreenContentsNode["type"];
-const SCREEN_BOTTOM_TYPE = NODE_TYPES.screenRegion[2] as ScreenBottomNode["type"];
+const SCREEN_HEADER_TYPE = LAYOUT_NODE_TYPES.screenRegion[0] as ScreenHeaderNode["type"];
+const SCREEN_CONTENTS_TYPE = LAYOUT_NODE_TYPES.screenRegion[1] as ScreenContentsNode["type"];
+const SCREEN_BOTTOM_TYPE = LAYOUT_NODE_TYPES.screenRegion[2] as ScreenBottomNode["type"];
 
 const SCREEN_REGION_RENDER_CONTRACT = {
 	[SCREEN_HEADER_TYPE]: {

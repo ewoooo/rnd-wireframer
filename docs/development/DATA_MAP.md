@@ -24,7 +24,7 @@
 - `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.materialized.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
 - `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
 - `@cx/pattern-store`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
-- 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
+- 후보 산출물을 소비 데이터로 반영하려면 별도 반영 단계에서 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
 
 데이터 흐름 관계를 시각 검토할 때는 [DATA_FLOW.dbml](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_FLOW.dbml)을 사용한다. 이 DBML은 migration 스키마가 아니라 공급 데이터가 소비 데이터로 정규화되는 흐름과 참조 관계를 표현한 산출물이다.
 
@@ -42,18 +42,22 @@
   └─ @cx/types
         |
         v
-parser / normalizer / resolver
-  └─ DraftTables 생성
+명세 정규화
+  └─ database/tables shape 후보 생성
         |
         v
-AI import 데이터
+품질 검수 / AI import 데이터
   └─ draft-tables/{importId}/{screen}.draft-tables.json
   └─ draft-tables/{importId}/{screen}.quality-report.json
   └─ draft-tables/{importId}/{screen}.materialized.json
   └─ draft-tables/{importId}/quality-backlog.json
         |
         v
-promote / import
+미리보기
+  └─ @cx/engine projection / validation / React render
+        |
+        v
+반영
         |
         v
 소비 데이터
@@ -64,13 +68,7 @@ promote / import
   └─ components.json
         |
         v
-@cx/renderer tablesToRenderTree
-        |
-        v
-RenderTree DTO
-        |
-        v
-@cx/renderer validation / React render
+@cx/engine tablesToRenderTree / validation / React render
         |
         v
 @cx/layout / @cx/components
@@ -79,7 +77,7 @@ RenderTree DTO
 apps/web
 ```
 
-기존 legacy asset 생성 흐름은 제거했다. 신규 후보 산출물은 DraftTables/QualityReport/QualityBacklog 단위로 관리한다.
+기존 legacy asset 생성 흐름은 제거했다. 신규 후보 산출물은 제품 흐름상 `명세 -> 품질 검수 -> 미리보기 -> 반영`으로 관리하고, 파일/타입 이름은 내부 계약으로 `DraftTables`, `QualityReport`, `QualityBacklog`를 사용한다.
 
 ## 3. 공급 데이터
 
@@ -95,8 +93,8 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현 | `screens[].screen.regions[*].type`, layout props |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
-| `packages/types` | `database/tables` row shape와 pattern-store 공유 타입 계약 | `@cx/agent`, `@cx/renderer`, `apps/web`의 공통 타입 import |
-| `packages/renderer/src/component-catalog.ts` | compose/AI/editor가 참조하는 component prop/variant 계약 | `components[].props`, `components[].hooks`, AI gap 판정 |
+| `packages/types` | client import, PRDD runtime tree, `database/tables`, RenderTree, pattern-store 공유 타입 계약 | `@cx/workflow`, `@cx/engine`, `apps/web`의 공통 타입 import |
+| `packages/component/src/catalog.ts` | compose/AI/editor가 참조하는 component prop/variant catalog 값 | `components[].props`, `components[].hooks`, AI gap 판정 |
 
 공급 데이터 원칙:
 
@@ -104,7 +102,7 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
 - layout pattern은 screen/region/area/composite children 배치 recipe다.
 - `@cx/pattern-store`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
-- pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
+- pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/engine`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
 
@@ -128,7 +126,7 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 
 - **component** — `database/tables/components.json`의 일반 render row다. 단일 `@cx/components` leaf일 수도 있고, 후속 composite wrapper일 수도 있다. region/area child entry는 이 row를 `kind: "component"`로 참조한다.
 - **composite** — 최소 2개 이상의 `@cx/components`를 결합한 합성 컴포넌트다. `@cx/pattern-store`의 `composite-patterns.json`은 이 합성 wrapper 내부의 children/slot layout만 다룬다.
-- **catalog source** — `source: "react-component" | "renderer-composite" | "layout-primitive"`는 `packages/renderer/src/component-catalog.ts`에서 구현 출처를 설명하는 보조 정보다.
+- **catalog source** — `source: "react-component" | "renderer-composite" | "layout-primitive"`는 `packages/engine/src/component-catalog.ts`에서 구현 출처를 설명하는 보조 정보다.
 
 따라서 일반 render row를 composite라고 부르지 않는다. composite 용어는 합성 wrapper가 실제로 존재할 때만 쓴다.
 
@@ -194,7 +192,7 @@ screenRoute
 
 ### screens
 
-`screens`는 workbench와 `@cx/renderer`의 `tablesToRenderTree`가 직접 소비하는 화면 인스턴스다.
+`screens`는 workbench와 `@cx/engine`의 `tablesToRenderTree`가 직접 소비하는 화면 인스턴스다.
 
 필수 필드:
 
@@ -204,7 +202,7 @@ screenRoute
 | `screenVariantId` | 소속 variant ID |
 | `version` | RenderTree schema version |
 | `minRendererVersion` | 최소 renderer version |
-| `metadata` | `@cx/renderer` schema metadata |
+| `metadata` | `@cx/engine` schema metadata |
 | `pattern.id` | 공급 pattern 참조 |
 | `screen.type` | 화면 surface. `screen.page`, `screen.bottomSheet`, `screen.popup` 중 하나 |
 | `screen.regions.header` | `Screen.Header` region |
@@ -218,7 +216,7 @@ node type 용어는 아래 축으로 분리한다.
 | screen surface | `screen.page`, `screen.bottomSheet`, `screen.popup` | `screens[].screen.type` | 화면 표시 형태. RenderTree node type이 아니다. |
 | screen region | `Screen.Header`, `Screen.Contents`, `Screen.Bottom` | `screens[].screen.regions.*.type` | RenderTree의 3분할 region node type이다. |
 | area behavior | `area.static`, `area.dynamic` | `areas[].type` | OGN 섹션의 노출/상태 동작이다. |
-| layout/wrapper | `Layout.Flex`, `Layout.Grid`, `PageStack` | `@cx/renderer` projection | pattern이 materialize하는 구조 node type이다. |
+| layout/wrapper | `Layout.Flex`, `Layout.Grid`, `PageStack` | `@cx/engine` projection | pattern이 materialize하는 구조 node type이다. |
 | component | `Accordion`, `ListCell`, `TextField`, `accordion` alias | `components[].type`, `component-catalog` | 실제 render component 또는 renderer composite 타입이다. |
 
 따라서 `*.page`와 `*.static` 같은 namespace type은 데이터 구조/동작 축이고, `Accordion`/`accordion`은 component catalog 축이다. 새 타입을 추가할 때는 같은 `type` 문자열을 재사용하더라도 먼저 어느 축의 계약인지 정한다.
@@ -256,7 +254,7 @@ region child entry는 두 종류만 허용한다.
 | `id` | OGN 고유 ID. 첨부 명세의 `오가니즘 ID`와 맞춘다. |
 | `type` | `area.static` 또는 `area.dynamic` |
 | `version` | OGN node version |
-| `metadata` | `@cx/renderer` node metadata |
+| `metadata` | `@cx/engine` node metadata |
 | `children` | 이 OGN이 참조하는 concrete render node 목록 |
 
 권장 필드:
@@ -284,7 +282,7 @@ region child entry는 두 종류만 허용한다.
 | `id` | concrete component row 고유 ID |
 | `type` | renderer mapping 대상 node type. 예: `HeaderBase`, `ListCell`, `TextField`, `SectionMessage` |
 | `version` | component row version |
-| `metadata` | `@cx/renderer` node metadata |
+| `metadata` | `@cx/engine` node metadata |
 | `pattern` | composite wrapper일 때 내부 children/slot layout pattern 참조 |
 | `children` | 실제 leaf component와 props를 담는 render child 목록 |
 
@@ -297,7 +295,7 @@ region child entry는 두 종류만 허용한다.
 | `display` | 상태별 노출 조건 |
 | `sourceRef` | 첨부 area markdown의 컴포넌트 상세 row 추적 정보 |
 
-component row의 `type`은 `@cx/renderer` mapping 또는 fallback renderer로 해석 가능해야 한다.
+component row의 `type`은 `@cx/engine` mapping 또는 fallback renderer로 해석 가능해야 한다.
 AI import 단계에서 첨부 표의 "이벤트" / "액션" / "액션 파라미터" 셀은 문자열 `events`로 저장하지 않고 `raw.hooks: NodeHook[]`로 구조화한다. Compose 이후에는 `component.hooks`로 승격하고 `raw`는 산출물에서 제거한다.
 
 ## 6. 첨부 명세 변환 규칙
@@ -350,7 +348,7 @@ area markdown은 아래처럼 소비 데이터로 변환한다.
 - `areas[].children[].id`는 존재하는 `components[].id`를 참조한다.
 - `screens[].pattern.id`는 공급 `@cx/pattern-store`의 `patterns[].id`를 참조한다.
 - 모든 node/table `id`는 같은 RenderTree 안에서 중복되지 않아야 한다.
-- `@cx/renderer`의 `tablesToRenderTree` 결과는 `@cx/renderer` validation을 통과해야 한다.
+- `@cx/engine`의 `tablesToRenderTree` 결과는 `@cx/engine` validation을 통과해야 한다.
 
 ## 8. 현재 강화 백로그
 

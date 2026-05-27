@@ -36,6 +36,51 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-27 - Web App Consumer Reset
+
+- 변경: `apps/web/src/data`, `apps/web/src/model`, `apps/web/src/server`, `apps/web/src/app/api`, `apps/web/src/adapters`를 제거함
+- 변경: 앱의 workbench/agent navigation UI를 제거하고, `App`은 RenderTree JSON을 소비해 렌더하는 화면만 남김
+- 변경: 사용하지 않는 `zustand`, `zod`, Radix scroll-area/tabs 의존성을 제거함
+- 이유: 앱은 생성/검수/저장/API 재배선 없이 순수 소비 계층으로만 두기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src package.json apps/web/package.json packages/engine/src packages/component/src/catalog.ts packages/component/src/catalog-types.ts packages/layout/src`
+- 후속: 새 생성 과정이 확정되면 앱은 완성된 RenderTree JSON 또는 그에 준하는 소비 DTO만 입력받는다.
+
+## 2026-05-27 - Redesign Package Reset
+
+- 변경: `packages/agent`, `packages/importer`, `packages/types`, `packages/workflow`, `packages/pattern-store`를 제거함
+- 변경: `@cx/engine` public surface를 RenderTree JSON -> React render 런타임으로 축소하고, table projection/schema validation/materializer export를 제거함
+- 변경: workbench는 재설계 기간 동안 앱 내부 mock/local table shape와 간단한 local projection으로 preview 데이터를 만든다
+- 이유: 전체 생성 과정을 다시 설계하기 위해 old business pipeline과 공유 타입 패키지 결합을 걷어내고, renderer만 남긴 얇은 기준면을 만들기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src/adapters/tables-to-render-tree.ts apps/web/src/data/workbench-data-builder.ts apps/web/src/data/local-workbench-data-loader.ts apps/web/src/model/store.ts apps/web/src/server/agent/generate-draft-tables.ts apps/web/src/server/agent/promote-ai-import.ts packages/engine/src packages/component/src/catalog.ts packages/component/src/catalog-types.ts packages/layout/src`
+- 후속: 새 생성 과정이 확정되면 mock schema를 기준으로 신규 패키지 경계를 다시 만든다.
+
+## 2026-05-27 - Types Contract Directory Split
+
+- 변경: `@cx/types`의 실제 계약 파일을 `src/contracts/*`로 이동하고 `src/contracts/index.ts`를 중앙 contract barrel로 추가함
+- 변경: `src/fixtures/index.ts` fixture 전용 barrel을 추가하고, 기존 `@cx/types/*` subpath는 root-level compatibility re-export로 유지함
+- 이유: 공유 계약과 테스트/샘플 fixture의 공개 경계를 분리하면서 현재 `@cx/types/render-tree` 같은 소비 import를 깨지 않기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/engine/src/__tests__/schema-runtime.test.ts packages/engine/src/__tests__/render-tree-projection.test.ts packages/workflow/src/__tests__/quality-report.test.ts packages/importer/src/__tests__/register-prdd.test.ts`, `npx biome check packages/types packages/importer/src/prdd/index.ts packages/types/README.md docs/development/PROJECT_STRUCTURE.md AGENTS_HISTORY.md`
+- 후속: fixture가 필요해질 때 `@cx/types/fixtures/*`에만 추가하고 root barrel에는 재수출하지 않는다.
+
+## 2026-05-27 - Business Flow Simplification
+
+- 변경: 제품/문서 기준 흐름을 `명세 -> 품질 검수 -> 미리보기 -> 반영` 4단계로 정리하고, `DraftTables`, `QualityReport`, `QualityBacklog`, `Promote`는 내부 구현 산출물 이름으로 내림
+- 변경: deterministic 비즈니스 흐름을 `@cx/workflow`로 이동하고, 비즈니스 단계별 공개 subpath `@cx/workflow/spec`, `@cx/workflow/inspection`, `@cx/workflow/apply`를 추가함
+- 변경: `@cx/agent`는 Claude/Codex/Agent SDK local-first runner 같은 AI 작동 책임만 갖도록 public surface를 축소함
+- 변경: PRDD parser/register/compose/decorate/materializer를 새 `@cx/importer` 패키지로 분리하고, `@cx/engine` public surface에서 `client-import`와 `materializer` export를 제거함
+- 변경: workbench Agent 탭의 사용자-facing 문구를 Draft Tables 생성에서 Spec Inspection 중심으로 변경함
+- 이유: 비즈니스 로직 설명을 사용자가 보는 4단계로 단순화하면서 deterministic workflow와 AI 실행 책임을 패키지 단위로 분리하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check packages/importer packages/workflow packages/engine/package.json packages/engine/src/index.ts apps/web/package.json apps/web/next.config.ts scripts/run-draft-tables.ts AGENTS.md MASTER_PLAN.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/PROJECT_STRUCTURE.md docs/development/AGENT_MODULE_BOUNDARY.md packages/workflow/README.md packages/workflow/AGENTS.md packages/importer/README.md packages/importer/AGENTS.md`, `npx vitest run packages/importer/src/__tests__/prdd-parser.test.ts packages/importer/src/__tests__/register-prdd-screen.test.ts packages/importer/src/__tests__/prdd-record-builder.test.ts packages/importer/src/__tests__/prdd-pipeline.test.ts packages/workflow/src/__tests__/quality-report.test.ts packages/workflow/src/__tests__/promote-database-tables.test.ts packages/engine/src/__tests__/render-tree-projection.test.ts packages/engine/src/__tests__/renderer.test.tsx packages/engine/src/__tests__/schema-runtime.test.ts`
+
+## 2026-05-27 - Engine Boundary Split
+
+- 변경: `packages/renderer`를 `packages/engine` / `@cx/engine`으로 변경하고 public surface를 `client-import`, `renderer`, `materializer` 세 영역으로 정리함
+- 변경: PRDD markdown parser를 engine `client-import`로 이동하고, PRDD materializer/CRUD helper를 engine `materializer`로 분리함
+- 변경: RenderTree, client import parse result, PRDD runtime tree 타입을 `@cx/types`로 이동하고 agent는 compatibility re-export만 유지함
+- 이유: renderer 패키지가 projection/render/materialize/parser 책임을 함께 암시하던 상태를 engine 경계로 재정의하고, 타입 소유권을 `@cx/types`로 단일화하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/engine/src/__tests__/render-tree-projection.test.ts packages/engine/src/__tests__/renderer.test.tsx packages/engine/src/__tests__/schema-runtime.test.ts packages/workflow/src/__tests__/prdd-parser.test.ts packages/workflow/src/__tests__/prdd-pipeline.test.ts`
+- 후속: `NODE_TYPES`의 저장 계약과 render 구조 노드 상수 분리를 별도 라운드에서 진행
+
 ## 2026-05-27 - Remove Orphan Legacy Surfaces
 
 - 변경: legacy asset pipeline, design-review, deck builder, Agent SDK runtime adapter, component-pattern-store, ai-deck/component-pattern 타입, legacy web registry view와 관련 fixture 산출물을 제거함
@@ -362,7 +407,7 @@
 - 변경: Composition materializer가 preview 산출 시 `component-fallback`, `screen-region-default`, 구식 `patternId/patternVariant` 없이 pattern-store의 구체 pattern ref와 `minRendererVersion`을 쓰도록 정리함
 - 변경: preview script가 stale materialized 결과 대신 `PrddScreenRecord + CompositionOutput + DecoratedOutput`을 다시 materialize하고 smoke용 sample data를 props template에 주입하도록 보강함
 - 변경: workbench pattern-store loader가 `variants[]`를 읽도록 하고, `Badge`를 renderer kind 계약에 추가해 preview render tree fallback을 0으로 만듦
-- 이유: smoke 화면이 거의 비어 보이던 원인이 생성 의도 부족뿐 아니라 materialized table/renderer 계약 불일치였기 때문
+- 이유: smoke 화면이 거의 비어 보이던 원인이 생성 의도 부족뿐 아니라 materialized table/engine 계약 불일치였기 때문
 - 검증: `pnpm build:decks`, `pnpm tsx scripts/preview-pipeline-output.ts --overwrite`, `pnpm vitest run packages/agent/src/__tests__/materialize-composition.test.ts packages/renderer/src/__tests__/render-tree-projection.test.ts packages/renderer/src/__tests__/renderer.test.tsx packages/renderer/src/__tests__/component-catalog.test.ts`, `pnpm exec tsc --noEmit --pretty false`
 
 ## 2026-05-26 - Archetype Scaffold Contract

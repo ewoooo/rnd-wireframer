@@ -1,5 +1,4 @@
-import type { RenderTreeScreenNode } from "@cx/renderer";
-import { RenderTreeScreenRenderer } from "@cx/renderer";
+import { type RenderTreeScreenNode, RenderTreeScreenRenderer } from "@cx/engine";
 import { Layers3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

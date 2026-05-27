@@ -1,0 +1,619 @@
+{
+	"screenRoutes": [
+		{
+			"id": "NOVA-PRDD-PG-014-0-route",
+			"moduleId": "draft",
+			"name": "장바구니·주문 진입 연결",
+			"order": 1,
+			"processId": null
+		}
+	],
+	"screenVariants": [
+		{
+			"id": "NOVA-PRDD-PG-014-0-base",
+			"screenRouteId": "NOVA-PRDD-PG-014-0-route",
+			"name": "장바구니·주문 진입 연결",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		}
+	],
+	"screens": [
+		{
+			"id": "NOVA-PRDD-PG-014-0",
+			"screenVariantId": "NOVA-PRDD-PG-014-0-base",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "장바구니·주문 진입 연결",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": [
+							{
+								"kind": "component",
+								"id": "NOVA-PRDD-PG-014-0__a0-1"
+							}
+						]
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-014-0__area1"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-014-0__area2"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-014-0__area3"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": [
+							{
+								"kind": "component",
+								"id": "NOVA-PRDD-PG-014-0__a999-1"
+							}
+						]
+					}
+				}
+			}
+		}
+	],
+	"areas": [
+		{
+			"id": "NOVA-PRDD-PG-014-0__area1",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 1,
+			"metadata": {
+				"title": "담기 완료 후 행동 분기 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"props": {
+				"name": "담기 완료 후 행동 분기 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"priority": 2,
+				"errorPolicy": "기본값 표시",
+				"policyAnchors": [
+					"PI-PRDD-SAVE-001-02"
+				]
+			},
+			"pattern": {
+				"id": "area-vertical",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a1-1"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a1-2"
+				}
+			]
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__area2",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 2,
+			"metadata": {
+				"title": "상품 카탈로그 연동 조립 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"props": {
+				"name": "상품 카탈로그 연동 조립 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"priority": 1,
+				"errorPolicy": "영역 전체 숨김",
+				"policyAnchors": [
+					"PI-PRDD-CATALOG-001-01",
+					"PI-PRDD-CATALOG-001-03"
+				]
+			},
+			"pattern": {
+				"id": "product-hero-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a2-1"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a2-2"
+				}
+			]
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__area3",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 3,
+			"metadata": {
+				"title": "담기·바로결제·구독 CTA 구분 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"props": {
+				"name": "담기·바로결제·구독 CTA 구분 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"priority": 3,
+				"errorPolicy": "기본값 표시",
+				"policyAnchors": [
+					"PI-PRDD-SAVE-001-05"
+				]
+			},
+			"pattern": {
+				"id": "area-vertical",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a3-1"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a3-2"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a3-3"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-014-0__a3-4"
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"id": "NOVA-PRDD-PG-014-0__a0-1",
+			"type": "AppBar",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AppBarHeader",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-app-bar",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-013-0",
+						"texts": {
+							"title": "장바구니·주문 진입 연결"
+						},
+						"bindings": [
+							{
+								"raw": "- (static)"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a1-1",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ButtonContinueExplore",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"variant": "secondary",
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-010-0",
+						"texts": {
+							"label": "계속 탐색하기"
+						},
+						"bindings": [
+							{
+								"raw": "계속 탐색 전환값 (api:FN-PRDD-NEXT-001)",
+								"api": "FN-PRDD-NEXT-001"
+							},
+							{
+								"raw": "다음 행동 (policy:PI-PRDD-SAVE-001-02)",
+								"policy": "PI-PRDD-SAVE-001-02"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-02] 다음 행동"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a1-2",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ButtonCompareContinue",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"variant": "secondary",
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-009-0",
+						"texts": {
+							"label": "비교 계속하기"
+						},
+						"bindings": [
+							{
+								"raw": "계속 탐색 전환값 (api:FN-PRDD-NEXT-001)",
+								"api": "FN-PRDD-NEXT-001"
+							},
+							{
+								"raw": "다음 행동 (policy:PI-PRDD-SAVE-001-02)",
+								"policy": "PI-PRDD-SAVE-001-02"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-02] 다음 행동"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a2-1",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextProductInfo",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-list-text",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"texts": {
+							"title": "{상품정보항목} (예: 판매 상태)",
+							"subText": "{상품정보값} (예: 판매 가능)"
+						},
+						"bindings": [
+							{
+								"raw": "장바구니·주문 진입 구성 정보 (api:FN-PRDD-CATALOG-001)",
+								"api": "FN-PRDD-CATALOG-001"
+							},
+							{
+								"raw": "상품 I/F (policy:PI-PRDD-CATALOG-001-01)",
+								"policy": "PI-PRDD-CATALOG-001-01"
+							}
+						],
+						"notes": "[정책:PI-PRDD-CATALOG-001-01] 상품 I/F"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a2-2",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextProductRelation",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-list-text",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "dot",
+						"texts": {
+							"title": "{상품관계} (예: 동시 가입 가능 구성)"
+						},
+						"bindings": [
+							{
+								"raw": "상품 관계 판정 결과 (api:FN-PRDD-CATALOG-001)",
+								"api": "FN-PRDD-CATALOG-001"
+							},
+							{
+								"raw": "상품 관계 (policy:PI-PRDD-CATALOG-001-03)",
+								"policy": "PI-PRDD-CATALOG-001-03"
+							}
+						],
+						"notes": "[정책:PI-PRDD-CATALOG-001-03] 상품 관계"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a3-1",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextCtaTypeJudge",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-list-text",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"texts": {
+							"title": "진행 유형",
+							"subText": "{CTA유형} (예: 담기 / 바로 결제 / 구독)"
+						},
+						"bindings": [
+							{
+								"raw": "장바구니·주문 전환 대상 정보 (api:FN-PRDD-CTA-001)",
+								"api": "FN-PRDD-CTA-001"
+							},
+							{
+								"raw": "CTA 의미 구분 (policy:PI-PRDD-SAVE-001-05)",
+								"policy": "PI-PRDD-SAVE-001-05"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-05] CTA 의미 구분"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a3-2",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextNextStepGuide",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-list-text",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "dot",
+						"texts": {
+							"title": "{다음단계설명} (예: 장바구니에서 결제 준비를 이어갑니다)"
+						},
+						"bindings": [
+							{
+								"raw": "장바구니·주문 전환 대상 정보 (api:FN-PRDD-CTA-001)",
+								"api": "FN-PRDD-CTA-001"
+							},
+							{
+								"raw": "CTA 의미 구분 (policy:PI-PRDD-SAVE-001-05)",
+								"policy": "PI-PRDD-SAVE-001-05"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-05] CTA 의미 구분"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a3-3",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextProductTypeDistinguish",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-list-text",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "dot",
+						"texts": {
+							"title": "{상품유형} (예: 복합상품 — 요금제 포함 구성)"
+						},
+						"bindings": [
+							{
+								"raw": "상품 관계 (api:FN-PRDD-CATALOG-001)",
+								"api": "FN-PRDD-CATALOG-001"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a3-4",
+			"type": "Callout",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CalloutSubscriptionConvert",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-callout",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Callout"
+					},
+					"props": {
+						"texts": {
+							"title": "구독으로 진행됩니다",
+							"body": "구독하기는 장바구니 또는 신청 준비 단계로 이동하며 바로 결제와 구분됩니다."
+						},
+						"bindings": [
+							{
+								"raw": "구독 전환 (policy:PI-PRDD-SAVE-001-05)",
+								"policy": "PI-PRDD-SAVE-001-05"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-05] CTA 의미 구분"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-014-0__a999-1",
+			"type": "ActionButton",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ActionButton",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.325Z",
+				"updatedAt": "2026-05-27T04:21:07.325Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ActionButton"
+					},
+					"props": {
+						"variant": "default",
+						"event": "onClick<br>onClick",
+						"action": "apiCall<br>apiCall",
+						"actionParams": "-<br>-",
+						"texts": {
+							"main": "장바구니로 이동",
+							"secondary": "주문 신청하기"
+						},
+						"bindings": [
+							{
+								"raw": "장바구니·주문 진입 구성 정보 (api:FN-PRDD-CATALOG-001)",
+								"api": "FN-PRDD-CATALOG-001"
+							},
+							{
+								"raw": "재검증 (policy:PI-PRDD-SAVE-001-04)",
+								"policy": "PI-PRDD-SAVE-001-04"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SAVE-001-03] 주문 전환<br>[정책:PI-PRDD-SAVE-001-04] 재검증"
+					}
+				}
+			],
+			"hooks": []
+		}
+	],
+	"warnings": []
+}

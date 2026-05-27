@@ -1,0 +1,281 @@
+{
+	"screenRoutes": [
+		{
+			"id": "NOVA-PRDD-PG-003-0-route",
+			"moduleId": "draft",
+			"name": "혜택·가격·주의사항 확인",
+			"order": 1,
+			"processId": null
+		}
+	],
+	"screenVariants": [
+		{
+			"id": "NOVA-PRDD-PG-003-0-base",
+			"screenRouteId": "NOVA-PRDD-PG-003-0-route",
+			"name": "혜택·가격·주의사항 확인",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		}
+	],
+	"screens": [
+		{
+			"id": "NOVA-PRDD-PG-003-0",
+			"screenVariantId": "NOVA-PRDD-PG-003-0-base",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "혜택·가격·주의사항 확인",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": [
+							{
+								"kind": "component",
+								"id": "NOVA-PRDD-PG-003-0__a0-1"
+							}
+						]
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-003-0__area1"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-003-0__area2"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		}
+	],
+	"areas": [
+		{
+			"id": "NOVA-PRDD-PG-003-0__area1",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 1,
+			"metadata": {
+				"title": "혜택·가격·가치 산정 표시 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"props": {
+				"name": "혜택·가격·가치 산정 표시 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"maxCount": 1,
+				"priority": 1,
+				"errorPolicy": "오류 항목 미노출",
+				"policyAnchors": [
+					"PI-PRDD-PRICE-001-05"
+				]
+			},
+			"pattern": {
+				"id": "product-info-section",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-003-0__a1-1"
+				}
+			]
+		},
+		{
+			"id": "NOVA-PRDD-PG-003-0__area2",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 2,
+			"metadata": {
+				"title": "예상 부담·혜택 요약 계산 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"props": {
+				"name": "예상 부담·혜택 요약 계산 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"maxCount": 1,
+				"priority": 2,
+				"errorPolicy": "오류 항목 미노출",
+				"policyAnchors": [
+					"PI-PRDD-PRICE-001-03"
+				]
+			},
+			"pattern": {
+				"id": "benefit-brand-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-003-0__a2-1"
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"id": "NOVA-PRDD-PG-003-0__a0-1",
+			"type": "AppBar",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AppBarHeader",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"pattern": {
+				"id": "component-app-bar",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"variant": "WithBack",
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-002-0",
+						"texts": {
+							"title": "혜택·가격·주의사항 확인"
+						},
+						"bindings": [
+							{
+								"raw": "- (static)"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-003-0__a1-1",
+			"type": "Callout",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CalloutUsageFrequencyExample",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"pattern": {
+				"id": "component-callout",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Callout"
+					},
+					"props": {
+						"texts": {
+							"title": "이렇게 쓰면 더 이득이에요",
+							"body": "월 N회 사용 시 구독료 이상의 가치를 얻을 수 있어요. 적용·제외 조건을 함께 확인하세요."
+						},
+						"bindings": [
+							{
+								"raw": "할인·혜택 적용 결과 (api:FN-PRDD-BENEFIT-001)",
+								"api": "FN-PRDD-BENEFIT-001"
+							},
+							{
+								"raw": "실사용 빈도 예시 (policy:PI-PRDD-PRICE-001-05)",
+								"policy": "PI-PRDD-PRICE-001-05"
+							}
+						],
+						"notes": "[정책:PI-PRDD-PRICE-001-05] 실사용 빈도 가치 — 과장 없이 적용·제외 조건 함께 표시"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-003-0__a2-1",
+			"type": "AccordionPriceInfo",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AccordionPriceInfoSubsidy",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.243Z",
+				"updatedAt": "2026-05-27T04:21:07.243Z"
+			},
+			"pattern": {
+				"id": "composite-price-accordion-selected-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AccordionPriceInfo"
+					},
+					"props": {
+						"variant": "default",
+						"event": "onClick",
+						"action": "setState",
+						"actionParams": "subsidyDetailOpen",
+						"texts": {
+							"priceText": "예상 부담 {예상 부담액}",
+							"titleText": "공시지원금·선택약정 비교",
+							"slot": "{출고가} / {공시지원금} / {선택약정 할인 적용가}"
+						},
+						"bindings": [
+							{
+								"raw": "예상 부담액, 할인·혜택 적용 결과 (api:FN-PRDD-PRICE-001)",
+								"api": "FN-PRDD-PRICE-001"
+							},
+							{
+								"raw": "subsidyDetailOpen (state)",
+								"state": true,
+								"stateName": "subsidyDetailOpen"
+							}
+						],
+						"notes": "[정책:PI-PRDD-PRICE-001-03] 공시지원금 — 출고가·공시지원금·선택약정 할인가·약정 기간 비교 단위 제공"
+					}
+				}
+			],
+			"hooks": []
+		}
+	],
+	"warnings": []
+}

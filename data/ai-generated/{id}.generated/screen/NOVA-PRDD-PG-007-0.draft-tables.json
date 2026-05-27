@@ -1,0 +1,474 @@
+{
+	"schemaVersion": "draft-tables.v1",
+	"source": {
+		"importJobId": "draft-tables-PRDD-NOVA-PRDD-PG-007-0",
+		"sourceKind": "prdd",
+		"sourceId": "NOVA-PRDD-PG-007-0.md",
+		"generatedAt": "2026-05-27T04:21:07.289Z"
+	},
+	"tables": {
+		"screenRoutes": [
+			{
+				"id": "NOVA-PRDD-PG-007-0-route",
+				"moduleId": "draft",
+				"name": "옵션·구성 선택",
+				"order": 1,
+				"processId": null
+			}
+		],
+		"screenVariants": [
+			{
+				"id": "NOVA-PRDD-PG-007-0-base",
+				"screenRouteId": "NOVA-PRDD-PG-007-0-route",
+				"name": "옵션·구성 선택",
+				"order": 1,
+				"variantType": "base",
+				"followUp": null
+			}
+		],
+		"screens": [
+			{
+				"id": "NOVA-PRDD-PG-007-0",
+				"screenVariantId": "NOVA-PRDD-PG-007-0-base",
+				"minRendererVersion": "0.1.0",
+				"version": "1.0.0",
+				"order": 1,
+				"pattern": {
+					"id": "screen-shell",
+					"variant": "default"
+				},
+				"metadata": {
+					"title": "옵션·구성 선택",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"theme": {
+					"mode": "light"
+				},
+				"screen": {
+					"type": "screen.page",
+					"regions": {
+						"header": {
+							"type": "Screen.Header",
+							"metadata": {
+								"title": "고정 상단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-007-0__a0-1"
+								}
+							]
+						},
+						"contents": {
+							"type": "Screen.Contents",
+							"metadata": {
+								"title": "스크롤 콘텐츠 영역"
+							},
+							"children": [
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-007-0__area1"
+								},
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-007-0__area2"
+								}
+							]
+						},
+						"bottom": {
+							"type": "Screen.Bottom",
+							"metadata": {
+								"title": "고정 하단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-007-0__a999-1"
+								}
+							]
+						}
+					}
+				}
+			}
+		],
+		"areas": [
+			{
+				"id": "NOVA-PRDD-PG-007-0__area1",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 1,
+				"metadata": {
+					"title": "옵션·구성 선택 처리 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"props": {
+					"name": "옵션·구성 선택 처리 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 1,
+					"priority": 1,
+					"errorPolicy": "오류 항목 미노출",
+					"policyAnchors": [
+						"PI-PRDD-OPTION-001-01",
+						"PI-PRDD-OPTION-001-04",
+						"PI-PRDD-OPTION-001-02"
+					]
+				},
+				"pattern": {
+					"id": "product-option-grid",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-007-0__a1-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-007-0__a1-2"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-007-0__a1-3"
+					}
+				]
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__area2",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 2,
+				"metadata": {
+					"title": "상품 조합·프로그램 유효성 검증 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"props": {
+					"name": "상품 조합·프로그램 유효성 검증 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 0,
+					"priority": 2,
+					"errorPolicy": "영역 전체 숨김",
+					"policyAnchors": [
+						"PI-PRDD-COMBO-001-01",
+						"PI-PRDD-COMBO-001-02",
+						"PI-PRDD-COMBO-001-03",
+						"PI-PRDD-OPTION-001-03"
+					]
+				},
+				"pattern": {
+					"id": "product-hero-summary",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-007-0__a2-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-007-0__a2-2"
+					}
+				]
+			}
+		],
+		"components": [
+			{
+				"id": "NOVA-PRDD-PG-007-0__a0-1",
+				"type": "AppBar",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "AppBarHeader",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "component-app-bar",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "AppBar"
+						},
+						"props": {
+							"variant": "WithBack",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-006-0",
+							"texts": {
+								"title": "옵션·구성 선택"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a1-1",
+				"type": "TitleSection",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "TitleSectionOption",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "composite-option-list-stack",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "TitleSection"
+						},
+						"props": {
+							"variant": "Default",
+							"texts": {
+								"subtitle": "구성 선택",
+								"title": "색상·용량·약정 선택"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a1-2",
+				"type": "OptionList",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "OptionListColorVolume",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "component-option-card",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "OptionList"
+						},
+						"props": {
+							"variant": "Selected",
+							"event": "onChange",
+							"action": "setState",
+							"actionParams": "selectedOption",
+							"bindings": [
+								{
+									"raw": "선택 옵션 (api:FN-PRDD-OPTION-001)",
+									"api": "FN-PRDD-OPTION-001"
+								},
+								{
+									"raw": "옵션 선택 즉시 재산정 (policy:PI-PRDD-OPTION-001-01)",
+									"policy": "PI-PRDD-OPTION-001-01"
+								}
+							],
+							"notes": "[정책:PI-PRDD-OPTION-001-01] 옵션 선택<br>[정책:PI-PRDD-OPTION-001-04] 가격 반영"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a1-3",
+				"type": "ListSelected",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ListSelectedBenefitOption",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "component-option-card",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ListSelected"
+						},
+						"props": {
+							"variant": "checkbox",
+							"event": "onChange",
+							"action": "setState",
+							"actionParams": "selectedBenefit",
+							"texts": {
+								"CheckboxText": "{혜택명} (예: 데이터 더블 혜택)"
+							},
+							"bindings": [
+								{
+									"raw": "선택형 혜택 옵션 (api:FN-PRDD-OPTION-001)",
+									"api": "FN-PRDD-OPTION-001"
+								},
+								{
+									"raw": "혜택 선택 기준 (policy:PI-PRDD-OPTION-001-02)",
+									"policy": "PI-PRDD-OPTION-001-02"
+								},
+								{
+									"raw": "selectedBenefit (state)",
+									"state": true,
+									"stateName": "selectedBenefit"
+								}
+							],
+							"notes": "[정책:PI-PRDD-OPTION-001-02] 선택형 혜택"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a2-1",
+				"type": "Callout",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "CalloutComboValidation",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "component-action-button",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "Callout"
+						},
+						"props": {
+							"variant": "WithTitle",
+							"texts": {
+								"title": "담기 조건 확인",
+								"body": "{제한 사유} (예: 동시 주문 불가 조합)"
+							},
+							"bindings": [
+								{
+									"raw": "담기 가능 여부와 제한 사유 (api:FN-PRDD-COMBO-001)",
+									"api": "FN-PRDD-COMBO-001"
+								},
+								{
+									"raw": "중복가입 제한 사유 (policy:PI-PRDD-COMBO-001-02)",
+									"policy": "PI-PRDD-COMBO-001-02"
+								}
+							],
+							"notes": "[정책:PI-PRDD-COMBO-001-01] 동시 주문<br>[정책:PI-PRDD-COMBO-001-02] 중복가입 가능여부 확인<br>[정책:PI-PRDD-COMBO-001-03] 필수 구성"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a2-2",
+				"type": "ListSelected",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ListSelectedGroupProduct",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "composite-price-accordion-selected-list",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ListSelected"
+						},
+						"props": {
+							"variant": "checkbox",
+							"event": "onChange",
+							"action": "setState",
+							"actionParams": "selectedGroupProduct",
+							"texts": {
+								"CheckboxText": "{그룹 구성 상품명} (예: 결합 부가서비스)"
+							},
+							"bindings": [
+								{
+									"raw": "그룹 상품 구성 (api:FN-PRDD-COMBO-001)",
+									"api": "FN-PRDD-COMBO-001"
+								},
+								{
+									"raw": "필수·선택 구성 구분 (policy:PI-PRDD-OPTION-001-03)",
+									"policy": "PI-PRDD-OPTION-001-03"
+								},
+								{
+									"raw": "selectedGroupProduct (state)",
+									"state": true,
+									"stateName": "selectedGroupProduct"
+								}
+							],
+							"notes": "[정책:PI-PRDD-OPTION-001-03] 그룹 상품"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-007-0__a999-1",
+				"type": "ActionButton",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ActionButtonNext",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.290Z",
+					"updatedAt": "2026-05-27T04:21:07.290Z"
+				},
+				"pattern": {
+					"id": "component-action-button-with-tooltip",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ActionButton"
+						},
+						"props": {
+							"variant": "default",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-008-0",
+							"texts": {
+								"main": "다음 단계로"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							],
+							"notes": "[정책:PI-PRDD-COMBO-001-04] 담기 판정"
+						}
+					}
+				],
+				"hooks": []
+			}
+		],
+		"warnings": []
+	}
+}

@@ -19,7 +19,7 @@ npm run dev
 ## 구조
 
 - `apps/web` — Next.js 앱
-- `packages/{token,component,layout,renderer,agent}` — 파이프라인 단계별 패키지
+- `packages/{token,component,layout,engine,agent,types}` — 파이프라인 단계별 패키지
 - `database/` — source imports, AI import candidates, approved table dumps
 - `docs/` — 디자인, 개발, 데이터 mockup 문서
 

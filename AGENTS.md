@@ -20,61 +20,39 @@
 - Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
-- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약은 `packages/renderer/src/component-catalog.ts`의 `component-catalog`에서 관리하고 generation/review/editor가 이를 참조한다.
+- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약 타입과 실제 catalog 값은 `packages/component`의 `@cx/components/catalog`에서 관리한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
-- 공유 row/pattern 계약 타입은 `packages/types`의 `@cx/types` 패키지에서 관리한다.
-- layout pattern store의 JSON 원천과 조회 helper는 `packages/pattern-store`의 `@cx/pattern-store` 패키지에서 관리한다. pattern store 타입과 runtime schema의 SSOT는 `packages/types`의 `@cx/types`가 소유한다. `@cx/renderer`는 pattern-store 패키지를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다.
-- `sdui-renderer`의 schema, binding, registry, validation, table shape -> RenderTree projection, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
+- 재설계 기간에는 `@cx/agent`, `@cx/importer`, `@cx/types`, `@cx/workflow`, `@cx/pattern-store` 패키지를 운영하지 않는다.
+- `packages/engine`의 `@cx/engine` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
-- 원천 import는 `database/client-imports/`, AI import 후보 산출물은 `database/ai-imports/`, 승인된 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
-- `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
-- AI generation 산출물 계약은 `DraftTablesBundle -> QualityReport -> QualityBacklog -> Preview -> Promote` 순서로 본다. 후보는 `database/ai-imports/` 또는 API 응답에 머물고, 승인된 후보만 `database/tables`로 반영한다.
+- 재설계 mock schema는 `docs/development/mock-schemas/generation-v2/` 아래에 두고, 런타임 데이터와 섞지 않는다.
+- 기존 `database/client-imports`, `database/ai-imports`, `database/tables` 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
-## 3. RenderTree Projection 책임 분리
+## 3. 재설계 기준
 
-첨부 screen/area 명세 또는 DB read model을 `database/tables` shape와 `@cx/renderer` RenderTree 입력 DTO로 바꿀 때는 단계별 산출물과 deterministic code의 책임을 분리한다.
-
-기본 흐름은 아래 순서를 따른다.
+현재 생성 과정은 재설계 중이며, 기존 table 후보 생성/검수/반영 패키지 경계는 제거된 상태다.
 
 ```text
-원천 markdown 또는 read model
--> Register: 파서/계약 테이블이 source record와 invariant report를 만든다
--> Draft Tables: database/tables shape의 승인 전 후보를 만든다
--> Quality Report: renderer validation issue를 품질 카테고리로 접는다
--> Quality Backlog: 반복되는 component/pattern/catalog gap을 보강 후보로 묶는다
--> Preview: draft tables를 renderer projection으로 확인한다
--> Promote: 승인된 후보만 database/tables에 반영한다
--> @cx/renderer: tablesToRenderTree projection과 validation 후 React render한다
+mock schema
+-> 새 생성 과정 설계
+-> RenderTree JSON
+-> @cx/engine React render
 ```
 
-AI가 판단·보강하는 영역:
+운영 기준:
 
-- Register 입력이 불완전할 때 누락된 설명, 이름, raw 셀 해석 후보를 제안
-- Draft Tables 후보 생성에서 component props 기본값, hooks 후보, data binding path 후보를 보강
-- Quality Report/Backlog 근거로 pattern 선택 보정, CTA 승격, display 상태 보정, 새 component/composite/pattern 보강 후보를 제안
-- “약관 목록 조회” 같은 설명을 component `title`/`description`/`label` 후보로 풀기
-
-코드가 deterministic하게 처리해야 하는 영역:
-
-- `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성
-- PRDD 영역 번호 기반 slot 분류: `0`은 header, `999` 이상은 bottom, 그 외는 contents area
-- source area/component 순서와 sourceRef 유지
-- area id, component id, route/variant/screen id, `metadata.title`, version, schema version 생성
-- `@cx/pattern-store`의 pattern id/variant 존재 검증과 fallback report 생성
-- `@cx/renderer`의 `tablesToRenderTree` projection과 validation 실행
-- component registry 존재 확인
-- 누락 참조와 품질 backlog 생성
-
-의미 추론 단계는 AI가 책임지고 코드는 데이터(catalog)와 게이트(validator)를 둔다. parser(Register), draft table 생성, promote만 결정론이 1급으로 남는다.
-
-AI가 RenderTree 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. 최종 후보 산출물은 `database/tables` shape와 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
+- `@cx/engine`은 RenderTree JSON을 React로 렌더링하는 책임만 가진다.
+- table projection, schema validation, PRDD parser, workflow orchestration, AI runner 책임은 현재 활성 패키지에 두지 않는다.
+- 재설계 예시 schema는 `docs/development/mock-schemas/generation-v2/`에서 단계별로 관리한다.
+- 새 생성 과정이 확정되기 전까지 old pipeline 호환 layer를 다시 만들지 않는다.
+- workbench의 local table projection은 재설계 기간의 앱 내부 임시 adapter로만 취급한다.
 
 ## 4. 디자인 패턴 문서
 

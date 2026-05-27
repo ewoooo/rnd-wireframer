@@ -1,0 +1,45 @@
+{
+	"schemaVersion": "quality-report.v1",
+	"ok": true,
+	"generatedAt": "2026-05-27T04:21:07.298Z",
+	"sourceId": "NOVA-PRDD-PG-009-0.md",
+	"summary": {
+		"errorCount": 0,
+		"warningCount": 1,
+		"infoCount": 0,
+		"categories": {
+			"vocabulary": 1
+		},
+		"owners": {
+			"catalog": 1
+		}
+	},
+	"issues": [
+		{
+			"id": "quality-001",
+			"category": "vocabulary",
+			"severity": "warning",
+			"message": "NOVA-PRDD-PG-009-0: render tree: Missing renderer mapping for node types: ProductInfoHorizontal",
+			"owner": "catalog",
+			"originalCodes": [
+				"node-type.unknown"
+			],
+			"validationIssues": [
+				{
+					"code": "node-type.unknown",
+					"severity": "warning",
+					"layer": "node-type",
+					"message": "NOVA-PRDD-PG-009-0: render tree: Missing renderer mapping for node types: ProductInfoHorizontal",
+					"data": {
+						"types": [
+							"ProductInfoHorizontal"
+						]
+					}
+				}
+			]
+		}
+	],
+	"nextActions": [
+		"Check component or pattern catalog vocabulary gaps."
+	]
+}

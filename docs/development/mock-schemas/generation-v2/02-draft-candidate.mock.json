@@ -1,0 +1,107 @@
+{
+	"schemaVersion": "generation-v2.draft-candidate.mock.v1",
+	"candidateId": "draft-NOVA-PRDD-PG-001-0-base-001",
+	"contextId": "ctx-PRDD-2026-05-sample-NOVA-PRDD-PG-001-0",
+	"status": "candidate",
+	"tables": {
+		"screenRoutes": [
+			{
+				"id": "prd-product-detail",
+				"moduleId": "prd",
+				"name": "상품 상세",
+				"order": 1,
+				"processId": "product-join",
+				"sourceRef": {
+					"sourceId": "source-screen-NOVA-PRDD-PG-001-0"
+				}
+			}
+		],
+		"screenVariants": [
+			{
+				"id": "prd-product-detail-base",
+				"screenRouteId": "prd-product-detail",
+				"name": "기본",
+				"order": 1,
+				"variantType": "base",
+				"sourceRef": {
+					"sourceId": "source-screen-NOVA-PRDD-PG-001-0"
+				}
+			}
+		],
+		"screens": [
+			{
+				"id": "screen-prd-product-detail-base",
+				"screenVariantId": "prd-product-detail-base",
+				"pattern": {
+					"id": "product-detail-page",
+					"variant": "default"
+				},
+				"regions": {
+					"header": [{ "kind": "component", "id": "component-product-appbar" }],
+					"contents": [{ "kind": "area", "id": "area-product-summary" }],
+					"bottom": [{ "kind": "area", "id": "area-product-cta" }]
+				}
+			}
+		],
+		"areas": [
+			{
+				"id": "area-product-summary",
+				"type": "area.static",
+				"pattern": {
+					"id": "summary-card-stack",
+					"variant": "default"
+				},
+				"children": [{ "kind": "component", "id": "component-product-summary" }],
+				"sourceRef": {
+					"sourceAreaNo": 10
+				}
+			},
+			{
+				"id": "area-product-cta",
+				"type": "area.static",
+				"pattern": {
+					"id": "bottom-action-area",
+					"variant": "default"
+				},
+				"children": [{ "kind": "component", "id": "component-product-join-button" }],
+				"sourceRef": {
+					"sourceAreaNo": 999
+				}
+			}
+		],
+		"components": [
+			{
+				"id": "component-product-appbar",
+				"type": "AppBar",
+				"props": {
+					"title": "상품 상세",
+					"showBackButton": true
+				}
+			},
+			{
+				"id": "component-product-summary",
+				"type": "CardSummary",
+				"props": {
+					"title": "iPhone 16 Pro",
+					"subtitle": "Apple / 스마트폰 / 월 50,000원",
+					"badge": "가입가능"
+				},
+				"sourceRef": {
+					"sourceComponentId": "CardSummary"
+				}
+			},
+			{
+				"id": "component-product-join-button",
+				"type": "ActionButton",
+				"props": {
+					"label": "가입하기",
+					"variant": "primary",
+					"disabled": false
+				},
+				"sourceRef": {
+					"sourceComponentId": "ActionButton"
+				}
+			}
+		]
+	}
+}

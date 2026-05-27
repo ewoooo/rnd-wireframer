@@ -15,7 +15,7 @@ User
 Next.js
   |
   v
-@cx/agent / @cx/renderer
+@cx/workflow / @cx/engine / @cx/agent
   |
   v
 @cx/layout / @cx/components / @cx/tokens
@@ -38,13 +38,15 @@ FastAPI
 
 | 레이어 | 책임 |
 |---|---|
-| Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/renderer` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
+| Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/engine` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
 | `@cx/types` | `database/tables` row shape, pattern-store 계약처럼 여러 패키지가 공유하는 타입 전용 패키지 |
 | `@cx/tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
 | `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
 | `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive |
-| `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, `tablesToRenderTree` projection, React 렌더링 패키지 |
-| `@cx/agent` | screen/area/component read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
+| `@cx/importer` | PRDD markdown parser, register, compose/decorate, table 후보 materializer |
+| `@cx/workflow` | 명세, 품질 검수, 미리보기, 반영의 deterministic orchestration |
+| `@cx/engine` | RenderTree schema, binding, registry, validation, `tablesToRenderTree` projection, React 렌더링 패키지 |
+| `@cx/agent` | Claude/Codex/Agent SDK 기반 AI 실행, local-first runner, 원격 fallback |
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
 | FastAPI | 후속 JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | 후속 Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
@@ -83,7 +85,11 @@ packages/
   token/
   component/
   layout/
-  renderer/
+  engine/
+    render/
+  types/
+  importer/
+  workflow/
   agent/
 services/
   api/
@@ -98,9 +104,9 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/pattern-store`는 screen/region/area/composite layout pattern JSON과 조회 helper를 소유한 `@cx/pattern-store` 패키지다. Pattern store 타입과 runtime schema는 `packages/types`의 `@cx/types`가 SSOT로 관리한다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 `database/tables` shape를 RenderTree DTO로 projection하고, render node type과 props를 해석해 `@cx/layout` chrome/primitive와 `@cx/components` leaf component로 렌더링한다. Renderer는 `@cx/pattern-store`를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다. `packages/renderer/src/component-catalog.ts`는 generation/AI/editor가 공유하는 component prop, variant, AI writable surface 계약 레지스트리다. `packages/renderer/src/renderer-kind-contract.ts`는 render node type을 renderer kind로 연결하는 계약 테이블이다. `packages/agent`는 deterministic DraftTables pipeline을 담당한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome과 primitive를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. `packages/pattern-store`는 screen/region/area/composite layout pattern JSON과 조회 helper를 소유한 `@cx/pattern-store` 패키지다. Pattern store 타입과 runtime schema는 `packages/types`의 `@cx/types`가 SSOT로 관리한다. `packages/types`는 client import parse result, PRDD runtime tree, database table row, RenderTree, pattern-store, validation 타입의 단일 소유자다. `packages/importer`는 `@cx/importer` 패키지로 운영하며 PRDD parser/register/compose/decorate/materializer를 소유한다. `packages/workflow`는 importer, engine validation, quality report, apply 경계를 조합해 `명세 -> 품질 검수 -> 미리보기 -> 반영`을 오케스트레이션한다. `packages/engine`는 `@cx/engine` 패키지로 운영하며 RenderTree projection, validation, React render만 소유한다. Engine renderer는 `@cx/pattern-store`를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다. Component catalog 값은 `@cx/components/catalog`, catalog 계약 타입은 `@cx/types`가 소유한다. `packages/agent`는 AI 실행 adapter만 담당한다.
 
-`packages/agent/src`는 `register`, `pipeline`, `validate`, `database`, `compose`, `decorate`, `pattern` 책임으로 나눈다. 외부 subpath import는 `package.json` `exports`에서 유지하고, 내부 구현 위치는 책임 디렉토리 기준으로 관리한다. 기본 active 계약은 `source -> DraftTables -> QualityReport -> QualityBacklog -> Preview -> Promote`다. 기존 asset tree pipeline, design-review, deck builder, Agent SDK runtime adapter는 제거했다.
+제품 비즈니스 흐름은 `명세 -> 품질 검수 -> 미리보기 -> 반영`이다. `packages/importer` 외부 subpath는 `@cx/importer/prdd`, `@cx/importer/materializer`, `@cx/importer/types`만 공개한다. `packages/workflow` 외부 subpath는 `@cx/workflow/spec`, `@cx/workflow/inspection`, `@cx/workflow/apply`를 우선 사용한다. `DraftTablesBundle`, `QualityReport`, `QualityBacklog`, `Promote`는 공개 설명용 단계가 아니라 내부 산출물/함수 이름이다. 기존 asset tree pipeline, design-review, deck builder는 제거했다. `packages/agent`에는 Agent SDK runtime, Claude/Codex runner, local-first/API fallback만 둔다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
@@ -135,15 +141,15 @@ apps/web/
 
 `apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/`, `server/` 책임 디렉토리로 나눈다. `src/app/api/**/route.ts`는 HTTP request/response glue만 담당하고, 파일 시스템 접근과 Agent SDK/Claude orchestration은 `src/server/**`에 둔다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
 
-Pattern은 앱 소비 데이터가 아니라 `@cx/pattern-store`의 reference store로 운영한다. Pattern store는 screen/region/area/composite의 flow, spacing, child ordering 같은 레이아웃 레시피를 소유한다. `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 주입받은 `PatternStore`를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/renderer` 입력 DTO로만 취급한다.
+Pattern은 앱 소비 데이터가 아니라 `@cx/pattern-store`의 reference store로 운영한다. Pattern store는 screen/region/area/composite의 flow, spacing, child ordering 같은 레이아웃 레시피를 소유한다. `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/engine`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 주입받은 `PatternStore`를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/engine` 입력 DTO로만 취급한다.
 
 ComponentPattern과 layout pattern은 서로 다른 층이다. ComponentPattern은 의미 block을 재사용 UI 조합으로 표현하는 계약이며, layout pattern은 screen/region/area/composite children을 배치하는 레시피다. 새 화면 품질을 높일 때 이 둘을 같은 JSON이나 같은 `type` 문자열로 합치지 않는다.
 
-디자인 품질 보강은 active 경로의 QualityReport/QualityBacklog 결과를 근거로 수행한다. AI 보강이 필요한 경우에도 자유로운 RenderTree 생성은 금지하고, `database/tables` shape와 renderer projection/validation을 통과하는 후보만 promote한다.
+디자인 품질 보강은 품질 검수 단계의 `QualityReport`/`QualityBacklog` 결과를 근거로 수행한다. AI 보강이 필요한 경우에도 자유로운 RenderTree 생성은 금지하고, `database/tables` shape와 renderer projection/validation을 통과하는 후보만 반영한다.
 
 앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 
-1. 렌더된 스크린 화면: `@cx/renderer`가 `database/tables` shape를 RenderTree로 projection하고 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Area`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
+1. 렌더된 스크린 화면: `@cx/engine`가 `database/tables` shape를 RenderTree로 projection하고 검증한 뒤 `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Area`, component node를 실제 모바일 프리뷰로 렌더링한다. StatusBar/SystemHeader는 생성 데이터가 아니라 `@cx/layout`의 `AppScreen` chrome에서 항상 제공한다.
 2. 다른 screen 및 OGN 조회: 현재 화면을 유지한 채 다른 generated screen, screen source, area source, generated area을 탐색하거나 선택할 수 있는 목록/검색/탭 영역을 제공한다.
 3. 렌더된 스크린 화면과 관련된 screen/OGN 정보: 현재 렌더 화면의 source screen, generated screen, 연결 OGN, OGN 상태, component 구성, 정책/기능 참조, 검증 경고를 함께 보여준다.
 
@@ -178,7 +184,7 @@ ComponentPattern과 layout pattern은 서로 다른 층이다. ComponentPattern�
 
 ## 8. 생성 계약
 
-Claude는 HTML이 아니라 `database/tables` shape의 table 후보 JSON을 반환해야 한다. RenderTree는 저장하지 않고 `@cx/renderer`의 `tablesToRenderTree`가 프리뷰 직전에 생성한다.
+Claude는 HTML이 아니라 `database/tables` shape의 table 후보 JSON을 반환해야 한다. RenderTree는 저장하지 않고 `@cx/engine`의 `tablesToRenderTree`가 프리뷰 직전에 생성한다.
 
 생성 결과는 `generated_screen_sets`를 묶음 단위로 하고, 실제 화면은 `generated_screens`의 개별 row로 저장한다. 화면 안의 OGN 섹션과 하위 component JSON은 `generated_areas`에 저장한다.
 
@@ -188,7 +194,7 @@ Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키�
 
 Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로컬 실행을 우선 사용하되, 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다. Codex 검수는 로컬 CLI 또는 로컬 런타임 실행기를 우선 사용한다. 로컬 실행이 없거나 실패하면 원격 API로 fallback한다.
 
-현재 render tree 입력 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. 이 스키마는 저장 포맷이 아니라 `database/tables`를 렌더러에 넘기기 위해 펼친 입력 DTO다. FastAPI 구현이 붙으면 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
+현재 render tree 입력 스키마의 구현 기준은 `packages/engine`의 TypeScript 타입과 Zod validation이다. 이 스키마는 저장 포맷이 아니라 `database/tables`를 렌더러에 넘기기 위해 펼친 입력 DTO다. FastAPI 구현이 붙으면 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
 
 생성 JSON의 `component.type`, `pattern.id`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/tokens`, `@cx/pattern-store`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 

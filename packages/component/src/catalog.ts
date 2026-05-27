@@ -2,8 +2,20 @@ import type {
 	ComponentCatalog,
 	ComponentCatalogEntry,
 	ComponentPropContract,
-} from "@cx/types/component-catalog";
-import { isTokenRole } from "@cx/types/tokens";
+} from "./catalog-types";
+import { isTokenRole } from "./catalog-types";
+
+export type {
+	ComponentCatalog,
+	ComponentCatalogEntry,
+	ComponentCatalogSource,
+	ComponentPropContract,
+	ComponentPropRole,
+	ComponentPropType,
+	RenderTreeNodeKind,
+	TokenRole,
+	TokenSlot,
+} from "./catalog-types";
 export const componentCatalog = {
 	"Layout.Flex": {
 		type: "Layout.Flex",

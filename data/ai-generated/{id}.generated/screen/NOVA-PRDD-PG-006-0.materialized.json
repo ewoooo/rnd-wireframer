@@ -1,0 +1,630 @@
+{
+	"screenRoutes": [
+		{
+			"id": "NOVA-PRDD-PG-006-0-route",
+			"moduleId": "draft",
+			"name": "추천·AI 요약 근거 검토",
+			"order": 1,
+			"processId": null
+		}
+	],
+	"screenVariants": [
+		{
+			"id": "NOVA-PRDD-PG-006-0-base",
+			"screenRouteId": "NOVA-PRDD-PG-006-0-route",
+			"name": "추천·AI 요약 근거 검토",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		}
+	],
+	"screens": [
+		{
+			"id": "NOVA-PRDD-PG-006-0",
+			"screenVariantId": "NOVA-PRDD-PG-006-0-base",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "추천·AI 요약 근거 검토",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": [
+							{
+								"kind": "component",
+								"id": "NOVA-PRDD-PG-006-0__a0-1"
+							}
+						]
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-006-0__area1"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-006-0__area2"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		}
+	],
+	"areas": [
+		{
+			"id": "NOVA-PRDD-PG-006-0__area1",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 1,
+			"metadata": {
+				"title": "AI 요약·추천·atomic view 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"props": {
+				"name": "AI 요약·추천·atomic view 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 1,
+				"priority": 1,
+				"errorPolicy": "오류 항목 미노출",
+				"policyAnchors": [
+					"PI-PRDD-COMPARE-001-02",
+					"PI-PRDD-COMPARE-001-03",
+					"PI-PRDD-COMPARE-001-04",
+					"PI-PRDD-COMPARE-001-05"
+				]
+			},
+			"pattern": {
+				"id": "product-hero-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a1-1"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a1-2"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a1-3"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a1-4"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a1-5"
+				}
+			]
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__area2",
+			"type": "area.dynamic",
+			"version": "1.0.0",
+			"key": 2,
+			"metadata": {
+				"title": "상품 리뷰·평점·Q&A 제공 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"props": {
+				"name": "상품 리뷰·평점·Q&A 제공 영역",
+				"layout": "vertical",
+				"areaType": "dynamic",
+				"visibility": "항상",
+				"minCount": 0,
+				"priority": 2,
+				"errorPolicy": "오류 항목 미노출",
+				"policyAnchors": [
+					"PI-PRDD-REVIEW-001-01",
+					"PI-PRDD-SUMMARY-001-04",
+					"PI-PRDD-REVIEW-001-04"
+				]
+			},
+			"pattern": {
+				"id": "product-hero-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a2-1"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a2-2"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a2-3"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a2-4"
+				},
+				{
+					"kind": "component",
+					"id": "NOVA-PRDD-PG-006-0__a2-5"
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"id": "NOVA-PRDD-PG-006-0__a0-1",
+			"type": "AppBar",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AppBarHeader",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-app-bar",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"variant": "WithBack",
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-005-0",
+						"texts": {
+							"title": "추천·AI 요약 근거 검토"
+						},
+						"bindings": [
+							{
+								"raw": "- (static)"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a1-1",
+			"type": "TitleSection",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "TitleSectionAiSummary",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-card-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "TitleSection"
+					},
+					"props": {
+						"variant": "Default",
+						"texts": {
+							"title": "AI 요약·추천"
+						},
+						"bindings": [
+							{
+								"raw": "- (static)"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a1-2",
+			"type": "Callout",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CalloutAiSummary",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-card-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Callout"
+					},
+					"props": {
+						"variant": "WithTitle",
+						"texts": {
+							"title": "AI 핵심 요약",
+							"body": "{AI 요약 문구} — 생성 기준·반영 시점·원문 이동 경로를 함께 표시합니다"
+						},
+						"bindings": [
+							{
+								"raw": "고객용 상품 요약 (api:FN-PRDD-AI-001)",
+								"api": "FN-PRDD-AI-001"
+							},
+							{
+								"raw": "AI 요약 생성 기준 (policy:PI-PRDD-COMPARE-001-02)",
+								"policy": "PI-PRDD-COMPARE-001-02"
+							}
+						],
+						"notes": "[정책:PI-PRDD-COMPARE-001-02] AI 요약"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a1-3",
+			"type": "InfoTextList",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "InfoTextListRecommendBasis",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-info-text-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "InfoTextList"
+					},
+					"props": {
+						"variant": "Default",
+						"texts": {
+							"title": "{추천 근거 항목} (예: 월 예상 부담)",
+							"category": "추천 기준"
+						},
+						"bindings": [
+							{
+								"raw": "상품군별 필수 정보 표시 여부 (api:FN-PRDD-AI-001)",
+								"api": "FN-PRDD-AI-001"
+							},
+							{
+								"raw": "추천 사용 기준 (policy:PI-PRDD-COMPARE-001-03)",
+								"policy": "PI-PRDD-COMPARE-001-03"
+							}
+						],
+						"notes": "[정책:PI-PRDD-COMPARE-001-03] 추천 근거"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a1-4",
+			"type": "CardText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CardTextReviewSummary",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-card-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardText"
+					},
+					"props": {
+						"variant": "Default",
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-006-2",
+						"texts": {
+							"title": "후기 AI 요약",
+							"body": "{후기 요약 문구} — 장점과 단점을 균형 있게 제공하며 원문으로 이동할 수 있습니다"
+						},
+						"bindings": [
+							{
+								"raw": "고객용 상품 요약 (api:FN-PRDD-AI-001)",
+								"api": "FN-PRDD-AI-001"
+							},
+							{
+								"raw": "후기 요약 균형 기준 (policy:PI-PRDD-COMPARE-001-04)",
+								"policy": "PI-PRDD-COMPARE-001-04"
+							}
+						],
+						"notes": "[정책:PI-PRDD-COMPARE-001-04] 후기 요약"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a1-5",
+			"type": "ListProductRow",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListProductRowSimilarCompare",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListProductRow"
+					},
+					"props": {
+						"event": "onClick",
+						"action": "navigate",
+						"actionParams": "NOVA-PRDD-PG-005-0",
+						"bindings": [
+							{
+								"raw": "상품 상세 조회와 비교 전환 이력 (api:FN-PRDD-AI-001)",
+								"api": "FN-PRDD-AI-001"
+							},
+							{
+								"raw": "atomic view 재조립 기준 (policy:PI-PRDD-COMPARE-001-05)",
+								"policy": "PI-PRDD-COMPARE-001-05"
+							}
+						],
+						"notes": "[정책:PI-PRDD-COMPARE-001-05] atomic view"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a2-1",
+			"type": "TitleSection",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "TitleSectionReview",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-title-section",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "TitleSection"
+					},
+					"props": {
+						"variant": "Default",
+						"texts": {
+							"title": "리뷰·평점·Q&A"
+						},
+						"bindings": [
+							{
+								"raw": "- (static)"
+							}
+						]
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a2-2",
+			"type": "InfoTextList",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "InfoTextListReview",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-info-text-list",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "InfoTextList"
+					},
+					"props": {
+						"variant": "WithBadge",
+						"texts": {
+							"title": "{후기 작성자} (예: 익명 고객)",
+							"category": "{작성일} (예: 2026-05-10)",
+							"badge": "{답변·신고 상태} (예: 답변완료)"
+						},
+						"bindings": [
+							{
+								"raw": "상품 상세 조회와 비교·담기 전환 이력 (api:FN-PRDD-REVIEW-001)",
+								"api": "FN-PRDD-REVIEW-001"
+							},
+							{
+								"raw": "고객 표시 표준 컬럼 (policy:PI-PRDD-REVIEW-001-01)",
+								"policy": "PI-PRDD-REVIEW-001-01"
+							}
+						],
+						"notes": "[정책:PI-PRDD-REVIEW-001-01] 공통 컬럼"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a2-3",
+			"type": "CardSummary",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CardSummaryRating",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-card-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardSummary"
+					},
+					"props": {
+						"variant": "text",
+						"texts": {
+							"title": "평점 요약",
+							"subText": "{평균 평점} (예: 4.5 / 5.0)"
+						},
+						"bindings": [
+							{
+								"raw": "상품군별 필수 정보 표시 여부 (api:FN-PRDD-REVIEW-001)",
+								"api": "FN-PRDD-REVIEW-001"
+							},
+							{
+								"raw": "평점 표시 기준 (policy:PI-PRDD-REVIEW-001-01)",
+								"policy": "PI-PRDD-REVIEW-001-01"
+							}
+						],
+						"notes": "[정책:PI-PRDD-REVIEW-001-01] 공통 컬럼"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a2-4",
+			"type": "Chip",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ChipQnaFilter",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-chip-filter",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Chip"
+					},
+					"props": {
+						"event": "onClick",
+						"action": "setState",
+						"actionParams": "selectedQnaFilter",
+						"texts": {
+							"label": "{필터 유형} (예: 최신순)"
+						},
+						"bindings": [
+							{
+								"raw": "selectedQnaFilter (state)",
+								"state": true,
+								"stateName": "selectedQnaFilter"
+							},
+							{
+								"raw": "최신순·도움순·유형별 필터 (policy:PI-PRDD-SUMMARY-001-04)",
+								"policy": "PI-PRDD-SUMMARY-001-04"
+							}
+						],
+						"notes": "[정책:PI-PRDD-SUMMARY-001-04] 상품 리뷰·평점·Q&A"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "NOVA-PRDD-PG-006-0__a2-5",
+			"type": "Callout",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CalloutFilterRelaxGuide",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-27T04:21:07.281Z",
+				"updatedAt": "2026-05-27T04:21:07.281Z"
+			},
+			"pattern": {
+				"id": "component-chip-filter",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Callout"
+					},
+					"props": {
+						"variant": "WithTitle",
+						"texts": {
+							"title": "조건에 맞는 후기가 없습니다",
+							"body": "조건 완화, 전체 후기 보기, 후기 작성 가능 여부 중 하나 이상을 안내합니다."
+						},
+						"bindings": [
+							{
+								"raw": "미노출·대체 안내 사유 (api:FN-PRDD-REVIEW-001)",
+								"api": "FN-PRDD-REVIEW-001"
+							},
+							{
+								"raw": "결과 없음 안내 기준 (policy:PI-PRDD-REVIEW-001-04)",
+								"policy": "PI-PRDD-REVIEW-001-04"
+							}
+						],
+						"notes": "[정책:PI-PRDD-REVIEW-001-04] 결과 없음"
+					}
+				}
+			],
+			"hooks": []
+		}
+	],
+	"warnings": []
+}

@@ -1,34 +1,100 @@
 "use client";
 
-import { useEffect } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { loadLocalWorkbenchData } from "@/data/local-workbench-data-loader";
-import { useWorkbenchStore } from "@/model/store";
-import { Canvas } from "./layout/Canvas";
-import { InspectionPanel } from "./layout/InspectionPanel";
-import { NavigationPanel } from "./layout/NavigationPanel";
+import type { RenderTreeScreenNode } from "@cx/engine";
+import { RenderedScreen } from "./screen/RenderedScreen";
 
-const localWorkbenchData = loadLocalWorkbenchData();
+const previewScreen: RenderTreeScreenNode = {
+	type: "Screen",
+	componentVersion: "0.1.0",
+	metadata: {
+		id: "redesign-preview",
+		title: "Redesign Preview",
+	},
+	children: [
+		{
+			type: "Screen.Header",
+			componentVersion: "0.1.0",
+			metadata: {
+				id: "redesign-preview-header",
+				title: "Header",
+			},
+			props: {
+				position: "static",
+				layout: {
+					direction: "column",
+				},
+			},
+			children: [
+				{
+					type: "AppBar",
+					componentVersion: "1.0.0",
+					metadata: {
+						id: "redesign-preview-appbar",
+						title: "생성 과정 재설계",
+					},
+					props: {
+						title: "생성 과정 재설계",
+						showBack: false,
+						showLogo: false,
+					},
+				},
+			],
+		},
+		{
+			type: "Screen.Contents",
+			componentVersion: "0.1.0",
+			metadata: {
+				id: "redesign-preview-contents",
+				title: "Contents",
+			},
+			props: {
+				layout: {
+					direction: "column",
+					gap: 16,
+					paddingX: 20,
+					paddingY: 24,
+				},
+				scroll: true,
+			},
+			children: [
+				{
+					type: "Callout",
+					componentVersion: "1.0.0",
+					metadata: {
+						id: "redesign-preview-callout",
+						title: "앱은 소비만 합니다",
+						description: "생성, 검수, 저장, API 책임은 앱 밖에서 다시 설계합니다.",
+					},
+					props: {
+						title: "앱은 소비만 합니다",
+						children: "생성, 검수, 저장, API 책임은 앱 밖에서 다시 설계합니다.",
+					},
+				},
+			],
+		},
+		{
+			type: "Screen.Bottom",
+			componentVersion: "0.1.0",
+			metadata: {
+				id: "redesign-preview-bottom",
+				title: "Bottom",
+			},
+			props: {
+				position: "static",
+				layout: {
+					direction: "column",
+				},
+				safeArea: true,
+			},
+			children: [],
+		},
+	],
+};
 
 export function App() {
-	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
-
-	useEffect(() => {
-		initializeWorkbench({
-			areas: localWorkbenchData.areas,
-			components: localWorkbenchData.components,
-			renderTrees: localWorkbenchData.renderTrees,
-			screens: localWorkbenchData.screens,
-		});
-	}, [initializeWorkbench]);
-
 	return (
-		<SidebarProvider className="overflow-hidden">
-			<div className="grid h-svh min-w-0 flex-1 grid-cols-[clamp(280px,18.5vw,380px)_minmax(0,1fr)_clamp(280px,17.5vw,360px)] overflow-hidden">
-				<NavigationPanel />
-				<Canvas />
-				<InspectionPanel />
-			</div>
-		</SidebarProvider>
+		<main className="flex min-h-svh items-center justify-center bg-secondary/50 p-6">
+			<RenderedScreen node={previewScreen} />
+		</main>
 	);
 }

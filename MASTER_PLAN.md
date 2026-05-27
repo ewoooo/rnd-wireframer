@@ -24,9 +24,9 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터다. 공급 reference catalog인 layout pattern store는 `@cx/pattern-store` 패키지가 소유한다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
 
-현재 구현은 DB/API보다 로컬 렌더러 수직 슬라이스가 먼저 만들어진 상태다. 따라서 단기 제품 목표는 `database/tables -> @cx/renderer tablesToRenderTree -> RenderTree -> @cx/renderer React render -> @cx/layout/@cx/components -> apps/web` 흐름을 안정화하는 것이다. DB 적재, Agent SDK, Puck 편집은 이 수직 슬라이스가 흔들리지 않는 상태에서 단계적으로 연결한다.
+현재 구현은 DB/API보다 로컬 렌더러 수직 슬라이스가 먼저 만들어진 상태다. 따라서 단기 제품 목표는 `database/tables -> @cx/engine tablesToRenderTree -> RenderTree -> @cx/engine React render -> @cx/layout/@cx/components -> apps/web` 흐름을 안정화하는 것이다. DB 적재, Agent SDK, Puck 편집은 이 수직 슬라이스가 흔들리지 않는 상태에서 단계적으로 연결한다.
 
-컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다. spacing token의 Tailwind v4 `@theme` CSS 산출물은 `packages/token/src/generated/`에서 관리한다. 레이아웃 자산은 기존 `cx-layout` 패키지를 `packages/layout`의 `@cx/layout` 패키지로 흡수하되, 현재 `@cx/renderer` 노드 타입에 맞춰 컴포넌트, 토큰, 레이아웃 패턴의 이름 체계를 맞춘다. 실제 React node 렌더링과 component mapping은 `packages/renderer`의 `@cx/renderer`가 담당한다.
+컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다. spacing token의 Tailwind v4 `@theme` CSS 산출물은 `packages/token/src/generated/`에서 관리한다. 레이아웃 자산은 기존 `cx-layout` 패키지를 `packages/layout`의 `@cx/layout` 패키지로 흡수하되, 현재 `@cx/engine` 노드 타입에 맞춰 컴포넌트, 토큰, 레이아웃 패턴의 이름 체계를 맞춘다. 실제 React node 렌더링과 component mapping은 `packages/engine`의 `@cx/engine`가 담당한다.
 
 ## 2.1 현재 구현 기준
 
@@ -35,9 +35,11 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | 영역 | 상태 | 현재 기준 |
 |---|---|---|
 | `apps/web` | 구현 시작 | Next.js 앱, Tailwind v4 global CSS, 단일 제품 앱 구조, mock data 렌더링 |
-| `packages/types` | 1차 신설 | `database/tables` row shape와 pattern-store 공유 타입 계약 |
-| `packages/renderer` | 1차 승격 | schema/type, binding, registry, validation, table shape -> RenderTree projection, `@cx/layout`/`@cx/components` React element 렌더링 mapping |
-| `packages/agent` | 1차 구현 | AI import bundle 등록, decorator, database table import 보조 |
+| `packages/types` | 1차 신설 | client import, PRDD runtime tree, `database/tables`, RenderTree, pattern-store 공유 타입 계약 |
+| `packages/importer` | 1차 신설 | PRDD markdown parser, register, compose/decorate, table 후보 materializer |
+| `packages/engine` | 1차 승격 | `database/tables` shape -> RenderTree projection, validation, React renderer |
+| `packages/workflow` | 1차 구현 | 명세 정규화, 품질 검수, 반영 검증 adapter |
+| `packages/agent` | 보류 | Claude/Codex/Agent SDK local-first AI 실행 adapter |
 | `packages/layout` | 1차 구현 | `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Layout.Flex`, `Layout.Grid`를 Tailwind v4 class 기반으로 렌더링하되 legacy `styles.css` export 정리 필요 |
 | `packages/component` | 1차 이관 | `ewoooo/cx-components` 기반 leaf component 일부와 token CSS 이관 |
 | `packages/token` | 1차 구현 | Tailwind v4 `@theme` generated CSS export |
@@ -54,8 +56,8 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 ### 3.1 현재 우선 흐름
 
 1. 사용자가 `database/tables` 형태의 screen/OGN/component JSON을 준비한다.
-2. `@cx/renderer`의 `tablesToRenderTree`가 `database/tables`의 참조형 소비 데이터를 `Screen -> Screen.Header/Contents/Bottom -> Area -> Component` render projection으로 펼친다.
-3. `@cx/renderer` validation이 schema, metadata, screen region 계약을 검증한다.
+2. `@cx/engine`의 `tablesToRenderTree`가 `database/tables`의 참조형 소비 데이터를 `Screen -> Screen.Header/Contents/Bottom -> Area -> Component` render projection으로 펼친다.
+3. `@cx/engine` validation이 schema, metadata, screen region 계약을 검증한다.
 4. `apps/web` 앱 작업면이 현재 screen, 다른 screen/OGN 목록, 관련 정보를 한 화면에 렌더링한다.
 5. `@cx/layout`이 화면 chrome과 region layout을 렌더링하고, `@cx/components`가 leaf node를 렌더링한다.
 6. 검증 warning과 누락 component mapping을 확인해 resolver, registry, renderer mapping을 보강한다.
@@ -63,17 +65,15 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 ### 3.2 목표 흐름
 
-1. 사용자가 정책/유즈케이스, 화면 명세, 디자인 명세 JSON을 가져온다.
-2. 시스템이 JSON 관계와 참조 무결성을 검증하고 저장한다.
-3. 사용자가 process 또는 screen route 기준으로 생성 대상을 선택한다.
-4. 시스템이 screen, OGN, component, function, policy context를 조합한다.
-5. Claude가 조합된 generation context로 `database/tables` shape의 table 후보 JSON을 생성한다.
-6. Next.js가 모바일 미리보기를 렌더링한다.
-7. 사용자가 Puck 기반 Screen 에디터에서 OGN을 추가, 제거, 재정렬한다.
-8. 사용자가 Puck 기반 OGN 에디터에서 내부 컴포넌트 위치, 순서, Variant, Props를 수정한다.
-9. 사용자가 피드백으로 화면 또는 Variant 재생성을 요청한다.
-10. 생성 결과와 편집 결과는 버전으로 저장된다.
-11. 공유 OGN의 발행된 수정본은 같은 OGN을 사용하는 다른 화면에도 반영된다.
+제품의 기본 흐름은 `명세 -> 품질 검수 -> 미리보기 -> 반영` 4단계다.
+
+1. 사용자가 정책/유즈케이스, 화면 명세, 디자인 명세 JSON 또는 screen/area 파일 묶음을 가져온다.
+2. 시스템이 명세를 `database/tables` shape의 승인 전 후보로 정규화한다.
+3. 시스템이 참조 무결성, renderer validation, source trace, component/pattern gap을 품질 검수한다.
+4. Next.js가 후보를 모바일 화면으로 미리보기 렌더링한다.
+5. 사용자가 피드백으로 화면 또는 Variant 재생성을 요청하거나 Puck 기반 후편집을 수행한다.
+6. 승인된 후보와 편집 결과만 버전 있는 소비 데이터로 반영한다.
+7. 공유 OGN의 발행된 수정본은 같은 OGN을 사용하는 다른 화면에도 반영된다.
 
 ### 3.3 첨부 명세 변환 시나리오
 
@@ -83,17 +83,17 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 2. 시스템이 Markdown frontmatter와 표를 먼저 파싱해 화면, 화면 구성, 화면 전환, 케이스 분기, OGN, 상태, 컴포넌트 상세 후보 데이터를 추출한다.
 3. AI가 파싱 결과를 보정해 명명, 누락값, 관계, 상태명, 컴포넌트 코드, policy/function 참조를 정규화한다.
 4. 시스템이 보정 결과를 `database/ai-imports/{importId}` 아래의 AI import 후보 산출물로 저장한다.
-5. 후보 산출물은 검증과 promote/import 단계를 통과한 뒤에만 `database/tables` 소비 데이터로 반영한다.
+5. 후보 산출물은 품질 검수와 반영 단계를 통과한 뒤에만 `database/tables` 소비 데이터로 반영한다.
 
-이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과를 `DraftTablesBundle` 후보로 보강하는 역할을 맡는다. 최종 후보 산출물은 `DraftTablesBundle -> QualityReport -> QualityBacklog -> Preview -> Promote` 순서와 `database/tables` row 계약을 기준으로 검증한다. 디자인 품질 보강은 반드시 `docs/design/`의 근거 문서를 참조해야 한다.
+이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, 명세 단계의 1차 추출 결과를 `database/tables` shape 후보로 보강하는 역할을 맡는다. 최종 후보 산출물은 `명세 -> 품질 검수 -> 미리보기 -> 반영` 순서와 `database/tables` row 계약을 기준으로 검증한다. `DraftTablesBundle`, `QualityReport`, `QualityBacklog`, `Promote`는 내부 구현 산출물 이름으로만 다룬다. 디자인 품질 보강은 반드시 `docs/design/`의 근거 문서를 참조해야 한다.
 
 ## 4. MVP 범위
 
 ### 현재 MVP 포함
 
 - `database/tables` 구조의 screen/OGN/component 소비 데이터 관리
-- `@cx/renderer` 기반 `database/tables` shape -> RenderTree DTO 변환
-- `@cx/renderer` 기반 RenderTree schema, metadata, screen region 계약 검증
+- `@cx/engine` 기반 `database/tables` shape -> RenderTree DTO 변환
+- `@cx/engine` 기반 RenderTree schema, metadata, screen region 계약 검증
 - `@cx/components`, `@cx/tokens`, `@cx/layout` 기반 모바일 렌더링
 - 앱 작업면의 3가지 필수 기능: 렌더된 스크린 화면, 다른 screen/OGN 조회, 현재 렌더 화면과 관련된 screen/OGN 정보 조회
 - `database/tables` 계약 또는 동일 shape의 loader 결과 기반 screen 전환과 OGN catalog 표시
@@ -130,8 +130,8 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | 단계 | 상태 | 목표 |
 |---|---|---|
 | Phase 0 | 완료 | 문서, 운영 원칙, 저장소 구조, React hooks policy, 테스트 기반 구성 |
-| Phase 1 | 완료에 가까움 | `@cx/agent`, `@cx/renderer`, `@cx/components`, `@cx/tokens`, `@cx/layout` 기반 패키지 수직 슬라이스 구성 |
-| Phase 2 | 진행 중 | `apps/web` 단일 제품 앱을 `database/tables` 계약 기반으로 안정화하고 `@cx/renderer` mapping 확장 |
+| Phase 1 | 완료에 가까움 | `@cx/workflow`, `@cx/engine`, `@cx/components`, `@cx/tokens`, `@cx/layout` 기반 패키지 수직 슬라이스 구성 |
+| Phase 2 | 진행 중 | `apps/web` 단일 제품 앱을 `database/tables` 계약 기반으로 안정화하고 `@cx/engine` mapping 확장 |
 | Phase 3 | 진행 중 | 첨부 명세 parser/validator와 AI import table 후보 산출물 연결 |
 | Phase 4 | 다음 | Claude 생성 계약과 Codex 검수 계약을 local-first Agent SDK 실행 흐름으로 구현 |
 | Phase 5 | 후속 | 소비 데이터 계약 기준 FastAPI read model, 운영 DB migration, ERD 산출물 재생성 |
@@ -152,7 +152,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 - 사용자가 샘플 screen route 기준으로 생성/렌더 대상을 선택할 수 있다.
 - 시스템이 관련 screen, OGN, component context를 찾거나 누락 warning을 표시한다.
 - `tablesToRenderTree`가 샘플 table input을 모바일 render tree로 변환한다.
-- `@cx/renderer` validation이 RenderTree schema와 screen region 계약을 검증한다.
+- `@cx/engine` validation이 RenderTree schema와 screen region 계약을 검증한다.
 - 모바일 프리뷰에서 렌더된 스크린 화면을 확인할 수 있다.
 - 모바일 프리뷰에서 다른 screen과 OGN을 조회하고 이동할 수 있다.
 - 모바일 프리뷰에서 현재 렌더 화면과 연결된 screen/OGN 정보를 함께 확인할 수 있다.

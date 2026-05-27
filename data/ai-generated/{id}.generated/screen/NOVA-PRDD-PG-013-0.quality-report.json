@@ -1,0 +1,58 @@
+{
+	"schemaVersion": "quality-report.v1",
+	"ok": true,
+	"generatedAt": "2026-05-27T04:21:07.319Z",
+	"sourceId": "NOVA-PRDD-PG-013-0.md",
+	"summary": {
+		"errorCount": 0,
+		"warningCount": 2,
+		"infoCount": 0,
+		"categories": {
+			"reference": 2
+		},
+		"owners": {
+			"prompt": 2
+		}
+	},
+	"issues": [
+		{
+			"id": "quality-001",
+			"category": "reference",
+			"severity": "warning",
+			"message": "NOVA-PRDD-PG-013-0__a2-1: pattern component-callout is not in pattern-store",
+			"owner": "prompt",
+			"originalCodes": [
+				"reference.missing-pattern"
+			],
+			"validationIssues": [
+				{
+					"code": "reference.missing-pattern",
+					"severity": "warning",
+					"layer": "reference",
+					"message": "NOVA-PRDD-PG-013-0__a2-1: pattern component-callout is not in pattern-store"
+				}
+			]
+		},
+		{
+			"id": "quality-002",
+			"category": "reference",
+			"severity": "warning",
+			"message": "NOVA-PRDD-PG-013-0__a3-4: pattern component-callout is not in pattern-store",
+			"owner": "prompt",
+			"originalCodes": [
+				"reference.missing-pattern"
+			],
+			"validationIssues": [
+				{
+					"code": "reference.missing-pattern",
+					"severity": "warning",
+					"layer": "reference",
+					"message": "NOVA-PRDD-PG-013-0__a3-4: pattern component-callout is not in pattern-store"
+				}
+			]
+		}
+	],
+	"nextActions": [
+		"Regenerate with the quality report as retry context."
+	]
+}

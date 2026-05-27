@@ -1,0 +1,282 @@
+{
+	"schemaVersion": "draft-tables.v1",
+	"source": {
+		"importJobId": "draft-tables-PRDD-NOVA-PRDD-PG-017-0",
+		"sourceKind": "prdd",
+		"sourceId": "NOVA-PRDD-PG-017-0.md",
+		"generatedAt": "2026-05-27T04:21:07.334Z"
+	},
+	"tables": {
+		"screenRoutes": [
+			{
+				"id": "NOVA-PRDD-PG-017-0-route",
+				"moduleId": "draft",
+				"name": "상담 전환과 실패 이력 전달",
+				"order": 1,
+				"processId": null
+			}
+		],
+		"screenVariants": [
+			{
+				"id": "NOVA-PRDD-PG-017-0-base",
+				"screenRouteId": "NOVA-PRDD-PG-017-0-route",
+				"name": "상담 전환과 실패 이력 전달",
+				"order": 1,
+				"variantType": "base",
+				"followUp": null
+			}
+		],
+		"screens": [
+			{
+				"id": "NOVA-PRDD-PG-017-0",
+				"screenVariantId": "NOVA-PRDD-PG-017-0-base",
+				"minRendererVersion": "0.1.0",
+				"version": "1.0.0",
+				"order": 1,
+				"pattern": {
+					"id": "screen-shell",
+					"variant": "default"
+				},
+				"metadata": {
+					"title": "상담 전환과 실패 이력 전달",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"theme": {
+					"mode": "light"
+				},
+				"screen": {
+					"type": "screen.page",
+					"regions": {
+						"header": {
+							"type": "Screen.Header",
+							"metadata": {
+								"title": "고정 상단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-017-0__a0-1"
+								}
+							]
+						},
+						"contents": {
+							"type": "Screen.Contents",
+							"metadata": {
+								"title": "스크롤 콘텐츠 영역"
+							},
+							"children": [
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-017-0__area1"
+								}
+							]
+						},
+						"bottom": {
+							"type": "Screen.Bottom",
+							"metadata": {
+								"title": "고정 하단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-017-0__a999-1"
+								}
+							]
+						}
+					}
+				}
+			}
+		],
+		"areas": [
+			{
+				"id": "NOVA-PRDD-PG-017-0__area1",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 1,
+				"metadata": {
+					"title": "상품 문맥 상담 전달 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"props": {
+					"name": "상품 문맥 상담 전달 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 1,
+					"maxCount": 1,
+					"priority": 1,
+					"errorPolicy": "영역 전체 숨김",
+					"policyAnchors": [
+						"PI-PRDD-CS-001-01"
+					]
+				},
+				"pattern": {
+					"id": "product-hero-summary",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-017-0__a1-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-017-0__a1-2"
+					}
+				]
+			}
+		],
+		"components": [
+			{
+				"id": "NOVA-PRDD-PG-017-0__a0-1",
+				"type": "AppBar",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "AppBarHeader",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"pattern": {
+					"id": "component-app-bar",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "AppBar"
+						},
+						"props": {
+							"variant": "WithBack",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PU-016-0",
+							"texts": {
+								"title": "상담 전환과 실패 이력 전달"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-017-0__a1-1",
+				"type": "TitleSection",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "TitleSectionConsultContext",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"pattern": {
+					"id": "component-title-section",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "TitleSection"
+						},
+						"props": {
+							"variant": "Default",
+							"texts": {
+								"title": "상담에 전달할 내용을 확인하세요"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-017-0__a1-2",
+				"type": "ListText",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ListTextConsultContext",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"pattern": {
+					"id": "component-list-text",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ListText"
+						},
+						"props": {
+							"variant": "dot",
+							"texts": {
+								"title": "{전달항목} (예: 상품 ID·옵션·회선·실패 사유)"
+							},
+							"bindings": [
+								{
+									"raw": "상담 전환 시 전달 문맥 (api:FN-PRDD-CS-001)",
+									"api": "FN-PRDD-CS-001"
+								}
+							],
+							"notes": "[정책:PI-PRDD-CS-001-01] 상담 문맥"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-017-0__a999-1",
+				"type": "ActionButton",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ActionButtonConsult",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.334Z",
+					"updatedAt": "2026-05-27T04:21:07.334Z"
+				},
+				"pattern": {
+					"id": "component-action-button",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ActionButton"
+						},
+						"props": {
+							"variant": "default",
+							"event": "onClick",
+							"action": "apiCall",
+							"texts": {
+								"main": "상담 연결하기"
+							},
+							"bindings": [
+								{
+									"raw": "상담 전환 시 전달 문맥 (api:FN-PRDD-CS-001)",
+									"api": "FN-PRDD-CS-001"
+								}
+							],
+							"notes": "[정책:PI-PRDD-CS-001-02] 실패 이력"
+						}
+					}
+				],
+				"hooks": []
+			}
+		],
+		"warnings": []
+	}
+}

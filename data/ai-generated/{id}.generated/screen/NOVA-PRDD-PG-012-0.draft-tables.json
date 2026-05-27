@@ -1,0 +1,291 @@
+{
+	"schemaVersion": "draft-tables.v1",
+	"source": {
+		"importJobId": "draft-tables-PRDD-NOVA-PRDD-PG-012-0",
+		"sourceKind": "prdd",
+		"sourceId": "NOVA-PRDD-PG-012-0.md",
+		"generatedAt": "2026-05-27T04:21:07.315Z"
+	},
+	"tables": {
+		"screenRoutes": [
+			{
+				"id": "NOVA-PRDD-PG-012-0-route",
+				"moduleId": "draft",
+				"name": "담기 실행과 상태 저장",
+				"order": 1,
+				"processId": null
+			}
+		],
+		"screenVariants": [
+			{
+				"id": "NOVA-PRDD-PG-012-0-base",
+				"screenRouteId": "NOVA-PRDD-PG-012-0-route",
+				"name": "담기 실행과 상태 저장",
+				"order": 1,
+				"variantType": "base",
+				"followUp": null
+			}
+		],
+		"screens": [
+			{
+				"id": "NOVA-PRDD-PG-012-0",
+				"screenVariantId": "NOVA-PRDD-PG-012-0-base",
+				"minRendererVersion": "0.1.0",
+				"version": "1.0.0",
+				"order": 1,
+				"pattern": {
+					"id": "screen-shell",
+					"variant": "default"
+				},
+				"metadata": {
+					"title": "담기 실행과 상태 저장",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"theme": {
+					"mode": "light"
+				},
+				"screen": {
+					"type": "screen.page",
+					"regions": {
+						"header": {
+							"type": "Screen.Header",
+							"metadata": {
+								"title": "고정 상단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-012-0__a0-1"
+								}
+							]
+						},
+						"contents": {
+							"type": "Screen.Contents",
+							"metadata": {
+								"title": "스크롤 콘텐츠 영역"
+							},
+							"children": [
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-012-0__area1"
+								}
+							]
+						},
+						"bottom": {
+							"type": "Screen.Bottom",
+							"metadata": {
+								"title": "고정 하단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-012-0__a999-1"
+								}
+							]
+						}
+					}
+				}
+			}
+		],
+		"areas": [
+			{
+				"id": "NOVA-PRDD-PG-012-0__area1",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 1,
+				"metadata": {
+					"title": "담기 실행·상태 저장 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"props": {
+					"name": "담기 실행·상태 저장 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 1,
+					"maxCount": 1,
+					"priority": 1,
+					"errorPolicy": "영역 전체 숨김",
+					"policyAnchors": [
+						"PI-PRDD-SAVE-001-01",
+						"PI-PRDD-SAVE-001-05"
+					]
+				},
+				"pattern": {
+					"id": "area-vertical",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-012-0__a1-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-012-0__a1-2"
+					}
+				]
+			}
+		],
+		"components": [
+			{
+				"id": "NOVA-PRDD-PG-012-0__a0-1",
+				"type": "AppBar",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "AppBarHeader",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"pattern": {
+					"id": "component-app-bar",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "AppBar"
+						},
+						"props": {
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-011-0",
+							"texts": {
+								"title": "담기 실행과 상태 저장"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-012-0__a1-1",
+				"type": "Callout",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "CalloutRevalidation",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"pattern": {
+					"id": "component-callout",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "Callout"
+						},
+						"props": {
+							"texts": {
+								"title": "담기 항목이 저장되었습니다",
+								"body": "상품, 옵션, 프로그램, 혜택, 예상 비용, 판정 결과, 기준 시각이 함께 저장됩니다."
+							},
+							"bindings": [
+								{
+									"raw": "담기 ID와 저장된 상품 구성 (api:FN-PRDD-SAVE-001)",
+									"api": "FN-PRDD-SAVE-001"
+								},
+								{
+									"raw": "담기 저장 (policy:PI-PRDD-SAVE-001-01)",
+									"policy": "PI-PRDD-SAVE-001-01"
+								}
+							],
+							"notes": "[정책:PI-PRDD-SAVE-001-01] 담기 저장"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-012-0__a1-2",
+				"type": "Button",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ButtonSaveCtaSelect",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"pattern": {
+					"id": "component-button",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "Button"
+						},
+						"props": {
+							"variant": "primary",
+							"event": "onClick",
+							"action": "apiCall",
+							"texts": {
+								"label": "담기 저장"
+							},
+							"bindings": [
+								{
+									"raw": "담기·바로결제·구독 CTA 구분 (policy:PI-PRDD-SAVE-001-05)",
+									"policy": "PI-PRDD-SAVE-001-05"
+								}
+							],
+							"notes": "[정책:PI-PRDD-SAVE-001-05] CTA 의미 구분"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-012-0__a999-1",
+				"type": "ActionButton",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ActionButton",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.315Z",
+					"updatedAt": "2026-05-27T04:21:07.315Z"
+				},
+				"pattern": {
+					"id": "component-button",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ActionButton"
+						},
+						"props": {
+							"variant": "default",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-013-0",
+							"texts": {
+								"main": "다음 행동 선택하기"
+							},
+							"bindings": [
+								{
+									"raw": "장바구니·주문 전환에 넘길 선택 스냅샷 (api:FN-PRDD-SAVE-001)",
+									"api": "FN-PRDD-SAVE-001"
+								}
+							],
+							"notes": "[정책:PI-PRDD-SAVE-001-02] 다음 행동"
+						}
+					}
+				],
+				"hooks": []
+			}
+		],
+		"warnings": []
+	}
+}

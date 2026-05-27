@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-	transpilePackages: ["@cx/agent", "@cx/components", "@cx/layout", "@cx/renderer", "@cx/types"],
+	transpilePackages: [
+		"@cx/components",
+		"@cx/layout",
+		"@cx/engine",
+	],
 };
 
 export default nextConfig;

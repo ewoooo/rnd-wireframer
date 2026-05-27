@@ -1,0 +1,15 @@
+{
+	"schemaVersion": "quality-report.v1",
+	"ok": true,
+	"generatedAt": "2026-05-27T04:21:07.294Z",
+	"sourceId": "NOVA-PRDD-PG-008-0.md",
+	"summary": {
+		"errorCount": 0,
+		"warningCount": 0,
+		"infoCount": 0,
+		"categories": {},
+		"owners": {}
+	},
+	"issues": [],
+	"nextActions": []
+}

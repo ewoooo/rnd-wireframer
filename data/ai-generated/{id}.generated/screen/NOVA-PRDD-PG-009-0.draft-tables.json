@@ -1,0 +1,469 @@
+{
+	"schemaVersion": "draft-tables.v1",
+	"source": {
+		"importJobId": "draft-tables-PRDD-NOVA-PRDD-PG-009-0",
+		"sourceKind": "prdd",
+		"sourceId": "NOVA-PRDD-PG-009-0.md",
+		"generatedAt": "2026-05-27T04:21:07.298Z"
+	},
+	"tables": {
+		"screenRoutes": [
+			{
+				"id": "NOVA-PRDD-PG-009-0-route",
+				"moduleId": "draft",
+				"name": "예상 비용·혜택 요약",
+				"order": 1,
+				"processId": null
+			}
+		],
+		"screenVariants": [
+			{
+				"id": "NOVA-PRDD-PG-009-0-base",
+				"screenRouteId": "NOVA-PRDD-PG-009-0-route",
+				"name": "예상 비용·혜택 요약",
+				"order": 1,
+				"variantType": "base",
+				"followUp": null
+			}
+		],
+		"screens": [
+			{
+				"id": "NOVA-PRDD-PG-009-0",
+				"screenVariantId": "NOVA-PRDD-PG-009-0-base",
+				"minRendererVersion": "0.1.0",
+				"version": "1.0.0",
+				"order": 1,
+				"pattern": {
+					"id": "screen-shell",
+					"variant": "default"
+				},
+				"metadata": {
+					"title": "예상 비용·혜택 요약",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"theme": {
+					"mode": "light"
+				},
+				"screen": {
+					"type": "screen.page",
+					"regions": {
+						"header": {
+							"type": "Screen.Header",
+							"metadata": {
+								"title": "고정 상단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-009-0__a0-1"
+								}
+							]
+						},
+						"contents": {
+							"type": "Screen.Contents",
+							"metadata": {
+								"title": "스크롤 콘텐츠 영역"
+							},
+							"children": [
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-009-0__area1"
+								},
+								{
+									"kind": "area",
+									"id": "NOVA-PRDD-PG-009-0__area2"
+								}
+							]
+						},
+						"bottom": {
+							"type": "Screen.Bottom",
+							"metadata": {
+								"title": "고정 하단 영역"
+							},
+							"children": [
+								{
+									"kind": "component",
+									"id": "NOVA-PRDD-PG-009-0__a999-1"
+								}
+							]
+						}
+					}
+				}
+			}
+		],
+		"areas": [
+			{
+				"id": "NOVA-PRDD-PG-009-0__area1",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 1,
+				"metadata": {
+					"title": "예상 부담·혜택 요약 계산 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"props": {
+					"name": "예상 부담·혜택 요약 계산 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 1,
+					"priority": 1,
+					"errorPolicy": "기본값 표시",
+					"policyAnchors": [
+						"PI-PRDD-PRICE-001-01",
+						"PI-PRDD-PRICE-001-02"
+					]
+				},
+				"pattern": {
+					"id": "benefit-brand-list",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-009-0__a1-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-009-0__a1-2"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-009-0__a1-3"
+					}
+				]
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__area2",
+				"type": "area.dynamic",
+				"version": "1.0.0",
+				"key": 2,
+				"metadata": {
+					"title": "혜택·가격·가치 산정 표시 영역",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"props": {
+					"name": "혜택·가격·가치 산정 표시 영역",
+					"layout": "vertical",
+					"areaType": "dynamic",
+					"visibility": "항상",
+					"minCount": 1,
+					"priority": 2,
+					"errorPolicy": "오류 항목 미노출",
+					"policyAnchors": [
+						"PI-PRDD-PRICE-001-01",
+						"PI-PRDD-PRICE-001-02",
+						"PI-PRDD-PRICE-001-04"
+					]
+				},
+				"pattern": {
+					"id": "product-info-section",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-009-0__a2-1"
+					},
+					{
+						"kind": "component",
+						"id": "NOVA-PRDD-PG-009-0__a2-2"
+					}
+				]
+			}
+		],
+		"components": [
+			{
+				"id": "NOVA-PRDD-PG-009-0__a0-1",
+				"type": "AppBar",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "AppBarHeader",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-app-bar",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "AppBar"
+						},
+						"props": {
+							"variant": "WithBack",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-008-0",
+							"texts": {
+								"title": "예상 비용·혜택 요약"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a1-1",
+				"type": "TitleSection",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "TitleSectionEstimate",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-card-summary",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "TitleSection"
+						},
+						"props": {
+							"variant": "Default",
+							"texts": {
+								"subtitle": "담기 전 확인",
+								"title": "예상 부담·혜택 요약"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							]
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a1-2",
+				"type": "CardSummary",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "CardSummaryMonthlyEstimate",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-card-summary",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "CardSummary"
+						},
+						"props": {
+							"variant": "text",
+							"texts": {
+								"title": "월 예상 이용금액",
+								"subText": "{월 예상액} (예: 월 55,000원)"
+							},
+							"bindings": [
+								{
+									"raw": "월 예상액 (api:FN-PRDD-PRICE-001)",
+									"api": "FN-PRDD-PRICE-001"
+								},
+								{
+									"raw": "가격 기준 구분 (policy:PI-PRDD-PRICE-001-01)",
+									"policy": "PI-PRDD-PRICE-001-01"
+								}
+							],
+							"notes": "[정책:PI-PRDD-PRICE-001-01] 가격 기준"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a1-3",
+				"type": "ListText",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ListTextExcludedBenefit",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-list-text",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ListText"
+						},
+						"props": {
+							"variant": "dot",
+							"texts": {
+								"title": "{제외 혜택명} (예: 제휴카드 할인 미적용)",
+								"subText": "{제외 사유}"
+							},
+							"bindings": [
+								{
+									"raw": "혜택 제외 사유 (api:FN-PRDD-PRICE-001)",
+									"api": "FN-PRDD-PRICE-001"
+								},
+								{
+									"raw": "혜택별 제외 사유 분리 (policy:PI-PRDD-PRICE-001-02)",
+									"policy": "PI-PRDD-PRICE-001-02"
+								}
+							],
+							"notes": "[정책:PI-PRDD-PRICE-001-02] 혜택 분리"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a2-1",
+				"type": "ProductInfoHorizontal",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ProductInfoHorizontalListPrice",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-product-info",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ProductInfoHorizontal"
+						},
+						"props": {
+							"variant": "Default",
+							"texts": {
+								"subtitle": "정가",
+								"mainText": "{정가} (예: 1,200,000원)",
+								"discountLabel": "할인",
+								"discountAmount": "- {할인금액} (예: - 200,000원)"
+							},
+							"bindings": [
+								{
+									"raw": "정가·할인가 (api:FN-PRDD-BENEFIT-001)",
+									"api": "FN-PRDD-BENEFIT-001"
+								},
+								{
+									"raw": "가격 기준 구분 (policy:PI-PRDD-PRICE-001-01)",
+									"policy": "PI-PRDD-PRICE-001-01"
+								}
+							],
+							"notes": "[정책:PI-PRDD-PRICE-001-01] 가격 기준"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a2-2",
+				"type": "AccordionPriceInfo",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "AccordionPriceInfoBenefitDetail",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-accordion",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "AccordionPriceInfo"
+						},
+						"props": {
+							"variant": "default",
+							"event": "onClick",
+							"action": "setState",
+							"actionParams": "isBenefitDetailOpen",
+							"texts": {
+								"titleText": "적용 혜택 상세",
+								"rightText": "{적용 혜택 수} (예: 3건)"
+							},
+							"bindings": [
+								{
+									"raw": "혜택 구성과 적용 조건 (api:FN-PRDD-BENEFIT-001)",
+									"api": "FN-PRDD-BENEFIT-001"
+								},
+								{
+									"raw": "혜택별 적용 조건·기간 (policy:PI-PRDD-PRICE-001-02)",
+									"policy": "PI-PRDD-PRICE-001-02"
+								},
+								{
+									"raw": "isBenefitDetailOpen (state)",
+									"state": true,
+									"stateName": "isBenefitDetailOpen"
+								}
+							],
+							"notes": "[정책:PI-PRDD-PRICE-001-02] 혜택 분리<br>[정책:PI-PRDD-PRICE-001-04] 마케팅 정보"
+						}
+					}
+				],
+				"hooks": []
+			},
+			{
+				"id": "NOVA-PRDD-PG-009-0__a999-1",
+				"type": "ActionButton",
+				"version": "1.0.0",
+				"metadata": {
+					"title": "ActionButtonNext",
+					"author": "plus_x_athor_1",
+					"createdAt": "2026-05-27T04:21:07.299Z",
+					"updatedAt": "2026-05-27T04:21:07.299Z"
+				},
+				"pattern": {
+					"id": "component-button",
+					"variant": "default"
+				},
+				"children": [
+					{
+						"component": {
+							"type": "ActionButton"
+						},
+						"props": {
+							"variant": "default",
+							"event": "onClick",
+							"action": "navigate",
+							"actionParams": "NOVA-PRDD-PG-010-0",
+							"texts": {
+								"main": "다음 단계로"
+							},
+							"bindings": [
+								{
+									"raw": "- (static)"
+								}
+							],
+							"notes": "[정책:PI-PRDD-SAVE-001-05] CTA 의미 구분"
+						}
+					}
+				],
+				"hooks": []
+			}
+		],
+		"warnings": []
+	}
+}
