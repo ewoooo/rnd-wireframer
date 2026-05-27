@@ -4,6 +4,7 @@ import {
 	validateComponentUsage,
 	validateLayoutProps,
 	validateRenderTree,
+	validateSchemaArtifact,
 } from "@cx/validation";
 import { describe, expect, it } from "vitest";
 
@@ -104,11 +105,12 @@ describe("@cx/validation validators", () => {
 	it("reports invalid Screen region structure as errors", () => {
 		const report = validateRenderTree(
 			{
-				version: "0.1.0",
-				metadata: { id: "tree", title: "Tree" },
+				version: "render-tree.v0.1",
+				metadata: { id: "tree" },
 				children: [
 					{
 						type: "Screen",
+						componentVersion: "0.1.0",
 						metadata: { id: "screen", title: "Screen" },
 						children: [
 							screenRegion("Screen.Contents", "contents"),
@@ -141,6 +143,22 @@ describe("@cx/validation validators", () => {
 			},
 			target: "render-tree",
 		});
+	});
+
+	it("validates RenderTree JSON Schema before semantic validation", () => {
+		const report = validateSchemaArtifact("render-tree", {
+			version: "render-tree.v0.1",
+			metadata: { id: "tree", title: "Top-level title is not allowed" },
+			children: [],
+		});
+
+		expect(report.ok).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "schema-invalid",
+				path: ["metadata"],
+			}),
+		);
 	});
 
 	it("validates layout prop enums and number props", () => {
@@ -185,11 +203,12 @@ describe("@cx/validation validators", () => {
 
 function validRenderTree() {
 	return {
-		version: "0.1.0",
-		metadata: { id: "tree", title: "Tree" },
+		version: "render-tree.v0.1",
+		metadata: { id: "tree" },
 		children: [
 			{
 				type: "Screen",
+				componentVersion: "0.1.0",
 				metadata: { id: "screen", title: "Screen" },
 				children: [
 					screenRegion("Screen.Header", "header"),
@@ -203,6 +222,7 @@ function validRenderTree() {
 						children: [
 							{
 								type: "ActionButton",
+								componentVersion: "1.0.0",
 								metadata: { id: "cta", title: "CTA" },
 								props: {
 									label: "가입하기",
@@ -221,6 +241,7 @@ function validRenderTree() {
 function screenRegion(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom", id: string) {
 	const base = {
 		type,
+		componentVersion: "0.1.0",
 		metadata: { id, title: id },
 		props: {
 			layout: { direction: "column" },

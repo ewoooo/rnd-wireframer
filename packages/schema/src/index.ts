@@ -13,15 +13,18 @@ export type {
 	RenderTreeContract,
 	RenderTreeMetadata,
 	RenderTreeNodeContract,
+	RenderTreeNodeMetadata,
 	SchemaPropBinding,
 	SchemaPropValue,
 } from "./render-tree";
 export type {
 	SourceFileKind,
 	SourceSpec,
-	SourceSpecArea,
-	SourceSpecComponent,
+	SourceSpecAreaNode,
+	SourceSpecComponentNode,
 	SourceSpecFile,
+	SourceSpecRegion,
+	SourceSpecRegionSlot,
 } from "./source-spec";
 export type { SchemaValidationIssue, ValidationReportContract } from "./validation-report";
 export type { SchemaVersion } from "./versions";

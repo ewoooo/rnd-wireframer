@@ -8,6 +8,7 @@
 ## 책임
 
 - 입력 DTO와 생성 후보를 순수 함수로 검증한다.
+- `@cx/schema`의 JSON Schema를 AJV로 검증한다.
 - component catalog, layout pattern, token reference의 참조 오류를 issue로 반환한다.
 - 검증 결과를 `ValidationReport` 형태로 돌려준다.
 - pipeline이나 orchestration이 다음 행동을 결정할 수 있도록 판정 결과만 제공한다.
@@ -39,8 +40,10 @@ import {
 	validateComponentUsage,
 	validateLayoutProps,
 	validateRenderTree,
+	validateSchemaArtifact,
 } from "@cx/validation";
 
+const schemaReport = validateSchemaArtifact("render-tree", renderTree);
 const report = validateRenderTree(renderTree, {
 	componentCatalog,
 });
@@ -51,7 +54,7 @@ const report = validateRenderTree(renderTree, {
 ```ts
 type ValidationReport = {
 	ok: boolean;
-	target: "agent-result" | "component-usage" | "layout-props" | "render-tree";
+	target: "agent-result" | "component-usage" | "layout-props" | "render-tree" | "schema-artifact";
 	issues: ValidationIssue[];
 	summary: {
 		errorCount: number;
@@ -62,9 +65,10 @@ type ValidationReport = {
 
 ## Validation Scope
 
+- `validateSchemaArtifact`: `@cx/schema`의 JSON Schema를 AJV로 강제해 version, required field, additionalProperties 같은 구조 계약을 확인한다.
 - `validateAgentResult`: JSON 결과 shape와 자유 HTML/CSS/React 코드 포함 여부를 확인한다.
 - `validateComponentUsage`: 주입받은 `ComponentCatalog` 기준으로 component type, required prop, prop type, enum 값, unknown prop, `aiWritable: false` 직접 작성을 확인한다.
 - `validateRenderTree`: RenderTree version, Screen/Header/Contents/Bottom 구조, 처리 가능한 node type, children 배열, display/binding/default 안전성을 확인한다.
 - `validateLayoutProps`: `Layout.Flex`, `Layout.Grid`, Screen region props의 enum과 숫자/문자/boolean 타입을 확인한다.
 
-필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/components`, `@cx/layout`, `@cx/renderer`의 public API만 소비한다.
+필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`, `@cx/renderer`의 public API만 소비한다.

@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-27 - RenderTree Schema Validation
+
+- 변경: RenderTree 계약을 좁혀 top-level `metadata.title`을 제거하고 node `metadata.title`만 필수로 유지함
+- 변경: `@cx/schema`의 `render-tree.v0.1` JSON Schema를 실제 구조 계약으로 확장하고, `@cx/validation`에 AJV 기반 `validateSchemaArtifact`를 추가함
+- 변경: generation smoke가 AI/fake payload를 RenderTree schema와 semantic validator로 검증해 `validation-report.json`을 산출하도록 연결함
+- 이유: AI 출력이 타입 설명만 참고하는 수준을 넘어 pipeline artifact 저장 전에 계약 위반을 기계적으로 드러내게 하기 위함
+- 검증: `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema packages/validation packages/orchestration packages/parser packages/renderer apps/smoke AGENTS.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id validation-check --out-dir tmp/generation-runs/validation-check`
+- 후속: 실제 Claude 출력이 schema error를 낼 경우 validation issue를 orchestration retry input으로 넘기는 단계를 추가한다.
+
 ## 2026-05-27 - Schema Contract Package
 
 - 변경: `@cx/schema` 패키지를 추가해 generation pipeline 전반 DTO/schema 계약의 SSOT를 만들고 root export만 공개하도록 함
@@ -635,6 +644,20 @@
 - 변경: `@cx/agent`에 active path 진입점 `runDraftTablesPipeline`과 validation issue를 MVP quality category로 접는 `createQualityReport` adapter를 추가함
 - 이유: 병렬 작업선이 공통으로 의존할 최소 계약과 active path 표면을 먼저 고정해, 생성 파이프라인 단순화와 품질 리포트 작업을 동시에 진행할 수 있게 하기 위함
 - 검증: `pnpm vitest run packages/agent/src/__tests__/quality-report.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/types/src/draft-tables.ts packages/types/src/quality-report.ts packages/types/src/index.ts packages/types/package.json packages/agent/src/pipeline/draft-tables-pipeline.ts packages/agent/src/pipeline/index.ts packages/agent/src/index.ts packages/agent/src/validate/quality-report.ts packages/agent/src/validate/index.ts packages/agent/src/__tests__/quality-report.test.ts packages/agent/package.json docs/development/SIMPLIFICATION_PARALLEL_PLAN.md docs/development/AGENT_MODULE_BOUNDARY.md`
+
+## 2026-05-27 - Parser Reserved Area Slots
+
+- 변경: `@cx/parser`가 PRDD 예약 영역 번호를 우선 해석하도록 보강함. `0`은 `screen.header`, `999`는 `screen.bottom` 대상 slotHint로 고정한다.
+- 변경: 화면 구성 표에 예약 영역이 없고 컴포넌트 상세 표에만 `0`/`999`가 등장해도 SourceSpec `screen.areas`에 암묵 header/bottom area를 추가하도록 함
+- 이유: 컴포넌트 상세 테이블의 `영역` 값이 화면 슬롯 의미를 갖는데, 텍스트 기반 추론만으로는 header/bottom 컴포넌트 대상이 흔들릴 수 있기 때문
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/schema`, `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id parser-reserved-areas --out-dir tmp/generation-runs/parser-reserved-areas`
+
+## 2026-05-27 - Schema Public Subpaths
+
+- 변경: `@cx/schema`에 artifact 계약별 공개 subpath를 추가하고, parser/orchestration/smoke 일부 소비 코드를 `@cx/schema/source-spec`, `@cx/schema/versions`로 좁힘
+- 변경: `@cx/renderer`의 exported mutable `nodeRendererRegistry` singleton을 제거하고, 기본 registry는 내부 기본값으로 두되 필요한 경우 `registry`를 주입할 수 있게 조정함
+- 이유: schema SSOT는 하나로 유지하면서도 소비 경계를 작게 만들고, 외부 패키지가 렌더러 전역 registry를 직접 변경하는 구조를 피하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__ packages/pipeline/src/__tests__/public-api.test.ts`, `npx biome check packages/schema packages/parser packages/orchestration packages/renderer apps/smoke AGENTS.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md`, `npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md --run-id schema-subpath-check --out-dir tmp/generation-runs/schema-subpath-check`
 
 ## 2026-05-26 - Decorator Vocabulary Retry Hints
 

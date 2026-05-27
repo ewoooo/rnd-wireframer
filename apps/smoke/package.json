@@ -14,9 +14,10 @@
 	},
 	"dependencies": {
 		"@cx/agent": "0.1.0",
+		"@cx/components": "0.1.0",
 		"@cx/orchestration": "0.1.0",
-		"@cx/parser": "0.1.0",
 		"@cx/pipeline": "0.1.0",
-		"@cx/schema": "0.1.0"
+		"@cx/schema": "0.1.0",
+		"@cx/validation": "0.1.0"
 	}
 }

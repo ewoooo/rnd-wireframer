@@ -53,17 +53,20 @@ export interface RenderTreeStyle {
 
 export interface RenderTreeMetadata {
 	id: string;
-	title: string;
 	author?: string;
 	createdAt?: string;
 	updatedAt?: string;
 	description?: string;
 }
 
+export interface RenderTreeNodeMetadata extends RenderTreeMetadata {
+	title: string;
+}
+
 export interface RenderTreeNode {
 	type: string;
 	componentVersion: string;
-	metadata: RenderTreeMetadata;
+	metadata: RenderTreeNodeMetadata;
 	props?: Record<string, PropValue>;
 	className?: string;
 	style?: RenderTreeStyle;

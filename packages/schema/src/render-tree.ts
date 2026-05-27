@@ -16,11 +16,14 @@ export type SchemaPropValue =
 
 export type RenderTreeMetadata = {
 	id: string;
-	title: string;
 	author?: string;
 	createdAt?: string;
 	description?: string;
 	updatedAt?: string;
+};
+
+export type RenderTreeNodeMetadata = RenderTreeMetadata & {
+	title: string;
 };
 
 export type RenderTreeNodeContract = {
@@ -30,7 +33,7 @@ export type RenderTreeNodeContract = {
 		stateRole?: "base" | "disabled" | "empty" | "error" | "expanded" | "loading" | "success";
 		when?: SchemaPropBinding | boolean;
 	};
-	metadata: RenderTreeMetadata;
+	metadata: RenderTreeNodeMetadata;
 	props?: Record<string, SchemaPropValue>;
 	type: string;
 };

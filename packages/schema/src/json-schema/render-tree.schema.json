@@ -3,11 +3,199 @@
 	"$id": "render-tree.v0.1",
 	"title": "render-tree",
 	"type": "object",
-	"required": ["schemaVersion"],
+	"additionalProperties": false,
+	"required": ["version", "metadata", "children"],
 	"properties": {
-		"schemaVersion": {
+		"version": {
 			"const": "render-tree.v0.1"
+		},
+		"minRendererVersion": {
+			"type": "string"
+		},
+		"metadata": {
+			"$ref": "#/$defs/renderTreeMetadata"
+		},
+		"theme": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"mode": {
+					"enum": ["light", "dark", "system"]
+				},
+				"primaryColor": {
+					"type": "string"
+				},
+				"fontFamily": {
+					"type": "string"
+				}
+			}
+		},
+		"data": {
+			"type": "object"
+		},
+		"children": {
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/renderTreeNode"
+			}
 		}
 	},
-	"additionalProperties": true
+	"$defs": {
+		"renderTreeMetadata": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"minLength": 1
+				},
+				"author": {
+					"type": "string"
+				},
+				"createdAt": {
+					"type": "string"
+				},
+				"description": {
+					"type": "string"
+				},
+				"updatedAt": {
+					"type": "string"
+				}
+			}
+		},
+		"renderTreeNodeMetadata": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["id", "title"],
+			"properties": {
+				"id": {
+					"type": "string",
+					"minLength": 1
+				},
+				"title": {
+					"type": "string",
+					"minLength": 1
+				},
+				"author": {
+					"type": "string"
+				},
+				"createdAt": {
+					"type": "string"
+				},
+				"description": {
+					"type": "string"
+				},
+				"updatedAt": {
+					"type": "string"
+				}
+			}
+		},
+		"propBinding": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["bind"],
+			"properties": {
+				"bind": {
+					"type": "string",
+					"minLength": 1
+				},
+				"default": {
+					"type": ["string", "number", "boolean", "null"]
+				}
+			}
+		},
+		"propValue": {
+			"anyOf": [
+				{
+					"type": ["string", "number", "boolean", "null"]
+				},
+				{
+					"$ref": "#/$defs/propBinding"
+				},
+				{
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/propValue"
+					}
+				},
+				{
+					"type": "object",
+					"additionalProperties": {
+						"$ref": "#/$defs/propValue"
+					}
+				}
+			]
+		},
+		"props": {
+			"type": "object",
+			"additionalProperties": {
+				"$ref": "#/$defs/propValue"
+			}
+		},
+		"display": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"when": {
+					"anyOf": [
+						{
+							"type": "boolean"
+						},
+						{
+							"$ref": "#/$defs/propBinding"
+						}
+					]
+				},
+				"stateRole": {
+					"enum": ["base", "loading", "empty", "error", "success", "disabled", "expanded"]
+				}
+			}
+		},
+		"renderTreeNode": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": ["type", "componentVersion", "metadata"],
+			"properties": {
+				"type": {
+					"type": "string",
+					"minLength": 1
+				},
+				"componentVersion": {
+					"type": "string",
+					"minLength": 1
+				},
+				"metadata": {
+					"$ref": "#/$defs/renderTreeNodeMetadata"
+				},
+				"props": {
+					"$ref": "#/$defs/props"
+				},
+				"className": {
+					"type": "string"
+				},
+				"style": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"background": {
+							"type": "string"
+						},
+						"opacity": {
+							"type": "number"
+						}
+					}
+				},
+				"display": {
+					"$ref": "#/$defs/display"
+				},
+				"children": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/renderTreeNode"
+					}
+				}
+			}
+		}
+	}
 }

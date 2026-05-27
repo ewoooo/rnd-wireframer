@@ -10,9 +10,32 @@ export function createFakeGenerationAgentRunner(input: {
 
 		return {
 			payload: {
-				receivedTaskKind: request.taskKind,
-				smoke: true,
-				sourceSummary: input.agentInput.context.sourceSummary,
+				children: [
+					{
+						children: [
+							screenRegion("Screen.Header", "screen-header"),
+							{
+								children: [],
+								componentVersion: "0.1.0",
+								metadata: { id: "screen-contents", title: "Contents" },
+								props: {
+									layout: { direction: "column" },
+									scroll: true,
+								},
+								type: "Screen.Contents",
+							},
+							screenRegion("Screen.Bottom", "screen-bottom"),
+						],
+						componentVersion: "0.1.0",
+						metadata: {
+							id: input.agentInput.context.sourceSummary.screenCode,
+							title: input.agentInput.context.sourceSummary.screenName,
+						},
+						type: "Screen",
+					},
+				],
+				metadata: { id: input.agentInput.context.sourceSummary.screenCode },
+				version: input.agentInput.context.targetArtifact.schemaVersion,
 			},
 			session: {
 				mode: request.session?.mode ?? "new",
@@ -20,5 +43,18 @@ export function createFakeGenerationAgentRunner(input: {
 			},
 			taskKind: request.taskKind,
 		};
+	};
+}
+
+function screenRegion(type: "Screen.Header" | "Screen.Bottom", id: string) {
+	return {
+		children: [],
+		componentVersion: "0.1.0",
+		metadata: { id, title: id },
+		props: {
+			layout: { direction: "column" },
+			position: "static",
+		},
+		type,
 	};
 }

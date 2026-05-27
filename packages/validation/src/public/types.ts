@@ -6,12 +6,18 @@ export type ValidationPackageName = ValidationBoundary["packageName"];
 
 export type ValidationOperation = ValidationBoundary["owns"][number];
 
-export type ValidationTarget = "agent-result" | "component-usage" | "layout-props" | "render-tree";
+export type ValidationTarget =
+	| "agent-result"
+	| "component-usage"
+	| "layout-props"
+	| "render-tree"
+	| "schema-artifact";
 
 export type ValidationSeverity = "error" | "warning";
 
 export type ValidationIssueCode =
 	| "json-invalid"
+	| "schema-invalid"
 	| "required-field-missing"
 	| "duplicate-id"
 	| "unknown-component-type"

@@ -1,5 +1,6 @@
 import {
 	getJsonSchema,
+	type RenderTreeContract,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
 	type SourceSpec,
@@ -25,6 +26,15 @@ describe("@cx/schema public API", () => {
 				},
 			},
 		});
+		expect(getJsonSchema("render-tree")).toMatchObject({
+			$id: "render-tree.v0.1",
+			properties: {
+				version: {
+					const: "render-tree.v0.1",
+				},
+			},
+			required: ["version", "metadata", "children"],
+		});
 	});
 
 	it("types SourceSpec against the schema package contract", () => {
@@ -48,5 +58,36 @@ describe("@cx/schema public API", () => {
 		};
 
 		expect(sourceSpec.schemaVersion).toBe("source-spec.v0.1");
+	});
+
+	it("exposes schema contracts from the package root", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				components: [],
+				screen: {
+					areas: [],
+					name: "샘플",
+					route: "/sample",
+					screenCode: "SAMPLE",
+				},
+			},
+		};
+		const renderTree: RenderTreeContract = {
+			children: [],
+			metadata: {
+				id: "sample-screen",
+			},
+			version: SCHEMA_VERSION.renderTree,
+		};
+
+		expect(sourceSpec.schemaVersion).toBe(SCHEMA_VERSION.sourceSpec);
+		expect(renderTree.version).toBe(SCHEMA_VERSION.renderTree);
 	});
 });

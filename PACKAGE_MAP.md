@@ -37,11 +37,11 @@ Markdown source
 
 | 패키지 | 책임 | 주요 기능 | 두지 않는 책임 |
 |---|---|---|---|
-| `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema skeleton, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
+| `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
 | `@cx/parser` | Markdown/source 입력을 SourceSpec으로 정규화 | PRDD Markdown 파싱, source metadata 보존, parser issue 반환 | 파일 IO, Claude 실행, RenderTree 생성, catalog 검증 |
 | `@cx/orchestration` | 순수 stage input/output 조립과 next action 결정 | SourceSpec -> screen-generation AgentTaskInput, 후속 stage/transition contract | 파일 IO, Claude 실행, validation rule 판정, React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery` | 출력 타입 SSOT, workflow 소유, 저장, render |
-| `@cx/validation` | 생성물의 렌더 가능성과 catalog/layout 계약 검증 | `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
+| `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
 | `@cx/pipeline` | 승인된 side effect command 실행과 결과 회수 | `runSideEffects`, artifact write, run log write, approved artifact apply, parser adapter | 업무 판단, parsing rule, validation rule, Claude 실행, render |
 | `@cx/renderer` | RenderTree JSON을 React로 렌더링 | RenderTree 타입, node renderer registry, area/component node render | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
@@ -67,7 +67,7 @@ Markdown source
 | `@cx/layout-pattern-store` | `.`, `./mutations`, `./resolver`, `./types` |
 | `@cx/smoke` | `.`, `./generation` |
 
-외부 패키지는 `src/internal/*`, 구현 디렉토리, generated artifact를 직접 import하지 않는다. `@cx/schema`는 root export만 사용하고 `src/json-schema/*`를 직접 import하지 않는다.
+외부 패키지는 `src/internal/*`, 구현 디렉토리, generated artifact를 직접 import하지 않는다. `@cx/schema`는 root export만 사용하고 `@cx/schema/*`, `src/json-schema/*`를 직접 import하지 않는다.
 
 ## 5. 관계 규칙
 

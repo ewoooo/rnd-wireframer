@@ -16,4 +16,5 @@ export {
 	validateComponentUsage,
 	validateLayoutProps,
 	validateRenderTree,
+	validateSchemaArtifact,
 } from "./public/validators";

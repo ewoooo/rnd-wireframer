@@ -11,6 +11,7 @@ export type GenerationSmokeArtifactInput = {
 	pipelineRunId: string;
 	runnerRequest: unknown;
 	sourceSpec: unknown;
+	validationReport: unknown;
 };
 
 export type GenerationSmokeArtifactResult = {
@@ -66,6 +67,12 @@ function createGenerationSmokeArtifactCommands(
 			input.runnerRequest,
 		),
 		createWriteCommand("write-agent-result", input.outDir, "agent-result.json", input.agentResult),
+		createWriteCommand(
+			"write-validation-report",
+			input.outDir,
+			"validation-report.json",
+			input.validationReport,
+		),
 	];
 }
 

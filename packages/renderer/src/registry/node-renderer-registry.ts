@@ -45,3 +45,11 @@ export class NodeRendererRegistry {
 		this.renderers.clear();
 	}
 }
+
+export function createNodeRendererRegistry(
+	definitions: NodeRendererDefinition[] = [],
+): NodeRendererRegistry {
+	const registry = new NodeRendererRegistry();
+	registry.registerAll(definitions);
+	return registry;
+}

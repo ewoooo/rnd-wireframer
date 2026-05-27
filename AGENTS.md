@@ -26,11 +26,11 @@
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
 - 재설계 기간에는 `@cx/agent`를 Claude Agent SDK 실행 adapter로만 운영한다. `@cx/layout-pattern-store`는 layout pattern reference catalog로 운영하되 내부 타입과 schema를 자체 소유한다. `@cx/importer`, `@cx/types`, `@cx/workflow` 패키지는 새 설계가 확정될 때까지 운영하지 않는다.
-- `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일이나 JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
+- `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일, 공개되지 않은 subpath, JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
 - `packages/parser`의 `@cx/parser` 패키지는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 parser로만 운영한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `packages/orchestration`의 `@cx/orchestration` 패키지는 생성/검수/미리보기/반영 stage의 순수 입력 조립, stage routing, next action 결정을 담당한다. 파일 쓰기, Claude 실행, 검증 rule 판정, React render 책임을 두지 않는다.
-- `packages/validation`의 `@cx/validation` 패키지는 DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
+- `packages/validation`의 `@cx/validation` 패키지는 `@cx/schema` JSON Schema, DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
 - `packages/pipeline`의 `@cx/pipeline` 패키지는 승인된 side effect 명령을 순서대로 전달하고 실행 결과를 회수하는 conveyor belt로만 운영한다. Claude 실행, 순수 orchestration, 검증 rule 판정, 비즈니스 workflow 소유, RenderTree render, catalog 값 소유, mock 원본 수정 책임을 두지 않는다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.

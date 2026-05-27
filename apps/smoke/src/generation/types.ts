@@ -2,7 +2,7 @@ import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
 import type { ScreenGenerationAgentInput } from "@cx/orchestration/types";
 import type { ParseMarkdownSourceCommandResult } from "@cx/pipeline/parser";
 import type { SideEffectExecutionResult } from "@cx/pipeline/types";
-import type { SourceSpec } from "@cx/schema";
+import type { SourceSpec, ValidationReportContract } from "@cx/schema";
 
 export type GenerationSmokeOptions = {
 	outDir?: string;
@@ -19,6 +19,7 @@ export type GenerationSmokeSummary = {
 	screenCode?: string;
 	session?: AgentRunResult["session"];
 	sourcePath: string;
+	validationOk?: boolean;
 };
 
 export type GenerationSmokeResult = {
@@ -33,4 +34,5 @@ export type GenerationSmokeResult = {
 	sourcePath: string;
 	sourceSpec?: SourceSpec;
 	summary: GenerationSmokeSummary;
+	validationReport?: ValidationReportContract;
 };

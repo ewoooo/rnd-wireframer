@@ -6,6 +6,10 @@ import type {
 } from "@cx/components/types";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
 import type { PropBinding } from "@cx/renderer";
+import type { GenerationArtifactKind } from "@cx/schema";
+import { getJsonSchema } from "@cx/schema";
+import type { ErrorObject, ValidateFunction } from "ajv";
+import Ajv2020 from "ajv/dist/2020";
 import type {
 	ValidationIssue,
 	ValidationReport,
@@ -93,6 +97,31 @@ const COMPONENT_PROP_TYPE_CHECKS = {
 	number: (value: unknown) => typeof value === "number" && Number.isFinite(value),
 	string: (value: unknown) => typeof value === "string",
 } as const satisfies Record<ComponentPropType, (value: unknown) => boolean>;
+
+const ajv = new Ajv2020({ allErrors: true, strict: false });
+const schemaValidatorCache = new Map<GenerationArtifactKind, ValidateFunction>();
+
+export function validateSchemaArtifact(
+	kind: GenerationArtifactKind,
+	input: unknown,
+): ValidationReport {
+	const issues: ValidationIssue[] = [];
+	const value = parseJsonLikeInput(input, issues);
+	if (value === undefined) return buildReport("schema-artifact", issues);
+
+	const validate = getSchemaValidator(kind);
+	if (validate(value)) return buildReport("schema-artifact", issues);
+
+	for (const error of validate.errors ?? []) {
+		addIssue(issues, {
+			code: "schema-invalid",
+			message: formatSchemaError(error),
+			path: parseJsonPointer(error.instancePath),
+		});
+	}
+
+	return buildReport("schema-artifact", issues);
+}
 
 export function validateAgentResult(
 	input: unknown,
@@ -676,4 +705,31 @@ function buildReport(target: ValidationTarget, issues: ValidationIssue[]): Valid
 		},
 		target,
 	};
+}
+
+function getSchemaValidator(kind: GenerationArtifactKind): ValidateFunction {
+	const cached = schemaValidatorCache.get(kind);
+	if (cached) return cached;
+	const validate = ajv.compile(getJsonSchema(kind));
+	schemaValidatorCache.set(kind, validate);
+	return validate;
+}
+
+function formatSchemaError(error: ErrorObject) {
+	const propertySuffix =
+		error.keyword === "additionalProperties" &&
+		isRecord(error.params) &&
+		typeof error.params.additionalProperty === "string"
+			? `: ${error.params.additionalProperty}`
+			: "";
+	return `${error.message ?? "Schema validation failed"}${propertySuffix}.`;
+}
+
+function parseJsonPointer(pointer: string): Path {
+	if (!pointer) return [];
+	return pointer
+		.slice(1)
+		.split("/")
+		.map((segment) => segment.replace(/~1/g, "/").replace(/~0/g, "~"))
+		.map((segment) => (/^\d+$/u.test(segment) ? Number(segment) : segment));
 }

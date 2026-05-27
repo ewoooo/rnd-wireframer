@@ -117,4 +117,75 @@ describe("@cx/parser markdown MVP parser", () => {
 			},
 		]);
 	});
+
+	it("maps reserved PRDD area numbers to screen slots even when text is ambiguous", () => {
+		const result = parseMarkdownSourceBundle({
+			importId: "reserved-area-prdd",
+			files: [
+				{
+					kind: "screen",
+					path: "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
+					content: [
+						"---",
+						"화면 ID: NOVA-PRDD-PG-001-0",
+						"화면 명: 상품 상세 핵심 요약 탐색",
+						"---",
+						"## 화면 구성",
+						"| no. | 영역 유형 | 영역 설명 | 영역 레이아웃 |",
+						"|-----|-----------|-----------|---------------|",
+						"| 0 | static | 공통 영역 | vertical |",
+						"| 1 | dynamic | 상품 정보 | vertical |",
+						"| 999 | static | 공통 영역 | vertical |",
+						"## 컴포넌트 상세",
+						"| 영역 | no. | 컴포넌트 명 | 컴포넌트 설명 | 컴포넌트 ID | variant | 표시 텍스트 |",
+						"|------|-----|------------|---------------|-------------|---------|-------------|",
+						"| 0 | 1 | AppBarHeader | 네비게이션 | AppBar | WithBack | title: 상품 상세 |",
+						"| 999 | 2 | BottomCTA | 구매 액션 | Button | primary | label: 가입하기 |",
+					].join("\n"),
+				},
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) throw new Error("parse failed");
+		expect(result.sourceSpec.sourceShape.screen.areas).toEqual([
+			{ sourceAreaNo: 0, slotHint: "header", name: "공통 영역" },
+			{ sourceAreaNo: 1, slotHint: "unknown", name: "상품 정보" },
+			{ sourceAreaNo: 999, slotHint: "bottom", name: "공통 영역" },
+		]);
+		expect(result.sourceSpec.sourceShape.components).toEqual([
+			expect.objectContaining({ sourceAreaNo: 0, sourceComponentId: "AppBar" }),
+			expect.objectContaining({ sourceAreaNo: 999, sourceComponentId: "Button" }),
+		]);
+	});
+
+	it("creates implicit header and bottom areas from component details when composition rows are missing", () => {
+		const result = parseMarkdownSourceBundle({
+			importId: "implicit-reserved-area-prdd",
+			files: [
+				{
+					kind: "screen",
+					path: "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
+					content: [
+						"---",
+						"화면 ID: NOVA-PRDD-PG-001-0",
+						"화면 명: 상품 상세 핵심 요약 탐색",
+						"---",
+						"## 컴포넌트 상세",
+						"| 영역 | no. | 컴포넌트 명 | 컴포넌트 설명 | 컴포넌트 ID | variant | 표시 텍스트 |",
+						"|------|-----|------------|---------------|-------------|---------|-------------|",
+						"| 0 | 1 | AppBarHeader | 네비게이션 | AppBar | WithBack | title: 상품 상세 |",
+						"| 999 | 2 | BottomCTA | 구매 액션 | Button | primary | label: 가입하기 |",
+					].join("\n"),
+				},
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) throw new Error("parse failed");
+		expect(result.sourceSpec.sourceShape.screen.areas).toEqual([
+			{ sourceAreaNo: 0, slotHint: "header", name: "screen.header" },
+			{ sourceAreaNo: 999, slotHint: "bottom", name: "screen.bottom" },
+		]);
+	});
 });

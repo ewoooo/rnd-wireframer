@@ -1,4 +1,5 @@
 export {
+	createNodeRendererRegistry,
 	type NodeRenderContext,
 	type NodeRenderer,
 	type NodeRendererDefinition,
@@ -21,7 +22,6 @@ export type {
 	RenderTreeScreenNode,
 } from "../tree/types";
 export {
-	nodeRendererRegistry,
 	RenderNodeView,
 	RenderTreeView,
 	renderJsonNode,

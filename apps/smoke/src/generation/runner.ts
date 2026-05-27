@@ -4,8 +4,11 @@ import { createAgentRuntime } from "@cx/agent";
 import { runAgentQuery } from "@cx/agent/adapters";
 import { createClaudeRunner } from "@cx/agent/claude";
 import type { AgentRunnerRequest } from "@cx/agent/contract";
+import { componentCatalog } from "@cx/components/catalog";
 import { buildScreenGenerationAgentInput } from "@cx/orchestration";
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
+import { SCHEMA_VERSION, type ValidationReportContract } from "@cx/schema";
+import { validateRenderTree, validateSchemaArtifact } from "@cx/validation";
 
 import { writeGenerationSmokeArtifacts } from "./artifacts";
 import { createFakeGenerationAgentRunner } from "./fake-agent-runner";
@@ -52,6 +55,7 @@ export async function runGenerationSmoke(
 			pipelineRunId: runId,
 			runnerRequest: undefined,
 			sourceSpec: parseCommandResult.parseResult.sourceSpec,
+			validationReport: undefined,
 		});
 		const summary = createGenerationSmokeSummary({
 			agentResult: undefined,
@@ -95,6 +99,7 @@ export async function runGenerationSmoke(
 		query: agentInput.query,
 		taskKind: "screen-generation",
 	});
+	const validationReport = createRenderTreeValidationReport(agentResult.payload);
 
 	const artifactResult = await writeGenerationSmokeArtifacts({
 		agentInput,
@@ -104,12 +109,14 @@ export async function runGenerationSmoke(
 		pipelineRunId: runId,
 		runnerRequest,
 		sourceSpec,
+		validationReport,
 	});
 	const summary = createGenerationSmokeSummary({
 		agentResult,
 		outDir,
 		parseCommandResult,
 		sourcePath,
+		validationReport,
 	});
 
 	return {
@@ -124,6 +131,7 @@ export async function runGenerationSmoke(
 		sourcePath,
 		sourceSpec,
 		summary,
+		validationReport,
 	};
 }
 
@@ -132,6 +140,7 @@ function createGenerationSmokeSummary(input: {
 	outDir: string;
 	parseCommandResult: GenerationSmokeResult["parseCommandResult"];
 	sourcePath: string;
+	validationReport?: ValidationReportContract;
 }): GenerationSmokeSummary {
 	const sourceSpec = input.parseCommandResult.parseResult.sourceSpec;
 	const screen = sourceSpec?.sourceShape.screen;
@@ -145,5 +154,25 @@ function createGenerationSmokeSummary(input: {
 		screenCode: screen?.screenCode,
 		session: input.agentResult?.session,
 		sourcePath: input.sourcePath,
+		validationOk: input.validationReport?.ok,
+	};
+}
+
+function createRenderTreeValidationReport(payload: unknown): ValidationReportContract {
+	const schemaReport = validateSchemaArtifact("render-tree", payload);
+	const semanticReport = validateRenderTree(payload, { componentCatalog });
+	const issues = [...schemaReport.issues, ...semanticReport.issues];
+	const errorCount = issues.filter((issue) => issue.severity === "error").length;
+	const warningCount = issues.filter((issue) => issue.severity === "warning").length;
+
+	return {
+		issues,
+		ok: errorCount === 0,
+		schemaVersion: SCHEMA_VERSION.validationReport,
+		summary: {
+			errorCount,
+			warningCount,
+		},
+		target: "render-tree",
 	};
 }

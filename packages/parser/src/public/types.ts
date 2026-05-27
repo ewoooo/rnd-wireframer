@@ -3,9 +3,11 @@ import type { parserBoundary } from "./contract";
 export type {
 	SourceFileKind,
 	SourceSpec,
-	SourceSpecArea,
-	SourceSpecComponent,
+	SourceSpecAreaNode,
+	SourceSpecComponentNode,
 	SourceSpecFile,
+	SourceSpecRegion,
+	SourceSpecRegionSlot,
 } from "@cx/schema";
 
 import type { SourceFileKind, SourceSpec } from "@cx/schema";

@@ -12,18 +12,25 @@ export type SourceSpecFile = {
 	title: string;
 };
 
-export type SourceSpecArea = {
-	name: string;
-	slotHint: "bottom" | "contents" | "header" | "unknown";
-	sourceAreaNo: number;
-};
+export type SourceSpecRegionSlot = "bottom" | "contents" | "header" | "unknown";
 
-export type SourceSpecComponent = {
+export type SourceSpecComponentNode = {
+	kind: "component";
 	label: string;
-	sourceAreaNo?: number;
 	sourceComponentId: string;
 	text?: string;
 	variant?: string;
+};
+
+export type SourceSpecAreaNode = {
+	children: SourceSpecComponentNode[];
+	kind: "area";
+	sourceAreaId: string;
+};
+
+export type SourceSpecRegion = {
+	children: SourceSpecAreaNode[];
+	slot: SourceSpecRegionSlot;
 };
 
 export type SourceSpec = {
@@ -35,10 +42,9 @@ export type SourceSpec = {
 		sourceKind: "prdd-markdown-bundle";
 	};
 	sourceShape: {
-		components: SourceSpecComponent[];
 		screen: {
-			areas: SourceSpecArea[];
 			name: string;
+			regions: SourceSpecRegion[];
 			route: string;
 			screenCode: string;
 		};

@@ -6,9 +6,11 @@ import type {
 	ParserIssue,
 	SourceFileKind,
 	SourceSpec,
-	SourceSpecArea,
-	SourceSpecComponent,
+	SourceSpecAreaNode,
+	SourceSpecComponentNode,
 	SourceSpecFile,
+	SourceSpecRegion,
+	SourceSpecRegionSlot,
 } from "./types";
 
 const COMPONENT_KEY_PATTERN = /^\s*(?:-|[*])?\s*(?:component|componentType)\s*[:：]\s*(.+?)\s*$/gim;
@@ -39,6 +41,15 @@ const COMPONENT_DETAIL_TABLE = {
 	},
 } as const;
 
+type SourceAreaDraft = {
+	sourceAreaId: string;
+};
+
+type SourceComponentDraft = SourceSpecComponentNode & {
+	sourceAreaId?: string;
+};
+
+// Markdown source bundle 전체를 SourceSpec result envelope로 변환한다.
 export function parseMarkdownSourceBundle(
 	input: ParseMarkdownSourceBundleInput,
 ): ParseMarkdownSourceBundleResult {
@@ -58,6 +69,8 @@ export function parseMarkdownSourceBundle(
 
 	const screenCode = resolveScreenCode(screenInput);
 	const screenName = resolveTitle(screenInput);
+	const components = extractComponents(input.files);
+	const areas = appendImplicitAreas(extractAreas(input.files), components);
 	const sourceSpec: SourceSpec = {
 		schemaVersion: SCHEMA_VERSION.sourceSpec,
 		sourceImport: {
@@ -71,9 +84,8 @@ export function parseMarkdownSourceBundle(
 				screenCode,
 				name: screenName,
 				route: extractRoute(screenInput.content, screenCode),
-				areas: extractAreas(input.files),
+				regions: buildRegions(areas, components),
 			},
-			components: extractComponents(input.files),
 		},
 	};
 
@@ -84,6 +96,7 @@ export function parseMarkdownSourceBundle(
 	};
 }
 
+// 개별 Markdown 파일의 kind, title, checksum 등 SourceSpec 파일 metadata를 만든다.
 function parseFileMetadata(
 	file: MarkdownSourceFileInput,
 	index: number,
@@ -119,6 +132,7 @@ function parseFileMetadata(
 	};
 }
 
+// 명시된 kind가 없을 때 path 힌트로 screen/area/component 파일 유형을 추론한다.
 function resolveKind(file: MarkdownSourceFileInput): SourceFileKind {
 	if (file.kind) return file.kind;
 	const lowerPath = file.path.toLowerCase();
@@ -128,6 +142,7 @@ function resolveKind(file: MarkdownSourceFileInput): SourceFileKind {
 	return "unknown";
 }
 
+// 입력 title, front matter key-value, 첫 heading 순서로 화면/영역 제목을 정한다.
 function resolveTitle(file: MarkdownSourceFileInput): string {
 	return (
 		file.title ??
@@ -137,6 +152,7 @@ function resolveTitle(file: MarkdownSourceFileInput): string {
 	);
 }
 
+// screenCode 명시값, Markdown key-value, 파일명 코드, slug 순서로 화면 코드를 정한다.
 function resolveScreenCode(file: MarkdownSourceFileInput): string {
 	return (
 		file.screenCode ??
@@ -146,6 +162,7 @@ function resolveScreenCode(file: MarkdownSourceFileInput): string {
 	);
 }
 
+// areaCode 명시값, Markdown key-value, OGN 코드, 파일 slug 순서로 영역 코드를 정한다.
 function resolveAreaCode(file: MarkdownSourceFileInput): string {
 	return (
 		file.areaCode ??
@@ -155,13 +172,12 @@ function resolveAreaCode(file: MarkdownSourceFileInput): string {
 	);
 }
 
-function extractAreas(files: MarkdownSourceFileInput[]): SourceSpecArea[] {
+// area 파일, 화면 구성 표, heading fallback 순서로 source area id 목록을 추출한다.
+function extractAreas(files: MarkdownSourceFileInput[]): SourceAreaDraft[] {
 	const explicitAreas = files
 		.filter((file) => resolveKind(file) === "area")
 		.map((file, index) => ({
-			sourceAreaNo: extractAreaNo(file.content) ?? (index + 1) * 10,
-			slotHint: inferSlotHint(file.content),
-			name: resolveTitle(file) || resolveAreaCode(file),
+			sourceAreaId: extractAreaId(file.content) ?? String((index + 1) * 10),
 		}));
 
 	if (explicitAreas.length > 0) return explicitAreas;
@@ -173,37 +189,34 @@ function extractAreas(files: MarkdownSourceFileInput[]): SourceSpecArea[] {
 	return tableAreas.length > 0 ? tableAreas : extractAreasFromScreenMarkdown(screen.content);
 }
 
-function extractAreasFromCompositionTable(content: string): SourceSpecArea[] {
+// PRDD의 "화면 구성" 표를 읽어 region 아래에 놓일 area id를 만든다.
+function extractAreasFromCompositionTable(content: string): SourceAreaDraft[] {
 	const rows = extractTableRowsFromSection(content, SCREEN_COMPOSITION_TABLE.section);
 	return rows
 		.map((row) => {
-			const sourceAreaNo = parseNumberCell(row[SCREEN_COMPOSITION_TABLE.columns.areaNo]);
-			if (sourceAreaNo === undefined) return undefined;
-			const description = row[SCREEN_COMPOSITION_TABLE.columns.description] ?? "";
-			const type = row[SCREEN_COMPOSITION_TABLE.columns.type] ?? "";
+			const sourceAreaId = normalizeAreaIdCell(row[SCREEN_COMPOSITION_TABLE.columns.areaNo]);
+			if (!sourceAreaId) return undefined;
 
 			return {
-				sourceAreaNo,
-				slotHint: inferSlotHint(`${description} ${type}`),
-				name: normalizeMarkdownCell(description || `영역 ${sourceAreaNo}`),
-			} satisfies SourceSpecArea;
+				sourceAreaId,
+			} satisfies SourceAreaDraft;
 		})
-		.filter((area): area is SourceSpecArea => Boolean(area));
+		.filter((area): area is SourceAreaDraft => Boolean(area));
 }
 
-function extractAreasFromScreenMarkdown(content: string): SourceSpecArea[] {
+// 표가 없을 때 area/section 관련 heading을 가벼운 area 후보로 사용한다.
+function extractAreasFromScreenMarkdown(content: string): SourceAreaDraft[] {
 	const headings = extractHeadings(content).filter((heading) =>
 		/(area|영역|섹션|ogn|cta|header|bottom|contents|본문|하단|상단)/i.test(heading),
 	);
 	return headings.map((heading, index) => ({
-		sourceAreaNo: (index + 1) * 10,
-		slotHint: inferSlotHint(heading),
-		name: cleanupHeadingLabel(heading),
+		sourceAreaId: String((index + 1) * 10),
 	}));
 }
 
-function extractComponents(files: MarkdownSourceFileInput[]): SourceSpecComponent[] {
-	const components: SourceSpecComponent[] = [];
+// 각 파일에서 컴포넌트 상세 표 또는 component 힌트를 모아 중복 제거된 컴포넌트 목록을 만든다.
+function extractComponents(files: MarkdownSourceFileInput[]): SourceComponentDraft[] {
+	const components: SourceComponentDraft[] = [];
 	for (const file of files) {
 		const tableComponents = extractComponentsFromDetailTable(file.content);
 		if (tableComponents.length > 0) {
@@ -213,8 +226,9 @@ function extractComponents(files: MarkdownSourceFileInput[]): SourceSpecComponen
 
 		for (const hint of extractComponentHints(file.content)) {
 			components.push({
+				kind: "component",
 				sourceComponentId: hint.name,
-				sourceAreaNo: extractAreaNo(file.content),
+				sourceAreaId: extractAreaId(file.content),
 				label: extractNearestLabel(file.content, hint.index) ?? hint.name,
 				text: extractKeyValue(file.content, "text") ?? extractKeyValue(file.content, "label"),
 			});
@@ -224,7 +238,8 @@ function extractComponents(files: MarkdownSourceFileInput[]): SourceSpecComponen
 	return dedupeComponents(components);
 }
 
-function extractComponentsFromDetailTable(content: string): SourceSpecComponent[] {
+// PRDD의 "컴포넌트 상세" 표를 SourceSpec component 목록으로 변환한다.
+function extractComponentsFromDetailTable(content: string): SourceComponentDraft[] {
 	const rows = extractTableRowsFromSection(content, COMPONENT_DETAIL_TABLE.section);
 	return rows
 		.map((row) => {
@@ -233,25 +248,27 @@ function extractComponentsFromDetailTable(content: string): SourceSpecComponent[
 			);
 			if (!sourceComponentId || sourceComponentId === "-") return undefined;
 
-			const sourceAreaNo = parseNumberCell(row[COMPONENT_DETAIL_TABLE.columns.areaNo]);
 			const label =
 				normalizeMarkdownCell(row[COMPONENT_DETAIL_TABLE.columns.name] ?? "") ||
 				normalizeMarkdownCell(row[COMPONENT_DETAIL_TABLE.columns.description] ?? "") ||
 				sourceComponentId;
 			const text = normalizeDisplayText(row[COMPONENT_DETAIL_TABLE.columns.displayText]);
 			const variant = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.variant]);
+			const sourceAreaId = normalizeAreaIdCell(row[COMPONENT_DETAIL_TABLE.columns.areaNo]);
 
 			return {
+				kind: "component",
 				sourceComponentId,
-				...(sourceAreaNo === undefined ? {} : { sourceAreaNo }),
+				...(sourceAreaId ? { sourceAreaId } : {}),
 				label,
 				...(text ? { text } : {}),
 				...(variant ? { variant } : {}),
-			} satisfies SourceSpecComponent;
+			} satisfies SourceComponentDraft;
 		})
-		.filter((component): component is SourceSpecComponent => Boolean(component));
+		.filter((component): component is SourceComponentDraft => Boolean(component));
 }
 
+// 표가 없을 때 component/componentType key-value 또는 대문자 컴포넌트명 라인을 힌트로 수집한다.
 function extractComponentHints(content: string): Array<{ index: number; name: string }> {
 	const explicitHints = [...content.matchAll(COMPONENT_KEY_PATTERN)].flatMap((match) => {
 		const rawValue = match[1] ?? "";
@@ -268,6 +285,7 @@ function extractComponentHints(content: string): Array<{ index: number; name: st
 		.filter((hint) => hint.name.length > 0);
 }
 
+// route 명시값이 없으면 screenCode를 URL path 형태로 낮춰 기본 route를 만든다.
 function extractRoute(content: string, screenCode: string): string {
 	return (
 		extractFirstValue(content, SOURCE_ROUTE_KEYS) ??
@@ -275,10 +293,12 @@ function extractRoute(content: string, screenCode: string): string {
 	);
 }
 
+// Markdown 문서에서 첫 heading만 반환한다.
 function extractFirstHeading(content: string): string | undefined {
 	return extractHeadings(content)[0];
 }
 
+// Markdown 문서의 모든 ATX heading 텍스트를 순서대로 추출한다.
 function extractHeadings(content: string): string[] {
 	return content
 		.split(/\r?\n/)
@@ -286,15 +306,18 @@ function extractHeadings(content: string): string[] {
 		.filter((heading): heading is string => Boolean(heading));
 }
 
+// 한 줄이 Markdown ATX heading이면 heading label만 반환한다.
 function extractHeadingFromLine(line: string): string | undefined {
 	return line.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/)?.[1]?.trim();
 }
 
+// "key: value" 또는 "key：value" 형태의 첫 값을 추출한다.
 function extractKeyValue(content: string, key: string): string | undefined {
 	const pattern = new RegExp(`^\\s*(?:-|\\*)?\\s*${key}\\s*[:：]\\s*(.+?)\\s*$`, "im");
 	return content.match(pattern)?.[1]?.trim();
 }
 
+// 여러 key 후보 중 가장 먼저 발견되는 key-value 값을 반환한다.
 function extractFirstValue(content: string, keys: readonly string[]): string | undefined {
 	for (const key of keys) {
 		const value = extractKeyValue(content, key);
@@ -303,35 +326,91 @@ function extractFirstValue(content: string, keys: readonly string[]): string | u
 	return undefined;
 }
 
-function extractAreaNo(content: string): number | undefined {
-	return parseNumberCell(extractFirstValue(content, SOURCE_AREA_NO_KEYS));
+// area/sourceAreaNo 계열 key-value를 원문 계층형 area id로 보존한다.
+function extractAreaId(content: string): string | undefined {
+	return normalizeAreaIdCell(extractFirstValue(content, SOURCE_AREA_NO_KEYS));
 }
 
-function inferSlotHint(content: string): SourceSpecArea["slotHint"] {
-	const lower = content.toLowerCase();
-	if (/header|상단|앱바/.test(lower)) return "header";
-	if (/bottom|하단|cta|버튼/.test(lower)) return "bottom";
-	if (/contents|content|본문|요약|상세/.test(lower)) return "contents";
+// 컴포넌트 상세 표에만 등장한 area id도 region children의 area 노드로 보강한다.
+function appendImplicitAreas(
+	areas: SourceAreaDraft[],
+	components: SourceComponentDraft[],
+): SourceAreaDraft[] {
+	const areaIds = new Set(areas.map((area) => area.sourceAreaId));
+	const implicitAreas: SourceAreaDraft[] = [];
+
+	for (const component of components) {
+		if (!component.sourceAreaId || areaIds.has(component.sourceAreaId)) continue;
+
+		areaIds.add(component.sourceAreaId);
+		implicitAreas.push({ sourceAreaId: component.sourceAreaId });
+	}
+
+	return [...areas, ...implicitAreas].sort((left, right) =>
+		compareAreaId(left.sourceAreaId, right.sourceAreaId),
+	);
+}
+
+// area id를 region slot으로 나누고, 각 region children 아래 area 노드를 구성한다.
+function buildRegions(
+	areas: SourceAreaDraft[],
+	components: SourceComponentDraft[],
+): SourceSpecRegion[] {
+	const regionsBySlot = new Map<SourceSpecRegionSlot, SourceSpecAreaNode[]>();
+
+	for (const area of areas) {
+		const slot = inferRegionSlotFromAreaId(area.sourceAreaId);
+		const children = components
+			.filter((component) => component.sourceAreaId === area.sourceAreaId)
+			.map(toComponentNode);
+		const areaNode: SourceSpecAreaNode = {
+			kind: "area",
+			sourceAreaId: area.sourceAreaId,
+			children,
+		};
+
+		regionsBySlot.set(slot, [...(regionsBySlot.get(slot) ?? []), areaNode]);
+	}
+
+	return (["header", "contents", "bottom", "unknown"] as const)
+		.map((slot) => ({
+			slot,
+			children: regionsBySlot.get(slot) ?? [],
+		}))
+		.filter((region) => region.children.length > 0);
+}
+
+// 파서 내부 grouping용 sourceAreaId를 제거하고 공개 component node만 남긴다.
+function toComponentNode(component: SourceComponentDraft): SourceSpecComponentNode {
+	const { sourceAreaId: _sourceAreaId, ...node } = component;
+	return node;
+}
+
+// PRDD 예약 번호와 본문 번호 범위를 region slot으로 고정한다.
+function inferRegionSlotFromAreaId(sourceAreaId: string): SourceSpecRegionSlot {
+	const rootNo = parseAreaRootNo(sourceAreaId);
+	if (rootNo === 0) return "header";
+	if (rootNo === 999) return "bottom";
+	if (rootNo !== undefined && rootNo >= 1 && rootNo <= 998) return "contents";
 	return "unknown";
 }
 
+// 파일명이나 path에서 특정 코드 패턴의 첫 캡처 값을 꺼낸다.
 function extractCodeLike(value: string, pattern: RegExp): string | undefined {
 	return value.match(pattern)?.[1];
 }
 
+// component 힌트 직전 몇 줄에서 label key-value나 heading을 찾아 사람이 읽는 label로 사용한다.
 function extractNearestLabel(content: string, index: number): string | undefined {
 	const before = content.slice(0, index).split(/\r?\n/).slice(-3).join("\n");
 	return extractKeyValue(before, "label") ?? extractFirstHeading(before);
 }
 
-function cleanupHeadingLabel(value: string): string {
-	return value.replace(/^(area|영역|섹션|ogn)\s*[:：-]?\s*/i, "").trim();
-}
-
-function dedupeComponents(components: SourceSpecComponent[]): SourceSpecComponent[] {
+// 같은 component id, area id, label 조합이 반복되면 첫 항목만 남긴다.
+function dedupeComponents(components: SourceComponentDraft[]): SourceComponentDraft[] {
 	const seen = new Set<string>();
 	return components.filter((component) => {
-		const key = `${component.sourceComponentId}:${component.sourceAreaNo ?? "unknown"}:${component.label}`;
+		const key = `${component.sourceComponentId}:${component.sourceAreaId ?? "unknown"}:${component.label}`;
 		if (seen.has(key)) return false;
 		seen.add(key);
 		return true;
@@ -340,6 +419,7 @@ function dedupeComponents(components: SourceSpecComponent[]): SourceSpecComponen
 
 type MarkdownTableRow = Record<string, string>;
 
+// 특정 section 아래의 첫 Markdown table을 header-keyed row 객체 배열로 변환한다.
 function extractTableRowsFromSection(content: string, sectionTitle: string): MarkdownTableRow[] {
 	const section = extractSectionContent(content, sectionTitle);
 	if (!section) return [];
@@ -362,6 +442,7 @@ function extractTableRowsFromSection(content: string, sectionTitle: string): Mar
 		);
 }
 
+// 지정한 heading section의 본문을 다음 heading 전까지 잘라낸다.
 function extractSectionContent(content: string, sectionTitle: string): string | undefined {
 	const lines = content.split(/\r?\n/);
 	const startIndex = lines.findIndex((line) => extractHeadingFromLine(line) === sectionTitle);
@@ -376,10 +457,12 @@ function extractSectionContent(content: string, sectionTitle: string): string | 
 		.join("\n");
 }
 
+// Markdown table 한 줄의 양끝 pipe를 제거하고 cell 단위로 정규화한다.
 function splitMarkdownTableRow(line: string): string[] {
 	return line.replace(/^\|/, "").replace(/\|$/, "").split("|").map(normalizeMarkdownCell);
 }
 
+// Markdown table cell의 HTML 줄바꿈을 실제 줄바꿈으로 바꾸고 공백을 정리한다.
 function normalizeMarkdownCell(value: string | undefined): string {
 	return (value ?? "")
 		.replaceAll("<br>", "\n")
@@ -388,21 +471,45 @@ function normalizeMarkdownCell(value: string | undefined): string {
 		.trim();
 }
 
+// 비어 있거나 "-"인 table cell은 optional field에서 제외한다.
 function normalizeOptionalCell(value: string | undefined): string | undefined {
 	const normalized = normalizeMarkdownCell(value);
 	return normalized && normalized !== "-" ? normalized : undefined;
 }
 
+// 표시 텍스트 cell을 optional text 값으로 정규화한다.
 function normalizeDisplayText(value: string | undefined): string | undefined {
 	return normalizeOptionalCell(value);
 }
 
-function parseNumberCell(value: string | undefined): number | undefined {
+// table cell에서 "1" 또는 "1-2" 같은 PRDD area id만 보존한다.
+function normalizeAreaIdCell(value: string | undefined): string | undefined {
 	const normalized = normalizeMarkdownCell(value);
-	const parsed = normalized ? Number.parseInt(normalized, 10) : Number.NaN;
+	return normalized.match(/\d+(?:-\d+)*/)?.[0];
+}
+
+// area id의 첫 숫자를 region slot 판정용 root 번호로 변환한다.
+function parseAreaRootNo(sourceAreaId: string): number | undefined {
+	const parsed = Number.parseInt(sourceAreaId.split("-")[0] ?? "", 10);
 	return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+// 계층형 area id를 1, 1-1, 1-2, 2 순서로 정렬한다.
+function compareAreaId(left: string, right: string): number {
+	const leftParts = left.split("-").map((part) => Number.parseInt(part, 10));
+	const rightParts = right.split("-").map((part) => Number.parseInt(part, 10));
+	const length = Math.max(leftParts.length, rightParts.length);
+
+	for (let index = 0; index < length; index += 1) {
+		const leftPart = leftParts[index] ?? -1;
+		const rightPart = rightParts[index] ?? -1;
+		if (leftPart !== rightPart) return leftPart - rightPart;
+	}
+
+	return left.localeCompare(right);
+}
+
+// path의 파일명을 SourceSpec id fallback에 사용할 안전한 slug로 바꾼다.
 function slugFromPath(path: string): string {
 	const name =
 		path
@@ -412,6 +519,7 @@ function slugFromPath(path: string): string {
 	return name.replace(/[^A-Za-z0-9가-힣_-]+/g, "-").replace(/^-+|-+$/g, "") || "source";
 }
 
+// 원본 Markdown 변경을 추적하기 위한 가벼운 deterministic checksum을 만든다.
 function stableTextChecksum(value: string): string {
 	let hash = 5381;
 	for (let index = 0; index < value.length; index += 1) {

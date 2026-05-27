@@ -1,5 +1,10 @@
 import type { AgentTaskInput } from "@cx/agent/contract";
-import type { SourceSpec } from "@cx/schema";
+import type {
+	GenerationArtifactKind,
+	JsonSchemaDocument,
+	SchemaVersion,
+	SourceSpec,
+} from "@cx/schema";
 import type { orchestrationBoundary } from "./contract";
 
 export type OrchestrationBoundary = typeof orchestrationBoundary;
@@ -43,6 +48,11 @@ export type ScreenGenerationAgentContext = {
 		route: string;
 		screenCode: string;
 		screenName: string;
+	};
+	targetArtifact: {
+		jsonSchema: JsonSchemaDocument;
+		kind: GenerationArtifactKind;
+		schemaVersion: SchemaVersion;
 	};
 };
 

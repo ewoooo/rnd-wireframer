@@ -11,7 +11,9 @@ export type {
 	ParserPackageName,
 	SourceFileKind,
 	SourceSpec,
-	SourceSpecArea,
-	SourceSpecComponent,
+	SourceSpecAreaNode,
+	SourceSpecComponentNode,
 	SourceSpecFile,
+	SourceSpecRegion,
+	SourceSpecRegionSlot,
 } from "./public/types";
