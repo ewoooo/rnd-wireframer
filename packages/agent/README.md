@@ -82,7 +82,7 @@ md (client-imports) 또는 read model
 
 **단계 내부는 두 패스로 구성**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 비용 0의 안전한 기본값을 만들고, (2)가 빈 곳/의심 케이스를 보강한다. Decorator의 (2)는 marketplace(Vendor↔Consumer) 협상으로 진행할 예정 (설계 진행 중).
 
-**외부 의존 경계**: markdown 파싱은 오직 Register에서만. Composer/Decorator/Design Review/DB는 이전 단계 산출물, `component-catalog`, `@cx/pattern-store` 카탈로그, `docs/design/` 근거 문서만 참조한다. `deck/*` 산출물은 LLM prompt packaging과 감사/재현 snapshot이며, validator의 기본 기준은 SSOT를 직접 조회하는 `ValidatorContext`다. Design Review의 판단값은 `design-review-contracts.ts`와 `@cx/pattern-store`가 소유하고, reviewer/apply 함수 안에 component id, CTA label, region area pattern 같은 값을 직접 박지 않는다.
+**외부 의존 경계**: markdown 파싱은 오직 Register에서만. Composer/Decorator/Design Review/DB는 이전 단계 산출물, `component-catalog`, `@cx/component-pattern-store`, `@cx/pattern-store` 카탈로그, `docs/design/` 근거 문서만 참조한다. `deck/*` 산출물은 LLM prompt packaging과 감사/재현 snapshot이며, validator의 기본 기준은 SSOT를 직접 조회하는 `ValidatorContext`다. Design Review의 판단값은 `design-review-contracts.ts`와 `@cx/pattern-store`가 소유하고, reviewer/apply 함수 안에 component id, CTA label, region area pattern 같은 값을 직접 박지 않는다.
 
 Claude 생성은 로컬 Claude 실행 파일을 우선 사용한다. 각 생성 요청은 기본적으로 새 세션에서 실행하며, 이전 대화를 이어야 하는 명시적 검수/재시도 흐름에서만 `continueSession: true`를 전달한다.
 

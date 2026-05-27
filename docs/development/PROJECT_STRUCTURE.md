@@ -68,6 +68,10 @@ packages/agent/src/
 
 `@cx/types`는 런타임 구현을 갖지 않는 공유 계약 패키지다. `database/tables` row shape, pattern-store 계약처럼 `@cx/agent`, `@cx/renderer`, `apps/web`이 동시에 참조하는 타입은 여기에서 먼저 정의한다. 특정 패키지 구현 세부 타입은 이 패키지로 올리지 않는다.
 
+## 4.2 `packages/component-pattern-store` 구조
+
+`@cx/component-pattern-store`는 Compose가 재사용하거나 제안할 semantic UI block registry다. registered/proposed componentPattern catalog를 소유하고, `@cx/pattern-store`의 screen/region/area/composite layout recipe와 섞지 않는다.
+
 ## 5. 앱 구조 규칙
 
 `apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다.

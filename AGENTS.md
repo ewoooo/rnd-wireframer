@@ -21,6 +21,7 @@
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
 - 컴포넌트별 prop, variant, AI 작성 가능 surface 계약은 `packages/renderer/src/component-catalog.ts`의 `component-catalog`에서 관리하고 compose/AI/editor가 이를 참조한다.
+- 재사용 가능한 semantic UI 조합인 componentPattern registry는 `packages/component-pattern-store`의 `@cx/component-pattern-store` 패키지에서 관리한다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
@@ -32,7 +33,7 @@
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
 - 원천 import는 `database/client-imports/`, AI import 후보 산출물은 `database/ai-imports/`, 승인된 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
 - `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/*.materialized.json` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
-- `database/generated-decks`는 LLM prompt packaging과 감사/재현을 위한 snapshot 산출물이다. 계약 검증의 기준은 deck이 아니라 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
+- `database/generated-decks`는 LLM prompt packaging과 감사/재현을 위한 snapshot 산출물이다. 계약 검증의 기준은 deck이 아니라 `@cx/components/catalog`, `@cx/component-pattern-store`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
 - AI generation 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 순서로 본다. `ComposedNodeTree` 이후에는 `raw`와 pending placeholder를 남기지 않는다. Design Review patch는 반드시 `docs/design/` 책임 문서를 근거로 제한된 operation만 제안한다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한 뒤 compose에서 `component.hooks`로 승격한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.

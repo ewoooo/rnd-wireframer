@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadComponentPatternStore } from "@cx/component-pattern-store";
 import { componentCatalog } from "@cx/components/catalog";
 import { loadPatternStore } from "@cx/pattern-store";
-import { parseDesignDocument } from "../../../design/design-parser";
 import type {
 	CatalogDeck,
 	ComponentPatternCard,
@@ -19,9 +19,11 @@ import type {
 	ComponentCatalogEntry,
 	ComponentPropContract,
 } from "@cx/types/component-catalog";
+import type { ComponentPattern } from "@cx/types/component-pattern";
 import type { DesignDocumentId } from "@cx/types/composition-output";
 import type { PatternStorePattern } from "@cx/types/pattern-store";
 import type { TokenRole } from "@cx/types/tokens";
+import { parseDesignDocument } from "../../../design/design-parser";
 import type { ValidatorContext, ValidatorDeps } from "../../types";
 
 /**
@@ -29,6 +31,7 @@ import type { ValidatorContext, ValidatorDeps } from "../../types";
  *
  * 기본 validation 기준은 deck snapshot이 아니라 SSOT다:
  * - @cx/components/catalog
+ * - @cx/component-pattern-store
  * - @cx/pattern-store
  * - @cx/types DesignDocumentId
  *
@@ -60,12 +63,16 @@ export function indexCatalogDeck(deck: CatalogDeck): CatalogIndex {
 }
 
 export function indexComponentCatalog(catalog: ComponentCatalog = componentCatalog): CatalogIndex {
+	const componentPatternStore = loadComponentPatternStore();
+	const registered = componentPatternStore.registered.map(toComponentPatternCard);
+	const proposed = componentPatternStore.proposed.map(toComponentPatternCard);
+
 	return {
 		primitives: new Map(
 			Object.entries(catalog).map(([type, entry]) => [type, toPrimitiveCard(type, entry)]),
 		),
-		componentPatterns: new Map(),
-		registeredComponentPatternIds: new Set(),
+		componentPatterns: new Map([...registered, ...proposed].map((card) => [card.id, card])),
+		registeredComponentPatternIds: new Set(registered.map((card) => card.id)),
 	};
 }
 
@@ -302,4 +309,44 @@ function toLayoutPatternCard(pattern: PatternStorePattern): LayoutPatternCard {
 
 function mapPatternTarget(target: PatternStorePattern["target"]): LayoutPatternNodeKind {
 	return target;
+}
+
+function toComponentPatternCard(pattern: ComponentPattern): ComponentPatternCard {
+	return {
+		id: pattern.id,
+		name: pattern.name,
+		status: pattern.status,
+		intent: pattern.intent,
+		rationale: pattern.rationale,
+		props: pattern.props,
+		slots: pattern.slots,
+		variants: pattern.variants,
+		compositionDigest: digestComposition(pattern.composition),
+	};
+}
+
+function digestComposition(composition: ComponentPattern["composition"]): string {
+	return stableHash(stableStringify(composition));
+}
+
+function stableStringify(value: unknown): string {
+	if (Array.isArray(value)) {
+		return `[${value.map(stableStringify).join(",")}]`;
+	}
+	if (value && typeof value === "object") {
+		const entries = Object.entries(value as Record<string, unknown>)
+			.filter(([, entryValue]) => entryValue !== undefined)
+			.sort(([a], [b]) => a.localeCompare(b));
+		return `{${entries.map(([key, entryValue]) => `${JSON.stringify(key)}:${stableStringify(entryValue)}`).join(",")}}`;
+	}
+	return JSON.stringify(value);
+}
+
+function stableHash(value: string): string {
+	let hash = 2166136261;
+	for (let i = 0; i < value.length; i += 1) {
+		hash ^= value.charCodeAt(i);
+		hash = Math.imul(hash, 16777619);
+	}
+	return (hash >>> 0).toString(16).padStart(8, "0");
 }

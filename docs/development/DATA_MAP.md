@@ -88,6 +88,7 @@ apps/web
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
+| `@cx/component-pattern-store` | primitive/componentPattern 조합으로 만든 재사용 semantic UI block registry | Compose 단계의 `reuse-pattern`, `proposedComponentPatterns` 큐레이션/재사용 |
 | `@cx/pattern-store` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 
 PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 `database/client-imports/PRDD/variants/`에 보관하며, 명시적 variant/retry 생성 또는 edge-case 검증 때만 입력으로 승격한다.
@@ -101,6 +102,7 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
+- `@cx/component-pattern-store`는 의미 있는 UI 조합 계약이다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
 - `@cx/pattern-store`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - pattern store의 layout recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 pattern store를 직접 읽지 않는다.
 - pattern store가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.

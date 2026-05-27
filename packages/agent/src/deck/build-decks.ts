@@ -27,7 +27,6 @@ export async function buildAllDecks(options: BuildAllDecksOptions): Promise<Buil
 	const outDir = resolve(root, "database", "generated-decks");
 
 	const catalogPromise = buildCatalogDeck({
-		componentPatternsRoot: resolve(root, "database", "component-patterns"),
 		version: options.version,
 		builtAt: options.builtAt,
 	});

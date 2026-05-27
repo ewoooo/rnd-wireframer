@@ -13,13 +13,13 @@ LLM이 PRDD를 읽어 화면을 조립하는 새 파이프라인의 **데이터 
 ```
 catalog/
 ├─ primitives/                ← 인간만 작성. ComponentPropContract 잠김
-└─ component-patterns/
+└─ component-patterns/         ← @cx/component-pattern-store
    ├─ registered/             ← 큐레이션 통과
    └─ proposed/               ← AI 저작, 검토 대기
 ```
 
 - **primitive**: 더 이상 쪼개지 않는 기초 컴포넌트. `@cx/components/catalog` 항목.
-- **componentPattern**: primitives(+다른 componentPatterns)의 parametrized composition. 자기 props·variants·contract를 가진 1급 객체.
+- **componentPattern**: primitives(+다른 componentPatterns)의 parametrized composition. 자기 props·variants·contract를 가진 1급 객체. `@cx/component-pattern-store`가 등록/제안 registry를 소유한다.
 - **layoutPattern**: screen/region/area/group의 배치 recipe. `@cx/pattern-store`가 소유한다.
 - AI는 primitives를 **추가하지 못한다**. 부족하면 *gap report*를 낸다.
 
@@ -663,6 +663,7 @@ LLM Composer가 호출 시점에 받는 catalog/design/layoutPatternStore deck�
 deck은 SOT가 아니다. 생성/검수/renderer projection의 실제 기준은 아래 원천 계약이다.
 
 - primitive/component surface: `@cx/components/catalog`
+- reusable componentPattern registry: `@cx/component-pattern-store`
 - layout preset: `@cx/pattern-store` (`packages/pattern-store/src/catalog/*.json`)
 - design rule/reference: `docs/design/*.md`
 - token/layout foundation: `@cx/tokens`, `@cx/layout`
@@ -739,13 +740,13 @@ interface ComponentPatternCard {
 ### 6.3 빌드 트리거
 
 - `@cx/components/catalog` 변경 시 → primitives 재생성
-- `component-patterns/registered/*` 변경 시 → componentPatterns.registered 재생성
-- `component-patterns/proposed/*` 변경 시 → componentPatterns.proposed 재생성
+- `packages/component-pattern-store/src/catalog/registered/*` 변경 시 → componentPatterns.registered 재생성
+- `packages/component-pattern-store/src/catalog/proposed/*` 변경 시 → componentPatterns.proposed 재생성
 - `docs/design/*.md` 변경 시 → design deck 재생성
 - `packages/pattern-store/src/catalog/*.json` 변경 시 → layoutPatternStore deck 재생성
 - pre-commit 또는 dev server start hook에서 자동
 
-**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI prompt packaging deck 산출물 위치다. Compose/Decorate prompt는 `catalog-deck.json`, `design-deck.json`, `layout-pattern-store-deck.json`을 함께 입력받되, validator와 deterministic code의 기준 계약은 항상 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
+**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI prompt packaging deck 산출물 위치다. Compose/Decorate prompt는 `catalog-deck.json`, `design-deck.json`, `layout-pattern-store-deck.json`을 함께 입력받되, validator와 deterministic code의 기준 계약은 항상 `@cx/components/catalog`, `@cx/component-pattern-store`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
 
 ---
 

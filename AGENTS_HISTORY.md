@@ -36,13 +36,13 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-27 - Deck Prompt Packaging Boundary
+## 2026-05-27 - Component Pattern Store Package
 
-- 변경: `database/generated-decks`와 `@cx/types` deck 타입을 LLM prompt packaging/audit snapshot으로 명확히 정리함
-- 변경: validator 기본 경로는 deck lookup이 아니라 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` SSOT를 직접 조회하는 `ValidatorContext`로 문서화함
-- 변경: deck 기반 validation context는 테스트/재현에서만 명시적으로 주입하는 snapshot 경로로 낮춤
-- 이유: deck을 유지하되 계약/검증 릴레이로 해석되면 SSOT와 drift가 생기므로, LLM 입력 번들 역할만 갖도록 경계를 고정하기 위함
-- 검증: `npm test -- packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts packages/agent/src/__tests__/build-decks.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check --write packages/agent/src/validate/rules/shared/deck-lookup.ts packages/agent/src/validate/types.ts packages/agent/src/validate/validate-composition.ts packages/agent/src/validate/validate-decorated.ts packages/agent/src/compose-screen/compose-screen.ts packages/agent/src/decorate-screen/decorate-screen.ts packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts packages/types/src/ai-deck.ts database/AI-COMPOSITION-SPEC.md database/README.md AGENTS.md packages/agent/README.md packages/agent/AGENTS.md AGENTS_HISTORY.md docs/agents-history/2026-05.md`
+- 변경: reusable semantic UI block registry를 위한 `@cx/component-pattern-store` 패키지를 추가하고 registered/proposed componentPattern catalog 위치를 확정함
+- 변경: catalog deck builder와 validator 기본 context가 없는 `database/component-patterns` 경로 대신 `@cx/component-pattern-store`를 직접 조회하도록 전환함
+- 변경: `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe라는 경계를 문서화함
+- 이유: componentPattern은 Compose의 재사용 UI 조합 계약이고 compositePattern은 Decorate/renderer의 layout recipe라서 같은 JSON으로 겸용하면 의미 계약과 배치 계약이 섞이기 때문
+- 검증: `npm test -- packages/agent/src/__tests__/build-decks.test.ts packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts`, `npx tsc --noEmit --pretty false`, `npm run build:decks`, `npx biome check --write AGENTS.md AGENTS_HISTORY.md database/AI-COMPOSITION-SPEC.md docs/agents-history/2026-05.md docs/development/DATA_MAP.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/PROJECT_STRUCTURE.md packages/agent/README.md packages/agent/package.json packages/agent/src/deck/build-catalog-deck.ts packages/agent/src/deck/build-decks.ts packages/agent/src/validate/rules/shared/deck-lookup.ts packages/component-pattern-store/package.json packages/component-pattern-store/README.md packages/component-pattern-store/src/index.ts packages/component-pattern-store/src/store.ts packages/component-pattern-store/src/catalog/registered.ts packages/component-pattern-store/src/catalog/proposed.ts package-lock.json`
 
 ## 2026-05-27 - RenderTree Responsibility Docs Sync
 
