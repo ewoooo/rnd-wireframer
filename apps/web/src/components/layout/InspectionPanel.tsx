@@ -1,22 +1,21 @@
-import type { WireframeNode, WireframeSchema } from "@cx/renderer";
+import type { WireframeNode } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
-import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
-import { cloneOrganism, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
+import { cloneScreen, deleteScreen, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import type { SelectedCompositeContext, SelectedOrganismContext } from "@/model/store";
+import type { SelectedComponentContext, SelectedAreaContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
-	const composite = useWorkbenchStore((state) => state.selectedComposite);
+	const component = useWorkbenchStore((state) => state.selectedComponent);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
-	const organism = useWorkbenchStore((state) => state.selectedOrganism);
+	const area = useWorkbenchStore((state) => state.selectedArea);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 	const validationErrors = useWorkbenchStore((state) => state.validationErrors);
@@ -24,7 +23,7 @@ export function InspectionPanel() {
 	const validationStats = useWorkbenchStore((state) => state.validationStats);
 	const validationSuccess = useWorkbenchStore((state) => state.validationSuccess);
 	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
-	const reorderScreenOrganisms = useWorkbenchStore((state) => state.reorderScreenOrganisms);
+	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 
 	const title = activeTab === "agent" ? "Agent" : "Information";
 
@@ -47,7 +46,7 @@ export function InspectionPanel() {
 					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
 				) : (
 					<div className="flex flex-col gap-4">
-						<ScreenActions screenCode={screen.code} screenName={screen.name} schema={screen.schema} screenVariantId={screen.screenVariantId} />
+						<ScreenActions screenCode={screen.code} screenName={screen.name} screenVariantId={screen.screenVariantId} />
 						<div className="flex flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
@@ -61,13 +60,13 @@ export function InspectionPanel() {
 							<InfoRow label="Variant type" value={screen.screenVariantType} />
 							<InfoRow label="Module" value={screen.module} />
 						</div>
-						{composite ? <CompositeInspection composite={composite} /> : null}
-						{organism ? <OrganismInspection organism={organism} /> : null}
+						{component ? <ComponentInspection component={component} /> : null}
+						{area ? <AreaInspection area={area} /> : null}
 						<Separator />
-						<ConnectedOrganismList
-							onReorder={reorderScreenOrganisms}
+						<ConnectedAreaList
+							onReorder={reorderScreenAreas}
 							screenCode={screen.code}
-							screenOrganisms={screen.organisms}
+							screenAreas={screen.organisms}
 						/>
 						<Separator />
 						<div className="flex flex-col gap-2">
@@ -131,77 +130,62 @@ function ValidationStats({
 	);
 }
 
-function ConnectedOrganismList({
+function ConnectedAreaList({
 	onReorder,
 	screenCode,
-	screenOrganisms,
+	screenAreas,
 }: {
-	onReorder: (screenCode: string, organismCodes: string[]) => void;
+	onReorder: (screenCode: string, areaCodes: string[]) => void;
 	screenCode: string;
-	screenOrganisms: Array<{ order: number; organismCode: string }>;
+	screenAreas: Array<{ order: number; organismCode: string }>;
 }) {
-	const [draggedOrganismCode, setDraggedOrganismCode] = useState("");
-	const canReorder = screenOrganisms.length > 1;
+	const [draggedAreaCode, setDraggedAreaCode] = useState("");
+	const canReorder = screenAreas.length > 1;
 
-	function handleDrop(targetOrganismCode: string) {
-		if (!draggedOrganismCode || draggedOrganismCode === targetOrganismCode) {
-			setDraggedOrganismCode("");
+	function handleDrop(targetAreaCode: string) {
+		if (!draggedAreaCode || draggedAreaCode === targetAreaCode) {
+			setDraggedAreaCode("");
 			return;
 		}
 
-		const previousOrganismCodes = screenOrganisms.map((organism) => organism.organismCode);
-		const nextOrganismCodes = moveItemBefore(
-			previousOrganismCodes,
-			draggedOrganismCode,
-			targetOrganismCode,
-		);
+		const previousAreaCodes = screenAreas.map((area) => area.organismCode);
+		const nextAreaCodes = moveItemBefore(previousAreaCodes, draggedAreaCode, targetAreaCode);
 
-		onReorder(screenCode, nextOrganismCodes);
-		setDraggedOrganismCode("");
+		onReorder(screenCode, nextAreaCodes);
+		setDraggedAreaCode("");
 	}
 
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between gap-3">
-				<h2 className="text-sm font-semibold">연결 OGN</h2>
+				<h2 className="text-sm font-semibold">연결 Area</h2>
 				<Badge variant="outline">local order</Badge>
 			</div>
 			<ul className="flex flex-col gap-2">
-				{screenOrganisms.map((screenOrganism) => (
-					<li key={screenOrganism.organismCode}>
+				{screenAreas.map((screenArea) => (
+					<li key={screenArea.organismCode}>
 						<button
 							aria-disabled={!canReorder}
 							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
-							data-dragging={draggedOrganismCode === screenOrganism.organismCode}
-							data-drop-target={
-								Boolean(draggedOrganismCode) && draggedOrganismCode !== screenOrganism.organismCode
-							}
+							data-dragging={draggedAreaCode === screenArea.organismCode}
+							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.organismCode}
 							draggable={canReorder}
-							onDragEnd={() => setDraggedOrganismCode("")}
-							onDragOver={(event) => {
-								if (canReorder) event.preventDefault();
-							}}
+							onDragEnd={() => setDraggedAreaCode("")}
+							onDragOver={(event) => { if (canReorder) event.preventDefault(); }}
 							onDragStart={(event) => {
 								if (!canReorder) return;
 								event.dataTransfer.effectAllowed = "move";
-								event.dataTransfer.setData("text/plain", screenOrganism.organismCode);
-								setDraggedOrganismCode(screenOrganism.organismCode);
+								event.dataTransfer.setData("text/plain", screenArea.organismCode);
+								setDraggedAreaCode(screenArea.organismCode);
 							}}
-							onDrop={(event) => {
-								event.preventDefault();
-								handleDrop(screenOrganism.organismCode);
-							}}
+							onDrop={(event) => { event.preventDefault(); handleDrop(screenArea.organismCode); }}
 							type="button"
 						>
 							<div className="flex min-w-0 items-center gap-2">
 								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
 								<div className="flex min-w-0 flex-col gap-1">
-									<span className="truncate text-sm font-medium">
-										{screenOrganism.organismCode}
-									</span>
-									<span className="text-xs text-muted-foreground">
-										order {screenOrganism.order}
-									</span>
+									<span className="truncate text-sm font-medium">{screenArea.organismCode}</span>
+									<span className="text-xs text-muted-foreground">order {screenArea.order}</span>
 								</div>
 							</div>
 							<Badge variant="outline">section</Badge>
@@ -216,46 +200,39 @@ function ConnectedOrganismList({
 function moveItemBefore(items: string[], movedItem: string, targetItem: string) {
 	const withoutMovedItem = items.filter((item) => item !== movedItem);
 	const targetIndex = withoutMovedItem.indexOf(targetItem);
-
 	if (targetIndex < 0) return items;
-
-	return [
-		...withoutMovedItem.slice(0, targetIndex),
-		movedItem,
-		...withoutMovedItem.slice(targetIndex),
-	];
+	return [...withoutMovedItem.slice(0, targetIndex), movedItem, ...withoutMovedItem.slice(targetIndex)];
 }
 
-function CompositeInspection({ composite }: { composite: SelectedCompositeContext }) {
+function ComponentInspection({ component }: { component: SelectedComponentContext }) {
 	return (
 		<>
 			<Separator />
 			<div className="flex flex-col gap-2">
-				<h2 className="text-sm font-semibold">선택 COMP</h2>
-				<InfoRow label="Composite id" value={composite.code} />
-				<InfoRow label="Type" value={composite.node.type} />
-				<InfoRow label="Source screen" value={composite.screen.code} />
-				<InfoRow label="Parent OGN" value={composite.organism?.code ?? "screen"} />
+				<h2 className="text-sm font-semibold">선택 Component</h2>
+				<InfoRow label="Component id" value={component.code} />
+				<InfoRow label="Type" value={component.node.type} />
+				<InfoRow label="Source screen" value={component.screen.code} />
+				<InfoRow label="Parent Area" value={component.area?.code ?? "screen"} />
 			</div>
-			<NodePropsPanel node={composite.node} />
+			<NodePropsPanel node={component.node} />
 		</>
 	);
 }
 
-function OrganismInspection({ organism }: { organism: SelectedOrganismContext }) {
+function AreaInspection({ area }: { area: SelectedAreaContext }) {
 	return (
 		<>
 			<Separator />
-			<OrganismActions organismCode={organism.code} screenCode={organism.screen.code} />
 			<div className="flex flex-col gap-2">
-				<h2 className="text-sm font-semibold">선택 OGN</h2>
-				<InfoRow label="OGN code" value={organism.code} />
-				<InfoRow label="Source screen" value={organism.screen.code} />
-				<InfoRow label="Composites" value={String(organism.node.children?.length ?? 0)} />
+				<h2 className="text-sm font-semibold">선택 Area</h2>
+				<InfoRow label="Area code" value={area.code} />
+				<InfoRow label="Source screen" value={area.screen.code} />
+				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
 			</div>
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">컴포넌트</h2>
-				{organism.node.children?.map((child, index) => (
+				{area.node.children?.map((child, index) => (
 					<div
 						key={child.metadata.id}
 						className="flex items-center justify-between rounded-lg border bg-background p-3"
@@ -274,7 +251,6 @@ function OrganismInspection({ organism }: { organism: SelectedOrganismContext })
 
 function NodePropsPanel({ node }: { node: WireframeNode }) {
 	const props = node.props ? JSON.stringify(node.props, null, 2) : "{}";
-
 	return (
 		<div className="flex flex-col gap-2">
 			<h2 className="text-sm font-semibold">Props</h2>
@@ -294,68 +270,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 	);
 }
 
-function OrganismActions({ organismCode, screenCode }: { organismCode: string; screenCode: string }) {
-	const [isPending, startTransition] = useTransition();
-	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
-	const [message, setMessage] = useState("");
-
-	function handleClone() {
-		startTransition(async () => {
-			setStatus("idle");
-			const result = await cloneOrganism(organismCode, screenCode);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage(`복제 완료 → ${result.newOrganismId}`);
-			}
-		});
-	}
-
-	return (
-		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
-			<div className="flex items-center justify-between gap-2">
-				<span className="text-xs font-semibold text-muted-foreground">OGN 작업</span>
-				<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
-					<Copy className="mr-1 size-3" />
-					{isPending ? "복제 중..." : "복제"}
-				</Button>
-			</div>
-			{status !== "idle" && (
-				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
-					{message}
-				</p>
-			)}
-		</div>
-	);
-}
-
-function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: WireframeSchema; screenVariantId: string }) {
+function ScreenActions({ screenCode, screenName, screenVariantId }: { screenCode: string; screenName: string; screenVariantId: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");
 	const [editingTitle, setEditingTitle] = useState(false);
 	const [title, setTitle] = useState(screenName);
 	const [confirmDelete, setConfirmDelete] = useState(false);
-
-	function handleSave() {
-		startTransition(async () => {
-			setStatus("idle");
-			const { screens: { screens: [sampleScreen] }, warnings } = renderTreeToTables(schema, { screenVariantId });
-			if (warnings.length > 0) {
-				console.warn("[ScreenActions] renderTreeToTables warnings:", warnings);
-			}
-			const result = await updateScreenRegions(screenCode, sampleScreen.screen);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage("저장 완료");
-			}
-		});
-	}
 
 	function handleClone() {
 		startTransition(async () => {
@@ -406,23 +327,7 @@ function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { sc
 			<div className="flex items-center justify-between gap-2">
 				<span className="text-xs font-semibold text-muted-foreground">화면 작업</span>
 				<div className="flex gap-1">
-					<Button
-						type="button"
-						size="sm"
-						variant="outline"
-						disabled={isPending}
-						onClick={handleSave}
-					>
-						<Save className="mr-1 size-3" />
-						{isPending ? "저장 중..." : "저장"}
-					</Button>
-					<Button
-						type="button"
-						size="sm"
-						variant="outline"
-						disabled={isPending}
-						onClick={handleClone}
-					>
+					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
 						<Copy className="mr-1 size-3" />
 						{isPending ? "복제 중..." : "복제"}
 					</Button>

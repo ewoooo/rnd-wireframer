@@ -34,7 +34,7 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		registerWireframeNodeKinds(initialData.rendererKinds);
 		initializeWorkbench({
 			agentRegistry,
-			organisms: initialData.organisms,
+			areas: initialData.organisms,
 			screens: initialData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);
