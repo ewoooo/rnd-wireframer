@@ -43,19 +43,13 @@
         |
         v
 parser / normalizer / resolver
-  ├─ archetype scaffold
-  ├─ componentPattern selection/proposal
-  └─ layoutPattern draft
+  └─ DraftTables 생성
         |
         v
 AI import 데이터
-  ├─ agent-assets.json             (GeneratedNodeTree, Claude SDK 원본)
-  ├─ agent-assets.registered.json  (RegisteredNodeTree, Register 결과)
-  ├─ agent-assets.composed.json    (ComposedNodeTree, Composer 결과)
-  ├─ agent-assets.decorated.json   (DecoratedNodeTree, Decorator 결과)
-  ├─ agent-assets.design-review.json   (DesignReview patch/report)
-  ├─ agent-assets.reviewed.json   (DesignReview patch 적용 DecoratedNodeTree)
-  └─ agent-assets.materialized.json   (MaterializedNodeTree, DB 변환 결과)
+  └─ draft-tables/{importId}/{screen}.draft-tables.json
+  └─ draft-tables/{importId}/{screen}.quality-report.json
+  └─ draft-tables/{importId}/{screen}.materialized.json
         |
         v
 promote / import
@@ -83,6 +77,8 @@ RenderTree DTO
         v
 apps/web
 ```
+
+Legacy/experimental 생성 흐름은 별도 subpath로 유지한다. 해당 흐름의 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용하지만 active path의 기본 산출물은 아니다.
 
 ## 3. 공급 데이터
 
