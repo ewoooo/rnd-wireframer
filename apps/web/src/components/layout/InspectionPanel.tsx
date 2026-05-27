@@ -1,100 +1,54 @@
-import type { RenderTreeNode } from "@cx/renderer";
+import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
-import { cloneScreen, deleteScreen, updateScreenAreaOrder, updateScreenTitle } from "@/app/actions/screen-actions";
+import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
+import { cloneOrganism, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import {
-	getWorkbenchAreaSelection,
-	getWorkbenchComponentSelection,
-	getWorkbenchValidationStatus,
-	type WorkbenchRenderSelection,
-} from "@/data/local-workbench-data-loader";
+import type { SelectedComponentContext, SelectedAreaContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 
 export function InspectionPanel() {
+	const component = useWorkbenchStore((state) => state.selectedComponent);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
-	const areaOrderOverrides = useWorkbenchStore((state) => state.areaOrderOverrides);
+	const area = useWorkbenchStore((state) => state.selectedArea);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
-	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
-	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
+	const validationErrors = useWorkbenchStore((state) => state.validationErrors);
+	const validationLabel = useWorkbenchStore((state) => state.validationLabel);
+	const validationStats = useWorkbenchStore((state) => state.validationStats);
+	const validationSuccess = useWorkbenchStore((state) => state.validationSuccess);
+	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
-	const component =
-		activeTab === "comp"
-			? getWorkbenchComponentSelection(selectedComponentCode, areaOrderOverrides)
-			: undefined;
-	const area =
-		activeTab === "ogn"
-			? getWorkbenchAreaSelection(selectedAreaCode, areaOrderOverrides)
-			: undefined;
-	const validation = screen ? getWorkbenchValidationStatus(screen.code) : undefined;
 
-	if (activeTab === "agent") {
-		return (
-			<Sidebar side="right">
-				<SidebarHeader className="border-b border-sidebar-border">
-					<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-						<Workflow data-icon="inline-start" />
-						Agent
-					</h2>
-				</SidebarHeader>
-				<SidebarContent>
-					<ScrollArea className="h-[calc(100vh-88px)]">
-						<AgentRegistryInspection
-							registry={agentRegistry}
-							selectedAsset={selectedAgentAsset}
-							warnings={agentWarnings}
-						/>
-					</ScrollArea>
-				</SidebarContent>
-			</Sidebar>
-		);
-	}
-
-	if (!screen) {
-		return (
-			<Sidebar side="right">
-				<SidebarHeader className="border-b border-sidebar-border">
-					<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-						<Workflow data-icon="inline-start" />
-						Information
-					</h2>
-				</SidebarHeader>
-				<SidebarContent className="p-3">
-					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
-				</SidebarContent>
-			</Sidebar>
-		);
-	}
-
-	const currentAreaCodes =
-		areaOrderOverrides[screen.code] ?? screen.areas.map((a) => a.areaCode);
+	const title = activeTab === "agent" ? "Agent" : "Information";
 
 	return (
 		<Sidebar side="right">
 			<SidebarHeader className="border-b border-sidebar-border">
 				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
 					<Workflow data-icon="inline-start" />
-					Information
+					{title}
 				</h2>
 			</SidebarHeader>
-			<SidebarContent className="overflow-hidden">
-				<ScrollArea className="h-[calc(100vh-88px)]">
-					<div className="flex min-w-0 flex-col gap-4 p-3">
-						<ScreenActions
-							screenCode={screen.code}
-							screenName={screen.name}
-							screenVariantId={screen.screenVariantId}
-							areaCodes={currentAreaCodes}
-						/>
-						<div className="flex min-w-0 flex-col gap-2">
+			<SidebarContent className="p-3">
+				{activeTab === "agent" ? (
+					<AgentRegistryInspection
+						registry={agentRegistry}
+						selectedAsset={selectedAgentAsset}
+						warnings={agentWarnings}
+					/>
+				) : !screen ? (
+					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
+				) : (
+					<div className="flex flex-col gap-4">
+						<ScreenActions screenCode={screen.code} screenName={screen.name} schema={screen.schema} screenVariantId={screen.screenVariantId} />
+						<div className="flex flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
 								label="Route"
@@ -107,7 +61,7 @@ export function InspectionPanel() {
 							<InfoRow label="Variant type" value={screen.screenVariantType} />
 							<InfoRow label="Module" value={screen.module} />
 						</div>
-						{component ? <ComponentInspection component={component} screenCode={screen.code} /> : null}
+						{component ? <ComponentInspection component={component} /> : null}
 						{area ? <AreaInspection area={area} /> : null}
 						<Separator />
 						<ConnectedAreaList
@@ -119,17 +73,17 @@ export function InspectionPanel() {
 						<div className="flex flex-col gap-2">
 							<h2 className="text-sm font-semibold">검증 상태</h2>
 							<div className="flex flex-wrap gap-2">
-								<Badge variant={validation?.success ? "default" : "outline"}>
-									{validation?.label ?? "screen source not selected"}
+								<Badge variant={validationSuccess ? "default" : "outline"}>
+									{validationLabel}
 								</Badge>
-								{validation && validation.warnings.length > 0 ? (
-									<Badge variant="secondary">{validation.warnings.length} warnings</Badge>
+								{validationWarnings.length > 0 ? (
+									<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
 								) : null}
 							</div>
-							{validation?.stats ? <ValidationStats stats={validation.stats} /> : null}
-							{validation && validation.warnings.length > 0 ? (
+							{validationStats ? <ValidationStats stats={validationStats} /> : null}
+							{validationWarnings.length > 0 ? (
 								<div className="flex flex-col gap-2">
-									{validation.warnings.map((warning) => (
+									{validationWarnings.map((warning) => (
 										<div
 											key={warning}
 											className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
@@ -139,9 +93,9 @@ export function InspectionPanel() {
 									))}
 								</div>
 							) : null}
-							{validation?.success ? null : (
+							{validationSuccess ? null : (
 								<div className="flex flex-col gap-2">
-									{validation?.errors.map((error) => (
+									{validationErrors.map((error) => (
 										<div key={error} className="rounded-lg border bg-background p-3 text-sm">
 											{error}
 										</div>
@@ -150,22 +104,212 @@ export function InspectionPanel() {
 							)}
 						</div>
 					</div>
-				</ScrollArea>
+				)}
 			</SidebarContent>
 		</Sidebar>
 	);
 }
 
-function ScreenActions({
-	screenCode,
-	screenName,
-	areaCodes,
+function ValidationStats({
+	stats,
 }: {
-	screenCode: string;
-	screenName: string;
-	screenVariantId: string;
-	areaCodes: string[];
+	stats: {
+		componentTypes: string[];
+		fallbackTypes: string[];
+		maxDepth: number;
+		rendererKinds: string[];
+		totalNodes: number;
+	};
 }) {
+	return (
+		<div className="grid grid-cols-2 gap-2">
+			<InfoRow label="Nodes" value={String(stats.totalNodes)} />
+			<InfoRow label="Depth" value={String(stats.maxDepth)} />
+			<InfoRow label="Types" value={String(stats.componentTypes.length)} />
+			<InfoRow label="Fallbacks" value={String(stats.fallbackTypes.length)} />
+		</div>
+	);
+}
+
+function ConnectedAreaList({
+	onReorder,
+	screenCode,
+	screenAreas,
+}: {
+	onReorder: (screenCode: string, areaCodes: string[]) => void;
+	screenCode: string;
+	screenAreas: Array<{ order: number; areaCode: string }>;
+}) {
+	const [draggedAreaCode, setDraggedAreaCode] = useState("");
+	const canReorder = screenAreas.length > 1;
+
+	function handleDrop(targetAreaCode: string) {
+		if (!draggedAreaCode || draggedAreaCode === targetAreaCode) {
+			setDraggedAreaCode("");
+			return;
+		}
+
+		const previousAreaCodes = screenAreas.map((area) => area.areaCode);
+		const nextAreaCodes = moveItemBefore(previousAreaCodes, draggedAreaCode, targetAreaCode);
+
+		onReorder(screenCode, nextAreaCodes);
+		setDraggedAreaCode("");
+	}
+
+	return (
+		<div className="flex flex-col gap-2">
+			<div className="flex items-center justify-between gap-3">
+				<h2 className="text-sm font-semibold">연결 Area</h2>
+				<Badge variant="outline">local order</Badge>
+			</div>
+			<ul className="flex flex-col gap-2">
+				{screenAreas.map((screenArea) => (
+					<li key={screenArea.areaCode}>
+						<button
+							aria-disabled={!canReorder}
+							className="flex w-full items-center justify-between gap-3 rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
+							data-dragging={draggedAreaCode === screenArea.areaCode}
+							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode}
+							draggable={canReorder}
+							onDragEnd={() => setDraggedAreaCode("")}
+							onDragOver={(event) => { if (canReorder) event.preventDefault(); }}
+							onDragStart={(event) => {
+								if (!canReorder) return;
+								event.dataTransfer.effectAllowed = "move";
+								event.dataTransfer.setData("text/plain", screenArea.areaCode);
+								setDraggedAreaCode(screenArea.areaCode);
+							}}
+							onDrop={(event) => { event.preventDefault(); handleDrop(screenArea.areaCode); }}
+							type="button"
+						>
+							<div className="flex min-w-0 items-center gap-2">
+								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
+								<div className="flex min-w-0 flex-col gap-1">
+									<span className="truncate text-sm font-medium">{screenArea.areaCode}</span>
+									<span className="text-xs text-muted-foreground">order {screenArea.order}</span>
+								</div>
+							</div>
+							<Badge variant="outline">section</Badge>
+						</button>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
+function moveItemBefore(items: string[], movedItem: string, targetItem: string) {
+	const withoutMovedItem = items.filter((item) => item !== movedItem);
+	const targetIndex = withoutMovedItem.indexOf(targetItem);
+	if (targetIndex < 0) return items;
+	return [...withoutMovedItem.slice(0, targetIndex), movedItem, ...withoutMovedItem.slice(targetIndex)];
+}
+
+function ComponentInspection({ component }: { component: SelectedComponentContext }) {
+	return (
+		<>
+			<Separator />
+			<div className="flex flex-col gap-2">
+				<h2 className="text-sm font-semibold">선택 Component</h2>
+				<InfoRow label="Component id" value={component.code} />
+				<InfoRow label="Type" value={component.node.type} />
+				<InfoRow label="Source screen" value={component.screen.code} />
+				<InfoRow label="Parent Area" value={component.area?.code ?? "screen"} />
+			</div>
+			<NodePropsPanel node={component.node} />
+		</>
+	);
+}
+
+function AreaInspection({ area }: { area: SelectedAreaContext }) {
+	return (
+		<>
+			<Separator />
+			<div className="flex flex-col gap-2">
+				<h2 className="text-sm font-semibold">선택 Area</h2>
+				<InfoRow label="Area code" value={area.code} />
+				<InfoRow label="Source screen" value={area.screen.code} />
+				<InfoRow label="Components" value={String(area.node.children?.length ?? 0)} />
+			</div>
+			<AreaActions areaCode={area.code} screenCode={area.screen.code} />
+			<div className="flex flex-col gap-2">
+				<h2 className="text-sm font-semibold">컴포넌트</h2>
+				{area.node.children?.map((child, index) => (
+					<div
+						key={child.metadata.id}
+						className="flex items-center justify-between rounded-lg border bg-background p-3"
+					>
+						<div className="flex min-w-0 flex-col gap-1">
+							<span className="truncate text-sm font-medium">{child.metadata.title}</span>
+							<span className="text-xs text-muted-foreground">{child.metadata.id}</span>
+						</div>
+						<Badge variant="outline">{index + 1}</Badge>
+					</div>
+				))}
+			</div>
+		</>
+	);
+}
+
+function NodePropsPanel({ node }: { node: RenderTreeNode }) {
+	const props = node.props ? JSON.stringify(node.props, null, 2) : "{}";
+	return (
+		<div className="flex flex-col gap-2">
+			<h2 className="text-sm font-semibold">Props</h2>
+			<pre className="max-h-64 overflow-auto rounded-lg border bg-background p-3 text-xs leading-5">
+				{props}
+			</pre>
+		</div>
+	);
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+	return (
+		<div className="flex items-center justify-between gap-3 rounded-lg border bg-background p-3">
+			<span className="text-xs text-muted-foreground">{label}</span>
+			<span className="truncate text-sm font-medium">{value}</span>
+		</div>
+	);
+}
+
+function AreaActions({ areaCode, screenCode }: { areaCode: string; screenCode: string }) {
+	const [isPending, startTransition] = useTransition();
+	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+	const [message, setMessage] = useState("");
+
+	function handleClone() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await cloneOrganism(areaCode, screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage(`복제 완료 → ${result.newOrganismId}`);
+			}
+		});
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
+			<div className="flex items-center justify-between gap-2">
+				<span className="text-xs font-semibold text-muted-foreground">OGN 작업</span>
+				<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
+					<Copy className="mr-1 size-3" />
+					{isPending ? "복제 중..." : "복제"}
+				</Button>
+			</div>
+			{status !== "idle" && (
+				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
+					{message}
+				</p>
+			)}
+		</div>
+	);
+}
+
+function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: RenderTree; screenVariantId: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");
@@ -176,7 +320,11 @@ function ScreenActions({
 	function handleSave() {
 		startTransition(async () => {
 			setStatus("idle");
-			const result = await updateScreenAreaOrder(screenCode, areaCodes);
+			const { screens: { screens: [sampleScreen] }, warnings } = renderTreeToTables(schema, { screenVariantId });
+			if (warnings.length > 0) {
+				console.warn("[ScreenActions] renderTreeToTables warnings:", warnings);
+			}
+			const result = await updateScreenRegions(screenCode, sampleScreen.screen);
 			if (result.error) {
 				setStatus("error");
 				setMessage(result.error);
@@ -300,167 +448,6 @@ function ScreenActions({
 					{message}
 				</p>
 			)}
-		</div>
-	);
-}
-
-function ValidationStats({
-	stats,
-}: {
-	stats: {
-		componentTypes: string[];
-		fallbackTypes: string[];
-		maxDepth: number;
-		rendererKinds: string[];
-		totalNodes: number;
-	};
-}) {
-	return (
-		<div className="grid grid-cols-2 gap-2">
-			<InfoRow label="Nodes" value={String(stats.totalNodes)} />
-			<InfoRow label="Depth" value={String(stats.maxDepth)} />
-			<InfoRow label="Types" value={String(stats.componentTypes.length)} />
-			<InfoRow label="Fallbacks" value={String(stats.fallbackTypes.length)} />
-		</div>
-	);
-}
-
-function ConnectedAreaList({
-	onReorder,
-	screenCode,
-	screenAreas,
-}: {
-	onReorder: (screenCode: string, areaCodes: string[]) => void;
-	screenCode: string;
-	screenAreas: Array<{ order: number; areaCode: string }>;
-}) {
-	const [draggedAreaCode, setDraggedAreaCode] = useState("");
-	const canReorder = screenAreas.length > 1;
-
-	function handleDrop(targetAreaCode: string) {
-		if (!draggedAreaCode || draggedAreaCode === targetAreaCode) {
-			setDraggedAreaCode("");
-			return;
-		}
-
-		const previousAreaCodes = screenAreas.map((area) => area.areaCode);
-		const nextAreaCodes = moveItemBefore(previousAreaCodes, draggedAreaCode, targetAreaCode);
-
-		onReorder(screenCode, nextAreaCodes);
-		setDraggedAreaCode("");
-	}
-
-	return (
-		<div className="flex flex-col gap-2">
-			<ul className="flex flex-col gap-2">
-				{screenAreas.map((screenArea) => (
-					<li className="min-w-0" key={screenArea.areaCode}>
-						<button
-							aria-disabled={!canReorder}
-							className="flex w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border bg-background p-3 text-left transition-colors data-[dragging=true]:border-primary data-[dragging=true]:bg-primary/5 data-[drop-target=true]:border-primary/70"
-							data-dragging={draggedAreaCode === screenArea.areaCode}
-							data-drop-target={Boolean(draggedAreaCode) && draggedAreaCode !== screenArea.areaCode}
-							draggable={canReorder}
-							onDragEnd={() => setDraggedAreaCode("")}
-							onDragOver={(event) => {
-								if (canReorder) event.preventDefault();
-							}}
-							onDragStart={(event) => {
-								if (!canReorder) return;
-								event.dataTransfer.effectAllowed = "move";
-								event.dataTransfer.setData("text/plain", screenArea.areaCode);
-								setDraggedAreaCode(screenArea.areaCode);
-							}}
-							onDrop={(event) => {
-								event.preventDefault();
-								handleDrop(screenArea.areaCode);
-							}}
-							type="button"
-						>
-							<div className="flex min-w-0 items-center gap-2">
-								<GripVertical className="size-4 shrink-0 text-muted-foreground" />
-								<div className="flex min-w-0 font-mono gap-1">
-									<span className="truncate text-sm font-medium">{screenArea.areaCode}</span>
-									<span className="text-xs text-muted-foreground"> {screenArea.order}</span>
-								</div>
-							</div>
-							<Badge className="shrink-0" variant="outline">
-								section
-							</Badge>
-						</button>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
-
-function moveItemBefore(items: string[], movedItem: string, targetItem: string) {
-	const withoutMovedItem = items.filter((item) => item !== movedItem);
-	const targetIndex = withoutMovedItem.indexOf(targetItem);
-
-	if (targetIndex < 0) return items;
-
-	return [
-		...withoutMovedItem.slice(0, targetIndex),
-		movedItem,
-		...withoutMovedItem.slice(targetIndex),
-	];
-}
-
-function ComponentInspection({
-	component,
-	screenCode,
-}: {
-	component: WorkbenchRenderSelection & { parentAreaCode?: string };
-	screenCode?: string;
-}) {
-	return (
-		<>
-			<Separator />
-			<div className="flex flex-col gap-2">
-				<InfoRow label="Component id" value={component.code} />
-				<InfoRow label="Type" value={component.node.type} />
-				<InfoRow label="Source screen" value={screenCode ?? component.screenCode} />
-				<InfoRow label="Parent area" value={component.parentAreaCode ?? "screen"} />
-			</div>
-			<NodePropsPanel node={component.node} />
-		</>
-	);
-}
-
-function AreaInspection({ area }: { area: WorkbenchRenderSelection }) {
-	return (
-		<>
-			<Separator />
-			<div className="flex min-w-0 flex-col gap-2">
-				<InfoRow label="Area id" value={area.code} />
-				<InfoRow label="Type" value={area.node.type} />
-				<InfoRow label="Source screen" value={area.screenCode} />
-			</div>
-			<NodePropsPanel node={area.node} />
-		</>
-	);
-}
-
-function NodePropsPanel({ node }: { node: RenderTreeNode }) {
-	const props = node.props ? JSON.stringify(node.props, null, 2) : "{}";
-
-	return (
-		<div className="flex flex-col gap-2">
-			<h2 className="text-sm font-semibold">Props</h2>
-			<pre className="max-h-64 overflow-auto rounded-lg border bg-background p-3 text-xs leading-5">
-				{props}
-			</pre>
-		</div>
-	);
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-	return (
-		<div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border bg-background p-3">
-			<span className="shrink-0 text-xs text-muted-foreground">{label}</span>
-			<span className="min-w-0 truncate text-right text-sm font-medium">{value}</span>
 		</div>
 	);
 }

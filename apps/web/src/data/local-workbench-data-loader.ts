@@ -1,239 +1,124 @@
+import { loadPatternStore } from "@cx/agent/pattern-store";
+import { isAreaType } from "@cx/types/node-types";
 import {
-	type RenderTree,
-	type RenderTreeNode,
-	type RenderTreeScreenNode,
-	type RenderTreeTableAreaRow,
-	type RenderTreeTableComponentRow,
-	type RenderTreeTableScreenRow,
-	tablesToRenderTrees,
 	validateRenderTreeFull,
+	type RenderTreeNode,
+	type RenderTree,
 } from "@cx/renderer";
-import { getNodeTypeFamily, isAreaType, NODE_TYPES } from "@cx/types/node-types";
-import { errorsOf, type ValidationStats as RenderTreeValidationStats, warningsOf } from "@cx/types/validation";
 import {
-	type AppComponent,
-	type DatabaseScreenRouteSet,
-	type DatabaseScreenRow,
-	type DatabaseScreenVariantSet,
-	validateDatabaseScreenSource,
+	type SampleCompositeSet,
+	type SampleOrganism,
+	type SampleScreenRouteSet,
+	type SampleScreenSet,
+	type SampleScreenVariantSet,
+	tablesToRenderTrees,
+	validateSampleScreenSource,
 } from "@/adapters/tables-to-render-tree";
-import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
-import areasTable from "../../../../database/tables/areas.json";
-import componentsTable from "../../../../database/tables/components.json";
-import screenRoutesTable from "../../../../database/tables/screen_routes.json";
-import screenVariantsTable from "../../../../database/tables/screen_variants.json";
-import screensTable from "../../../../database/tables/screens.json";
+import compositeSampleSet from "../../../../database/tables/components.json";
+import organismSampleSet from "../../../../database/tables/areas.json";
+import screenMockDataSet from "../../../../database/tables/screen_mock_data.json";
+import screenRouteSampleSet from "../../../../database/tables/screen_routes.json";
+import screenVariantSampleSet from "../../../../database/tables/screen_variants.json";
+import screenSampleSet from "../../../../database/tables/screens.json";
 
-const NON_COMPONENT_TYPES = new Set<string>(["Divider"]);
-
-type RenderTreeScreenSet = {
+type WireframeScreenSet = {
 	screens: RenderTree[];
 };
 
 type ComponentTableSet = {
-	components: RenderTreeTableComponentRow[];
+	components: SampleCompositeSet["composites"];
 };
 
-const screenRouteSet = screenRoutesTable as unknown as DatabaseScreenRouteSet;
-const screenVariantSet = screenVariantsTable as unknown as DatabaseScreenVariantSet;
-const componentTableSet = componentsTable as unknown as ComponentTableSet;
-const areas = (areasTable as unknown as { areas: RenderTreeTableAreaRow[] }).areas;
-const patternStore = loadPatternStoreForWorkbench();
-const areaById = new Map(areas.map((area) => [area.id, area]));
-const componentById = new Map(
-	componentTableSet.components.map((component) => [component.id, component]),
+type ScreenMockDataSet = {
+	screenMockData: Array<{
+		screenId: string;
+		scenario: string;
+		data: Record<string, unknown>;
+	}>;
+};
+
+
+const sampleRouteSet = screenRouteSampleSet as unknown as SampleScreenRouteSet;
+const sampleVariantSet = screenVariantSampleSet as unknown as SampleScreenVariantSet;
+const componentTableSet = compositeSampleSet as unknown as ComponentTableSet;
+const organisms = (organismSampleSet as unknown as { areas: SampleOrganism[] }).areas;
+const mockDataByScreenId = new Map(
+	(screenMockDataSet as unknown as ScreenMockDataSet).screenMockData
+		.filter((entry) => entry.scenario === "default")
+		.map((entry) => [entry.screenId, entry.data]),
 );
-const patternById = new Map(patternStore.patterns.map((pattern) => [pattern.id, pattern]));
-const orderedDatabaseScreens = orderDatabaseScreens(
-	(screensTable as unknown as { screens: RenderTreeTableScreenRow[] }).screens,
-	screenVariantSet,
-	screenRouteSet,
+const orderedSampleScreens = getOrderedSampleScreens(
+	(screenSampleSet as unknown as SampleScreenSet).screens.map((screen) => ({
+		...screen,
+		data: screen.id ? mockDataByScreenId.get(screen.id) : undefined,
+	})),
+	sampleVariantSet,
+	sampleRouteSet,
 );
 
-const renderedScreens = tablesToRenderTrees({
-	screens: orderedDatabaseScreens,
-	areas,
-	components: componentTableSet.components,
-	patternStore,
-}) satisfies RenderTreeScreenSet["screens"];
+const sampleScreens = tablesToRenderTrees({
+	screens: orderedSampleScreens,
+	organisms,
+	composites: componentTableSet.components,
+	patternStore: loadPatternStore(),
+}) satisfies WireframeScreenSet["screens"];
 
-const renderTreeByScreenCode = new Map(
-	renderedScreens.map((schema) => [schema.metadata.id, schema]),
-);
-const renderTreeWorkbenchData = renderedScreens.map((schema, index) => {
-	const databaseScreen = orderedDatabaseScreens[index];
-	const variant = screenVariantSet.screenVariants.find(
-		(candidate) => candidate.id === databaseScreen.screenVariantId,
+const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
+	const sampleScreen = orderedSampleScreens[index];
+	const validation = validateRenderTreeFull(schema);
+	const variant = sampleVariantSet.screenVariants.find(
+		(candidate) => candidate.id === sampleScreen.screenVariantId,
 	);
-	const route = screenRouteSet.screenRoutes.find(
+	const route = sampleRouteSet.screenRoutes.find(
 		(candidate) => candidate.id === variant?.screenRouteId,
 	);
-	const areas = extractAreas(schema);
+	const organisms = extractOrganisms(schema);
 
 	return {
 		code: schema.metadata.id,
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-		areas,
-		screenOrder: databaseScreen.order ?? index + 1,
+		areas: organisms,
+		screenOrder: sampleScreen.order ?? index + 1,
 		screenRouteId: route?.id ?? "unknown-route",
 		screenRouteName: route?.name ?? "Unknown route",
-		screenVariantId: variant?.id ?? databaseScreen.screenVariantId ?? schema.metadata.id,
+		schema,
+		screenVariantId: variant?.id ?? sampleScreen.screenVariantId ?? schema.metadata.id,
 		screenVariantName: variant?.name ?? schema.metadata.title,
-		screenVariantOrder: variant?.order ?? databaseScreen.order ?? index + 1,
+		screenVariantOrder: variant?.order ?? sampleScreen.order ?? index + 1,
 		screenVariantType: variant?.variantType ?? "base",
-		sourceValidationErrors: [
-			...validateDatabaseScreenSource(databaseScreen as DatabaseScreenRow),
-			...validateDatabaseReferences(databaseScreen, variant),
-		],
+		sourceValidationErrors: validateSampleScreenSource(sampleScreen),
+		validationStats: validation.stats,
 		warnings: [],
 	};
 });
 
-const areaCatalog = getAreaCatalog(renderedScreens);
-const componentCatalog = getComponentCatalog(renderedScreens);
+const organismCatalog = getOrganismCatalog(sampleScreens);
 
 export function loadLocalWorkbenchData() {
 	return {
-		areas: areaCatalog,
-		components: componentCatalog,
-		screens: renderTreeWorkbenchData,
+		areas: organismCatalog,
+		screens: wireframeWorkbenchData,
 	};
 }
 
-export type WorkbenchRenderSelection = {
-	code: string;
-	data: Record<string, unknown>;
-	node: RenderTreeNode;
-	screenCode: string;
-	title: string;
-};
-
-export type WorkbenchValidationStatus = {
-	errors: string[];
-	label: string;
-	stats?: RenderTreeValidationStats;
-	success: boolean;
-	warnings: string[];
-};
-
-export function getWorkbenchScreenNode(
-	screenCode: string,
-	areaOrderOverrides: Record<string, string[]> = {},
-) {
-	const schema = getWorkbenchRenderTree(screenCode, areaOrderOverrides);
-	return schema?.children.find((node) => node.type === NODE_TYPES.screenRoot[0]) as
-		| RenderTreeScreenNode
-		| undefined;
-}
-
-export function getWorkbenchScreenData(screenCode: string) {
-	return renderTreeByScreenCode.get(screenCode)?.data;
-}
-
-export function getWorkbenchValidationStatus(screenCode: string): WorkbenchValidationStatus {
-	const screen = renderTreeWorkbenchData.find((candidate) => candidate.code === screenCode);
-	const schema = renderTreeByScreenCode.get(screenCode);
-	if (!screen || !schema) {
-		return {
-			errors: [],
-			label: "screen source not selected",
-			success: true,
-			warnings: [],
-		};
-	}
-
-	const validation = validateRenderTreeFull(schema);
-	const errors = [
-		...screen.sourceValidationErrors,
-		...errorsOf(validation).map((issue) => `render tree: ${issue.message}`),
-	];
-	const warnings = [
-		...screen.warnings,
-		...warningsOf(validation).map((issue) => `render tree: ${issue.message}`),
-	];
-
-	return {
-		errors,
-		label:
-			errors.length === 0
-				? warnings.length === 0
-					? "screen source + render tree valid"
-					: "valid with warnings"
-				: "validation failed",
-		stats: validation.stats,
-		success: errors.length === 0,
-		warnings,
-	};
-}
-
-export function getWorkbenchAreaSelection(
-	areaCode: string,
-	areaOrderOverrides: Record<string, string[]> = {},
-): WorkbenchRenderSelection | undefined {
-	for (const screen of renderTreeWorkbenchData) {
-		const schema = getWorkbenchRenderTree(screen.code, areaOrderOverrides);
-		if (!schema) continue;
-		const node = findAreaNode(schema.children, areaCode);
-		if (node) {
-			return {
-				code: areaCode,
-				data: schema.data ?? {},
-				node,
-				screenCode: screen.code,
-				title: node.metadata.title,
-			};
-		}
-	}
-	return undefined;
-}
-
-export function getWorkbenchComponentSelection(
-	componentCode: string,
-	areaOrderOverrides: Record<string, string[]> = {},
-): (WorkbenchRenderSelection & { parentAreaCode?: string }) | undefined {
-	for (const screen of renderTreeWorkbenchData) {
-		const schema = getWorkbenchRenderTree(screen.code, areaOrderOverrides);
-		if (!schema) continue;
-		const found = findComponentNode(schema.children, componentCode);
-		if (found) {
-			return {
-				code: componentCode,
-				data: schema.data ?? {},
-				node: found.node,
-				parentAreaCode: found.parentAreaCode,
-				screenCode: screen.code,
-				title: found.node.metadata.title,
-			};
-		}
-	}
-	return undefined;
-}
-
-function getWorkbenchRenderTree(screenCode: string, areaOrderOverrides: Record<string, string[]>) {
-	const schema = renderTreeByScreenCode.get(screenCode);
-	const areaOrder = areaOrderOverrides[screenCode];
-	if (!schema || !areaOrder) return schema;
-	return reorderRenderTreeAreas(schema, areaOrder);
-}
-
-function extractAreas(schema: RenderTree) {
+function extractOrganisms(schema: RenderTree) {
 	const areas: Array<{ order: number; areaCode: string }> = [];
 
 	forEachNode(schema.children, (node) => {
-		if (!isAreaNode(node)) return;
+		if (!isAreaType(node.type)) return;
 
 		areas.push({
 			order: areas.length + 1,
-			areaCode: node.metadata.id,
+			areaCode: String(node.props?.organismCode ?? node.metadata.id),
 		});
 	});
 
 	return areas;
 }
 
-function getAreaCatalog(schemas: RenderTree[]) {
+function getOrganismCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<
 		string,
 		{
@@ -247,12 +132,12 @@ function getAreaCatalog(schemas: RenderTree[]) {
 
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
-			if (!isAreaNode(node)) return;
+			if (!isAreaType(node.type)) return;
 
-			const code = node.metadata.id;
+			const code = String(node.props?.organismCode ?? node.metadata.id);
 			byCode.set(code, {
 				code,
-				name: node.metadata.title,
+				name: String(node.props?.name ?? node.metadata.title),
 				usage: "section",
 				stateCount: 1,
 				componentCount: node.children?.length ?? 0,
@@ -263,31 +148,10 @@ function getAreaCatalog(schemas: RenderTree[]) {
 	return Array.from(byCode.values());
 }
 
-function getComponentCatalog(schemas: RenderTree[]): AppComponent[] {
-	const byCode = new Map<string, AppComponent>();
-
-	for (const schema of schemas) {
-		forEachComponentNode(schema.children, undefined, (node, parentAreaCode) => {
-			const code = node.metadata.id;
-			if (byCode.has(code)) return;
-
-			byCode.set(code, {
-				code,
-				name: node.metadata.title,
-				parentAreaCode,
-				sourceScreenCode: schema.metadata.id,
-				type: node.type,
-			});
-		});
-	}
-
-	return Array.from(byCode.values());
-}
-
-function orderDatabaseScreens(
-	screens: RenderTreeTableScreenRow[],
-	variants: DatabaseScreenVariantSet,
-	routes: DatabaseScreenRouteSet,
+function getOrderedSampleScreens(
+	screens: SampleScreenSet["screens"],
+	variants: SampleScreenVariantSet,
+	routes: SampleScreenRouteSet,
 ) {
 	const routeOrderByCode = new Map(routes.screenRoutes.map((route) => [route.id, route.order]));
 	const variantByCode = new Map(variants.screenVariants.map((variant) => [variant.id, variant]));
@@ -314,107 +178,6 @@ function orderDatabaseScreens(
 	});
 }
 
-function validateDatabaseReferences(
-	screen: RenderTreeTableScreenRow,
-	variant: DatabaseScreenVariantSet["screenVariants"][number] | undefined,
-) {
-	const errors: string[] = [];
-	const screenLabel = screen.id ?? screen.metadata.title;
-
-	if (!variant) {
-		errors.push(
-			`${screenLabel}: screenVariantId references missing variant ${screen.screenVariantId}`,
-		);
-	} else if (!screenRouteSet.screenRoutes.some((route) => route.id === variant.screenRouteId)) {
-		errors.push(
-			`${screenLabel}: variant ${variant.id} references missing route ${variant.screenRouteId}`,
-		);
-	}
-
-	validatePatternReference(screenLabel, "screen", screen.pattern, undefined, errors);
-	validateRegionReferences(screenLabel, "header", screen.screen.regions.header, errors);
-	validateRegionReferences(screenLabel, "contents", screen.screen.regions.contents, errors);
-	validateRegionReferences(screenLabel, "bottom", screen.screen.regions.bottom, errors);
-
-	return errors;
-}
-
-function validateRegionReferences(
-	screenLabel: string,
-	regionKey: "bottom" | "contents" | "header",
-	region: RenderTreeTableScreenRow["screen"]["regions"]["header"],
-	errors: string[],
-) {
-	validatePatternReference(
-		`${screenLabel}.${regionKey}`,
-		"region",
-		region.pattern,
-		"region",
-		errors,
-	);
-
-	for (const child of region.children ?? []) {
-		if (child.kind === "area") {
-			const area = areaById.get(child.id);
-			if (!area) {
-				errors.push(`${screenLabel}.${regionKey}: missing area row ${child.id}`);
-				continue;
-			}
-			validateAreaReferences(screenLabel, area, errors);
-			continue;
-		}
-
-		validateComponentReference(`${screenLabel}.${regionKey}`, child.id, errors);
-	}
-}
-
-function validateAreaReferences(
-	screenLabel: string,
-	area: RenderTreeTableAreaRow,
-	errors: string[],
-) {
-	validatePatternReference(`${screenLabel}.${area.id}`, "area", area.pattern, "area", errors);
-
-	for (const componentRef of area.children) {
-		validateComponentReference(`${screenLabel}.${area.id}`, componentRef.id, errors);
-	}
-}
-
-function validateComponentReference(scope: string, componentId: string, errors: string[]) {
-	const component = componentById.get(componentId);
-	if (!component) {
-		errors.push(`${scope}: missing component row ${componentId}`);
-		return;
-	}
-	validatePatternReference(scope, "component", component.pattern, "composite", errors);
-}
-
-function validatePatternReference(
-	scope: string,
-	label: string,
-	pattern: { id?: string; variant?: string } | undefined,
-	expectedTarget: "area" | "composite" | "region" | undefined,
-	errors: string[],
-) {
-	if (!pattern?.id) return;
-
-	const patternEntry = patternById.get(pattern.id);
-	if (!patternEntry) {
-		errors.push(`${scope}: ${label} references missing pattern ${pattern.id}`);
-		return;
-	}
-	if (expectedTarget && patternEntry.target !== expectedTarget) {
-		errors.push(
-			`${scope}: pattern ${pattern.id} target must be ${expectedTarget}, got ${patternEntry.target}`,
-		);
-	}
-
-	const variant = pattern.variant ?? patternEntry.defaultVariant;
-	if (!patternEntry.variants[variant]) {
-		errors.push(`${scope}: pattern ${pattern.id} references missing variant ${variant}`);
-	}
-}
-
 function forEachNode(nodes: RenderTreeNode[], callback: (node: RenderTreeNode) => void): void {
 	for (const node of nodes) {
 		callback(node);
@@ -422,126 +185,4 @@ function forEachNode(nodes: RenderTreeNode[], callback: (node: RenderTreeNode) =
 			forEachNode(node.children, callback);
 		}
 	}
-}
-
-function isAreaNode(node: RenderTreeNode) {
-	return isAreaType(node.type);
-}
-
-function isComponentNode(node: RenderTreeNode) {
-	if (NON_COMPONENT_TYPES.has(node.type)) return false;
-	return getNodeTypeFamily(node.type) === "component";
-}
-
-function forEachComponentNode(
-	nodes: RenderTreeNode[],
-	parentAreaCode: string | undefined,
-	callback: (node: RenderTreeNode, parentAreaCode?: string) => void,
-) {
-	for (const node of nodes) {
-		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isComponentNode(node)) {
-			callback(node, parentAreaCode);
-		}
-		if (node.children) {
-			forEachComponentNode(node.children, nextParentAreaCode, callback);
-		}
-	}
-}
-
-function findAreaNode(nodes: RenderTreeNode[], areaCode: string): RenderTreeNode | undefined {
-	for (const node of nodes) {
-		if (isAreaNode(node) && node.metadata.id === areaCode) {
-			return node;
-		}
-		const childMatch = node.children ? findAreaNode(node.children, areaCode) : undefined;
-		if (childMatch) return childMatch;
-	}
-	return undefined;
-}
-
-function findComponentNode(
-	nodes: RenderTreeNode[],
-	componentCode: string,
-	parentAreaCode?: string,
-): { node: RenderTreeNode; parentAreaCode?: string } | undefined {
-	for (const node of nodes) {
-		const nextParentAreaCode = getAreaCode(node) ?? parentAreaCode;
-		if (isComponentNode(node) && node.metadata.id === componentCode) {
-			return {
-				node,
-				parentAreaCode,
-			};
-		}
-		const childMatch = node.children
-			? findComponentNode(node.children, componentCode, nextParentAreaCode)
-			: undefined;
-		if (childMatch) return childMatch;
-	}
-	return undefined;
-}
-
-function reorderRenderTreeAreas(schema: RenderTree, areaCodes: string[]): RenderTree {
-	const nextSchema = cloneSchema(schema);
-	const screenNode = getWorkbenchScreenNodeFromSchema(nextSchema);
-	const contentsNode = screenNode?.children.find((node) => node.type === NODE_TYPES.screenRegion[1]);
-
-	if (contentsNode?.children) {
-		contentsNode.children = reorderAreaContainers(contentsNode.children, areaCodes);
-	}
-
-	return nextSchema;
-}
-
-function getWorkbenchScreenNodeFromSchema(schema: RenderTree) {
-	return schema.children.find((node) => node.type === NODE_TYPES.screenRoot[0]) as
-		| RenderTreeScreenNode
-		| undefined;
-}
-
-function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
-	const areaContainerByCode = new Map(
-		nodes
-			.map((node) => {
-				const areaCode = getContainedAreaCode(node);
-				return areaCode ? ([areaCode, node] as const) : undefined;
-			})
-			.filter(isAreaContainerEntry),
-	);
-	const nextAreaContainers = areaCodes
-		.map((areaCode) => areaContainerByCode.get(areaCode))
-		.filter(isRenderTreeNode);
-	let nextAreaIndex = 0;
-
-	return nodes.map((node) => {
-		if (!getContainedAreaCode(node)) return node;
-		const nextNode = nextAreaContainers[nextAreaIndex];
-		nextAreaIndex += 1;
-		return nextNode ?? node;
-	});
-}
-
-function getContainedAreaCode(node: RenderTreeNode): string | undefined {
-	if (isAreaNode(node)) return getAreaCode(node);
-	const childArea = node.children?.find(isAreaNode);
-	return childArea ? getAreaCode(childArea) : undefined;
-}
-
-function getAreaCode(node: RenderTreeNode) {
-	if (!isAreaNode(node)) return undefined;
-	return node.metadata.id;
-}
-
-function cloneSchema<T>(schema: T): T {
-	return JSON.parse(JSON.stringify(schema)) as T;
-}
-
-function isAreaContainerEntry(
-	entry: readonly [string, RenderTreeNode] | undefined,
-): entry is readonly [string, RenderTreeNode] {
-	return Boolean(entry);
-}
-
-function isRenderTreeNode(node: RenderTreeNode | undefined): node is RenderTreeNode {
-	return Boolean(node);
 }

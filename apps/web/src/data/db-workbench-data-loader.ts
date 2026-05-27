@@ -1,158 +1,109 @@
+import { loadPatternStore } from "@cx/agent/pattern-store";
 import {
-	type RenderTree,
-	type RenderTreeNode,
-	type RenderTreeTableAreaRow,
-	type RenderTreeTableComponentRow,
-	type RenderTreeTableScreenRow,
 	tablesToRenderTrees,
-} from "@cx/renderer";
-import {
-	type AppArea,
-	type AppComponent,
-	type DatabaseScreenRouteSet,
-	type DatabaseScreenVariantSet,
+	validateSampleScreenSource,
+	type SampleComposite,
+	type SampleOrganism,
+	type SampleScreen,
+	type SampleScreenRoute,
+	type SampleScreenRouteSet,
+	type SampleScreenVariant,
+	type SampleScreenVariantSet,
 } from "@/adapters/tables-to-render-tree";
-import { loadPatternStoreForWorkbench } from "@/data/pattern-store-loader";
+import type { PropValue } from "@cx/types/database-tables";
+import { isAreaType } from "@cx/types/node-types";
 import { createServerClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
-
-type RouteRow = Database["public"]["Tables"]["screen_routes"]["Row"];
-type VariantRow = Database["public"]["Tables"]["screen_variants"]["Row"];
-type ScreenRow = Database["public"]["Tables"]["screens"]["Row"];
-type AreaRow = Database["public"]["Tables"]["organisms"]["Row"];
-type ComponentRow = Database["public"]["Tables"]["components"]["Row"];
+import { validateRenderTreeFull } from "@cx/renderer";
 
 function toISOFallback(date: string | null | undefined) {
 	return date ?? new Date(0).toISOString();
 }
 
-// Supabase seed uses "organism"/"composite", main types use "area"/"component"
-function normalizeRegionChildren(
-	children: Array<{ kind: string; id: string }>,
-): Array<{ kind: "area" | "component"; id: string }> {
-	return children.map((c) => ({
-		id: c.id,
-		kind: c.kind === "organism" ? "area" : c.kind === "composite" ? "component" : (c.kind as "area" | "component"),
-	}));
-}
-
 export async function loadDbWorkbenchData() {
 	const db = createServerClient();
 
+	// ── 병렬 fetch ─────────────────────────────────────────────
 	const [
 		{ data: routeRows },
 		{ data: variantRows },
 		{ data: screenRows },
-		{ data: areaRows },
+		{ data: organismRows },
 		{ data: componentRows },
 	] = await Promise.all([
-		db.from("screen_routes").select("*").order("order") as unknown as Promise<{ data: RouteRow[] | null }>,
-		db.from("screen_variants").select("*").order("order") as unknown as Promise<{ data: VariantRow[] | null }>,
-		db.from("screens").select("*").order("order") as unknown as Promise<{ data: ScreenRow[] | null }>,
-		db.from("organisms").select("*") as unknown as Promise<{ data: AreaRow[] | null }>,
-		db.from("components").select("*") as unknown as Promise<{ data: ComponentRow[] | null }>,
+		db.from("screen_routes").select("*").order("order"),
+		db.from("screen_variants").select("*").order("order"),
+		db.from("screens").select("*").order("order"),
+		db.from("organisms").select("*"),
+		db.from("components").select("*"),
 	]);
 
-	// ── DB rows → main 타입 ─────────────────────────────────────
-
-	const screenRouteSet: DatabaseScreenRouteSet = {
-		screenRoutes: (routeRows ?? []).map((r) => ({
-			id: r.id,
-			moduleId: r.module_id,
-			name: r.name,
-			order: r.order,
-			processId: r.process_id,
-		})),
-	};
-
-	const screenVariantSet: DatabaseScreenVariantSet = {
-		screenVariants: (variantRows ?? []).map((r) => ({
-			id: r.id,
-			screenRouteId: r.screen_route_id,
-			name: r.name,
-			order: r.order,
-			variantType: r.variant_type as "base" | "edge",
-			followUp: r.follow_up,
-		})),
-	};
-
-	const areas: RenderTreeTableAreaRow[] = (areaRows ?? []).map((r) => ({
+	// ── DB row → Sample* 타입 변환 ─────────────────────────────
+	const screenRoutes: SampleScreenRoute[] = (routeRows ?? []).map((r) => ({
 		id: r.id,
-		// Supabase organisms use "Organism" type; map to valid area type
-		type: "area.static" as const,
-		version: r.version ?? "1.0.0",
+		moduleId: r.module_id,
+		name: r.name,
+		order: r.order,
+		processId: r.process_id,
+	}));
+
+	const screenVariants: SampleScreenVariant[] = (variantRows ?? []).map((r) => ({
+		id: r.id,
+		screenRouteId: r.screen_route_id,
+		name: r.name,
+		order: r.order,
+		variantType: r.variant_type as "base" | "edge",
+		followUp: r.follow_up,
+	}));
+
+	const screens: SampleScreen[] = (screenRows ?? []).map((r) => ({
+		id: r.id,
+		order: r.order,
+		screenVariantId: r.screen_variant_id,
+		version: r.version,
+		minRendererVersion: r.min_renderer_version,
 		metadata: {
-			title: r.title ?? r.id,
+			title: r.title ?? "",
 			author: r.author ?? "",
 			createdAt: toISOFallback(r.created_at),
 			updatedAt: toISOFallback(r.updated_at),
 		},
 		pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
-		props: (r.props as RenderTreeTableAreaRow["props"]) ?? undefined,
-		children: normalizeRegionChildren(
-			(r.children as Array<{ kind: string; id: string }>) ?? [],
-		) as Array<{ kind: "component"; id: string }>,
+		theme: { mode: (r.theme_mode ?? "light") as "light" | "dark" },
+		screen: r.screen as SampleScreen["screen"],
 	}));
 
-	const components: RenderTreeTableComponentRow[] = (componentRows ?? []).map((r) => ({
+	const organisms: SampleOrganism[] = (organismRows ?? []).map((r) => ({
 		id: r.id,
-		type: r.type,
-		version: r.version ?? "1.0.0",
+		type: r.type as SampleOrganism["type"],
+		version: r.version,
 		metadata: {
-			title: r.title ?? r.id,
+			title: r.title ?? "",
 			author: r.author ?? "",
 			createdAt: toISOFallback(r.created_at),
 			updatedAt: toISOFallback(r.updated_at),
 		},
-		pattern: { id: r.pattern_id ?? "unknown", variant: r.pattern_variant ?? undefined },
-		children: (r.children as RenderTreeTableComponentRow["children"]) ?? [],
+		pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
+		props: (r.props as Record<string, PropValue>) ?? undefined,
+		children: (r.children as SampleOrganism["children"]) ?? [],
 	}));
 
-	const screens: RenderTreeTableScreenRow[] = (screenRows ?? []).map((r) => {
-		const rawBody = r.screen as {
-			type: string;
-			regions: Record<string, { type: string; metadata: unknown; children: Array<{ kind: string; id: string }> }>;
-		};
-		return {
-			id: r.id,
-			version: r.version ?? "1.0.0",
-			minRendererVersion: r.min_renderer_version ?? "0.1.0",
-			screenVariantId: r.screen_variant_id,
-			order: r.order,
-			metadata: {
-				title: r.title ?? r.id,
-				author: r.author ?? "",
-				createdAt: toISOFallback(r.created_at),
-				updatedAt: toISOFallback(r.updated_at),
-			},
-			pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
-			theme: { mode: (r.theme_mode ?? "light") as "light" | "dark" },
-			screen: {
-				type: (rawBody.type === "page" ? "screen.page" : rawBody.type) as "screen.page",
-				regions: {
-					header: {
-						...rawBody.regions.header,
-						type: rawBody.regions.header?.type as "Screen.Header",
-						children: normalizeRegionChildren(rawBody.regions.header?.children ?? []),
-					},
-					contents: {
-						...rawBody.regions.contents,
-						type: rawBody.regions.contents?.type as "Screen.Contents",
-						children: normalizeRegionChildren(rawBody.regions.contents?.children ?? []),
-					},
-					bottom: {
-						...rawBody.regions.bottom,
-						type: rawBody.regions.bottom?.type as "Screen.Bottom",
-						children: normalizeRegionChildren(rawBody.regions.bottom?.children ?? []),
-					},
-				},
-			},
-		} as RenderTreeTableScreenRow;
-	});
+	const composites: SampleComposite[] = (componentRows ?? []).map((r) => ({
+		id: r.id,
+		type: r.type,
+		version: r.version,
+		metadata: {
+			title: r.title ?? "",
+			author: r.author ?? "",
+			createdAt: toISOFallback(r.created_at),
+			updatedAt: toISOFallback(r.updated_at),
+		},
+		pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
+		children: (r.children as SampleComposite["children"]) ?? [],
+	}));
 
-	// ── 정렬 ────────────────────────────────────────────────────
-	const routeOrderById = new Map(screenRouteSet.screenRoutes.map((r) => [r.id, r.order]));
-	const variantById = new Map(screenVariantSet.screenVariants.map((v) => [v.id, v]));
+	// ── 기존 로더와 동일한 처리 파이프라인 ─────────────────────
+	const routeOrderById = new Map(screenRoutes.map((r) => [r.id, r.order]));
+	const variantById = new Map(screenVariants.map((v) => [v.id, v]));
 
 	const orderedScreens = [...screens].sort((a, b) => {
 		const av = a.screenVariantId ? variantById.get(a.screenVariantId) : undefined;
@@ -167,105 +118,75 @@ export async function loadDbWorkbenchData() {
 		);
 	});
 
-	// ── render tree 생성 ─────────────────────────────────────────
-	const patternStore = loadPatternStoreForWorkbench();
-	const renderTrees = tablesToRenderTrees({ screens: orderedScreens, areas, components, patternStore });
+	const sampleScreens = tablesToRenderTrees({
+		screens: orderedScreens,
+		organisms,
+		composites,
+		patternStore: loadPatternStore(),
+	});
 
-	// ── AppScreen[] 빌드 ─────────────────────────────────────────
-	const processedScreens = renderTrees.map((tree, index) => {
+	const routeSet: SampleScreenRouteSet = { screenRoutes };
+	const variantSet: SampleScreenVariantSet = { screenVariants };
+
+	const processedScreens = sampleScreens.map((schema, index) => {
 		const raw = orderedScreens[index];
+		const validation = validateRenderTreeFull(schema);
 		const variant = raw.screenVariantId ? variantById.get(raw.screenVariantId) : undefined;
-		const route = variant
-			? screenRouteSet.screenRoutes.find((r) => r.id === variant.screenRouteId)
-			: undefined;
+		const route = variant ? routeSet.screenRoutes.find((r) => r.id === variant.screenRouteId) : undefined;
+		const ogns = extractOrganisms(schema);
 
 		return {
-			code: tree.metadata.id,
-			name: tree.metadata.title,
-			description: tree.metadata.description ?? tree.children[0]?.metadata.title,
-			module: route?.moduleId ?? tree.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-			areas: extractAreas(tree),
+			code: schema.metadata.id,
+			name: schema.metadata.title,
+			description: schema.metadata.description ?? schema.children[0]?.metadata.title,
+			module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
+			areas: ogns,
 			screenOrder: raw.order ?? index + 1,
 			screenRouteId: route?.id ?? "unknown-route",
 			screenRouteName: route?.name ?? "Unknown route",
-			screenVariantId: variant?.id ?? raw.screenVariantId ?? tree.metadata.id,
-			screenVariantName: variant?.name ?? tree.metadata.title,
+			schema,
+			screenVariantId: variant?.id ?? raw.screenVariantId ?? schema.metadata.id,
+			screenVariantName: variant?.name ?? schema.metadata.title,
 			screenVariantOrder: variant?.order ?? raw.order ?? index + 1,
 			screenVariantType: (variant?.variantType ?? "base") as "base" | "edge",
-			sourceValidationErrors: [] as string[],
-			warnings: [] as string[],
+			sourceValidationErrors: validateSampleScreenSource(raw),
+			validationStats: validation.stats,
+			warnings: [],
 		};
 	});
 
-	// ── Area / Component 카탈로그 ────────────────────────────────
-	const areaCatalog = getAreaCatalog(renderTrees);
-	const componentCatalog = getComponentCatalog(renderTrees);
+	const organismCatalog = getOrganismCatalog(sampleScreens);
 
 	return {
 		screens: processedScreens,
-		areas: areaCatalog,
-		components: componentCatalog,
+		areas: organismCatalog,
 	};
 }
 
-function extractAreas(tree: RenderTree) {
+// ── 헬퍼 (local-workbench-data-loader 와 동일) ──────────────
+import type { RenderTreeNode, RenderTree } from "@cx/renderer";
+
+function extractOrganisms(schema: RenderTree) {
 	const result: Array<{ order: number; areaCode: string }> = [];
-	forEachNode(tree.children, (node) => {
-		if (!isAreaNode(node)) return;
-		result.push({ order: result.length + 1, areaCode: node.metadata.id });
+	forEachNode(schema.children, (node) => {
+		if (!isAreaType(node.type)) return;
+		result.push({ order: result.length + 1, areaCode: String(node.props?.organismCode ?? node.metadata.id) });
 	});
 	return result;
 }
 
-function getAreaCatalog(trees: RenderTree[]): AppArea[] {
-	const byCode = new Map<string, AppArea>();
-	for (const tree of trees) {
-		forEachNode(tree.children, (node) => {
-			if (!isAreaNode(node)) return;
-			const code = node.metadata.id;
-			byCode.set(code, {
-				code,
-				name: node.metadata.title,
-				usage: "section",
-				stateCount: 1,
-				componentCount: node.children?.length ?? 0,
-			});
+function getOrganismCatalog(schemas: RenderTree[]) {
+	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
+	for (const schema of schemas) {
+		forEachNode(schema.children, (node) => {
+			if (!isAreaType(node.type)) return;
+			const code = String(node.props?.organismCode ?? node.metadata.id);
+			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, componentCount: node.children?.length ?? 0 });
 		});
 	}
 	return Array.from(byCode.values());
-}
-
-function getComponentCatalog(trees: RenderTree[]): AppComponent[] {
-	const byCode = new Map<string, AppComponent>();
-	for (const tree of trees) {
-		let currentAreaCode: string | undefined;
-		forEachNode(tree.children, (node) => {
-			if (isAreaNode(node)) { currentAreaCode = node.metadata.id; return; }
-			if (byCode.has(node.metadata.id)) return;
-			if (isAreaNode(node) || isSystemNode(node)) return;
-			byCode.set(node.metadata.id, {
-				code: node.metadata.id,
-				name: node.metadata.title,
-				parentAreaCode: currentAreaCode,
-				sourceScreenCode: tree.metadata.id,
-				type: node.type,
-			});
-		});
-	}
-	return Array.from(byCode.values());
-}
-
-function isAreaNode(node: RenderTreeNode) {
-	return node.type === "area.static" || node.type === "area.dynamic";
-}
-
-function isSystemNode(node: RenderTreeNode) {
-	return node.type.startsWith("Screen") || node.type.startsWith("screen.");
 }
 
 function forEachNode(nodes: RenderTreeNode[], cb: (n: RenderTreeNode) => void) {
-	for (const n of nodes) {
-		cb(n);
-		if (n.children) forEachNode(n.children, cb);
-	}
+	for (const n of nodes) { cb(n); if (n.children) forEachNode(n.children, cb); }
 }

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Render Tree Generator",
+	title: "Wireframe Generator",
 	description: "Render Tree Renderer",
 };
 

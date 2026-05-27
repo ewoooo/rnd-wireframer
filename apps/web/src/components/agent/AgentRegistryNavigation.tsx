@@ -1,4 +1,4 @@
-import type { RegisteredNodeTree } from "@cx/agent/types";
+import type { RegisteredNodeTree } from "@cx/agent";
 import { useEffect, useRef, useState } from "react";
 import type { AgentNodeSelection } from "@/agent/agent-registry-view";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ export function AgentRegistryNavigation({
 	async function loadImports() {
 		const response = await fetch("/api/agent/client-imports");
 		const payload = await readJsonResponse<{
-			imports?: Array<{ id: string; screenFiles: number }>;
+			imports?: Array<{ id: string; areaFiles: number; screenFiles: number }>;
 		}>(response, "Failed to load client imports.");
 
 		if (!response.ok) {
@@ -99,7 +99,7 @@ export function AgentRegistryNavigation({
 			});
 			const payload = await readJsonResponse<{
 				error?: string;
-				import?: { id: string; screenFiles: number };
+				import?: { id: string; areaFiles: number; screenFiles: number };
 				writtenFiles?: number;
 			}>(response, "Failed to upload client import.");
 
@@ -209,7 +209,7 @@ export function AgentRegistryNavigation({
 							>
 								<p className="truncate text-sm font-medium">{item.id}</p>
 								<p className="text-xs text-muted-foreground">
-									{item.screenFiles} screens
+									{item.screenFiles} screens · {item.areaFiles} areas
 								</p>
 							</button>
 						))}
