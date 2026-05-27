@@ -14,6 +14,7 @@
 
 ## Rules
 
+- `client-imports/PRDD/screen/`에는 기본 생성 대상인 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base PRDD 화면은 `client-imports/PRDD/variants/`에 보관하고, 명시적 variant/retry 생성 때만 입력으로 사용한다.
 - `apps/web` workbench는 `tables/` 또는 동일 shape의 loader 결과만 화면 데이터로 소비한다.
 - parser, AI generation, agent pipeline은 `tables/`를 직접 덮어쓰지 않는다.
 - `ai-imports/*.materialized.json`은 `tables/` 후보일 뿐이다.

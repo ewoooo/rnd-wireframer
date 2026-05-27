@@ -46,7 +46,7 @@ import type { GeneratedNodeTree } from "@cx/agent/types";
 | `src/design-review/design-review-schema.ts` | **Design Review schema** — 디자인 품질 검수 patch와 `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` operation 계약 |
 | `src/design-review/review-design-tree.ts` | **Design Review reviewer** — `docs/design/` 근거를 참조해 CTA 승격 같은 보수적 deterministic 디자인 검수 proposal 생성 |
 | `src/design-review/apply-design-review.ts` | **Design Review apply** — schema를 통과한 patch만 `DecoratedNodeTree`에 적용해 reviewed tree를 생성 |
-| `src/pattern/pattern-schema.ts` | `@cx/pattern-store/schema` 호환 re-export |
+| `src/pattern/pattern-schema.ts` | `@cx/types` pattern schema 호환 re-export |
 | `src/pattern/pattern-store.ts` | `@cx/pattern-store` 호환 re-export |
 | `src/pattern/pattern-resolver.ts` | `@cx/pattern-store` catalog에서 children layout preset을 고르는 agent 전용 resolver |
 | `src/database/register-assets-to-database-tables.ts` | **DB transformer** — reviewed `DecoratedNodeTree`를 `MaterializedNodeTree` row shape로 materialize한다. screen region shell은 코드 계약으로 생성 |
@@ -121,6 +121,6 @@ createCxTextAgent
 - Codex 검수 agent의 local-first runner와 guardrail 확장
 - local-first Claude/Codex runner
 - 원격 API fallback 정책
-- Supabase persistence adapter
+- Persistence adapter for the future operational DB/storage layer
 
 위 기능은 `agent-sdk-runtime` 위에 별도 파일로 추가한다.

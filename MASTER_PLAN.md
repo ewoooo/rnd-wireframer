@@ -43,7 +43,6 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | `packages/token` | 1차 구현 | Tailwind v4 `@theme` generated CSS export |
 | `database/client-imports` | 구현 시작 | 사용자가 올린 screen/area 원천 import 보관 |
 | `services/api` | 골격 | FastAPI requirements와 디렉토리만 존재 |
-| `supabase` | 골격 | migrations/seed 디렉토리만 존재 |
 | `Puck editor` | 미구현 | 디렉토리 placeholder만 존재 |
 | `Agent SDK 생성/검수` | 미구현 | 정책과 문서만 존재 |
 | 데이터 설계 | 재등록 | 공급 데이터/소비 데이터 분리와 소비 데이터 계약 기준 재정의 |
@@ -122,7 +121,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 - 실시간 공동 편집
 - 자유 배치형 완성형 비주얼 에디터
 - 정책 준수 자동 점수화
-- Supabase 운영 배포
+- 운영 DB/Storage 배포
 - 공유 OGN 편집본의 자동 전파
 - 대규모 component inventory 전체 이관
 
@@ -135,7 +134,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | Phase 2 | 진행 중 | `apps/web` 단일 제품 앱을 `database/tables` 계약 기반으로 안정화하고 `@cx/renderer` mapping 확장 |
 | Phase 3 | 진행 중 | 첨부 명세 parser/validator와 AI import table 후보 산출물 연결 |
 | Phase 4 | 다음 | Claude 생성 계약과 Codex 검수 계약을 local-first Agent SDK 실행 흐름으로 구현 |
-| Phase 5 | 후속 | 소비 데이터 계약 기준 FastAPI read model, Supabase migration, ERD 산출물 재생성 |
+| Phase 5 | 후속 | 소비 데이터 계약 기준 FastAPI read model, 운영 DB migration, ERD 산출물 재생성 |
 | Phase 6 | 후속 | Puck 기반 Screen/OGN 편집과 regenerate/version 저장 |
 | Phase 7 | 보류 | 공유 OGN 전파, 품질 평가, Figma 확장 검토 |
 

@@ -25,7 +25,7 @@
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
 - 공유 row/pattern 계약 타입은 `packages/types`의 `@cx/types` 패키지에서 관리한다.
-- layout pattern store의 JSON 원천, schema, 조회 helper는 `packages/pattern-store`의 `@cx/pattern-store` 패키지에서 관리한다. `@cx/renderer`는 이 패키지를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다.
+- layout pattern store의 JSON 원천과 조회 helper는 `packages/pattern-store`의 `@cx/pattern-store` 패키지에서 관리한다. pattern store 타입과 runtime schema의 SSOT는 `packages/types`의 `@cx/types`가 소유한다. `@cx/renderer`는 pattern-store 패키지를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다.
 - `sdui-renderer`의 schema, binding, registry, validation, table shape -> RenderTree projection, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
@@ -39,36 +39,39 @@
 
 ## 3. RenderTree Projection 책임 분리
 
-첨부 screen/area 명세 또는 DB read model을 `database/tables` shape와 `@cx/renderer` RenderTree 입력 DTO로 바꿀 때는 AI와 deterministic code의 책임을 분리한다.
+첨부 screen/area 명세 또는 DB read model을 `database/tables` shape와 `@cx/renderer` RenderTree 입력 DTO로 바꿀 때는 단계별 산출물과 deterministic code의 책임을 분리한다.
 
 기본 흐름은 아래 순서를 따른다.
 
 ```text
-코드가 database/tables shape의 기본 row를 만든다
--> AI가 props/data binding/상태/표현 후보를 보정한다
--> 코드가 다시 검증하고 @cx/renderer가 RenderTree로 projection한다
+원천 markdown 또는 read model
+-> Register: 파서/계약 테이블이 route, variant, screen, area, component 골격과 raw를 만든다
+-> Composer: raw를 component props/hooks 후보로 승격한다
+-> Decorator: @cx/pattern-store의 layout pattern ref를 붙인다
+-> Design Review: docs/design 근거가 있는 제한 patch만 제안/적용한다
+-> Materializer: database/tables shape의 row를 만든다
+-> @cx/renderer: tablesToRenderTree projection과 validation 후 React render한다
 ```
 
-AI가 직접 판단하거나 보정하는 영역:
+AI가 보강할 수 있는 영역:
 
-- 어떤 OGN을 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 중 어디에 놓을지 애매한 경우 판단
-- component props 기본값 생성
-- component hooks 기본값 또는 raw hook 구조 보정
-- data binding path 추천
-- 상태별 visible children 정리
-- “약관 목록 조회” 같은 설명을 실제 렌더 노드 `title`/`description`으로 풀기
+- Register 입력이 불완전할 때 누락된 설명, 이름, raw 셀 해석 후보를 제안
+- Composer 단계에서 component props 기본값, hooks 후보, data binding path 후보를 보강
+- Decorator/Design Review 단계에서 pattern 선택 보정, CTA 승격, display 상태 보정, 새 component/composite/pattern 제안을 제한 operation으로 표현
+- “약관 목록 조회” 같은 설명을 component `title`/`description`/`label` 후보로 풀기
 
 코드가 deterministic하게 처리해야 하는 영역:
 
 - `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성
-- `screenSource.areas` 순서 유지
-- `areaCode` 유지
-- node/table `id`, `metadata.title`, version, schema version 생성
+- PRDD 영역 번호 기반 slot 분류: `0`은 header, `999` 이상은 bottom, 그 외는 contents area
+- source area/component 순서와 sourceRef 유지
+- area id, component id, route/variant/screen id, `metadata.title`, version, schema version 생성
+- `@cx/pattern-store`의 pattern id/variant 존재 검증과 fallback report 생성
 - `@cx/renderer`의 `tablesToRenderTree` projection과 validation 실행
 - component registry 존재 확인
 - 누락 참조 리포트 생성
 
-AI가 RenderTree 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 파서와 database resolver가 만든 구조화 결과를 보정하고, 최종 후보 산출물은 `database/tables` shape를 거쳐 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
+AI가 RenderTree 전체나 `database/tables` 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 각 단계의 제한된 산출물 또는 patch를 보강하고, 최종 후보 산출물은 `MaterializedNodeTree`와 `database/tables` shape를 거쳐 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
 
 ## 4. 디자인 패턴 문서
 

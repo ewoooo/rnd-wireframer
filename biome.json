@@ -9,9 +9,7 @@
 			"!**/.next",
 			"!dist",
 			"!build",
-			"!coverage",
-			"!supabase/.temp",
-			"!supabase/.branches"
+			"!coverage"
 		]
 	},
 	"formatter": {

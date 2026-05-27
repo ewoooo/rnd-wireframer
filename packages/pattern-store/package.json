@@ -16,7 +16,6 @@
 	},
 	"dependencies": {
 		"@cx/components": "0.1.0",
-		"@cx/types": "0.1.0",
-		"zod": "^4.4.3"
+		"@cx/types": "0.1.0"
 	}
 }

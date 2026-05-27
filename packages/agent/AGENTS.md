@@ -87,12 +87,12 @@ packages/agent/
 |---|---|
 | `runtime/agent-sdk-runtime.ts` | Agent SDK 의존성을 감싸는 최소 runtime adapter만 둔다. 역할별 prompt와 output schema는 별도 파일로 분리한다. |
 | `register/claude-asset-generator.ts` *(Register 입력 어댑터)* | local Claude 호출은 서버/API 전용이다. markdown 표 셀은 `component.raw`에 박고, "이벤트" / "액션" / "액션 파라미터"는 `raw.hooks: NodeHook[]`로 구조화한다. 화면 설명은 `screen.description`에 둔다. 케이스 분기 표는 `variant.screens`의 개별 screen으로 materialize하며 `screen.raw`는 만들지 않는다. |
-| `register/register-assets.ts` | **Register 단계.** 입력을 mutate하지 않고 order 정규화와 참조 warning만 수행한다. `component.raw`는 그대로 보존한다. composite의 콘텐츠 props는 비어있을 수 있으며 Composer에서 채운다. |
-| `compose/compose-assets.ts` | **Composer 단계.** Register 산출물의 `component.raw`를 읽어서 `component.props`와 `component.hooks`를 채운다 (markdown을 직접 읽지 않음). `routes`, `variants`, `screens`는 flat 배열과 `children` 참조로 풀고, screen children은 `header`, `contents`, `bottom` region으로 나눈다. composed 산출물에는 raw와 pending placeholder를 남기지 않는다. 스타일/layout/chrome은 다루지 않는다. |
+| `register/register-assets.ts` | **Register 단계.** 입력을 mutate하지 않고 order 정규화와 참조 warning만 수행한다. PRDD 입력의 `header`, `contents`, `bottom` slot 분류는 `register/register-prdd.ts`의 영역 번호 계약이 맡는다. `component.raw`는 그대로 보존한다. composite의 콘텐츠 props는 비어있을 수 있으며 Composer에서 채운다. |
+| `compose/compose-assets.ts` | **Composer 단계.** Register 산출물의 `component.raw`를 읽어서 `component.props`와 `component.hooks`를 채운다 (markdown을 직접 읽지 않음). `routes`, `variants`, `screens`는 flat 배열과 `children` 참조로 풀고, Register가 만든 `header`, `contents`, `bottom` region 구조를 보존한다. composed 산출물에는 raw와 pending placeholder를 남기지 않는다. 스타일/layout/chrome은 다루지 않는다. |
 | `compose/compose-assets-ai.ts` | Composer gap에 한정된 AI 보강만 수행한다. 레이아웃 pattern 선택이나 DB row materialize는 하지 않는다. |
 | `decorate/decorate-assets.ts` | **Decorator 단계.** 콘텐츠/OGN 레이아웃 전담: pattern-store에서 content layout pattern 메타를 매칭한다. Screen shell, chrome, 콘텐츠 props는 손대지 않는다. pattern 추론은 교체 가능한 resolver로 유지한다. |
 | `design-review/*` | **Design Review 단계.** `DecoratedNodeTree` 이후 디자인 품질을 검수한다. `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` 같은 제한 operation만 허용하고, 모든 finding/operation은 `docs/design/`의 책임 문서를 `designReferences`로 인용해야 한다. 판단값은 `design-review-contracts.ts`와 `@cx/pattern-store`에 둔다. 전체 tree 재생성이나 RenderTree 직접 생성은 하지 않는다. |
-| `pattern/*` | `@cx/pattern-store`의 schema/store re-export와 agent 전용 resolver를 둔다. pattern은 children 배치 layout preset이며 screen shell 분류가 아니다. |
+| `pattern/*` | `@cx/types` pattern schema 호환 re-export, `@cx/pattern-store` store re-export, agent 전용 resolver를 둔다. pattern은 children 배치 layout preset이며 screen shell 분류가 아니다. |
 | `database/register-assets-to-database-tables.ts` | **DB transformer 단계.** reviewed `DecoratedNodeTree`를 `MaterializedNodeTree` row로 materialize한다. Screen shell과 regions.children은 코드 계약으로 생성한다. 새 decoration 결정이나 새 콘텐츠 합성은 하지 않는다. |
 | `types.ts` | 외부 패키지가 import하는 `GeneratedNodeTree`, `RegisteredNodeTree`, `ComposedNodeTree`, `DecoratedNodeTree`, `NodeHook` 계약 타입을 둔다. |
 | `index.ts` | 브라우저 번들에서도 안전한 deterministic 공개 surface만 모은다. Agent SDK나 로컬 Claude처럼 Node.js 전용 의존성을 가진 파일은 루트에서 export하지 않고 subpath export로만 사용한다. |

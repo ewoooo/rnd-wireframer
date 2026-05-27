@@ -1,1 +1,25 @@
-export * from "@cx/pattern-store/schema";
+export type {
+	AreaPattern,
+	AreaVariant,
+	CatalogMatch,
+	CatalogPattern,
+	ChildrenLayoutPreset,
+	ChildWrapPreset,
+	CompositePattern,
+	CompositeVariant,
+	Pattern,
+	PatternResolutionSignals,
+	RegionPattern,
+	RegionVariant,
+	ScreenPattern,
+	ScreenVariant,
+} from "@cx/types";
+export {
+	areaPatternSchema,
+	compositePatternSchema,
+	patternCatalogSchema,
+	patternSchema,
+	patternStoreSchema,
+	regionPatternSchema,
+	screenPatternSchema,
+} from "@cx/types";

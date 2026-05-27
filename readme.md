@@ -21,7 +21,7 @@ npm run dev
 - `apps/web` — Next.js 앱
 - `packages/{token,component,layout,renderer,agent}` — 파이프라인 단계별 패키지
 - `services/api` — Python 백엔드 (별도 venv, npm workspace 아님)
-- `database/`, `supabase/` — table dump, pattern-store, 스키마/마이그레이션
+- `database/` — source imports, AI import candidates, generated decks, approved table dumps
 - `docs/` — 디자인, 개발, 데이터 mockup 문서
 - `e2e/` — Playwright 시나리오
 

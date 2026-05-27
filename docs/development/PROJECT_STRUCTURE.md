@@ -13,7 +13,6 @@ apps/        제품 앱
 packages/    재사용 가능한 TypeScript 패키지
 services/    독립 실행 백엔드/worker
 database/    AI import 산출물, table dump, reference store
-supabase/    migration, seed, edge function 등 Supabase 산출물
 docs/        개발/데이터/디자인 문서와 분석 산출물
 e2e/         제품 흐름 기준 end-to-end 테스트
 scripts/     저장소 공통 검사와 자동화 스크립트
@@ -56,7 +55,7 @@ packages/agent/src/
   compose/     raw content를 ComposedNodeTree의 props/hooks 후보로 합성
   decorate/    pattern-store 기반 layout 결정 메타 부착
   design-review/  docs/design 근거 기반 디자인 품질 patch 생성/적용
-  pattern/     pattern schema, store loader, resolver
+  pattern/     @cx/types schema 호환 re-export, @cx/pattern-store store re-export, resolver
   database/    database/tables row shape materialize
   runtime/     Agent SDK 실행 adapter
   types.ts

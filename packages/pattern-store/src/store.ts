@@ -15,8 +15,8 @@ import type {
 	ScreenPattern,
 	ScreenVariant,
 } from "@cx/types";
+import { patternStoreSchema } from "@cx/types";
 import { patternCatalogSets } from "./data";
-import { patternStoreSchema } from "./schema";
 
 export type {
 	AreaPattern,

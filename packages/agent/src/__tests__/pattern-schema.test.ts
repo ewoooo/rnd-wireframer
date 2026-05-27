@@ -1,4 +1,4 @@
-import { patternSchema, patternStoreSchema } from "@cx/pattern-store/schema";
+import { patternSchema, patternStoreSchema } from "@cx/types";
 import { describe, expect, it } from "vitest";
 
 describe("pattern schema", () => {
