@@ -24,6 +24,7 @@ export type {
 	SideEffectIssue,
 	SideEffectOperation,
 	SideEffectPackageName,
+	SourceArtifactReadCommand,
 	WriteRunLogCommand,
 	WriteVersionedArtifactCommand,
 } from "./public/types";

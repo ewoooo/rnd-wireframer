@@ -1,4 +1,4 @@
-export { runGenerationSmoke } from "./runner";
+export { runGenerationSmoke } from "./run-generation-smoke";
 export type {
 	GenerationSmokeOptions,
 	GenerationSmokeResult,

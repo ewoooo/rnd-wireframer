@@ -4,6 +4,7 @@ export const sideEffectBoundary = {
 	owns: [
 		"side-effect-command-conveying",
 		"markdown-source-parse-command",
+		"source-artifact-read",
 		"versioned-artifact-write",
 		"run-log-write",
 		"approved-catalog-apply",

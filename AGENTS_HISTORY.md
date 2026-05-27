@@ -36,6 +36,53 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-27 - Smoke/Pipeline IO Boundary Cleanup
+
+- 변경: `@cx/pipeline`에 `source-artifact-read` side effect command와 executor를 추가해 smoke source file read를 pipeline으로 이동함
+- 변경: smoke generation 파일명을 `run-generation-smoke.ts`, `plan-executor.ts`, `artifact-commands.ts`로 정리하고 artifact 모듈은 `SideEffectCommand[]` 생성만 담당하도록 낮춤
+- 변경: smoke artifact write 실행은 plan executor와 parse 실패 branch에서 `@cx/pipeline`의 `runSideEffects()`로 명시적으로 위임하도록 정리함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `apps/smoke/README.md`, `packages/pipeline/README.md`에 smoke는 harness/command 생성, pipeline은 IO 실행이라는 경계를 반영함
+- 이유: smoke runner와 pipeline runner가 모두 side effect 실행자처럼 보이던 혼선을 줄이고, 파일 IO와 artifact/log IO를 pipeline conveyor belt 책임으로 모으기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id io-boundary-check --out-dir tmp/generation-runs/io-boundary-check`, `npx biome check apps/smoke packages/pipeline PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md apps/smoke/README.md packages/pipeline/README.md AGENTS_HISTORY.md`
+- 후속: source read 결과를 run result summary나 artifact로 남길 필요가 생기면 pipeline result envelope를 그대로 노출하거나 별도 read artifact command를 추가한다.
+
+## 2026-05-27 - Screen Revision Smoke Step
+
+- 변경: generation plan에 `revise-render-tree-if-invalid` step과 revision 후 재검증 step을 추가함
+- 변경: `@cx/orchestration`에 validation report와 이전 후보를 받는 `buildScreenRevisionAgentInput`을 추가함
+- 변경: smoke plan runner가 validation 실패 시 `screen-revision` task를 실행하고, revision 관련 artifact를 별도 파일로 남기도록 확장함
+- 이유: 1차 AI 생성 결과가 RenderTree 검증에 실패할 때 같은 smoke 흐름 안에서 수정 후보를 이어서 만들 수 있게 하기 위함
+- 검증: `npx vitest run packages/orchestration/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration apps/smoke packages/parser packages/schema PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id revision-step-fake-check-2 --out-dir tmp/generation-runs/revision-step-fake-check-2`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id revision-step-real-ai-check-2 --out-dir tmp/generation-runs/revision-step-real-ai-check-2 --use-ai`
+- 후속: revision prompt가 catalog prop 계약까지 더 잘 반영하도록 component catalog 요약 입력을 추가한다.
+
+## 2026-05-27 - SourceSpec Component Raw Source
+
+- 변경: `SourceSpecComponentNode`에 `raw.displayText`, `raw.bindingSource`, `raw.note`를 추가함
+- 변경: Markdown parser가 PRDD `컴포넌트 상세` 표의 `표시 텍스트`, `바인딩(소스)`, `비고` 원문을 component raw 값으로 보존하도록 확장함
+- 변경: parser README와 parser 테스트에 raw source 보존 계약을 반영함
+- 이유: AI가 `{상품명}` 같은 표시 텍스트 placeholder를 literal prop으로 복사하지 않도록, 후속 generation/revision 단계에서 원문 binding source를 참고할 수 있게 하기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser packages/schema apps/smoke PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id raw-source-check --out-dir tmp/generation-runs/raw-source-check`
+- 후속: orchestration prompt에서 component raw 값을 근거로 placeholder를 binding candidate로 다루는 규칙을 추가한다.
+
+## 2026-05-27 - Generation Step Contract
+
+- 변경: generation plan step id 정본을 `GENERATION_PLAN_STEP` const contract로 분리하고 `GenerationPlanStepKind`를 해당 const에서 파생하도록 정리함
+- 변경: smoke plan executor table이 문자열 literal 대신 `GENERATION_PLAN_STEP`을 key로 사용하도록 변경함
+- 변경: orchestration README와 smoke README에 step id contract 기준과 plan 실행 원리를 반영함
+- 이유: plan producer와 smoke executor 경계는 유지하면서 step id 오타와 수동 union 관리 부담을 줄이기 위함
+- 검증: `npx vitest run packages/orchestration/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration apps/smoke packages/parser packages/schema PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id step-contract-check --out-dir tmp/generation-runs/step-contract-check`
+- 후속: revision/review step 추가 시 `GENERATION_PLAN_STEP`에 id를 먼저 추가하고 plan과 executor table을 함께 확장한다.
+
+## 2026-05-27 - Generation Plan Orchestration
+
+- 변경: `@cx/orchestration`에 작은 `buildGenerationPlan` API와 generation plan step 타입을 추가함
+- 변경: generation smoke runner가 고정된 직접 호출 순서 대신 orchestration plan을 step executor table로 실행하도록 정리하고, plan 실행 세부를 `apps/smoke/src/generation/plan-runner.ts`로 분리함
+- 변경: `apps/smoke/README.md`에 generation flow 확장 방법과 패키지 경계를 기록함
+- 변경: `PACKAGE_MAP.md`, `docs/development/PROJECT_STRUCTURE.md`, `packages/orchestration/README.md`에 smoke harness와 generation plan 책임을 반영함
+- 이유: pipeline은 artifact/log side effect conveyor belt로 유지하고, 생성 단계 순서는 orchestration에서 바꿀 수 있게 하기 위함
+- 검증: `npx vitest run packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration apps/smoke PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md AGENTS_HISTORY.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id generation-plan-check --out-dir tmp/generation-runs/generation-plan-check`
+- 후속: review/revision AI가 연결될 때 smoke runner에 조건문을 늘리지 말고 generation plan step과 executor table을 함께 확장한다.
+
 ## 2026-05-27 - RenderTree Schema Validation
 
 - 변경: RenderTree 계약을 좁혀 top-level `metadata.title`을 제거하고 node `metadata.title`만 필수로 유지함
@@ -644,6 +691,12 @@
 - 변경: `@cx/agent`에 active path 진입점 `runDraftTablesPipeline`과 validation issue를 MVP quality category로 접는 `createQualityReport` adapter를 추가함
 - 이유: 병렬 작업선이 공통으로 의존할 최소 계약과 active path 표면을 먼저 고정해, 생성 파이프라인 단순화와 품질 리포트 작업을 동시에 진행할 수 있게 하기 위함
 - 검증: `pnpm vitest run packages/agent/src/__tests__/quality-report.test.ts`, `pnpm exec tsc --noEmit --pretty false`, `pnpm exec biome check packages/types/src/draft-tables.ts packages/types/src/quality-report.ts packages/types/src/index.ts packages/types/package.json packages/agent/src/pipeline/draft-tables-pipeline.ts packages/agent/src/pipeline/index.ts packages/agent/src/index.ts packages/agent/src/validate/quality-report.ts packages/agent/src/validate/index.ts packages/agent/src/__tests__/quality-report.test.ts packages/agent/package.json docs/development/SIMPLIFICATION_PARALLEL_PLAN.md docs/development/AGENT_MODULE_BOUNDARY.md`
+
+## 2026-05-27 - Plan Harness Pipeline Boundary
+
+- 결정: generation flow 경계를 `orchestration = plan 정의`, `apps/smoke = plan 실행 harness`, `pipeline = side effect command IO 실행`으로 명시함
+- 이유: orchestration plan과 smoke runner가 붙으면서 workflow 결정, AI/validation 실행, artifact IO 책임이 섞이지 않게 하기 위함
+- 기준: pipeline은 IO를 실행하지만 workflow를 결정하지 않는다. smoke는 plan을 실행하지만 파일/log/artifact IO 실행은 pipeline command로 위임한다.
 
 ## 2026-05-27 - SourceSpec Region Tree Outline
 

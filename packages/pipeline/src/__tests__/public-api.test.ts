@@ -10,6 +10,7 @@ describe("@cx/pipeline public API", () => {
 		expect(sideEffectBoundary.packageName).toBe("@cx/pipeline");
 		expect(sideEffectBoundary.owns).toContain("side-effect-command-conveying");
 		expect(sideEffectBoundary.owns).toContain("markdown-source-parse-command");
+		expect(sideEffectBoundary.owns).toContain("source-artifact-read");
 		expect(sideEffectBoundary.owns).toContain("versioned-artifact-write");
 		expect(sideEffectBoundary.owns).toContain("run-log-write");
 		expect(sideEffectBoundary.rejects).toContain("claude-agent-run");
@@ -65,11 +66,20 @@ describe("@cx/pipeline public API", () => {
 	it("runs MVP side effect commands with injectable adapters", async () => {
 		const { adapters, files } = createTestPipelineAdapters({
 			"runs/run-001/approved.json": '{"ok":true}\n',
+			"runs/run-001/source.md": "# Source",
 		});
 
 		const result = await runSideEffects({
 			adapters,
 			commands: [
+				{
+					id: "read-source",
+					operation: "source-artifact-read",
+					input: {
+						kind: "screen",
+						path: "runs/run-001/source.md",
+					},
+				},
 				{
 					id: "write-draft",
 					operation: "versioned-artifact-write",
@@ -101,7 +111,12 @@ describe("@cx/pipeline public API", () => {
 
 		expect(result.ok).toBe(true);
 		expect(result.operation).toBe("side-effect-command-conveying");
-		expect(result.commands).toHaveLength(3);
+		expect(result.commands).toHaveLength(4);
+		expect(result.commands?.[0]?.output).toMatchObject({
+			content: "# Source",
+			kind: "screen",
+			path: "runs/run-001/source.md",
+		});
 		expect(files.get("runs/run-001/draft.json")).toContain("screen-001");
 		expect(files.get("database/generated/approved.json")).toBe('{"ok":true}\n');
 	});

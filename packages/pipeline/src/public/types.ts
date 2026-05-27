@@ -24,6 +24,7 @@ export type SideEffectCommandResult = {
 	artifact?: SideEffectArtifactRef;
 	issues: SideEffectIssue[];
 	operation: SideEffectOperation;
+	output?: unknown;
 	status: SideEffectCommandStatus;
 };
 
@@ -39,6 +40,14 @@ export type WriteVersionedArtifactCommand = SideEffectCommandBase<
 		artifact?: Omit<SideEffectArtifactRef, "kind" | "uri">;
 		content: unknown;
 		targetPath: string;
+	}
+>;
+
+export type SourceArtifactReadCommand = SideEffectCommandBase<
+	"source-artifact-read",
+	{
+		kind?: PipelineMarkdownSourceFile["kind"];
+		path: string;
 	}
 >;
 
@@ -60,6 +69,7 @@ export type ApplyApprovedArtifactCommand = SideEffectCommandBase<
 
 export type SideEffectCommand =
 	| ApplyApprovedArtifactCommand
+	| SourceArtifactReadCommand
 	| WriteRunLogCommand
 	| WriteVersionedArtifactCommand;
 

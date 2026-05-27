@@ -110,7 +110,7 @@ apps/web/src/
 apps/smoke/src/
   index.ts       public app API
   cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke harness와 관련 helper
+  generation/    runGenerationSmoke harness, plan executor, artifact command helper
 ```
 
 외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다.
@@ -198,12 +198,12 @@ packages/parser/src/
 
 ## 11. `packages/orchestration`
 
-`@cx/orchestration`은 생성 과정의 순수한 업무 흐름을 담당한다. 현재는 패키지 책임과 public contract만 할당하고, 실제 stage builder와 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
+`@cx/orchestration`은 생성 과정의 순수한 업무 흐름을 담당한다. 현재는 작은 generation plan과 screen-generation stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
 
 ```text
 packages/orchestration/src/
   index.ts       public barrel
-  public/        pure orchestration boundary contract, public types
+  public/        pure orchestration boundary contract, generation plan, public types
 ```
 
 두지 않는 책임:
@@ -236,7 +236,7 @@ packages/validation/src/
 
 ## 13. `packages/pipeline`
 
-`@cx/pipeline`은 생성 과정의 side effect conveyor belt만 담당한다. MVP에서는 승인된 side effect command 배열을 순서대로 실행하고, versioned artifact/write log/approved artifact apply 결과를 감사 가능한 envelope로 반환한다.
+`@cx/pipeline`은 생성 과정의 side effect conveyor belt만 담당한다. MVP에서는 승인된 side effect command 배열을 순서대로 실행하고, source artifact read/versioned artifact/write log/approved artifact apply 결과를 감사 가능한 envelope로 반환한다.
 
 ```text
 packages/pipeline/src/
@@ -244,7 +244,7 @@ packages/pipeline/src/
   public/        side effect boundary contract, parser adapter, public types
   commands/      approved side effect command contracts and command helpers
   runner/        command sequence execution, executor registry, result envelope
-  executors/     versioned artifact write, run log write, approved artifact apply
+  executors/     source artifact read, versioned artifact write, run log write, approved artifact apply
   adapters/      fs/clock/id environment adapters
   errors/        pipeline error types
   testing/       memory adapters and test fixtures

@@ -3,6 +3,7 @@ export type {
 	RunSideEffectsInput,
 	SideEffectCommand,
 	SideEffectCommandBase,
+	SourceArtifactReadCommand,
 	WriteRunLogCommand,
 	WriteVersionedArtifactCommand,
 } from "../public/types";

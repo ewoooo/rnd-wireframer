@@ -1,54 +1,22 @@
 import path from "node:path";
 
-import { createNodePipelineAdapters, runSideEffects } from "@cx/pipeline";
-import type { SideEffectCommand, SideEffectExecutionResult } from "@cx/pipeline/types";
+import type { SideEffectCommand } from "@cx/pipeline/types";
 
 export type GenerationSmokeArtifactInput = {
 	agentInput: unknown;
 	agentResult: unknown;
+	initialValidationReport?: unknown;
 	outDir: string;
 	parseCommandResult: unknown;
-	pipelineRunId: string;
+	revisionAgentInput?: unknown;
+	revisionAgentResult?: unknown;
+	revisionRunnerRequest?: unknown;
 	runnerRequest: unknown;
 	sourceSpec: unknown;
 	validationReport: unknown;
 };
 
-export type GenerationSmokeArtifactResult = {
-	pipelineResult: SideEffectExecutionResult;
-	pipelineResultWrite: SideEffectExecutionResult;
-};
-
-export async function writeGenerationSmokeArtifacts(
-	input: GenerationSmokeArtifactInput,
-): Promise<GenerationSmokeArtifactResult> {
-	const commands = createGenerationSmokeArtifactCommands(input);
-
-	const pipelineResult = await runSideEffects({
-		adapters: createNodePipelineAdapters(),
-		commands,
-		mode: "commit",
-		runId: input.pipelineRunId,
-	});
-
-	const pipelineResultWrite = await runSideEffects({
-		adapters: createNodePipelineAdapters(),
-		commands: [
-			createWriteCommand(
-				"write-pipeline-result",
-				input.outDir,
-				"pipeline-result.json",
-				pipelineResult,
-			),
-		],
-		mode: "commit",
-		runId: input.pipelineRunId,
-	});
-
-	return { pipelineResult, pipelineResultWrite };
-}
-
-function createGenerationSmokeArtifactCommands(
+export function createGenerationSmokeArtifactCommands(
 	input: GenerationSmokeArtifactInput,
 ): SideEffectCommand[] {
 	return [
@@ -68,10 +36,48 @@ function createGenerationSmokeArtifactCommands(
 		),
 		createWriteCommand("write-agent-result", input.outDir, "agent-result.json", input.agentResult),
 		createWriteCommand(
+			"write-initial-validation-report",
+			input.outDir,
+			"initial-validation-report.json",
+			input.initialValidationReport,
+		),
+		createWriteCommand(
+			"write-revision-agent-input",
+			input.outDir,
+			"revision-agent-input.json",
+			input.revisionAgentInput,
+		),
+		createWriteCommand(
+			"write-revision-agent-runner-request",
+			input.outDir,
+			"revision-agent-runner-request.json",
+			input.revisionRunnerRequest,
+		),
+		createWriteCommand(
+			"write-revision-agent-result",
+			input.outDir,
+			"revision-agent-result.json",
+			input.revisionAgentResult,
+		),
+		createWriteCommand(
 			"write-validation-report",
 			input.outDir,
 			"validation-report.json",
 			input.validationReport,
+		),
+	];
+}
+
+export function createGenerationSmokePipelineResultCommands(input: {
+	outDir: string;
+	pipelineResult: unknown;
+}): SideEffectCommand[] {
+	return [
+		createWriteCommand(
+			"write-pipeline-result",
+			input.outDir,
+			"pipeline-result.json",
+			input.pipelineResult,
 		),
 	];
 }
