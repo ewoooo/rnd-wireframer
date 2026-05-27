@@ -3,8 +3,8 @@ import type { CompositionOutput } from "@cx/types/composition-output";
 import type { DecoratedOutput } from "@cx/types/decorated-output";
 import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import { describe, expect, it } from "vitest";
-import type { ValidatorDeps } from "../validate/types";
 import { buildSnapshotValidatorContext } from "../validate/rules/shared/deck-lookup";
+import type { ValidatorDeps } from "../validate/types";
 import { validateComposition } from "../validate/validate-composition";
 import { validateDecorated } from "../validate/validate-decorated";
 
@@ -109,9 +109,6 @@ function makeDeps(): ValidatorDeps {
 		],
 	};
 	return {
-		catalogDeck,
-		designDeck,
-		layoutPatternStoreDeck,
 		validationContext: buildSnapshotValidatorContext({
 			catalogDeck,
 			designDeck,

@@ -1,11 +1,11 @@
 import type { CompositionOutput } from "@cx/types/composition-output";
 import type { DecoratedOutput } from "@cx/types/decorated-output";
 import type { ValidationIssue } from "@cx/types/validation";
+import { buildRetryHints } from "./retry-hint";
 import { checkDraftHandoff } from "./rules/decorate/draft-handoff";
 import { checkLayoutPatternFinal } from "./rules/decorate/layout-pattern";
 import { checkReasonsPresent } from "./rules/decorate/reasons";
 import { getValidatorContext } from "./rules/shared/deck-lookup";
-import { buildRetryHints } from "./retry-hint";
 import type { ValidatorDeps, ValidatorResult } from "./types";
 
 /**

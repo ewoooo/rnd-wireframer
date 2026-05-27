@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { componentCatalog } from "@cx/components/catalog";
 import { loadPatternStore } from "@cx/pattern-store";
+import { parseDesignDocument } from "../../../design/design-parser";
 import type {
 	CatalogDeck,
 	ComponentPatternCard,
@@ -114,22 +118,45 @@ export const DESIGN_DOCUMENT_IDS = [
 	"VISUAL_FOUNDATION_OBSERVATIONS.md",
 ] as const satisfies readonly DesignDocumentId[];
 
+/**
+ * 디자인 문서가 위치한 docs/design 경로. 모듈 위치 기준으로 해석해
+ * cwd에 의존하지 않는다(packages/agent/src/validate/rules/shared → repo root).
+ */
+const DEFAULT_DOCS_ROOT = resolve(
+	dirname(fileURLToPath(import.meta.url)),
+	"../../../../../../docs/design",
+);
+
+let cachedDesignIndex: DesignIndex | undefined;
+let cachedDocsRoot: string | undefined;
+
 export function indexDesignDocuments(
 	ids: readonly DesignDocumentId[] = DESIGN_DOCUMENT_IDS,
+	docsRoot: string = DEFAULT_DOCS_ROOT,
 ): DesignIndex {
-	return {
-		documents: new Map(
-			ids.map((id) => [
-				id,
-				{
-					id,
-					title: id,
-					responsibility: "",
-					rules: [],
-				} satisfies DesignDocumentCard,
-			]),
-		),
-	};
+	if (cachedDesignIndex && cachedDocsRoot === docsRoot && ids === DESIGN_DOCUMENT_IDS) {
+		return cachedDesignIndex;
+	}
+
+	const documents = new Map<DesignDocumentId, DesignDocumentCard>();
+	for (const id of ids) {
+		const filePath = resolve(docsRoot, id);
+		let card: DesignDocumentCard;
+		try {
+			const content = readFileSync(filePath, "utf-8");
+			card = parseDesignDocument(id, content);
+		} catch {
+			card = { id, title: id, responsibility: "", rules: [] };
+		}
+		documents.set(id, card);
+	}
+
+	const index: DesignIndex = { documents };
+	if (ids === DESIGN_DOCUMENT_IDS) {
+		cachedDesignIndex = index;
+		cachedDocsRoot = docsRoot;
+	}
+	return index;
 }
 
 export function getValidatorContext(deps: ValidatorDeps): ValidatorContext {

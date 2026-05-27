@@ -106,6 +106,7 @@ packages/agent/
 - Agent SDK의 모델명, 세션 재개, fallback 정책은 하드코딩을 피하고 후속 runner 옵션으로 분리한다.
 - Design Review의 CTA 판정, operation dispatch, placement 처리, synthetic area 생성 규칙은 코드 내부 조건문이 아니라 contract table과 pattern-store reference로 표현한다.
 - decorator/resolver는 variant 단위로 결정한다. 1 variant = 메인 화면 1 + 엣지 화면 N이고 엣지는 메인의 상태 변형이라 동일 layout pattern을 공유한다. screen마다 resolver를 다시 호출하면 동일한 결정을 N+1번 반복하게 되고, AI fallback이 붙으면 비용이 5배까지 늘어난다. 엣지가 메인과 다른 pattern을 써야 하는 케이스가 생기면 그 시점에 예외 정책을 추가한다.
+- `deck/*`는 LLM prompt packaging과 감사/재현 snapshot만 담당한다. validation rule은 기본적으로 `buildDefaultValidatorContext()`를 통해 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` SSOT를 직접 조회하고, deck 기반 context는 테스트/재현에서만 명시적으로 주입한다.
 - 단계 책임을 섞지 않는다. "콘텐츠인가 스타일인가"가 1차 분기 기준이다. Composer는 props 값만, Decorator는 pattern-store 기반 layout recipe를 다룬다. Design Review는 문서 근거가 필요한 디자인 품질 patch만 다루고, 콘텐츠 합성에는 Composer 쪽 AI 보강을 사용한다.
 - 앱 클라이언트 컴포넌트가 `@cx/agent` 루트를 import할 수 있으므로, 루트 export에는 `node:*`, `fs`, `async_hooks`, Agent SDK 같은 Node 전용 의존성이 흘러들지 않게 한다.
 

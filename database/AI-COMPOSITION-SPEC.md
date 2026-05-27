@@ -658,16 +658,16 @@ interface GapReport {
 
 ## 6. Build-time AI Context Decks
 
-LLM Composer가 호출 시점에 받는 catalog/design/layoutPatternStore deck은 **빌드 타임에 미리 생성하는 AI context bundle**이다.
+LLM Composer가 호출 시점에 받는 catalog/design/layoutPatternStore deck은 **빌드 타임에 미리 생성하는 prompt packaging bundle**이다.
 
-deck은 SOT가 아니다. 생성/검수의 실제 기준은 아래 원천 계약이다.
+deck은 SOT가 아니다. 생성/검수/renderer projection의 실제 기준은 아래 원천 계약이다.
 
 - primitive/component surface: `@cx/components/catalog`
 - layout preset: `@cx/pattern-store` (`packages/pattern-store/src/catalog/*.json`)
 - design rule/reference: `docs/design/*.md`
 - token/layout foundation: `@cx/tokens`, `@cx/layout`
 
-deck은 위 원천 계약을 LLM prompt와 validator lookup에 넣기 좋은 형태로 요약한 재생성 가능 산출물이다. 원천 계약과 deck이 충돌하면 원천 계약을 우선하고 deck을 다시 생성한다.
+deck은 위 원천 계약을 LLM prompt에 넣기 좋은 카드 형태로 요약한 재생성 가능 산출물이다. 감사, 재현, retry prompt 구성에는 쓸 수 있지만 계약 검증의 최종 기준은 아니다. 원천 계약과 deck이 충돌하면 원천 계약을 우선하고 deck을 다시 생성한다.
 
 ### 6.1 위치
 
@@ -677,7 +677,7 @@ database/generated-decks/design-deck.json
 database/generated-decks/layout-pattern-store-deck.json
 ```
 
-`database/tables`는 승인된 소비 데이터, `database/ai-imports`는 AI 생성 후보 산출물이다. deck은 둘 중 어느 쪽도 아니며 원천 catalog도 아니므로 generated context 위치에 둔다.
+`database/tables`는 승인된 소비 데이터, `database/ai-imports`는 AI 생성 후보 산출물이다. deck은 둘 중 어느 쪽도 아니며 원천 catalog도 아니므로 generated prompt context 위치에 둔다.
 
 ### 6.2 구조
 
@@ -745,7 +745,7 @@ interface ComponentPatternCard {
 - `packages/pattern-store/src/catalog/*.json` 변경 시 → layoutPatternStore deck 재생성
 - pre-commit 또는 dev server start hook에서 자동
 
-**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI context deck 산출물 위치다. Compose는 `catalog-deck.json`, `design-deck.json`, `layout-pattern-store-deck.json`을 함께 입력받되, 기준 계약은 항상 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design` 원천을 우선한다.
+**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI prompt packaging deck 산출물 위치다. Compose/Decorate prompt는 `catalog-deck.json`, `design-deck.json`, `layout-pattern-store-deck.json`을 함께 입력받되, validator와 deterministic code의 기준 계약은 항상 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
 
 ---
 

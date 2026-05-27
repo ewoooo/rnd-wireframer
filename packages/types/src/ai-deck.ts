@@ -1,3 +1,4 @@
+import type { ComponentPropContract } from "./component-catalog";
 import type {
 	ComponentPattern,
 	ComponentPatternProp,
@@ -5,7 +6,6 @@ import type {
 	ComponentPatternStatus,
 	ComponentPatternVariant,
 } from "./component-pattern";
-import type { ComponentPropContract } from "./component-catalog";
 import type { DesignDocumentId } from "./composition-output";
 import type { TokenRole, TokenSlot } from "./tokens";
 
@@ -13,7 +13,8 @@ import type { TokenRole, TokenSlot } from "./tokens";
  * Build-time deck types.
  *
  * LLM Composer가 호출 시점에 받는 catalog/design/layoutPatternStore 카드덱.
- * SPEC §6 참조. 빌드 스크립트가 이 모양으로 생성하고, Validator가 lookup용으로 소비한다.
+ * SPEC §6 참조. 빌드 스크립트가 이 모양으로 생성하는 prompt packaging/audit snapshot이다.
+ * Validator의 기본 기준은 deck이 아니라 @cx/components/catalog, @cx/pattern-store, docs/design, @cx/types SSOT다.
  */
 
 export interface CatalogDeck {

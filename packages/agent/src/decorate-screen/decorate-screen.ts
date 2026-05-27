@@ -115,9 +115,6 @@ export async function decorateScreen(
 		}
 
 		const validatorResult = validateDecorated(parsed.output, {
-			catalogDeck: input.catalogDeck,
-			designDeck: input.designDeck,
-			layoutPatternStoreDeck: input.layoutPatternStoreDeck,
 			validationContext: input.validationContext,
 			prddScreenRecord: input.prddScreenRecord,
 			composition: input.composition,

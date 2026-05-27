@@ -171,9 +171,6 @@ function makeBase(): {
 		composition,
 		decorated,
 		deps: {
-			catalogDeck,
-			designDeck,
-			layoutPatternStoreDeck,
 			validationContext: buildSnapshotValidatorContext({
 				catalogDeck,
 				designDeck,

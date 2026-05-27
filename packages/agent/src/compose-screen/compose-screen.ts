@@ -106,9 +106,6 @@ export async function composeScreen(
 		}
 
 		const validatorResult = validateComposition(parsed.output, {
-			catalogDeck: input.catalogDeck,
-			designDeck: input.designDeck,
-			layoutPatternStoreDeck: input.layoutPatternStoreDeck,
 			validationContext: input.validationContext,
 			prddScreenRecord: input.prddScreenRecord,
 			archetypeScaffold,

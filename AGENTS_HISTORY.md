@@ -36,13 +36,13 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
-## 2026-05-27 - Pattern Schema SSOT To Types
+## 2026-05-27 - Deck Prompt Packaging Boundary
 
-- 변경: pattern store runtime schema와 catalog normalization schema를 `packages/pattern-store/src/schema.ts`에서 `packages/types/src/pattern-store-schema.ts`로 이동함
-- 변경: `@cx/pattern-store/schema`와 `packages/agent/src/pattern/pattern-schema.ts`는 호환 re-export로 낮추고, 실제 schema/type SSOT는 `@cx/types`로 정리함
-- 변경: `@cx/types`에 `zod` dependency를 추가하고, `@cx/pattern-store`의 직접 `zod` dependency를 제거함
-- 이유: pattern data는 `@cx/pattern-store`가 소유하되 데이터 계약과 runtime schema는 `packages/types`가 단일 원천으로 관리해야 패키지 간 타입/검증 drift를 막을 수 있기 때문
-- 검증: `npm test -- packages/pattern-store/src/__tests__/pattern-store.test.ts packages/agent/src/__tests__/pattern-schema.test.ts packages/agent/src/__tests__/materialize-composition.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/types/src/pattern-store-schema.ts packages/types/src/index.ts packages/types/package.json packages/pattern-store/src/schema.ts packages/pattern-store/src/store.ts packages/pattern-store/package.json packages/pattern-store/src/__tests__/pattern-store.test.ts packages/agent/src/pattern/pattern-schema.ts packages/agent/src/__tests__/pattern-schema.test.ts AGENTS.md docs/development/DEVELOPMENT_ARCHITECTURE.md docs/development/PROJECT_STRUCTURE.md packages/pattern-store/README.md packages/agent/README.md packages/agent/AGENTS.md`
+- 변경: `database/generated-decks`와 `@cx/types` deck 타입을 LLM prompt packaging/audit snapshot으로 명확히 정리함
+- 변경: validator 기본 경로는 deck lookup이 아니라 `@cx/components/catalog`, `@cx/pattern-store`, `docs/design`, `@cx/types` SSOT를 직접 조회하는 `ValidatorContext`로 문서화함
+- 변경: deck 기반 validation context는 테스트/재현에서만 명시적으로 주입하는 snapshot 경로로 낮춤
+- 이유: deck을 유지하되 계약/검증 릴레이로 해석되면 SSOT와 drift가 생기므로, LLM 입력 번들 역할만 갖도록 경계를 고정하기 위함
+- 검증: `npm test -- packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts packages/agent/src/__tests__/build-decks.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check --write packages/agent/src/validate/rules/shared/deck-lookup.ts packages/agent/src/validate/types.ts packages/agent/src/validate/validate-composition.ts packages/agent/src/validate/validate-decorated.ts packages/agent/src/compose-screen/compose-screen.ts packages/agent/src/decorate-screen/decorate-screen.ts packages/agent/src/__tests__/validate-composition.test.ts packages/agent/src/__tests__/validate-decorated.test.ts packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/decorate-screen.test.ts packages/types/src/ai-deck.ts database/AI-COMPOSITION-SPEC.md database/README.md AGENTS.md packages/agent/README.md packages/agent/AGENTS.md AGENTS_HISTORY.md docs/agents-history/2026-05.md`
 
 ## 2026-05-27 - RenderTree Responsibility Docs Sync
 

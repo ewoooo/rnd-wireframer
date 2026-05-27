@@ -1,4 +1,3 @@
-import type { CatalogDeck, DesignDeck, LayoutPatternStoreDeck } from "@cx/types/ai-deck";
 import type { CompositionDecision, CompositionOutput } from "@cx/types/composition-output";
 import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
 import type { ValidationIssue, ValidationResult } from "@cx/types/validation";
@@ -11,13 +10,7 @@ import type { CatalogIndex, DesignIndex, LayoutPatternIndex } from "./rules/shar
  */
 
 export interface ValidatorDeps {
-	/** LLM context snapshot. Deprecated for validation 기준; prompt/audit 용으로만 유지한다. */
-	catalogDeck?: CatalogDeck;
-	/** LLM context snapshot. Deprecated for validation 기준; prompt/audit 용으로만 유지한다. */
-	designDeck?: DesignDeck;
-	/** LLM context snapshot. Deprecated for validation 기준; prompt/audit 용으로만 유지한다. */
-	layoutPatternStoreDeck?: LayoutPatternStoreDeck;
-	/** Validator 기준. 미지정 시 SSOT에서 직접 생성한다. */
+	/** Validator 기준. 미지정 시 SSOT(@cx/components, @cx/pattern-store, docs/design)에서 직접 생성한다. */
 	validationContext?: ValidatorContext;
 	/** sourceRef 추적 대조용 PRDD Screen Record (Schema A). */
 	prddScreenRecord: PrddScreenRecord;
