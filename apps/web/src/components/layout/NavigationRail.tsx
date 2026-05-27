@@ -27,7 +27,7 @@ const primaryItems: NavItem[] = [
 	},
 	{
 		icon: Boxes,
-		label: "OGN",
+		label: "ARE",
 		name: "Area",
 		description: "재사용 가능한 섹션 단위 컴포넌트 목록",
 		value: "ogn",
