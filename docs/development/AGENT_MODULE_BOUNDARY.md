@@ -62,7 +62,7 @@ Active path는 승인 전 draft tables를 만들고, quality report/backlog로 �
 - 기존 Register -> Compose -> Decorate -> Materialize 흐름은 `@cx/agent/pipeline/experimental`에서만 공개한다.
 - `@cx/agent/validate`는 active `QualityReport` adapter와 `QualityBacklog` aggregation만 공개한다.
 - composition/decorated validator는 `@cx/agent/validate/experimental`에서만 공개한다.
-- legacy asset pipeline은 root export에 추가하지 않는다.
+- legacy asset pipeline은 root export에 추가하지 않는다. read-only 호환 뷰에 필요한 `register-assets` 외 legacy 생성/compose/decorate/design-review subpath는 public export로 열지 않는다.
 
 ## 6. 병렬 작업 규칙
 

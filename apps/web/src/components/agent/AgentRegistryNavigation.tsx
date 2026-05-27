@@ -27,7 +27,6 @@ export function AgentRegistryNavigation({
 	const setAgentGenerationMessage = useWorkbenchStore((state) => state.setAgentGenerationMessage);
 	const setAgentGenerationStatus = useWorkbenchStore((state) => state.setAgentGenerationStatus);
 	const setAgentImports = useWorkbenchStore((state) => state.setAgentImports);
-	const setAgentRegistry = useWorkbenchStore((state) => state.setAgentRegistry);
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
 	const selectTab = useWorkbenchStore((state) => state.selectTab);
 	const [selectedImportId, setSelectedImportId] = useState("");
@@ -35,7 +34,6 @@ export function AgentRegistryNavigation({
 		"idle",
 	);
 	const folderInputRef = useRef<HTMLInputElement>(null);
-	const [composeWithAI, setComposeWithAI] = useState(false);
 
 	async function loadImports() {
 		const response = await fetch("/api/agent/client-imports");
@@ -177,42 +175,6 @@ export function AgentRegistryNavigation({
 		}
 	}
 
-	async function handleGenerateLegacyRegister() {
-		if (!selectedImportId || status === "loading") return;
-		setAgentGenerationStatus("loading");
-		setAgentGenerationMessage("");
-
-		try {
-			const response = await fetch("/api/agent/generate-register", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ importId: selectedImportId, composeWithAI }),
-			});
-			const payload = await readJsonResponse<{
-				error?: string;
-				registry?: RegisteredNodeTree;
-				runtime?: { provider: string; sessionId?: string };
-				writtenPath?: string;
-			}>(response, "Failed to generate register JSON.");
-
-			if (!response.ok || !payload.registry) {
-				throw new Error(payload.error ?? "Failed to generate register JSON.");
-			}
-
-			setAgentRegistry(payload.registry);
-			setAgentGenerationMessage(
-				`Generated legacy register via ${payload.runtime?.provider ?? "agent"} ${payload.writtenPath ?? "agent-assets.json"}`,
-			);
-		} catch (error) {
-			setAgentGenerationStatus("error");
-			setAgentGenerationMessage(
-				error instanceof Error ? error.message : "Failed to generate register JSON.",
-			);
-		}
-	}
-
 	return (
 		<div className="flex flex-col gap-3 pr-3">
 			<div className="rounded-lg border bg-background p-3">
@@ -262,41 +224,12 @@ export function AgentRegistryNavigation({
 								<p className="text-xs text-muted-foreground">{item.screenFiles} screens</p>
 							</button>
 						))}
-						<label className="flex items-center gap-2 rounded-md border bg-secondary/30 px-2 py-1.5 text-xs">
-							<input
-								type="checkbox"
-								className="h-3.5 w-3.5 accent-primary"
-								checked={composeWithAI}
-								onChange={(event) => setComposeWithAI(event.target.checked)}
-								disabled={status === "loading"}
-							/>
-							<span className="flex-1">
-								<span className="font-medium">Legacy Composer AI inspection</span>
-								<span className="ml-1 text-muted-foreground">
-									(placeholder/helperText 자동 합성)
-								</span>
-							</span>
-						</label>
 						<Button
 							type="button"
 							onClick={handleGenerateDraftTables}
 							disabled={status === "loading"}
 						>
 							{status === "loading" ? "Generating draft tables..." : "Generate Draft Tables"}
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={handleGenerateLegacyRegister}
-							disabled={status === "loading"}
-						>
-							{status === "loading"
-								? composeWithAI
-									? "Generating legacy with AI inspection..."
-									: "Generating legacy..."
-								: composeWithAI
-									? "Legacy Register + AI Compose"
-									: "Legacy Register JSON"}
 						</Button>
 					</div>
 				) : (
@@ -310,7 +243,7 @@ export function AgentRegistryNavigation({
 			<div className="flex items-center justify-between gap-2">
 				<div>
 					<p className="text-sm font-semibold">Legacy Agent Registry</p>
-					<p className="text-xs text-muted-foreground">database/ai-imports/agent-assets.json</p>
+					<p className="text-xs text-muted-foreground">read-only compatibility view</p>
 				</div>
 				<Badge variant="outline">{registry?.routes.length ?? 0} routes</Badge>
 			</div>
@@ -352,7 +285,7 @@ export function AgentRegistryNavigation({
 				))
 			) : (
 				<div className="rounded-lg border bg-background p-3 text-sm text-muted-foreground">
-					Generate register JSON to inspect the Phase 1 registry.
+					No legacy registry is loaded.
 				</div>
 			)}
 			<div className="grid grid-cols-2 gap-2">

@@ -33,15 +33,10 @@ import {
 } from "@cx/agent";
 ```
 
-legacy/experimental pipeline은 기본 경로가 아니다. 필요한 하위 작업에서만 명시적 subpath로 import하며, 패키지 루트에서 export하지 않는다.
+legacy/experimental pipeline은 기본 경로가 아니다. 호환 뷰에 필요한 `register-assets`와 명시적 experimental barrel만 공개하고, legacy 생성/compose/decorate/design-review subpath는 신규 제품 entrypoint로 열지 않는다.
 
 ```ts
 import { createCxTextAgent } from "@cx/agent/agent-sdk-runtime";
-import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator";
-import { composeAssetContents } from "@cx/agent/compose-assets";
-import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
-import { applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
-import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
 import { registerAssets } from "@cx/agent/register-assets";
 import type { GeneratedNodeTree } from "@cx/agent/types";
 ```
