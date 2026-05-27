@@ -56,8 +56,8 @@
 						"type": "CardSummary"
 					},
 					"props": {
-						"title": "{상품명}",
-						"subText": "{상품 유형} / {대표 가격}"
+						"title": "iPhone 16 Pro",
+						"subText": "Apple / 스마트폰 / 월 50,000원"
 					}
 				}
 			]
@@ -84,7 +84,7 @@
 						"variant": "blue"
 					},
 					"props": {
-						"children": "{판매 상태}",
+						"children": "가입가능",
 						"variant": "blue"
 					}
 				}
@@ -146,8 +146,8 @@
 						"variant": "on"
 					},
 					"props": {
-						"title": "{상품정보 항목}",
-						"subText": "{항목 값}"
+						"title": "혜택",
+						"subText": "T 우주패스 제휴 혜택 제공"
 					}
 				}
 			]
