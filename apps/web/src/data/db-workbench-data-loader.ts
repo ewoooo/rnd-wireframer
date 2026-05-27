@@ -3,7 +3,7 @@ import {
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 	type SampleComposite,
-	type SampleOrganism,
+	type SampleArea,
 	type SampleScreen,
 	type SampleScreenRoute,
 	type SampleScreenRouteSet,
@@ -27,7 +27,7 @@ export async function loadDbWorkbenchData() {
 		{ data: routeRows },
 		{ data: variantRows },
 		{ data: screenRows },
-		{ data: organismRows },
+		{ data: areaRows },
 		{ data: componentRows },
 	] = await Promise.all([
 		db.from("screen_routes").select("*").order("order"),
@@ -72,9 +72,9 @@ export async function loadDbWorkbenchData() {
 		screen: r.screen as SampleScreen["screen"],
 	}));
 
-	const organisms: SampleOrganism[] = (organismRows ?? []).map((r) => ({
+	const areas: SampleArea[] = (areaRows ?? []).map((r) => ({
 		id: r.id,
-		type: r.type as SampleOrganism["type"],
+		type: r.type as SampleArea["type"],
 		version: r.version,
 		metadata: {
 			title: r.title ?? "",
@@ -84,7 +84,7 @@ export async function loadDbWorkbenchData() {
 		},
 		pattern: r.pattern_id ? { id: r.pattern_id, variant: r.pattern_variant ?? undefined } : undefined,
 		props: (r.props as Record<string, PropValue>) ?? undefined,
-		children: (r.children as SampleOrganism["children"]) ?? [],
+		children: (r.children as SampleArea["children"]) ?? [],
 	}));
 
 	const composites: SampleComposite[] = (componentRows ?? []).map((r) => ({
@@ -120,7 +120,7 @@ export async function loadDbWorkbenchData() {
 
 	const sampleScreens = tablesToRenderTrees({
 		screens: orderedScreens,
-		organisms,
+		areas,
 		composites,
 		patternStore: loadPatternStore(),
 	});
@@ -133,14 +133,14 @@ export async function loadDbWorkbenchData() {
 		const validation = validateRenderTreeFull(schema);
 		const variant = raw.screenVariantId ? variantById.get(raw.screenVariantId) : undefined;
 		const route = variant ? routeSet.screenRoutes.find((r) => r.id === variant.screenRouteId) : undefined;
-		const ogns = extractOrganisms(schema);
+		const areas = extractAreas(schema);
 
 		return {
 			code: schema.metadata.id,
 			name: schema.metadata.title,
 			description: schema.metadata.description ?? schema.children[0]?.metadata.title,
 			module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
-			areas: ogns,
+			areas,
 			screenOrder: raw.order ?? index + 1,
 			screenRouteId: route?.id ?? "unknown-route",
 			screenRouteName: route?.name ?? "Unknown route",
@@ -155,32 +155,32 @@ export async function loadDbWorkbenchData() {
 		};
 	});
 
-	const organismCatalog = getOrganismCatalog(sampleScreens);
+	const areaCatalog = getAreaCatalog(sampleScreens);
 
 	return {
 		screens: processedScreens,
-		areas: organismCatalog,
+		areas: areaCatalog,
 	};
 }
 
 // ── 헬퍼 (local-workbench-data-loader 와 동일) ──────────────
 import type { RenderTreeNode, RenderTree } from "@cx/renderer";
 
-function extractOrganisms(schema: RenderTree) {
+function extractAreas(schema: RenderTree) {
 	const result: Array<{ order: number; areaCode: string }> = [];
 	forEachNode(schema.children, (node) => {
 		if (!isAreaType(node.type)) return;
-		result.push({ order: result.length + 1, areaCode: String(node.props?.organismCode ?? node.metadata.id) });
+		result.push({ order: result.length + 1, areaCode: String(node.props?.areaCode ?? node.metadata.id) });
 	});
 	return result;
 }
 
-function getOrganismCatalog(schemas: RenderTree[]) {
+function getAreaCatalog(schemas: RenderTree[]) {
 	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
 	for (const schema of schemas) {
 		forEachNode(schema.children, (node) => {
 			if (!isAreaType(node.type)) return;
-			const code = String(node.props?.organismCode ?? node.metadata.id);
+			const code = String(node.props?.areaCode ?? node.metadata.id);
 			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, componentCount: node.children?.length ?? 0 });
 		});
 	}

@@ -2,10 +2,10 @@ import type { PropValue, RenderTreeNode, RenderTree, RenderTreeScreenNode } from
 import { type AreaType, isAreaType } from "@cx/types/node-types";
 
 import type {
+	SampleArea,
+	SampleAreaSet,
 	SampleComposite,
 	SampleCompositeSet,
-	SampleOrganism,
-	SampleOrganismSet,
 	SampleRenderEntry,
 	SampleScreen,
 	SampleScreenRegion,
@@ -21,7 +21,7 @@ export interface RenderTreeToTablesOptions {
 
 export interface RenderTreeToTablesResult {
 	composites: SampleCompositeSet;
-	organisms: SampleOrganismSet;
+	areas: SampleAreaSet;
 	screens: SampleScreenSet;
 	warnings: string[];
 }
@@ -41,7 +41,7 @@ export function renderTreeToTables(
 	const warnings: string[] = [];
 	const screenNode = getSingleScreenNode(schema, warnings);
 	const compositesById = new Map<string, SampleComposite>();
-	const organismsById = new Map<string, SampleOrganism>();
+	const areasById = new Map<string, SampleArea>();
 
 	const screen: SampleScreen = {
 		id: options.screenId ?? schema.metadata.id,
@@ -62,16 +62,16 @@ export function renderTreeToTables(
 		screen: {
 			type: "page",
 			regions: {
-				header: extractRegion(screenNode, "header", compositesById, organismsById, warnings),
-				contents: extractRegion(screenNode, "contents", compositesById, organismsById, warnings),
-				bottom: extractRegion(screenNode, "bottom", compositesById, organismsById, warnings),
+				header: extractRegion(screenNode, "header", compositesById, areasById, warnings),
+				contents: extractRegion(screenNode, "contents", compositesById, areasById, warnings),
+				bottom: extractRegion(screenNode, "bottom", compositesById, areasById, warnings),
 			},
 		},
 	};
 
 	return {
 		composites: { composites: Array.from(compositesById.values()) },
-		organisms: { organisms: Array.from(organismsById.values()) },
+		areas: { areas: Array.from(areasById.values()) },
 		screens: { screens: [screen] },
 		warnings,
 	};
@@ -92,7 +92,7 @@ function extractRegion(
 	screenNode: RenderTreeScreenNode,
 	regionKey: RegionKey,
 	compositesById: Map<string, SampleComposite>,
-	organismsById: Map<string, SampleOrganism>,
+	areasById: Map<string, SampleArea>,
 	warnings: string[],
 ): SampleScreenRegion {
 	const region = screenNode.children.find((child) => REGION_BY_TYPE[child.type] === regionKey);
@@ -106,27 +106,27 @@ function extractRegion(
 			region.componentVersion === screenNode.componentVersion ? undefined : region.componentVersion,
 		metadata: { title: region.metadata.title },
 		props: region.props,
-		children: extractRegionEntries(region.children ?? [], compositesById, organismsById, warnings),
+		children: extractRegionEntries(region.children ?? [], compositesById, areasById, warnings),
 	};
 }
 
 function extractRegionEntries(
 	nodes: RenderTreeNode[],
 	compositesById: Map<string, SampleComposite>,
-	organismsById: Map<string, SampleOrganism>,
+	areasById: Map<string, SampleArea>,
 	warnings: string[],
 ): SampleRenderEntry[] {
-	return nodes.flatMap((node) => extractRegionEntry(node, compositesById, organismsById, warnings));
+	return nodes.flatMap((node) => extractRegionEntry(node, compositesById, areasById, warnings));
 }
 
 function extractRegionEntry(
 	node: RenderTreeNode,
 	compositesById: Map<string, SampleComposite>,
-	organismsById: Map<string, SampleOrganism>,
+	areasById: Map<string, SampleArea>,
 	warnings: string[],
 ): SampleRenderEntry[] {
 	if (isGeneratedPageStack(node)) {
-		return extractRegionEntries(node.children ?? [], compositesById, organismsById, warnings);
+		return extractRegionEntries(node.children ?? [], compositesById, areasById, warnings);
 	}
 
 	if (isGeneratedDivider(node)) {
@@ -135,29 +135,29 @@ function extractRegionEntry(
 	}
 
 	if (isAreaType(node.type)) {
-		const organismId = getOrganismId(node);
-		organismsById.set(organismId, extractOrganism(node, organismId, compositesById, warnings));
-		return [{ kind: "area", id: organismId }];
+		const areaId = getAreaId(node);
+		areasById.set(areaId, extractArea(node, areaId, compositesById, warnings));
+		return [{ kind: "area", id: areaId }];
 	}
 
 	compositesById.set(node.metadata.id, nodeToComposite(node));
 	return [{ kind: "component", id: node.metadata.id }];
 }
 
-function extractOrganism(
+function extractArea(
 	node: RenderTreeNode,
-	organismId: string,
+	areaId: string,
 	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
-): SampleOrganism {
-	if (!node.props || !("organismCode" in node.props)) {
-		warnings.push(`Organism node ${node.metadata.id} is missing props.organismCode`);
+): SampleArea {
+	if (!node.props || !("areaCode" in node.props)) {
+		warnings.push(`Area node ${node.metadata.id} is missing props.areaCode`);
 	}
 
-	const { organismCode: _organismCode, ...props } = node.props ?? {};
+	const { areaCode: _areaCode, ...props } = node.props ?? {};
 
 	return {
-		id: organismId,
+		id: areaId,
 		type: (isAreaType(node.type) ? node.type : "area.static") as AreaType,
 		version: node.componentVersion,
 		metadata: {
@@ -168,7 +168,7 @@ function extractOrganism(
 			description: node.metadata.description,
 		},
 		props: Object.keys(props).length > 0 ? (props as Record<string, PropValue>) : undefined,
-		children: extractOrganismChildren(node.children ?? [], compositesById, warnings),
+		children: extractAreaChildren(node.children ?? [], compositesById, warnings),
 	};
 }
 
@@ -195,16 +195,16 @@ function nodeToComposite(node: RenderTreeNode): SampleComposite {
 	};
 }
 
-function extractOrganismChildren(
+function extractAreaChildren(
 	nodes: RenderTreeNode[],
 	compositesById: Map<string, SampleComposite>,
 	warnings: string[],
 ) {
-	const composites: SampleOrganism["children"] = [];
+	const composites: SampleArea["children"] = [];
 
 	for (const node of nodes) {
 		if (isGeneratedPageStack(node)) {
-			composites.push(...extractOrganismChildren(node.children ?? [], compositesById, warnings));
+			composites.push(...extractAreaChildren(node.children ?? [], compositesById, warnings));
 			continue;
 		}
 		if (isGeneratedDivider(node)) {
@@ -213,7 +213,7 @@ function extractOrganismChildren(
 		}
 		if (isAreaType(node.type)) {
 			warnings.push(
-				`Nested area node was not extracted as an organism table row: ${node.metadata.id}`,
+				`Nested area node was not extracted as an area table row: ${node.metadata.id}`,
 			);
 			continue;
 		}
@@ -224,10 +224,10 @@ function extractOrganismChildren(
 	return composites;
 }
 
-function getOrganismId(node: RenderTreeNode) {
-	const organismCode = node.props?.organismCode;
-	return typeof organismCode === "string" && organismCode.length > 0
-		? organismCode
+function getAreaId(node: RenderTreeNode) {
+	const areaCode = node.props?.areaCode;
+	return typeof areaCode === "string" && areaCode.length > 0
+		? areaCode
 		: node.metadata.id;
 }
 
