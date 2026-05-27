@@ -110,6 +110,90 @@ export async function updateScreenRegions(
 	return {};
 }
 
+export async function cloneOrganism(
+	organismCode: string,
+	screenCode: string,
+): Promise<{ error?: string; newOrganismId?: string }> {
+	const db = createServerClient();
+
+	const { data: original, error: fetchError } = await db
+		.from("organisms")
+		.select("*")
+		.eq("id", organismCode)
+		.single();
+
+	if (fetchError || !original) {
+		return { error: `Organism not found: ${organismCode}` };
+	}
+
+	const timestamp = Date.now();
+	const newOrganismId = `${organismCode}-clone-${timestamp}`;
+
+	const { error: insertError } = await db.from("organisms").insert({
+		id: newOrganismId,
+		type: original.type,
+		version: original.version,
+		pattern_id: original.pattern_id,
+		pattern_variant: original.pattern_variant,
+		title: `${original.title ?? organismCode} (복제본)`,
+		author: original.author,
+		props: original.props,
+		children: original.children,
+	});
+
+	if (insertError) {
+		return { error: `Failed to create organism: ${insertError.message}` };
+	}
+
+	// 현재 screen의 contents에 원본 다음 위치에 삽입
+	const { data: screenRow, error: screenFetchError } = await db
+		.from("screens")
+		.select("screen")
+		.eq("id", screenCode)
+		.single();
+
+	if (screenFetchError || !screenRow) {
+		await db.from("organisms").delete().eq("id", newOrganismId);
+		return { error: `Screen not found: ${screenCode}` };
+	}
+
+	const screenData = screenRow.screen as Record<string, unknown>;
+	const regions = screenData?.regions as Record<string, unknown> | undefined;
+	const contents = regions?.contents as Record<string, unknown> | undefined;
+	const contentsChildren = (contents?.children as Array<{ kind: string; id: string }>) ?? [];
+
+	const originalIndex = contentsChildren.findIndex((c) => c.id === organismCode);
+	const insertIndex = originalIndex >= 0 ? originalIndex + 1 : contentsChildren.length;
+
+	const newScreenData = {
+		...screenData,
+		regions: {
+			...regions,
+			contents: {
+				...contents,
+				children: [
+					...contentsChildren.slice(0, insertIndex),
+					{ kind: "organism", id: newOrganismId },
+					...contentsChildren.slice(insertIndex),
+				],
+			},
+		},
+	};
+
+	const { error: updateError } = await db
+		.from("screens")
+		.update({ screen: newScreenData })
+		.eq("id", screenCode);
+
+	if (updateError) {
+		await db.from("organisms").delete().eq("id", newOrganismId);
+		return { error: `Failed to update screen: ${updateError.message}` };
+	}
+
+	revalidatePath("/");
+	return { newOrganismId };
+}
+
 export async function deleteScreen(screenId: string): Promise<{ error?: string }> {
 	const db = createServerClient();
 

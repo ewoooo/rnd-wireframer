@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { Copy } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { cloneOrganism } from "@/app/actions/screen-actions";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";

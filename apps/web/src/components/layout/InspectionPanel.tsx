@@ -1,7 +1,8 @@
-import type { WireframeNode } from "@cx/renderer";
+import type { WireframeNode, WireframeSchema } from "@cx/renderer";
 import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
-import { cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
+import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
+import { cloneOrganism, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,7 @@ export function InspectionPanel() {
 					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
 				) : (
 					<div className="flex flex-col gap-4">
-						<ScreenActions screenCode={screen.code} screenName={screen.name} screenData={screen.schema.data} />
+						<ScreenActions screenCode={screen.code} screenName={screen.name} schema={screen.schema} screenVariantId={screen.screenVariantId} />
 						<div className="flex flex-col gap-2">
 							<InfoRow label="Screen code" value={screen.code} />
 							<InfoRow
@@ -245,6 +246,7 @@ function OrganismInspection({ organism }: { organism: SelectedOrganismContext })
 	return (
 		<>
 			<Separator />
+			<OrganismActions organismCode={organism.code} screenCode={organism.screen.code} />
 			<div className="flex flex-col gap-2">
 				<h2 className="text-sm font-semibold">선택 OGN</h2>
 				<InfoRow label="OGN code" value={organism.code} />
@@ -292,7 +294,44 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 	);
 }
 
-function ScreenActions({ screenCode, screenName, screenData }: { screenCode: string; screenName: string; screenData: unknown }) {
+function OrganismActions({ organismCode, screenCode }: { organismCode: string; screenCode: string }) {
+	const [isPending, startTransition] = useTransition();
+	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+	const [message, setMessage] = useState("");
+
+	function handleClone() {
+		startTransition(async () => {
+			setStatus("idle");
+			const result = await cloneOrganism(organismCode, screenCode);
+			if (result.error) {
+				setStatus("error");
+				setMessage(result.error);
+			} else {
+				setStatus("success");
+				setMessage(`복제 완료 → ${result.newOrganismId}`);
+			}
+		});
+	}
+
+	return (
+		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
+			<div className="flex items-center justify-between gap-2">
+				<span className="text-xs font-semibold text-muted-foreground">OGN 작업</span>
+				<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
+					<Copy className="mr-1 size-3" />
+					{isPending ? "복제 중..." : "복제"}
+				</Button>
+			</div>
+			{status !== "idle" && (
+				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
+					{message}
+				</p>
+			)}
+		</div>
+	);
+}
+
+function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: WireframeSchema; screenVariantId: string }) {
 	const [isPending, startTransition] = useTransition();
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");
@@ -303,7 +342,11 @@ function ScreenActions({ screenCode, screenName, screenData }: { screenCode: str
 	function handleSave() {
 		startTransition(async () => {
 			setStatus("idle");
-			const result = await updateScreenRegions(screenCode, screenData);
+			const { screens: { screens: [sampleScreen] }, warnings } = renderTreeToTables(schema, { screenVariantId });
+			if (warnings.length > 0) {
+				console.warn("[ScreenActions] renderTreeToTables warnings:", warnings);
+			}
+			const result = await updateScreenRegions(screenCode, sampleScreen.screen);
 			if (result.error) {
 				setStatus("error");
 				setMessage(result.error);
