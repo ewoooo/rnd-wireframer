@@ -13,5 +13,6 @@ export * from "./llm";
 export * from "./pattern/pattern-resolver";
 export * from "./pattern/pattern-schema";
 export * from "./pattern/pattern-store";
+export * from "./pipeline/draft-tables-pipeline";
 export * from "./register/register-assets";
 export * from "./types";

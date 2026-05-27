@@ -13,11 +13,13 @@
 		"./composition-output": "./src/composition-output.ts",
 		"./database-tables": "./src/database-tables.ts",
 		"./decorated-output": "./src/decorated-output.ts",
+		"./draft-tables": "./src/draft-tables.ts",
 		"./gap-report": "./src/gap-report.ts",
 		"./node-types": "./src/node-types.ts",
 		"./pattern-store": "./src/pattern-store.ts",
 		"./pattern-store-schema": "./src/pattern-store-schema.ts",
 		"./prdd-screen-record": "./src/prdd-screen-record.ts",
+		"./quality-report": "./src/quality-report.ts",
 		"./tokens": "./src/tokens.ts",
 		"./validation": "./src/validation.ts"
 	},
