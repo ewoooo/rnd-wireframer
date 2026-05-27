@@ -2,8 +2,25 @@ import {
 	resolveCompositePatternByComponentType,
 	resolveRegionPatternFromScreenPattern,
 } from "@cx/pattern-store/resolver";
-import type { CompositionArea, CompositionDecision, CompositionOutput, CompositionSelection } from "@cx/types/composition-output";
-import type { DatabaseAreaRow, DatabaseComponentRow, DatabasePatternRef, DatabaseScreenBody, DatabaseScreenRegion, DatabaseScreenRouteRow, DatabaseScreenRow, DatabaseScreenVariantRow, MaterializedNodeTree, NodeHook, NodeMetadata } from "@cx/types/database-tables";
+import type {
+	CompositionArea,
+	CompositionDecision,
+	CompositionOutput,
+	CompositionSelection,
+} from "@cx/types/composition-output";
+import type {
+	DatabaseAreaRow,
+	DatabaseComponentRow,
+	DatabasePatternRef,
+	DatabaseScreenBody,
+	DatabaseScreenRegion,
+	DatabaseScreenRouteRow,
+	DatabaseScreenRow,
+	DatabaseScreenVariantRow,
+	MaterializedNodeTree,
+	NodeHook,
+	NodeMetadata,
+} from "@cx/types/database-tables";
 import type { DecoratedOutput, LayoutPatternVerification } from "@cx/types/decorated-output";
 import type { ScreenRegionType } from "@cx/types/node-types";
 import type { PrddScreenRecord } from "@cx/types/prdd-screen-record";
@@ -102,7 +119,7 @@ export function materializeComposition(input: MaterializeCompositionInput): Mate
 	// area rows (모든 slot의 area를 보존해 Decorate finalLayoutPattern 추적성을 유지)
 	const areaRows: DatabaseAreaRow[] = [];
 	for (const area of input.composition.areas) {
-		areaRows.push(toAreaRow(area, input.decorated, metadata, rowVersion));
+		areaRows.push(toAreaRow(area, input.prddScreenRecord, input.decorated, metadata, rowVersion));
 	}
 
 	// screen body — region 3개로 children 분배
@@ -237,6 +254,7 @@ function selectionType(decision: CompositionDecision): string {
 
 function toAreaRow(
 	area: CompositionArea,
+	prddScreenRecord: PrddScreenRecord,
 	decorated: DecoratedOutput,
 	metadata: NodeMetadata,
 	rowVersion: string,
@@ -245,17 +263,36 @@ function toAreaRow(
 	const pattern = verification
 		? pickPattern(verification.finalLayoutPattern)
 		: AREA_FALLBACK_PATTERN;
+	const visibleName = resolveExplicitAreaDisplayName(area);
 	return {
 		id: area.areaId,
 		version: rowVersion,
-		metadata: { ...metadata, title: area.intent || area.areaId },
+		metadata: { ...metadata, title: resolveAreaMetadataTitle(area, prddScreenRecord) },
 		pattern,
 		type: "area.dynamic",
-		props: {
-			name: area.intent,
-		},
+		props: visibleName ? { name: visibleName } : {},
 		children: area.decisionIds.map((id) => ({ kind: "component", id })),
 	};
+}
+
+function resolveAreaMetadataTitle(
+	area: CompositionArea,
+	prddScreenRecord: PrddScreenRecord,
+): string {
+	const sourceArea = prddScreenRecord.areas.find(
+		(candidate) =>
+			candidate.areaId === area.sourceAreaRef ||
+			candidate.areaId === area.areaId ||
+			candidate.area.id === area.sourceAreaRef,
+	);
+	const sourceName = sourceArea?.area.name.trim();
+	if (sourceName) return sourceName;
+	return `${area.slot}.${area.role}.${area.areaId}`;
+}
+
+function resolveExplicitAreaDisplayName(area: CompositionArea): string | undefined {
+	const displayName = area.displayName;
+	return typeof displayName === "string" && displayName.trim() ? displayName.trim() : undefined;
 }
 
 function buildRegions(args: {

@@ -36,6 +36,16 @@
 
 가장 최근 1건만 inline 유지. 그 외는 위 월별 파일 참조.
 
+## 2026-05-27 - Area Intent Display Boundary
+
+- 변경: Composition materializer가 `area.intent`를 `metadata.title` 또는 `props.name`으로 자동 승격하지 않도록 분리함
+- 변경: `CompositionArea.displayName?`을 명시 표시명 계약으로 추가해 section heading 노출 입력을 intent와 분리함
+- 변경: area renderer가 `props.name`이 명시된 경우에만 영역 heading을 표시하고, `metadata.title`을 표시 텍스트 fallback으로 쓰지 않도록 수정함
+- 변경: `area-app-bar`의 `hideTitle: true` layout prop projection을 테스트로 고정하고 preview/database tables를 재생성해 AppBar 상단 설명 문구 노출을 제거함
+- 이유: intent는 AI/검수용 의미 메타데이터이고, 사용자에게 보이는 텍스트는 명시 표시 prop에서만 와야 하기 때문
+- 검증: `pnpm vitest run packages/agent/src/__tests__/materialize-composition.test.ts packages/renderer/src/__tests__/render-tree-projection.test.ts packages/renderer/src/__tests__/renderer.test.tsx packages/agent/src/__tests__/compose-screen.test.ts packages/agent/src/__tests__/validate-composition.test.ts`, `pnpm exec biome check packages/types/src/composition-output.ts packages/agent/src/compose-screen/schema.ts packages/agent/src/database/materialize-composition.ts packages/agent/src/__tests__/materialize-composition.test.ts packages/renderer/src/renderers/area/static.tsx packages/renderer/src/renderers/area/dynamic.tsx packages/renderer/src/__tests__/renderer.test.tsx packages/renderer/src/__tests__/render-tree-projection.test.ts`
+- 참고: `pnpm exec tsc --noEmit --pretty false`는 기존 미추적 `scripts/run-pipeline-one.ts`의 타입 오류로 중단됨
+
 ## 2026-05-27 - Component Pattern Store Package
 
 - 변경: reusable semantic UI block registry를 위한 `@cx/component-pattern-store` 패키지를 추가하고 registered/proposed componentPattern catalog 위치를 확정함

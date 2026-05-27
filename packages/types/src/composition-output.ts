@@ -235,6 +235,8 @@ export interface CompositionArea {
 	slot: PrddAreaSlot;
 	role: AreaRole;
 	intent: string;
+	/** 화면에 section heading으로 노출해야 할 때만 명시한다. intent/name fallback 금지. */
+	displayName?: string;
 	visualIntent: AreaVisualIntent;
 	order: number;
 	decisionIds: string[];

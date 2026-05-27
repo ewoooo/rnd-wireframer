@@ -201,6 +201,34 @@ describe("materializeComposition", () => {
 		expect(headerArea?.children).toEqual([{ kind: "component", id: "dec-appbar" }]);
 	});
 
+	it("area intent 를 metadata.title 이나 표시 name 으로 승격하지 않는다", () => {
+		const tree = materializeComposition({
+			prddScreenRecord: makeRecord(),
+			composition: makeComposition(),
+			decorated: makeDecorated(),
+		});
+		const headerArea = tree.areas.find((a) => a.id === "a-header");
+
+		expect(headerArea?.metadata.title).toBe("header.navigation.a-header");
+		expect(headerArea?.metadata.title).not.toBe("AppBar");
+		expect(headerArea?.props).toEqual({});
+	});
+
+	it("명시 displayName 이 있는 area 만 표시 name 을 가진다", () => {
+		const composition = makeComposition();
+		composition.areas[1].displayName = "약관 목록";
+
+		const tree = materializeComposition({
+			prddScreenRecord: makeRecord(),
+			composition,
+			decorated: makeDecorated(),
+		});
+		const summaryArea = tree.areas.find((a) => a.id === "a-summary");
+
+		expect(summaryArea?.metadata.title).toBe("contents.summary.a-summary");
+		expect(summaryArea?.props).toEqual({ name: "약관 목록" });
+	});
+
 	it("contents region 은 area 참조, area row 는 component id 참조", () => {
 		const tree = materializeComposition({
 			prddScreenRecord: makeRecord(),

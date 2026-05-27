@@ -4,7 +4,7 @@
       "id": "NOVA-PRDD-PG-001-0__area0",
       "version": "0.1.0",
       "metadata": {
-        "title": "화면 상단 네비게이션과 뒤로가기 제공",
+        "title": "화면 상단 네비게이션",
         "author": "agent",
         "createdAt": "2026-05-26T10:44:01.590Z",
         "updatedAt": "2026-05-26T10:44:01.590Z",
@@ -15,9 +15,7 @@
         "variant": "with-back"
       },
       "type": "area.dynamic",
-      "props": {
-        "name": "화면 상단 네비게이션과 뒤로가기 제공"
-      },
+      "props": {},
       "children": [
         {
           "kind": "component",
@@ -29,7 +27,7 @@
       "id": "NOVA-PRDD-PG-001-0__area1",
       "version": "0.1.0",
       "metadata": {
-        "title": "상품 핵심 요약, 판매 상태, 상품정보 표시",
+        "title": "상품 요약·핵심 속성 표시 영역",
         "author": "agent",
         "createdAt": "2026-05-26T10:44:01.590Z",
         "updatedAt": "2026-05-26T10:44:01.590Z",
@@ -39,9 +37,7 @@
         "id": "product-hero-summary"
       },
       "type": "area.dynamic",
-      "props": {
-        "name": "상품 핵심 요약, 판매 상태, 상품정보 표시"
-      },
+      "props": {},
       "children": [
         {
           "kind": "component",

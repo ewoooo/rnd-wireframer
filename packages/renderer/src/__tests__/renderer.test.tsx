@@ -58,6 +58,65 @@ describe("@cx/renderer registry", () => {
 		expect(screen.getByText("필수 정보를 확인하세요")).toBeInTheDocument();
 	});
 
+	it("does not render area metadata title as a visible heading", () => {
+		render(
+			renderNode(
+				createNode({
+					type: "area.dynamic",
+					metadata: {
+						id: "area-1",
+						title: "내부 영역 의도",
+						author: "test",
+						createdAt: "2026-05-21T00:00:00.000Z",
+						updatedAt: "2026-05-21T00:00:00.000Z",
+					},
+					props: {},
+					children: [
+						createNode({
+							metadata: {
+								id: "child-1",
+								title: "자식",
+								author: "test",
+								createdAt: "2026-05-21T00:00:00.000Z",
+								updatedAt: "2026-05-21T00:00:00.000Z",
+							},
+						}),
+					],
+				}),
+				{},
+			),
+		);
+
+		expect(screen.queryByText("내부 영역 의도")).not.toBeInTheDocument();
+		expect(screen.getByText("자식")).toBeInTheDocument();
+	});
+
+	it("renders an area heading only from explicit props.name", () => {
+		render(
+			renderNode(
+				createNode({
+					type: "area.static",
+					props: { name: "약관 목록" },
+					children: [
+						createNode({
+							metadata: {
+								id: "child-1",
+								title: "필수 약관",
+								author: "test",
+								createdAt: "2026-05-21T00:00:00.000Z",
+								updatedAt: "2026-05-21T00:00:00.000Z",
+							},
+						}),
+					],
+				}),
+				{},
+			),
+		);
+
+		expect(screen.getByText("약관 목록")).toBeInTheDocument();
+		expect(screen.getByText("필수 약관")).toBeInTheDocument();
+	});
+
 	it("renders checkbox aliases with label props", () => {
 		render(
 			renderNode(

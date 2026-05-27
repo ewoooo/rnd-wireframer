@@ -238,6 +238,7 @@ const CompositionArea = z.object({
 	slot: z.enum(["header", "contents", "bottom"]),
 	role: AreaRole,
 	intent: z.string(),
+	displayName: z.string().optional(),
 	visualIntent: AreaVisualIntent,
 	order: z.number(),
 	decisionIds: z.array(z.string()),

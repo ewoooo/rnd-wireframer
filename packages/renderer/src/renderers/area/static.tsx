@@ -14,8 +14,8 @@ export const areaStaticRendererDefinition: RendererDefinition = {
 		const props = renderable.props as AreaRenderableProps;
 		const titleGap = toNumber(props.titleGap, 8);
 		const componentGap = toNumber(props.componentGap, 12);
-		const areaName = toText(props.name, node.metadata.title);
-		const hideTitle = Boolean(props.hideTitle);
+		const areaName = props.name === undefined ? undefined : toText(props.name, "");
+		const hideTitle = Boolean(props.hideTitle) || !areaName;
 
 		return (
 			<section

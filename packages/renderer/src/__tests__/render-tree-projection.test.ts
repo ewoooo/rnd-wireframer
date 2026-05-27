@@ -108,6 +108,20 @@ const patterns: RenderTreePatternStorePattern[] = [
 			},
 		},
 	},
+	{
+		id: "area-app-bar",
+		target: "area",
+		name: "앱바 헤더",
+		defaultVariant: "with-back",
+		variants: {
+			"with-back": {
+				layoutProps: {
+					hideTitle: true,
+					componentGap: 0,
+				},
+			},
+		},
+	},
 ];
 
 describe("tablesToRenderTree", () => {
@@ -140,5 +154,47 @@ describe("tablesToRenderTree", () => {
 		});
 		expect(componentNode?.props).toEqual({ title: "약관 동의" });
 		expect(validateRenderTreeFull(renderTree).ok).toBe(true);
+	});
+
+	it("projects area-app-bar hideTitle layout prop into the render tree", () => {
+		const headerArea: RenderTreeTableAreaRow = {
+			...area,
+			id: "area-header",
+			metadata: { title: "상단 앱바 영역", ...metadata },
+			pattern: { id: "area-app-bar", variant: "with-back" },
+			props: {},
+		};
+		const renderTree = tablesToRenderTree({
+			componentById: new Map([[component.id, component]]),
+			areaById: new Map([[headerArea.id, headerArea]]),
+			patternById: new Map(patterns.map((pattern) => [pattern.id, pattern])),
+			screen: {
+				...screen,
+				screen: {
+					...screen.screen,
+					regions: {
+						...screen.screen.regions,
+						header: {
+							type: "Screen.Header",
+							metadata: { title: "상단" },
+							children: [{ kind: "area", id: headerArea.id }],
+						},
+						contents: {
+							type: "Screen.Contents",
+							metadata: { title: "본문" },
+							children: [],
+						},
+					},
+				},
+			},
+		});
+		const headerNode = renderTree.children[0]?.children?.[0];
+		const areaNode = headerNode?.children?.[0];
+
+		expect(areaNode?.props).toMatchObject({
+			areaCode: headerArea.id,
+			componentGap: 0,
+			hideTitle: true,
+		});
 	});
 });
