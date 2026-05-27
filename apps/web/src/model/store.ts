@@ -1,4 +1,5 @@
 import type { RegisteredNodeTree } from "@cx/agent/types";
+import type { QualityReport } from "@cx/types/quality-report";
 import { create } from "zustand";
 import {
 	type AppArea,
@@ -53,6 +54,7 @@ interface WorkbenchState {
 	activeScreen?: AppScreen;
 	agentGenerationMessage: string;
 	agentGenerationStatus: "error" | "idle" | "loading" | "success";
+	agentDraftTablesResult?: AgentDraftTablesResult;
 	agentImports: AgentClientImport[];
 	agentRegistry?: RegisteredNodeTree;
 	agentWarnings: string[];
@@ -74,6 +76,7 @@ interface WorkbenchState {
 	selectTab: (tab: NavigatorTab) => void;
 	setAgentGenerationMessage: (message: string) => void;
 	setAgentGenerationStatus: (status: WorkbenchState["agentGenerationStatus"]) => void;
+	setAgentDraftTablesResult: (result?: AgentDraftTablesResult) => void;
 	setAgentImports: (imports: AgentClientImport[]) => void;
 	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
 	selectedAgentAsset?: SelectedAgentAsset;
@@ -89,9 +92,29 @@ export interface AgentClientImport {
 	screenFiles: number;
 }
 
+export interface AgentDraftTablesResult {
+	importId: string;
+	screenCount: number;
+	writtenDir: string;
+	results: AgentDraftTablesScreenResult[];
+}
+
+export interface AgentDraftTablesScreenResult {
+	screenFile: string;
+	ok: boolean;
+	stage: string;
+	writtenPaths: {
+		artifact: string;
+		qualityReport: string;
+		materialized: string;
+	};
+	qualityReport?: QualityReport;
+}
+
 const initialWorkbenchState = {
 	activeNavigatorTab: "scn" as NavigatorTab,
 	activeScreen: undefined,
+	agentDraftTablesResult: undefined,
 	agentGenerationMessage: "",
 	agentGenerationStatus: "idle" as const,
 	agentImports: [],
@@ -281,6 +304,9 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	},
 	setAgentGenerationMessage: (message) => {
 		set({ agentGenerationMessage: message });
+	},
+	setAgentDraftTablesResult: (result) => {
+		set({ agentDraftTablesResult: result });
 	},
 	setAgentImports: (imports) => {
 		set({ agentImports: imports });

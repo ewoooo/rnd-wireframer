@@ -140,3 +140,4 @@ runDraftTablesPipeline + validator
 - `scripts/run-draft-tables.ts` active runner를 추가하고 기존 pipeline scripts를 experimental runner로 명시했다.
 - `apps/web/src/server/agent/generate-draft-tables.ts`와 `/api/agent/generate-draft-tables`를 추가해 legacy `generate-register`와 active DraftTables entrypoint를 분리했다.
 - `pnpm run lint:agent-boundary` active path import guard를 추가했다.
+- workbench store에 DraftTables 생성 결과를 구조화해 보관하고, Agent 패널에서 화면별 quality report 요약과 산출물 경로를 확인할 수 있게 했다.
