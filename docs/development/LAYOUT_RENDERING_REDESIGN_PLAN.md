@@ -179,7 +179,7 @@ data/tables/*
 
 아직 남은 것:
 
-- 최종 완료 감사에서 full verification command와 public surface scan을 다시 수행해야 한다.
+- 없음. 최종 완료 감사와 public surface scan을 수행했다.
 
 ## 4. 원칙
 

@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Layout Rendering Redesign Final Verification
+
+- 변경: layout rendering redesign plan의 남은 항목을 최종 감사하고 public surface, catalog shape, renderer table legacy import, table data pattern field를 current state 기준으로 확인함
+- 변경: redesign plan의 현재 상태를 최종 완료 감사 수행 상태로 갱신함
+- 이유: 계획서에 작성된 layout pattern store 전환, renderer interpreter 경계, table materializer 분리, validation 강제, legacy 제거가 모두 현재 상태로 증명되는지 확인하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run`, `rg '"pattern"\\s*:' data/tables`, `rg '"layoutId"' packages/layout-pattern-store/src/catalog`, `rg '"layout"\\s*:' packages/layout-pattern-store/src/catalog`, `rg '"default"\\s*:' packages/layout-pattern-store/src/catalog`, renderer table legacy import scan, package export scan, catalog shape scan
+
 ## 2026-05-28 - Legacy Pattern Normalization Removal
 
 - 변경: `@cx/layout-pattern-store` schema에서 legacy `layout`/`match` catalog record normalization을 제거하고 `layout.*` component catalog entry만 pattern store input으로 허용함
