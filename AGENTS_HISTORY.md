@@ -36,6 +36,17 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Layout Rendering Redesign Plan
+
+- 변경: `docs/development/LAYOUT_RENDERING_REDESIGN_PLAN.md`를 추가해 pattern store의 실제 layout component library 전환, renderer interpreter 전환, table schema 전환, table-to-RenderTree materializer 분리 계획을 정리함
+- 변경: catalog 변환을 PageStack area, region chrome, screen shell, collection area, form/agreement/accordion/message area, composite wrapper, legacy 제거 batch로 나눠 padding/gap 보존 기준과 완료 조건을 명시함
+- 변경: catalog는 prop 이름과 타입 계약만 소유하고 runtime default는 실제 pattern component가 소유한다는 기준을 추가함
+- 변경: 전환 작업을 14개 커밋 단위 실행 단계로 쪼개고 각 단계의 목표, 작업, 검증, 커밋 메시지 후보를 기록함
+- 변경: 자동 실행을 위해 단계별 stop condition, 실행 전 확정 결정, 공통 검증 명령을 추가함
+- 변경: table materializer 출력이 `RenderTreeScreenNode`로 renderer에 바로 들어가야 한다는 연결 기준과, materializer가 table 관계 조립 외의 추측/보정을 하지 않는다는 사용자 우려 대응 결정을 추가함
+- 이유: `layoutId -> id`와 table `layout` 전환 이후 남은 전체 catalog 변환 범위와 spacing 손실 방지 절차를 먼저 고정하기 위함
+- 검증: 문서 변경
+
 ## 2026-05-28 - PRDD Sidebar Visibility Restore
 
 - 변경: `apps/web` 사이드바를 원격 main 기준의 좌측 rail + 380px sidebar 구조로 다시 분리하고, Screen 탭을 도메인/루트 목록과 선택 루트의 variant 목록으로 상하 분리함
