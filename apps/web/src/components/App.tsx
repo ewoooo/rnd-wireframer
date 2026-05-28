@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
+import type { AppScreenModule } from "@/model/store";
 
 import { useWorkbenchStore } from "@/model/store";
 import { Canvas } from "./layout/Canvas";
@@ -15,14 +16,14 @@ import { NavigationRail } from "./layout/NavigationRail";
 interface AppProps {
 	agentRegistry?: RegisteredNodeTree;
 	initialData: {
+		modules: AppScreenModule[];
+		routes: { id: string; moduleId: string; name: string; order: number }[];
 		screens: AppScreen[];
 		areas: AppArea[];
 	};
 }
 
-// 레이아웃 상수
-const NAV_WIDTH = 56;    // NavigationRail (w-14)
-const ASIDE_WIDTH = 380; // 좌/우 패널 통일
+const ASIDE_WIDTH = "380px";
 
 export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: AppProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
@@ -33,23 +34,23 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		initializeWorkbench({
 			agentRegistry,
 			areas: initialData.areas,
+			modules: initialData.modules ?? [],
+			routes: initialData.routes ?? [],
 			screens: initialData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);
 
 	return (
-		<SidebarProvider>
-			<div
-				className="grid min-h-screen w-screen"
-				style={{
-					gridTemplateColumns: `${NAV_WIDTH}px ${ASIDE_WIDTH}px 1fr ${ASIDE_WIDTH}px`,
-				}}
+		<div className="flex h-screen w-screen overflow-hidden">
+			<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
+			<SidebarProvider
+				className="flex-1 overflow-hidden"
+				style={{ "--sidebar-width": ASIDE_WIDTH } as React.CSSProperties}
 			>
-				<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
 				<NavigationPanel />
 				<Canvas />
 				<InspectionPanel />
-			</div>
-		</SidebarProvider>
+			</SidebarProvider>
+		</div>
 	);
 }

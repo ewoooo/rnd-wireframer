@@ -3,6 +3,23 @@ export type Json = string | number | boolean | null | { [key: string]: Json } | 
 export interface Database {
 	public: {
 		Tables: {
+			screen_modules: {
+				Row: {
+					id: string;
+					name: string;
+					order: number;
+				};
+				Insert: {
+					id: string;
+					name: string;
+					order: number;
+				};
+				Update: {
+					id?: string;
+					name?: string;
+					order?: number;
+				};
+			};
 			screen_routes: {
 				Row: {
 					id: string;

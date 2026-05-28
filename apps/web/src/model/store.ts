@@ -19,6 +19,12 @@ import {
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
 
+export interface AppScreenModule {
+	id: string;
+	name: string;
+	order: number;
+}
+
 export interface AppComponent {
 	code: string;
 	name: string;
@@ -29,6 +35,7 @@ export interface AppComponent {
 
 export interface AppScreenRoute {
 	code: string;
+	moduleId: string;
 	module: string;
 	name: string;
 	screenVariants: AppScreenVariant[];
@@ -64,9 +71,18 @@ export interface SelectedComponentContext {
 	screen: AppScreen;
 }
 
+export interface RawScreenRoute {
+	id: string;
+	moduleId: string;
+	name: string;
+	order: number;
+}
+
 interface InitializeWorkbenchInput {
 	agentRegistry?: RegisteredNodeTree;
 	areas: AppArea[];
+	modules: AppScreenModule[];
+	routes: RawScreenRoute[];
 	screens: AppScreen[];
 }
 
@@ -83,6 +99,7 @@ interface WorkbenchState {
 	isComponentView: boolean;
 	isAreaView: boolean;
 	areas: AppArea[];
+	screenModules: AppScreenModule[];
 	screenNode?: RenderTreeScreenNode;
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
@@ -131,6 +148,7 @@ const initialWorkbenchState = {
 	isComponentView: false,
 	isAreaView: false,
 	areas: [],
+	screenModules: [],
 	screenNode: undefined,
 	screenRoutes: [],
 	screens: [],
@@ -154,9 +172,9 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
-	initializeWorkbench: ({ agentRegistry, areas, screens }) => {
+	initializeWorkbench: ({ agentRegistry, areas, modules = [], routes = [], screens }) => {
 		const components = getComponentCatalog(screens);
-		const screenRoutes = getScreenRouteCatalog(screens);
+		const screenRoutes = getScreenRouteCatalog(screens, routes);
 		const state = get();
 		const selectedAgentNode =
 			agentRegistry && findSelectedAgentAsset(agentRegistry, state.selectedAgentNode)
@@ -182,6 +200,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			agentWarnings: agentRegistry?.warnings ?? [],
 			components,
 			areas,
+			screenModules: modules,
 			screenRoutes,
 			screens,
 			selectedAgentNode,
@@ -192,6 +211,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
 		set({
 			...nextState,
+			screenModules: modules,
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
@@ -470,8 +490,22 @@ function getComponentCatalog(screens: AppScreen[]): AppComponent[] {
 	return Array.from(byCode.values());
 }
 
-function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
+function getScreenRouteCatalog(screens: AppScreen[], rawRoutes: RawScreenRoute[] = []): AppScreenRoute[] {
 	const byCode = new Map<string, AppScreenRoute>();
+
+	// screens에 없는 route도 빈 상태로 먼저 등록
+	for (const raw of rawRoutes) {
+		if (!byCode.has(raw.id)) {
+			byCode.set(raw.id, {
+				code: raw.id,
+				moduleId: raw.moduleId,
+				module: raw.moduleId,
+				name: raw.name,
+				screenCount: 0,
+				screenVariants: [],
+			});
+		}
+	}
 
 	for (const screen of screens) {
 		const screenOption: AppScreenVariantOption = {
@@ -487,6 +521,7 @@ function getScreenRouteCatalog(screens: AppScreen[]): AppScreenRoute[] {
 		if (!route) {
 			route = {
 				code: screen.screenRouteId,
+				moduleId: screen.moduleId,
 				module: screen.module,
 				name: screen.screenRouteName,
 				screenCount: 0,

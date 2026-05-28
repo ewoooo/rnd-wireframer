@@ -25,7 +25,7 @@ export function Sidebar({
 			data-side={side}
 			data-slot="sidebar"
 			className={cn(
-				"flex h-svh min-h-0 min-w-0 w-full flex-col overflow-hidden bg-sidebar text-sidebar-foreground",
+				"flex h-svh min-h-0 shrink-0 w-[var(--sidebar-width,380px)] flex-col overflow-hidden bg-sidebar text-sidebar-foreground",
 				side === "left" && "border-r border-sidebar-border",
 				side === "right" && "border-l border-sidebar-border",
 				className,
@@ -39,7 +39,7 @@ export function SidebarInset({ className, ...props }: React.ComponentProps<"main
 	return (
 		<main
 			data-slot="sidebar-inset"
-			className={cn("flex h-svh min-h-0 min-w-0 flex-col bg-background", className)}
+			className={cn("flex h-svh min-h-0 min-w-0 flex-1 flex-col bg-background", className)}
 			{...props}
 		/>
 	);

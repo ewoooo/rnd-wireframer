@@ -24,12 +24,14 @@ export async function loadDbWorkbenchData() {
 
 	// ── 병렬 fetch ─────────────────────────────────────────────
 	const [
+		{ data: moduleRows },
 		{ data: routeRows },
 		{ data: variantRows },
 		{ data: screenRows },
 		{ data: areaRows },
 		{ data: componentRows },
 	] = await Promise.all([
+		db.from("screen_modules").select("*").order("order"),
 		db.from("screen_routes").select("*").order("order"),
 		db.from("screen_variants").select("*").order("order"),
 		db.from("screens").select("*").order("order"),
@@ -38,6 +40,14 @@ export async function loadDbWorkbenchData() {
 	]);
 
 	// ── DB row → Sample* 타입 변환 ─────────────────────────────
+	const screenModules = (moduleRows ?? []).map((r) => ({
+		id: r.id,
+		name: r.name,
+		order: r.order,
+	}));
+
+	const moduleNameById = new Map(screenModules.map((m) => [m.id, m.name]));
+
 	const screenRoutes: SampleScreenRoute[] = (routeRows ?? []).map((r) => ({
 		id: r.id,
 		moduleId: r.module_id,
@@ -139,7 +149,8 @@ export async function loadDbWorkbenchData() {
 			code: schema.metadata.id,
 			name: schema.metadata.title,
 			description: schema.metadata.description ?? schema.children[0]?.metadata.title,
-			module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
+			moduleId: route?.moduleId ?? "unknown",
+		module: moduleNameById.get(route?.moduleId ?? "") ?? route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
 			areas,
 			screenOrder: raw.order ?? index + 1,
 			screenRouteId: route?.id ?? "unknown-route",
@@ -158,6 +169,8 @@ export async function loadDbWorkbenchData() {
 	const areaCatalog = getAreaCatalog(sampleScreens);
 
 	return {
+		modules: screenModules,
+		routes: screenRoutes,
 		screens: processedScreens,
 		areas: areaCatalog,
 	};
