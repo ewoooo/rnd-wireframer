@@ -14,7 +14,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 8 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "child-1", title: "Child 1" },
 						},
@@ -29,7 +29,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toBeInTheDocument();
 		expect(layoutRoot).toHaveAttribute("data-node-id", "area-1");
 		expect(layoutRoot).toHaveStyle({ paddingBlock: "28px", paddingInline: "12px" });
-		expect(child.parentElement).toHaveStyle({ gap: "8px", paddingInline: "20px" });
+		expect(getPageStackItems(child)).toHaveStyle({ gap: "8px", paddingInline: "20px" });
 	});
 
 	it("preserves area pattern default item gaps from the pattern components", () => {
@@ -43,7 +43,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "list-area", title: "List area" },
 						children: [
 							{
-								type: "UnknownLeaf",
+								type: "SectionHeader",
 								componentVersion: "0.1.0",
 								metadata: { id: "list-child", title: "List child" },
 							},
@@ -58,7 +58,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "field-area", title: "Field area" },
 						children: [
 							{
-								type: "UnknownLeaf",
+								type: "SectionHeader",
 								componentVersion: "0.1.0",
 								metadata: { id: "field-child", title: "Field child" },
 							},
@@ -73,7 +73,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "checkbox-area", title: "Checkbox area" },
 						children: [
 							{
-								type: "UnknownLeaf",
+								type: "SectionHeader",
 								componentVersion: "0.1.0",
 								metadata: { id: "checkbox-child", title: "Checkbox child" },
 							},
@@ -88,7 +88,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "accordion-area", title: "Accordion area" },
 						children: [
 							{
-								type: "UnknownLeaf",
+								type: "SectionHeader",
 								componentVersion: "0.1.0",
 								metadata: { id: "accordion-child", title: "Accordion child" },
 							},
@@ -103,7 +103,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "message-area", title: "Message area" },
 						children: [
 							{
-								type: "UnknownLeaf",
+								type: "SectionHeader",
 								componentVersion: "0.1.0",
 								metadata: { id: "message-child", title: "Message child" },
 							},
@@ -113,11 +113,11 @@ describe("@cx/renderer layout pattern rendering", () => {
 			</>,
 		);
 
-		expect(screen.getByText("List child").parentElement).toHaveStyle({ gap: "8px" });
-		expect(screen.getByText("Field child").parentElement).toHaveStyle({ gap: "12px" });
-		expect(screen.getByText("Checkbox child").parentElement).toHaveStyle({ gap: "12px" });
-		expect(screen.getByText("Accordion child").parentElement).toHaveStyle({ gap: "0px" });
-		expect(screen.getByText("Message child").parentElement).toHaveStyle({ gap: "12px" });
+		expect(getPageStackItems(screen.getByText("List child"))).toHaveStyle({ gap: "8px" });
+		expect(getPageStackItems(screen.getByText("Field child"))).toHaveStyle({ gap: "12px" });
+		expect(getPageStackItems(screen.getByText("Checkbox child"))).toHaveStyle({ gap: "12px" });
+		expect(getPageStackItems(screen.getByText("Accordion child"))).toHaveStyle({ gap: "0px" });
+		expect(getPageStackItems(screen.getByText("Message child"))).toHaveStyle({ gap: "12px" });
 		expect(screen.getByText("Field child").closest("[data-node-type='PageStack']")).toHaveStyle({
 			gap: "8px",
 			paddingBlock: "28px",
@@ -142,7 +142,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "legacy-field-child", title: "Legacy field child" },
 						},
@@ -152,7 +152,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		);
 
 		const child = screen.getByText("Legacy field child");
-		expect(child.parentElement).toHaveStyle({ gap: "16px", paddingInline: "24px" });
+		expect(getPageStackItems(child)).toHaveStyle({ gap: "16px", paddingInline: "24px" });
 		expect(child.closest("[data-node-type='PageStack']")).toHaveStyle({
 			gap: "6px",
 			paddingBlock: "32px",
@@ -171,7 +171,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { height: 44 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "search-child", title: "Search child" },
 						},
@@ -228,7 +228,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							metadata: { id: "screen.contents", title: "Contents" },
 							children: [
 								{
-									type: "UnknownLeaf",
+									type: "SectionHeader",
 									componentVersion: "0.1.0",
 									metadata: { id: "contents-child", title: "Contents child" },
 								},
@@ -280,7 +280,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							metadata: { id: "screen.bottom", title: "Bottom" },
 							children: [
 								{
-									type: "UnknownLeaf",
+									type: "SectionHeader",
 									componentVersion: "0.1.0",
 									metadata: { id: "bottom-child", title: "Bottom child" },
 								},
@@ -315,7 +315,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { paddingY: 12 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "bottom-child", title: "Bottom child" },
 						},
@@ -342,7 +342,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { columns: 2, gap: 12 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "option-child", title: "Option child" },
 						},
@@ -370,7 +370,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 10 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "card-child", title: "Card child" },
 						},
@@ -398,7 +398,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 14 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "row-card-child", title: "Row card child" },
 						},
@@ -426,7 +426,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 6 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "text-row-child", title: "Text row child" },
 						},
@@ -441,7 +441,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toBeInTheDocument();
 		expect(layoutRoot?.tagName.toLowerCase()).toBe("section");
 		expect(layoutRoot).toHaveAttribute("data-node-type", "PageStack");
-		expect(child.parentElement).toHaveStyle({ gap: "6px" });
+		expect(getPageStackItems(child)).toHaveStyle({ gap: "6px" });
 	});
 
 	it("renders commerce detail section patterns as page stack sections", () => {
@@ -455,7 +455,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 20 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "product-info-child", title: "Product info child" },
 						},
@@ -489,7 +489,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "hero-child", title: "Hero child" },
 						},
@@ -521,7 +521,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 12 },
 					children: [
 						{
-							type: "UnknownLeaf",
+							type: "SectionHeader",
 							componentVersion: "0.1.0",
 							metadata: { id: "auth-method-child", title: "Auth method child" },
 						},
@@ -538,3 +538,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toHaveAttribute("data-node-type", "PageStack");
 	});
 });
+
+function getPageStackItems(child: HTMLElement): Element {
+	const pageStack = child.closest("[data-node-type='PageStack']");
+	const items = pageStack?.lastElementChild;
+	if (!items) throw new Error(`PageStack items wrapper missing for '${child.textContent ?? ""}'`);
+	return items;
+}

@@ -156,10 +156,41 @@ describe("@cx/validation validators", () => {
 		if (!area) throw new Error("area node missing");
 		area.type = "area.stack";
 		area.layout = "layout.area.listStack";
+		(area as { children?: unknown[] }).children = [
+			{
+				type: "ActionButton",
+				componentVersion: "1.0.0",
+				metadata: { id: "area-child-cta", title: "Area child CTA" },
+				layout: "layout.composite.componentActionButton",
+				props: {
+					label: "계속하기",
+					variant: "primary",
+				},
+			},
+		];
 
 		const report = validateRenderTree(tree, { componentCatalog: testCatalog });
 
 		expect(report.ok).toBe(true);
+	});
+
+	it("reports unknown leaf component types even when a layout wrapper is registered", () => {
+		const tree = validRenderTree();
+		const contents = tree.children[0]?.children?.[1];
+		const leaf = contents?.children?.[0] as { type: string; layout?: string } | undefined;
+		if (!leaf) throw new Error("leaf node missing");
+		leaf.type = "MissingLeaf";
+		leaf.layout = "layout.composite.componentAppBar";
+
+		const report = validateRenderTree(tree, { componentCatalog: testCatalog });
+
+		expect(report.ok).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-component-type",
+				path: ["children", 0, "children", 1, "children", 0, "type"],
+			}),
+		);
 	});
 
 	it("reports unknown RenderTree layout pattern ids", () => {

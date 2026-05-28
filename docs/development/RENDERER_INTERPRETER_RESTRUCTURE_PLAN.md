@@ -462,3 +462,22 @@ root export:
 - dev preview 전용 missing error surface를 만든다.
 - renderer runtime injection 예제를 README에 추가한다.
 - Playwright 기반 앱 smoke test를 추가한다.
+
+## 12. 완료 결과
+
+2026-05-29 구현 완료 상태:
+
+- `@cx/renderer`의 정상 렌더 경로를 resolver 기반 interpreter로 전환했다.
+- `interpreter/`가 RenderTree 순회, screen slot, layout wrapping, component rendering 흐름을 담당한다.
+- `adapters/`가 layout pattern resolve, component resolve, component prop coercion, layout primitive render, area policy, missing policy를 담당한다.
+- `default-node-renderers.tsx`, node kind registry, fallback renderer 경로를 제거했다.
+- renderer test fixture에서 `UnknownLeaf` 의존을 제거하고 실제 catalog component로 baseline을 유지했다.
+- validation은 layout wrapper가 있더라도 leaf component type이 unknown이면 error로 잡는다.
+- web preview 첫 화면 smoke에서 HTTP 200과 기존 screen/header/contents/bottom 렌더를 확인했다.
+
+검증:
+
+- `npx tsc --noEmit --pretty false`
+- `npx vitest run`
+- `npm run dev -- --hostname 127.0.0.1 --port 3000`
+- `curl -sS -L http://127.0.0.1:3000/`

@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Renderer Resolver Interpreter Implementation
+
+- 변경: `@cx/renderer`를 resolver 기반 interpreter 구조로 전환하고 `interpreter/`, `adapters/`, `runtime/` 디렉토리를 추가함
+- 변경: `default-node-renderers.tsx`, node kind registry, fallback renderer 경로를 제거하고 missing layout/component/primitive는 throw policy로 드러내도록 함
+- 변경: renderer test fixture의 `UnknownLeaf` 의존을 제거하고 validation이 unknown leaf component with layout wrapper를 error로 잡도록 보강함
+- 이유: renderer를 RenderTree-to-React 실행부로 단순화하고, 외부 패키지 조회와 prop coercion은 adapter 경계에 두기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run`, Next dev server HTTP 200 smoke, missing runtime error string scan
+- 후속: web inspection panel에 validation report 연결, Playwright smoke test 추가
+
 ## 2026-05-29 - Renderer Interpreter Restructure Plan
 
 - 변경: `docs/development/RENDERER_INTERPRETER_RESTRUCTURE_PLAN.md`를 추가해 renderer fallback 제거, resolver 기반 interpreter core 분리, adapter 디렉토리 분리, 디렉토리 재편 작업 단계를 기록함

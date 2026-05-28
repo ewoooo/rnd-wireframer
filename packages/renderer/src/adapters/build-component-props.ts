@@ -1,27 +1,8 @@
 import type { ComponentPropContract, ComponentPropType } from "@cx/components/catalog";
 import { getComponentCatalogEntry } from "@cx/components/catalog";
-import { toText } from "../../tree/runtime";
-
-/**
- * Catalog 기반 prop 조립.
- *
- * 렌더러가 각 컴포넌트마다 `props.titleContent ?? props.title` 같은 매핑을
- * 손으로 적던 패턴을 제거한다. Catalog의 props 스펙을 단일 진실원으로 삼아,
- * raw props에서 catalog에 정의된 키만 골라 컴포넌트 prop 타입에 맞게 coerce해
- * 반환한다.
- *
- * 사용 예:
- *   const clean = buildComponentProps("AppBar", renderable.props);
- *   return <AppBar {...clean} />;
- *
- * - catalog에 없는 키는 버린다 (불필요한 spread 차단)
- * - aiWritable=false인 prop (예: AppBar.rightItem React node)은 raw에 있어도 전달 안 함
- * - 누락된 키는 contract.defaultValue가 있으면 적용
- * - 옵션 fallbacks로 metadata 기반 기본값을 끼울 수 있음 (예: title fallback to node title)
- */
+import { toText } from "../runtime/text";
 
 export interface CatalogPropFallbacks {
-	/** prop 이름 → fallback 값. catalog에 정의돼 있고 raw에 없을 때 사용. */
 	[propName: string]: unknown;
 }
 

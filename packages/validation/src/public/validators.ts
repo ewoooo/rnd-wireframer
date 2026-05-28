@@ -432,8 +432,12 @@ function validateNode(
 
 	const hasKnownLayout =
 		typeof input.layout === "string" && findLayoutPatternComponentByLayoutId(input.layout);
+	const hasRenderableChildren = Array.isArray(input.children) && input.children.length > 0;
 
-	if (!canRenderNodeType(input.type, options.componentCatalog) && !hasKnownLayout) {
+	if (
+		!canRenderNodeType(input.type, options.componentCatalog) &&
+		!(hasKnownLayout && hasRenderableChildren)
+	) {
 		addIssue(issues, {
 			code: "unknown-component-type",
 			message: `Render node type is not known to the renderer contract: ${input.type}.`,
