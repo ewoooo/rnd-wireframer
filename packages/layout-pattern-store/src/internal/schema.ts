@@ -105,9 +105,7 @@ const layoutPatternChildrenContractSchema = z
 
 export const layoutPatternCatalogEntrySchema = z
 	.object({
-		layoutId: z
-			.string()
-			.regex(/^layout\.(screen|region|area|composite)\.[A-Za-z0-9][A-Za-z0-9.-]*$/),
+		id: z.string().regex(/^layout\.(screen|region|area|composite)\.[A-Za-z0-9][A-Za-z0-9.-]*$/),
 		target: patternTargetSchema,
 		name: z.string().min(1),
 		componentID: z.string().min(1),
@@ -118,11 +116,11 @@ export const layoutPatternCatalogEntrySchema = z
 	})
 	.superRefine((entry, ctx) => {
 		const expectedPrefix = `layout.${entry.target}.`;
-		if (!entry.layoutId.startsWith(expectedPrefix)) {
+		if (!entry.id.startsWith(expectedPrefix)) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
-				message: `layoutId for target '${entry.target}' must start with '${expectedPrefix}'`,
-				path: ["layoutId"],
+				message: `id for target '${entry.target}' must start with '${expectedPrefix}'`,
+				path: ["id"],
 			});
 		}
 	});
@@ -287,12 +285,14 @@ const screenCatalogPatternSchema = z.object({
 	layout: screenVariantSchema.optional(),
 });
 
-const catalogPatternSchema = z.discriminatedUnion("target", [
+const legacyCatalogPatternSchema = z.discriminatedUnion("target", [
 	screenCatalogPatternSchema,
 	regionCatalogPatternSchema,
 	areaCatalogPatternSchema,
 	compositeCatalogPatternSchema,
 ]);
+
+const catalogPatternSchema = z.union([legacyCatalogPatternSchema, layoutPatternCatalogEntrySchema]);
 
 export const normalizedPatternStoreSchema: z.ZodType<PatternStore> = z
 	.object({
@@ -304,12 +304,14 @@ export const patternStoreSchema = z
 	.object({
 		patterns: z.array(catalogPatternSchema),
 	})
-	.superRefine(refineUniquePatternIds)
+	.superRefine(refineUniqueCatalogPatternIds)
 	.transform((store) => ({
 		patterns: store.patterns.map(normalizeCatalogPattern),
 	}));
 
 function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
+	if ("componentID" in pattern) return normalizeLayoutPatternCatalogEntry(pattern);
+
 	const defaultVariant = pattern.variant ?? "default";
 	return {
 		id: pattern.id,
@@ -322,6 +324,65 @@ function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
 			[defaultVariant]: pattern.layout ?? {},
 		},
 	} as Pattern;
+}
+
+function normalizeLayoutPatternCatalogEntry(
+	pattern: z.infer<typeof layoutPatternCatalogEntrySchema>,
+): Pattern {
+	const id = layoutPatternIdToPatternId(pattern.id);
+	const layoutProps = Object.fromEntries(
+		Object.entries(pattern.props ?? {}).flatMap(([propName, contract]) =>
+			"default" in contract ? [[propName, contract.default]] : [],
+		),
+	);
+
+	return {
+		id,
+		target: pattern.target,
+		name: pattern.name,
+		description: pattern.description,
+		defaultVariant: "default",
+		variants: {
+			default: {
+				childWrap:
+					pattern.target === "area"
+						? {
+								kind: "page-stack",
+							}
+						: undefined,
+				layoutProps,
+			},
+		},
+	} as Pattern;
+}
+
+function refineUniqueCatalogPatternIds<T extends { patterns: Array<{ id?: string }> }>(
+	store: T,
+	ctx: z.RefinementCtx,
+) {
+	const seen = new Set<string>();
+	for (const [index, pattern] of store.patterns.entries()) {
+		const id = pattern.id?.startsWith("layout.")
+			? layoutPatternIdToPatternId(pattern.id)
+			: pattern.id;
+		if (!id) continue;
+		if (!seen.has(id)) {
+			seen.add(id);
+			continue;
+		}
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: `duplicate pattern id '${id}'`,
+			path: ["patterns", index, "id"],
+		});
+	}
+}
+
+function layoutPatternIdToPatternId(id: string): string {
+	return id
+		.replace(/^layout\.(screen|region|area|composite)\./, "")
+		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+		.toLowerCase();
 }
 
 function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals | undefined {
@@ -367,20 +428,20 @@ function refineUniquePatternIds<T extends { patterns: Array<{ id: string }> }>(
 	}
 }
 
-function refineUniqueLayoutIds<T extends { patterns: Array<{ layoutId: string }> }>(
+function refineUniqueLayoutIds<T extends { patterns: Array<{ id: string }> }>(
 	store: T,
 	ctx: z.RefinementCtx,
 ) {
 	const seen = new Set<string>();
 	for (const [index, pattern] of store.patterns.entries()) {
-		if (!seen.has(pattern.layoutId)) {
-			seen.add(pattern.layoutId);
+		if (!seen.has(pattern.id)) {
+			seen.add(pattern.id);
 			continue;
 		}
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: `duplicate layout id '${pattern.layoutId}'`,
-			path: ["patterns", index, "layoutId"],
+			message: `duplicate layout id '${pattern.id}'`,
+			path: ["patterns", index, "id"],
 		});
 	}
 }

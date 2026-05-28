@@ -118,6 +118,46 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("Checkbox child").parentElement).toHaveStyle({ gap: "12px" });
 		expect(screen.getByText("Accordion child").parentElement).toHaveStyle({ gap: "0px" });
 		expect(screen.getByText("Message child").parentElement).toHaveStyle({ gap: "12px" });
+		expect(screen.getByText("Field child").closest("[data-node-type='PageStack']")).toHaveStyle({
+			gap: "8px",
+			paddingBlock: "28px",
+			paddingInline: "12px",
+		});
+	});
+
+	it("keeps legacy PageStack spacing prop names as render fallbacks", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.form",
+					componentVersion: "0.1.0",
+					layout: "layout.area.fieldStack",
+					metadata: { id: "legacy-field-area", title: "Legacy field area" },
+					props: {
+						componentGap: 16,
+						itemPaddingX: 24,
+						paddingY: 32,
+						sectionPaddingX: 10,
+						titleGap: 6,
+					},
+					children: [
+						{
+							type: "UnknownLeaf",
+							componentVersion: "0.1.0",
+							metadata: { id: "legacy-field-child", title: "Legacy field child" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const child = screen.getByText("Legacy field child");
+		expect(child.parentElement).toHaveStyle({ gap: "16px", paddingInline: "24px" });
+		expect(child.closest("[data-node-type='PageStack']")).toHaveStyle({
+			gap: "6px",
+			paddingBlock: "32px",
+			paddingInline: "10px",
+		});
 	});
 
 	it("maps catalog-approved visual props onto the primitive wrapper", () => {

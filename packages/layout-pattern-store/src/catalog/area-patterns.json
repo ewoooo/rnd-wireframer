@@ -16,27 +16,43 @@
 			}
 		},
 		{
-			"id": "list-stack",
+			"id": "layout.area.listStack",
 			"target": "area",
 			"name": "리스트 스택",
 			"description": "Area children을 리스트형 항목으로 세로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 8,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 8
+			"componentID": "PageStackAreaPattern",
+			"props": {
+				"componentGap": {
+					"type": "number",
+					"default": 8,
+					"description": "Legacy layoutProps.componentGap preserved from the pre-component catalog."
+				},
+				"gap": {
+					"type": "number",
+					"default": 8,
+					"description": "Contents slot child gap."
+				},
+				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"],
+					"default": "default-20"
+				},
+				"paddingY": { "type": "number", "default": 28 },
+				"sectionPaddingX": { "type": "number", "default": 12 },
+				"titleGap": {
+					"type": "number",
+					"default": 8,
+					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
+				},
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"],
+					"default": "visible"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["list-cell"]
-				},
-				"keywords": ["list", "목록"],
-				"priority": 80
-			}
+			"children": { "accepts": "component", "min": 1 },
+			"status": "draft"
 		},
 		{
 			"id": "auth-method-list",
@@ -75,27 +91,31 @@
 			}
 		},
 		{
-			"id": "field-stack",
+			"id": "layout.area.fieldStack",
 			"target": "area",
 			"name": "필드 스택",
 			"description": "Area children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 12
+			"componentID": "PageStackAreaPattern",
+			"props": {
+				"componentGap": { "type": "number", "default": 12 },
+				"gap": { "type": "number", "default": 12 },
+				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"],
+					"default": "default-20"
+				},
+				"paddingY": { "type": "number", "default": 28 },
+				"sectionPaddingX": { "type": "number", "default": 12 },
+				"titleGap": { "type": "number", "default": 8 },
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"],
+					"default": "visible"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["text-field"]
-				},
-				"keywords": ["field", "form", "입력"],
-				"priority": 80
-			}
+			"children": { "accepts": "component", "min": 1 },
+			"status": "draft"
 		},
 		{
 			"id": "auth-code-entry",
@@ -125,74 +145,85 @@
 			}
 		},
 		{
-			"id": "checkbox-stack",
+			"id": "layout.area.checkboxStack",
 			"target": "area",
 			"name": "체크박스 스택",
 			"description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 12
+			"componentID": "PageStackAreaPattern",
+			"props": {
+				"componentGap": { "type": "number", "default": 12 },
+				"gap": { "type": "number", "default": 12 },
+				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"],
+					"default": "default-20"
+				},
+				"paddingY": { "type": "number", "default": 28 },
+				"sectionPaddingX": { "type": "number", "default": 12 },
+				"titleGap": { "type": "number", "default": 8 },
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"],
+					"default": "visible"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["checkbox"]
-				},
-				"keywords": ["checkbox", "check", "동의"],
-				"priority": 70
-			}
+			"children": { "accepts": "component", "min": 1 },
+			"status": "draft"
 		},
 		{
-			"id": "accordion-list",
+			"id": "layout.area.accordionList",
 			"target": "area",
 			"name": "아코디언 리스트",
 			"description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 0
+			"componentID": "PageStackAreaPattern",
+			"props": {
+				"componentGap": { "type": "number", "default": 0 },
+				"gap": { "type": "number", "default": 0 },
+				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"],
+					"default": "default-20"
+				},
+				"paddingY": { "type": "number", "default": 28 },
+				"sectionPaddingX": { "type": "number", "default": 12 },
+				"titleGap": { "type": "number", "default": 8 },
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"],
+					"default": "visible"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["list-cell", "accordion"]
-				},
-				"keywords": ["accordion", "expand", "펼침"],
-				"priority": 90
-			}
+			"children": { "accepts": "component", "min": 1 },
+			"status": "draft"
 		},
 		{
-			"id": "message-stack",
+			"id": "layout.area.messageStack",
 			"target": "area",
 			"name": "메시지 스택",
 			"description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 12
+			"componentID": "PageStackAreaPattern",
+			"props": {
+				"componentGap": { "type": "number", "default": 12 },
+				"gap": { "type": "number", "default": 12 },
+				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"],
+					"default": "default-20"
+				},
+				"paddingY": { "type": "number", "default": 28 },
+				"sectionPaddingX": { "type": "number", "default": 12 },
+				"titleGap": { "type": "number", "default": 8 },
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"],
+					"default": "visible"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["section-message"],
-					"noneOf": ["text-field", "list-cell", "checkbox"]
-				},
-				"keywords": ["message", "status", "안내", "상태"],
-				"priority": 60
-			}
+			"children": { "accepts": "component", "min": 1 },
+			"status": "draft"
 		},
 		{
 			"id": "action-stack",

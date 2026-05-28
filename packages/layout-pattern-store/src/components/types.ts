@@ -15,7 +15,7 @@ export type LayoutPatternComponent = (props: LayoutPatternComponentProps) => Rea
 
 export type LayoutPatternComponentEntry = {
 	component: LayoutPatternComponent;
-	layoutId: LayoutPatternCatalogEntry["layoutId"];
+	layoutId: LayoutPatternCatalogEntry["id"];
 	pattern: LayoutPatternCatalogEntry;
 	target: PatternStoreTarget;
 };

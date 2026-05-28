@@ -25,13 +25,16 @@ export function PageStackAreaPattern({
 }
 
 function toPageStackProps(props: Record<string, unknown>): Partial<PageStackProps> {
+	const gap = toNumber(props.gap) ?? toNumber(props.componentGap);
+	const sectionGap = toNumber(props.sectionGap) ?? toNumber(props.titleGap);
+
 	return {
-		gap: toNumber(props.gap),
+		gap,
 		itemPaddingX: toNumber(props.itemPaddingX),
 		itemTemplate: toPageStackItemTemplate(props.itemTemplate),
 		paddingX: toNumber(props.paddingX),
 		paddingY: toNumber(props.paddingY),
-		sectionGap: toNumber(props.sectionGap),
+		sectionGap,
 		sectionPaddingX: toNumber(props.sectionPaddingX),
 		slotInsetX: toNumber(props.slotInsetX),
 		titleMode: toPageStackTitleMode(props.titleMode),

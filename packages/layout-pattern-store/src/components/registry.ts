@@ -34,7 +34,7 @@ const layoutPatternComponents: LayoutPatternComponentEntry[] = areaPageStackLayo
 		component: PageStackAreaPattern,
 		layoutId: entry.layoutId,
 		pattern: {
-			layoutId: entry.layoutId,
+			id: entry.layoutId,
 			target: "area",
 			name: entry.name,
 			componentID: "PageStackAreaPattern",
@@ -62,13 +62,21 @@ export function findRegisteredLayoutPatternComponentByLayoutId(
 export function findRegisteredLayoutPatternComponent(
 	patternId: string,
 ): LayoutPatternComponentEntry | undefined {
-	return layoutPatternComponents.find((entry) => entry.pattern.layoutId === patternId);
+	return layoutPatternComponents.find((entry) => entry.pattern.id === patternId);
 }
 
 function pageStackProps(defaults: {
 	gap: number;
+	titleGap?: number;
 }): LayoutPatternComponentEntry["pattern"]["props"] {
+	const titleGap = defaults.titleGap ?? 8;
+
 	return {
+		componentGap: {
+			type: "number",
+			default: defaults.gap,
+			description: "Legacy layoutProps.componentGap preserved as the PageStack contents gap.",
+		},
 		gap: {
 			type: "number",
 			default: defaults.gap,
@@ -90,6 +98,11 @@ function pageStackProps(defaults: {
 		sectionPaddingX: {
 			type: "number",
 			default: 12,
+		},
+		titleGap: {
+			type: "number",
+			default: titleGap,
+			description: "Legacy layoutProps.titleGap preserved as the title-to-contents gap.",
 		},
 		titleMode: {
 			type: "enum",

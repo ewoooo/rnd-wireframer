@@ -126,14 +126,22 @@ describe("@cx/layout-pattern-store schema", () => {
 		const catalog = layoutPatternCatalogSchema.parse({
 			patterns: [
 				{
-					layoutId: "layout.area.fieldStack",
+					id: "layout.area.fieldStack",
 					target: "area",
 					name: "Field Stack",
 					componentID: "PageStackAreaPattern",
 					props: {
+						componentGap: {
+							type: "number",
+							default: 12,
+						},
 						gap: {
 							type: "number",
 							default: 12,
+						},
+						titleGap: {
+							type: "number",
+							default: 8,
 						},
 						titleMode: {
 							type: "enum",
@@ -151,12 +159,14 @@ describe("@cx/layout-pattern-store schema", () => {
 		});
 
 		expect(catalog.patterns[0]?.componentID).toBe("PageStackAreaPattern");
+		expect(catalog.patterns[0]?.props?.componentGap?.default).toBe(12);
+		expect(catalog.patterns[0]?.props?.titleGap?.default).toBe(8);
 	});
 
 	it("rejects layout pattern catalog entries with target/layout mismatches", () => {
 		expect(() =>
 			layoutPatternCatalogEntrySchema.parse({
-				layoutId: "layout.region.fieldStack",
+				id: "layout.region.fieldStack",
 				target: "area",
 				name: "Field Stack",
 				componentID: "PageStackAreaPattern",
@@ -167,7 +177,7 @@ describe("@cx/layout-pattern-store schema", () => {
 	it("rejects enum prop contracts without values", () => {
 		expect(() =>
 			layoutPatternCatalogEntrySchema.parse({
-				layoutId: "layout.area.badEnum",
+				id: "layout.area.badEnum",
 				target: "area",
 				name: "Bad enum",
 				componentID: "PageStackAreaPattern",

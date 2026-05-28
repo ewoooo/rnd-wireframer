@@ -94,7 +94,7 @@ export type LayoutPatternChildrenContract = {
 export type LayoutPatternStatus = "deprecated" | "draft" | "ready";
 
 export type LayoutPatternCatalogEntry = {
-	layoutId: `layout.${LayoutPatternTarget}.${string}`;
+	id: `layout.${LayoutPatternTarget}.${string}`;
 	target: LayoutPatternTarget;
 	name: string;
 	componentID: string;
