@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Legacy Pattern Normalization Removal
+
+- 변경: `@cx/layout-pattern-store` schema에서 legacy `layout`/`match` catalog record normalization을 제거하고 `layout.*` component catalog entry만 pattern store input으로 허용함
+- 변경: schema/pattern-store tests를 새 component catalog normalization 기준으로 갱신하고 legacy catalog record rejection test를 추가함
+- 이유: catalog JSON 전환 완료 후 old/new catalog 동시 유지 상태를 끝내고 componentID registry 기반 계약만 남기기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`
+
 ## 2026-05-28 - Renderer Table Legacy Removal
 
 - 변경: `@cx/renderer` public exports에서 `./table`, `./table-view`, `TableScreenView`, `materializeTableScreen(s)`를 제거하고 renderer 내부 table source/test를 삭제함

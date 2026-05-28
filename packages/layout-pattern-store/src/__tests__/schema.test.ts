@@ -8,49 +8,58 @@ import {
 } from "../internal/schema";
 
 describe("@cx/layout-pattern-store schema", () => {
-	it("normalizes raw catalog records into normalized pattern store shape", () => {
+	it("normalizes layout component catalog records into normalized pattern store shape", () => {
 		const store = patternStoreSchema.parse({
 			patterns: [
 				{
-					id: "bottom-action-region",
+					id: "layout.region.commerceDetailBottomAction",
 					target: "region",
 					name: "Bottom action region",
 					description: "Pinned bottom CTA layout.",
-					layout: {
-						direction: "vertical",
-						gap: 12,
-						layoutProps: { paddingX: 20 },
+					componentID: "CommerceDetailBottomActionRegion",
+					props: {
+						gap: { type: "number" },
+						paddingX: { type: "number" },
 					},
-					match: {
-						areas: { anyOf: ["screen-1-bottom-actions"] },
-						priority: 90,
-					},
+					children: { accepts: "area-or-component" },
+					status: "draft",
 				},
 			],
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "bottom-action-region",
+			id: "commerce-detail-bottom-action",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
 			defaultVariant: "default",
-			resolution: {
-				areaPatterns: { anyOf: ["screen-1-bottom-actions"] },
-				componentTypes: undefined,
-				compositePatterns: undefined,
-				idPatterns: undefined,
-				nameKeywords: undefined,
-				priority: 90,
-			},
 			variants: {
-				default: {
-					direction: "vertical",
-					gap: 12,
-					layoutProps: { paddingX: 20 },
-				},
+				default: {},
 			},
 		});
+	});
+
+	it("rejects legacy catalog layout/match records", () => {
+		expect(() =>
+			patternStoreSchema.parse({
+				patterns: [
+					{
+						id: "bottom-action-region",
+						target: "region",
+						name: "Bottom action region",
+						layout: {
+							direction: "vertical",
+							gap: 12,
+							layoutProps: { paddingX: 20 },
+						},
+						match: {
+							areas: { anyOf: ["screen-1-bottom-actions"] },
+							priority: 90,
+						},
+					},
+				],
+			}),
+		).toThrow();
 	});
 
 	it("rejects invalid ids, empty variant maps, and missing default variants", () => {
@@ -85,7 +94,7 @@ describe("@cx/layout-pattern-store schema", () => {
 		).toThrow(/must exist in variants/);
 	});
 
-	it("rejects empty matcher arrays and duplicate pattern ids at store level", () => {
+	it("rejects legacy matcher arrays and duplicate pattern ids at store level", () => {
 		expect(() =>
 			patternStoreSchema.parse({
 				patterns: [

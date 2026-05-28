@@ -242,57 +242,7 @@ export const patternSchema = z.discriminatedUnion("target", [
 	compositePatternSchema,
 ]);
 
-const catalogMatchSchema = z
-	.object({
-		areas: setMatcherSchema,
-		composites: setMatcherSchema,
-		componentTypes: setMatcherSchema,
-		keywords: z.array(z.string()).optional(),
-		ids: z.array(z.string()).optional(),
-		priority: z.number().optional(),
-	})
-	.optional();
-
-const catalogBaseFields = {
-	id: patternIdSchema,
-	name: z.string().min(1),
-	description: z.string().optional(),
-	variant: variantIdSchema.optional(),
-	match: catalogMatchSchema,
-};
-
-const regionCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("region"),
-	layout: regionVariantSchema.optional(),
-});
-
-const areaCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("area"),
-	layout: areaVariantSchema.optional(),
-});
-
-const compositeCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("composite"),
-	layout: compositeVariantSchema.optional(),
-});
-
-const screenCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("screen"),
-	layout: screenVariantSchema.optional(),
-});
-
-const legacyCatalogPatternSchema = z.discriminatedUnion("target", [
-	screenCatalogPatternSchema,
-	regionCatalogPatternSchema,
-	areaCatalogPatternSchema,
-	compositeCatalogPatternSchema,
-]);
-
-const catalogPatternSchema = z.union([legacyCatalogPatternSchema, layoutPatternCatalogEntrySchema]);
+const catalogPatternSchema = layoutPatternCatalogEntrySchema;
 
 export const normalizedPatternStoreSchema: z.ZodType<PatternStore> = z
 	.object({
@@ -306,25 +256,8 @@ export const patternStoreSchema = z
 	})
 	.superRefine(refineUniqueCatalogPatternIds)
 	.transform((store) => ({
-		patterns: store.patterns.map(normalizeCatalogPattern),
+		patterns: store.patterns.map(normalizeLayoutPatternCatalogEntry),
 	}));
-
-function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
-	if ("componentID" in pattern) return normalizeLayoutPatternCatalogEntry(pattern);
-
-	const defaultVariant = pattern.variant ?? "default";
-	return {
-		id: pattern.id,
-		target: pattern.target,
-		name: pattern.name,
-		description: pattern.description,
-		defaultVariant,
-		resolution: normalizeCatalogMatch(pattern.match),
-		variants: {
-			[defaultVariant]: pattern.layout ?? {},
-		},
-	} as Pattern;
-}
 
 function normalizeLayoutPatternCatalogEntry(
 	pattern: z.infer<typeof layoutPatternCatalogEntrySchema>,
@@ -372,18 +305,6 @@ function layoutPatternIdToPatternId(id: string): string {
 		.toLowerCase();
 }
 
-function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals | undefined {
-	if (!match) return undefined;
-	return {
-		areaPatterns: match.areas,
-		compositePatterns: match.composites,
-		componentTypes: match.componentTypes,
-		nameKeywords: match.keywords,
-		idPatterns: match.ids,
-		priority: match.priority,
-	};
-}
-
 export const patternCatalogSchema = z.object({
 	patterns: z.array(catalogPatternSchema),
 });
@@ -395,7 +316,6 @@ export const layoutPatternCatalogSchema = z
 	.superRefine(refineUniqueLayoutIds);
 
 export type CatalogPattern = z.infer<typeof catalogPatternSchema>;
-export type CatalogMatch = z.infer<typeof catalogMatchSchema>;
 
 function refineUniquePatternIds<T extends { patterns: Array<{ id: string }> }>(
 	store: T,

@@ -174,6 +174,7 @@ data/tables/*
 - composite catalog 49개 전체를 새 component catalog entry로 전환했다.
 - renderer 내부의 이전 table materializer subpath와 table view export를 제거했다.
 - validation은 RenderTree와 table-shaped generation record에서 node target과 `layout.<target>.*` mismatch를 검출한다.
+- layout pattern store schema는 legacy `layout`/`match` catalog shape를 더 이상 normalize하지 않는다.
 - 전환된 catalog entry에서는 runtime `default`를 제거하고 실제 component default로 옮겼다.
 
 아직 남은 것:
