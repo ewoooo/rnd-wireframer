@@ -20,9 +20,7 @@ interface AppProps {
 	};
 }
 
-// 레이아웃 상수
-const NAV_WIDTH = 56;    // NavigationRail (w-14)
-const ASIDE_WIDTH = 380; // 좌/우 패널 통일
+const ASIDE_WIDTH = "380px";
 
 export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: AppProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
@@ -38,18 +36,16 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 	}, [agentRegistry, initializeWorkbench, initialData]);
 
 	return (
-		<SidebarProvider>
-			<div
-				className="grid min-h-screen w-screen"
-				style={{
-					gridTemplateColumns: `${NAV_WIDTH}px ${ASIDE_WIDTH}px 1fr ${ASIDE_WIDTH}px`,
-				}}
+		<div className="flex h-screen w-screen overflow-hidden">
+			<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
+			<SidebarProvider
+				className="flex-1 overflow-hidden"
+				style={{ "--sidebar-width": ASIDE_WIDTH } as React.CSSProperties}
 			>
-				<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
 				<NavigationPanel />
 				<Canvas />
 				<InspectionPanel />
-			</div>
-		</SidebarProvider>
+			</SidebarProvider>
+		</div>
 	);
 }
