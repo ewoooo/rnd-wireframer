@@ -1,10 +1,5 @@
 import type { SCHEMA_VERSION } from "./versions";
 
-export type TablePatternRef = {
-	id: string;
-	variant?: string;
-};
-
 export type TableChildRef = {
 	id: string;
 	kind: "area" | "component";
@@ -20,8 +15,8 @@ export type TableGenerationMetadata = {
 
 export type TableGenerationRegion = {
 	children: TableChildRef[];
+	layout: string;
 	metadata: Pick<TableGenerationMetadata, "title">;
-	pattern: TablePatternRef;
 	type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom";
 };
 
@@ -29,7 +24,7 @@ export type TableGenerationScreen = {
 	id: string;
 	metadata: TableGenerationMetadata;
 	minRendererVersion?: string;
-	pattern: TablePatternRef;
+	layout: string;
 	screen: {
 		regions: {
 			bottom: TableGenerationRegion;
@@ -45,8 +40,8 @@ export type TableGenerationScreen = {
 export type TableGenerationArea = {
 	children: TableChildRef[];
 	id: string;
+	layout: string;
 	metadata: TableGenerationMetadata;
-	pattern: TablePatternRef;
 	props?: Record<string, unknown>;
 	type: "area.dynamic" | "area.static";
 	version: string;
@@ -64,8 +59,8 @@ export type TableGenerationComponent = {
 	children: TableGenerationComponentChild[];
 	hooks?: unknown[];
 	id: string;
+	layout: string;
 	metadata: TableGenerationMetadata;
-	pattern: TablePatternRef;
 	type: string;
 	version: string;
 };

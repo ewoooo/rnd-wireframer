@@ -5,6 +5,7 @@
 이 문서는 에이전트 역할, 작업 인계 방식, 완료 기준만 정의한다.
 
 제품 방향성은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
+Claude 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), pipeline stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터/디자인 문서는 `docs/` 아래에 둔다.
 
@@ -18,6 +19,8 @@
 - AI 실행은 Claude Agent SDK를 통해 호출한다.
 - Claude는 로컬 실행을 우선 사용하되 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
+- `@cx/agent`가 참조하는 생성/검수 프롬프트, 체크리스트, 출력 규약은 `packages/agent/docs/`에서 독립 관리한다.
+- 생성 관련 문장형 참조 자산은 smoke/pipeline 실험에서도 `packages/agent/docs/`의 정본을 참조한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
 - 컴포넌트별 prop, variant, AI 작성 가능 surface 계약 타입과 실제 catalog 값은 `packages/component`의 `@cx/components/catalog`에서 관리한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
@@ -35,7 +38,8 @@
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `layout-pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
-- 재설계 mock schema는 `docs/development/mock-schemas/generation-v2/` 아래에 두고, 런타임 데이터와 섞지 않는다.
+- 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고, 런타임 데이터와 섞지 않는다.
+- screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다.
 - 기존 `database/client-imports`, `database/ai-imports`, `database/tables` 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
@@ -46,7 +50,7 @@
 현재 생성 과정은 재설계 중이며, 기존 table 후보 생성/검수/반영 패키지 경계는 제거된 상태다.
 
 ```text
-Markdown Source / mock schema
+Markdown Source
 -> @cx/parser SourceSpec
 -> 새 생성 과정 설계
 -> RenderTree JSON
@@ -57,9 +61,9 @@ Markdown Source / mock schema
 
 - `@cx/renderer`은 RenderTree JSON을 React로 렌더링하는 책임만 가진다.
 - `@cx/parser`는 SourceSpec 정규화만 담당하고, table projection, schema validation, workflow orchestration, AI runner 책임은 두지 않는다.
-- 재설계 예시 schema는 `docs/development/mock-schemas/generation-v2/`에서 단계별로 관리한다.
+- 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 단계별로 관리한다.
 - 새 생성 과정이 확정되기 전까지 old pipeline 호환 layer를 다시 만들지 않는다.
-- workbench의 local table projection은 재설계 기간의 앱 내부 임시 adapter로만 취급한다.
+- table apply/projection은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 후속 단계로만 취급한다.
 
 ## 4. 디자인 패턴 문서
 
@@ -95,11 +99,11 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 |---|---|---|
 | Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
 | Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
-| Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | 현재 문서와 재설계 mock schema |
+| Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | 현재 문서와 `@cx/schema` 계약 |
 | Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
 | Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
-| Claude Generation Agent | Claude 기반 table 후보 생성 | 현재 문서와 재설계 mock schema |
-| Claude Review Agent | Claude 기반 생성 결과 검수 | 현재 문서와 재설계 mock schema |
+| Claude Generation Agent | Claude 기반 RenderTree 후보 생성 | 현재 문서와 `@cx/schema` 계약 |
+| Claude Review Agent | Claude 기반 생성 결과 검수 | 현재 문서와 `@cx/schema` 계약 |
 | Agent Runtime Agent | Claude Agent SDK, 로컬 실행 우선, API fallback 관리 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
 | QA Agent | 인수 조건, 회귀 검증, 생성 결과 검증 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
 | Documentation Agent | 문서 책임 분리와 변경 기록 관리 | 현재 문서와 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md) |

@@ -18,6 +18,10 @@ describe("@cx/schema public API", () => {
 
 	it("maps artifact kinds to schema versions and JSON schema ids", () => {
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["source-spec"]).toBe(SCHEMA_VERSION.sourceSpec);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["screen-intent"]).toBe(SCHEMA_VERSION.screenIntent);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["composition-plan"]).toBe(
+			SCHEMA_VERSION.compositionPlan,
+		);
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["table-generation-result"]).toBe(
 			SCHEMA_VERSION.tableGenerationResult,
 		);
@@ -46,6 +50,21 @@ describe("@cx/schema public API", () => {
 				},
 			},
 			required: ["schemaVersion", "screen", "areas", "components"],
+		});
+		expect(getJsonSchema("screen-intent")).toMatchObject({
+			$id: "screen-intent.v0.1",
+			additionalProperties: false,
+			required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
+		});
+		expect(getJsonSchema("composition-plan")).toMatchObject({
+			$id: "composition-plan.v0.1",
+			additionalProperties: false,
+			required: ["schemaVersion", "screenLayout", "layoutStrategy", "sections"],
+		});
+		expect(getJsonSchema("quality-inspection")).toMatchObject({
+			$id: "quality-inspection.v0.1",
+			additionalProperties: false,
+			required: ["schemaVersion", "inspection", "findings", "summary"],
 		});
 	});
 

@@ -8,8 +8,10 @@ import { agentTaskCatalog } from "../tasks";
 describe("@cx/agent runtime", () => {
 	it("registers the Claude task kinds", () => {
 		expect(Object.keys(agentTaskCatalog)).toEqual([
+			"composition-planning",
 			"pattern-selection",
 			"screen-generation",
+			"screen-intent",
 			"screen-revision",
 			"quality-review",
 		]);

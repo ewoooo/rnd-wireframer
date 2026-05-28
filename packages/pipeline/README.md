@@ -2,9 +2,17 @@
 
 `@cx/pipeline`은 생성 과정을 실행하는 pipeline runtime이자 side effect/IO 유틸리티 패키지다.
 
+stage/runtime 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
+
 현재 MVP에서는 `buildPipeline()`/`runPipeline()`으로 screen generation pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다. 외부 저장소 sync, queue/worker, 병렬 실행, 복잡한 retry 정책은 후속으로 미룬다.
 
 `@cx/orchestration`은 각 stage에서 필요한 deterministic helper를 제공하고, `@cx/validation`은 순수 검증 결과를 반환한다. `@cx/pipeline`은 stage 순서, runtime context, agent 실행, validation 호출, IO/effect 실행을 조립한다.
+
+생성/검수 prompt, checklist, output 규약 같은 문장형 자산의 정본은 `@cx/pipeline`이 아니라 [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)에서 관리한다.
+
+screen generation의 최종 산출물은 `final-result.json`으로 저장한다. 이 파일은 agent raw result나 table-shaped intermediate가 아니라 `RenderTreeContract` 자체이며, `children` 아래에 `Screen` root와 Header/Contents/Bottom region을 갖는 스크린 렌더트리 형태여야 한다.
+
+테이블 반영은 `final-result.json` RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. apply 단계는 새 생성, 의미 재해석, 디자인 보정, validation retry를 하지 않는다.
 
 ## 책임
 
@@ -62,7 +70,7 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 - versioned artifact write
 - source artifact read
 - run log write
-- approved artifact apply
+- approved artifact apply by decomposing final RenderTree layers
 - file system adapter를 통한 파일 write/copy/read
 - side effect 실행 결과 반환
 - screen-generation pipeline 실행
@@ -86,7 +94,7 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 - 비즈니스 workflow 소유
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
-- mock schema 원본 수정
+- final RenderTree 의미 재해석
 - 생성/검수 계약의 SSOT
 
 ## Public Subpaths

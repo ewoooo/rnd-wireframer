@@ -5,20 +5,38 @@ import { createAgentRuntime } from "@cx/agent";
 import { runAgentQuery } from "@cx/agent/adapters";
 import { createClaudeRunner } from "@cx/agent/claude";
 import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
-import { componentCatalog } from "@cx/components/catalog";
+import { componentCatalog, getComponentCatalogEntry } from "@cx/components/catalog";
 import {
+	resolveCompositeLayoutByComponentType,
+	resolveRegionLayoutFromScreenLayout,
+} from "@cx/layout-pattern-store/resolver";
+import {
+	buildCompositionPlanAgentInput,
+	buildPatternLayerCandidates,
 	buildPatternSelectionAgentInput,
+	buildQualityReviewAgentInput,
 	buildScreenGenerationAgentInput,
+	buildScreenIntentAgentInput,
 	buildScreenRevisionAgentInput,
 } from "@cx/orchestration";
 import type {
+	ComponentContractCatalog,
+	CompositionPlanAgentInput,
 	PatternLayerCandidate,
 	PatternSelectionAgentInput,
+	QualityReviewAgentInput,
 	ScreenGenerationAgentInput,
+	ScreenIntentAgentInput,
 	ScreenRevisionAgentInput,
 } from "@cx/orchestration/types";
-import { SCHEMA_VERSION, type SourceSpec, type ValidationReportContract } from "@cx/schema";
 import {
+	type CompositionPlanContract,
+	SCHEMA_VERSION,
+	type SourceSpec,
+	type ValidationReportContract,
+} from "@cx/schema";
+import {
+	validateCompositionPlan,
 	validateRenderTree,
 	validateSchemaArtifact,
 	validateTableGenerationResult,
@@ -41,7 +59,6 @@ import {
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
 import { createFakeGenerationAgentRunner } from "./fake-agent-runner";
-import { resolveSmokePatternLayerCandidates } from "./pattern-layer-candidates";
 import {
 	findGenerationSkill,
 	type GenerationSkill,
@@ -56,9 +73,12 @@ export const screenGenerationPipelineDefinition = {
 	stages: [
 		"read-source",
 		"parse-source",
+		"derive-screen-intent",
+		"plan-composition",
 		"select-pattern",
 		"generate-render-tree",
 		"validate-render-tree",
+		"review-quality",
 		"revise-render-tree-if-invalid",
 		"validate-render-tree-after-revision",
 		"write-artifacts",
@@ -68,6 +88,9 @@ export const screenGenerationPipelineDefinition = {
 type ScreenGenerationPipelineState = {
 	agentInput?: ScreenGenerationAgentInput;
 	agentResult?: AgentRunResult;
+	compositionPlanAgentInput?: CompositionPlanAgentInput;
+	compositionPlanAgentResult?: AgentRunResult;
+	compositionPlanRunnerRequest?: AgentRunnerRequest;
 	generationSkillCatalog?: GenerationSkill[];
 	initialValidationReport?: ValidationReportContract;
 	options: NormalizedScreenGenerationPipelineOptions;
@@ -78,11 +101,17 @@ type ScreenGenerationPipelineState = {
 	patternSelectionRunnerRequest?: AgentRunnerRequest;
 	pipelineResult?: SideEffectExecutionResult;
 	pipelineResultWrite?: SideEffectExecutionResult;
+	qualityReviewAgentInput?: QualityReviewAgentInput;
+	qualityReviewAgentResult?: AgentRunResult;
+	qualityReviewRunnerRequest?: AgentRunnerRequest;
 	revisionAgentInput?: ScreenRevisionAgentInput;
 	revisionAgentResult?: AgentRunResult;
 	revisionRunnerRequest?: AgentRunnerRequest;
 	renderTreeGenerationSkill?: GenerationSkill;
 	runnerRequest?: AgentRunnerRequest;
+	screenIntentAgentInput?: ScreenIntentAgentInput;
+	screenIntentAgentResult?: AgentRunResult;
+	screenIntentRunnerRequest?: AgentRunnerRequest;
 	sourceFile?: PipelineMarkdownSourceFile;
 	sourceReadResult?: SideEffectExecutionResult;
 	sourceSpec?: SourceSpec;
@@ -100,9 +129,12 @@ type NormalizedScreenGenerationPipelineOptions = {
 type ScreenGenerationStageExecutor = (state: ScreenGenerationPipelineState) => Promise<void> | void;
 
 const screenGenerationStageExecutors = {
+	"derive-screen-intent": runDeriveScreenIntentStage,
 	"generate-render-tree": runGenerateRenderTreeStage,
 	"parse-source": runParseSourceStage,
+	"plan-composition": runPlanCompositionStage,
 	"read-source": runReadSourceStage,
+	"review-quality": runReviewQualityStage,
 	"revise-render-tree-if-invalid": runReviseRenderTreeIfInvalidStage,
 	"select-pattern": runSelectPatternStage,
 	"validate-render-tree": runValidateRenderTreeStage,
@@ -136,6 +168,10 @@ export async function runScreenGenerationPipeline(
 	return {
 		agentInput: state.agentInput,
 		agentResult: state.agentResult,
+		compositionPlanAgentInput: state.compositionPlanAgentInput,
+		compositionPlanAgentResult: state.compositionPlanAgentResult,
+		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
+		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
 		initialValidationReport: state.initialValidationReport,
 		outDir: state.options.outDir,
@@ -146,12 +182,18 @@ export async function runScreenGenerationPipeline(
 		patternSelectionRunnerRequest: state.patternSelectionRunnerRequest,
 		pipelineResult: state.pipelineResult,
 		pipelineResultWrite: state.pipelineResultWrite,
+		qualityReviewAgentInput: state.qualityReviewAgentInput,
+		qualityReviewAgentResult: state.qualityReviewAgentResult,
+		qualityReviewRunnerRequest: state.qualityReviewRunnerRequest,
 		revisionAgentInput: state.revisionAgentInput,
 		revisionAgentResult: state.revisionAgentResult,
 		revisionRunnerRequest: state.revisionRunnerRequest,
 		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
 		runId: state.options.runId,
 		runnerRequest: state.runnerRequest,
+		screenIntentAgentInput: state.screenIntentAgentInput,
+		screenIntentAgentResult: state.screenIntentAgentResult,
+		screenIntentRunnerRequest: state.screenIntentRunnerRequest,
 		sourcePath: state.options.sourcePath,
 		sourceSpec: state.sourceSpec,
 		summary: createScreenGenerationPipelineSummary(state),
@@ -201,11 +243,84 @@ function runParseSourceStage(state: ScreenGenerationPipelineState): void {
 	state.sourceSpec = state.parseCommandResult.parseResult.sourceSpec;
 }
 
+async function runDeriveScreenIntentStage(state: ScreenGenerationPipelineState): Promise<void> {
+	const sourceSpec = requireSourceSpec(state);
+	const screenIntentInput = buildScreenIntentAgentInput(sourceSpec);
+	const realRunner = createClaudeRunner({ localFirst: true });
+	const runtime = createAgentRuntime({
+		runner:
+			state.options.agentMode === "claude-local-first"
+				? async (request) => {
+						state.screenIntentRunnerRequest = request;
+						return realRunner(request);
+					}
+				: async (request) => {
+						state.screenIntentRunnerRequest = request;
+						return {
+							payload: createFakeScreenIntent(sourceSpec),
+							session: {
+								mode: request.session?.mode ?? "new",
+								sessionId: request.session?.sessionId,
+							},
+							taskKind: request.taskKind,
+						};
+					},
+	});
+
+	state.screenIntentAgentInput = screenIntentInput;
+	state.screenIntentAgentResult = await runAgentQuery(runtime, {
+		context: screenIntentInput.context,
+		query: screenIntentInput.query,
+		taskKind: "screen-intent",
+	});
+}
+
+async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Promise<void> {
+	const sourceSpec = requireSourceSpec(state);
+	const layerCandidates = buildScreenGenerationPatternLayerCandidates(sourceSpec);
+	const compositionPlanInput = buildCompositionPlanAgentInput({
+		layerCandidates,
+		screenIntent: state.screenIntentAgentResult?.payload,
+		sourceSpec,
+	});
+	const realRunner = createClaudeRunner({ localFirst: true });
+	const runtime = createAgentRuntime({
+		runner:
+			state.options.agentMode === "claude-local-first"
+				? async (request) => {
+						state.compositionPlanRunnerRequest = request;
+						return realRunner(request);
+					}
+				: async (request) => {
+						state.compositionPlanRunnerRequest = request;
+						return {
+							payload: createFakeCompositionPlan(sourceSpec, layerCandidates),
+							session: {
+								mode: request.session?.mode ?? "new",
+								sessionId: request.session?.sessionId,
+							},
+							taskKind: request.taskKind,
+						};
+					},
+	});
+
+	state.patternLayerCandidates = layerCandidates;
+	state.compositionPlanAgentInput = compositionPlanInput;
+	state.compositionPlanAgentResult = await runAgentQuery(runtime, {
+		context: compositionPlanInput.context,
+		query: compositionPlanInput.query,
+		taskKind: "composition-planning",
+	});
+}
+
 async function runSelectPatternStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
-	const layerCandidates = resolveSmokePatternLayerCandidates(sourceSpec);
+	const layerCandidates =
+		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(sourceSpec);
 	const patternSelectionInput = buildPatternSelectionAgentInput({
+		compositionPlan: state.compositionPlanAgentResult?.payload,
 		layerCandidates,
+		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec,
 	});
 	const realRunner = createClaudeRunner({ localFirst: true });
@@ -246,8 +361,14 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		"render-tree-generation",
 	);
 	const agentInput = buildScreenGenerationAgentInput(sourceSpec, {
+		componentContractCatalog: buildSourceComponentContractCatalog(
+			sourceSpec,
+			state.patternLayerCandidates ?? [],
+		),
+		compositionPlan: state.compositionPlanAgentResult?.payload,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
+		screenIntent: state.screenIntentAgentResult?.payload,
 	});
 	const realRunner = createClaudeRunner({ localFirst: true });
 	const runtime = createAgentRuntime({
@@ -274,8 +395,56 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 }
 
 function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void {
-	state.validationReport = createRenderTreeValidationReport(state.agentResult?.payload);
+	state.validationReport = createRenderTreeValidationReport(state.agentResult?.payload, {
+		compositionPlan: state.compositionPlanAgentResult?.payload,
+		screenIntent: state.screenIntentAgentResult?.payload,
+		sourceSpec: state.sourceSpec,
+	});
 	state.initialValidationReport ??= state.validationReport;
+}
+
+async function runReviewQualityStage(state: ScreenGenerationPipelineState): Promise<void> {
+	const sourceSpec = requireSourceSpec(state);
+	const qualityReviewInput = buildQualityReviewAgentInput({
+		candidate: state.agentResult?.payload,
+		componentContractCatalog: buildSourceComponentContractCatalog(
+			sourceSpec,
+			state.patternLayerCandidates ?? [],
+		),
+		compositionPlan: state.compositionPlanAgentResult?.payload,
+		layerCandidates: state.patternLayerCandidates,
+		patternSelection: state.patternSelectionAgentResult?.payload,
+		screenIntent: state.screenIntentAgentResult?.payload,
+		sourceSpec,
+		validationReport: state.validationReport,
+	});
+	const realRunner = createClaudeRunner({ localFirst: true });
+	const runtime = createAgentRuntime({
+		runner:
+			state.options.agentMode === "claude-local-first"
+				? async (request) => {
+						state.qualityReviewRunnerRequest = request;
+						return realRunner(request);
+					}
+				: async (request) => {
+						state.qualityReviewRunnerRequest = request;
+						return {
+							payload: createFakeQualityInspection(state.validationReport),
+							session: {
+								mode: request.session?.mode ?? "new",
+								sessionId: request.session?.sessionId,
+							},
+							taskKind: request.taskKind,
+						};
+					},
+	});
+
+	state.qualityReviewAgentInput = qualityReviewInput;
+	state.qualityReviewAgentResult = await runAgentQuery(runtime, {
+		context: qualityReviewInput.context,
+		query: qualityReviewInput.query,
+		taskKind: "quality-review",
+	});
 }
 
 async function runReviseRenderTreeIfInvalidStage(
@@ -286,9 +455,15 @@ async function runReviseRenderTreeIfInvalidStage(
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
 	const revisionInput = buildScreenRevisionAgentInput({
+		componentContractCatalog: buildSourceComponentContractCatalog(
+			sourceSpec,
+			state.patternLayerCandidates ?? [],
+		),
+		compositionPlan: state.compositionPlanAgentResult?.payload,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		previousCandidate,
+		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec,
 		validationReport: state.validationReport,
 	});
@@ -331,6 +506,10 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 	const commands = createGenerationSmokeArtifactCommands({
 		agentInput: state.agentInput,
 		agentResult: state.agentResult,
+		compositionPlanAgentInput: state.compositionPlanAgentInput,
+		compositionPlanAgentResult: state.compositionPlanAgentResult,
+		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
+		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
 		initialValidationReport: state.initialValidationReport,
 		outDir: state.options.outDir,
@@ -339,11 +518,17 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 		patternSelectionAgentInput: state.patternSelectionAgentInput,
 		patternSelectionAgentResult: state.patternSelectionAgentResult,
 		patternSelectionRunnerRequest: state.patternSelectionRunnerRequest,
+		qualityReviewAgentInput: state.qualityReviewAgentInput,
+		qualityReviewAgentResult: state.qualityReviewAgentResult,
+		qualityReviewRunnerRequest: state.qualityReviewRunnerRequest,
 		revisionAgentInput: state.revisionAgentInput,
 		revisionAgentResult: state.revisionAgentResult,
 		revisionRunnerRequest: state.revisionRunnerRequest,
 		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
 		runnerRequest: state.runnerRequest,
+		screenIntentAgentInput: state.screenIntentAgentInput,
+		screenIntentAgentResult: state.screenIntentAgentResult,
+		screenIntentRunnerRequest: state.screenIntentRunnerRequest,
 		sourceSpec: state.sourceSpec,
 		validationReport: state.validationReport,
 	});
@@ -424,6 +609,70 @@ function requireSourceSpec(state: ScreenGenerationPipelineState): SourceSpec {
 	return state.sourceSpec;
 }
 
+function buildScreenGenerationPatternLayerCandidates(
+	sourceSpec: SourceSpec,
+): PatternLayerCandidate[] {
+	return buildPatternLayerCandidates({
+		resolver: {
+			resolveComponentLayout: ({ componentType, sourceComponentId }) =>
+				resolveCompositeLayoutByComponentType(componentType ?? sourceComponentId),
+			resolveRegionLayout: resolveRegionLayoutFromScreenLayout,
+		},
+		sourceSpec,
+	});
+}
+
+function buildSourceComponentContractCatalog(
+	sourceSpec: SourceSpec,
+	layerCandidates: PatternLayerCandidate[],
+): ComponentContractCatalog {
+	const entries = sourceSpec.sourceShape.screen.regions.flatMap((region) =>
+		region.children.flatMap((area) =>
+			area.children.map((component) => {
+				const componentType = component.componentType ?? component.sourceComponentId;
+				const componentEntry = getComponentCatalogEntry(componentType);
+				const sourceRefs = [
+					...new Set(
+						[
+							component.sourceId,
+							component.roleAlias,
+							component.sourceComponentId,
+							component.componentType,
+						].filter((ref): ref is string => Boolean(ref)),
+					),
+				];
+				const layoutCandidates = layerCandidates
+					.filter(
+						(candidate) =>
+							candidate.level === "component" &&
+							sourceRefs.includes(candidate.targetRef) &&
+							candidate.layout.startsWith("layout.composite."),
+					)
+					.map((candidate) => candidate.layout);
+
+				return {
+					componentType,
+					layoutCandidates,
+					props: Object.fromEntries(
+						Object.entries(componentEntry?.props ?? {}).map(([propName, contract]) => [
+							propName,
+							{
+								required: contract.required,
+								role: contract.role,
+								type: contract.type,
+								values: contract.values,
+							},
+						]),
+					),
+					sourceRefs,
+				};
+			}),
+		),
+	);
+
+	return { entries };
+}
+
 function getSourceFileFromReadResult(
 	result: SideEffectExecutionResult,
 	sourceKind: PipelineMarkdownSourceFile["kind"],
@@ -493,16 +742,36 @@ function countSourceComponents(sourceSpec: SourceSpec): number {
 	);
 }
 
-function createRenderTreeValidationReport(payload: unknown): ValidationReportContract {
+function createRenderTreeValidationReport(
+	payload: unknown,
+	options: {
+		compositionPlan?: unknown;
+		screenIntent?: unknown;
+		sourceSpec?: SourceSpec;
+	} = {},
+): ValidationReportContract {
 	const renderTree = extractPayloadArtifact(payload, "renderTree");
 	const tableGenerationResult = extractPayloadArtifact(payload, "tableGenerationResult");
 	const schemaReport = validateSchemaArtifact("render-tree", renderTree);
 	const semanticReport = validateRenderTree(renderTree, { componentCatalog });
+	const screenIntentReport =
+		options.screenIntent === undefined
+			? undefined
+			: validateSchemaArtifact("screen-intent", options.screenIntent);
+	const compositionPlanReport =
+		options.compositionPlan === undefined
+			? undefined
+			: validateCompositionPlan(options.compositionPlan, {
+					generatedArtifact: payload,
+					sourceSpec: options.sourceSpec,
+				});
 	const tableReport =
 		tableGenerationResult === undefined
 			? createMissingArtifactReport("tableGenerationResult")
 			: validateTableGenerationResult(tableGenerationResult);
 	const issues: ValidationReportContract["issues"] = [
+		...(screenIntentReport?.issues ?? []),
+		...(compositionPlanReport?.issues ?? []),
 		...schemaReport.issues,
 		...semanticReport.issues,
 	];
@@ -547,8 +816,83 @@ function createMissingArtifactReport(key: "tableGenerationResult"): ValidationRe
 	};
 }
 
+function createFakeQualityInspection(validationReport: ValidationReportContract | undefined) {
+	const warningCount = validationReport?.summary.warningCount ?? 0;
+
+	return {
+		findings: warningCount
+			? [
+					{
+						code: "validation-warning-review",
+						message: "Generation result has validation warnings that should be reviewed.",
+						path: ["validationReport", "issues"],
+						severity: "warning",
+						suggestion: "Inspect warning paths before approving the generated screen.",
+					},
+				]
+			: [],
+		inspection: {
+			compositionAligned: warningCount === 0,
+			sourceFaithful: warningCount === 0,
+			visualHierarchyClear: true,
+		},
+		schemaVersion: SCHEMA_VERSION.qualityInspection,
+		summary: {
+			errorCount: 0,
+			warningCount: warningCount > 0 ? 1 : 0,
+		},
+	};
+}
+
 function isRecord(input: unknown): input is Record<string, unknown> {
 	return typeof input === "object" && input !== null && !Array.isArray(input);
+}
+
+function createFakeScreenIntent(sourceSpec: SourceSpec) {
+	const screen = sourceSpec.sourceShape.screen;
+	const componentIds = listSourceRefs(sourceSpec).slice(0, 8);
+
+	return {
+		contentPriority: componentIds,
+		primaryUserAction: "complete-primary-flow",
+		rationale:
+			"Fake pipeline intent keeps the design decision artifact visible before composition planning.",
+		schemaVersion: SCHEMA_VERSION.screenIntent,
+		screenPurpose: `${screen.name} 화면에서 핵심 정보를 이해하고 다음 행동으로 이어지게 한다.`,
+		sourceInterpretation: {
+			defer: [],
+			preserve: [screen.screenCode, screen.route],
+			summarize: componentIds,
+		},
+	};
+}
+
+function createFakeCompositionPlan(
+	sourceSpec: SourceSpec,
+	layerCandidates: PatternLayerCandidate[],
+): CompositionPlanContract {
+	const screenLayout =
+		layerCandidates.find((candidate) => candidate.level === "screen")?.layout ??
+		"layout.screen.commerceDetailScreen";
+
+	return {
+		layoutStrategy:
+			"Keep source regions as stable screen rails, then let RenderTree generation materialize components.",
+		rationale:
+			"Fake composition plan records the design composition decision before pattern selection.",
+		schemaVersion: SCHEMA_VERSION.compositionPlan,
+		screenLayout,
+		sections: sourceSpec.sourceShape.screen.regions.map((region, index) => ({
+			priority: index + 1,
+			role: REGION_SECTION_ROLE[region.slot] ?? "content",
+			sourceRefs: region.children.flatMap((area) => [
+				area.sourceAreaId,
+				...area.children.map((component) => component.sourceId ?? component.sourceComponentId),
+			]),
+			strategy: `Preserve ${region.slot} source order and map it to a stable screen section.`,
+			targetRegion: REGION_TARGET[region.slot] ?? "contents",
+		})),
+	};
 }
 
 function createFakePatternSelection(layerCandidates: PatternLayerCandidate[]) {
@@ -560,8 +904,31 @@ function createFakePatternSelection(layerCandidates: PatternLayerCandidate[]) {
 		selectedCandidates: layerCandidates.map((candidate) => ({
 			id: candidate.id,
 			level: candidate.level,
-			pattern: candidate.pattern,
+			layout: candidate.layout,
 			targetRef: candidate.targetRef,
 		})),
 	};
 }
+
+function listSourceRefs(sourceSpec: SourceSpec): string[] {
+	return sourceSpec.sourceShape.screen.regions.flatMap((region) =>
+		region.children.flatMap((area) => [
+			area.sourceAreaId,
+			...area.children.map((component) => component.sourceId ?? component.sourceComponentId),
+		]),
+	);
+}
+
+const REGION_SECTION_ROLE = {
+	bottom: "bottom-action",
+	contents: "content",
+	header: "header",
+	unknown: "content",
+} as const;
+
+const REGION_TARGET = {
+	bottom: "bottom",
+	contents: "contents",
+	header: "header",
+	unknown: "contents",
+} as const;

@@ -5,6 +5,7 @@
 이 문서는 활성 패키지의 책임, 주요 기능, public surface, 패키지 간 관계망을 전역에서 추적한다.
 
 제품 방향은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 에이전트 운영은 [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), 디렉토리 구조 세부는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다.
+`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 패키지별 상세 API와 예시는 각 `packages/*/README.md`를 기준으로 한다. 이 문서는 상세 구현을 중복하지 않고, 책임 경계와 관계만 요약한다.
 
@@ -17,6 +18,7 @@ Markdown source
 -> @cx/parser
 -> SourceSpec
 -> @cx/orchestration deterministic stage helpers
+-> ScreenIntent / CompositionPlan
 -> @cx/agent screen-generation
 -> @cx/validation contract validation
 -> @cx/pipeline artifact write
@@ -28,6 +30,7 @@ Markdown source
 `@cx/components`, `@cx/layout`, `@cx/tokens`, `@cx/layout-pattern-store`는 생성 흐름에서 참조되는 설계 계약과 렌더 계약의 source of truth다.
 `@cx/schema`는 generation pipeline 전반의 DTO와 JSON artifact 계약 버전을 추적한다.
 `@cx/smoke`는 위 흐름을 개발자가 반복 실행하는 통합 앱이다.
+생성/검수 prompt, checklist, output example 같은 문장형 참조 자산의 정본은 `packages/agent/docs/`가 소유한다. smoke/pipeline도 필요한 문장형 참조 자산은 이 정본 위치를 참조한다.
 
 ## 3. 활성 패키지 요약
 
@@ -35,15 +38,15 @@ Markdown source
 |---|---|---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
 | `@cx/parser` | Markdown/source 입력을 SourceSpec으로 정규화 | PRDD Markdown 파싱, source metadata 보존, parser issue 반환 | 파일 IO, Claude 실행, RenderTree 생성, catalog 검증 |
-| `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
-| `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery` | 출력 타입 SSOT, workflow 소유, 저장, render |
+| `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern layer candidates, pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
+| `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery`, 패키지 내부 참조 자산 관리 | 출력 타입 SSOT, workflow 소유, 저장, render |
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, parser adapter | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
 | `@cx/renderer` | RenderTree JSON을 React로 렌더링 | RenderTree 타입, node renderer registry, area/component node render | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
 | `@cx/layout` | 화면 chrome과 layout primitive | `AppScreen`, `Flex`, `Grid`, layout style helper, DTO guards | component catalog, token SSOT, 생성 workflow |
 | `@cx/tokens` | foundation/semantic token SSOT | token constants, CSS variables, Tailwind v4 `@theme` entrypoint | component alias token, generated file 직접 소비 |
-| `@cx/layout-pattern-store` | layout pattern reference catalog | pattern load/list/resolve, pure pattern CRUD, local schema validation | pattern 적용 workflow, 파일 승인 반영, renderer 직접 렌더 |
+| `@cx/layout-pattern-store` | layout pattern reference catalog | pattern load/list/resolve, pattern id -> React layout component registry, pure pattern CRUD, local schema validation | pattern 적용 workflow, 파일 승인 반영, renderer 직접 렌더 |
 | `@cx/smoke` | 개발자용 pipeline smoke CLI | `runGenerationSmoke`, CLI option parsing, pipeline summary 출력 | 제품 런타임, orchestration/agent/validation 직접 실행, parser/validation/renderer rule 소유 |
 
 ## 4. Public Surface
@@ -60,7 +63,7 @@ Markdown source
 | `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
 | `@cx/layout` | `.`, `./chrome`, `./contract`, `./primitives`, `./style`, `./types` |
 | `@cx/tokens` | `.`, `./variables.css`, `./tailwind.css` |
-| `@cx/layout-pattern-store` | `.`, `./mutations`, `./resolver`, `./types` |
+| `@cx/layout-pattern-store` | `.`, `./catalog`, `./components`, `./mutations`, `./resolver`, `./types` |
 | `@cx/smoke` | `.`, `./generation` |
 
 외부 패키지는 `src/internal/*`, 구현 디렉토리, generated artifact를 직접 import하지 않는다. `@cx/schema`는 root export만 사용하고 `@cx/schema/*`, `src/json-schema/*`를 직접 import하지 않는다.

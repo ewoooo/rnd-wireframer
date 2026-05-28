@@ -1,7 +1,9 @@
 export type AgentTaskKind =
+	| "composition-planning"
 	| "pattern-selection"
 	| "quality-review"
 	| "screen-generation"
+	| "screen-intent"
 	| "screen-revision";
 
 export type AgentTaskInput = {

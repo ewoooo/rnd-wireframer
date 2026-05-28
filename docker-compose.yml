@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      target: dev
+    command: npm run dev -- --hostname 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+      - next_cache:/workspace/apps/web/.next
+
+volumes:
+  node_modules:
+  next_cache:

@@ -5,8 +5,9 @@
 이 문서는 저장소 디렉토리와 현재 패키지 책임 경계를 정의한다.
 
 패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
+`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
-현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약은 `@cx/schema`가 소유하고, 재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/`에 둔다.
+현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
 
 ## 2. 패키지 기준
 
@@ -172,9 +173,11 @@ RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `me
 - React render
 - catalog 값 소유
 
-## 9. Mock Schema
+## 9. Result And Apply Contract
 
-재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/` 아래에 둔다. 런타임 데이터, 승인 데이터, 과거 AI import 산출물과 섞지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
+screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 이 RenderTree는 top-level `version`, `minRendererVersion`, `metadata`, `theme`, `children`를 갖고, `children` 아래에 `Screen` root와 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` region을 둔다.
+
+테이블 반영은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. table apply 단계는 새 화면을 생성하거나 RenderTree 의미를 재해석하지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
 
 ## 10. `packages/parser`
 
@@ -195,6 +198,27 @@ packages/parser/src/
 - RenderTree 생성 또는 React render
 - catalog 값 검증
 - validation next action 결정
+
+## 10-1. `packages/agent` 문서 자산
+
+`@cx/agent`가 참조하는 생성/검수 문장형 자산은 패키지 내부 문서 디렉토리에서 관리한다.
+
+```text
+packages/agent/docs/
+  README.md
+  session-policy.md
+  screen-generation/
+    prompt-contract.md
+    checklist.md
+    output-contract.md
+  quality-review/
+    prompt-contract.md
+    checklist.md
+    output-contract.md
+```
+
+이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
+smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
 
 ## 11. `packages/orchestration`
 
@@ -262,5 +286,5 @@ packages/pipeline/src/
 - Claude adapter 구현
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
-- mock schema 원본 수정
+- final RenderTree 의미 재해석
 - 생성/검수 계약의 SSOT

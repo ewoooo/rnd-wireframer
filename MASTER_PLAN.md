@@ -5,6 +5,7 @@
 이 문서는 제품 방향성, 설계 원칙, 단계별 고도화 목표만 정의한다.
 
 에이전트 운영 기준은 [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), 패키지 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 패키지 경계와 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), 변경 이력은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)를 따른다.
+`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 이 문서는 상세 API, 타입, 파일 구조, 디자인 수치를 중복해서 정의하지 않는다. 세부 내용은 각 책임 문서와 패키지 README에서 관리한다.
 
@@ -24,9 +25,11 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 - 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action helper는 `@cx/orchestration`에서 다룬다.
 - DTO, component reference, layout pattern reference, token reference 검증은 `@cx/validation`에서 결과 리포트로만 반환한다.
 - Claude 실행은 `@cx/agent`가 담당하며, 생성과 검수 모두 Claude 기반으로 운영한다.
+- 생성/검수용 참조 자산의 정본은 `@cx/agent` 내부 문서 자산으로 관리한다.
 - React render는 `@cx/renderer`가 RenderTree JSON을 렌더링하는 책임만 가진다.
 - component, layout, token, layout pattern 값은 각 소유 패키지의 public API와 README를 기준으로 소비한다.
-- mock schema는 `docs/development/mock-schemas/generation-v2/`에 두고 런타임 데이터와 섞지 않는다.
+- 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고 런타임 데이터와 섞지 않는다.
+- screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다.
 
 ## 4. 목표 흐름
 
@@ -35,13 +38,15 @@ Markdown Source
 -> @cx/parser SourceSpec
 -> @cx/pipeline runtime
 -> @cx/orchestration stage input helper
+-> ScreenIntent / CompositionPlan
 -> @cx/agent Claude generation
 -> Draft Candidate
 -> @cx/validation validation report
 -> @cx/orchestration next action helper
--> RenderTree JSON
+-> final-result.json RenderTree JSON
 -> @cx/renderer preview render
--> @cx/pipeline versioned artifact / approval side effect
+-> @cx/pipeline versioned artifact
+-> optional table apply by decomposing RenderTree layers
 ```
 
 이 흐름은 최종 구현 순서를 강제하지 않는다. 다만 각 단계의 책임이 섞이지 않도록 기준선으로 사용한다.
@@ -78,7 +83,7 @@ Markdown Source
 |---|---|---|
 | 1 | 패키지 책임 경계 고정 | README, package export, public contract가 문서와 일치 |
 | 2 | parser MVP | Markdown source에서 SourceSpec을 순수 함수로 생성 |
-| 3 | 순수 데이터 계약 정리 | mock schema와 stage input/output 타입의 책임이 분리됨 |
+| 3 | 순수 데이터 계약 정리 | `@cx/schema` 계약과 stage input/output 타입의 책임이 분리됨 |
 | 4 | validation rule 초안 | 생성 후보가 component/pattern/token reference 검증 결과를 반환 |
 | 5 | orchestration stage builder 초안 | SourceSpec에서 generation/review/preview 입력을 순수 함수로 조립 |
 | 6 | pipeline runner 초안 | orchestration/validation/agent 결과를 받아 versioned artifact로 남김 |

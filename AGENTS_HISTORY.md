@@ -36,6 +36,38 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - PRDD Sidebar Visibility Restore
+
+- 변경: `apps/web` 사이드바를 원격 main 기준의 좌측 rail + 380px sidebar 구조로 다시 분리하고, Screen 탭을 도메인/루트 목록과 선택 루트의 variant 목록으로 상하 분리함
+- 변경: `screen-sources`의 table screen 필터에서 `NOVA-MBR-` 제한을 제거하고 `preview`/PRDD 모듈을 우선 정렬해 `NOVA-PRDD-PG-001-0` 화면이 기본 미리보기로 보이도록 함
+- 이유: 현재 사이드바 형태가 원격 저장소의 workbench 구조와 달라졌고 PRDD 화면이 기본 화면에서 보이지 않았기 때문
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src/components/App.tsx apps/web/src/lib/screen-sources.ts`, 브라우저 확인 `http://127.0.0.1:3000`에서 nav 56px, sidebar 380px, 기본 제목 `상품 상세 핵심 요약 탐색` 확인
+
+## 2026-05-28 - Area PageStack Responsibility Restore
+
+- 변경: `@cx/layout`의 `PageStack`을 단순 `VStack` alias에서 자체 padding, item gap, section padding, item template, title mode marker를 가진 section rail primitive로 복구함
+- 변경: `@cx/layout-pattern-store` area pattern component들이 `toPageStackProps`를 통해 area 단위 PageStack 기본값을 적용하도록 하고, `list-stack`, `field-stack`, `checkbox-stack`, `accordion-list`, `message-stack` prop 계약에 PageStack rail props를 추가함
+- 변경: 원격 pattern-store의 area gap 기본값을 반영해 `list-stack`은 8px, `field-stack`/`checkbox-stack`/`message-stack`은 12px, `accordion-list`는 0px item gap을 기본 적용함
+- 변경: region pattern component들은 PageStack wrapper 대신 단순 `VStack` 흐름으로 낮춰 PageStack 책임을 region childWrap이 아니라 area layout preset으로 이동함
+- 이유: `NOVA-MBR-FP-001-0` 본문에서 PageStack 리듬이 region이 아닌 OGN/area 단위로 적용되어야 하기 때문
+- 검증: `npx vitest run packages/layout/src/__tests__/layout.test.tsx packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/renderer/src/__tests__/table-screen-render.test.tsx packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts --reporter=dot`, `npx biome check packages/layout/src/primitives/PageStack.tsx packages/layout/src/__tests__/layout.test.tsx packages/layout-pattern-store/src/components/shared/primitive-props.ts packages/layout-pattern-store/src/components/area packages/layout-pattern-store/src/components/region packages/layout-pattern-store/src/catalog/area-patterns.json packages/layout-pattern-store/src/catalog/region-patterns.json packages/renderer/src/nodes/default-node-renderers.tsx packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/renderer/src/__tests__/table-screen-render.test.tsx AGENTS_HISTORY.md`, `npx tsc --noEmit --pretty false`
+
+## 2026-05-28 - Remote Main Sidebar Styling Sync
+
+- 변경: `origin/main`의 sidebar 스타일 기준을 현재 `apps/web` 사이드바에 이식해 rail 폭, sidebar 배경, accent active/hover, border, inspector header/content 레이아웃을 맞춤
+- 변경: 원격의 tooltip/sidebar/store 의존성은 가져오지 않고 현재 table 연결 구조와 `App.tsx` 단일 구성은 유지함
+- 변경: screen list를 flat screen card 나열에서 `screen_routes.json`/`screen_variants.json` 기반 route group + variant row + 기본/엣지 chip 구조로 바꿔 원격 main의 목록 형태와 맞춤
+- 이유: 현재 테이블 연동은 유지하면서 사이드바 시각 스타일만 원격 main 기준으로 맞추기 위함
+- 검증: `git fetch origin main`, `npx biome check apps/web/src/components/App.tsx apps/web/src/lib/screen-sources.ts AGENTS_HISTORY.md`, `npx tsc --noEmit --pretty false`, `curl -s -L http://localhost:3000 | rg "Final Result|runDir"`가 no match, `curl -s -L http://localhost:3000 | rg "회원 가입 및 휴면 해제|약관 동의|약관 버전 불일치|필수 약관 미동의"`
+
+## 2026-05-28 - Web Sidebar Table Reconnect
+
+- 변경: `apps/web` 화면을 예전 workbench 사이드바 구조에 맞춰 좌측 navigation rail/list, 중앙 preview canvas, 우측 inspector 3열 레이아웃으로 복구함
+- 변경: 예전 커밋의 `@cx/agent`, `@cx/types`, store, renderer table adapter 의존성은 되살리지 않고 제거한 채 현재 `data/tables/*.json`을 `screen-sources`에서 직접 RenderTree로 materialize해 연결함
+- 변경: MBR 화면 목록 원천을 markdown `PG/PU` ID가 아니라 현재 table의 `NOVA-MBR-FP-*` screen record로 전환함
+- 이유: final-result preview 기능은 제거한 상태로 유지하면서, 사이드바 UI는 예전 workbench 형태로 돌리고 현재 테이블 데이터에 연결하기 위함
+- 검증: `npx biome check apps/web/src/app/page.tsx apps/web/src/components/App.tsx apps/web/src/components/screen/RenderedScreen.tsx apps/web/src/lib/screen-sources.ts`, `npx tsc --noEmit --pretty false`, `curl -s -L http://localhost:3000 | rg "Final Result|runDir"`가 no match, `curl -s -L http://localhost:3000 | rg "Workbench|Inspector|NOVA-MBR-FP-001-0"`
+
 ## 2026-05-28 - Web Screen Rail Restore
 
 - 변경: `apps/web` 첫 화면에 이전 workbench 스타일의 좌측 `SCN/OGN/CMP/SRC/AGT` 아이콘 레일과 route/variant 기반 screen 탐색 패널을 복구하고, `data/client-imports/{id}/260528_mbr` Markdown frontmatter에서 화면 목록을 읽어 선택할 수 있게 함
@@ -66,6 +98,7 @@
 - 변경: RenderTree node에 `layout: "layout.<target>.<PatternName>"` 계약을 추가하고, `@cx/renderer`가 layout pattern resolver를 통해 pattern component로 children을 감싸 렌더하도록 연결함
 - 변경: RenderTree/table-generation/composition-plan/orchestration 후보에서 레거시 `{ pattern: { id, variant } }` ref를 제거하고 `layout.<target>.<PatternName>` layout id 계약으로 통일함
 - 변경: `data/tables/screens.json`, `areas.json`, `components.json`의 등록 record에서 `pattern` schema를 제거하고 screen/region/area/composite `layout` id로 마이그레이션함
+- 변경: table record 조립 책임을 `@cx/renderer/table`로 이관해 `materializeTableScreen(s)`와 `TableScreenView`를 제공하고, web은 table JSON을 읽은 뒤 renderer API를 소비만 하도록 정리함
 - 이유: RenderTree의 pattern schema 제거에 앞서, 패턴스토어의 모든 패턴을 실제 렌더 가능한 layout component identity로 승격하기 위함
 - 검증: `npx vitest run packages/layout/src/__tests__/layout.test.tsx packages/layout/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/mutations.test.ts packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts`, `npx vitest run packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/validation/src/__tests__/validators.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout-pattern-store/src/internal/schema.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/catalog/area-patterns.json packages/layout-pattern-store/src/catalog/composite-patterns.json packages/layout-pattern-store/src/catalog/region-patterns.json packages/layout-pattern-store/src/catalog/screen-patterns.json`
 
@@ -977,3 +1010,11 @@
 - 변경: 후속 흡수/구조 개선 계획을 `docs/development/SCREEN_DESIGN_STAGE_PLAN.md`에 작성함
 - 이유: Markdown에서 바로 RenderTree JSON을 만들며 디자인 판단이 뭉개지는 문제를 줄이고, 생성 전 의도와 구성 결정을 검수 가능한 중간 산출물로 만들기 위함
 - 검증: `npx tsc --noEmit --pretty false`, `npx biome check packages/schema packages/validation packages/orchestration packages/pipeline`, `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id quality-review-stage-check --out-dir tmp/generation-runs/quality-review-stage-check`
+
+## 2026-05-28 - MBR ActionButton Size Contract
+
+- 변경: MBR 주요 액션 레코드 `action-area-next`, `action-area-guardian-request`, `action-area-next-member-input`, `action-area-join-proceed`, `action-area-dormant-release`, `action-area-eligibility-proceed`를 `button`/`componentButton`에서 `ActionButton`/`componentActionButton`으로 정규화함
+- 변경: 각 주요 액션 props를 `variant: primary`, `fullWidth: true`, `size: xlarge`로 맞춤
+- 이유: 구형 `button` 레코드가 renderer에서 일반 `Button`으로 해석되며 기본 `medium` 높이(36px)로 렌더되는 문제를 막기 위함
+- 검증: `jq empty data/tables/components.json`, `npm run test -- --run packages/renderer/src/__tests__/table-screen-render.test.tsx packages/renderer/src/__tests__/renderer.test.tsx`
+- 참고: `npx tsc --noEmit --pretty false`는 기존 `apps/web/src/components/App.tsx`의 `getModuleName` 미정의와 `ScreenRouteGroup` never 타입 오류로 실패함

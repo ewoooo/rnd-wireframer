@@ -1,6 +1,10 @@
 import {
+	buildCompositionPlanAgentInput,
+	buildPatternLayerCandidates,
 	buildPatternSelectionAgentInput,
+	buildQualityReviewAgentInput,
 	buildScreenGenerationAgentInput,
+	buildScreenIntentAgentInput,
 	buildScreenRevisionAgentInput,
 	orchestrationBoundary,
 } from "@cx/orchestration";
@@ -81,6 +85,39 @@ describe("@cx/orchestration public API", () => {
 		expect(input.context.sourceSpec).toBe(sourceSpec);
 	});
 
+	it("builds screen intent and composition plan agent inputs before generation", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "상품 상세 핵심 요약 탐색",
+					regions: [],
+					route: "/nova/prdd/pg/001/0",
+					screenCode: "NOVA-PRDD-PG-001-0",
+				},
+			},
+		};
+		const screenIntent = { schemaVersion: SCHEMA_VERSION.screenIntent };
+
+		const intentInput = buildScreenIntentAgentInput(sourceSpec);
+		const compositionInput = buildCompositionPlanAgentInput({
+			screenIntent,
+			sourceSpec,
+		});
+
+		expect(intentInput.query).toContain("Derive the screen intent");
+		expect(intentInput.context.targetArtifact.kind).toBe("screen-intent");
+		expect(compositionInput.query).toContain("Create a composition plan");
+		expect(compositionInput.context.screenIntent).toBe(screenIntent);
+		expect(compositionInput.context.targetArtifact.kind).toBe("composition-plan");
+	});
+
 	it("builds pattern selection agent input from layer candidates", () => {
 		const sourceSpec: SourceSpec = {
 			schemaVersion: SCHEMA_VERSION.sourceSpec,
@@ -103,11 +140,7 @@ describe("@cx/orchestration public API", () => {
 			{
 				id: "layer.screen.composition",
 				level: "screen" as const,
-				pattern: {
-					id: "commerce-detail-screen",
-					target: "screen" as const,
-					variant: "default",
-				},
+				layout: "layout.screen.commerceDetailScreen",
 				reason: "screen regions exist",
 				targetRef: "NOVA-PRDD-PG-001-0",
 				title: "Screen composition layer",
@@ -119,6 +152,92 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain("Select the pattern layer strategy");
 		expect(input.context.layerCandidates).toBe(layerCandidates);
 		expect(input.context.sourceSummary.screenCode).toBe("NOVA-PRDD-PG-001-0");
+	});
+
+	it("builds pattern layer candidates as a pure orchestration helper", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "상품 상세 핵심 요약 탐색",
+					regions: [
+						{
+							children: [
+								{
+									children: [
+										{
+											kind: "component",
+											label: "AppBarHeader",
+											sourceComponentId: "AppBar",
+										},
+									],
+									kind: "area",
+									sourceAreaId: "0",
+								},
+							],
+							slot: "header",
+						},
+					],
+					route: "/nova/prdd/pg/001/0",
+					screenCode: "NOVA-PRDD-PG-001-0",
+				},
+			},
+		};
+
+		const candidates = buildPatternLayerCandidates({
+			resolver: {
+				resolveComponentLayout: () => "layout.composite.componentAppBar",
+				resolveRegionLayout: ({ fallbackByType, type }) => fallbackByType[type],
+			},
+			sourceSpec,
+		});
+
+		expect(candidates.map((candidate) => candidate.level)).toEqual([
+			"screen",
+			"region",
+			"area",
+			"component",
+		]);
+		expect(candidates[3]?.layout).toBe("layout.composite.componentAppBar");
+	});
+
+	it("builds quality review agent input from the generated candidate", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "상품 상세 핵심 요약 탐색",
+					regions: [],
+					route: "/nova/prdd/pg/001/0",
+					screenCode: "NOVA-PRDD-PG-001-0",
+				},
+			},
+		};
+		const candidate = { renderTree: { version: SCHEMA_VERSION.renderTree } };
+		const validationReport = { ok: true, issues: [] };
+
+		const input = buildQualityReviewAgentInput({
+			candidate,
+			sourceSpec,
+			validationReport,
+		});
+
+		expect(input.query).toContain("Review the generated screen candidate");
+		expect(input.query).toContain(SCHEMA_VERSION.qualityInspection);
+		expect(input.context.candidate).toBe(candidate);
+		expect(input.context.validationReport).toBe(validationReport);
 	});
 
 	it("builds screen revision agent input from a validation report", () => {
@@ -144,11 +263,7 @@ describe("@cx/orchestration public API", () => {
 			{
 				id: "layer.screen.composition",
 				level: "screen" as const,
-				pattern: {
-					id: "commerce-detail-screen",
-					target: "screen" as const,
-					variant: "default",
-				},
+				layout: "layout.screen.commerceDetailScreen",
 				reason: "screen regions exist",
 				targetRef: "NOVA-PRDD-PG-001-0",
 				title: "Screen composition layer",

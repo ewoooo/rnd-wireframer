@@ -16,6 +16,14 @@ npm install
 npm run dev
 ```
 
+Docker로 같은 Node 실행 환경에서 띄울 수도 있습니다.
+
+```bash
+docker compose up --build
+```
+
+자세한 Docker 사용법은 [DOCKER.md](./docs/development/DOCKER.md)를 따른다.
+
 ## 구조
 
 - `apps/web` — Next.js 앱

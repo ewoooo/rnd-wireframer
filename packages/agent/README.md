@@ -4,6 +4,8 @@
 
 이 패키지는 화면 생성 결과의 최종 타입 계약, RenderTree 변환, DB 저장, workflow orchestration을 소유하지 않는다. 출력 타입 계약은 후속 `packages/types/contract`에서 관리하고, `@cx/agent`는 해당 계약을 만족하는 결과를 Claude 실행으로 얻어오는 책임만 가진다.
 
+실행 계약의 정본은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md)를 따른다. 생성/검수 prompt checklist와 출력 규약은 [`docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs) 아래에서 패키지 내부 자산으로 관리한다.
+
 ## 책임
 
 - 사용자 쿼리를 agent task로 분류해 실행한다.
@@ -12,6 +14,7 @@
 - 기본 생성은 새 세션으로 실행하고, 명시적 재시도/이어쓰기 흐름에서만 resume 정책을 적용한다.
 - Claude 응답을 agent 실행 결과로 정규화한다.
 - web 서버/API route와 CLI 스크립트가 같은 입력 형태로 실행할 수 있는 adapter를 제공한다.
+- 생성/검수용 prompt contract, checklist, output 규약 문서를 패키지 내부에서 독립 관리한다.
 
 ## 패키지 책임 경계
 
@@ -240,6 +243,8 @@ Claude에 넘길 prompt artifact를 구성한다.
 이 디렉토리는 단순 문자열 유틸이 아니다. 사용자 쿼리, 기준 문서 요약, component/layout vocabulary, 출력 JSON 계약 설명, 금지사항을 안정적으로 합치는 AI 입력 계약 builder다.
 
 Prompt는 실행 결과 품질에 직접 영향을 주므로 task 코드 안에 흩어두지 않고 별도 책임으로 관리한다.
+
+생성/검수용 문장형 기준 자산은 `packages/agent/docs/` 아래에 두고, 코드에서 필요할 때 참조 가능한 패키지 내부 정본으로 유지한다.
 
 ### `src/session`
 

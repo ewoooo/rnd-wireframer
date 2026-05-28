@@ -188,6 +188,7 @@ export const defaultNodeRenderers: NodeRendererDefinition[] = [
 			const paddingY = toNumber(props.paddingY, 28);
 			const slotInsetX = toNumber(props.slotInsetX, 0);
 			const sectionGap = toNumber(props.sectionGap, 0);
+			const itemGap = toNumber(props.gap, 0);
 			const titleMode = String(props.titleMode ?? "none");
 			const itemTemplate = String(props.itemTemplate ?? "default-20");
 			const showTitle = titleMode === "visible";
@@ -225,9 +226,11 @@ export const defaultNodeRenderers: NodeRendererDefinition[] = [
 					<div
 						className={cx(
 							"box-border flex w-full flex-col",
+							spacingUtilityClass("gap", itemGap),
 							spacingUtilityClass("px", itemPaddingX),
 						)}
 						style={{
+							gap: spacingFallbackStyleValue(itemGap),
 							paddingInline: itemPaddingX + slotInsetX,
 						}}
 					>

@@ -46,7 +46,7 @@ export type LayoutGridNode = LayoutNode & {
 
 export type ScreenHeaderNode = LayoutNode & {
 	type: (typeof LAYOUT_NODE_TYPES.screenRegion)[0];
-	props: {
+	props?: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
 		height?: number;
@@ -57,7 +57,7 @@ export type ScreenHeaderNode = LayoutNode & {
 
 export type ScreenContentsNode = LayoutNode & {
 	type: (typeof LAYOUT_NODE_TYPES.screenRegion)[1];
-	props: {
+	props?: {
 		layout: FlexLayoutProps;
 		scroll: boolean;
 	};
@@ -66,7 +66,7 @@ export type ScreenContentsNode = LayoutNode & {
 
 export type ScreenBottomNode = LayoutNode & {
 	type: (typeof LAYOUT_NODE_TYPES.screenRegion)[2];
-	props: {
+	props?: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
 		height?: number;

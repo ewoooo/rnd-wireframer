@@ -6,7 +6,7 @@ This document defines the planned restructuring before adding Open Design-inspir
 
 The goal is to make `apps/smoke` a thin pipeline consumer, move executable workflow ownership into `@cx/pipeline`, and keep `@cx/orchestration` as deterministic stage helper logic.
 
-Implementation status as of 2026-05-28: Phase 1 through Phase 4 have landed for the current `screen-generation` smoke flow. Phase 5 is the next extension point for design-stage expansion.
+Implementation status as of 2026-05-28: Phase 1 through Phase 4 have landed for the current `screen-generation` smoke flow. Phase 5 has started with explicit `derive-screen-intent` and `plan-composition` stages. The next expansion plan is tracked in [SCREEN_DESIGN_STAGE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_DESIGN_STAGE_PLAN.md).
 
 ## 2. Current Problem
 

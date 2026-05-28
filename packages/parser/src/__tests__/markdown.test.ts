@@ -183,18 +183,39 @@ describe("@cx/parser markdown MVP parser", () => {
 				slot: "header",
 				children: [
 					{
+						areaType: "static",
+						description: "공통 영역",
 						kind: "area",
+						layout: "vertical",
+						renderNodeType: "area.static",
 						sourceAreaId: "0",
 						children: [expect.objectContaining({ sourceComponentId: "AppBar" })],
 					},
 				],
 			},
-			{ slot: "contents", children: [{ kind: "area", sourceAreaId: "1", children: [] }] },
+			{
+				slot: "contents",
+				children: [
+					{
+						areaType: "dynamic",
+						description: "상품 정보",
+						kind: "area",
+						layout: "vertical",
+						renderNodeType: "area.dynamic",
+						sourceAreaId: "1",
+						children: [],
+					},
+				],
+			},
 			{
 				slot: "bottom",
 				children: [
 					{
+						areaType: "static",
+						description: "공통 영역",
 						kind: "area",
+						layout: "vertical",
+						renderNodeType: "area.static",
 						sourceAreaId: "999",
 						children: [expect.objectContaining({ sourceComponentId: "Button" })],
 					},
@@ -294,6 +315,125 @@ describe("@cx/parser markdown MVP parser", () => {
 						kind: "area",
 						sourceAreaId: "2-1",
 						children: [expect.objectContaining({ sourceComponentId: "ListText" })],
+					},
+				],
+			},
+		]);
+	});
+
+	it("maps component section names to source areas while preserving source ids and component types", () => {
+		const result = parseMarkdownSourceBundle({
+			importId: "mbr-section-name-prdd",
+			files: [
+				{
+					kind: "screen",
+					path: "data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md",
+					content: [
+						"---",
+						"화면 ID: NOVA-MBR-PG-001-0",
+						"화면 명: 약관 동의",
+						"---",
+						"## 화면 구성",
+						"| 섹션 번호 | 섹션 유형 | 섹션 명 | 섹션 설명 | 섹션 레이아웃 | 노출 조건 | 노출 개수 (최소) | 노출 개수 (최대) | 오류 처리 방식 |",
+						"| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+						"| 0 | static | AppBarSection | 화면 상단 네비게이션 | vertical | 항상 | - | - | - |",
+						"| 1 | dynamic | TermsSection | 가입 약관 조회 및 동의 입력 | vertical | 회원 가입 진입 시 | 2 | N | 섹션 전체 숨김 |",
+						"| 999 | dynamic | ActionButtonSection | 화면 하단 액션 섹션 | vertical | 항상 | - | - | - |",
+						"## 컴포넌트 상세",
+						"| 섹션 명 | no. | 컴포넌트 명 | 컴포넌트 설명 | 컴포넌트 ID | variant | props | 비고 |",
+						"| --- | --- | --- | --- | --- | --- | --- | --- |",
+						"| AppBarSection | 1 | AppBarHeader | 가입 약관 헤더 | AppBar | - | title: 약관 동의<br>showBack: true | 화면 크롬 |",
+						"| TermsSection | 1 | ListTextTerms | 약관 목록 행 | ListText | dot | title: {약관명} (예: 서비스 이용약관)<br>showRightItem: true | 약관 전문/요약/개정 이력 노출 |",
+						"| ActionButtonSection | 1 | ActionButtonNext | 다음 CTA | ActionButton | - | main.text: 다음 | 필수 약관 모두 동의 시 활성화 |",
+					].join("\n"),
+				},
+			],
+		});
+
+		expect(result.ok).toBe(true);
+		if (!result.ok) throw new Error("parse failed");
+		expect(result.sourceSpec.sourceShape.screen.regions).toEqual([
+			{
+				slot: "header",
+				children: [
+					{
+						areaType: "static",
+						description: "화면 상단 네비게이션",
+						kind: "area",
+						layout: "vertical",
+						renderNodeType: "area.static",
+						sourceAreaId: "0",
+						sourceAreaName: "AppBarSection",
+						visibility: "항상",
+						children: [
+							expect.objectContaining({
+								componentType: "AppBar",
+								description: "가입 약관 헤더",
+								props: {
+									showBack: true,
+									title: "약관 동의",
+								},
+								sourceComponentId: "AppBar",
+								sourceId: "AppBarHeader",
+							}),
+						],
+					},
+				],
+			},
+			{
+				slot: "contents",
+				children: [
+					{
+						areaType: "dynamic",
+						description: "가입 약관 조회 및 동의 입력",
+						errorPolicy: "섹션 전체 숨김",
+						kind: "area",
+						layout: "vertical",
+						maxCount: "N",
+						minCount: "2",
+						renderNodeType: "area.dynamic",
+						sourceAreaId: "1",
+						sourceAreaName: "TermsSection",
+						visibility: "회원 가입 진입 시",
+						children: [
+							expect.objectContaining({
+								componentType: "ListText",
+								description: "약관 목록 행",
+								props: {
+									showRightItem: true,
+									title: "{약관명} (예: 서비스 이용약관)",
+								},
+								sourceComponentId: "ListText",
+								sourceId: "ListTextTerms",
+								variant: "dot",
+							}),
+						],
+					},
+				],
+			},
+			{
+				slot: "bottom",
+				children: [
+					{
+						areaType: "dynamic",
+						description: "화면 하단 액션 섹션",
+						kind: "area",
+						layout: "vertical",
+						renderNodeType: "area.dynamic",
+						sourceAreaId: "999",
+						sourceAreaName: "ActionButtonSection",
+						visibility: "항상",
+						children: [
+							expect.objectContaining({
+								componentType: "ActionButton",
+								description: "다음 CTA",
+								props: {
+									"main.text": "다음",
+								},
+								sourceComponentId: "ActionButton",
+								sourceId: "ActionButtonNext",
+							}),
+						],
 					},
 				],
 			},

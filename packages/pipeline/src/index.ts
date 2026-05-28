@@ -3,6 +3,17 @@ export type { ParseMarkdownSourceCommand, ParseMarkdownSourceCommandResult } fro
 export { runParseMarkdownSourceCommand } from "./commands";
 export { sideEffectBoundary } from "./public/contract";
 export type {
+	GenerationTableData,
+	MergeGeneratedTablesOptions,
+	MergeGeneratedTablesResult,
+	ScreenRouteRecord,
+	ScreenVariantRecord,
+} from "./public/table-merge";
+export {
+	extractTableGenerationResultFromAgentPayload,
+	mergeTableGenerationResultIntoTables,
+} from "./public/table-merge";
+export type {
 	ApplyApprovedArtifactCommand,
 	PipelineAdapters,
 	PipelineAgentMode,

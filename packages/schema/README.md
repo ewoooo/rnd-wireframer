@@ -43,19 +43,28 @@ import schema from "@cx/schema/src/json-schema/source-spec.schema.json";
 |---|---|
 | `@cx/schema` | 전체 계약 barrel |
 
+## Final RenderTree Contract
+
+- screen generation의 최종 결과물은 `final-result.json`에 저장되는 `RenderTreeContract` 자체다.
+- top-level은 `version`, `minRendererVersion`, `metadata`, `theme`, `children`를 갖는다.
+- `children` 아래에는 `Screen` root가 있고, 그 아래에 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` region을 둔다.
+- region 아래에는 필요에 따라 `area.static` 또는 `area.dynamic` wrapper를 두고, 그 아래에 renderer/catalog가 해석 가능한 component node를 둔다.
+- 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 후속 apply 단계다.
+
 ## TableGenerationResult Contract
 
-- `TableGenerationResult`는 `data/tables/`의 최종 정본 구조에 맞춘 생성 중간 산출물이다.
-- `screen.pattern`, `screen.screen.regions.*.pattern`, `areas[].pattern`, `components[].pattern`은 모두 `{ id, variant }` 형태를 사용한다.
-- pattern id가 실제 store에 존재하는지와 target에 맞는지는 `@cx/validation`이 `@cx/layout-pattern-store`를 조회해 확인한다.
-- component record의 pattern은 layout-pattern-store의 `composite` target을 참조한다.
+- `TableGenerationResult`는 현재 MVP에서 table-shaped 중간 산출물과 검증 보조 기록으로만 사용한다.
+- 장기 기준에서 table apply는 최종 RenderTree를 레이어별로 분해해 수행한다.
+- `screen.layout`, `screen.screen.regions.*.layout`, `areas[].layout`, `components[].layout`은 모두 `layout.<target>.<PatternName>` 형태를 사용한다.
+- layout id가 실제 store component registry에 존재하는지와 target에 맞는지는 `@cx/validation`이 `@cx/layout-pattern-store`를 조회해 확인한다.
+- component record의 layout은 layout-pattern-store의 `composite` target을 참조한다.
 
 ## RenderTree Contract
 
 - RenderTree top-level `metadata`는 `id`만 필수로 소유하고 `title`은 갖지 않는다.
 - `RenderTreeNode.metadata`는 `id`와 `title`을 필수로 소유한다.
 - `getJsonSchema("render-tree")`는 `version`, `metadata`, `children`, node `componentVersion` 같은 구조 계약을 반환한다.
-- `RenderTreeNode.pattern`은 preview provenance로 선택적으로 둘 수 있으며, 있을 때는 `{ id, variant }` 형태를 사용한다.
+- `RenderTreeNode.layout`은 layout pattern component 선택에 사용하며 `layout.<target>.<PatternName>` 형태를 사용한다.
 - 컴포넌트별 `props` 세부 계약은 `@cx/components/catalog`를 소비하는 `@cx/validation`에서 확인한다.
 
 ## SourceSpec Contract

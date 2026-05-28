@@ -28,10 +28,10 @@
 
 생성 AI의 1차 출력은 `tableGenerationResult`와 `renderTree`를 함께 반환하는 것을 기준으로 한다.
 
-- `tableGenerationResult`: `data/tables/screens.json`, `areas.json`, `components.json` 정본 구조에 맞춘 중간 산출물이다. screen, region, area, component record는 모두 `{ id, variant }` pattern ref를 가진다.
-- `renderTree`: `@cx/renderer`가 즉시 preview할 수 있도록 materialize된 산출물이다. renderer는 현재 pattern을 직접 layout preset으로 소비하지 않고 `type`, `props`, `children`을 소비한다.
+- `tableGenerationResult`: `data/tables/screens.json`, `areas.json`, `components.json` 정본 구조에 맞춘 중간 산출물이다. screen, region, area, component record는 모두 `layout.<target>.<PatternName>` layout id를 가진다.
+- `renderTree`: `@cx/renderer`가 즉시 preview할 수 있도록 materialize된 산출물이다. renderer는 `layout` id로 패턴 컴포넌트를 resolve하고 `type`, `props`, `children`을 소비한다.
 
-따라서 pattern 강제 계약은 RenderTree보다 table-shaped intermediate artifact에서 먼저 검증한다.
+따라서 layout id 강제 계약은 RenderTree보다 table-shaped intermediate artifact에서 먼저 검증한다.
 
 ## Runtime Boundary
 

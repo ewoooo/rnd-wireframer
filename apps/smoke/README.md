@@ -55,6 +55,26 @@ npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/sc
 
 Use `--use-ai` to call the real local Claude runner.
 
+## Apply Smoke Result To Tables
+
+After reviewing a smoke run, merge its `tableGenerationResult` into `data/tables`
+with the apply CLI.
+
+Dry-run:
+
+```bash
+npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id>
+```
+
+Write:
+
+```bash
+npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id> --write
+```
+
+By default the command refuses runs whose `25-validation-report.json` has errors.
+Use `--allow-invalid` only after manual inspection.
+
 ## Extending Generation Flow
 
 Generation smoke executes the `screen-generation` pipeline from `@cx/pipeline`.
@@ -79,25 +99,32 @@ Current flow:
 runPipeline("screen-generation")
 -> read-source
 -> parse-source
+-> derive-screen-intent
+-> plan-composition
 -> select-pattern
 -> generate-render-tree
 -> validate-render-tree
+-> review-quality
 -> revise-render-tree-if-invalid
 -> validate-render-tree
 -> write-artifacts
 ```
 
-During `generate-render-tree`, the pipeline loads deterministic generation skills from
-`docs/development/generation-skills/*/SKILL.md` and records them as smoke
-artifacts. At this stage they are catalog/reference material only; they do not
-change the agent prompt, output contract, or pipeline structure.
+During `generate-render-tree`, the pipeline loads screen-generation reference
+assets from `packages/agent/docs/screen-generation/` and records them as smoke
+artifacts. These assets are owned by `@cx/agent`; the smoke harness only records
+the reference context used by the pipeline.
 
 `generate-render-tree` now expects the agent payload to contain both:
 
 - `tableGenerationResult`: the table-shaped intermediate artifact aligned with `data/tables/`.
 - `renderTree`: the materialized preview artifact consumed by `@cx/renderer`.
 
-`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `{ id, variant }` pattern ref from `@cx/layout-pattern-store`.
+`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `layout.<target>.<PatternName>` layout id from `@cx/layout-pattern-store`.
+
+The final generated screen artifact is always written to `final-result.json`.
+That file contains the RenderTree itself, not the raw agent result envelope, and
+must keep the screen render tree shape consumed by `@cx/renderer`.
 
 To add a new generation stage:
 
@@ -125,7 +152,7 @@ Keep these boundaries:
 - `@cx/pipeline` decides the stage order and executes pipeline stages.
 - `@cx/orchestration` builds deterministic stage inputs and next-action data.
 - `apps/smoke` calls `runPipeline("screen-generation", options)`.
-- `docs/development/generation-skills` stores stage prompt/reference fixtures for smoke.
+- `packages/agent/docs` stores prompt/checklist/output reference assets.
 - `@cx/agent` runs Claude tasks.
 - `@cx/validation` owns RenderTree and table-shaped generation validation rules.
 - `@cx/pipeline` reads files, writes artifacts, and writes logs.

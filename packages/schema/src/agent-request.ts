@@ -4,5 +4,10 @@ export type AgentRequestContract = {
 	context?: unknown;
 	query: string;
 	schemaVersion: typeof SCHEMA_VERSION.agentRequest;
-	taskKind: "quality-review" | "screen-generation" | "screen-revision";
+	taskKind:
+		| "composition-planning"
+		| "quality-review"
+		| "screen-generation"
+		| "screen-intent"
+		| "screen-revision";
 };

@@ -1,6 +1,7 @@
 import {
 	buildPipeline,
 	createNodePipelineAdapters,
+	mergeTableGenerationResultIntoTables,
 	runPipeline,
 	runSideEffects,
 	sideEffectBoundary,
@@ -9,6 +10,7 @@ import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
 import { createTestPipelineAdapters } from "@cx/pipeline/testing";
 import type { SideEffectExecutionResult, SideEffectOperation } from "@cx/pipeline/types";
 import { describe, expect, it } from "vitest";
+import { createGenerationSmokeArtifactCommands } from "../pipelines/screen-generation/artifact-commands";
 
 describe("@cx/pipeline public API", () => {
 	it("exposes the side effect package boundary", () => {
@@ -147,4 +149,158 @@ describe("@cx/pipeline public API", () => {
 		});
 		expect(typeof runPipeline).toBe("function");
 	});
+
+	it("writes the final result as a standalone RenderTree artifact", () => {
+		const finalResult = {
+			children: [
+				{
+					children: [],
+					componentVersion: "0.1.0",
+					metadata: { id: "screen", title: "Screen" },
+					type: "Screen",
+				},
+			],
+			metadata: { id: "sample" },
+			version: "render-tree.v0.1",
+		};
+
+		const commands = createGenerationSmokeArtifactCommands({
+			agentInput: {},
+			agentResult: { payload: { renderTree: finalResult } },
+			finalResult,
+			outDir: "runs/sample",
+			parseCommandResult: {},
+			runnerRequest: {},
+			sourceSpec: {},
+			validationReport: {},
+		});
+
+		expect(commands).toContainEqual(
+			expect.objectContaining({
+				id: "write-final-result",
+				input: expect.objectContaining({
+					content: finalResult,
+					targetPath: expect.stringContaining("final-result.json"),
+				}),
+				operation: "versioned-artifact-write",
+			}),
+		);
+	});
+
+	it("merges table generation results into table data without mutating input", () => {
+		const tables = {
+			areas: {
+				areas: [
+					tableArea("old-area", [{ kind: "component" as const, id: "old-component" }]),
+					tableArea("unrelated-area", []),
+				],
+			},
+			components: {
+				components: [tableComponent("old-component"), tableComponent("unrelated-component")],
+			},
+			screenRoutes: {
+				screenRoutes: [
+					{
+						id: "sample-route",
+						moduleId: "preview",
+						name: "Old",
+						order: 1,
+						processId: null,
+					},
+				],
+			},
+			screenVariants: {
+				screenVariants: [
+					{
+						followUp: null,
+						id: "sample",
+						name: "Old",
+						order: 1,
+						screenRouteId: "sample-route",
+						variantType: "base",
+					},
+				],
+			},
+			screens: {
+				screens: [tableScreen("sample", "sample", ["old-area"])],
+			},
+		};
+		const tableGenerationResult = {
+			areas: [tableArea("new-area", [{ kind: "component" as const, id: "new-component" }])],
+			components: [tableComponent("new-component")],
+			schemaVersion: "table-generation-result.v0.1" as const,
+			screen: tableScreen("sample", "sample", ["new-area"]),
+		};
+
+		const result = mergeTableGenerationResultIntoTables(tables, tableGenerationResult);
+
+		expect(tables.areas.areas.map((area) => area.id)).toEqual(["old-area", "unrelated-area"]);
+		expect(result.tables.screens.screens.map((screen) => screen.id)).toEqual(["sample"]);
+		expect(result.tables.areas.areas.map((area) => area.id)).toEqual([
+			"unrelated-area",
+			"new-area",
+		]);
+		expect(result.tables.components.components.map((component) => component.id)).toEqual([
+			"unrelated-component",
+			"new-component",
+		]);
+		expect(result.tables.screenRoutes?.screenRoutes).toContainEqual(
+			expect.objectContaining({ id: "sample-route", name: "Sample" }),
+		);
+	});
 });
+
+function tableScreen(id: string, screenVariantId: string, areaIds: string[]) {
+	return {
+		id,
+		layout: "layout.screen.commerceDetailScreen",
+		metadata: { title: "Sample" },
+		screen: {
+			regions: {
+				bottom: tableRegion("Screen.Bottom", []),
+				contents: tableRegion(
+					"Screen.Contents",
+					areaIds.map((areaId) => ({ kind: "area" as const, id: areaId })),
+				),
+				header: tableRegion("Screen.Header", []),
+			},
+			type: "screen.page" as const,
+		},
+		screenVariantId,
+		version: "0.1.0",
+	};
+}
+
+function tableRegion(
+	type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header",
+	children: Array<{ id: string; kind: "area" | "component" }>,
+) {
+	return {
+		children,
+		layout: "layout.region.plainStack",
+		metadata: { title: type },
+		type,
+	};
+}
+
+function tableArea(id: string, children: Array<{ id: string; kind: "area" | "component" }>) {
+	return {
+		children,
+		id,
+		layout: "layout.area.productHeroSummary",
+		metadata: { title: id },
+		type: "area.dynamic" as const,
+		version: "0.1.0",
+	};
+}
+
+function tableComponent(id: string) {
+	return {
+		children: [{ component: { type: "AppBar" }, props: { title: id } }],
+		id,
+		layout: "layout.composite.componentAppBar",
+		metadata: { title: id },
+		type: "AppBar",
+		version: "0.1.0",
+	};
+}

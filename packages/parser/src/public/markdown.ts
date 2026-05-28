@@ -23,28 +23,44 @@ const SOURCE_AREA_NO_KEYS = ["sourceAreaNo", "areaNo", "area", "영역"] as cons
 const SCREEN_COMPOSITION_TABLE = {
 	section: "화면 구성",
 	columns: {
-		areaNo: "no.",
-		description: "영역 설명",
-		type: "영역 유형",
+		areaName: ["섹션 명", "영역 명", "areaName"],
+		areaNo: ["no.", "섹션 번호", "영역"],
+		description: ["영역 설명", "섹션 설명"],
+		errorPolicy: "오류 처리 방식",
+		layout: ["영역 레이아웃", "섹션 레이아웃"],
+		maxCount: "노출 개수 (최대)",
+		minCount: "노출 개수 (최소)",
+		type: ["영역 유형", "섹션 유형"],
+		visibility: "노출 조건",
 	},
 } as const;
 
 const COMPONENT_DETAIL_TABLE = {
 	section: "컴포넌트 상세",
 	columns: {
-		areaNo: "영역",
+		areaNo: ["영역", "섹션 명"],
 		bindingSource: "바인딩(소스)",
 		componentId: "컴포넌트 ID",
 		description: "컴포넌트 설명",
 		displayText: "표시 텍스트",
 		name: "컴포넌트 명",
 		note: "비고",
+		props: "props",
 		variant: "variant",
 	},
 } as const;
 
 type SourceAreaDraft = {
+	areaType?: "dynamic" | "static";
+	description?: string;
+	errorPolicy?: string;
+	layout?: string;
+	maxCount?: string;
+	minCount?: string;
+	renderNodeType?: "area.dynamic" | "area.static";
 	sourceAreaId: string;
+	sourceAreaName?: string;
+	visibility?: string;
 };
 
 type SourceComponentDraft = SourceSpecComponentNode & {
@@ -196,11 +212,43 @@ function extractAreasFromCompositionTable(content: string): SourceAreaDraft[] {
 	const rows = extractTableRowsFromSection(content, SCREEN_COMPOSITION_TABLE.section);
 	return rows
 		.map((row) => {
-			const sourceAreaId = normalizeAreaIdCell(row[SCREEN_COMPOSITION_TABLE.columns.areaNo]);
+			const sourceAreaId = normalizeAreaIdCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.areaNo),
+			);
 			if (!sourceAreaId) return undefined;
 
+			const sourceAreaName = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.areaName),
+			);
+			const areaType = normalizeAreaType(getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.type));
+			const description = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.description),
+			);
+			const layout = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.layout),
+			);
+			const visibility = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.visibility),
+			);
+			const minCount = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.minCount),
+			);
+			const maxCount = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.maxCount),
+			);
+			const errorPolicy = normalizeOptionalCell(
+				getFirstCell(row, SCREEN_COMPOSITION_TABLE.columns.errorPolicy),
+			);
 			return {
+				...(areaType ? { areaType, renderNodeType: toAreaRenderNodeType(areaType) } : {}),
+				...(description ? { description } : {}),
+				...(errorPolicy ? { errorPolicy } : {}),
+				...(layout ? { layout } : {}),
+				...(maxCount ? { maxCount } : {}),
+				...(minCount ? { minCount } : {}),
 				sourceAreaId,
+				...(sourceAreaName ? { sourceAreaName } : {}),
+				...(visibility ? { visibility } : {}),
 			} satisfies SourceAreaDraft;
 		})
 		.filter((area): area is SourceAreaDraft => Boolean(area));
@@ -219,8 +267,9 @@ function extractAreasFromScreenMarkdown(content: string): SourceAreaDraft[] {
 // 각 파일에서 컴포넌트 상세 표 또는 component 힌트를 모아 중복 제거된 컴포넌트 목록을 만든다.
 function extractComponents(files: MarkdownSourceFileInput[]): SourceComponentDraft[] {
 	const components: SourceComponentDraft[] = [];
+	const areaIdByName = createAreaIdByName(files);
 	for (const file of files) {
-		const tableComponents = extractComponentsFromDetailTable(file.content);
+		const tableComponents = extractComponentsFromDetailTable(file.content, areaIdByName);
 		if (tableComponents.length > 0) {
 			components.push(...tableComponents);
 			continue;
@@ -241,37 +290,53 @@ function extractComponents(files: MarkdownSourceFileInput[]): SourceComponentDra
 }
 
 // PRDD의 "컴포넌트 상세" 표를 SourceSpec component 목록으로 변환한다.
-function extractComponentsFromDetailTable(content: string): SourceComponentDraft[] {
+function extractComponentsFromDetailTable(
+	content: string,
+	areaIdByName: Map<string, string> = new Map(),
+): SourceComponentDraft[] {
 	const rows = extractTableRowsFromSection(content, COMPONENT_DETAIL_TABLE.section);
 	return rows
 		.map((row) => {
-			const sourceComponentId = normalizeMarkdownCell(
-				row[COMPONENT_DETAIL_TABLE.columns.componentId] ?? "",
-			);
+			const componentName = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.name]);
+			const componentType = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.componentId]);
+			const sourceComponentId = componentType ?? componentName;
 			if (!sourceComponentId || sourceComponentId === "-") return undefined;
 
 			const label =
-				normalizeMarkdownCell(row[COMPONENT_DETAIL_TABLE.columns.name] ?? "") ||
+				componentName ||
 				normalizeMarkdownCell(row[COMPONENT_DETAIL_TABLE.columns.description] ?? "") ||
 				sourceComponentId;
+			const description = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.description]);
+			const propsText = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.props]);
 			const text = normalizeDisplayText(row[COMPONENT_DETAIL_TABLE.columns.displayText]);
 			const bindingSource = normalizeOptionalCell(
 				row[COMPONENT_DETAIL_TABLE.columns.bindingSource],
 			);
 			const note = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.note]);
 			const variant = normalizeOptionalCell(row[COMPONENT_DETAIL_TABLE.columns.variant]);
-			const sourceAreaId = normalizeAreaIdCell(row[COMPONENT_DETAIL_TABLE.columns.areaNo]);
+			const areaCell = normalizeOptionalCell(
+				getFirstCell(row, COMPONENT_DETAIL_TABLE.columns.areaNo),
+			);
+			const sourceAreaId =
+				normalizeAreaIdCell(areaCell) ?? (areaCell ? areaIdByName.get(areaCell) : undefined);
 			const raw = createComponentRawSource({
 				bindingSource,
+				description,
 				displayText: text,
 				note,
+				propsText,
 			});
+			const props = parsePropsCell(propsText ?? text);
 
 			return {
 				kind: "component",
 				sourceComponentId,
+				...(componentType ? { componentType } : {}),
+				...(componentName ? { roleAlias: componentName, sourceId: componentName } : {}),
+				...(description ? { description } : {}),
 				...(sourceAreaId ? { sourceAreaId } : {}),
 				label,
+				...(props ? { props } : {}),
 				...(raw ? { raw } : {}),
 				...(text ? { text } : {}),
 				...(variant ? { variant } : {}),
@@ -282,15 +347,27 @@ function extractComponentsFromDetailTable(content: string): SourceComponentDraft
 
 function createComponentRawSource(input: {
 	bindingSource?: string;
+	description?: string;
 	displayText?: string;
 	note?: string;
+	propsText?: string;
 }): SourceSpecComponentNode["raw"] | undefined {
-	if (!input.bindingSource && !input.displayText && !input.note) return undefined;
+	if (
+		!input.bindingSource &&
+		!input.description &&
+		!input.displayText &&
+		!input.note &&
+		!input.propsText
+	) {
+		return undefined;
+	}
 
 	return {
 		...(input.bindingSource ? { bindingSource: input.bindingSource } : {}),
+		...(input.description ? { description: input.description } : {}),
 		...(input.displayText ? { displayText: input.displayText } : {}),
 		...(input.note ? { note: input.note } : {}),
+		...(input.propsText ? { propsText: input.propsText } : {}),
 	};
 }
 
@@ -363,6 +440,7 @@ function appendImplicitAreas(
 	components: SourceComponentDraft[],
 ): SourceAreaDraft[] {
 	const areaIds = new Set(areas.map((area) => area.sourceAreaId));
+	const areasById = new Map(areas.map((area) => [area.sourceAreaId, area]));
 	const implicitAreas: SourceAreaDraft[] = [];
 
 	for (const component of components) {
@@ -373,7 +451,7 @@ function appendImplicitAreas(
 		implicitAreas.push({ sourceAreaId });
 	}
 
-	return [...areas, ...implicitAreas].sort((left, right) =>
+	return [...areasById.values(), ...implicitAreas].sort((left, right) =>
 		compareAreaId(left.sourceAreaId, right.sourceAreaId),
 	);
 }
@@ -392,7 +470,16 @@ function buildRegions(
 			.map(toComponentNode);
 		const areaNode: SourceSpecAreaNode = {
 			kind: "area",
+			...(area.areaType ? { areaType: area.areaType } : {}),
+			...(area.description ? { description: area.description } : {}),
+			...(area.errorPolicy ? { errorPolicy: area.errorPolicy } : {}),
+			...(area.layout ? { layout: area.layout } : {}),
+			...(area.maxCount ? { maxCount: area.maxCount } : {}),
+			...(area.minCount ? { minCount: area.minCount } : {}),
+			...(area.renderNodeType ? { renderNodeType: area.renderNodeType } : {}),
 			sourceAreaId: area.sourceAreaId,
+			...(area.sourceAreaName ? { sourceAreaName: area.sourceAreaName } : {}),
+			...(area.visibility ? { visibility: area.visibility } : {}),
 			children,
 		};
 
@@ -509,10 +596,81 @@ function normalizeDisplayText(value: string | undefined): string | undefined {
 	return normalizeOptionalCell(value);
 }
 
+function normalizeAreaType(value: string | undefined): "dynamic" | "static" | undefined {
+	const normalized = normalizeOptionalCell(value)?.toLowerCase();
+	if (normalized === "dynamic" || normalized === "동적") return "dynamic";
+	if (normalized === "static" || normalized === "정적") return "static";
+	return undefined;
+}
+
+function toAreaRenderNodeType(areaType: "dynamic" | "static"): "area.dynamic" | "area.static" {
+	return areaType === "dynamic" ? "area.dynamic" : "area.static";
+}
+
+function parsePropsCell(
+	value: string | undefined,
+): Record<string, string | number | boolean> | undefined {
+	const normalized = normalizeOptionalCell(value);
+	if (!normalized) return undefined;
+
+	const props = Object.fromEntries(
+		normalized
+			.split(/\n+/)
+			.map((line) => parsePropLine(line))
+			.filter((entry): entry is [string, string | number | boolean] => Boolean(entry)),
+	);
+
+	return Object.keys(props).length > 0 ? props : undefined;
+}
+
+function parsePropLine(line: string): [string, string | number | boolean] | undefined {
+	const match = line.match(/^\s*([^:：]+)\s*[:：]\s*(.+?)\s*$/);
+	if (!match) return undefined;
+
+	const key = normalizePropKey(match[1]);
+	if (!key) return undefined;
+
+	return [key, normalizePropValue(match[2] ?? "")];
+}
+
+function normalizePropKey(value: string | undefined): string {
+	return normalizeMarkdownCell(value).replace(/\s+/g, "");
+}
+
+function normalizePropValue(value: string): string | number | boolean {
+	const normalized = normalizeMarkdownCell(value);
+	if (/^(true|false)$/i.test(normalized)) return normalized.toLowerCase() === "true";
+
+	const numeric = Number(normalized);
+	if (normalized !== "" && Number.isFinite(numeric)) return numeric;
+
+	return normalized;
+}
+
 // table cell에서 "1" 또는 "1-2" 같은 PRDD area id만 보존한다.
 function normalizeAreaIdCell(value: string | undefined): string | undefined {
 	const normalized = normalizeMarkdownCell(value);
 	return normalized.match(/\d+(?:-\d+)*/)?.[0];
+}
+
+function createAreaIdByName(files: MarkdownSourceFileInput[]): Map<string, string> {
+	const areaIdByName = new Map<string, string>();
+	for (const file of files) {
+		for (const area of extractAreasFromCompositionTable(file.content)) {
+			if (!area.sourceAreaName) continue;
+			areaIdByName.set(area.sourceAreaName, area.sourceAreaId);
+		}
+	}
+	return areaIdByName;
+}
+
+function getFirstCell(row: MarkdownTableRow, keys: readonly string[] | string): string | undefined {
+	const keyList = typeof keys === "string" ? [keys] : keys;
+	for (const key of keyList) {
+		const value = row[key];
+		if (value !== undefined) return value;
+	}
+	return undefined;
 }
 
 // area id의 첫 숫자를 region slot 판정용 root 번호로 변환한다.

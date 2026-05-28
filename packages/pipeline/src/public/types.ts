@@ -11,9 +11,12 @@ export type PipelineRunMode = "commit" | "dry-run";
 export type PipelineId = "screen-generation";
 
 export type PipelineStageId =
+	| "derive-screen-intent"
 	| "generate-render-tree"
 	| "parse-source"
+	| "plan-composition"
 	| "read-source"
+	| "review-quality"
 	| "revise-render-tree-if-invalid"
 	| "select-pattern"
 	| "validate-render-tree"
