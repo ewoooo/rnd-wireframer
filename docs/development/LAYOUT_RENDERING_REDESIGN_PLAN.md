@@ -71,6 +71,15 @@ data/tables/*
 | `@cx/validation` | RenderTree/table/catalog 계약 위반 검출 | 자동 보정, 렌더, 파일 쓰기 |
 | `apps/web` | table JSON을 읽어 materializer와 renderer API를 호출하는 preview UI | table-to-RenderTree 조립 로직 소유 |
 
+실행 체크:
+
+- `@cx/table-materializer`는 `@cx/renderer`, `@cx/layout-pattern-store`, `@cx/components`, React를 import하지 않는다.
+- `@cx/renderer`는 `data/tables`, table record 타입, materializer helper를 import하지 않는다.
+- `@cx/layout-pattern-store` catalog는 runtime default 값을 갖지 않는다.
+- `@cx/layout-pattern-store` component는 필요한 primitive를 직접 고르고 자기 default를 갖는다.
+- `apps/web`은 preview shell이며 table JSON read, materializer 호출, renderer 호출까지만 한다.
+- `@cx/validation`은 나중에 `type`과 `layout` target mismatch를 차단하되, 값을 고쳐주지는 않는다.
+
 ## 2-4. 현재 스펙 연결성
 
 현재 스펙상 table materializer의 출력은 renderer에 바로 들어갈 수 있어야 한다. 출력은 full artifact wrapper가 아니라 screen 단위 `RenderTreeScreenNode`다.
@@ -127,12 +136,31 @@ data/tables/*
 - 결정: componentID와 React component 이름에서 `Pattern` 접미사를 빼고 `ListStackArea`, `FieldStackArea`처럼 쓴다.
 - 이미 layout-pattern-store 내부의 component이므로 `Pattern` 접미사는 중복 의미다.
 
+우려 6. table materializer가 layout/component catalog를 알아야 하는가?
+
+- 결정: 알 필요가 없다.
+- materializer는 table record에 이미 적힌 `layout`과 `props`를 RenderTree node에 옮긴다.
+- catalog 존재 여부, prop 허용 여부, children 허용 여부는 validation에서 확인한다.
+
+우려 7. RenderTree로 만들기 전에 table 단계에서 screen을 보정해야 하는가?
+
+- 결정: 보정하지 않는다.
+- table read model이 불완전하면 materializer가 invented layout이나 invented props를 만들지 않고 issue/error로 드러나게 한다.
+- spacing 보존은 catalog 변환 시 component default/alias로 처리하고 materializer에서 복구하지 않는다.
+
+우려 8. renderer가 등록되지 않은 layout을 generic wrapper로 살려도 되는가?
+
+- 결정: 최종 상태에서는 안 된다.
+- renderer는 interpreter이므로 등록 component가 없다는 사실을 숨기지 않는다.
+- 개발 중 디버그 표시는 가능하지만, 제품 계약의 성공 조건으로 보지 않는다.
+
 ## 3. 현재 상태
 
 완료된 것:
 
 - table record의 `pattern: { id, variant }` 필드를 `layout: "layout.*"` 필드로 변환했다.
 - `layout-pattern-store` catalog schema에서 새 component catalog entry는 `layoutId` 대신 `id`를 사용한다.
+- table-to-RenderTree materializer 패키지를 `@cx/table-materializer`로 분리했고, web preview가 이 패키지를 호출하도록 바꿨다.
 - area PageStack 계열 5개를 새 component catalog entry로 전환했다.
   - `layout.area.listStack`
   - `layout.area.fieldStack`
@@ -140,14 +168,16 @@ data/tables/*
   - `layout.area.accordionList`
   - `layout.area.messageStack`
 - PageStack 계열은 `componentGap`, `titleGap`, `itemPaddingX`, `paddingY`, `sectionPaddingX` 보존 경로를 둔다.
-- 현재 구현에는 일부 catalog default가 남아 있다. 최종 목표는 catalog default 제거와 실제 pattern component default 이전이다.
+- region 계열 16개를 새 component catalog entry로 전환했고, region component는 `VStack`/`BottomFixedArea`만 사용한다.
+- screen shell 계열 4개를 새 component catalog entry로 전환했다.
+- 전환된 catalog entry에서는 runtime `default`를 제거하고 실제 component default로 옮겼다.
 
 아직 남은 것:
 
 - `area-patterns.json`의 대부분은 아직 legacy `layout`/`match` 구조다.
-- `region-patterns.json`, `screen-patterns.json`, `composite-patterns.json`는 아직 component catalog entry로 전환되지 않았다.
-- table-to-RenderTree materializer의 패키지 위치는 `@cx/table-materializer`로 확정했지만 아직 패키지 스캐폴드는 만들지 않았다.
-- web은 최종적으로 table-to-RenderTree materializer와 renderer API를 소비만 하도록 정리해야 한다.
+- `composite-patterns.json`는 아직 legacy `layout`/`match` 구조다.
+- renderer 내부의 이전 table materializer subpath와 관련 legacy test는 후속 batch에서 제거해야 한다.
+- validation의 target/layout mismatch 강제는 아직 후속 작업으로 남아 있다.
 
 ## 4. 원칙
 

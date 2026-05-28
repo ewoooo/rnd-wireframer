@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Layout Redesign Responsibility Clarification
+
+- 변경: layout rendering redesign plan에 `@cx/table-materializer`, `@cx/renderer`, `@cx/layout-pattern-store`, `@cx/layout`, `@cx/components`, `@cx/validation`, `apps/web`의 실행 체크 책임을 보강함
+- 변경: materializer가 catalog를 알거나 spacing/layout을 보정하지 않고, renderer가 미등록 layout을 generic wrapper로 숨기지 않는다는 사용자 우려 대응 결정을 추가함
+- 변경: 현재 상태를 실제 완료분 기준으로 갱신해 table-materializer 분리, web 연결, region/screen component catalog 전환 완료와 남은 legacy 제거 작업을 명시함
+- 이유: renderer 순수 interpreter 전환과 screen 단위 table materializer 경계가 이후 자동 구현 중 섞이지 않도록 하기 위함
+- 검증: 문서 diff 검토
+
 ## 2026-05-28 - Screen Pattern Component Conversion
 
 - 변경: `screen-patterns.json` 4개를 `layout.screen.*` component catalog entry로 전환하고 `ScreenShell`, `CommerceDetailScreen`, `TextListScreen`, `CardListScreen` registry component identity를 추가함
