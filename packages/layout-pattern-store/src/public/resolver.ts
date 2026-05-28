@@ -44,46 +44,11 @@ export function resolvePatternComponent(
 	return {
 		Component: entry.component,
 		componentProps: {
-			props: {
-				...readPatternDefaultProps(entry.pattern, input.props ?? {}),
-				...(input.props ?? {}),
-			},
+			props: input.props ?? {},
 		},
 		issues: [],
 		pattern: entry.pattern,
 	};
-}
-
-const legacySpacingAliasesByComponentID: Record<
-	string,
-	Array<{ alias: string; canonical: string }>
-> = {
-	PageStackAreaPattern: [
-		{ alias: "componentGap", canonical: "gap" },
-		{ alias: "titleGap", canonical: "sectionGap" },
-	],
-};
-
-function readPatternDefaultProps(
-	pattern: LayoutPatternCatalogEntry,
-	inputProps: Record<string, unknown>,
-): Record<string, unknown> {
-	const defaults = Object.fromEntries(
-		Object.entries(pattern.props ?? {}).flatMap(([propName, contract]) =>
-			"default" in contract ? [[propName, contract.default]] : [],
-		),
-	);
-
-	for (const { alias, canonical } of legacySpacingAliasesByComponentID[pattern.componentID] ?? []) {
-		if (alias in inputProps && !(canonical in inputProps)) {
-			delete defaults[canonical];
-		}
-		if (canonical in inputProps && !(alias in inputProps)) {
-			delete defaults[alias];
-		}
-	}
-
-	return defaults;
 }
 
 export function resolveCompositePatternByComponentType(

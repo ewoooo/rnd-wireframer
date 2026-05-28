@@ -79,7 +79,6 @@ export type LayoutPatternPropType =
 export type LayoutPatternPropContract = {
 	type: LayoutPatternPropType;
 	aiWritable?: boolean;
-	default?: PropValue;
 	description?: string;
 	required?: boolean;
 	values?: string[];

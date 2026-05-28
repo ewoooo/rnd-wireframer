@@ -1,43 +1,65 @@
-import { PageStackAreaPattern } from "./area/PageStackAreaPattern";
+import {
+	AccordionListArea,
+	CheckboxStackArea,
+	FieldStackArea,
+	ListStackArea,
+	MessageStackArea,
+} from "./area/PageStackArea";
 import type { LayoutPatternComponentEntry } from "./types";
 
 const areaPageStackLayouts: Array<{
+	component: LayoutPatternComponentEntry["component"];
+	componentID: string;
 	layoutId: LayoutPatternComponentEntry["layoutId"];
 	name: string;
 	props: LayoutPatternComponentEntry["pattern"]["props"];
 }> = [
 	{
+		component: AccordionListArea,
+		componentID: "AccordionListArea",
 		layoutId: "layout.area.accordionList",
 		name: "Accordion List Area",
-		props: pageStackProps({ gap: 0 }),
+		props: pageStackProps(),
 	},
 	{
+		component: CheckboxStackArea,
+		componentID: "CheckboxStackArea",
 		layoutId: "layout.area.checkboxStack",
 		name: "Checkbox Stack Area",
-		props: pageStackProps({ gap: 12 }),
+		props: pageStackProps(),
 	},
 	{
+		component: FieldStackArea,
+		componentID: "FieldStackArea",
 		layoutId: "layout.area.fieldStack",
 		name: "Field Stack Area",
-		props: pageStackProps({ gap: 12 }),
+		props: pageStackProps(),
 	},
-	{ layoutId: "layout.area.listStack", name: "List Stack Area", props: pageStackProps({ gap: 8 }) },
 	{
+		component: ListStackArea,
+		componentID: "ListStackArea",
+		layoutId: "layout.area.listStack",
+		name: "List Stack Area",
+		props: pageStackProps(),
+	},
+	{
+		component: MessageStackArea,
+		componentID: "MessageStackArea",
 		layoutId: "layout.area.messageStack",
 		name: "Message Stack Area",
-		props: pageStackProps({ gap: 12 }),
+		props: pageStackProps(),
 	},
 ];
 
 const layoutPatternComponents: LayoutPatternComponentEntry[] = areaPageStackLayouts.map(
 	(entry) => ({
-		component: PageStackAreaPattern,
+		component: entry.component,
 		layoutId: entry.layoutId,
 		pattern: {
 			id: entry.layoutId,
 			target: "area",
 			name: entry.name,
-			componentID: "PageStackAreaPattern",
+			componentID: entry.componentID,
 			children: {
 				accepts: "component",
 				min: 1,
@@ -65,49 +87,36 @@ export function findRegisteredLayoutPatternComponent(
 	return layoutPatternComponents.find((entry) => entry.pattern.id === patternId);
 }
 
-function pageStackProps(defaults: {
-	gap: number;
-	titleGap?: number;
-}): LayoutPatternComponentEntry["pattern"]["props"] {
-	const titleGap = defaults.titleGap ?? 8;
-
+function pageStackProps(): LayoutPatternComponentEntry["pattern"]["props"] {
 	return {
 		componentGap: {
 			type: "number",
-			default: defaults.gap,
 			description: "Legacy layoutProps.componentGap preserved as the PageStack contents gap.",
 		},
 		gap: {
 			type: "number",
-			default: defaults.gap,
 			description: "Gap between children inside the PageStack contents slot.",
 		},
 		itemPaddingX: {
 			type: "number",
-			default: 20,
 		},
 		itemTemplate: {
 			type: "enum",
 			values: ["card-0", "default-20", "plain"],
-			default: "default-20",
 		},
 		paddingY: {
 			type: "number",
-			default: 28,
 		},
 		sectionPaddingX: {
 			type: "number",
-			default: 12,
 		},
 		titleGap: {
 			type: "number",
-			default: titleGap,
 			description: "Legacy layoutProps.titleGap preserved as the title-to-contents gap.",
 		},
 		titleMode: {
 			type: "enum",
 			values: ["hidden", "none", "visible"],
-			default: "visible",
 		},
 	};
 }

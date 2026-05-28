@@ -32,7 +32,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(child.parentElement).toHaveStyle({ gap: "8px", paddingInline: "20px" });
 	});
 
-	it("preserves area pattern default item gaps from the pattern store", () => {
+	it("preserves area pattern default item gaps from the pattern components", () => {
 		render(
 			<>
 				<RenderNodeView

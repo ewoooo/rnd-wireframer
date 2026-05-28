@@ -20,35 +20,30 @@
 			"target": "area",
 			"name": "리스트 스택",
 			"description": "Area children을 리스트형 항목으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "PageStackAreaPattern",
+			"componentID": "ListStackArea",
 			"props": {
 				"componentGap": {
 					"type": "number",
-					"default": 8,
 					"description": "Legacy layoutProps.componentGap preserved from the pre-component catalog."
 				},
 				"gap": {
 					"type": "number",
-					"default": 8,
 					"description": "Contents slot child gap."
 				},
-				"itemPaddingX": { "type": "number", "default": 20 },
+				"itemPaddingX": { "type": "number" },
 				"itemTemplate": {
 					"type": "enum",
-					"values": ["card-0", "default-20", "plain"],
-					"default": "default-20"
+					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number", "default": 28 },
-				"sectionPaddingX": { "type": "number", "default": 12 },
+				"paddingY": { "type": "number" },
+				"sectionPaddingX": { "type": "number" },
 				"titleGap": {
 					"type": "number",
-					"default": 8,
 					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
 				},
 				"titleMode": {
 					"type": "enum",
-					"values": ["hidden", "none", "visible"],
-					"default": "visible"
+					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": { "accepts": "component", "min": 1 },
@@ -95,23 +90,21 @@
 			"target": "area",
 			"name": "필드 스택",
 			"description": "Area children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "PageStackAreaPattern",
+			"componentID": "FieldStackArea",
 			"props": {
-				"componentGap": { "type": "number", "default": 12 },
-				"gap": { "type": "number", "default": 12 },
-				"itemPaddingX": { "type": "number", "default": 20 },
+				"componentGap": { "type": "number" },
+				"gap": { "type": "number" },
+				"itemPaddingX": { "type": "number" },
 				"itemTemplate": {
 					"type": "enum",
-					"values": ["card-0", "default-20", "plain"],
-					"default": "default-20"
+					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number", "default": 28 },
-				"sectionPaddingX": { "type": "number", "default": 12 },
-				"titleGap": { "type": "number", "default": 8 },
+				"paddingY": { "type": "number" },
+				"sectionPaddingX": { "type": "number" },
+				"titleGap": { "type": "number" },
 				"titleMode": {
 					"type": "enum",
-					"values": ["hidden", "none", "visible"],
-					"default": "visible"
+					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": { "accepts": "component", "min": 1 },
@@ -149,23 +142,21 @@
 			"target": "area",
 			"name": "체크박스 스택",
 			"description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "PageStackAreaPattern",
+			"componentID": "CheckboxStackArea",
 			"props": {
-				"componentGap": { "type": "number", "default": 12 },
-				"gap": { "type": "number", "default": 12 },
-				"itemPaddingX": { "type": "number", "default": 20 },
+				"componentGap": { "type": "number" },
+				"gap": { "type": "number" },
+				"itemPaddingX": { "type": "number" },
 				"itemTemplate": {
 					"type": "enum",
-					"values": ["card-0", "default-20", "plain"],
-					"default": "default-20"
+					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number", "default": 28 },
-				"sectionPaddingX": { "type": "number", "default": 12 },
-				"titleGap": { "type": "number", "default": 8 },
+				"paddingY": { "type": "number" },
+				"sectionPaddingX": { "type": "number" },
+				"titleGap": { "type": "number" },
 				"titleMode": {
 					"type": "enum",
-					"values": ["hidden", "none", "visible"],
-					"default": "visible"
+					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": { "accepts": "component", "min": 1 },
@@ -176,23 +167,21 @@
 			"target": "area",
 			"name": "아코디언 리스트",
 			"description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
-			"componentID": "PageStackAreaPattern",
+			"componentID": "AccordionListArea",
 			"props": {
-				"componentGap": { "type": "number", "default": 0 },
-				"gap": { "type": "number", "default": 0 },
-				"itemPaddingX": { "type": "number", "default": 20 },
+				"componentGap": { "type": "number" },
+				"gap": { "type": "number" },
+				"itemPaddingX": { "type": "number" },
 				"itemTemplate": {
 					"type": "enum",
-					"values": ["card-0", "default-20", "plain"],
-					"default": "default-20"
+					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number", "default": 28 },
-				"sectionPaddingX": { "type": "number", "default": 12 },
-				"titleGap": { "type": "number", "default": 8 },
+				"paddingY": { "type": "number" },
+				"sectionPaddingX": { "type": "number" },
+				"titleGap": { "type": "number" },
 				"titleMode": {
 					"type": "enum",
-					"values": ["hidden", "none", "visible"],
-					"default": "visible"
+					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": { "accepts": "component", "min": 1 },
@@ -203,23 +192,21 @@
 			"target": "area",
 			"name": "메시지 스택",
 			"description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "PageStackAreaPattern",
+			"componentID": "MessageStackArea",
 			"props": {
-				"componentGap": { "type": "number", "default": 12 },
-				"gap": { "type": "number", "default": 12 },
-				"itemPaddingX": { "type": "number", "default": 20 },
+				"componentGap": { "type": "number" },
+				"gap": { "type": "number" },
+				"itemPaddingX": { "type": "number" },
 				"itemTemplate": {
 					"type": "enum",
-					"values": ["card-0", "default-20", "plain"],
-					"default": "default-20"
+					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number", "default": 28 },
-				"sectionPaddingX": { "type": "number", "default": 12 },
-				"titleGap": { "type": "number", "default": 8 },
+				"paddingY": { "type": "number" },
+				"sectionPaddingX": { "type": "number" },
+				"titleGap": { "type": "number" },
 				"titleMode": {
 					"type": "enum",
-					"values": ["hidden", "none", "visible"],
-					"default": "visible"
+					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": { "accepts": "component", "min": 1 },

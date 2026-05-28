@@ -65,11 +65,11 @@ const layoutPatternPropContractSchema = z
 	.object({
 		type: z.enum(["array", "boolean", "enum", "node", "number", "object", "string"]),
 		aiWritable: z.boolean().optional(),
-		default: propValueSchema.optional(),
 		description: z.string().optional(),
 		required: z.boolean().optional(),
 		values: nonEmptyStringArraySchema.optional(),
 	})
+	.strict()
 	.superRefine((contract, ctx) => {
 		if (contract.type === "enum" && !contract.values) {
 			ctx.addIssue({
@@ -330,11 +330,6 @@ function normalizeLayoutPatternCatalogEntry(
 	pattern: z.infer<typeof layoutPatternCatalogEntrySchema>,
 ): Pattern {
 	const id = layoutPatternIdToPatternId(pattern.id);
-	const layoutProps = Object.fromEntries(
-		Object.entries(pattern.props ?? {}).flatMap(([propName, contract]) =>
-			"default" in contract ? [[propName, contract.default]] : [],
-		),
-	);
 
 	return {
 		id,
@@ -343,15 +338,7 @@ function normalizeLayoutPatternCatalogEntry(
 		description: pattern.description,
 		defaultVariant: "default",
 		variants: {
-			default: {
-				childWrap:
-					pattern.target === "area"
-						? {
-								kind: "page-stack",
-							}
-						: undefined,
-				layoutProps,
-			},
+			default: {},
 		},
 	} as Pattern;
 }

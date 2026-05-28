@@ -129,24 +129,20 @@ describe("@cx/layout-pattern-store schema", () => {
 					id: "layout.area.fieldStack",
 					target: "area",
 					name: "Field Stack",
-					componentID: "PageStackAreaPattern",
+					componentID: "FieldStackArea",
 					props: {
 						componentGap: {
 							type: "number",
-							default: 12,
 						},
 						gap: {
 							type: "number",
-							default: 12,
 						},
 						titleGap: {
 							type: "number",
-							default: 8,
 						},
 						titleMode: {
 							type: "enum",
 							values: ["hidden", "none", "visible"],
-							default: "visible",
 						},
 					},
 					children: {
@@ -158,9 +154,26 @@ describe("@cx/layout-pattern-store schema", () => {
 			],
 		});
 
-		expect(catalog.patterns[0]?.componentID).toBe("PageStackAreaPattern");
-		expect(catalog.patterns[0]?.props?.componentGap?.default).toBe(12);
-		expect(catalog.patterns[0]?.props?.titleGap?.default).toBe(8);
+		expect(catalog.patterns[0]?.componentID).toBe("FieldStackArea");
+		expect(catalog.patterns[0]?.props?.componentGap?.type).toBe("number");
+		expect(catalog.patterns[0]?.props?.titleGap?.type).toBe("number");
+	});
+
+	it("rejects layout pattern prop contracts with runtime defaults", () => {
+		expect(() =>
+			layoutPatternCatalogEntrySchema.parse({
+				id: "layout.area.fieldStack",
+				target: "area",
+				name: "Field Stack",
+				componentID: "FieldStackArea",
+				props: {
+					gap: {
+						type: "number",
+						default: 12,
+					},
+				},
+			}),
+		).toThrow(/default|Unrecognized key/);
 	});
 
 	it("rejects layout pattern catalog entries with target/layout mismatches", () => {
@@ -169,7 +182,7 @@ describe("@cx/layout-pattern-store schema", () => {
 				id: "layout.region.fieldStack",
 				target: "area",
 				name: "Field Stack",
-				componentID: "PageStackAreaPattern",
+				componentID: "FieldStackArea",
 			}),
 		).toThrow(/layout\.area\./);
 	});
@@ -180,7 +193,7 @@ describe("@cx/layout-pattern-store schema", () => {
 				id: "layout.area.badEnum",
 				target: "area",
 				name: "Bad enum",
-				componentID: "PageStackAreaPattern",
+				componentID: "FieldStackArea",
 				props: {
 					titleMode: {
 						type: "enum",
