@@ -19,10 +19,10 @@
 | target | total | converted | pending |
 |---|---:|---:|---:|
 | screen | 4 | 0 | 4 |
-| region | 16 | 0 | 16 |
+| region | 16 | 16 | 0 |
 | area | 40 | 5 | 35 |
 | composite | 49 | 0 | 49 |
-| total | 109 | 5 | 104 |
+| total | 109 | 21 | 88 |
 
 ## 4. Inventory
 
@@ -39,22 +39,22 @@
 
 | target | legacy id | new id | componentID | spacing keys | children | status |
 |---|---|---|---|---|---|---|
-| region | `section-stack` | `layout.region.sectionStack` | `SectionStackRegion` | divider, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `plain-stack` | `layout.region.plainStack` | `PlainStackRegion` | gap | area | pending |
-| region | `commerce-detail-content-stack` | `layout.region.commerceDetailContentStack` | `CommerceDetailContentStackRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `commerce-detail-bottom-action` | `layout.region.commerceDetailBottomAction` | `CommerceDetailBottomActionRegion` | gap, paddingX, paddingY | area | pending |
-| region | `subscription-detail-rich-content` | `layout.region.subscriptionDetailRichContent` | `SubscriptionDetailRichContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `gifticon-detail-compact-content` | `layout.region.gifticonDetailCompactContent` | `GifticonDetailCompactContentRegion` | contentWidth, divider, gap | area | pending |
-| region | `benefit-brand-detail-content` | `layout.region.benefitBrandDetailContent` | `BenefitBrandDetailContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `device-detail-option-content` | `layout.region.deviceDetailOptionContent` | `DeviceDetailOptionContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `summary-text-list-content` | `layout.region.summaryTextListContent` | `SummaryTextListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `summary-title-filter-text-list-content` | `layout.region.summaryTitleFilterTextListContent` | `SummaryTitleFilterTextListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `filterable-text-list-content` | `layout.region.filterableTextListContent` | `FilterableTextListContentRegion` | contentWidth, gap | area | pending |
-| region | `plain-notice-list-content` | `layout.region.plainNoticeListContent` | `PlainNoticeListContentRegion` | contentWidth, gap | area | pending |
-| region | `faq-guide-list-content` | `layout.region.faqGuideListContent` | `FaqGuideListContentRegion` | contentWidth, gap | area | pending |
-| region | `product-card-sectioned-list-content` | `layout.region.productCardSectionedListContent` | `ProductCardSectionedListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | pending |
-| region | `product-card-flat-row-list-content` | `layout.region.productCardFlatRowListContent` | `ProductCardFlatRowListContentRegion` | contentWidth, gap | area | pending |
-| region | `product-card-flat-horizontal-list-content` | `layout.region.productCardFlatHorizontalListContent` | `ProductCardFlatHorizontalListContentRegion` | contentWidth, gap | area | pending |
+| region | `section-stack` | `layout.region.sectionStack` | `SectionStackRegion` | divider, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `plain-stack` | `layout.region.plainStack` | `PlainStackRegion` | gap | area | converted |
+| region | `commerce-detail-content-stack` | `layout.region.commerceDetailContentStack` | `CommerceDetailContentStackRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `commerce-detail-bottom-action` | `layout.region.commerceDetailBottomAction` | `CommerceDetailBottomActionRegion` | gap, paddingX, paddingY | area | converted |
+| region | `subscription-detail-rich-content` | `layout.region.subscriptionDetailRichContent` | `SubscriptionDetailRichContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `gifticon-detail-compact-content` | `layout.region.gifticonDetailCompactContent` | `GifticonDetailCompactContentRegion` | contentWidth, divider, gap | area | converted |
+| region | `benefit-brand-detail-content` | `layout.region.benefitBrandDetailContent` | `BenefitBrandDetailContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `device-detail-option-content` | `layout.region.deviceDetailOptionContent` | `DeviceDetailOptionContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `summary-text-list-content` | `layout.region.summaryTextListContent` | `SummaryTextListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `summary-title-filter-text-list-content` | `layout.region.summaryTitleFilterTextListContent` | `SummaryTitleFilterTextListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `filterable-text-list-content` | `layout.region.filterableTextListContent` | `FilterableTextListContentRegion` | contentWidth, gap | area | converted |
+| region | `plain-notice-list-content` | `layout.region.plainNoticeListContent` | `PlainNoticeListContentRegion` | contentWidth, gap | area | converted |
+| region | `faq-guide-list-content` | `layout.region.faqGuideListContent` | `FaqGuideListContentRegion` | contentWidth, gap | area | converted |
+| region | `product-card-sectioned-list-content` | `layout.region.productCardSectionedListContent` | `ProductCardSectionedListContentRegion` | contentWidth, divider, gap, itemPaddingX, paddingY, sectionGap, sectionPaddingX, slotInsetX | area | converted |
+| region | `product-card-flat-row-list-content` | `layout.region.productCardFlatRowListContent` | `ProductCardFlatRowListContentRegion` | contentWidth, gap | area | converted |
+| region | `product-card-flat-horizontal-list-content` | `layout.region.productCardFlatHorizontalListContent` | `ProductCardFlatHorizontalListContentRegion` | contentWidth, gap | area | converted |
 
 ### area
 

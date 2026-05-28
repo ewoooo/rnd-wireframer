@@ -253,6 +253,57 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(regionLayoutRoot).toHaveAttribute("data-node-type", "Layout.Flex");
 	});
 
+	it("preserves sticky bottom action region defaults", () => {
+		render(
+			<RenderTreeView
+				node={{
+					type: "Screen",
+					componentVersion: "1.0.0",
+					metadata: { id: "screen", title: "Screen" },
+					children: [
+						{
+							type: "Screen.Header",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.header", title: "Header" },
+							children: [],
+						},
+						{
+							type: "Screen.Contents",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.contents", title: "Contents" },
+							children: [],
+						},
+						{
+							type: "Screen.Bottom",
+							componentVersion: "0.1.0",
+							layout: "layout.region.commerceDetailBottomAction",
+							metadata: { id: "screen.bottom", title: "Bottom" },
+							children: [
+								{
+									type: "UnknownLeaf",
+									componentVersion: "0.1.0",
+									metadata: { id: "bottom-child", title: "Bottom child" },
+								},
+							],
+						},
+					],
+				}}
+			/>,
+		);
+
+		const child = screen.getByText("Bottom child");
+		const regionLayoutRoot = child.closest("[data-node-id='screen.bottom']");
+
+		expect(regionLayoutRoot).toBeInTheDocument();
+		expect(regionLayoutRoot).toHaveStyle({
+			bottom: "0px",
+			gap: "10px",
+			paddingBlock: "46px",
+			paddingInline: "12px",
+			position: "sticky",
+		});
+	});
+
 	it("uses the fixed bottom primitive for bottom action area patterns", () => {
 		render(
 			<RenderNodeView

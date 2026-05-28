@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Region Pattern Component Conversion
+
+- 변경: `region-patterns.json` 16개를 `layout.region.*` component catalog entry로 전환하고 `SectionStackRegion`, `PlainStackRegion`, 상품/리스트 contents region component registry를 추가함
+- 변경: region component는 `VStack`/`BottomFixedArea`만 사용하고 PageStack을 직접 소유하지 않도록 하며 gap, padding, contentWidth, bottomSafeArea, sticky prop fallback을 실제 component default로 보존함
+- 변경: layout pattern inventory의 region 상태를 converted로 갱신함
+- 이유: region은 screen slot children 흐름과 bottom sticky/content width rail만 담당하고 PageStack section 책임은 area pattern으로 유지하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "applies region layout wrappers|sticky bottom action region"`
+
 ## 2026-05-28 - Table Materializer Boundary
 
 - 변경: table-to-RenderTree 순수 변환 경계를 `@cx/table-materializer` 패키지로 확정하고 `AGENTS.md`, `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, layout rendering redesign plan에 반영함
