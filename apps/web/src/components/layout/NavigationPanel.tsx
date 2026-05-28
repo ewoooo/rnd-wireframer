@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
 import { Badge } from "@/components/ui/badge";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
@@ -47,62 +48,63 @@ export function NavigationPanel() {
 	return (
 		<Sidebar side="left">
 			{activeTab === "scn" ? (
-				<div className="flex h-full min-h-0 flex-col overflow-hidden">
-					{/* ── A: 루트 목록 (스크롤 가능) ── */}
-					<div className="flex min-h-0 flex-col overflow-hidden" style={{ maxHeight: "40%" }}>
-						<p className="shrink-0 px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-							루트
-						</p>
-						<div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-							{screenRoutes.map((route) => (
-								<RouteListItem
-									key={route.code}
-									isActive={route.code === activeRoute?.code}
-									route={route}
-									onSelect={() => {
-										setActiveRouteCode(route.code);
-										selectScreenRoute(route.code);
-									}}
-								/>
-							))}
-						</div>
-					</div>
-
-					<Separator />
-
-					{/* ── B: 선택된 루트 상세 ── */}
-					{activeRoute && (
-						<>
-							<div className="shrink-0 px-3 py-3">
-								<p className="truncate text-sm font-semibold leading-snug">
-									{activeRoute.name}
-								</p>
-								<p className="mt-0.5 truncate text-xs text-muted-foreground">
-									{activeRoute.code}
-								</p>
-								<div className="mt-2 flex items-center gap-2">
-									<Badge variant="secondary">{activeRoute.module}</Badge>
-									<span className="text-xs text-muted-foreground">
-										{activeRoute.screenCount} screens
-									</span>
-								</div>
+				<ResizablePanelGroup orientation="vertical" className="h-full">
+					{/* ── A: 루트 목록 ── */}
+					<ResizablePanel defaultSize={35} minSize={15}>
+						<div className="flex h-full flex-col overflow-hidden">
+							<div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
+								{screenRoutes.map((route) => (
+									<RouteListItem
+										key={route.code}
+										isActive={route.code === activeRoute?.code}
+										route={route}
+										onSelect={() => {
+											setActiveRouteCode(route.code);
+											selectScreenRoute(route.code);
+										}}
+									/>
+								))}
 							</div>
-							<Separator />
-						</>
-					)}
+						</div>
+					</ResizablePanel>
 
-					{/* ── C: 스크린 목록 (스크롤 가능) ── */}
-					<div className="min-h-0 flex-1 overflow-y-auto">
-						{activeRoute?.screenVariants.map((variant) => (
-							<ScreenVariantCard
-								key={variant.id}
-								onSelect={selectScreenVariant}
-								screenVariant={variant}
-								selectedScreenCode={selectedScreenCode}
-							/>
-						))}
-					</div>
-				</div>
+					<ResizableHandle />
+
+					{/* ── B+C: 선택된 루트 상세 + 스크린 목록 ── */}
+					<ResizablePanel defaultSize={65} minSize={20}>
+						<div className="flex h-full flex-col overflow-hidden">
+							{activeRoute && (
+								<>
+									<div className="shrink-0 px-3 py-3">
+										<p className="truncate text-sm font-semibold leading-snug">
+											{activeRoute.name}
+										</p>
+										<p className="mt-0.5 truncate text-xs text-muted-foreground">
+											{activeRoute.code}
+										</p>
+										<div className="mt-2 flex items-center gap-2">
+											<Badge variant="secondary">{activeRoute.module}</Badge>
+											<span className="text-xs text-muted-foreground">
+												{activeRoute.screenCount} screens
+											</span>
+										</div>
+									</div>
+									<Separator />
+								</>
+							)}
+							<div className="min-h-0 flex-1 overflow-y-auto">
+								{activeRoute?.screenVariants.map((variant) => (
+									<ScreenVariantCard
+										key={variant.id}
+										onSelect={selectScreenVariant}
+										screenVariant={variant}
+										selectedScreenCode={selectedScreenCode}
+									/>
+								))}
+							</div>
+						</div>
+					</ResizablePanel>
+				</ResizablePanelGroup>
 			) : (
 				<SidebarContent className="p-2">
 					{activeTab === "ogn" ? (
