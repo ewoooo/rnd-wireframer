@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Area Pattern Catalog Completion
+
+- 변경: 남은 area 18개를 `layout.area.*` component catalog entry로 전환하고 `GeneralArea` component group을 추가함
+- 변경: form/action/detail/footer/appbar/accordion/text-list area가 `PageStack`, `VStack`, `HStack`, `BottomFixedArea` wrapper 중 하나를 실제 component default로 선택하도록 함
+- 변경: layout pattern inventory를 area 40개 중 40개 converted, pending 0으로 갱신함
+- 이유: area target에서 legacy `layout`/`match` catalog shape를 제거하고 renderer가 모든 area layout을 registered component로만 소비하게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "bottom action area|commerce detail section|commerce detail padding|selectable list|text list group"`, area catalog legacy/default scan
+
 ## 2026-05-28 - Area Collection Pattern Conversion
 
 - 변경: `@cx/layout-pattern-store`에 `CollectionArea` component group을 추가하고 option grid, benefit/store list, product list controls, horizontal/row card list 등 area collection 계열 17개를 실제 registered layout component로 전환함

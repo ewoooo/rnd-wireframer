@@ -1,19 +1,24 @@
 {
 	"patterns": [
 		{
-			"id": "area-vertical",
+			"id": "layout.area.areaVertical",
 			"target": "area",
 			"name": "수직 스택",
 			"description": "Area children을 명시 순서대로 세로 배치하는 generic 레이아웃 프리셋. 다른 area pattern이 매칭 안 됐을 때 fallback.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0
+			"componentID": "AreaVerticalArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				}
 			},
-			"match": {
-				"keywords": ["vertical", "stack", "default"],
-				"priority": 10
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.listStack",
@@ -59,40 +64,39 @@
 			"status": "draft"
 		},
 		{
-			"id": "auth-method-list",
+			"id": "layout.area.authMethodList",
 			"target": "area",
 			"name": "인증수단 선택 리스트",
 			"description": "휴대폰 본인인증, PASS, 공동인증서처럼 인증수단 선택지를 ListCell row 묶음으로 배치하는 선택형 목록 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 0,
-					"listPresentation": "selection-list",
-					"itemPaddingX": 0,
-					"itemPaddingY": 0,
-					"divider": "between-list-rows"
+			"componentID": "AuthMethodListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemPaddingY": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
+				},
+				"listPresentation": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["list-cell"]
-				},
-				"keywords": [
-					"auth",
-					"authentication",
-					"인증",
-					"인증수단",
-					"본인인증",
-					"PASS",
-					"공동인증서",
-					"선택"
-				],
-				"priority": 92
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.fieldStack",
@@ -135,31 +139,36 @@
 			"status": "draft"
 		},
 		{
-			"id": "auth-code-entry",
+			"id": "layout.area.authCodeEntry",
 			"target": "area",
 			"name": "인증번호 입력",
 			"description": "인증번호 입력 필드, 남은 시간 표시, 오류/만료 메시지, 재요청 보조 액션을 세로로 배치하는 인증 요청 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 8,
-					"componentGap": 12,
-					"sectionModel": "auth-code-entry",
-					"primaryActionPlacement": "screen-bottom",
-					"secondaryActionPlacement": "inline"
+			"componentID": "AuthCodeEntryArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
+				"sectionModel": {
+					"type": "string"
+				},
+				"primaryActionPlacement": {
+					"type": "string"
+				},
+				"secondaryActionPlacement": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["text-field", "list-text", "section-message", "text-button"],
-					"noneOf": ["button"]
-				},
-				"keywords": ["auth-code", "authentication-code", "인증번호", "남은 시간", "재요청"],
-				"priority": 91
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.checkboxStack",
@@ -282,119 +291,91 @@
 			"status": "draft"
 		},
 		{
-			"id": "action-stack",
+			"id": "layout.area.actionStack",
 			"target": "area",
 			"name": "액션 스택",
 			"description": "Area children을 일반 액션 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 0,
-					"componentGap": 12
+			"componentID": "ActionStackArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["button"]
-				},
-				"keywords": ["action", "button", "cta", "버튼", "액션"],
-				"priority": 75
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "bottom-action-area",
+			"id": "layout.area.bottomActionArea",
 			"target": "area",
 			"name": "하단 액션 영역",
 			"description": "Screen Bottom region에 고정되는 주요 ActionButton CTA를 배치하는 레이아웃 프리셋",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"paddingY": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 0,
-					"componentGap": 12
+			"componentID": "BottomActionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["action-button"]
-				},
-				"keywords": ["bottom", "action", "cta", "ActionButton", "하단", "다음", "확인"],
-				"priority": 95
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "product-hero-summary",
+			"id": "layout.area.productHeroSummary",
 			"target": "area",
 			"name": "상품 히어로 요약",
 			"description": "대표 이미지/요약 카드 다음 핵심 상품 정보와 primary facts가 이어지는 상품 상세 상단 요약 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"hideTitle": true,
-					"surface": "hero",
-					"thumbnailHeight": 480,
-					"infoPaddingX": 32,
-					"infoPaddingTop": 32,
-					"infoPaddingBottom": 16,
-					"componentGap": 12,
-					"expectedChildren": [
-						{
-							"slot": "hero-media",
-							"types": ["thumbnail-large", "card-summary"],
-							"order": 1
-						},
-						{
-							"slot": "summary",
-							"types": ["product-info", "card-summary"],
-							"order": 2
-						},
-						{
-							"slot": "primary-facts",
-							"types": ["badge", "text-link", "list-cell"],
-							"order": 3,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10069:121734",
-					"sourceFigmaNodes": [
-						"10069:97853",
-						"10069:97854",
-						"10069:97975",
-						"10069:97976",
-						"10069:98026",
-						"10069:121734",
-						"10069:121735"
-					],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121734",
-					"sourceFigmaReference": "상세-상품 Thumbnail/ProductInfo hero-summary area blocks"
+			"componentID": "ProductHeroSummaryArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"hideTitle": {
+					"type": "boolean"
+				},
+				"surface": {
+					"type": "string"
+				},
+				"thumbnailHeight": {
+					"type": "number"
+				},
+				"infoPaddingX": {
+					"type": "number"
+				},
+				"infoPaddingTop": {
+					"type": "number"
+				},
+				"infoPaddingBottom": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["thumbnail-large", "product-info", "card-summary", "badge", "text-link"]
-				},
-				"keywords": [
-					"thumbnail",
-					"product-info",
-					"hero",
-					"hero-summary",
-					"primary-facts",
-					"상품",
-					"대표이미지",
-					"요약",
-					"핵심정보"
-				],
-				"priority": 100
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.productOptionGrid",
@@ -429,120 +410,53 @@
 			"status": "draft"
 		},
 		{
-			"id": "product-info-section",
+			"id": "layout.area.productInfoSection",
 			"target": "area",
 			"name": "상품 정보 섹션",
 			"description": "가격/혜택 요약, 상품 정보, 사용 방법, 유의사항처럼 title과 본문 블록을 세로로 배치하는 상세 정보 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 16,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 16,
-					"componentGap": 16,
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["section-header", "title-section"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "primary-facts",
-							"types": ["card-summary", "list-cell", "section-message"],
-							"order": 2,
-							"optional": true
-						},
-						{
-							"slot": "supporting-info",
-							"types": ["list-cell", "legal-text", "accordion-info", "banner-indicator"],
-							"order": 3,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:121753",
-					"sourceFigmaNodes": ["10069:97902", "10069:121753", "10069:121764", "10570:28456"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121753",
-					"sourceFigmaReference": "상세-상품 Pagestack primary-facts / supporting-info area blocks"
+			"componentID": "ProductInfoSectionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": [
-						"section-header",
-						"title-section",
-						"list-cell",
-						"accordion-info",
-						"legal-text",
-						"card-summary",
-						"section-message",
-						"banner-indicator"
-					]
-				},
-				"keywords": [
-					"상품 정보",
-					"사용 방법",
-					"유의사항",
-					"안내",
-					"고시",
-					"primary-facts",
-					"supporting-info",
-					"price-summary",
-					"가격",
-					"혜택",
-					"할인",
-					"쿠폰"
-				],
-				"priority": 85
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "product-disclosure-accordion",
+			"id": "layout.area.productDisclosureAccordion",
 			"target": "area",
 			"name": "상품 고시 아코디언",
 			"description": "판매자 정보, 교환/환불, 상품 이용 안내 같은 하단 고시 항목을 accordion list로 배치하는 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 0,
-					"componentGap": 0,
-					"divider": "contents",
-					"expectedChildren": [
-						{
-							"slot": "disclosure",
-							"types": ["accordion", "accordion-info"],
-							"order": 1,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10228:36557",
-					"sourceFigmaNodes": ["10228:36557", "10347:80700"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10228-36557",
-					"sourceFigmaReference": "상세-상품 disclosure / disclosure-list accordion area blocks"
+			"componentID": "ProductDisclosureAccordionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["accordion", "accordion-info"]
-				},
-				"keywords": [
-					"고시",
-					"환불",
-					"상품 안내",
-					"product-accordion",
-					"disclosure",
-					"disclosure-list",
-					"약관",
-					"유의사항"
-				],
-				"priority": 92
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.benefitBrandList",
@@ -602,138 +516,79 @@
 			"status": "draft"
 		},
 		{
-			"id": "product-footer-legal",
+			"id": "layout.area.productFooterLegal",
 			"target": "area",
 			"name": "상품 상세 푸터",
 			"description": "이용약관, 판매자 정보, copyright를 포함하는 상품 상세 footer 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 30,
-				"paddingX": 32,
-				"paddingY": 32,
-				"layoutProps": {
-					"bottomPadding": 120,
-					"expectedChildren": [
-						{
-							"slot": "legal-links",
-							"types": ["text-link", "list-cell"],
-							"order": 1,
-							"repeat": true
-						},
-						{
-							"slot": "seller-info",
-							"types": ["legal-text", "footer"],
-							"order": 2,
-							"optional": true
-						},
-						{
-							"slot": "copyright",
-							"types": ["footer", "legal-text"],
-							"order": 3,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10228:36521",
-					"sourceFigmaNodes": ["10069:97921", "10069:98005", "10228:36521"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10228-36521",
-					"sourceFigmaReference": "상세-상품 Footer/legal area blocks"
+			"componentID": "ProductFooterLegalArea",
+			"props": {
+				"gap": {
+					"type": "number"
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"bottomPadding": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["footer", "legal-text", "text-link", "list-cell"]
-				},
-				"keywords": [
-					"footer",
-					"footer-legal",
-					"legal",
-					"copyright",
-					"푸터",
-					"약관",
-					"판매자",
-					"사업자"
-				],
-				"priority": 82
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "price-accordion-stack-area",
+			"id": "layout.area.priceAccordionStackArea",
 			"target": "area",
 			"name": "가격 아코디언 스택 영역",
 			"description": "상세-상품의 구독상품 가격/혜택 정보처럼 AccordionPriceInfo row를 PageStack 안에서 반복 배치하는 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "product-info-section",
-					"pageStackSection": true,
-					"componentGap": 0,
-					"divider": "between-accordion-rows",
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["TitleSection"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "price-accordion",
-							"types": ["AccordionPriceInfo"],
-							"order": 2,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 구독상품: AccordionPriceInfo 가격/배송 정보 pagestack"
+			"componentID": "PriceAccordionStackArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["AccordionPriceInfo"]
-				},
-				"keywords": ["AccordionPriceInfo", "price-accordion", "가격", "요금", "혜택", "구독상품"],
-				"priority": 101
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "delivery-info-accordion-area",
+			"id": "layout.area.deliveryInfoAccordionArea",
 			"target": "area",
 			"name": "배송 정보 아코디언 영역",
 			"description": "가격 정보와 분리된 배송/수령 안내를 AccordionPriceInfo 또는 AccordionNoticeInfo로 접어 보여주는 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "product-info-section",
-					"componentGap": 0,
-					"divider": "between-accordion-rows",
-					"expectedChildren": [
-						{
-							"slot": "delivery-accordion",
-							"types": ["AccordionPriceInfo", "AccordionNoticeInfo"],
-							"order": 1,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 구독상품: 배송 정보 accordion pagestack"
+			"componentID": "DeliveryInfoAccordionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["AccordionPriceInfo", "AccordionNoticeInfo"]
-				},
-				"keywords": ["delivery-info", "배송", "수령", "AccordionPriceInfo", "AccordionNoticeInfo"],
-				"priority": 100
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.productMoreLinkArea",
@@ -904,46 +759,27 @@
 			"status": "draft"
 		},
 		{
-			"id": "notice-accordion-stack-area",
+			"id": "layout.area.noticeAccordionStackArea",
 			"target": "area",
 			"name": "공지 아코디언 스택 영역",
 			"description": "기프티콘/혜택브랜드/단말기 상세의 AccordionNoticeInfo disclosure 또는 long guide를 반복 배치하는 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "product-disclosure-accordion",
-					"componentGap": 0,
-					"divider": "between-accordion-rows",
-					"expectedChildren": [
-						{
-							"slot": "notice-accordion",
-							"types": ["AccordionNoticeInfo"],
-							"order": 1,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품): AccordionNoticeInfo disclosure and long guide sections across gifticon, benefit brand, device variants"
+			"componentID": "NoticeAccordionStackArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["AccordionNoticeInfo"]
-				},
-				"keywords": [
-					"AccordionNoticeInfo",
-					"notice-accordion",
-					"disclosure",
-					"long-guide",
-					"이용안내",
-					"유의사항"
-				],
-				"priority": 103
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.listSummaryCardArea",
@@ -974,61 +810,30 @@
 			"status": "draft"
 		},
 		{
-			"id": "pagestack-info-text-section",
+			"id": "layout.area.pagestackInfoTextSection",
 			"target": "area",
 			"name": "페이지스택 정보 텍스트 섹션",
 			"description": "Pagestack 안에서 ContentsTitle/TitleSection 다음 InfoTextList 묶음을 Divider로 구분해 배치하는 이용내역 섹션 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 12,
-					"componentGap": 0,
-					"divider": "between-info-text-rows",
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["TitleSection"],
-							"order": 1
-						},
-						{
-							"slot": "info-row",
-							"types": ["InfoTextList"],
-							"order": 2,
-							"repeat": true
-						},
-						{
-							"slot": "row-divider",
-							"types": ["Divider"],
-							"order": 3,
-							"repeat": true,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10098:117467",
-					"sourceFigmaNodes": ["10098:117467", "10098:117650", "10082:58066"],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10098-117467",
-					"sourceFigmaReference": "리스트_이용내역 Pagestack sections: TitleSection + InfoTextList + Divider + InfoTextList"
+			"componentID": "PagestackInfoTextSectionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["TitleSection", "InfoTextList"],
-					"anyOf": ["Divider"]
-				},
-				"keywords": [
-					"Pagestack",
-					"ContentsTitle",
-					"TitleSection",
-					"InfoTextList",
-					"이용내역",
-					"section-divider"
-				],
-				"priority": 97
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.filterChipTextListArea",
@@ -1061,213 +866,108 @@
 			"status": "draft"
 		},
 		{
-			"id": "text-list-group-area",
+			"id": "layout.area.textListGroupArea",
 			"target": "area",
 			"name": "텍스트 리스트 그룹 영역",
 			"description": "TextListGroup 내부에서 TitleSection과 Local_ListInfo의 InfoTextList 5개 row를 Divider로 나눠 배치하는 하위 리스트 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 12,
-					"componentGap": 0,
-					"rowCount": 5,
-					"divider": "between-info-text-rows",
-					"expectedChildren": [
-						{
-							"slot": "group-title",
-							"types": ["TitleSection"],
-							"order": 1
-						},
-						{
-							"slot": "local-list-info",
-							"types": ["InfoTextList"],
-							"order": 2,
-							"repeat": true
-						},
-						{
-							"slot": "row-divider",
-							"types": ["Divider"],
-							"order": 3,
-							"repeat": true,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10228:40516",
-					"sourceFigmaNodes": ["10228:40516", "10570:31538", "10228:40509"],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10228-40516",
-					"sourceFigmaReference": "TextListGroup with TitleSection + Local_ListInfo 5 InfoTextList rows"
+			"componentID": "TextListGroupArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
+				"rowCount": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["TitleSection", "InfoTextList"],
-					"anyOf": ["Divider"]
-				},
-				"keywords": ["TextListGroup", "Local_ListInfo", "InfoTextList", "5 rows", "포인트", "할인"],
-				"priority": 94
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "plain-info-text-list-area",
+			"id": "layout.area.plainInfoTextListArea",
 			"target": "area",
 			"name": "기본 정보 텍스트 리스트 영역",
 			"description": "별도 Contents frame 없이 Local_ListInfo에 InfoTextList row만 반복되는 공지사항형 plain list 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"hideTitle": true,
-					"componentGap": 0,
-					"rowCount": 9,
-					"divider": "between-info-text-rows",
-					"expectedChildren": [
-						{
-							"slot": "notice-row",
-							"types": ["InfoTextList"],
-							"order": 1,
-							"repeat": true
-						},
-						{
-							"slot": "row-divider",
-							"types": ["Divider"],
-							"order": 2,
-							"repeat": true,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10570:31164",
-					"sourceFigmaNodes": ["10082:47225", "10570:31164"],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10570-31164",
-					"sourceFigmaReference": "리스트_공지사항 Local_ListInfo: 9 InfoTextList rows separated by Divider, no explicit Contents frame"
+			"componentID": "PlainInfoTextListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"hideTitle": {
+					"type": "boolean"
+				},
+				"rowCount": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["InfoTextList"],
-					"noneOf": ["TitleSection", "CardSummary", "Chip", "AccordionNoticeInfo"]
-				},
-				"keywords": ["공지사항", "Local_ListInfo", "plain-list", "InfoTextList", "notice-list"],
-				"priority": 95
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "tab-chip-search-accordion-area",
+			"id": "layout.area.tabChipSearchAccordionArea",
 			"target": "area",
 			"name": "탭 칩 검색 아코디언 영역",
 			"description": "이용안내 Contents에서 Tab, Chip, Figma SearchBar affordance, AccordionList가 순서대로 이어지는 검색/필터 포함 안내 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 12,
-					"filterGap": 8,
-					"figmaOnlyAffordances": ["SearchBar"],
-					"expectedChildren": [
-						{
-							"slot": "tab",
-							"types": ["Tab"],
-							"order": 1
-						},
-						{
-							"slot": "chip-filter",
-							"types": ["Chip"],
-							"order": 2,
-							"repeat": true
-						},
-						{
-							"slot": "search",
-							"types": [],
-							"order": 3,
-							"optional": true,
-							"figmaOnlyType": "SearchBar"
-						},
-						{
-							"slot": "accordion-list",
-							"types": ["AccordionNoticeInfo", "Divider"],
-							"order": 4
-						}
-					],
-					"sourceFigmaNode": "10082:43725",
-					"sourceFigmaNodes": [
-						"10082:43724",
-						"10082:43725",
-						"10082:43727",
-						"10082:43728",
-						"10082:43729",
-						"10570:31266"
-					],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-43725",
-					"sourceFigmaReference": "리스트_이용안내 Contents: Tab + Chip + SearchBar + AccordionList"
+			"componentID": "TabChipSearchAccordionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"filterGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["Tab", "Chip", "AccordionNoticeInfo"],
-					"anyOf": ["Divider"]
-				},
-				"keywords": ["이용안내", "Tab", "Chip", "SearchBar", "AccordionList", "filter", "검색"],
-				"priority": 97
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "accordion-notice-list-area",
+			"id": "layout.area.accordionNoticeListArea",
 			"target": "area",
 			"name": "공지 아코디언 리스트 영역",
 			"description": "AccordionList 내부 AccordionNoticeInfo row들을 Divider로 구분해 반복 배치하는 이용안내 하위 리스트 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 0,
-					"divider": "between-accordion-rows",
-					"expectedChildren": [
-						{
-							"slot": "accordion-notice-row",
-							"types": ["AccordionNoticeInfo"],
-							"order": 1,
-							"repeat": true
-						},
-						{
-							"slot": "row-divider",
-							"types": ["Divider"],
-							"order": 2,
-							"repeat": true,
-							"optional": true
-						}
-					],
-					"sourceFigmaNode": "10570:31266",
-					"sourceFigmaNodes": ["10570:31266", "10082:43729"],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10570-31266",
-					"sourceFigmaReference": "리스트_이용안내 AccordionList: AccordionNoticeInfo rows separated by Divider"
+			"componentID": "AccordionNoticeListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["AccordionNoticeInfo"],
-					"anyOf": ["Divider"]
-				},
-				"keywords": [
-					"AccordionList",
-					"AccordionNoticeInfo",
-					"이용안내",
-					"notice-accordion",
-					"Divider"
-				],
-				"priority": 96
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "layout.area.productListGroupArea",
@@ -1446,52 +1146,27 @@
 			"status": "draft"
 		},
 		{
-			"id": "area-app-bar",
+			"id": "layout.area.areaAppBar",
 			"target": "area",
 			"name": "앱바 헤더",
 			"description": "화면 상단 navigation AppBar 를 담는 area 레이아웃. AppBar 컴포넌트가 단일 자식으로 들어간다.",
-			"layout": {
-				"direction": "horizontal",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"hideTitle": true,
-					"componentGap": 0,
-					"expectedChildren": [
-						{
-							"slot": "navigation",
-							"types": ["header"],
-							"order": 1
-						}
-					],
-					"sourceFigmaNode": "10069:121797",
-					"sourceFigmaNodes": [
-						"10069:97922",
-						"10069:98006",
-						"10069:98106",
-						"10069:121797",
-						"10069:121799"
-					],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121797",
-					"sourceFigmaReference": "상세-상품 AppBar navigation blocks"
+			"componentID": "AreaAppBarArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"hideTitle": {
+					"type": "boolean"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["header"]
-				},
-				"keywords": ["app-bar", "header", "top-nav", "navigation", "상단", "뒤로가기"],
-				"priority": 50
+			"children": {
+				"accepts": "component",
+				"min": 1
 			},
-			"variants": [
-				{
-					"name": "default"
-				},
-				{
-					"name": "with-back"
-				}
-			]
+			"status": "draft"
 		}
 	]
 }

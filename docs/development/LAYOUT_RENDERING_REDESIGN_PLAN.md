@@ -170,11 +170,11 @@ data/tables/*
 - PageStack 계열은 `componentGap`, `titleGap`, `itemPaddingX`, `paddingY`, `sectionPaddingX` 보존 경로를 둔다.
 - region 계열 16개를 새 component catalog entry로 전환했고, region component는 `VStack`/`BottomFixedArea`만 사용한다.
 - screen shell 계열 4개를 새 component catalog entry로 전환했다.
+- area catalog 40개 전체를 새 component catalog entry로 전환했다.
 - 전환된 catalog entry에서는 runtime `default`를 제거하고 실제 component default로 옮겼다.
 
 아직 남은 것:
 
-- `area-patterns.json`의 대부분은 아직 legacy `layout`/`match` 구조다.
 - `composite-patterns.json`는 아직 legacy `layout`/`match` 구조다.
 - renderer 내부의 이전 table materializer subpath와 관련 legacy test는 후속 batch에서 제거해야 한다.
 - validation의 target/layout mismatch 강제는 아직 후속 작업으로 남아 있다.
