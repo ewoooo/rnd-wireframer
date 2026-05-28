@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Renderer Interpreter Restructure Plan
+
+- 변경: `docs/development/RENDERER_INTERPRETER_RESTRUCTURE_PLAN.md`를 추가해 renderer fallback 제거, resolver 기반 interpreter core 분리, adapter 디렉토리 분리, 디렉토리 재편 작업 단계를 기록함
+- 이유: `@cx/renderer`를 RenderTree-to-React 순수 interpreter로 만들기 전에 살아있는 fallback UI 경로, node kind registry 중심 구조, 외부 catalog/store 직접 의존을 단계적으로 걷어내기 위함
+- 검증: 문서 책임 대조
+- 후속: fallback 의존 테스트 제거부터 단계별 구현
+
 ## 2026-05-28 - Layout Rendering Redesign Final Verification
 
 - 변경: layout rendering redesign plan의 남은 항목을 최종 감사하고 public surface, catalog shape, renderer table legacy import, table data pattern field를 current state 기준으로 확인함
