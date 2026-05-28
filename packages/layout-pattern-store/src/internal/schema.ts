@@ -6,6 +6,8 @@ import type {
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
+	LayoutPatternChildrenContract,
+	LayoutPatternPropContract,
 	Pattern,
 	PatternResolutionSignals,
 	PatternStore,
@@ -23,6 +25,8 @@ export type {
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
+	LayoutPatternChildrenContract,
+	LayoutPatternPropContract,
 	Pattern,
 	PatternResolutionSignals,
 	RegionPattern,
@@ -47,6 +51,7 @@ const propValueSchema: z.ZodType<PropValue> = z.lazy(() =>
 );
 
 const propsSchema: z.ZodType<Record<string, PropValue>> = z.record(z.string(), propValueSchema);
+const patternTargetSchema = z.enum(["screen", "region", "area", "composite"]);
 
 const patternIdSchema = z
 	.string()
@@ -55,6 +60,72 @@ const patternIdSchema = z
 
 const variantIdSchema = z.string().min(1);
 const nonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
+
+const layoutPatternPropContractSchema = z
+	.object({
+		type: z.enum(["array", "boolean", "enum", "node", "number", "object", "string"]),
+		aiWritable: z.boolean().optional(),
+		default: propValueSchema.optional(),
+		description: z.string().optional(),
+		required: z.boolean().optional(),
+		values: nonEmptyStringArraySchema.optional(),
+	})
+	.superRefine((contract, ctx) => {
+		if (contract.type === "enum" && !contract.values) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "enum props must declare values",
+				path: ["values"],
+			});
+		}
+		if (contract.type !== "enum" && contract.values) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "values can only be declared for enum props",
+				path: ["values"],
+			});
+		}
+	}) satisfies z.ZodType<LayoutPatternPropContract>;
+
+const layoutPatternChildrenContractSchema = z
+	.object({
+		accepts: z.enum(["any", "area", "area-or-component", "component", "none"]),
+		max: z.number().int().nonnegative().optional(),
+		min: z.number().int().nonnegative().optional(),
+	})
+	.superRefine((contract, ctx) => {
+		if (contract.max !== undefined && contract.min !== undefined && contract.max < contract.min) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "children.max must be greater than or equal to children.min",
+				path: ["max"],
+			});
+		}
+	}) satisfies z.ZodType<LayoutPatternChildrenContract>;
+
+export const layoutPatternCatalogEntrySchema = z
+	.object({
+		layoutId: z
+			.string()
+			.regex(/^layout\.(screen|region|area|composite)\.[A-Za-z0-9][A-Za-z0-9.-]*$/),
+		target: patternTargetSchema,
+		name: z.string().min(1),
+		componentID: z.string().min(1),
+		children: layoutPatternChildrenContractSchema.optional(),
+		description: z.string().optional(),
+		props: z.record(z.string(), layoutPatternPropContractSchema).optional(),
+		status: z.enum(["deprecated", "draft", "ready"]).optional(),
+	})
+	.superRefine((entry, ctx) => {
+		const expectedPrefix = `layout.${entry.target}.`;
+		if (!entry.layoutId.startsWith(expectedPrefix)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `layoutId for target '${entry.target}' must start with '${expectedPrefix}'`,
+				path: ["layoutId"],
+			});
+		}
+	});
 
 const childWrapSchema = z.object({
 	kind: z.literal("page-stack"),
@@ -269,6 +340,12 @@ export const patternCatalogSchema = z.object({
 	patterns: z.array(catalogPatternSchema),
 });
 
+export const layoutPatternCatalogSchema = z
+	.object({
+		patterns: z.array(layoutPatternCatalogEntrySchema),
+	})
+	.superRefine(refineUniqueLayoutIds);
+
 export type CatalogPattern = z.infer<typeof catalogPatternSchema>;
 export type CatalogMatch = z.infer<typeof catalogMatchSchema>;
 
@@ -286,6 +363,24 @@ function refineUniquePatternIds<T extends { patterns: Array<{ id: string }> }>(
 			code: z.ZodIssueCode.custom,
 			message: `duplicate pattern id '${pattern.id}'`,
 			path: ["patterns", index, "id"],
+		});
+	}
+}
+
+function refineUniqueLayoutIds<T extends { patterns: Array<{ layoutId: string }> }>(
+	store: T,
+	ctx: z.RefinementCtx,
+) {
+	const seen = new Set<string>();
+	for (const [index, pattern] of store.patterns.entries()) {
+		if (!seen.has(pattern.layoutId)) {
+			seen.add(pattern.layoutId);
+			continue;
+		}
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: `duplicate layout id '${pattern.layoutId}'`,
+			path: ["patterns", index, "layoutId"],
 		});
 	}
 }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+	layoutPatternCatalogEntrySchema,
+	layoutPatternCatalogSchema,
 	normalizedPatternStoreSchema,
 	patternSchema,
 	patternStoreSchema,
@@ -118,5 +120,63 @@ describe("@cx/layout-pattern-store schema", () => {
 				],
 			}),
 		).toThrow(/duplicate pattern id/);
+	});
+
+	it("accepts layout pattern catalog entries with componentID and prop contracts", () => {
+		const catalog = layoutPatternCatalogSchema.parse({
+			patterns: [
+				{
+					layoutId: "layout.area.fieldStack",
+					target: "area",
+					name: "Field Stack",
+					componentID: "PageStackAreaPattern",
+					props: {
+						gap: {
+							type: "number",
+							default: 12,
+						},
+						titleMode: {
+							type: "enum",
+							values: ["hidden", "none", "visible"],
+							default: "visible",
+						},
+					},
+					children: {
+						accepts: "component",
+						min: 1,
+					},
+					status: "draft",
+				},
+			],
+		});
+
+		expect(catalog.patterns[0]?.componentID).toBe("PageStackAreaPattern");
+	});
+
+	it("rejects layout pattern catalog entries with target/layout mismatches", () => {
+		expect(() =>
+			layoutPatternCatalogEntrySchema.parse({
+				layoutId: "layout.region.fieldStack",
+				target: "area",
+				name: "Field Stack",
+				componentID: "PageStackAreaPattern",
+			}),
+		).toThrow(/layout\.area\./);
+	});
+
+	it("rejects enum prop contracts without values", () => {
+		expect(() =>
+			layoutPatternCatalogEntrySchema.parse({
+				layoutId: "layout.area.badEnum",
+				target: "area",
+				name: "Bad enum",
+				componentID: "PageStackAreaPattern",
+				props: {
+					titleMode: {
+						type: "enum",
+					},
+				},
+			}),
+		).toThrow(/enum props must declare values/);
 	});
 });

@@ -443,7 +443,7 @@ function validateNode(
 
 	validateNodeMetadata(input, path, issues, ids);
 	validateDisplay(input.display, [...path, "display"], issues);
-	validateLayoutPatternId(input.layout, [...path, "layout"], issues);
+	validateLayoutPatternIdForNode(input.type, input.layout, [...path, "layout"], issues);
 
 	if ("children" in input && !Array.isArray(input.children)) {
 		addIssue(issues, {
@@ -472,7 +472,12 @@ function validateNode(
 	}
 }
 
-function validateLayoutPatternId(input: unknown, path: Path, issues: ValidationIssue[]) {
+function validateLayoutPatternIdForNode(
+	nodeType: string,
+	input: unknown,
+	path: Path,
+	issues: ValidationIssue[],
+) {
 	if (input === undefined) return;
 	if (typeof input !== "string" || input.length === 0) {
 		addIssue(issues, {
@@ -490,7 +495,27 @@ function validateLayoutPatternId(input: unknown, path: Path, issues: ValidationI
 			message: `Unknown layout pattern id: ${input}.`,
 			path,
 		});
+		return;
 	}
+
+	const expectedTarget = getExpectedLayoutTargetForNodeType(nodeType);
+	if (expectedTarget && resolved.target !== expectedTarget) {
+		addIssue(issues, {
+			code: "unknown-layout-ref",
+			message: `${nodeType} nodes must use layout.${expectedTarget}.* refs, but received ${input}.`,
+			path,
+		});
+	}
+}
+
+function getExpectedLayoutTargetForNodeType(
+	nodeType: string,
+): "area" | "composite" | "region" | "screen" | undefined {
+	if (nodeType === "Screen") return "screen";
+	if (LAYOUT_NODE_TYPES.screenRegion.some((regionType) => regionType === nodeType)) return "region";
+	if (nodeType.startsWith("area.")) return "area";
+	if (LAYOUT_NODE_TYPES.layout.some((layoutType) => layoutType === nodeType)) return undefined;
+	return "composite";
 }
 
 function validateScreenStructure(

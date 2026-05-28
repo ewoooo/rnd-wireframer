@@ -2,10 +2,9 @@ import { AppBar, Callout, ListSelected, ListText } from "@cx/components";
 import type { ComponentCatalogEntry } from "@cx/components/catalog";
 import { componentCatalog, getComponentCatalogEntry } from "@cx/components/catalog";
 import { Flex, Grid } from "@cx/layout/primitives";
-import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/style";
+import { resolvePatternComponent } from "@cx/layout-pattern-store/resolver";
 import { createElement } from "react";
 import type { NodeRenderer, NodeRendererDefinition } from "../registry/node-renderer-registry";
-import { toNumber } from "../tree/coerce";
 import { toText } from "../tree/runtime";
 import type {
 	RenderTreeFlexLayoutProps,
@@ -182,61 +181,22 @@ export const defaultNodeRenderers: NodeRendererDefinition[] = [
 	{
 		kind: "page-stack",
 		render: ({ node, renderable, renderChildren }) => {
-			const { props } = renderable;
-			const sectionPaddingX = toNumber(props.sectionPaddingX, 12);
-			const itemPaddingX = toNumber(props.itemPaddingX, 20);
-			const paddingY = toNumber(props.paddingY, 28);
-			const slotInsetX = toNumber(props.slotInsetX, 0);
-			const sectionGap = toNumber(props.sectionGap, 0);
-			const itemGap = toNumber(props.gap, 0);
-			const titleMode = String(props.titleMode ?? "none");
-			const itemTemplate = String(props.itemTemplate ?? "default-20");
-			const showTitle = titleMode === "visible";
+			const resolvedPattern = resolvePatternComponent({
+				layoutId: node.layout ?? node.type,
+				props: renderable.props,
+			});
+			if (!resolvedPattern) return renderChildren();
 
+			const { Component, componentProps } = resolvedPattern;
 			return (
-				<section
+				<Component
 					key={node.metadata.id}
-					className={cx(
-						"box-border flex w-full flex-col",
-						spacingUtilityClass("gap", sectionGap),
-						spacingUtilityClass("py", paddingY),
-						spacingUtilityClass("px", sectionPaddingX),
-						itemTemplate === "card-0" ? "rounded-[20px] bg-white" : undefined,
-					)}
-					data-node-id={node.metadata.id}
-					data-node-type={node.type}
-					data-page-stack-template={itemTemplate}
-					data-page-stack-title={titleMode}
-					style={{
-						gap: spacingFallbackStyleValue(sectionGap),
-						paddingBlock: spacingFallbackStyleValue(paddingY),
-						paddingInline: spacingFallbackStyleValue(sectionPaddingX),
-					}}
+					{...componentProps}
+					className={node.className}
+					metadata={node.metadata}
 				>
-					{showTitle ? (
-						<div
-							className={cx("box-border w-full", spacingUtilityClass("px", itemPaddingX))}
-							style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
-						>
-							<h2 className="m-0 text-title-20 font-semibold text-foreground">
-								{toText(node.metadata.title)}
-							</h2>
-						</div>
-					) : null}
-					<div
-						className={cx(
-							"box-border flex w-full flex-col",
-							spacingUtilityClass("gap", itemGap),
-							spacingUtilityClass("px", itemPaddingX),
-						)}
-						style={{
-							gap: spacingFallbackStyleValue(itemGap),
-							paddingInline: itemPaddingX + slotInsetX,
-						}}
-					>
-						{renderChildren()}
-					</div>
-				</section>
+					{renderChildren()}
+				</Component>
 			);
 		},
 	},
