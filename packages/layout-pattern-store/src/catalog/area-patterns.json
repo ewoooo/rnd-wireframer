@@ -30,13 +30,19 @@
 					"type": "number",
 					"description": "Contents slot child gap."
 				},
-				"itemPaddingX": { "type": "number" },
+				"itemPaddingX": {
+					"type": "number"
+				},
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number" },
-				"sectionPaddingX": { "type": "number" },
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
 				"titleGap": {
 					"type": "number",
 					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
@@ -46,7 +52,10 @@
 					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"children": { "accepts": "component", "min": 1 },
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
 			"status": "draft"
 		},
 		{
@@ -92,22 +101,37 @@
 			"description": "Area children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
 			"componentID": "FieldStackArea",
 			"props": {
-				"componentGap": { "type": "number" },
-				"gap": { "type": "number" },
-				"itemPaddingX": { "type": "number" },
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number" },
-				"sectionPaddingX": { "type": "number" },
-				"titleGap": { "type": "number" },
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
 				"titleMode": {
 					"type": "enum",
 					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"children": { "accepts": "component", "min": 1 },
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
 			"status": "draft"
 		},
 		{
@@ -144,22 +168,37 @@
 			"description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
 			"componentID": "CheckboxStackArea",
 			"props": {
-				"componentGap": { "type": "number" },
-				"gap": { "type": "number" },
-				"itemPaddingX": { "type": "number" },
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number" },
-				"sectionPaddingX": { "type": "number" },
-				"titleGap": { "type": "number" },
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
 				"titleMode": {
 					"type": "enum",
 					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"children": { "accepts": "component", "min": 1 },
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
 			"status": "draft"
 		},
 		{
@@ -169,22 +208,37 @@
 			"description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
 			"componentID": "AccordionListArea",
 			"props": {
-				"componentGap": { "type": "number" },
-				"gap": { "type": "number" },
-				"itemPaddingX": { "type": "number" },
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number" },
-				"sectionPaddingX": { "type": "number" },
-				"titleGap": { "type": "number" },
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
 				"titleMode": {
 					"type": "enum",
 					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"children": { "accepts": "component", "min": 1 },
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
 			"status": "draft"
 		},
 		{
@@ -194,22 +248,37 @@
 			"description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
 			"componentID": "MessageStackArea",
 			"props": {
-				"componentGap": { "type": "number" },
-				"gap": { "type": "number" },
-				"itemPaddingX": { "type": "number" },
+				"componentGap": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
 				},
-				"paddingY": { "type": "number" },
-				"sectionPaddingX": { "type": "number" },
-				"titleGap": { "type": "number" },
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
+				},
 				"titleMode": {
 					"type": "enum",
 					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"children": { "accepts": "component", "min": 1 },
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
 			"status": "draft"
 		},
 		{
@@ -328,60 +397,36 @@
 			}
 		},
 		{
-			"id": "product-option-grid",
+			"id": "layout.area.productOptionGrid",
 			"target": "area",
 			"name": "상품 옵션 그리드",
 			"description": "색상, 용량, 배송, 요금제처럼 선택 옵션 card를 제목 아래 2열 grid로 배치하는 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "grid",
-					"columns": 2,
-					"componentGap": 8,
-					"titleGap": 12,
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["section-header", "title-section"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "option-selection",
-							"types": ["option-card"],
-							"order": 2,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:121745",
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-121745",
-					"sourceFigmaReference": "상세_단말기 Pagestack option-selection / option-grid area block"
+			"componentID": "ProductOptionGridArea",
+			"props": {
+				"columns": {
+					"type": "number"
+				},
+				"componentGap": {
+					"type": "number",
+					"description": "Legacy layoutProps.componentGap preserved from the pre-component catalog."
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number",
+					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["option-card", "section-header", "title-section"]
-				},
-				"keywords": [
-					"option",
-					"option-selection",
-					"option-grid",
-					"color",
-					"storage",
-					"delivery",
-					"plan",
-					"선택",
-					"옵션",
-					"색상",
-					"용량",
-					"배송",
-					"요금제"
-				],
-				"priority": 95
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "product-info-section",
@@ -500,101 +545,61 @@
 			}
 		},
 		{
-			"id": "benefit-brand-list",
+			"id": "layout.area.benefitBrandList",
 			"target": "area",
 			"name": "혜택 브랜드 리스트",
 			"description": "제휴/혜택 브랜드 card를 세로 list로 배치하는 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 16,
-					"componentGap": 12,
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["section-header", "title-section"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "benefit-list",
-							"types": ["card-contents", "list-cell", "banner-indicator"],
-							"order": 2,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:98025",
-					"sourceFigmaNodes": ["10069:98027", "10069:98025"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-98025",
-					"sourceFigmaReference": "상세_혜택브랜드 benefit / brand list area blocks"
+			"componentID": "BenefitBrandListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": [
-						"card-contents",
-						"list-cell",
-						"section-header",
-						"title-section",
-						"banner-indicator"
-					]
-				},
-				"keywords": ["혜택", "브랜드", "제휴", "benefit", "benefit-list", "brand", "할인", "쿠폰"],
-				"priority": 88
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "nearby-store-list",
+			"id": "layout.area.nearbyStoreList",
 			"target": "area",
 			"name": "근처 매장 리스트",
 			"description": "지도와 근처 매장 row를 함께 표시하는 매장 안내 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 16,
-					"componentGap": 8,
-					"mapHeight": 172,
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["section-header", "title-section"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "store-map",
-							"types": ["map"],
-							"order": 2,
-							"optional": true
-						},
-						{
-							"slot": "store-list",
-							"types": ["store-card", "list-cell"],
-							"order": 3,
-							"repeat": true
-						}
-					],
-					"sourceFigmaNode": "10069:98025",
-					"sourceFigmaNodes": ["10069:98027", "10069:98025"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-98025",
-					"sourceFigmaReference": "상세_혜택브랜드 store / nearby-store list area blocks"
+			"componentID": "NearbyStoreListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"mapHeight": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["map", "store-card", "list-cell"]
-				},
-				"keywords": ["매장", "지도", "store", "map", "nearby-store", "list", "근처", "방문"],
-				"priority": 88
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "product-footer-legal",
@@ -731,288 +736,172 @@
 			}
 		},
 		{
-			"id": "product-more-link-area",
+			"id": "layout.area.productMoreLinkArea",
 			"target": "area",
 			"name": "상품 더보기 링크 영역",
 			"description": "기프티콘의 ButtonMoreProduct 또는 설명 이미지 하단 ButtonMore처럼 TextButton alias로 흡수 가능한 더보기 affordance만 별도 배치하는 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "action-stack",
-					"componentGap": 0,
-					"expectedChildren": [
-						{
-							"slot": "more-link",
-							"types": ["TextButton"],
-							"order": 1,
-							"aliases": ["ButtonMore", "ButtonMoreProduct"]
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 기프티콘 ButtonMoreProduct and product description ButtonMore layers"
+			"componentID": "ProductMoreLinkArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"keywords": ["ButtonMore", "ButtonMoreProduct", "product-more", "더보기", "기프티콘"],
-				"priority": 101
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "rich-image-tab-area",
+			"id": "layout.area.richImageTabArea",
 			"target": "area",
 			"name": "탭 포함 상세 이미지 영역",
 			"description": "UnderlineTab 이후 긴 상품 설명 이미지와 ButtonMore가 이어지는 상품 상세 설명 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "product-info-section",
-					"componentGap": 0,
-					"expectedChildren": [
-						{
-							"slot": "tab",
-							"types": ["Tab"],
-							"order": 1
-						},
-						{
-							"slot": "description-image",
-							"types": [],
-							"order": 2,
-							"repeat": true,
-							"figmaOnlyType": "Image",
-							"sourceLayerRole": "product-description-media"
-						},
-						{
-							"slot": "more-link",
-							"types": ["TextButton"],
-							"order": 3,
-							"optional": true,
-							"aliases": ["ButtonMore"]
-						}
-					],
-					"componentGaps": [
-						{
-							"figmaType": "Image",
-							"reason": "Long product description image is source media, not a confirmed renderer component"
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 구독상품/단말기: UnderlineTab + long Image + ButtonMore description pagestack"
+			"componentID": "RichImageTabArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["Tab"]
-				},
-				"keywords": [
-					"UnderlineTab",
-					"rich-image",
-					"description-image",
-					"ButtonMore",
-					"상품정보",
-					"이용안내"
-				],
-				"priority": 101
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "option-list-section-area",
+			"id": "layout.area.optionListSectionArea",
 			"target": "area",
 			"name": "옵션 리스트 섹션 영역",
 			"description": "단말기 상세의 색상/용량/배송/요금제 OptionList 섹션을 실제 OptionList surface로 배치하는 subtype.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "product-option-grid",
-					"titleGap": 12,
-					"componentGap": 8,
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["TitleSection"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "option-list",
-							"types": ["OptionList"],
-							"order": 2,
-							"repeat": true,
-							"aliases": ["Local_OptionList"]
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 단말기: OptionList sections"
+			"componentID": "OptionListSectionArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["TitleSection", "OptionList", "OptionCard"]
-				},
-				"keywords": [
-					"OptionList",
-					"option-list",
-					"옵션",
-					"색상",
-					"용량",
-					"배송",
-					"요금제",
-					"단말기"
-				],
-				"priority": 102
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "coupon-benefit-area",
+			"id": "layout.area.couponBenefitArea",
 			"target": "area",
 			"name": "쿠폰 혜택 영역",
 			"description": "혜택브랜드 상세에서 Coupon layer를 실제 Coupon surface로 배치하는 혜택 블록 subtype.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "benefit-brand-list",
-					"componentGap": 12,
-					"expectedChildren": [
-						{
-							"slot": "coupon",
-							"types": ["Coupon"],
-							"order": 1,
-							"repeat": true,
-							"aliases": ["Local_Coupon"]
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 혜택브랜드: Coupon benefit block"
+			"componentID": "CouponBenefitArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["Coupon", "coupon"]
-				},
-				"keywords": ["Coupon", "coupon-benefit", "쿠폰", "혜택브랜드", "benefit"],
-				"priority": 101
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "map-card-info-list-area",
+			"id": "layout.area.mapCardInfoListArea",
 			"target": "area",
 			"name": "지도 카드정보 리스트 영역",
 			"description": "혜택브랜드 상세에서 Map 다음 CardInfo 3개 매장 정보를 이어 배치하는 subtype. CardInfo는 gap으로 남긴다.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 8,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "nearby-store-list",
-					"mapHeight": 172,
-					"componentGap": 8,
-					"expectedChildren": [
-						{
-							"slot": "store-map",
-							"types": ["MapBlock"],
-							"order": 1
-						},
-						{
-							"slot": "card-info",
-							"types": [],
-							"order": 2,
-							"repeat": true,
-							"figmaOnlyType": "CardInfo"
-						}
-					],
-					"componentGaps": [
-						{
-							"figmaType": "CardInfo",
-							"reason": "Figma CardInfo store row is not yet a confirmed package component; StoreCard may be a future mapping candidate"
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 혜택브랜드: Map + CardInfo x3 store list"
+			"componentID": "MapCardInfoListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"mapHeight": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["MapBlock"]
-				},
-				"keywords": ["Map", "MapBlock", "CardInfo", "map-card-info", "매장", "지도", "혜택브랜드"],
-				"priority": 102
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "card-info-brand-list-area",
+			"id": "layout.area.cardInfoBrandListArea",
 			"target": "area",
 			"name": "브랜드 카드정보 리스트 영역",
 			"description": "혜택브랜드 상세의 CardContentsLine 이후 CardInfo 브랜드 혜택 리스트를 표현하는 subtype",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"subtypeOf": "benefit-brand-list",
-					"componentGap": 12,
-					"expectedChildren": [
-						{
-							"slot": "brand-summary",
-							"types": [],
-							"order": 1,
-							"optional": true,
-							"figmaOnlyType": "CardContentsLine"
-						},
-						{
-							"slot": "brand-benefit-row",
-							"types": [],
-							"order": 2,
-							"repeat": true,
-							"figmaOnlyType": "CardInfo"
-						}
-					],
-					"componentGaps": [
-						{
-							"figmaType": "CardContentsLine",
-							"reason": "Line-style Figma card is not covered by current CardContentsFilled package contract"
-						},
-						{
-							"figmaType": "CardInfo",
-							"reason": "Figma brand benefit row until package component contract exists"
-						}
-					],
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaReferenceRoot": "10069:97828",
-					"sourceFigmaReference": "Page (상세-상품) 혜택브랜드: CardContentsLine and CardInfo brand benefit list"
+			"componentID": "CardInfoBrandListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"keywords": [
-					"CardContentsLine",
-					"CardInfo",
-					"card-info-brand-list",
-					"브랜드",
-					"혜택브랜드",
-					"benefit-list"
-				],
-				"priority": 101
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "notice-accordion-stack-area",
@@ -1057,49 +946,32 @@
 			}
 		},
 		{
-			"id": "list-summary-card-area",
+			"id": "layout.area.listSummaryCardArea",
 			"target": "area",
 			"name": "리스트 요약 카드 영역",
 			"description": "리스트-텍스트 화면 상단 Local_Summary에 CardSummary 단일 요약 카드를 배치하는 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"hideTitle": true,
-					"componentGap": 0,
-					"expectedChildren": [
-						{
-							"slot": "summary",
-							"types": ["CardSummary"],
-							"order": 1
-						}
-					],
-					"sourceFigmaNode": "10082:58059",
-					"sourceFigmaNodes": ["10082:58059", "10082:58060", "10082:58366", "10082:58229"],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58059",
-					"sourceFigmaReference": "Page 리스트-텍스트 Local_Summary + CardSummary summary area"
+			"componentID": "ListSummaryCardArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["CardSummary"],
-					"noneOf": ["InfoTextList", "AccordionNoticeInfo"]
-				},
-				"keywords": [
-					"Local_Summary",
-					"CardSummary",
-					"summary",
-					"list-summary",
-					"요약",
-					"이용내역",
-					"할인내역",
-					"포인트내역"
-				],
-				"priority": 98
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "pagestack-info-text-section",
@@ -1159,79 +1031,34 @@
 			}
 		},
 		{
-			"id": "filter-chip-text-list-area",
+			"id": "layout.area.filterChipTextListArea",
 			"target": "area",
 			"name": "필터 칩 텍스트 리스트 영역",
 			"description": "요약 카드 아래 ContentsTitle, Chip filter, TextListGroup이 순서대로 이어지는 포인트/할인 내역 리스트 영역",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 16,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 12,
-					"filterGap": 12,
-					"componentGap": 16,
-					"expectedChildren": [
-						{
-							"slot": "summary",
-							"types": ["CardSummary"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "contents-title",
-							"types": ["TitleSection"],
-							"order": 2
-						},
-						{
-							"slot": "filter",
-							"types": ["Chip"],
-							"order": 3,
-							"repeat": true
-						},
-						{
-							"slot": "text-list-group",
-							"types": ["TitleSection", "InfoTextList", "Divider"],
-							"order": 4
-						}
-					],
-					"sourceFigmaNode": "10082:58365",
-					"sourceFigmaNodes": [
-						"10082:58364",
-						"10082:58365",
-						"10082:58366",
-						"10098:107602",
-						"10082:58370",
-						"10228:40516",
-						"10082:58227",
-						"10082:58228",
-						"10082:58229",
-						"10098:107585",
-						"10082:58233",
-						"10228:40509"
-					],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58365",
-					"sourceFigmaReference": "리스트_T플러스포인트내역 / 리스트_할인내역 Contents: Local_Summary, ContentsTitle, Chip, TextListGroup"
+			"componentID": "FilterChipTextListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"filterGap": {
+					"type": "number"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"allOf": ["TitleSection", "Chip", "InfoTextList"],
-					"anyOf": ["CardSummary", "Divider"]
-				},
-				"keywords": [
-					"Chip",
-					"TextListGroup",
-					"포인트내역",
-					"할인내역",
-					"filter",
-					"InfoTextList",
-					"내역"
-				],
-				"priority": 96
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "text-list-group-area",
@@ -1443,287 +1270,180 @@
 			}
 		},
 		{
-			"id": "product-list-group-area",
+			"id": "layout.area.productListGroupArea",
 			"target": "area",
 			"name": "상품 리스트 그룹 영역",
 			"description": "Page (리스트-카드)의 ProductListGroup 단위 섹션을 표현하는 area 패턴. ProductListGroup은 실제 단일 컴포넌트가 아니라 title, optional control, card rows를 묶는 composite/area 구조로 취급한다.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 16,
-				"layoutProps": {
-					"flow": "vertical",
-					"titleGap": 12,
-					"componentGap": 16,
-					"compositeHint": "ProductListGroup",
-					"expectedChildren": [
-						{
-							"slot": "section-title",
-							"types": ["TitleSection"],
-							"order": 1,
-							"optional": true
-						},
-						{
-							"slot": "local-controls",
-							"types": ["Chip"],
-							"order": 2,
-							"optional": true
-						},
-						{
-							"slot": "sorting",
-							"types": ["FilterSorting"],
-							"order": 3,
-							"optional": true
-						},
-						{
-							"slot": "product-list",
-							"types": ["ListProductHorizontal", "ListProductRow"],
-							"order": 4,
-							"repeat": true
-						}
-					],
-					"componentGaps": [
-						{
-							"figmaType": "ProductListGroup",
-							"reason": "Composite/area grouping, not a confirmed renderer component"
-						}
-					],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): variants 리스트_요금제, 리스트_단말기, 리스트_구독상품, 리스트_혜택, 리스트_부가서비스, 리스트_인터넷 공통 ProductListGroup section"
+			"componentID": "ProductListGroupArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["TitleSection", "Chip"]
-				},
-				"keywords": [
-					"ProductListGroup",
-					"product-list-group",
-					"리스트-카드",
-					"리스트_요금제",
-					"리스트_단말기",
-					"리스트_구독상품",
-					"리스트_혜택",
-					"리스트_부가서비스",
-					"리스트_인터넷"
-				],
-				"priority": 98
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "product-list-chip-sort-area",
+			"id": "layout.area.productListChipSortArea",
 			"target": "area",
 			"name": "상품 리스트 칩 정렬 영역",
 			"description": "optional Chip 필터 다음 FilterSorting이 이어지고 ProductListGroup으로 연결되는 리스트-카드 상단 제어 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 12,
-					"controlGap": 8,
-					"expectedChildren": [
-						{
-							"slot": "chip-filter",
-							"types": ["Chip"],
-							"order": 1,
-							"repeat": true,
-							"optional": true
-						},
-						{
-							"slot": "sorting",
-							"types": ["FilterSorting"],
-							"order": 2
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): optional Chip + FilterSorting control stack before ProductListGroup"
+			"componentID": "ProductListChipSortArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"controlGap": {
+					"type": "number"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"anyOf": ["Chip"]
-				},
-				"keywords": [
-					"Chip",
-					"FilterSorting",
-					"chip-sort",
-					"filter-sort",
-					"리스트-카드",
-					"정렬",
-					"필터"
-				],
-				"priority": 97
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "product-list-sort-only-area",
+			"id": "layout.area.productListSortOnlyArea",
 			"target": "area",
 			"name": "상품 리스트 정렬 단독 영역",
 			"description": "Chip 없이 FilterSorting만 ProductListGroup 앞에 놓이는 리스트-카드 정렬 제어 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 0,
-					"expectedChildren": [
-						{
-							"slot": "sorting",
-							"types": ["FilterSorting"],
-							"order": 1
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): sort-only control state before card list"
+			"componentID": "ProductListSortOnlyArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"noneOf": ["Chip"]
-				},
-				"keywords": ["FilterSorting", "sort-only", "리스트-카드", "정렬"],
-				"priority": 96
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "horizontal-card-list-area",
+			"id": "layout.area.horizontalCardListArea",
 			"target": "area",
 			"name": "가로형 상품 카드 리스트 영역",
 			"description": "ListProductHorizontal 카드가 반복되는 요금제/혜택/부가서비스/인터넷형 리스트-카드 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 12,
-					"cardType": "horizontal",
-					"expectedChildren": [
-						{
-							"slot": "horizontal-product-card",
-							"types": ["ListProductHorizontal"],
-							"order": 1,
-							"repeat": true
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): 리스트_요금제 repeats two ProductListGroup sections; 리스트_혜택/리스트_부가서비스/리스트_인터넷 repeat ListProductHorizontal"
+			"componentID": "HorizontalCardListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"noneOf": ["InfoTextList", "AccordionNoticeInfo"]
-				},
-				"keywords": [
-					"ListProductHorizontal",
-					"horizontal-card-list",
-					"리스트_요금제",
-					"리스트_혜택",
-					"리스트_부가서비스",
-					"리스트_인터넷"
-				],
-				"priority": 97
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "row-card-list-area",
+			"id": "layout.area.rowCardListArea",
 			"target": "area",
 			"name": "행형 상품 카드 리스트 영역",
 			"description": "ListProductRow가 반복되는 단말기/구독상품형 리스트-카드 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"flow": "vertical",
-					"componentGap": 0,
-					"cardType": "row",
-					"expectedChildren": [
-						{
-							"slot": "row-product-card",
-							"types": ["ListProductRow"],
-							"order": 1,
-							"repeat": true
-						}
-					],
-					"componentGaps": [],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): 리스트_단말기/리스트_구독상품 repeat ListProductRow"
+			"componentID": "RowCardListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"noneOf": ["InfoTextList", "AccordionNoticeInfo"]
-				},
-				"keywords": ["ListProductRow", "row-card-list", "리스트_단말기", "리스트_구독상품"],
-				"priority": 97
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
-			"id": "hidden-title-pagestack-card-list-area",
+			"id": "layout.area.hiddenTitlePagestackCardListArea",
 			"target": "area",
 			"name": "숨김 제목 페이지스택 카드 리스트 영역",
 			"description": "부가서비스/인터넷 variant처럼 title은 hidden이고 Card 0 pagestack item을 포함한 뒤 ListProductHorizontal 카드가 반복되는 area 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 12,
-				"layoutProps": {
-					"flow": "vertical",
-					"hideTitle": true,
-					"componentGap": 12,
-					"pagestackItem": "Card 0",
-					"expectedChildren": [
-						{
-							"slot": "pagestack-card",
-							"types": [],
-							"order": 1,
-							"optional": true,
-							"figmaOnlyType": "Card 0"
-						},
-						{
-							"slot": "horizontal-product-card",
-							"types": ["ListProductHorizontal"],
-							"order": 2,
-							"repeat": true
-						}
-					],
-					"componentGaps": [
-						{
-							"figmaType": "Card 0",
-							"reason": "Figma pagestack item name, not a confirmed renderer component"
-						}
-					],
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"sourceFigmaReference": "Page (리스트-카드): 리스트_부가서비스/리스트_인터넷 hidden title + Card 0 pagestack item + ListProductHorizontal"
+			"componentID": "HiddenTitlePagestackCardListArea",
+			"props": {
+				"componentGap": {
+					"type": "number"
+				},
+				"componentGaps": {
+					"type": "array"
+				},
+				"flow": {
+					"type": "enum",
+					"values": ["grid", "horizontal", "stack"]
+				},
+				"gap": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"titleMode": {
+					"type": "enum",
+					"values": ["hidden", "none", "visible"]
 				}
 			},
-			"match": {
-				"componentTypes": {
-					"noneOf": ["TitleSection", "InfoTextList"]
-				},
-				"keywords": [
-					"hidden-title",
-					"Card 0",
-					"pagestack",
-					"ListProductHorizontal",
-					"리스트_부가서비스",
-					"리스트_인터넷"
-				],
-				"priority": 98
-			}
+			"children": {
+				"accepts": "component",
+				"min": 1
+			},
+			"status": "draft"
 		},
 		{
 			"id": "area-app-bar",

@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Area Collection Pattern Conversion
+
+- 변경: `@cx/layout-pattern-store`에 `CollectionArea` component group을 추가하고 option grid, benefit/store list, product list controls, horizontal/row card list 등 area collection 계열 17개를 실제 registered layout component로 전환함
+- 변경: 해당 area catalog entry를 `layout.area.*` component catalog entry로 바꾸고 `componentGap`, `componentGaps`, `titleGap`, `filterGap`, `controlGap`, `columns`, `mapHeight`를 prop type contract로 보존함
+- 변경: layout pattern inventory를 area 40개 중 22개 converted, 18개 pending으로 갱신함
+- 이유: Batch 4 collection/option 계열에서 renderer가 layout id를 추측하지 않고 등록 component를 통해 Grid/HStack/PageStack wrapper를 적용하게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "option collection|horizontal card collection|row card collection|layout-pattern-store"`, area catalog converted entry legacy/default scan
+
 ## 2026-05-28 - Layout Redesign Responsibility Clarification
 
 - 변경: layout rendering redesign plan에 `@cx/table-materializer`, `@cx/renderer`, `@cx/layout-pattern-store`, `@cx/layout`, `@cx/components`, `@cx/validation`, `apps/web`의 실행 체크 책임을 보강함

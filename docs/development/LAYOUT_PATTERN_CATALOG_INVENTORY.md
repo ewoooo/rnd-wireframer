@@ -20,9 +20,9 @@
 |---|---:|---:|---:|
 | screen | 4 | 4 | 0 |
 | region | 16 | 16 | 0 |
-| area | 40 | 5 | 35 |
+| area | 40 | 22 | 18 |
 | composite | 49 | 0 | 49 |
-| total | 109 | 25 | 84 |
+| total | 109 | 42 | 67 |
 
 ## 4. Inventory
 
@@ -71,34 +71,34 @@
 | area | `action-stack` | `layout.area.actionStack` | `ActionStackArea` | componentGap, gap, titleGap | component | pending |
 | area | `bottom-action-area` | `layout.area.bottomActionArea` | `BottomActionArea` | componentGap, gap, paddingY, titleGap | component | pending |
 | area | `product-hero-summary` | `layout.area.productHeroSummary` | `ProductHeroSummaryArea` | componentGap, gap, thumbnailHeight | component | pending |
-| area | `product-option-grid` | `layout.area.productOptionGrid` | `ProductOptionGridArea` | componentGap, gap, titleGap | component | pending |
+| area | `product-option-grid` | `layout.area.productOptionGrid` | `ProductOptionGridArea` | componentGap, gap, titleGap | component | converted |
 | area | `product-info-section` | `layout.area.productInfoSection` | `ProductInfoSectionArea` | componentGap, gap, titleGap | component | pending |
 | area | `product-disclosure-accordion` | `layout.area.productDisclosureAccordion` | `ProductDisclosureAccordionArea` | componentGap, divider, gap, titleGap | component | pending |
-| area | `benefit-brand-list` | `layout.area.benefitBrandList` | `BenefitBrandListArea` | componentGap, gap, titleGap | component | pending |
-| area | `nearby-store-list` | `layout.area.nearbyStoreList` | `NearbyStoreListArea` | componentGap, gap, titleGap | component | pending |
+| area | `benefit-brand-list` | `layout.area.benefitBrandList` | `BenefitBrandListArea` | componentGap, gap, titleGap | component | converted |
+| area | `nearby-store-list` | `layout.area.nearbyStoreList` | `NearbyStoreListArea` | componentGap, gap, titleGap | component | converted |
 | area | `product-footer-legal` | `layout.area.productFooterLegal` | `ProductFooterLegalArea` | gap, paddingX, paddingY | component | pending |
 | area | `price-accordion-stack-area` | `layout.area.priceAccordionStackArea` | `PriceAccordionStackArea` | componentGap, divider, gap | component | pending |
 | area | `delivery-info-accordion-area` | `layout.area.deliveryInfoAccordionArea` | `DeliveryInfoAccordionArea` | componentGap, divider, gap | component | pending |
-| area | `product-more-link-area` | `layout.area.productMoreLinkArea` | `ProductMoreLinkArea` | componentGap, componentGaps, gap | component | pending |
-| area | `rich-image-tab-area` | `layout.area.richImageTabArea` | `RichImageTabArea` | componentGap, componentGaps, gap | component | pending |
-| area | `option-list-section-area` | `layout.area.optionListSectionArea` | `OptionListSectionArea` | componentGap, componentGaps, gap, titleGap | component | pending |
-| area | `coupon-benefit-area` | `layout.area.couponBenefitArea` | `CouponBenefitArea` | componentGap, componentGaps, gap | component | pending |
-| area | `map-card-info-list-area` | `layout.area.mapCardInfoListArea` | `MapCardInfoListArea` | componentGap, componentGaps, gap | component | pending |
-| area | `card-info-brand-list-area` | `layout.area.cardInfoBrandListArea` | `CardInfoBrandListArea` | componentGap, componentGaps, gap | component | pending |
+| area | `product-more-link-area` | `layout.area.productMoreLinkArea` | `ProductMoreLinkArea` | componentGap, componentGaps, gap | component | converted |
+| area | `rich-image-tab-area` | `layout.area.richImageTabArea` | `RichImageTabArea` | componentGap, componentGaps, gap | component | converted |
+| area | `option-list-section-area` | `layout.area.optionListSectionArea` | `OptionListSectionArea` | componentGap, componentGaps, gap, titleGap | component | converted |
+| area | `coupon-benefit-area` | `layout.area.couponBenefitArea` | `CouponBenefitArea` | componentGap, componentGaps, gap | component | converted |
+| area | `map-card-info-list-area` | `layout.area.mapCardInfoListArea` | `MapCardInfoListArea` | componentGap, componentGaps, gap | component | converted |
+| area | `card-info-brand-list-area` | `layout.area.cardInfoBrandListArea` | `CardInfoBrandListArea` | componentGap, componentGaps, gap | component | converted |
 | area | `notice-accordion-stack-area` | `layout.area.noticeAccordionStackArea` | `NoticeAccordionStackArea` | componentGap, divider, gap | component | pending |
-| area | `list-summary-card-area` | `layout.area.listSummaryCardArea` | `ListSummaryCardArea` | componentGap, gap | component | pending |
+| area | `list-summary-card-area` | `layout.area.listSummaryCardArea` | `ListSummaryCardArea` | componentGap, gap | component | converted |
 | area | `pagestack-info-text-section` | `layout.area.pagestackInfoTextSection` | `PagestackInfoTextSectionArea` | componentGap, divider, gap, titleGap | component | pending |
-| area | `filter-chip-text-list-area` | `layout.area.filterChipTextListArea` | `FilterChipTextListArea` | componentGap, filterGap, gap, titleGap | component | pending |
+| area | `filter-chip-text-list-area` | `layout.area.filterChipTextListArea` | `FilterChipTextListArea` | componentGap, filterGap, gap, titleGap | component | converted |
 | area | `text-list-group-area` | `layout.area.textListGroupArea` | `TextListGroupArea` | componentGap, divider, gap, titleGap | component | pending |
 | area | `plain-info-text-list-area` | `layout.area.plainInfoTextListArea` | `PlainInfoTextListArea` | componentGap, divider, gap | component | pending |
 | area | `tab-chip-search-accordion-area` | `layout.area.tabChipSearchAccordionArea` | `TabChipSearchAccordionArea` | componentGap, filterGap, gap | component | pending |
 | area | `accordion-notice-list-area` | `layout.area.accordionNoticeListArea` | `AccordionNoticeListArea` | componentGap, divider, gap | component | pending |
-| area | `product-list-group-area` | `layout.area.productListGroupArea` | `ProductListGroupArea` | componentGap, componentGaps, gap, titleGap | component | pending |
-| area | `product-list-chip-sort-area` | `layout.area.productListChipSortArea` | `ProductListChipSortArea` | componentGap, componentGaps, controlGap, gap | component | pending |
-| area | `product-list-sort-only-area` | `layout.area.productListSortOnlyArea` | `ProductListSortOnlyArea` | componentGap, componentGaps, gap | component | pending |
-| area | `horizontal-card-list-area` | `layout.area.horizontalCardListArea` | `HorizontalCardListArea` | componentGap, componentGaps, gap | component | pending |
-| area | `row-card-list-area` | `layout.area.rowCardListArea` | `RowCardListArea` | componentGap, componentGaps, gap | component | pending |
-| area | `hidden-title-pagestack-card-list-area` | `layout.area.hiddenTitlePagestackCardListArea` | `HiddenTitlePagestackCardListArea` | componentGap, componentGaps, gap | component | pending |
+| area | `product-list-group-area` | `layout.area.productListGroupArea` | `ProductListGroupArea` | componentGap, componentGaps, gap, titleGap | component | converted |
+| area | `product-list-chip-sort-area` | `layout.area.productListChipSortArea` | `ProductListChipSortArea` | componentGap, componentGaps, controlGap, gap | component | converted |
+| area | `product-list-sort-only-area` | `layout.area.productListSortOnlyArea` | `ProductListSortOnlyArea` | componentGap, componentGaps, gap | component | converted |
+| area | `horizontal-card-list-area` | `layout.area.horizontalCardListArea` | `HorizontalCardListArea` | componentGap, componentGaps, gap | component | converted |
+| area | `row-card-list-area` | `layout.area.rowCardListArea` | `RowCardListArea` | componentGap, componentGaps, gap | component | converted |
+| area | `hidden-title-pagestack-card-list-area` | `layout.area.hiddenTitlePagestackCardListArea` | `HiddenTitlePagestackCardListArea` | componentGap, componentGaps, gap | component | converted |
 | area | `area-app-bar` | `layout.area.areaAppBar` | `AreaAppBarArea` | componentGap, gap | component | pending |
 
 ### composite

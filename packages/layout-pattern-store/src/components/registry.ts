@@ -1,4 +1,23 @@
 import {
+	BenefitBrandListArea,
+	CardInfoBrandListArea,
+	CouponBenefitArea,
+	FilterChipTextListArea,
+	HiddenTitlePagestackCardListArea,
+	HorizontalCardListArea,
+	ListSummaryCardArea,
+	MapCardInfoListArea,
+	NearbyStoreListArea,
+	OptionListSectionArea,
+	ProductListChipSortArea,
+	ProductListGroupArea,
+	ProductListSortOnlyArea,
+	ProductMoreLinkArea,
+	ProductOptionGridArea,
+	RichImageTabArea,
+	RowCardListArea,
+} from "./area/CollectionArea";
+import {
 	AccordionListArea,
 	CheckboxStackArea,
 	FieldStackArea,
@@ -59,6 +78,52 @@ const screenPropContractByKey = {
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
 >;
 
+const collectionPropContractByKey = {
+	columns: { type: "number" },
+	componentGap: {
+		type: "number",
+		description: "Legacy layoutProps.componentGap preserved as item/content gap.",
+	},
+	componentGaps: {
+		type: "array",
+		description: "Legacy documented per-component gap notes preserved for source trace.",
+	},
+	controlGap: {
+		type: "number",
+		description: "Legacy control stack gap, used before generic componentGap.",
+	},
+	filterGap: {
+		type: "number",
+		description: "Legacy filter control gap, used before generic componentGap.",
+	},
+	flow: {
+		type: "enum",
+		values: ["grid", "horizontal", "stack"],
+	},
+	gap: { type: "number" },
+	itemPaddingX: { type: "number" },
+	itemTemplate: {
+		type: "enum",
+		values: ["card-0", "default-20", "plain"],
+	},
+	mapHeight: { type: "number" },
+	paddingY: { type: "number" },
+	sectionGap: { type: "number" },
+	sectionPaddingX: { type: "number" },
+	slotInsetX: { type: "number" },
+	titleGap: {
+		type: "number",
+		description: "Legacy layoutProps.titleGap preserved as PageStack title-to-contents gap.",
+	},
+	titleMode: {
+		type: "enum",
+		values: ["hidden", "none", "visible"],
+	},
+} as const satisfies Record<
+	string,
+	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
+>;
+
 const areaPageStackLayouts: Array<{
 	component: LayoutPatternComponentEntry["component"];
 	componentID: string;
@@ -100,6 +165,141 @@ const areaPageStackLayouts: Array<{
 		layoutId: "layout.area.messageStack",
 		name: "Message Stack Area",
 		props: pageStackProps(),
+	},
+];
+
+const areaCollectionLayouts: Array<{
+	component: LayoutPatternComponentEntry["component"];
+	componentID: string;
+	layoutId: LayoutPatternComponentEntry["layoutId"];
+	name: string;
+	props: LayoutPatternComponentEntry["pattern"]["props"];
+}> = [
+	{
+		component: ProductOptionGridArea,
+		componentID: "ProductOptionGridArea",
+		layoutId: "layout.area.productOptionGrid",
+		name: "Product Option Grid Area",
+		props: collectionProps(["columns", "componentGap", "flow", "gap", "titleGap"]),
+	},
+	{
+		component: BenefitBrandListArea,
+		componentID: "BenefitBrandListArea",
+		layoutId: "layout.area.benefitBrandList",
+		name: "Benefit Brand List Area",
+		props: collectionProps(["componentGap", "flow", "gap", "titleGap"]),
+	},
+	{
+		component: NearbyStoreListArea,
+		componentID: "NearbyStoreListArea",
+		layoutId: "layout.area.nearbyStoreList",
+		name: "Nearby Store List Area",
+		props: collectionProps(["componentGap", "flow", "gap", "mapHeight", "titleGap"]),
+	},
+	{
+		component: ProductMoreLinkArea,
+		componentID: "ProductMoreLinkArea",
+		layoutId: "layout.area.productMoreLinkArea",
+		name: "Product More Link Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: RichImageTabArea,
+		componentID: "RichImageTabArea",
+		layoutId: "layout.area.richImageTabArea",
+		name: "Rich Image Tab Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: OptionListSectionArea,
+		componentID: "OptionListSectionArea",
+		layoutId: "layout.area.optionListSectionArea",
+		name: "Option List Section Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap", "titleGap"]),
+	},
+	{
+		component: CouponBenefitArea,
+		componentID: "CouponBenefitArea",
+		layoutId: "layout.area.couponBenefitArea",
+		name: "Coupon Benefit Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: MapCardInfoListArea,
+		componentID: "MapCardInfoListArea",
+		layoutId: "layout.area.mapCardInfoListArea",
+		name: "Map Card Info List Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap", "mapHeight"]),
+	},
+	{
+		component: CardInfoBrandListArea,
+		componentID: "CardInfoBrandListArea",
+		layoutId: "layout.area.cardInfoBrandListArea",
+		name: "Card Info Brand List Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: ListSummaryCardArea,
+		componentID: "ListSummaryCardArea",
+		layoutId: "layout.area.listSummaryCardArea",
+		name: "List Summary Card Area",
+		props: collectionProps(["componentGap", "flow", "gap", "titleMode"]),
+	},
+	{
+		component: FilterChipTextListArea,
+		componentID: "FilterChipTextListArea",
+		layoutId: "layout.area.filterChipTextListArea",
+		name: "Filter Chip Text List Area",
+		props: collectionProps(["componentGap", "filterGap", "flow", "gap", "titleGap"]),
+	},
+	{
+		component: ProductListGroupArea,
+		componentID: "ProductListGroupArea",
+		layoutId: "layout.area.productListGroupArea",
+		name: "Product List Group Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap", "titleGap"]),
+	},
+	{
+		component: ProductListChipSortArea,
+		componentID: "ProductListChipSortArea",
+		layoutId: "layout.area.productListChipSortArea",
+		name: "Product List Chip Sort Area",
+		props: collectionProps(["componentGap", "componentGaps", "controlGap", "flow", "gap"]),
+	},
+	{
+		component: ProductListSortOnlyArea,
+		componentID: "ProductListSortOnlyArea",
+		layoutId: "layout.area.productListSortOnlyArea",
+		name: "Product List Sort Only Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: HorizontalCardListArea,
+		componentID: "HorizontalCardListArea",
+		layoutId: "layout.area.horizontalCardListArea",
+		name: "Horizontal Card List Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: RowCardListArea,
+		componentID: "RowCardListArea",
+		layoutId: "layout.area.rowCardListArea",
+		name: "Row Card List Area",
+		props: collectionProps(["componentGap", "componentGaps", "flow", "gap"]),
+	},
+	{
+		component: HiddenTitlePagestackCardListArea,
+		componentID: "HiddenTitlePagestackCardListArea",
+		layoutId: "layout.area.hiddenTitlePagestackCardListArea",
+		name: "Hidden Title Pagestack Card List Area",
+		props: collectionProps([
+			"componentGap",
+			"componentGaps",
+			"flow",
+			"gap",
+			"itemTemplate",
+			"titleMode",
+		]),
 	},
 ];
 
@@ -351,6 +551,26 @@ const areaLayoutPatternComponents: LayoutPatternComponentEntry[] = areaPageStack
 	}),
 );
 
+const areaCollectionPatternComponents: LayoutPatternComponentEntry[] = areaCollectionLayouts.map(
+	(entry) => ({
+		component: entry.component,
+		layoutId: entry.layoutId,
+		pattern: {
+			id: entry.layoutId,
+			target: "area",
+			name: entry.name,
+			componentID: entry.componentID,
+			children: {
+				accepts: "component",
+				min: 1,
+			},
+			props: entry.props,
+			status: "draft",
+		},
+		target: "area",
+	}),
+);
+
 const regionLayoutPatternComponents: LayoutPatternComponentEntry[] = regionStackLayouts.map(
 	(entry) => ({
 		component: entry.component,
@@ -391,6 +611,7 @@ const screenLayoutPatternComponents: LayoutPatternComponentEntry[] = screenShell
 
 const layoutPatternComponents: LayoutPatternComponentEntry[] = [
 	...areaLayoutPatternComponents,
+	...areaCollectionPatternComponents,
 	...regionLayoutPatternComponents,
 	...screenLayoutPatternComponents,
 ];
@@ -463,6 +684,33 @@ function regionStackProps(
 	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
 	for (const key of keys) {
 		contracts[key] = regionPropContractByKey[key];
+	}
+	return contracts;
+}
+
+function collectionProps(
+	keys: Array<
+		| "columns"
+		| "componentGap"
+		| "componentGaps"
+		| "controlGap"
+		| "filterGap"
+		| "flow"
+		| "gap"
+		| "itemPaddingX"
+		| "itemTemplate"
+		| "mapHeight"
+		| "paddingY"
+		| "sectionGap"
+		| "sectionPaddingX"
+		| "slotInsetX"
+		| "titleGap"
+		| "titleMode"
+	>,
+): LayoutPatternComponentEntry["pattern"]["props"] {
+	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
+	for (const key of keys) {
+		contracts[key] = collectionPropContractByKey[key];
 	}
 	return contracts;
 }
