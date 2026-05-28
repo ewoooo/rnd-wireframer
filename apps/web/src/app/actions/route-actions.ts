@@ -9,10 +9,11 @@ export async function createRoute(input?: {
 }): Promise<{ error?: string; id?: string }> {
 	const db = createServerClient();
 
-	// 현재 최대 order 조회
+	// 해당 모듈 내 최대 order + 1 → 맨 아래에 삽입
 	const { data: rows } = await db
 		.from("screen_routes")
 		.select("order")
+		.eq("module_id", input?.moduleId ?? "new")
 		.order("order", { ascending: false })
 		.limit(1);
 
@@ -102,6 +103,82 @@ export async function updateRoute(
 
 	revalidatePath("/");
 	return {};
+}
+
+export async function duplicateRoute(id: string): Promise<{ error?: string; id?: string }> {
+	const db = createServerClient();
+
+	// 원본 route 조회
+	const { data: original } = await db.from("screen_routes").select("*").eq("id", id).single();
+	if (!original) return { error: "Route not found" };
+
+	// 새 ID & order
+	const newRouteId = `route-${crypto.randomUUID().slice(0, 8)}`;
+	const { data: rows } = await db
+		.from("screen_routes")
+		.select("order")
+		.order("order", { ascending: false })
+		.limit(1);
+	const nextOrder = (rows?.[0]?.order ?? 0) + 1;
+
+	// route 복제
+	const { error: routeErr } = await db.from("screen_routes").insert({
+		id: newRouteId,
+		name: `${original.name} (복제본)`,
+		module_id: original.module_id,
+		order: nextOrder,
+		process_id: original.process_id,
+	});
+	if (routeErr) return { error: routeErr.message };
+
+	// variants 조회 & 복제
+	const { data: variants } = await db
+		.from("screen_variants")
+		.select("*")
+		.eq("screen_route_id", id);
+
+	const variantIdMap = new Map<string, string>(); // old → new
+
+	for (const v of variants ?? []) {
+		const newVarId = `var-${crypto.randomUUID().slice(0, 8)}`;
+		variantIdMap.set(v.id, newVarId);
+		await db.from("screen_variants").insert({
+			id: newVarId,
+			screen_route_id: newRouteId,
+			name: v.name,
+			order: v.order,
+			variant_type: v.variant_type,
+			follow_up: v.follow_up,
+		});
+	}
+
+	// screens 복제
+	for (const [oldVarId, newVarId] of variantIdMap) {
+		const { data: screens } = await db
+			.from("screens")
+			.select("*")
+			.eq("screen_variant_id", oldVarId);
+
+		for (const s of screens ?? []) {
+			const newScreenId = `scr-${crypto.randomUUID().slice(0, 8)}`;
+			await db.from("screens").insert({
+				id: newScreenId,
+				screen_variant_id: newVarId,
+				version: s.version,
+				min_renderer_version: s.min_renderer_version,
+				order: s.order,
+				pattern_id: s.pattern_id,
+				pattern_variant: s.pattern_variant,
+				theme_mode: s.theme_mode,
+				title: s.title,
+				author: s.author,
+				screen: s.screen,
+			});
+		}
+	}
+
+	revalidatePath("/");
+	return { id: newRouteId };
 }
 
 export async function deleteRoute(id: string): Promise<{

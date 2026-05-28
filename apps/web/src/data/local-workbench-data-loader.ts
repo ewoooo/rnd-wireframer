@@ -78,6 +78,7 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 		code: schema.metadata.id,
 		name: schema.metadata.title,
 		description: schema.metadata.description ?? schema.children[0]?.metadata.title,
+		moduleId: route?.moduleId ?? "unknown",
 		module: route?.moduleId ?? schema.metadata.id.split("-")[1]?.toLowerCase() ?? "unknown",
 		areas: screenAreas,
 		screenOrder: sampleScreen.order ?? index + 1,

@@ -15,6 +15,7 @@ export interface AppScreen {
 	code: string;
 	description?: string;
 	module: string;
+	moduleId: string;
 	name: string;
 	areas: Array<{
 		order: number;

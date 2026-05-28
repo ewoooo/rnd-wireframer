@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
+import type { AppScreenModule } from "@/model/store";
 
 import { useWorkbenchStore } from "@/model/store";
 import { Canvas } from "./layout/Canvas";
@@ -15,6 +16,8 @@ import { NavigationRail } from "./layout/NavigationRail";
 interface AppProps {
 	agentRegistry?: RegisteredNodeTree;
 	initialData: {
+		modules: AppScreenModule[];
+		routes: { id: string; moduleId: string; name: string; order: number }[];
 		screens: AppScreen[];
 		areas: AppArea[];
 	};
@@ -31,6 +34,8 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		initializeWorkbench({
 			agentRegistry,
 			areas: initialData.areas,
+			modules: initialData.modules ?? [],
+			routes: initialData.routes ?? [],
 			screens: initialData.screens,
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);
