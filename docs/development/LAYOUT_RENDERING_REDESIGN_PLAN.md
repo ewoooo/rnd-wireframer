@@ -146,7 +146,7 @@ data/tables/*
 
 - `area-patterns.json`의 대부분은 아직 legacy `layout`/`match` 구조다.
 - `region-patterns.json`, `screen-patterns.json`, `composite-patterns.json`는 아직 component catalog entry로 전환되지 않았다.
-- table-to-RenderTree materializer의 패키지 위치가 아직 확정되지 않았다.
+- table-to-RenderTree materializer의 패키지 위치는 `@cx/table-materializer`로 확정했지만 아직 패키지 스캐폴드는 만들지 않았다.
 - web은 최종적으로 table-to-RenderTree materializer와 renderer API를 소비만 하도록 정리해야 한다.
 
 ## 4. 원칙
@@ -427,16 +427,15 @@ table-to-RenderTree 변환은 renderer로 이관하지 않는다. 이 경계는 
 - table 파일 쓰기
 - React render
 
-패키지 위치 후보:
+패키지 위치:
 
 - `@cx/table-materializer`
-- `@cx/materializer`
-- `@cx/parser/table`
 
-현재 판단:
+결정:
 
-- 장기적으로는 별도 패키지가 가장 명확하다.
-- 이름은 구현 직전에 결정하되, renderer 내부 subpath로 넣지 않는다.
+- table read model을 RenderTree로 바꾸는 책임이 이름에 직접 드러난다.
+- Markdown parser인 `@cx/parser`와 혼동되지 않는다.
+- renderer 내부 subpath로 넣지 않는다.
 - 이 materializer는 parser처럼 순수 함수만 제공한다.
 
 public API 후보:
@@ -654,7 +653,7 @@ export function FieldStackArea({ children, props = {} }) {
 
 1. Batch 0/1을 현재 변경으로 안정화한다.
 2. 현재 PageStack 5개에서 catalog default를 제거하고 pattern component default로 옮긴다.
-3. table-to-RenderTree materializer 패키지 위치와 public API를 확정한다.
+3. `@cx/table-materializer` public API를 확정한다.
 4. table schema와 materializer 입력 타입을 확정한다.
 5. region catalog를 Batch 2로 전환한다.
 6. screen catalog를 Batch 3으로 전환한다.
@@ -820,7 +819,7 @@ Document layout pattern catalog inventory
 
 작업:
 
-- `@cx/table-materializer`, `@cx/materializer`, `@cx/parser/table` 중 하나를 결정한다.
+- `@cx/table-materializer`를 table-to-RenderTree materializer 패키지로 확정한다.
 - 결정 이유와 두지 않는 책임을 문서에 기록한다.
 - `PACKAGE_MAP.md`와 `PROJECT_STRUCTURE.md`에 새 경계를 반영한다.
 
@@ -1154,11 +1153,11 @@ Document final layout rendering boundaries
 - public surface 표와 실제 package exports가 다름
 - 최종 검증 체크리스트 결과가 history에 기록되지 않음
 
-## 16. 자동 실행 전 추가로 잠가야 하는 결정
+## 16. 자동 실행 결정
 
-아래 결정은 자동 실행 전에 확정해야 한다.
+아래 결정은 자동 실행 기준으로 확정한다.
 
-| 결정 | 후보 | 권장 |
+| 결정 | 선택지 | 확정 |
 |---|---|---|
 | table materializer 패키지명 | `@cx/table-materializer`, `@cx/materializer`, `@cx/parser/table` | `@cx/table-materializer` |
 | catalog inventory 위치 | `docs/development/*`, package 내부 docs | `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md` |
@@ -1166,7 +1165,7 @@ Document final layout rendering boundaries
 | catalog prop default 허용 | 허용/금지 | 금지 |
 | 자동 커밋 push | 단계별 push/마지막 push | 마지막 push |
 
-권장 결정:
+결정 이유:
 
 - table materializer는 `@cx/table-materializer`로 둔다. table read model을 RenderTree로 바꾸는 책임이 이름에 직접 드러나고, Markdown parser인 `@cx/parser`와 혼동되지 않는다.
 - 자동 실행은 단계별 commit까지만 수행하고 push는 사람이 최종 확인한 뒤 한 번 수행한다.

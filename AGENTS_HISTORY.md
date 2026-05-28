@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Table Materializer Boundary
+
+- 변경: table-to-RenderTree 순수 변환 경계를 `@cx/table-materializer` 패키지로 확정하고 `AGENTS.md`, `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, layout rendering redesign plan에 반영함
+- 변경: `@cx/table-materializer`는 screen/region/area/component table 관계를 따라 `RenderTreeScreenNode`만 조립하고, React render, layout 선택, spacing 보정, validation 판정, 파일 IO를 하지 않는다고 명시함
+- 이유: renderer를 RenderTree-to-React interpreter로 순수화하고 table 조립 책임을 renderer 밖으로 분리하기 위함
+- 검증: 문서 책임 대조
+
 ## 2026-05-28 - Layout Pattern Catalog Inventory
 
 - 변경: `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md`를 추가해 screen/region/area/composite catalog 109개 pattern의 legacy id, 새 layout id, 예정 componentID, spacing key, children contract, 전환 상태를 기록함

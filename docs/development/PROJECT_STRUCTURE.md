@@ -24,6 +24,7 @@
 | `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
+| `@cx/table-materializer` | table read model -> screen RenderTree 순수 조립 |
 
 개발자용 앱:
 
@@ -61,6 +62,34 @@ packages/renderer/src/
 - AI runner/session adapter
 - component catalog CRUD
 - layout pattern CRUD/selection
+
+## 3-1. `packages/table-materializer`
+
+`@cx/table-materializer`는 table read model을 renderer가 바로 소비할 수 있는 screen 단위 RenderTree로 조립하는 순수 패키지다.
+
+```text
+packages/table-materializer/src/
+  index.ts       public materializer API
+  types.ts       table read model input types
+  materialize-table-screen.ts
+```
+
+공개 API는 `@cx/table-materializer` root export만 사용한다.
+
+책임:
+
+- `data/tables/*` read model shape의 plain object 입력을 받는다.
+- screen, region, area, component record 관계를 따라 `RenderTreeScreenNode`를 만든다.
+- 파일 IO 없이 순수 함수로 동작한다.
+
+두지 않는 책임:
+
+- React render
+- layout 선택
+- pattern 추천
+- spacing/default 보정
+- validation rule 판정
+- table 파일 읽기/쓰기
 
 ## 4. `packages/component`
 
