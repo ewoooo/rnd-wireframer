@@ -21,8 +21,8 @@
 | screen | 4 | 4 | 0 |
 | region | 16 | 16 | 0 |
 | area | 40 | 40 | 0 |
-| composite | 49 | 0 | 49 |
-| total | 109 | 60 | 49 |
+| composite | 49 | 49 | 0 |
+| total | 109 | 109 | 0 |
 
 ## 4. Inventory
 
@@ -105,52 +105,52 @@
 
 | target | legacy id | new id | componentID | spacing keys | children | status |
 |---|---|---|---|---|---|---|
-| composite | `component-app-bar` | `layout.composite.componentAppBar` | `ComponentAppBarComposite` | gap | component | pending |
-| composite | `component-thumbnail-large` | `layout.composite.componentThumbnailLarge` | `ComponentThumbnailLargeComposite` | gap | component | pending |
-| composite | `component-text-field` | `layout.composite.componentTextField` | `ComponentTextFieldComposite` | gap | component | pending |
-| composite | `component-section-message` | `layout.composite.componentSectionMessage` | `ComponentSectionMessageComposite` | gap | component | pending |
-| composite | `component-button` | `layout.composite.componentButton` | `ComponentButtonComposite` | gap | component | pending |
-| composite | `component-list-cell` | `layout.composite.componentListCell` | `ComponentListCellComposite` | gap | component | pending |
-| composite | `component-accordion` | `layout.composite.componentAccordion` | `ComponentAccordionComposite` | gap | component | pending |
-| composite | `component-checkbox` | `layout.composite.componentCheckbox` | `ComponentCheckboxComposite` | gap | component | pending |
-| composite | `component-product-info` | `layout.composite.componentProductInfo` | `ComponentProductInfoComposite` | gap, paddingX, titleGap | component | pending |
-| composite | `component-card-summary` | `layout.composite.componentCardSummary` | `ComponentCardSummaryComposite` | gap | component | pending |
-| composite | `component-badge` | `layout.composite.componentBadge` | `ComponentBadgeComposite` | gap | component | pending |
-| composite | `component-text-button` | `layout.composite.componentTextButton` | `ComponentTextButtonComposite` | gap | component | pending |
-| composite | `component-list-text` | `layout.composite.componentListText` | `ComponentListTextComposite` | gap | component | pending |
-| composite | `component-option-card` | `layout.composite.componentOptionCard` | `ComponentOptionCardComposite` | gap, minHeight | component | pending |
-| composite | `component-banner-indicator` | `layout.composite.componentBannerIndicator` | `ComponentBannerIndicatorComposite` | gap, height, width | component | pending |
-| composite | `component-footer` | `layout.composite.componentFooter` | `ComponentFooterComposite` | gap | component | pending |
-| composite | `component-legal-text` | `layout.composite.componentLegalText` | `ComponentLegalTextComposite` | gap | component | pending |
-| composite | `component-map-block` | `layout.composite.componentMapBlock` | `ComponentMapBlockComposite` | gap | component | pending |
-| composite | `component-store-card` | `layout.composite.componentStoreCard` | `ComponentStoreCardComposite` | gap | component | pending |
-| composite | `component-title-section` | `layout.composite.componentTitleSection` | `ComponentTitleSectionComposite` | gap | component | pending |
-| composite | `component-info-text-list` | `layout.composite.componentInfoTextList` | `ComponentInfoTextListComposite` | gap, height | component | pending |
-| composite | `component-chip-filter` | `layout.composite.componentChipFilter` | `ComponentChipFilterComposite` | gap, height, paddingX | component | pending |
-| composite | `component-tab` | `layout.composite.componentTab` | `ComponentTabComposite` | gap, height | component | pending |
-| composite | `component-search-bar` | `layout.composite.componentSearchBar` | `ComponentSearchBarComposite` | gap, height | component | pending |
-| composite | `component-accordion-notice-info` | `layout.composite.componentAccordionNoticeInfo` | `ComponentAccordionNoticeInfoComposite` | gap | component | pending |
-| composite | `composite-title-info-text-list` | `layout.composite.compositeTitleInfoTextList` | `CompositeTitleInfoTextListComposite` | gap, rowGap | component | pending |
-| composite | `composite-summary-filtered-text-list` | `layout.composite.compositeSummaryFilteredTextList` | `CompositeSummaryFilteredTextListComposite` | gap | component | pending |
-| composite | `composite-summary-sectioned-info-list` | `layout.composite.compositeSummarySectionedInfoList` | `CompositeSummarySectionedInfoListComposite` | gap | component | pending |
-| composite | `composite-plain-notice-list` | `layout.composite.compositePlainNoticeList` | `CompositePlainNoticeListComposite` | gap, paddingX | component | pending |
-| composite | `composite-tab-chip-search-accordion-list` | `layout.composite.compositeTabChipSearchAccordionList` | `CompositeTabChipSearchAccordionListComposite` | gap | component | pending |
-| composite | `composite-product-hero-media-info` | `layout.composite.compositeProductHeroMediaInfo` | `CompositeProductHeroMediaInfoComposite` | gap | component | pending |
-| composite | `composite-product-summary-status-list` | `layout.composite.compositeProductSummaryStatusList` | `CompositeProductSummaryStatusListComposite` | gap, sectionGap | component | pending |
-| composite | `composite-store-map-list` | `layout.composite.compositeStoreMapList` | `CompositeStoreMapListComposite` | gap | component | pending |
-| composite | `composite-footer-legal-links` | `layout.composite.compositeFooterLegalLinks` | `CompositeFooterLegalLinksComposite` | gap | component | pending |
-| composite | `composite-product-list-filter-sort` | `layout.composite.compositeProductListFilterSort` | `CompositeProductListFilterSortComposite` | componentGaps, gap | component | pending |
-| composite | `composite-product-list-group-title-stack` | `layout.composite.compositeProductListGroupTitleStack` | `CompositeProductListGroupTitleStackComposite` | componentGaps, gap | component | pending |
-| composite | `composite-list-product-horizontal-card-set` | `layout.composite.compositeListProductHorizontalCardSet` | `CompositeListProductHorizontalCardSetComposite` | componentGaps, gap | component | pending |
-| composite | `composite-list-product-row-card-set` | `layout.composite.compositeListProductRowCardSet` | `CompositeListProductRowCardSetComposite` | componentGaps, gap | component | pending |
-| composite | `composite-pagestack-product-card-list` | `layout.composite.compositePagestackProductCardList` | `CompositePagestackProductCardListComposite` | componentGaps, gap | component | pending |
-| composite | `component-action-button` | `layout.composite.componentActionButton` | `ComponentActionButtonComposite` | gap, paddingX | component | pending |
-| composite | `component-action-button-with-tooltip` | `layout.composite.componentActionButtonWithTooltip` | `ComponentActionButtonWithTooltipComposite` | gap, paddingX | component | pending |
-| composite | `composite-price-accordion-selected-list` | `layout.composite.compositePriceAccordionSelectedList` | `CompositePriceAccordionSelectedListComposite` | gap, rowGap | component | pending |
-| composite | `composite-product-detail-rich-image-tab` | `layout.composite.compositeProductDetailRichImageTab` | `CompositeProductDetailRichImageTabComposite` | componentGaps, gap | component | pending |
-| composite | `composite-button-more-product-link` | `layout.composite.compositeButtonMoreProductLink` | `CompositeButtonMoreProductLinkComposite` | componentGaps, gap | component | pending |
-| composite | `composite-option-list-stack` | `layout.composite.compositeOptionListStack` | `CompositeOptionListStackComposite` | componentGaps, gap | component | pending |
-| composite | `composite-coupon-benefit-card` | `layout.composite.compositeCouponBenefitCard` | `CompositeCouponBenefitCardComposite` | componentGaps, gap | component | pending |
-| composite | `composite-map-card-info-list` | `layout.composite.compositeMapCardInfoList` | `CompositeMapCardInfoListComposite` | componentGaps, gap | component | pending |
-| composite | `composite-card-info-brand-list` | `layout.composite.compositeCardInfoBrandList` | `CompositeCardInfoBrandListComposite` | componentGaps, gap | component | pending |
-| composite | `composite-product-disclosure-notice-list` | `layout.composite.compositeProductDisclosureNoticeList` | `CompositeProductDisclosureNoticeListComposite` | componentGaps, gap | component | pending |
+| composite | `component-app-bar` | `layout.composite.componentAppBar` | `ComponentAppBarComposite` | gap | component | converted |
+| composite | `component-thumbnail-large` | `layout.composite.componentThumbnailLarge` | `ComponentThumbnailLargeComposite` | gap | component | converted |
+| composite | `component-text-field` | `layout.composite.componentTextField` | `ComponentTextFieldComposite` | gap | component | converted |
+| composite | `component-section-message` | `layout.composite.componentSectionMessage` | `ComponentSectionMessageComposite` | gap | component | converted |
+| composite | `component-button` | `layout.composite.componentButton` | `ComponentButtonComposite` | gap | component | converted |
+| composite | `component-list-cell` | `layout.composite.componentListCell` | `ComponentListCellComposite` | gap | component | converted |
+| composite | `component-accordion` | `layout.composite.componentAccordion` | `ComponentAccordionComposite` | gap | component | converted |
+| composite | `component-checkbox` | `layout.composite.componentCheckbox` | `ComponentCheckboxComposite` | gap | component | converted |
+| composite | `component-product-info` | `layout.composite.componentProductInfo` | `ComponentProductInfoComposite` | gap, paddingX, titleGap | component | converted |
+| composite | `component-card-summary` | `layout.composite.componentCardSummary` | `ComponentCardSummaryComposite` | gap | component | converted |
+| composite | `component-badge` | `layout.composite.componentBadge` | `ComponentBadgeComposite` | gap | component | converted |
+| composite | `component-text-button` | `layout.composite.componentTextButton` | `ComponentTextButtonComposite` | gap | component | converted |
+| composite | `component-list-text` | `layout.composite.componentListText` | `ComponentListTextComposite` | gap | component | converted |
+| composite | `component-option-card` | `layout.composite.componentOptionCard` | `ComponentOptionCardComposite` | gap, minHeight | component | converted |
+| composite | `component-banner-indicator` | `layout.composite.componentBannerIndicator` | `ComponentBannerIndicatorComposite` | gap, height, width | component | converted |
+| composite | `component-footer` | `layout.composite.componentFooter` | `ComponentFooterComposite` | gap | component | converted |
+| composite | `component-legal-text` | `layout.composite.componentLegalText` | `ComponentLegalTextComposite` | gap | component | converted |
+| composite | `component-map-block` | `layout.composite.componentMapBlock` | `ComponentMapBlockComposite` | gap | component | converted |
+| composite | `component-store-card` | `layout.composite.componentStoreCard` | `ComponentStoreCardComposite` | gap | component | converted |
+| composite | `component-title-section` | `layout.composite.componentTitleSection` | `ComponentTitleSectionComposite` | gap | component | converted |
+| composite | `component-info-text-list` | `layout.composite.componentInfoTextList` | `ComponentInfoTextListComposite` | gap, height | component | converted |
+| composite | `component-chip-filter` | `layout.composite.componentChipFilter` | `ComponentChipFilterComposite` | gap, height, paddingX | component | converted |
+| composite | `component-tab` | `layout.composite.componentTab` | `ComponentTabComposite` | gap, height | component | converted |
+| composite | `component-search-bar` | `layout.composite.componentSearchBar` | `ComponentSearchBarComposite` | gap, height | component | converted |
+| composite | `component-accordion-notice-info` | `layout.composite.componentAccordionNoticeInfo` | `ComponentAccordionNoticeInfoComposite` | gap | component | converted |
+| composite | `composite-title-info-text-list` | `layout.composite.compositeTitleInfoTextList` | `CompositeTitleInfoTextListComposite` | gap, rowGap | component | converted |
+| composite | `composite-summary-filtered-text-list` | `layout.composite.compositeSummaryFilteredTextList` | `CompositeSummaryFilteredTextListComposite` | gap | component | converted |
+| composite | `composite-summary-sectioned-info-list` | `layout.composite.compositeSummarySectionedInfoList` | `CompositeSummarySectionedInfoListComposite` | gap | component | converted |
+| composite | `composite-plain-notice-list` | `layout.composite.compositePlainNoticeList` | `CompositePlainNoticeListComposite` | gap, paddingX | component | converted |
+| composite | `composite-tab-chip-search-accordion-list` | `layout.composite.compositeTabChipSearchAccordionList` | `CompositeTabChipSearchAccordionListComposite` | gap | component | converted |
+| composite | `composite-product-hero-media-info` | `layout.composite.compositeProductHeroMediaInfo` | `CompositeProductHeroMediaInfoComposite` | gap | component | converted |
+| composite | `composite-product-summary-status-list` | `layout.composite.compositeProductSummaryStatusList` | `CompositeProductSummaryStatusListComposite` | gap, sectionGap | component | converted |
+| composite | `composite-store-map-list` | `layout.composite.compositeStoreMapList` | `CompositeStoreMapListComposite` | gap | component | converted |
+| composite | `composite-footer-legal-links` | `layout.composite.compositeFooterLegalLinks` | `CompositeFooterLegalLinksComposite` | gap | component | converted |
+| composite | `composite-product-list-filter-sort` | `layout.composite.compositeProductListFilterSort` | `CompositeProductListFilterSortComposite` | componentGaps, gap | component | converted |
+| composite | `composite-product-list-group-title-stack` | `layout.composite.compositeProductListGroupTitleStack` | `CompositeProductListGroupTitleStackComposite` | componentGaps, gap | component | converted |
+| composite | `composite-list-product-horizontal-card-set` | `layout.composite.compositeListProductHorizontalCardSet` | `CompositeListProductHorizontalCardSetComposite` | componentGaps, gap | component | converted |
+| composite | `composite-list-product-row-card-set` | `layout.composite.compositeListProductRowCardSet` | `CompositeListProductRowCardSetComposite` | componentGaps, gap | component | converted |
+| composite | `composite-pagestack-product-card-list` | `layout.composite.compositePagestackProductCardList` | `CompositePagestackProductCardListComposite` | componentGaps, gap | component | converted |
+| composite | `component-action-button` | `layout.composite.componentActionButton` | `ComponentActionButtonComposite` | gap, paddingX | component | converted |
+| composite | `component-action-button-with-tooltip` | `layout.composite.componentActionButtonWithTooltip` | `ComponentActionButtonWithTooltipComposite` | gap, paddingX | component | converted |
+| composite | `composite-price-accordion-selected-list` | `layout.composite.compositePriceAccordionSelectedList` | `CompositePriceAccordionSelectedListComposite` | gap, rowGap | component | converted |
+| composite | `composite-product-detail-rich-image-tab` | `layout.composite.compositeProductDetailRichImageTab` | `CompositeProductDetailRichImageTabComposite` | componentGaps, gap | component | converted |
+| composite | `composite-button-more-product-link` | `layout.composite.compositeButtonMoreProductLink` | `CompositeButtonMoreProductLinkComposite` | componentGaps, gap | component | converted |
+| composite | `composite-option-list-stack` | `layout.composite.compositeOptionListStack` | `CompositeOptionListStackComposite` | componentGaps, gap | component | converted |
+| composite | `composite-coupon-benefit-card` | `layout.composite.compositeCouponBenefitCard` | `CompositeCouponBenefitCardComposite` | componentGaps, gap | component | converted |
+| composite | `composite-map-card-info-list` | `layout.composite.compositeMapCardInfoList` | `CompositeMapCardInfoListComposite` | componentGaps, gap | component | converted |
+| composite | `composite-card-info-brand-list` | `layout.composite.compositeCardInfoBrandList` | `CompositeCardInfoBrandListComposite` | componentGaps, gap | component | converted |
+| composite | `composite-product-disclosure-notice-list` | `layout.composite.compositeProductDisclosureNoticeList` | `CompositeProductDisclosureNoticeListComposite` | componentGaps, gap | component | converted |

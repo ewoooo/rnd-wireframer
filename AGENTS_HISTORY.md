@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Composite Pattern Catalog Completion
+
+- 변경: composite 49개를 `layout.composite.*` component catalog entry로 전환하고 공통 `createCompositeWrapper` component factory를 추가함
+- 변경: registry의 composite contract table에서 각 composite의 gap, height, width, minHeight, padding, action button height 같은 wrapper default를 실제 component default로 주입하도록 함
+- 변경: layout pattern inventory를 전체 109개 중 109개 converted, pending 0으로 갱신함
+- 이유: renderer가 composite layout도 legacy catalog 해석 없이 registered wrapper component로만 렌더하도록 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, 전체 layout pattern catalog legacy/default scan
+
 ## 2026-05-28 - Area Pattern Catalog Completion
 
 - 변경: 남은 area 18개를 `layout.area.*` component catalog entry로 전환하고 `GeneralArea` component group을 추가함
