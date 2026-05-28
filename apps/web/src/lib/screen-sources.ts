@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import type { RenderTreeScreenNode } from "@cx/renderer";
-import { materializeTableScreen, type TableScreenData } from "@cx/renderer/table";
+import { materializeTableScreen, type TableScreenData } from "@cx/table-materializer";
 
 export type ScreenSummary = {
 	id: string;
