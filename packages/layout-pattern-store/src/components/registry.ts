@@ -23,6 +23,12 @@ import {
 	SummaryTextListContentRegion,
 	SummaryTitleFilterTextListContentRegion,
 } from "./region/RegionStack";
+import {
+	CardListScreen,
+	CommerceDetailScreen,
+	ScreenShell,
+	TextListScreen,
+} from "./screen/ScreenShell";
 import type { LayoutPatternComponentEntry } from "./types";
 
 const regionPropContractByKey = {
@@ -37,6 +43,17 @@ const regionPropContractByKey = {
 	sectionPaddingX: { type: "number" },
 	slotInsetX: { type: "number" },
 	sticky: { type: "boolean" },
+} as const satisfies Record<
+	string,
+	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
+>;
+
+const screenPropContractByKey = {
+	contentWidth: { type: "number" },
+	gap: { type: "number" },
+	headerHeight: { type: "number" },
+	height: { type: "number" },
+	safeArea: { type: "string" },
 } as const satisfies Record<
 	string,
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
@@ -277,6 +294,43 @@ const regionStackLayouts: Array<{
 	},
 ];
 
+const screenShellLayouts: Array<{
+	component: LayoutPatternComponentEntry["component"];
+	componentID: string;
+	layoutId: LayoutPatternComponentEntry["layoutId"];
+	name: string;
+	props: LayoutPatternComponentEntry["pattern"]["props"];
+}> = [
+	{
+		component: ScreenShell,
+		componentID: "ScreenShell",
+		layoutId: "layout.screen.screenShell",
+		name: "Screen Shell",
+		props: screenShellProps(["gap"]),
+	},
+	{
+		component: CommerceDetailScreen,
+		componentID: "CommerceDetailScreen",
+		layoutId: "layout.screen.commerceDetailScreen",
+		name: "Commerce Detail Screen",
+		props: screenShellProps(["contentWidth", "gap", "safeArea"]),
+	},
+	{
+		component: TextListScreen,
+		componentID: "TextListScreen",
+		layoutId: "layout.screen.textListScreen",
+		name: "Text List Screen",
+		props: screenShellProps(["contentWidth", "gap", "height", "headerHeight"]),
+	},
+	{
+		component: CardListScreen,
+		componentID: "CardListScreen",
+		layoutId: "layout.screen.cardListScreen",
+		name: "Card List Screen",
+		props: screenShellProps(["contentWidth", "gap"]),
+	},
+];
+
 const areaLayoutPatternComponents: LayoutPatternComponentEntry[] = areaPageStackLayouts.map(
 	(entry) => ({
 		component: entry.component,
@@ -316,9 +370,29 @@ const regionLayoutPatternComponents: LayoutPatternComponentEntry[] = regionStack
 	}),
 );
 
+const screenLayoutPatternComponents: LayoutPatternComponentEntry[] = screenShellLayouts.map(
+	(entry) => ({
+		component: entry.component,
+		layoutId: entry.layoutId,
+		pattern: {
+			id: entry.layoutId,
+			target: "screen",
+			name: entry.name,
+			componentID: entry.componentID,
+			children: {
+				accepts: "region",
+			},
+			props: entry.props,
+			status: "draft",
+		},
+		target: "screen",
+	}),
+);
+
 const layoutPatternComponents: LayoutPatternComponentEntry[] = [
 	...areaLayoutPatternComponents,
 	...regionLayoutPatternComponents,
+	...screenLayoutPatternComponents,
 ];
 
 export function listRegisteredLayoutPatternComponents(): LayoutPatternComponentEntry[] {
@@ -389,6 +463,16 @@ function regionStackProps(
 	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
 	for (const key of keys) {
 		contracts[key] = regionPropContractByKey[key];
+	}
+	return contracts;
+}
+
+function screenShellProps(
+	keys: Array<"contentWidth" | "gap" | "headerHeight" | "height" | "safeArea">,
+): LayoutPatternComponentEntry["pattern"]["props"] {
+	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
+	for (const key of keys) {
+		contracts[key] = screenPropContractByKey[key];
 	}
 	return contracts;
 }

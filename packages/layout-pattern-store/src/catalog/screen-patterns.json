@@ -1,269 +1,86 @@
 {
 	"patterns": [
 		{
-			"id": "screen-shell",
+			"id": "layout.screen.screenShell",
 			"target": "screen",
 			"name": "화면 셸",
 			"description": "Screen 아래 Header, Contents, Bottom region을 갖는 기본 page shell 패턴",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0
+			"componentID": "ScreenShell",
+			"props": {
+				"gap": {
+					"type": "number"
+				}
 			},
-			"match": {
-				"keywords": ["screen", "shell", "page"],
-				"priority": 100
-			}
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
 		},
 		{
-			"id": "commerce-detail-screen",
+			"id": "layout.screen.commerceDetailScreen",
 			"target": "screen",
 			"name": "상품 상세 화면",
 			"description": "상품/구독/단말기 상세 화면 shell 패턴. Figma `SKT GenUI Test 0514` 상세-상품 page의 reference처럼 Header, scrollable Contents, optional sticky Bottom action을 분리한다.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"contentWidth": 393,
-					"chrome": "app-header-bottom-action",
-					"sourceFigmaFile": "SKT GenUI Test 0514",
-					"sourceFigmaNode": "10069:97828",
-					"sourceFigmaNodes": ["10069:97829", "10069:97927", "10069:98025", "10069:121732"],
-					"sourceFigmaReferenceRoot": "12449:8336",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10069-97828",
-					"referenceLayer": "Page/상세-상품 product detail screen variants",
-					"regions": [
-						{
-							"slot": "header",
-							"role": "navigation",
-							"sticky": true,
-							"includes": ["appbar"]
-						},
-						{
-							"slot": "contents",
-							"role": "scroll",
-							"scroll": "vertical",
-							"underHeader": true,
-							"aboveBottom": true
-						},
-						{
-							"slot": "bottom",
-							"role": "action",
-							"sticky": true,
-							"optional": true,
-							"safeArea": "bottom"
-						}
-					],
-					"contentSubtypePatterns": [
-						{
-							"variant": "상세_구독상품",
-							"sourceFigmaNode": "10069:97829",
-							"regionPatternId": "subscription-detail-rich-content"
-						},
-						{
-							"variant": "상세_기프티콘",
-							"sourceFigmaNode": "10069:97927",
-							"regionPatternId": "gifticon-detail-compact-content"
-						},
-						{
-							"variant": "상세_혜택브랜드",
-							"sourceFigmaNode": "10069:98025",
-							"regionPatternId": "benefit-brand-detail-content"
-						},
-						{
-							"variant": "상세_단말기",
-							"sourceFigmaNode": "10069:121732",
-							"regionPatternId": "device-detail-option-content"
-						}
-					],
-					"previousSourceFigmaNode": "12449:8336"
+			"componentID": "CommerceDetailScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"safeArea": {
+					"type": "string"
 				}
 			},
-			"match": {
-				"keywords": [
-					"commerce",
-					"detail",
-					"product",
-					"screen shell",
-					"scroll",
-					"sticky bottom",
-					"상품",
-					"상세",
-					"구독",
-					"단말기"
-				],
-				"priority": 120
-			}
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
 		},
 		{
-			"id": "text-list-screen",
+			"id": "layout.screen.textListScreen",
 			"target": "screen",
 			"name": "텍스트 리스트 화면",
 			"description": "Figma `SKT GenUI Test 0514` node `10042:46203` Page (리스트-텍스트) 계열 화면 shell 패턴. 공통 Header chrome은 AppBar 중심으로 유지하고 Contents에는 이용내역, T플러스포인트내역, 할인내역, 공지사항, 이용안내 list-text variant별 region 패턴을 배치한다.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"contentWidth": 393,
-					"chrome": "app-header",
-					"headerHeight": 107,
-					"sourceFigmaFile": "SKT GenUI Test 0514",
-					"sourceFigmaNode": "10082:58057",
-					"sourceFigmaNodes": [
-						"10082:58057",
-						"10082:58364",
-						"10082:58227",
-						"10082:47225",
-						"10082:43724"
-					],
-					"sourceFigmaReferenceRoot": "10042:46203",
-					"sourceFigmaUrl": "https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT-GenUI-Test-0514?node-id=10082-58057",
-					"referenceLayer": "Page/리스트-텍스트 screen variants",
-					"variants": [
-						{
-							"name": "리스트_이용내역",
-							"sourceFigmaNode": "10082:58057",
-							"contentsPattern": "summary-text-list-content"
-						},
-						{
-							"name": "리스트_T플러스포인트내역",
-							"sourceFigmaNode": "10082:58364",
-							"contentsPattern": "summary-text-list-content"
-						},
-						{
-							"name": "리스트_할인내역",
-							"sourceFigmaNode": "10082:58227",
-							"contentsPattern": "summary-title-filter-text-list-content"
-						},
-						{
-							"name": "리스트_공지사항",
-							"sourceFigmaNode": "10082:47225",
-							"contentsPattern": "plain-notice-list-content"
-						},
-						{
-							"name": "리스트_이용안내",
-							"sourceFigmaNode": "10082:43724",
-							"contentsPattern": "faq-guide-list-content"
-						}
-					],
-					"regions": [
-						{
-							"slot": "header",
-							"role": "navigation",
-							"sticky": true,
-							"height": 107,
-							"includes": ["appbar"]
-						},
-						{
-							"slot": "contents",
-							"role": "scroll",
-							"scroll": "vertical",
-							"underHeader": true,
-							"variantDriven": true
-						}
-					]
+			"componentID": "TextListScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"height": {
+					"type": "number"
+				},
+				"headerHeight": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"keywords": [
-					"list",
-					"text-list",
-					"history",
-					"notice",
-					"faq",
-					"guide",
-					"screen shell",
-					"리스트",
-					"이용내역",
-					"포인트내역",
-					"할인내역",
-					"공지사항",
-					"이용안내"
-				],
-				"priority": 125
-			}
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
 		},
 		{
-			"id": "card-list-screen",
+			"id": "layout.screen.cardListScreen",
 			"target": "screen",
 			"name": "카드 리스트 화면",
 			"description": "Figma node `9896:91122` Page (리스트-카드) 계열 화면 shell 패턴. Header chrome은 AppBar만 표현하고 Contents에는 상품군별 chip, filter/sort, card list region 패턴을 variant에 따라 배치한다.",
-			"layout": {
-				"direction": "vertical",
-				"childOrder": "explicit",
-				"gap": 0,
-				"layoutProps": {
-					"contentWidth": 393,
-					"chrome": "app-header",
-					"sourceFigmaNode": "9896:91122",
-					"sourceFigmaReferenceRoot": "9896:91122",
-					"referenceLayer": "Page/리스트-카드 screen variants",
-					"variants": [
-						{
-							"name": "리스트_요금제",
-							"contentsPattern": "product-card-sectioned-list-content"
-						},
-						{
-							"name": "리스트_단말기",
-							"contentsPattern": "product-card-flat-row-list-content"
-						},
-						{
-							"name": "리스트_구독상품",
-							"contentsPattern": "product-card-flat-row-list-content"
-						},
-						{
-							"name": "리스트_혜택",
-							"contentsPattern": "product-card-flat-horizontal-list-content"
-						},
-						{
-							"name": "리스트_부가서비스",
-							"contentsPattern": "product-card-flat-horizontal-list-content"
-						},
-						{
-							"name": "리스트_인터넷",
-							"contentsPattern": "product-card-flat-horizontal-list-content"
-						}
-					],
-					"regions": [
-						{
-							"slot": "header",
-							"role": "navigation",
-							"sticky": true,
-							"includes": ["appbar"]
-						},
-						{
-							"slot": "contents",
-							"role": "scroll",
-							"scroll": "vertical",
-							"underHeader": true,
-							"variantDriven": true
-						}
-					]
+			"componentID": "CardListScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
 				}
 			},
-			"match": {
-				"keywords": [
-					"list",
-					"card-list",
-					"product-list",
-					"plan-list",
-					"device-list",
-					"subscription-list",
-					"benefit-list",
-					"screen shell",
-					"리스트",
-					"카드",
-					"요금제",
-					"단말기",
-					"구독상품",
-					"혜택",
-					"부가서비스",
-					"인터넷"
-				],
-				"priority": 126
-			}
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
 		}
 	]
 }

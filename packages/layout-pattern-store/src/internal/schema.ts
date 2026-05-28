@@ -89,7 +89,7 @@ const layoutPatternPropContractSchema = z
 
 const layoutPatternChildrenContractSchema = z
 	.object({
-		accepts: z.enum(["any", "area", "area-or-component", "component", "none"]),
+		accepts: z.enum(["any", "area", "area-or-component", "component", "none", "region"]),
 		max: z.number().int().nonnegative().optional(),
 		min: z.number().int().nonnegative().optional(),
 	})

@@ -85,7 +85,7 @@ export type LayoutPatternPropContract = {
 };
 
 export type LayoutPatternChildrenContract = {
-	accepts: "any" | "area" | "area-or-component" | "component" | "none";
+	accepts: "any" | "area" | "area-or-component" | "component" | "none" | "region";
 	max?: number;
 	min?: number;
 };

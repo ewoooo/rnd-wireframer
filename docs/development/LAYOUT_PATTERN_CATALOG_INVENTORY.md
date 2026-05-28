@@ -18,11 +18,11 @@
 
 | target | total | converted | pending |
 |---|---:|---:|---:|
-| screen | 4 | 0 | 4 |
+| screen | 4 | 4 | 0 |
 | region | 16 | 16 | 0 |
 | area | 40 | 5 | 35 |
 | composite | 49 | 0 | 49 |
-| total | 109 | 21 | 88 |
+| total | 109 | 25 | 84 |
 
 ## 4. Inventory
 
@@ -30,10 +30,10 @@
 
 | target | legacy id | new id | componentID | spacing keys | children | status |
 |---|---|---|---|---|---|---|
-| screen | `screen-shell` | `layout.screen.screenShell` | `ScreenShellScreen` | gap | region | pending |
-| screen | `commerce-detail-screen` | `layout.screen.commerceDetailScreen` | `CommerceDetailScreen` | contentWidth, gap, safeArea | region | pending |
-| screen | `text-list-screen` | `layout.screen.textListScreen` | `TextListScreen` | contentWidth, gap, height | region | pending |
-| screen | `card-list-screen` | `layout.screen.cardListScreen` | `CardListScreen` | contentWidth, gap | region | pending |
+| screen | `screen-shell` | `layout.screen.screenShell` | `ScreenShell` | gap | region | converted |
+| screen | `commerce-detail-screen` | `layout.screen.commerceDetailScreen` | `CommerceDetailScreen` | contentWidth, gap, safeArea | region | converted |
+| screen | `text-list-screen` | `layout.screen.textListScreen` | `TextListScreen` | contentWidth, gap, height | region | converted |
+| screen | `card-list-screen` | `layout.screen.cardListScreen` | `CardListScreen` | contentWidth, gap | region | converted |
 
 ### region
 

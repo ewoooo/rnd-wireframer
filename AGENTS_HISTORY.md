@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Screen Pattern Component Conversion
+
+- 변경: `screen-patterns.json` 4개를 `layout.screen.*` component catalog entry로 전환하고 `ScreenShell`, `CommerceDetailScreen`, `TextListScreen`, `CardListScreen` registry component identity를 추가함
+- 변경: screen catalog children contract에 `region`을 사용할 수 있도록 layout pattern children contract를 확장함
+- 변경: layout pattern inventory의 screen 상태를 converted로 갱신함
+- 이유: screen catalog도 실제 layout component identity를 갖게 하되, renderer의 `AppScreen` screen root 처리와 slot 책임은 충돌시키지 않기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, screen catalog legacy/default scan
+
 ## 2026-05-28 - Region Pattern Component Conversion
 
 - 변경: `region-patterns.json` 16개를 `layout.region.*` component catalog entry로 전환하고 `SectionStackRegion`, `PlainStackRegion`, 상품/리스트 contents region component registry를 추가함
