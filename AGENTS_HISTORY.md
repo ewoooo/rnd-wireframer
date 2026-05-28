@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Layout Pattern Catalog Inventory
+
+- 변경: `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md`를 추가해 screen/region/area/composite catalog 109개 pattern의 legacy id, 새 layout id, 예정 componentID, spacing key, children contract, 전환 상태를 기록함
+- 변경: 현재 전환 상태를 screen 4 pending, region 16 pending, area 40개 중 5 converted, composite 49 pending으로 요약함
+- 이유: 자동 catalog 변환 전에 대상 수량과 spacing 보존 key를 고정하기 위함
+- 검증: catalog JSON 기준 수량 대조
+
 ## 2026-05-28 - Layout Rendering Redesign Plan
 
 - 변경: `docs/development/LAYOUT_RENDERING_REDESIGN_PLAN.md`를 추가해 pattern store의 실제 layout component library 전환, renderer interpreter 전환, table schema 전환, table-to-RenderTree materializer 분리 계획을 정리함
