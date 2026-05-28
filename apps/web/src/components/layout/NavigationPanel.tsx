@@ -9,7 +9,6 @@ import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigat
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Separator } from "@/components/ui/separator";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import type { AppScreenModule, AppScreenRoute } from "@/model/store";
@@ -137,26 +136,7 @@ export function NavigationPanel() {
 					{/* ── B: 선택된 루트의 스크린 배리언트 목록 ── */}
 					<ResizablePanel defaultSize={65} minSize={20}>
 						<div className="flex h-full flex-col overflow-hidden">
-							{activeRoute && (
-								<>
-									<div className="shrink-0 px-3 py-3">
-										<p className="truncate text-sm font-semibold leading-snug">
-											{activeRoute.name}
-										</p>
-										<p className="mt-0.5 truncate text-xs text-muted-foreground">
-											{activeRoute.code}
-										</p>
-										<div className="mt-2 flex items-center gap-2">
-											<Badge variant="secondary">{activeRoute.module}</Badge>
-											<span className="text-xs text-muted-foreground">
-												{activeRoute.screenCount} screens
-											</span>
-										</div>
-									</div>
-									<Separator />
-								</>
-							)}
-							<div className="min-h-0 flex-1 overflow-y-auto">
+							<div className="min-h-0 flex-1 overflow-y-auto [&>*:first-child]:border-t-0">
 								{activeRoute?.screenVariants.map((variant) => (
 									<ScreenVariantCard
 										key={variant.id}
@@ -589,21 +569,28 @@ function RouteListItem({ isActive, route, onSelect, onSaved, onDeleted }: RouteL
 			<div
 				role="button"
 				tabIndex={0}
-				className="flex min-w-0 flex-1 cursor-pointer items-center gap-1"
+				className="flex min-w-0 flex-1 cursor-pointer flex-col"
 				onClick={onSelect}
 				onKeyDown={(e) => e.key === "Enter" && onSelect()}
 			>
-				<span className={cn("truncate text-sm", isActive ? "font-semibold" : "font-normal")}>
-					{route.name}
-				</span>
-				<button
-					type="button"
-					className="shrink-0 rounded p-0.5 opacity-0 transition-opacity hover:bg-black/5 group-hover:opacity-100"
-					onClick={handleStartEdit}
-					title="이름 편집"
-				>
-					<Pencil className="size-3 text-muted-foreground" />
-				</button>
+				<div className="flex items-center gap-1">
+					<span className={cn("truncate text-sm", isActive ? "font-semibold" : "font-normal")}>
+						{route.name}
+					</span>
+					<button
+						type="button"
+						className="shrink-0 rounded p-0.5 opacity-0 transition-opacity hover:bg-black/5 group-hover:opacity-100"
+						onClick={handleStartEdit}
+						title="이름 편집"
+					>
+						<Pencil className="size-3 text-muted-foreground" />
+					</button>
+				</div>
+				{isActive && (
+					<span className="truncate text-[10px] text-muted-foreground/60">
+						{route.code}
+					</span>
+				)}
 			</div>
 
 			{/* 오른쪽: 복제 + 삭제 + 스크린 수 */}
