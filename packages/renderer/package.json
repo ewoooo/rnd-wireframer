@@ -7,9 +7,7 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./renderer": "./src/render/index.ts",
-		"./table": "./src/table/index.ts",
-		"./table-view": "./src/table/table-screen-view.tsx"
+		"./renderer": "./src/render/index.ts"
 	},
 	"dependencies": {
 		"@cx/components": "0.1.0",

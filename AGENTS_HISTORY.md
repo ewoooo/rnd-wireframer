@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Renderer Table Legacy Removal
+
+- 변경: `@cx/renderer` public exports에서 `./table`, `./table-view`, `TableScreenView`, `materializeTableScreen(s)`를 제거하고 renderer 내부 table source/test를 삭제함
+- 변경: validation test를 갱신해 RenderTree와 table-shaped generation record 모두 node target과 `layout.<target>.*` mismatch를 error로 검출함을 고정함
+- 변경: layout rendering redesign plan의 현재 상태에서 renderer table legacy 제거와 validation target/layout mismatch 강제를 완료 상태로 반영함
+- 이유: table-to-RenderTree 조립 책임을 `@cx/table-materializer`로만 유지하고 renderer를 RenderTree-to-React interpreter로 남기기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/validation/src/__tests__/validators.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/table-materializer/src/__tests__/public-api.test.ts`, renderer table subpath code scan
+
 ## 2026-05-28 - Composite Pattern Catalog Completion
 
 - 변경: composite 49개를 `layout.composite.*` component catalog entry로 전환하고 공통 `createCompositeWrapper` component factory를 추가함

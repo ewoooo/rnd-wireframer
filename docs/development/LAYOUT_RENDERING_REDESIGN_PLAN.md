@@ -172,12 +172,13 @@ data/tables/*
 - screen shell 계열 4개를 새 component catalog entry로 전환했다.
 - area catalog 40개 전체를 새 component catalog entry로 전환했다.
 - composite catalog 49개 전체를 새 component catalog entry로 전환했다.
+- renderer 내부의 이전 table materializer subpath와 table view export를 제거했다.
+- validation은 RenderTree와 table-shaped generation record에서 node target과 `layout.<target>.*` mismatch를 검출한다.
 - 전환된 catalog entry에서는 runtime `default`를 제거하고 실제 component default로 옮겼다.
 
 아직 남은 것:
 
-- renderer 내부의 이전 table materializer subpath와 관련 legacy test는 후속 batch에서 제거해야 한다.
-- validation의 target/layout mismatch 강제는 아직 후속 작업으로 남아 있다.
+- 최종 완료 감사에서 full verification command와 public surface scan을 다시 수행해야 한다.
 
 ## 4. 원칙
 

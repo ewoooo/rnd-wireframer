@@ -181,6 +181,23 @@ describe("@cx/validation validators", () => {
 		);
 	});
 
+	it("reports RenderTree layout refs that do not match the node target", () => {
+		const tree = validRenderTree();
+		const contents = tree.children[0]?.children?.[1] as { layout?: string } | undefined;
+		if (!contents) throw new Error("contents node missing");
+		contents.layout = "layout.area.productHeroSummary";
+
+		const report = validateRenderTree(tree, { componentCatalog: testCatalog });
+
+		expect(report.ok).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-layout-ref",
+				path: ["children", 0, "children", 1, "layout"],
+			}),
+		);
+	});
+
 	it("accepts the final screen RenderTree handoff shape without region props", () => {
 		const report = validateRenderTree(finalScreenRenderTreeExample(), { componentCatalog });
 
@@ -281,6 +298,20 @@ it("rejects table-shaped generation records with unknown layout ids", () => {
 		expect.objectContaining({
 			code: "unknown-layout-ref",
 			path: ["components", 0, "layout"],
+		}),
+	);
+});
+
+it("rejects table-shaped generation records with target/layout mismatches", () => {
+	const result = validTableGenerationResult();
+	result.areas[0].layout = "layout.region.plainStack";
+	const report = validateTableGenerationResult(result);
+
+	expect(report.ok).toBe(false);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "unknown-layout-ref",
+			path: ["areas", 0, "layout"],
 		}),
 	);
 });
@@ -388,7 +419,7 @@ function validRenderTree() {
 					{
 						type: "Screen.Contents",
 						metadata: { id: "contents", title: "Contents" },
-						layout: "layout.area.productHeroSummary",
+						layout: "layout.region.plainStack",
 						props: {
 							layout: { direction: "column", gap: 12 },
 							scroll: true,
@@ -398,7 +429,7 @@ function validRenderTree() {
 								type: "ActionButton",
 								componentVersion: "1.0.0",
 								metadata: { id: "cta", title: "CTA" },
-								layout: "layout.area.productHeroSummary",
+								layout: "layout.composite.componentActionButton",
 								props: {
 									label: "가입하기",
 									variant: "primary",
