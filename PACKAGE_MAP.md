@@ -12,18 +12,14 @@
 
 ```text
 Markdown source
+-> @cx/pipeline runtime
+-> @cx/pipeline source artifact read
 -> @cx/parser
 -> SourceSpec
--> @cx/schema contracts
--> @cx/orchestration
--> screen-generation AgentTaskInput
--> @cx/agent
--> Claude result / RenderTree candidate
--> @cx/validation
--> ValidationReport
--> @cx/orchestration
--> next action / side effect intent
--> @cx/pipeline
+-> @cx/orchestration deterministic stage helpers
+-> @cx/agent screen-generation
+-> @cx/validation contract validation
+-> @cx/pipeline artifact write
 -> versioned artifact / apply log
 -> @cx/renderer
 -> React preview
@@ -39,16 +35,16 @@ Markdown source
 |---|---|---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
 | `@cx/parser` | Markdown/source 입력을 SourceSpec으로 정규화 | PRDD Markdown 파싱, source metadata 보존, parser issue 반환 | 파일 IO, Claude 실행, RenderTree 생성, catalog 검증 |
-| `@cx/orchestration` | 순수 stage input/output 조립과 next action 결정 | generation plan, SourceSpec -> screen-generation AgentTaskInput, 후속 stage/transition contract | 파일 IO, Claude 실행, validation rule 판정, React render |
+| `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery` | 출력 타입 SSOT, workflow 소유, 저장, render |
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
-| `@cx/pipeline` | 승인된 side effect command 실행과 결과 회수 | `runSideEffects`, source artifact read, artifact write, run log write, approved artifact apply, parser adapter | 업무 판단, parsing rule, validation rule, Claude 실행, render |
+| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, parser adapter | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
 | `@cx/renderer` | RenderTree JSON을 React로 렌더링 | RenderTree 타입, node renderer registry, area/component node render | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
 | `@cx/layout` | 화면 chrome과 layout primitive | `AppScreen`, `Flex`, `Grid`, layout style helper, DTO guards | component catalog, token SSOT, 생성 workflow |
 | `@cx/tokens` | foundation/semantic token SSOT | token constants, CSS variables, Tailwind v4 `@theme` entrypoint | component alias token, generated file 직접 소비 |
 | `@cx/layout-pattern-store` | layout pattern reference catalog | pattern load/list/resolve, pure pattern CRUD, local schema validation | pattern 적용 workflow, 파일 승인 반영, renderer 직접 렌더 |
-| `@cx/smoke` | 개발자용 통합 smoke 실행 앱 | `runGenerationSmoke`, fake/AI runner 선택, smoke artifact 기록, CLI 제공 | 제품 런타임, parser/validation/renderer rule 소유 |
+| `@cx/smoke` | 개발자용 pipeline smoke CLI | `runGenerationSmoke`, CLI option parsing, pipeline summary 출력 | 제품 런타임, orchestration/agent/validation 직접 실행, parser/validation/renderer rule 소유 |
 
 ## 4. Public Surface
 
@@ -59,7 +55,7 @@ Markdown source
 | `@cx/orchestration` | `.`, `./contract`, `./generation`, `./types` |
 | `@cx/agent` | `.`, `./adapters`, `./claude`, `./contract`, `./tasks` |
 | `@cx/validation` | `.`, `./contract`, `./types` |
-| `@cx/pipeline` | `.`, `./adapters`, `./commands`, `./contract`, `./parser`, `./runner`, `./testing`, `./types` |
+| `@cx/pipeline` | `.`, `./adapters`, `./commands`, `./contract`, `./parser`, `./runner`, `./runtime`, `./testing`, `./types` |
 | `@cx/renderer` | `.`, `./renderer` |
 | `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
 | `@cx/layout` | `.`, `./chrome`, `./contract`, `./primitives`, `./style`, `./types` |
@@ -73,21 +69,21 @@ Markdown source
 
 - `@cx/schema`는 DTO/schema 계약만 소유하고 실행/검증/렌더 책임을 갖지 않는다.
 - `@cx/parser`는 catalog 목록을 소유하지 않고 Markdown에 명시된 source hint만 보존한다.
-- `@cx/orchestration`은 다음 단계에 필요한 입력과 의도를 순수 데이터로 만든다.
+- `@cx/orchestration`은 pipeline stage가 사용할 입력과 의도를 순수 데이터로 만든다.
 - `@cx/agent`는 Claude 실행만 담당하고, 결과의 최종 정합성 판단은 `@cx/validation`에 맡긴다.
 - `@cx/validation`은 필요한 catalog와 contract를 인자로 받으며 파일을 쓰지 않는다.
-- `@cx/pipeline`은 이미 결정된 command만 실행하고, 업무 판단을 하지 않는다.
+- `@cx/pipeline`은 pipeline definition과 stage runtime을 실행하고, IO는 side effect command runner로 위임한다.
 - `@cx/renderer`는 RenderTree JSON만 소비하고 생성 과정이나 검증을 소유하지 않는다.
-- `@cx/smoke`는 여러 패키지를 조립해 실행하지만 각 패키지의 규칙을 재구현하지 않는다.
+- `@cx/smoke`는 `@cx/pipeline`만 호출하고 각 패키지의 규칙을 재구현하지 않는다.
 - catalog, token, pattern 값은 각 소유 패키지 public API를 통해서만 소비한다.
 
-## 6. Plan / Harness / Pipeline Boundary
+## 6. Pipeline Runtime Boundary
 
-`@cx/orchestration`은 generation plan을 순수 데이터로 정의한다. step 순서, step kind/id, stage input contract, next action intent를 만들 수 있지만 Claude 실행, validation 실행, 파일 IO, artifact write는 하지 않는다.
+`@cx/pipeline`은 generation pipeline definition과 stage runtime을 소유한다. stage 순서, stage id, runtime context, agent 실행 연결, validation 호출 연결, artifact write 연결은 pipeline 경계에 둔다.
 
-`apps/smoke`는 orchestration plan을 개발 환경에서 실행하는 harness다. plan step executor를 연결하고 `@cx/agent`, `@cx/validation`을 호출할 수 있으며, smoke source/artifact용 side effect command를 만들 수 있다. 단, step 순서를 plan 밖에서 새로 만들지 않고 파일/log/artifact IO 실행은 `@cx/pipeline`에 위임한다.
+`@cx/orchestration`은 pipeline stage 내부에서 쓰는 deterministic helper만 제공한다. SourceSpec, 후보 pattern, validation report 같은 입력을 agent task input이나 next-action data로 조립하지만 실행 가능한 plan을 소유하지 않는다.
 
-`@cx/pipeline`은 이미 결정된 side effect command를 실행하는 IO conveyor belt다. source artifact read, versioned artifact write, run log write, approved artifact apply 같은 IO를 수행하지만 workflow 순서, Claude 사용 여부, validation rule, retry 정책, SourceSpec/RenderTree 업무 의미를 결정하지 않는다.
+`apps/smoke`는 개발 환경에서 `runPipeline("screen-generation", options)`만 호출하는 thin harness다. smoke는 `@cx/orchestration`, `@cx/agent`, `@cx/validation`, catalog 패키지를 직접 import하지 않는다.
 
 ## 7. 현재 MVP 실행 기준
 
@@ -96,13 +92,14 @@ Markdown source
 ```text
 script
 -> @cx/smoke/generation runGenerationSmoke
+-> @cx/pipeline runPipeline("screen-generation")
 -> @cx/pipeline source artifact read
 -> @cx/pipeline/parser
 -> @cx/parser SourceSpec
--> @cx/orchestration/generation plan
+-> @cx/orchestration/generation stage helpers
 -> @cx/agent screen-generation
 -> @cx/validation
 -> @cx/pipeline artifact write
 ```
 
-root script는 `apps/smoke` CLI를 호출한다. 외부 TypeScript 사용자는 `@cx/smoke/generation`의 `runGenerationSmoke(target, options)`를 사용한다. smoke app은 orchestration이 반환한 작은 plan을 실행하는 harness이며, parser rule, validation rule, Claude 실행 adapter, renderer 구현을 직접 소유하지 않는다.
+root script는 `apps/smoke` CLI를 호출한다. 외부 TypeScript 사용자는 `@cx/smoke/generation`의 `runGenerationSmoke(target, options)`를 사용할 수 있지만, 내부 구현은 `@cx/pipeline`의 `runPipeline("screen-generation", options)`를 호출한다.

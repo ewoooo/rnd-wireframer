@@ -5,6 +5,7 @@ import type { SideEffectCommand } from "@cx/pipeline/types";
 export type GenerationSmokeArtifactInput = {
 	agentInput: unknown;
 	agentResult: unknown;
+	generationSkillCatalog?: unknown;
 	initialValidationReport?: unknown;
 	outDir: string;
 	parseCommandResult: unknown;
@@ -15,6 +16,7 @@ export type GenerationSmokeArtifactInput = {
 	revisionAgentInput?: unknown;
 	revisionAgentResult?: unknown;
 	revisionRunnerRequest?: unknown;
+	renderTreeGenerationSkill?: unknown;
 	runnerRequest: unknown;
 	sourceSpec: unknown;
 	validationReport: unknown;
@@ -36,6 +38,18 @@ export function createGenerationSmokeArtifactCommands(
 			input.outDir,
 			"pattern-layer-candidates.json",
 			input.patternLayerCandidates,
+		),
+		createWriteCommand(
+			"write-generation-skill-catalog",
+			input.outDir,
+			"generation-skill-catalog.json",
+			input.generationSkillCatalog,
+		),
+		createWriteCommand(
+			"write-render-tree-generation-skill",
+			input.outDir,
+			"render-tree-generation-skill.json",
+			input.renderTreeGenerationSkill,
 		),
 		createWriteCommand(
 			"write-pattern-selection-agent-input",

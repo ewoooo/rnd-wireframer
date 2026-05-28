@@ -1,4 +1,3 @@
-import type { AgentTaskInput } from "@cx/agent/contract";
 import type {
 	GenerationArtifactKind,
 	JsonSchemaDocument,
@@ -40,30 +39,10 @@ export type OrchestrationDecision = {
 	stage: OrchestrationStageKind;
 };
 
-export const GENERATION_PLAN_STEP = {
-	generateRenderTree: "generate-render-tree",
-	reviseRenderTreeIfInvalid: "revise-render-tree-if-invalid",
-	selectPattern: "select-pattern",
-	validateRenderTree: "validate-render-tree",
-	writeArtifacts: "write-artifacts",
-} as const;
-
-export type GenerationPlanStepKind =
-	(typeof GENERATION_PLAN_STEP)[keyof typeof GENERATION_PLAN_STEP];
-
-export type GenerationPlanStep = {
-	id: string;
-	kind: GenerationPlanStepKind;
-};
-
-export type GenerationPlan = {
-	steps: GenerationPlanStep[];
-};
-
-export type GenerationPlanOptions = {
-	persistArtifacts?: boolean;
-	reviseInvalid?: boolean;
-	selectPattern?: boolean;
+export type OrchestrationAgentTaskInput = {
+	context?: unknown;
+	previousResult?: unknown;
+	query: string;
 };
 
 export type PatternLayerCandidate = {
@@ -92,7 +71,7 @@ export type PatternSelectionAgentContext = {
 	};
 };
 
-export type PatternSelectionAgentInput = AgentTaskInput & {
+export type PatternSelectionAgentInput = OrchestrationAgentTaskInput & {
 	context: PatternSelectionAgentContext;
 };
 
@@ -110,7 +89,7 @@ export type ScreenGenerationAgentContext = PatternSelectionAgentContext & {
 	};
 };
 
-export type ScreenGenerationAgentInput = AgentTaskInput & {
+export type ScreenGenerationAgentInput = OrchestrationAgentTaskInput & {
 	context: ScreenGenerationAgentContext;
 };
 
@@ -119,7 +98,7 @@ export type ScreenRevisionAgentContext = ScreenGenerationAgentContext & {
 	validationReport: unknown;
 };
 
-export type ScreenRevisionAgentInput = AgentTaskInput & {
+export type ScreenRevisionAgentInput = OrchestrationAgentTaskInput & {
 	context: ScreenRevisionAgentContext;
 	previousResult: unknown;
 };

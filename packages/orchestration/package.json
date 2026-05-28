@@ -12,7 +12,6 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/agent": "0.1.0",
 		"@cx/schema": "0.1.0"
 	}
 }

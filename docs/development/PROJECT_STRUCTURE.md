@@ -20,9 +20,9 @@
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action 결정 |
+| `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
-| `@cx/pipeline` | 승인된 side effect 명령을 순서대로 전달하고 실행 결과를 회수하는 conveyor belt |
+| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
 
 개발자용 앱:
 
@@ -110,10 +110,10 @@ apps/web/src/
 apps/smoke/src/
   index.ts       public app API
   cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke harness, plan executor, artifact command helper
+  generation/    runGenerationSmoke wrapper and public smoke types
 ```
 
-외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다.
+외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다. generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
 
 ## 7. `packages/token`
 
@@ -198,12 +198,12 @@ packages/parser/src/
 
 ## 11. `packages/orchestration`
 
-`@cx/orchestration`은 생성 과정의 순수한 업무 흐름을 담당한다. 현재는 작은 generation plan과 screen-generation stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
+`@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
 
 ```text
 packages/orchestration/src/
   index.ts       public barrel
-  public/        pure orchestration boundary contract, generation plan, public types
+  public/        pure orchestration boundary contract, generation helper, public types
 ```
 
 두지 않는 책임:
@@ -211,6 +211,8 @@ packages/orchestration/src/
 - 파일 읽기/쓰기
 - Claude Agent SDK 실행
 - 검증 rule 판정
+- pipeline 실행
+- stage 순서 소유
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
 - 승인 데이터 직접 반영
@@ -236,12 +238,14 @@ packages/validation/src/
 
 ## 13. `packages/pipeline`
 
-`@cx/pipeline`은 생성 과정의 side effect conveyor belt만 담당한다. MVP에서는 승인된 side effect command 배열을 순서대로 실행하고, source artifact read/versioned artifact/write log/approved artifact apply 결과를 감사 가능한 envelope로 반환한다.
+`@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
 
 ```text
 packages/pipeline/src/
   index.ts       public barrel
   public/        side effect boundary contract, parser adapter, public types
+  runtime/       buildPipeline/runPipeline
+  pipelines/     screen-generation pipeline definition and stages
   commands/      approved side effect command contracts and command helpers
   runner/        command sequence execution, executor registry, result envelope
   executors/     source artifact read, versioned artifact write, run log write, approved artifact apply
@@ -252,10 +256,10 @@ packages/pipeline/src/
 
 두지 않는 책임:
 
-- Claude Agent SDK 실행
 - 순수 stage input/output 조립
 - Markdown parsing rule 소유
 - 검증 rule 판정
+- Claude adapter 구현
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
 - mock schema 원본 수정

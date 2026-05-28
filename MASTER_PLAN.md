@@ -20,8 +20,8 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 - pipeline 전반 DTO/schema 계약의 정본은 `@cx/schema`에서 관리한다.
 - Markdown/source 입력은 `@cx/parser`에서 SourceSpec으로 정규화한 뒤 생성 흐름에 전달한다.
 - 하위 패키지는 가능하면 입력값을 받아 결과값을 반환하는 순수 함수형 API를 우선한다.
-- 파일 저장, 승인 반영, CLI 실행, 외부 저장소 동기화 같은 side effect는 `@cx/pipeline` 경계에 둔다.
-- 생성/검수/미리보기/반영 stage의 순수 흐름 조립은 `@cx/orchestration`에서 다룬다.
+- 파일 저장, 승인 반영, CLI 실행, 외부 저장소 동기화 같은 side effect와 pipeline runtime은 `@cx/pipeline` 경계에 둔다.
+- 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action helper는 `@cx/orchestration`에서 다룬다.
 - DTO, component reference, layout pattern reference, token reference 검증은 `@cx/validation`에서 결과 리포트로만 반환한다.
 - Claude 실행은 `@cx/agent`가 담당하며, 생성과 검수 모두 Claude 기반으로 운영한다.
 - React render는 `@cx/renderer`가 RenderTree JSON을 렌더링하는 책임만 가진다.
@@ -33,11 +33,12 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 ```text
 Markdown Source
 -> @cx/parser SourceSpec
--> @cx/orchestration stage input build
+-> @cx/pipeline runtime
+-> @cx/orchestration stage input helper
 -> @cx/agent Claude generation
 -> Draft Candidate
 -> @cx/validation validation report
--> @cx/orchestration next action decision
+-> @cx/orchestration next action helper
 -> RenderTree JSON
 -> @cx/renderer preview render
 -> @cx/pipeline versioned artifact / approval side effect
@@ -51,9 +52,9 @@ Markdown Source
 |---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
 | `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
-| `@cx/orchestration` | stage 입력/출력 조립과 next action 결정 |
+| `@cx/orchestration` | stage 입력/출력 조립과 next action helper |
 | `@cx/validation` | 순수 검증과 validation report 반환 |
-| `@cx/pipeline` | side effect 실행과 산출물 반영 |
+| `@cx/pipeline` | pipeline runtime, side effect 실행과 산출물 반영 |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
 | `@cx/renderer` | RenderTree JSON -> React render |
 | `@cx/components` | component vocabulary, catalog, 순수 CRUD 계약 |

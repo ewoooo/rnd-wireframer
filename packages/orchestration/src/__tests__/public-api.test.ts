@@ -1,9 +1,7 @@
 import {
-	buildGenerationPlan,
 	buildPatternSelectionAgentInput,
 	buildScreenGenerationAgentInput,
 	buildScreenRevisionAgentInput,
-	GENERATION_PLAN_STEP,
 	orchestrationBoundary,
 } from "@cx/orchestration";
 import type { OrchestrationDecision, OrchestrationOperation } from "@cx/orchestration/types";
@@ -121,108 +119,6 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain("Select the pattern layer strategy");
 		expect(input.context.layerCandidates).toBe(layerCandidates);
 		expect(input.context.sourceSummary.screenCode).toBe("NOVA-PRDD-PG-001-0");
-	});
-
-	it("builds a small executable generation plan", () => {
-		expect(buildGenerationPlan()).toEqual({
-			steps: [
-				{
-					id: GENERATION_PLAN_STEP.selectPattern,
-					kind: GENERATION_PLAN_STEP.selectPattern,
-				},
-				{
-					id: GENERATION_PLAN_STEP.generateRenderTree,
-					kind: GENERATION_PLAN_STEP.generateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.validateRenderTree,
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-				},
-				{
-					id: "validate-render-tree-after-revision",
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.writeArtifacts,
-					kind: GENERATION_PLAN_STEP.writeArtifacts,
-				},
-			],
-		});
-
-		expect(buildGenerationPlan({ persistArtifacts: false })).toEqual({
-			steps: [
-				{
-					id: GENERATION_PLAN_STEP.selectPattern,
-					kind: GENERATION_PLAN_STEP.selectPattern,
-				},
-				{
-					id: GENERATION_PLAN_STEP.generateRenderTree,
-					kind: GENERATION_PLAN_STEP.generateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.validateRenderTree,
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-				},
-				{
-					id: "validate-render-tree-after-revision",
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-			],
-		});
-
-		expect(buildGenerationPlan({ reviseInvalid: false })).toEqual({
-			steps: [
-				{
-					id: GENERATION_PLAN_STEP.selectPattern,
-					kind: GENERATION_PLAN_STEP.selectPattern,
-				},
-				{
-					id: GENERATION_PLAN_STEP.generateRenderTree,
-					kind: GENERATION_PLAN_STEP.generateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.validateRenderTree,
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.writeArtifacts,
-					kind: GENERATION_PLAN_STEP.writeArtifacts,
-				},
-			],
-		});
-
-		expect(buildGenerationPlan({ selectPattern: false })).toEqual({
-			steps: [
-				{
-					id: GENERATION_PLAN_STEP.generateRenderTree,
-					kind: GENERATION_PLAN_STEP.generateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.validateRenderTree,
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-					kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-				},
-				{
-					id: "validate-render-tree-after-revision",
-					kind: GENERATION_PLAN_STEP.validateRenderTree,
-				},
-				{
-					id: GENERATION_PLAN_STEP.writeArtifacts,
-					kind: GENERATION_PLAN_STEP.writeArtifacts,
-				},
-			],
-		});
 	});
 
 	it("builds screen revision agent input from a validation report", () => {

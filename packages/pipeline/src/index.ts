@@ -5,12 +5,19 @@ export { sideEffectBoundary } from "./public/contract";
 export type {
 	ApplyApprovedArtifactCommand,
 	PipelineAdapters,
+	PipelineAgentMode,
 	PipelineClockAdapter,
+	PipelineDefinition,
 	PipelineFileSystemAdapter,
+	PipelineId,
 	PipelineIdAdapter,
 	PipelineMarkdownSourceFile,
 	PipelineRunMode,
+	PipelineRunResult,
+	PipelineStageId,
+	PipelineSummary,
 	RunSideEffectsInput,
+	ScreenGenerationPipelineOptions,
 	SideEffectArtifactRef,
 	SideEffectBoundary,
 	SideEffectBoundaryName,
@@ -29,3 +36,4 @@ export type {
 	WriteVersionedArtifactCommand,
 } from "./public/types";
 export { runSideEffects } from "./runner";
+export { buildPipeline, runPipeline } from "./runtime";

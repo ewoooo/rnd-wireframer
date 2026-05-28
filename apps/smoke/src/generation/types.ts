@@ -1,13 +1,9 @@
-import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
-import type {
-	PatternLayerCandidate,
-	PatternSelectionAgentInput,
-	ScreenGenerationAgentInput,
-	ScreenRevisionAgentInput,
-} from "@cx/orchestration/types";
 import type { ParseMarkdownSourceCommandResult } from "@cx/pipeline/parser";
-import type { SideEffectExecutionResult } from "@cx/pipeline/types";
-import type { SourceSpec, ValidationReportContract } from "@cx/schema";
+import type {
+	PipelineRunResult,
+	PipelineSummary,
+	ScreenGenerationPipelineOptions,
+} from "@cx/pipeline/types";
 
 export type GenerationSmokeOptions = {
 	outDir?: string;
@@ -15,37 +11,10 @@ export type GenerationSmokeOptions = {
 	useAI?: boolean;
 };
 
-export type GenerationSmokeSummary = {
-	agentPayload?: unknown;
-	areaCount: number;
-	componentCount: number;
-	ok: boolean;
-	outDir: string;
-	screenCode?: string;
-	session?: AgentRunResult["session"];
-	sourcePath: string;
-	validationOk?: boolean;
+export type GenerationSmokeSummary = PipelineSummary;
+
+export type GenerationSmokeResult = PipelineRunResult & {
+	parseCommandResult: ParseMarkdownSourceCommandResult;
 };
 
-export type GenerationSmokeResult = {
-	agentInput?: ScreenGenerationAgentInput;
-	agentResult?: AgentRunResult;
-	initialValidationReport?: ValidationReportContract;
-	outDir: string;
-	parseCommandResult: ParseMarkdownSourceCommandResult;
-	patternLayerCandidates?: PatternLayerCandidate[];
-	patternSelectionAgentInput?: PatternSelectionAgentInput;
-	patternSelectionAgentResult?: AgentRunResult;
-	patternSelectionRunnerRequest?: AgentRunnerRequest;
-	pipelineResult: SideEffectExecutionResult;
-	pipelineResultWrite: SideEffectExecutionResult;
-	revisionAgentInput?: ScreenRevisionAgentInput;
-	revisionAgentResult?: AgentRunResult;
-	revisionRunnerRequest?: AgentRunnerRequest;
-	runId: string;
-	runnerRequest?: AgentRunnerRequest;
-	sourcePath: string;
-	sourceSpec?: SourceSpec;
-	summary: GenerationSmokeSummary;
-	validationReport?: ValidationReportContract;
-};
+export type GenerationSmokePipelineOptions = ScreenGenerationPipelineOptions;

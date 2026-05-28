@@ -11,11 +11,18 @@
 		"./commands": "./src/commands/index.ts",
 		"./contract": "./src/public/contract.ts",
 		"./runner": "./src/runner/index.ts",
+		"./runtime": "./src/runtime/index.ts",
 		"./parser": "./src/public/parser.ts",
 		"./testing": "./src/testing/index.ts",
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/parser": "0.1.0"
+		"@cx/agent": "0.1.0",
+		"@cx/components": "0.1.0",
+		"@cx/layout-pattern-store": "0.1.0",
+		"@cx/orchestration": "0.1.0",
+		"@cx/parser": "0.1.0",
+		"@cx/schema": "0.1.0",
+		"@cx/validation": "0.1.0"
 	}
 }

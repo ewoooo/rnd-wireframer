@@ -36,6 +36,25 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-28 - Pipeline Runtime Restructure Implementation
+
+- 변경: `@cx/pipeline`에 `buildPipeline()`/`runPipeline()` runtime API와 `screen-generation` pipeline definition/stage 구현을 추가함
+- 변경: 기존 smoke generation executor, fake runner, pattern candidate resolver, generation skill catalog, artifact command helper를 `packages/pipeline/src/pipelines/screen-generation/`으로 이동하고 `apps/smoke`는 `runPipeline("screen-generation")`만 호출하도록 축소함
+- 변경: `@cx/orchestration`의 `buildGenerationPlan`, `GENERATION_PLAN_STEP`, generation plan 타입 public export를 제거하고 stage input helper만 남김
+- 변경: `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS.md`, `docs/development/PROJECT_STRUCTURE.md`, `apps/smoke/README.md`, `packages/pipeline/README.md`, `packages/orchestration/README.md`에 pipeline runtime 중심 책임 경계를 반영함
+- 이유: `ScreenIntent`, `CompositionPlan`, `QualityInspection` 확장 전에 smoke 소비처가 orchestration/agent/validation/IO를 직접 보는 구조를 제거하고, stage 추가 위치를 `@cx/pipeline`으로 고정하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/validation/src/__tests__/validators.test.ts`, `npx biome check apps/smoke packages/pipeline packages/orchestration MASTER_PLAN.md PACKAGE_MAP.md AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id pipeline-runtime-restructure-final-check --out-dir tmp/generation-runs/pipeline-runtime-restructure-final-check`
+- 후속: 다음 생성 개선 단계에서 `derive-screen-intent`, `plan-composition`, `review-quality`, `decide-revision`을 pipeline stage로 추가하고, 순수 입력 조립은 `@cx/orchestration` helper로 둔다.
+
+## 2026-05-28 - Pipeline Runtime Restructure Plan
+
+- 변경: `docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md`를 추가해 `apps/smoke -> @cx/pipeline`, `@cx/pipeline -> @cx/orchestration/@cx/agent/@cx/validation/@cx/schema`, `@cx/orchestration -> @cx/schema` 의존성 목표를 문서화함
+- 변경: `@cx/pipeline`을 `buildPipeline()`/`runPipeline()` 기반 실행 런타임으로 승격하고, 기존 side-effect command runner는 IO/effect 유틸리티로 유지하는 단계별 마이그레이션 계획을 작성함
+- 변경: `@cx/orchestration`은 생성 plan 실행자가 아니라 stage별 deterministic helper로 낮추고, `apps/smoke`는 pipeline만 호출하는 얇은 개발자용 harness로 정리하는 완료 기준을 기록함
+- 이유: `ScreenIntent`, `CompositionPlan`, `QualityInspection` 및 Open Design 흡수 stage를 추가하기 전에 smoke 소비처가 orchestration/agent/validation/IO를 모두 직접 보는 구조를 먼저 줄이기 위함
+- 검증: 문서 작성 및 기준 문서 참조 확인
+- 후속: 다음 구현 세션에서 계획서 Phase 1-2만 먼저 수행해 pipeline runtime shell을 추가하고 현재 smoke 실행 로직을 behavior change 없이 `@cx/pipeline` stage로 이동한다.
+
 ## 2026-05-27 - Table-shaped Pattern Contract
 
 - 변경: `@cx/schema`에 `table-generation-result.v0.1` 계약을 추가해 `data/tables` 정본과 같은 screen/region/area/component 중간 산출물 shape를 정의함

@@ -1,60 +1,10 @@
 import { getJsonSchema, SCHEMA_VERSION, type SourceSpec } from "@cx/schema";
-import {
-	GENERATION_PLAN_STEP,
-	type GenerationPlan,
-	type GenerationPlanOptions,
-	type PatternLayerCandidate,
-	type PatternSelectionAgentInput,
-	type ScreenGenerationAgentInput,
-	type ScreenRevisionAgentInput,
+import type {
+	PatternLayerCandidate,
+	PatternSelectionAgentInput,
+	ScreenGenerationAgentInput,
+	ScreenRevisionAgentInput,
 } from "./types";
-
-export function buildGenerationPlan(options: GenerationPlanOptions = {}): GenerationPlan {
-	const persistArtifacts = options.persistArtifacts ?? true;
-	const reviseInvalid = options.reviseInvalid ?? true;
-	const selectPattern = options.selectPattern ?? true;
-
-	return {
-		steps: [
-			...(selectPattern
-				? [
-						{
-							id: GENERATION_PLAN_STEP.selectPattern,
-							kind: GENERATION_PLAN_STEP.selectPattern,
-						},
-					]
-				: []),
-			{
-				id: GENERATION_PLAN_STEP.generateRenderTree,
-				kind: GENERATION_PLAN_STEP.generateRenderTree,
-			},
-			{
-				id: GENERATION_PLAN_STEP.validateRenderTree,
-				kind: GENERATION_PLAN_STEP.validateRenderTree,
-			},
-			...(reviseInvalid
-				? [
-						{
-							id: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-							kind: GENERATION_PLAN_STEP.reviseRenderTreeIfInvalid,
-						},
-						{
-							id: "validate-render-tree-after-revision",
-							kind: GENERATION_PLAN_STEP.validateRenderTree,
-						},
-					]
-				: []),
-			...(persistArtifacts
-				? [
-						{
-							id: GENERATION_PLAN_STEP.writeArtifacts,
-							kind: GENERATION_PLAN_STEP.writeArtifacts,
-						},
-					]
-				: []),
-		],
-	};
-}
 
 export function buildPatternSelectionAgentInput(input: {
 	layerCandidates: PatternLayerCandidate[];

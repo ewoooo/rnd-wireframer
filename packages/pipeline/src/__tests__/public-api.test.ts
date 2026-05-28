@@ -1,4 +1,10 @@
-import { createNodePipelineAdapters, runSideEffects, sideEffectBoundary } from "@cx/pipeline";
+import {
+	buildPipeline,
+	createNodePipelineAdapters,
+	runPipeline,
+	runSideEffects,
+	sideEffectBoundary,
+} from "@cx/pipeline";
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
 import { createTestPipelineAdapters } from "@cx/pipeline/testing";
 import type { SideEffectExecutionResult, SideEffectOperation } from "@cx/pipeline/types";
@@ -127,5 +133,18 @@ describe("@cx/pipeline public API", () => {
 		expect(typeof adapters.fs.writeText).toBe("function");
 		expect(typeof adapters.clock.now).toBe("function");
 		expect(typeof adapters.id.createId).toBe("function");
+	});
+
+	it("exposes pipeline runtime builders", () => {
+		const pipeline = buildPipeline({
+			id: "screen-generation",
+			stages: ["read-source", "parse-source", "write-artifacts"],
+		});
+
+		expect(pipeline).toEqual({
+			id: "screen-generation",
+			stages: ["read-source", "parse-source", "write-artifacts"],
+		});
+		expect(typeof runPipeline).toBe("function");
 	});
 });
