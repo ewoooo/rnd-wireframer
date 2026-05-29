@@ -5,6 +5,7 @@ import { Canvas } from "@/components/layout/Canvas";
 import { InspectionPanel } from "@/components/layout/InspectionPanel";
 import { NavigationPanel } from "@/components/layout/NavigationPanel";
 import { NavigationRail } from "@/components/layout/NavigationRail";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import {
 	collectScreenAreas,
@@ -13,6 +14,8 @@ import {
 	getInitialScreen,
 	type NavigatorTab,
 } from "@/model/workbench-view-model";
+
+const ASIDE_WIDTH = "320px";
 
 type AppProps = {
 	screens: ScreenSummary[];
@@ -48,22 +51,27 @@ export function App({ screens }: AppProps) {
 	return (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
 			<NavigationRail activeTab={activeTab} onSelectTab={setActiveTab} />
-			<NavigationPanel
-				activeTab={activeTab}
-				activeRouteId={activeRoute?.id}
-				onSelectRoute={handleSelectRoute}
-				onSelectScreen={handleSelectScreen}
-				screenModules={screenModules}
-				screenRoute={activeRoute}
-				selectedScreenId={selectedScreen?.id}
-			/>
-			<Canvas selectedScreen={selectedScreen} />
-			<InspectionPanel
-				activeTab={activeTab}
-				areas={collectScreenAreas(selectedScreen)}
-				components={collectScreenComponents(selectedScreen)}
-				screen={selectedScreen}
-			/>
+			<SidebarProvider
+				className="min-h-0 flex-1 overflow-hidden"
+				style={{ "--sidebar-width": ASIDE_WIDTH } as React.CSSProperties}
+			>
+				<NavigationPanel
+					activeTab={activeTab}
+					activeRouteId={activeRoute?.id}
+					onSelectRoute={handleSelectRoute}
+					onSelectScreen={handleSelectScreen}
+					screenModules={screenModules}
+					screenRoute={activeRoute}
+					selectedScreenId={selectedScreen?.id}
+				/>
+				<Canvas selectedScreen={selectedScreen} />
+				<InspectionPanel
+					activeTab={activeTab}
+					areas={collectScreenAreas(selectedScreen)}
+					components={collectScreenComponents(selectedScreen)}
+					screen={selectedScreen}
+				/>
+			</SidebarProvider>
 		</main>
 	);
 }

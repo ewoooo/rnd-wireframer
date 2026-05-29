@@ -1,5 +1,6 @@
 import type { RenderTreeNode } from "@cx/renderer";
 import { Table2 } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 
@@ -14,14 +15,14 @@ export function InspectionPanel({ activeTab, areas, components, screen }: Inspec
 	const title = activeTab === "agent" ? "Agent" : "Information";
 
 	return (
-		<aside className="flex h-svh min-w-0 flex-col overflow-hidden border-l border-sidebar-border bg-sidebar text-sidebar-foreground">
-			<div className="border-b border-sidebar-border p-4">
+		<Sidebar side="right">
+			<SidebarHeader className="border-b border-sidebar-border">
 				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
 					<Table2 className="size-4" data-icon="inline-start" />
 					{title}
 				</h2>
-			</div>
-			<div className="min-h-0 flex-1 overflow-y-auto p-3">
+			</SidebarHeader>
+			<SidebarContent className="p-3">
 				{screen ? (
 					<div className="flex flex-col gap-4">
 						<div className="flex flex-col gap-1">
@@ -48,8 +49,8 @@ export function InspectionPanel({ activeTab, areas, components, screen }: Inspec
 						현재 테이블에서 표시할 MBR 화면을 찾지 못했습니다.
 					</div>
 				)}
-			</div>
-		</aside>
+			</SidebarContent>
+		</Sidebar>
 	);
 }
 

@@ -18,13 +18,13 @@ export function ScreenVariantCard({
 	return (
 		<div
 			className={cn(
-				"flex min-w-0 cursor-pointer border-t border-sidebar-border bg-sidebar transition-colors first:border-t-0 hover:bg-sidebar-accent",
+				"py-1 gap-1 flex flex-col min-w-0 cursor-pointer border-t border-sidebar-border bg-sidebar transition-colors first:border-t-0 hover:bg-sidebar-accent",
 				isSelected && "bg-primary/10 hover:bg-primary/10",
 			)}
 		>
 			<button
 				type="button"
-				className="flex w-[32%] min-w-0 items-center gap-1.5 px-2 py-1.5 text-left"
+				className="flex min-w-0 items-center gap-1 px-2 text-left"
 				onClick={() => {
 					if (primaryOption) onSelectScreen(primaryOption.screen.id);
 				}}
@@ -43,13 +43,13 @@ export function ScreenVariantCard({
 					{variant.name}
 				</span>
 			</button>
-			<div className="flex w-[68%] flex-wrap content-start gap-1 px-2 py-1.5">
+			<div className="flex flex-wrap content-start gap-1 px-2 py-2">
 				{variant.options.map((option) => (
 					<button
 						type="button"
 						key={option.screen.id}
 						className={cn(
-							"h-5 max-w-full cursor-pointer rounded border border-sidebar-border px-1.5 text-[11px] font-medium leading-none transition-colors hover:bg-background hover:text-foreground",
+							"max-w-full cursor-pointer rounded-full border border-sidebar-border px-2 leading-none transition-colors hover:bg-background hover:text-foreground",
 							option.screen.id === selectedScreenId &&
 								"border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
 							isSelected &&
@@ -62,7 +62,7 @@ export function ScreenVariantCard({
 						}}
 						title={option.screen.title}
 					>
-						<span className="block max-w-24 truncate">{option.label}</span>
+						<span className="block text-xs">{option.label}</span>
 					</button>
 				))}
 			</div>
