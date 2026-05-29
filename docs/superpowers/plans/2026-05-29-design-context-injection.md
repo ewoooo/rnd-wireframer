@@ -18,7 +18,7 @@
 
 - [x] Phase 0 — 공통 토대: 번들 본문 주입(누수 1·2 해결) — Task 1~5 ✅ (전체 test 144 green, lint green, smoke 주입 실측)
 - [x] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6 ✅
-- [ ] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11
+- [x] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11 ✅ (test 152 green, lint green, smoke 검증)
 - [ ] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14
 - [ ] Phase 4 — 문서·거버넌스 정합 — Task 15
 
@@ -385,7 +385,7 @@ git commit -m "orchestration: strengthen contextual divider/spacing/hierarchy gu
 
 ## Phase 2 — 컴포넌트 제안 레이어
 
-### Task 7: schema `ComponentProposalContract`
+### Task 7: schema `ComponentProposalContract` ✅ 완료
 
 **Files:**
 - Create: `packages/schema/src/component-proposal.ts`
@@ -487,7 +487,7 @@ git commit -m "schema: add ComponentProposalContract"
 
 ---
 
-### Task 8: orchestration `buildComponentProposalAgentInput`
+### Task 8: orchestration `buildComponentProposalAgentInput` ✅ 완료
 
 **Files:**
 - Modify: `packages/orchestration/src/public/agent-inputs.ts`, `types.ts`
@@ -530,7 +530,7 @@ git commit -m "orchestration: add buildComponentProposalAgentInput"
 
 ---
 
-### Task 9: agent `component-proposal` 태스크 + 참조 자산
+### Task 9: agent `component-proposal` 태스크 + 참조 자산 ✅ 완료
 
 **Files:**
 - Create: `packages/agent/src/tasks/component-proposal/{prompt.ts,runner.ts,index.ts}`
@@ -566,7 +566,7 @@ git commit -m "agent: add component-proposal task and reference assets"
 
 ---
 
-### Task 10: validation `validateComponentProposal`
+### Task 10: validation `validateComponentProposal` ✅ 완료
 
 **Files:**
 - Create: `packages/validation/src/<contract>/component-proposal.ts` (기존 contract 디렉토리 관례 따름)
@@ -604,7 +604,7 @@ git commit -m "validation: add validateComponentProposal bounded checks"
 
 ---
 
-### Task 11: pipeline `propose-components` 스테이지 + 아티팩트 write
+### Task 11: pipeline `propose-components` 스테이지 + 아티팩트 write ✅ 완료
 
 **Files:**
 - Modify: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts` (스테이지 등록·executor·state)
