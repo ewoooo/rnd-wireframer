@@ -18,7 +18,7 @@ describe("@cx/layout-pattern-store", () => {
 		const store = patternStoreSchema.parse({
 			patterns: [
 				{
-					id: "layout.region.commerceDetailBottomAction",
+					id: "layout.region.bottom",
 					target: "region",
 					name: "Bottom action region",
 					description: "Pinned bottom CTA layout.",
@@ -31,7 +31,7 @@ describe("@cx/layout-pattern-store", () => {
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "commerce-detail-bottom-action",
+			id: "bottom",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",

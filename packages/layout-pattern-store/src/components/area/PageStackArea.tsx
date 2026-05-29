@@ -1,7 +1,9 @@
 import { PageStack, type PageStackProps } from "@cx/layout/primitives";
+import { type LayoutDivider, renderChildrenWithDividers, resolveDivider } from "../shared/divider";
 import type { LayoutPatternComponentProps } from "../types";
 
 type PageStackAreaDefaults = {
+	divider?: LayoutDivider;
 	gap: number;
 	itemPaddingX?: number;
 	itemTemplate?: PageStackProps["itemTemplate"];
@@ -47,6 +49,8 @@ function PageStackArea({
 	metadata,
 	props = {},
 }: LayoutPatternComponentProps & { defaults: PageStackAreaDefaults }) {
+	const divider = resolveDivider(props.divider, defaults.divider);
+
 	return (
 		<PageStack
 			{...toPageStackProps(props, defaults)}
@@ -59,7 +63,7 @@ function PageStackArea({
 				},
 			}}
 		>
-			{children}
+			{renderChildrenWithDividers(children, divider)}
 		</PageStack>
 	);
 }

@@ -12,7 +12,7 @@ describe("@cx/layout-pattern-store schema", () => {
 		const store = patternStoreSchema.parse({
 			patterns: [
 				{
-					id: "layout.region.commerceDetailBottomAction",
+					id: "layout.region.bottom",
 					target: "region",
 					name: "Bottom action region",
 					description: "Pinned bottom CTA layout.",
@@ -28,7 +28,7 @@ describe("@cx/layout-pattern-store schema", () => {
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "commerce-detail-bottom-action",
+			id: "bottom",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
@@ -188,7 +188,7 @@ describe("@cx/layout-pattern-store schema", () => {
 	it("rejects layout pattern catalog entries with target/layout mismatches", () => {
 		expect(() =>
 			layoutPatternCatalogEntrySchema.parse({
-				id: "layout.region.fieldStack",
+				id: "layout.region.contents",
 				target: "area",
 				name: "Field Stack",
 				componentID: "FieldStackArea",

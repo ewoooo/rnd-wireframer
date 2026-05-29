@@ -7,9 +7,11 @@ import {
 	VStack,
 	type VStackProps,
 } from "@cx/layout/primitives";
+import { type LayoutDivider, renderChildrenWithDividers, resolveDivider } from "../shared/divider";
 import type { LayoutPatternComponentProps } from "../types";
 
 type StackAreaDefaults = {
+	divider?: LayoutDivider;
 	gap: number;
 	itemPaddingX?: number;
 	itemTemplate?: PageStackProps["itemTemplate"];
@@ -63,6 +65,7 @@ export const ProductInfoSectionArea = createPageStackArea({
 });
 export const ProductDisclosureAccordionArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "contents",
 	gap: 0,
 	titleGap: 0,
 	titleMode: "none",
@@ -75,33 +78,39 @@ export const ProductFooterLegalArea = createPlainStack({
 });
 export const PriceAccordionStackArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-accordion-rows",
 	gap: 0,
 	titleGap: 0,
 });
 export const DeliveryInfoAccordionArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-accordion-rows",
 	gap: 0,
 	titleGap: 0,
 	titleMode: "none",
 });
 export const NoticeAccordionStackArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-accordion-rows",
 	gap: 0,
 	titleGap: 0,
 	titleMode: "none",
 });
 export const PagestackInfoTextSectionArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-info-text-rows",
 	gap: 0,
 	titleGap: 12,
 });
 export const TextListGroupArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-info-text-rows",
 	gap: 0,
 	titleGap: 12,
 });
 export const PlainInfoTextListArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-info-text-rows",
 	gap: 0,
 	titleMode: "hidden",
 });
@@ -112,6 +121,7 @@ export const TabChipSearchAccordionArea = createPageStackArea({
 });
 export const AccordionNoticeListArea = createPageStackArea({
 	...pageStackDefaults,
+	divider: "between-accordion-rows",
 	gap: 0,
 	titleMode: "none",
 });
@@ -124,6 +134,7 @@ function createPageStackArea(defaults: StackAreaDefaults) {
 		metadata,
 		props = {},
 	}: LayoutPatternComponentProps) {
+		const divider = resolveDivider(props.divider, defaults.divider);
 		return (
 			<PageStack
 				{...toPageStackProps(props, defaults)}
@@ -136,7 +147,7 @@ function createPageStackArea(defaults: StackAreaDefaults) {
 					},
 				}}
 			>
-				{children}
+				{renderChildrenWithDividers(children, divider)}
 			</PageStack>
 		);
 	};

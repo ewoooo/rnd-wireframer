@@ -1,7 +1,6 @@
 import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/types";
 import { componentSignals, scorePatternSignals } from "../internal/matcher";
 import { findPattern, listPatterns } from "../internal/store";
-import { findLayoutPatternComponentByLayoutId } from "./components";
 import type {
 	DatabasePatternRef,
 	LayoutPatternCatalogEntry,
@@ -35,20 +34,9 @@ export type ResolvedPatternComponent = {
 export function resolvePatternComponent(
 	input: ResolvePatternComponentInput,
 ): ResolvedPatternComponent | undefined {
-	const layoutId = input.layoutId ?? input.patternId;
-	if (!layoutId) return undefined;
-
-	const entry = findLayoutPatternComponentByLayoutId(layoutId);
-	if (!entry) return undefined;
-
-	return {
-		Component: entry.component,
-		componentProps: {
-			props: input.props ?? {},
-		},
-		issues: [],
-		pattern: entry.pattern,
-	};
+	throw new Error(
+		`resolvePatternComponent requires @cx/layout-pattern-store/components. Use the components subpath for render-time layout resolution. Received ${input.layoutId ?? input.patternId ?? "missing layout id"}.`,
+	);
 }
 
 export function resolveCompositePatternByComponentType(
