@@ -26,7 +26,10 @@ export type { GenerationContext } from "./generation-context";
 export type { JsonSchemaDocument } from "./json-schema-registry";
 export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-registry";
 export type { PreviewContract } from "./preview";
-export type { QualityInspectionContract } from "./quality-inspection";
+export type {
+	QualityInspectionContract,
+	QualityInspectionScores,
+} from "./quality-inspection";
 export type {
 	RenderTreeContract,
 	RenderTreeFlexLayoutProps,

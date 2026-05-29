@@ -329,6 +329,16 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 					visualHierarchyClear: { type: "boolean" },
 				},
 			},
+			scores: {
+				type: "object",
+				additionalProperties: false,
+				required: ["hierarchy", "separation", "fidelity"],
+				properties: {
+					hierarchy: { type: "integer", minimum: 0, maximum: 5 },
+					separation: { type: "integer", minimum: 0, maximum: 5 },
+					fidelity: { type: "integer", minimum: 0, maximum: 5 },
+				},
+			},
 			schemaVersion: { const: SCHEMA_VERSION.qualityInspection },
 			summary: {
 				type: "object",

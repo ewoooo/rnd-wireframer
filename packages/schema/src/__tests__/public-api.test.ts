@@ -4,6 +4,7 @@ import {
 	type DesignContextBundleContent,
 	type DesignContextBundleRef,
 	getJsonSchema,
+	type QualityInspectionContract,
 	type RenderTreeContract,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
@@ -183,6 +184,25 @@ describe("@cx/schema public API", () => {
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["component-proposal"]).toBe(
 			SCHEMA_VERSION.componentProposal,
 		);
+	});
+
+	it("includes design dimension scores in quality inspection", () => {
+		const quality: QualityInspectionContract = {
+			schemaVersion: SCHEMA_VERSION.qualityInspection,
+			inspection: {
+				compositionAligned: true,
+				sourceFaithful: true,
+				visualHierarchyClear: true,
+			},
+			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
+			findings: [],
+			summary: { errorCount: 0, warningCount: 0 },
+		};
+
+		expect(quality.scores?.hierarchy).toBe(4);
+		expect(getJsonSchema("quality-inspection")).toMatchObject({
+			properties: { scores: { type: "object" } },
+		});
 	});
 
 	it("exposes decoration plan as a schema-owned intermediate artifact", () => {
