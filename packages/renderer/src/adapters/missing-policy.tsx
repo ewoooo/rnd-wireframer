@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
 import type { RenderTreeNode } from "../tree/types";
 
-export type MissingLayoutHandler = (input: {
-	layoutId: string;
-	node: RenderTreeNode;
-}) => ReactNode;
+export type MissingLayoutHandler = (input: { layoutId: string; node: RenderTreeNode }) => ReactNode;
 
 export type MissingComponentHandler = (input: { node: RenderTreeNode }) => ReactNode;
 

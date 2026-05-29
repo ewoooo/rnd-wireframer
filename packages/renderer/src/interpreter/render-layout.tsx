@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { RendererRuntime } from "./types";
 import type { RenderTreeNode } from "../tree/types";
+import type { RendererRuntime } from "./types";
 
 export function renderLayout({
 	children,

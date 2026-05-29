@@ -1,3 +1,4 @@
+export type { RendererRuntime, ResolvedLayoutComponent } from "../interpreter";
 export * from "../tree/bindings";
 export * from "../tree/path";
 export {
@@ -18,4 +19,3 @@ export {
 	RenderTreeView,
 	renderJsonNode,
 } from "./render-tree-view";
-export type { RendererRuntime, ResolvedLayoutComponent } from "../interpreter";

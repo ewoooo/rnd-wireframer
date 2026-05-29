@@ -1,11 +1,11 @@
 export { createRendererRuntime } from "./create-runtime";
 export {
-	throwMissingComponent,
-	throwMissingLayout,
-	throwMissingPrimitive,
 	type MissingComponentHandler,
 	type MissingLayoutHandler,
 	type MissingPrimitiveHandler,
+	throwMissingComponent,
+	throwMissingLayout,
+	throwMissingPrimitive,
 } from "./missing-policy";
 export { renderPrimitive } from "./render-primitive";
 export { resolveArea } from "./resolve-area";

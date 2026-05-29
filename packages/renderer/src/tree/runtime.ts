@@ -1,5 +1,5 @@
-import { resolveDisplayWhen, resolveProps } from "./bindings";
 import { toBoolean, toText } from "../runtime/text";
+import { resolveDisplayWhen, resolveProps } from "./bindings";
 import type { RenderTreeNode, RenderTreeScreenNode } from "./types";
 
 export interface ResolvedRenderNode {

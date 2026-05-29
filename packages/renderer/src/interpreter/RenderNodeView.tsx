@@ -1,9 +1,9 @@
 "use client";
 
-import type { RendererRuntime } from "./types";
-import { renderJsonNode } from "./render-node";
 import { createRendererRuntime } from "../adapters";
 import type { RenderTreeNode } from "../tree/types";
+import { renderJsonNode } from "./render-node";
+import type { RendererRuntime } from "./types";
 
 const defaultRendererRuntime = createRendererRuntime();
 

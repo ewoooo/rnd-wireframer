@@ -2,8 +2,8 @@ import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/s
 import type { ReactNode } from "react";
 import { toNumber } from "../../tree/coerce";
 import { toText } from "../../tree/runtime";
-import { NODE_TYPES } from "../../tree/types";
 import type { RenderTreeNode } from "../../tree/types";
+import { NODE_TYPES } from "../../tree/types";
 import { renderErrorPolicyFallback } from "./error-policy";
 import { resolveHasData } from "./has-data";
 import { renderAreaChildren } from "./layout";

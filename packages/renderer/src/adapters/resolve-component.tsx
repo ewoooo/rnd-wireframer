@@ -1,7 +1,7 @@
-import { AppBar, Callout, ListSelected, ListText } from "@cx/components";
 import * as ComponentsModule from "@cx/components";
+import { AppBar, Callout, ListSelected, ListText } from "@cx/components";
 import { componentCatalogAliases, getComponentCatalogEntry } from "@cx/components/catalog";
-import { createElement, type ComponentType, type ReactNode } from "react";
+import { type ComponentType, createElement, type ReactNode } from "react";
 import { toText } from "../runtime/text";
 import type { RenderTreeNode } from "../tree/types";
 import { buildComponentProps } from "./build-component-props";

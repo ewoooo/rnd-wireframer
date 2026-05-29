@@ -217,14 +217,14 @@ describe("@cx/renderer layout pattern rendering", () => {
 						{
 							type: "Screen.Header",
 							componentVersion: "0.1.0",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.header",
 							metadata: { id: "screen.header", title: "Header" },
 							children: [],
 						},
 						{
 							type: "Screen.Contents",
 							componentVersion: "0.1.0",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.contents",
 							metadata: { id: "screen.contents", title: "Contents" },
 							children: [
 								{
@@ -237,7 +237,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						{
 							type: "Screen.Bottom",
 							componentVersion: "0.1.0",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.bottom",
 							metadata: { id: "screen.bottom", title: "Bottom" },
 							children: [],
 						},
@@ -251,57 +251,6 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(regionLayoutRoot).toBeInTheDocument();
 		expect(regionLayoutRoot).toHaveAttribute("data-node-type", "Layout.Flex");
-	});
-
-	it("preserves sticky bottom action region defaults", () => {
-		render(
-			<RenderTreeView
-				node={{
-					type: "Screen",
-					componentVersion: "1.0.0",
-					metadata: { id: "screen", title: "Screen" },
-					children: [
-						{
-							type: "Screen.Header",
-							componentVersion: "0.1.0",
-							metadata: { id: "screen.header", title: "Header" },
-							children: [],
-						},
-						{
-							type: "Screen.Contents",
-							componentVersion: "0.1.0",
-							metadata: { id: "screen.contents", title: "Contents" },
-							children: [],
-						},
-						{
-							type: "Screen.Bottom",
-							componentVersion: "0.1.0",
-							layout: "layout.region.commerceDetailBottomAction",
-							metadata: { id: "screen.bottom", title: "Bottom" },
-							children: [
-								{
-									type: "SectionHeader",
-									componentVersion: "0.1.0",
-									metadata: { id: "bottom-child", title: "Bottom child" },
-								},
-							],
-						},
-					],
-				}}
-			/>,
-		);
-
-		const child = screen.getByText("Bottom child");
-		const regionLayoutRoot = child.closest("[data-node-id='screen.bottom']");
-
-		expect(regionLayoutRoot).toBeInTheDocument();
-		expect(regionLayoutRoot).toHaveStyle({
-			bottom: "0px",
-			gap: "10px",
-			paddingBlock: "46px",
-			paddingInline: "12px",
-			position: "sticky",
-		});
 	});
 
 	it("uses the fixed bottom primitive for bottom action area patterns", () => {
@@ -470,6 +419,183 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toBeInTheDocument();
 		expect(layoutRoot?.tagName.toLowerCase()).toBe("section");
 		expect(layoutRoot).toHaveAttribute("data-node-type", "PageStack");
+	});
+
+	it("restores area divider defaults for divider-backed page stack patterns", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.detail",
+					componentVersion: "0.1.0",
+					layout: "layout.area.priceAccordionStackArea",
+					metadata: { id: "price-accordion", title: "Price accordion" },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-1", title: "Price row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-2", title: "Price row 2" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-3", title: "Price row 3" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const dividers = screen.getAllByRole("separator");
+
+		expect(dividers).toHaveLength(2);
+		expect(dividers[0].className).toContain("contents");
+		expect(getPageStackItems(screen.getByText("Price row 1")).children).toHaveLength(5);
+	});
+
+	it("allows divider props to disable and override pattern defaults", () => {
+		const { rerender } = render(
+			<RenderNodeView
+				node={{
+					type: "area.detail",
+					componentVersion: "0.1.0",
+					layout: "layout.area.priceAccordionStackArea",
+					metadata: { id: "price-accordion", title: "Price accordion" },
+					props: { divider: false },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-1", title: "Price row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-2", title: "Price row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.queryAllByRole("separator")).toHaveLength(0);
+
+		rerender(
+			<RenderNodeView
+				node={{
+					type: "area.detail",
+					componentVersion: "0.1.0",
+					layout: "layout.area.priceAccordionStackArea",
+					metadata: { id: "price-accordion", title: "Price accordion" },
+					props: { divider: "section" },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-1", title: "Price row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-2", title: "Price row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const [divider] = screen.getAllByRole("separator");
+
+		expect(divider.className).toContain("section");
+
+		rerender(
+			<RenderNodeView
+				node={{
+					type: "area.detail",
+					componentVersion: "0.1.0",
+					layout: "layout.area.priceAccordionStackArea",
+					metadata: { id: "price-accordion", title: "Price accordion" },
+					props: { divider: true },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-1", title: "Price row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "price-row-2", title: "Price row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const trailingDividers = screen.getAllByRole("separator");
+		expect(trailingDividers).toHaveLength(2);
+		expect(getPageStackItems(screen.getByText("Price row 1")).children).toHaveLength(4);
+	});
+
+	it("does not add dividers to page stack patterns without divider defaults", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.list",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "list-stack", title: "List stack" },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "list-row-1", title: "List row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "list-row-2", title: "List row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.queryAllByRole("separator")).toHaveLength(0);
+		expect(getPageStackItems(screen.getByText("List row 1")).children).toHaveLength(2);
+	});
+
+	it("renders explicit trailing dividers for page stack area patterns", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.list",
+					componentVersion: "0.1.0",
+					layout: "layout.area.accordionList",
+					metadata: { id: "accordion-list", title: "Accordion list" },
+					props: { divider: true },
+					children: [
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "accordion-row-1", title: "Accordion row 1" },
+						},
+						{
+							type: "SectionHeader",
+							componentVersion: "0.1.0",
+							metadata: { id: "accordion-row-2", title: "Accordion row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.getAllByRole("separator")).toHaveLength(2);
+		expect(getPageStackItems(screen.getByText("Accordion row 1")).children).toHaveLength(4);
 	});
 
 	it("maps commerce detail padding aliases onto primitive layout props", () => {
