@@ -4,7 +4,7 @@
 
 이 문서는 `@cx/layout-pattern-store` catalog의 전환 inventory를 기록한다.
 
-전환 계획과 실행 기준은 [LAYOUT_RENDERING_REDESIGN_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/LAYOUT_RENDERING_REDESIGN_PLAN.md)를 따른다. 이 문서는 각 pattern의 현재 상태, 새 `layout.*` id, 예정 `componentID`, 보존해야 하는 spacing key를 추적한다.
+전환 계획과 실행 기준은 [LAYOUT_RENDERING_REDESIGN_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/archive/completed-plans/LAYOUT_RENDERING_REDESIGN_PLAN.md)를 따른다. 이 문서는 각 pattern의 현재 상태, 새 `layout.*` id, 예정 `componentID`, 보존해야 하는 spacing key를 추적한다.
 
 ## 2. 상태 기준
 

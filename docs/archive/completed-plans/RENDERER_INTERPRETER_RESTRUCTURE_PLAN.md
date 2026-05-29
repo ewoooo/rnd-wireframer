@@ -4,7 +4,7 @@
 
 이 문서는 `@cx/renderer`를 순수 RenderTree interpreter로 정리하기 위한 디렉토리 재편, fallback 제거, adapter 분리 계획을 정의한다.
 
-패키지 책임 기준은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 전체 layout rendering 전환 기준은 [LAYOUT_RENDERING_REDESIGN_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/LAYOUT_RENDERING_REDESIGN_PLAN.md)를 따른다. 이 문서는 renderer 내부 구조와 실행 순서만 다룬다.
+패키지 책임 기준은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 전체 layout rendering 전환 기준은 [LAYOUT_RENDERING_REDESIGN_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/archive/completed-plans/LAYOUT_RENDERING_REDESIGN_PLAN.md)를 따른다. 이 문서는 renderer 내부 구조와 실행 순서만 다룬다.
 
 ## 2. 목표
 

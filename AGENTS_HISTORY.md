@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Completed Planning Docs Archive
+
+- 변경: 완료된 계획/전환 점검 문서를 `docs/archive/completed-plans/`로 이동함
+- 변경: `docs/archive/README.md`를 추가해 archive 디렉토리가 현재 운영 기준이 아니라 완료된 설계 결정과 전환 과정을 보관하는 위치임을 명시함
+- 변경: archive 내부 문서 간 링크를 새 경로 기준으로 갱신함
+- 이유: 현재 운영 문서와 완료된 계획 문서를 분리해 `docs/development/`를 살아있는 개발 기준 문서 중심으로 유지하기 위함
+- 검증: archive 대상 문서 참조 scan
+
 ## 2026-05-29 - Main Merge Documentation Audit
 
 - 변경: `codex/table-shaped-pattern-contract` 작업을 로컬 `main`에 merge하고, 문서의 활성 패키지/계약 설명을 현재 구조 기준으로 점검함
@@ -43,6 +51,7 @@
 - 변경: `packages/agent/README.md`의 오래된 `packages/types/contract` 언급을 `@cx/schema` DTO/schema 계약 기준으로 정리함
 - 변경: `PROJECT_STRUCTURE.md`의 재설계 상태 문구를 현재 운영 경계와 layout component registry 책임 기준으로 갱신함
 - 문서 체크: `LAYOUT_RENDERING_REDESIGN_PLAN.md`, `RENDERER_INTERPRETER_RESTRUCTURE_PLAN.md`, `LAYOUT_PATTERN_CATALOG_INVENTORY.md`는 현재 구현 기준으로 완료/이력 성격이 강하므로 삭제 대상이 아니라 archive 후보로 분류함
+- 변경: 완료된 계획 문서를 `docs/archive/completed-plans/`로 이동하고 archive README를 추가함
 - 검증: 문서 stale reference scan, `npx tsc --noEmit --pretty false`, `npx vitest run`
 
 ## 2026-05-29 - Renderer Resolver Interpreter Implementation

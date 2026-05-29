@@ -824,7 +824,7 @@ Move PageStack defaults into pattern components
 
 산출물 후보:
 
-- `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md`
+- `docs/archive/completed-plans/LAYOUT_PATTERN_CATALOG_INVENTORY.md`
 
 검증:
 
@@ -1192,7 +1192,7 @@ Document final layout rendering boundaries
 | 결정 | 선택지 | 확정 |
 |---|---|---|
 | table materializer 패키지명 | `@cx/table-materializer`, `@cx/materializer`, `@cx/parser/table` | `@cx/table-materializer` |
-| catalog inventory 위치 | `docs/development/*`, package 내부 docs | `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md` |
+| catalog inventory 위치 | `docs/development/*`, package 내부 docs | `docs/archive/completed-plans/LAYOUT_PATTERN_CATALOG_INVENTORY.md` |
 | componentID naming | `*Pattern` 접미사 포함/제외 | 접미사 제외 |
 | catalog prop default 허용 | 허용/금지 | 금지 |
 | 자동 커밋 push | 단계별 push/마지막 push | 마지막 push |
