@@ -1,5 +1,6 @@
 import type {
 	DecorationPlanContract,
+	DesignContextBundleContent,
 	DesignContextBundleRef,
 	GenerationArtifactKind,
 	JsonSchemaDocument,
@@ -154,6 +155,7 @@ export type CompositionPlanAgentInput = OrchestrationAgentTaskInput & {
 export type ScreenGenerationAgentContext = PatternSelectionAgentContext & {
 	componentContractCatalog?: ComponentContractCatalog;
 	compositionPlan?: unknown;
+	designContextBundles?: DesignContextBundleContent[];
 	intermediateArtifact: {
 		jsonSchema: JsonSchemaDocument;
 		kind: GenerationArtifactKind;

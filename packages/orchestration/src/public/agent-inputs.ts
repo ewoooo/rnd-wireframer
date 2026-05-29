@@ -1,5 +1,6 @@
 import {
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	type DesignContextBundleRef,
 	getJsonSchema,
 	SCHEMA_VERSION,
@@ -144,6 +145,7 @@ export function buildScreenGenerationAgentInput(
 		compositionPlan?: unknown;
 		decorationPlan?: DecorationPlanContract;
 		designContextBundleRefs?: DesignContextBundleRef[];
+		designContextBundles?: DesignContextBundleContent[];
 		layerCandidates?: PatternLayerCandidate[];
 		patternSelection?: unknown;
 		screenIntent?: unknown;
@@ -168,6 +170,7 @@ export function buildScreenGenerationAgentInput(
 			"Preserve high-priority source refs from context.compositionPlan.sections[].sourceRefs whenever possible.",
 			"Use context.patternSelection as layout-pattern guidance when present.",
 			"Use context.designContextBundleRefs as bounded design guidance when present; do not let bundles override SourceSpec, schema, component contracts, or candidate ids.",
+			"Use context.designContextBundles[].body as the actual design rules to apply (divider/spacing/hierarchy/state coverage). Keep priority: source evidence and schema/catalog over these rules.",
 			"Pattern-store exploration is mandatory: use context.layerCandidates as the explored screen, region, area, and component layout ids; do not invent layout ids.",
 			"Preserve the SourceSpec screen skeleton: Screen > Screen.Header/Screen.Contents/Screen.Bottom > area.static or area.dynamic > optional PageStack/layout wrapper > components.",
 			"Never output a render node with type Area. Use SourceSpec area.renderNodeType, area.static, or area.dynamic for area wrapper nodes.",
@@ -199,6 +202,7 @@ export function buildScreenGenerationAgentInput(
 			compositionPlan: options.compositionPlan,
 			decorationPlan: options.decorationPlan,
 			designContextBundleRefs: options.designContextBundleRefs,
+			designContextBundles: options.designContextBundles,
 			intermediateArtifact: {
 				jsonSchema: getJsonSchema("table-generation-result"),
 				kind: "table-generation-result",
@@ -228,6 +232,7 @@ export function buildScreenRevisionAgentInput(input: {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	previousCandidate: unknown;
@@ -241,6 +246,7 @@ export function buildScreenRevisionAgentInput(input: {
 		compositionPlan: input.compositionPlan,
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
@@ -291,6 +297,7 @@ export function buildQualityReviewAgentInput(input: {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	screenIntent?: unknown;
@@ -302,6 +309,7 @@ export function buildQualityReviewAgentInput(input: {
 		compositionPlan: input.compositionPlan,
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,

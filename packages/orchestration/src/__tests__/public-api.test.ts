@@ -88,6 +88,36 @@ describe("@cx/orchestration public API", () => {
 		expect(input.context.sourceSpec).toBe(sourceSpec);
 	});
 
+	it("embeds design-context bundle bodies into generation context", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildScreenGenerationAgentInput(sourceSpec, {
+			designContextBundles: [
+				{
+					id: "visual-foundation",
+					reason: "r",
+					sourceDocs: [],
+					version: "v",
+					body: "DIVIDER RULE LINE",
+				},
+			],
+		});
+
+		expect(JSON.stringify(input.context)).toContain("DIVIDER RULE LINE");
+		expect(input.query).toContain("context.designContextBundles");
+	});
+
 	it("builds screen intent and composition plan agent inputs before generation", () => {
 		const sourceSpec: SourceSpec = {
 			schemaVersion: SCHEMA_VERSION.sourceSpec,
