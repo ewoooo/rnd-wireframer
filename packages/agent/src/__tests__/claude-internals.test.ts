@@ -58,6 +58,14 @@ describe("@cx/agent Claude internals", () => {
 		});
 	});
 
+	it("parses the first balanced JSON value when Claude appends prose", () => {
+		expect(parseClaudeJsonResult('{"ok":true}\n검토 완료')).toEqual({
+			payload: {
+				ok: true,
+			},
+		});
+	});
+
 	it("resolves the Claude generation model from explicit, env, and package defaults", () => {
 		const previousModel = process.env.CLAUDE_GENERATION_MODEL;
 		process.env.CLAUDE_GENERATION_MODEL = " claude-env-model ";

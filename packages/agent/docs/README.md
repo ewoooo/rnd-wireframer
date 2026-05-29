@@ -14,6 +14,12 @@
 packages/agent/docs/
   README.md
   session-policy.md
+  design-context/
+    README.md
+    layout-composition.md
+    interaction-state.md
+    visual-foundation.md
+    quality-review.md
   screen-generation/
     prompt-contract.md
     checklist.md
