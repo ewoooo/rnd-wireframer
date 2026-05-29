@@ -33,6 +33,7 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 	const selectTab = useWorkbenchStore((state) => state.selectTab);
 	const areas = useWorkbenchStore((state) => state.areas);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
+	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 
 	useEffect(() => {
 		initializeWorkbench({
@@ -55,7 +56,18 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 			data={puckData}
 			overrides={puckOverrides}
 			iframe={{ enabled: false }}
-			onChange={(data) => { console.log("[Puck] onChange", data); }}
+			onChange={(data) => {
+				if (!selectedScreen) return;
+				const nextCodes = data.content.map((item) => item.type as string);
+				const currentCodes = [...selectedScreen.areas]
+					.sort((a, b) => a.order - b.order)
+					.map((area) => area.areaCode);
+				const unchanged =
+					nextCodes.length === currentCodes.length &&
+					nextCodes.every((code, index) => code === currentCodes[index]);
+				if (unchanged) return;
+				reorderScreenAreas(selectedScreen.code, nextCodes);
+			}}
 		>
 			<div className="flex h-screen w-screen overflow-hidden">
 				<Rail activeTab={activeTab} onSelectTab={selectTab} />
