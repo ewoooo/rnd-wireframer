@@ -7,7 +7,7 @@
 패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
 `@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
-현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
+현재 생성 과정은 재설계된 패키지 경계 기준으로 운영한다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog와 layout component registry 패키지로 운영한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
 
 ## 2. 패키지 기준
 

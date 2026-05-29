@@ -27,9 +27,10 @@ docker compose up --build
 ## 구조
 
 - `apps/web` — Next.js 앱
-- `packages/{token,component,layout,engine,agent,types}` — 파이프라인 단계별 패키지
-- `database/` — source imports, AI import candidates, approved table dumps
-- `docs/` — 디자인, 개발, 데이터 mockup 문서
+- `apps/smoke` — generation smoke flow 실행 앱
+- `packages/{schema,parser,orchestration,agent,validation,pipeline,table-materializer,renderer,component,layout,layout-pattern-store,token}` — 생성, 검증, 렌더, 디자인 시스템 경계별 패키지
+- `data/` — 현재 preview와 table materializer가 소비하는 read model/sample data
+- `docs/` — 디자인, 개발, 실행 계약 문서
 
 구조가 커질 때의 배치 기준은 [PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md)를 따른다.
 
@@ -45,4 +46,5 @@ bun run lint         # biome + react hooks 정책
 - [AGENTS.md](./AGENTS.md) — 에이전트 운영 규칙
 - [MASTER_PLAN.md](./MASTER_PLAN.md) — 마스터 플랜
 - [PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md) — 저장소/패키지 구조 규칙
-- [AGENTS_HISTORY.md](./AGENTS_HISTORY.md) — 변경 이력 (월별 분할: `docs/agents-history/`)
+- [PACKAGE_MAP.md](./PACKAGE_MAP.md) — 활성 패키지 책임과 관계망
+- [AGENTS_HISTORY.md](./AGENTS_HISTORY.md) — 변경 이력

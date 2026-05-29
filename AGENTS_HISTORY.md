@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Main Merge Documentation Audit
+
+- 변경: `codex/table-shaped-pattern-contract` 작업을 로컬 `main`에 merge하고, 문서의 활성 패키지/계약 설명을 현재 구조 기준으로 점검함
+- 변경: `readme.md`의 package/data/doc 구조 설명을 `@cx/schema`, `@cx/pipeline`, `@cx/table-materializer`, `@cx/renderer` 등 현재 활성 패키지 기준으로 갱신함
+- 변경: `packages/agent/README.md`의 오래된 `packages/types/contract` 언급을 `@cx/schema` DTO/schema 계약 기준으로 정리함
+- 변경: `PROJECT_STRUCTURE.md`의 재설계 상태 문구를 현재 운영 경계와 layout component registry 책임 기준으로 갱신함
+- 문서 체크: `LAYOUT_RENDERING_REDESIGN_PLAN.md`, `RENDERER_INTERPRETER_RESTRUCTURE_PLAN.md`, `LAYOUT_PATTERN_CATALOG_INVENTORY.md`는 현재 구현 기준으로 완료/이력 성격이 강하므로 삭제 대상이 아니라 archive 후보로 분류함
+- 검증: 문서 stale reference scan, `npx tsc --noEmit --pretty false`, `npx vitest run`
+
 ## 2026-05-29 - Renderer Resolver Interpreter Implementation
 
 - 변경: `@cx/renderer`를 resolver 기반 interpreter 구조로 전환하고 `interpreter/`, `adapters/`, `runtime/` 디렉토리를 추가함

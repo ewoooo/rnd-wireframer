@@ -2,7 +2,7 @@
 
 `@cx/agent`는 Claude Agent SDK 기반의 AI 실행 adapter 패키지다.
 
-이 패키지는 화면 생성 결과의 최종 타입 계약, RenderTree 변환, DB 저장, workflow orchestration을 소유하지 않는다. 출력 타입 계약은 후속 `packages/types/contract`에서 관리하고, `@cx/agent`는 해당 계약을 만족하는 결과를 Claude 실행으로 얻어오는 책임만 가진다.
+이 패키지는 화면 생성 결과의 최종 타입 계약, RenderTree 변환, DB 저장, workflow orchestration을 소유하지 않는다. 출력 DTO/schema 계약은 `@cx/schema`가 관리하고, `@cx/agent`는 해당 계약을 만족하는 결과를 Claude 실행으로 얻어오는 책임만 가진다.
 
 실행 계약의 정본은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md)를 따른다. 생성/검수 prompt checklist와 출력 규약은 [`docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs) 아래에서 패키지 내부 자산으로 관리한다.
 
@@ -204,7 +204,7 @@ packages/agent/
 
 Agent 패키지 내부 실행 계약을 둔다.
 
-최종 산출물의 제품 타입 계약은 후속 `packages/types/contract`가 소유한다. 이 디렉토리는 `AgentTaskKind`, `AgentTaskDefinition`, `AgentRunner`, `AgentRunResult`처럼 agent 실행 흐름 자체에 필요한 타입만 관리한다.
+최종 산출물의 제품 DTO/schema 계약은 `@cx/schema`가 소유한다. 이 디렉토리는 `AgentTaskKind`, `AgentTaskDefinition`, `AgentRunner`, `AgentRunResult`처럼 agent 실행 흐름 자체에 필요한 타입만 관리한다.
 
 ### `src/tasks`
 
@@ -298,7 +298,7 @@ CLI Script
 
 ## 현재 구현 메모
 
-현재 패키지는 디렉토리와 public adapter 계약을 먼저 고정한다. Claude Agent SDK 실제 호출과 `packages/types/contract` 기반 입출력 타입은 후속 구현에서 연결한다.
+현재 패키지는 디렉토리와 public adapter 계약을 먼저 고정한다. Claude Agent SDK 실제 호출과 `@cx/schema` 기반 입출력 DTO는 후속 구현에서 연결한다.
 
 ## 테스트 범위
 
