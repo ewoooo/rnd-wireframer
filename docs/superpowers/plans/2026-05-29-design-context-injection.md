@@ -16,7 +16,7 @@
 
 ## 진행 단계 개요
 
-- [ ] Phase 0 — 공통 토대: 번들 본문 주입(누수 1·2 해결) — Task 1~5
+- [x] Phase 0 — 공통 토대: 번들 본문 주입(누수 1·2 해결) — Task 1~5 ✅ (전체 test 144 green, lint green, smoke 주입 실측)
 - [ ] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6
 - [ ] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11
 - [ ] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14
@@ -28,7 +28,7 @@
 
 ## Phase 0 — 공통 토대: 번들 본문 주입
 
-### Task 1: schema에 `DesignContextBundleContent` 타입 추가
+### Task 1: schema에 `DesignContextBundleContent` 타입 추가 ✅ 완료
 
 **Files:**
 - Modify: `packages/schema/src/design-context.ts`
@@ -86,7 +86,7 @@ git commit -m "schema: add DesignContextBundleContent type"
 
 ---
 
-### Task 2: 4개 design-context 번들 .md 실체화
+### Task 2: 4개 design-context 번들 .md 실체화 ✅ 완료
 
 > 이 Task는 코드가 아니라 디자인 규칙 저작이다. 효과의 절반이 여기서 나온다. `docs/design/`의 해당 source docs를 읽고, 에이전트가 바로 적용 가능한 **압축된 bounded 규칙**으로 린트한다. prose 복붙 금지.
 
@@ -145,7 +145,7 @@ git commit -m "agent-docs: materialize design-context bundles with bounded rules
 
 ---
 
-### Task 3: pipeline 번들 본문 로더 `design-context-catalog.ts`
+### Task 3: pipeline 번들 본문 로더 `design-context-catalog.ts` ✅ 완료
 
 > `skill-catalog.ts`(이미 에이전트 docs를 읽어 주입하는 패턴) 미러. 번들 id→파일 매핑은 contract 테이블로 구동(switch 금지).
 
@@ -242,7 +242,7 @@ git commit -m "pipeline: add design-context bundle content loader"
 
 ---
 
-### Task 4: orchestration agent-inputs가 번들 본문을 context에 임베드
+### Task 4: orchestration agent-inputs가 번들 본문을 context에 임베드 ✅ 완료
 
 **Files:**
 - Modify: `packages/orchestration/src/public/agent-inputs.ts` (generation/quality/revision)
@@ -293,7 +293,7 @@ git commit -m "orchestration: embed design-context bundle bodies into agent inpu
 
 ---
 
-### Task 5: pipeline 배선 — 본문 로드 후 generation/quality/revision에 주입
+### Task 5: pipeline 배선 — 본문 로드 후 generation/quality/revision에 주입 ✅ 완료
 
 **Files:**
 - Modify: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`
