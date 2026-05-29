@@ -20,7 +20,7 @@
 - [x] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6 ✅
 - [x] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11 ✅ (test 152 green, lint green, smoke 검증)
 - [x] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14 ✅ (test 155 green, lint green, smoke 검증)
-- [ ] Phase 4 — 문서·거버넌스 정합 — Task 15
+- [x] Phase 4 — 문서·거버넌스 정합 — Task 15 ✅
 
 각 Task 완료 시 커밋한다. Phase 경계에서 `bun run test`·`bun run lint` 전체 green을 확인한다.
 
@@ -749,7 +749,7 @@ git commit -m "pipeline: write design-critique and feed P0 findings into revisio
 
 ## Phase 4 — 문서·거버넌스 정합
 
-### Task 15: 문서 업데이트
+### Task 15: 문서 업데이트 ✅ 완료
 
 **Files:**
 - Modify: `MASTER_PLAN.md` (§6 비목표 정정), `PACKAGE_MAP.md` (제안 레이어/비평/디자인 컨텍스트 로더 반영), `AGENTS_HISTORY.md` (이력)
