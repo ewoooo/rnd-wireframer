@@ -19,7 +19,7 @@
 - [x] Phase 0 — 공통 토대: 번들 본문 주입(누수 1·2 해결) — Task 1~5 ✅ (전체 test 144 green, lint green, smoke 주입 실측)
 - [x] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6 ✅
 - [x] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11 ✅ (test 152 green, lint green, smoke 검증)
-- [ ] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14
+- [x] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14 ✅ (test 155 green, lint green, smoke 검증)
 - [ ] Phase 4 — 문서·거버넌스 정합 — Task 15
 
 각 Task 완료 시 커밋한다. Phase 경계에서 `bun run test`·`bun run lint` 전체 green을 확인한다.
@@ -636,7 +636,7 @@ git commit -m "pipeline: add propose-components stage and artifact write"
 
 ## Phase 3 — 디자인 품질 자기비평 루프
 
-### Task 12: schema `QualityInspection`에 디자인 차원 점수 확장
+### Task 12: schema `QualityInspection`에 디자인 차원 점수 확장 ✅ 완료
 
 **Files:**
 - Modify: `packages/schema/src/quality-inspection.ts`, `json-schema-registry.ts`
@@ -682,7 +682,7 @@ git commit -m "schema: add design dimension scores to quality inspection"
 
 ---
 
-### Task 13: agent quality-review 프롬프트에 디자인 비평 + 점수 지시
+### Task 13: agent quality-review 프롬프트에 디자인 비평 + 점수 지시 ✅ 완료
 
 **Files:**
 - Modify: `packages/orchestration/src/public/agent-inputs.ts` (`buildQualityReviewAgentInput` query)
@@ -721,7 +721,7 @@ git commit -m "orchestration: add design scoring to quality-review prompt"
 
 ---
 
-### Task 14: pipeline design-critique write + revision 환류(P0/P1)
+### Task 14: pipeline design-critique write + revision 환류(P0/P1) ✅ 완료
 
 **Files:**
 - Modify: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`
