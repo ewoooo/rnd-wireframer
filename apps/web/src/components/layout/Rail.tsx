@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/store";
 
-interface NavigationRailProps {
+interface RailProps {
 	activeTab: NavigatorTab;
 	onSelectTab: (tab: NavigatorTab) => void;
 }
@@ -79,7 +79,7 @@ function NavButton({ item, isActive, onSelectTab }: { item: NavItem; isActive: b
 	);
 }
 
-export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) {
+export function Rail({ activeTab, onSelectTab }: RailProps) {
 	return (
 		<TooltipProvider delayDuration={400}>
 			<nav

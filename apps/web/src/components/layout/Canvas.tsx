@@ -1,4 +1,5 @@
 import { RenderTreeNodeRenderer } from "@cx/renderer";
+import { Puck } from "@measured/puck";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
@@ -70,12 +71,14 @@ export function Canvas() {
 							/>
 						</div>
 					</div>
+				) : canvasEmptyMessage ? (
+					<RenderedScreen emptyMessage={canvasEmptyMessage} />
 				) : (
-					<RenderedScreen
-						data={canvasEmptyMessage ? undefined : selectedScreen?.schema.data}
-						emptyMessage={canvasEmptyMessage}
-						node={canvasEmptyMessage ? undefined : screenNode}
-					/>
+					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-xl">
+						<div className="size-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+							<Puck.Preview />
+						</div>
+					</div>
 				)}
 			</SidebarContent>
 		</SidebarInset>

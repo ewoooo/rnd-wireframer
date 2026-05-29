@@ -6,6 +6,7 @@ import {
 	type RenderTree,
 } from "@cx/renderer";
 import {
+	buildAreaCatalog,
 	type SampleCompositeSet,
 	type SampleArea,
 	type SampleScreenRouteSet,
@@ -95,7 +96,11 @@ const wireframeWorkbenchData = sampleScreens.map((schema, index) => {
 	};
 });
 
-const areaCatalog = getAreaCatalog(sampleScreens);
+const areaCatalog = buildAreaCatalog({
+	areas,
+	composites: componentTableSet.components,
+	patternStore: loadPatternStore(),
+});
 
 export function loadLocalWorkbenchData() {
 	return {
@@ -117,36 +122,6 @@ function extractAreas(schema: RenderTree) {
 	});
 
 	return result;
-}
-
-function getAreaCatalog(schemas: RenderTree[]) {
-	const byCode = new Map<
-		string,
-		{
-			code: string;
-			componentCount: number;
-			name: string;
-			stateCount: number;
-			usage: string;
-		}
-	>();
-
-	for (const schema of schemas) {
-		forEachNode(schema.children, (node) => {
-			if (!isAreaType(node.type)) return;
-
-			const code = String(node.props?.areaCode ?? node.metadata.id);
-			byCode.set(code, {
-				code,
-				name: String(node.props?.name ?? node.metadata.title),
-				usage: "section",
-				stateCount: 1,
-				componentCount: node.children?.length ?? 0,
-			});
-		});
-	}
-
-	return Array.from(byCode.values());
 }
 
 function getOrderedSampleScreens(
