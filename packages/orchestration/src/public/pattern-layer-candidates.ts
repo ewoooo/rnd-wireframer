@@ -1,14 +1,22 @@
-import type { SourceSpec, SourceSpecRegionSlot } from "@cx/schema";
+import type {
+	DecorationArea,
+	DecorationAreaPatternRole,
+	DecorationPlanContract,
+	SourceSpec,
+	SourceSpecRegionSlot,
+} from "@cx/schema";
 import type { PatternLayerCandidate } from "./types";
 
 type LayoutId = string;
 
 export type PatternLayerCandidateResolver = {
+	/** Resolves a SourceSpec component into a layout.composite.* candidate id. */
 	resolveComponentLayout(input: {
 		componentType?: string;
 		sourceComponentId: string;
 		sourceId?: string;
 	}): LayoutId | undefined;
+	/** Resolves a Screen region into a layout.region.* candidate id. */
 	resolveRegionLayout(input: {
 		compositionText: string;
 		fallbackByType: Record<"Screen.Bottom" | "Screen.Contents" | "Screen.Header", LayoutId>;
@@ -17,7 +25,12 @@ export type PatternLayerCandidateResolver = {
 	}): LayoutId;
 };
 
+/**
+ * Builds deterministic screen/region/area/component layer candidates from SourceSpec.
+ * The resolver is injected so orchestration does not own layout catalog lookup.
+ */
 export function buildPatternLayerCandidates(input: {
+	decorationPlan?: DecorationPlanContract;
 	resolver: PatternLayerCandidateResolver;
 	sourceSpec: SourceSpec;
 }): PatternLayerCandidate[] {
@@ -32,11 +45,9 @@ export function buildPatternLayerCandidates(input: {
 		),
 		...input.sourceSpec.sourceShape.screen.regions.flatMap((region) =>
 			region.children.flatMap((area) => [
-				createAreaLayerCandidate({
-					areaType: area.areaType,
-					componentCount: area.children.length,
-					renderNodeType: area.renderNodeType,
-					sourceAreaId: area.sourceAreaId,
+				...createAreaLayerCandidates({
+					area,
+					decorationAreas: findDecorationAreas(input.decorationPlan, area.sourceAreaId),
 					slot: region.slot,
 				}),
 				...area.children.map((component) =>
@@ -94,15 +105,56 @@ function createRegionLayerCandidate(input: {
 	};
 }
 
+function createAreaLayerCandidates(input: {
+	area: SourceSpec["sourceShape"]["screen"]["regions"][number]["children"][number];
+	decorationAreas: DecorationArea[];
+	slot: SourceSpecRegionSlot;
+}): PatternLayerCandidate[] {
+	if (input.decorationAreas.length > 0) {
+		return input.decorationAreas.map((decorationArea) =>
+			createAreaLayerCandidate({
+				areaType: input.area.areaType,
+				componentCount: decorationArea.componentRefs.length,
+				componentTypes: input.area.children.map(
+					(component) => component.componentType ?? component.sourceComponentId,
+				),
+				decorationArea,
+				renderNodeType: input.area.renderNodeType,
+				sourceAreaId: decorationArea.id,
+				sourceAreaName: decorationArea.displayTitle,
+				slot: input.slot,
+			}),
+		);
+	}
+
+	return [
+		createAreaLayerCandidate({
+			areaType: input.area.areaType,
+			componentCount: input.area.children.length,
+			componentTypes: input.area.children.map(
+				(component) => component.componentType ?? component.sourceComponentId,
+			),
+			renderNodeType: input.area.renderNodeType,
+			sourceAreaId: input.area.sourceAreaId,
+			sourceAreaName: input.area.sourceAreaName,
+			slot: input.slot,
+		}),
+	];
+}
+
 function createAreaLayerCandidate(input: {
 	areaType?: "dynamic" | "static";
 	componentCount: number;
+	componentTypes: string[];
+	decorationArea?: DecorationArea;
 	renderNodeType?: "area.dynamic" | "area.static";
 	slot: SourceSpecRegionSlot;
 	sourceAreaId: string;
+	sourceAreaName?: string;
 }): PatternLayerCandidate {
 	const renderNodeType =
 		input.renderNodeType ?? (input.areaType === "dynamic" ? "area.dynamic" : "area.static");
+	const layout = resolveAreaLayout(input);
 
 	return {
 		constraints: [
@@ -113,11 +165,53 @@ function createAreaLayerCandidate(input: {
 		],
 		id: `layer.area.${input.sourceAreaId}`,
 		level: "area",
-		layout: toLayoutId("area", input.slot === "header" ? "area-app-bar" : "product-hero-summary"),
+		layout,
 		reason: `Area ${input.sourceAreaId} belongs to ${input.slot} and contains ${input.componentCount} component(s).`,
 		targetRef: input.sourceAreaId,
 		title: `Area ${input.sourceAreaId} layer`,
 	};
+}
+
+function resolveAreaLayout(input: {
+	componentTypes: string[];
+	decorationArea?: DecorationArea;
+	slot: SourceSpecRegionSlot;
+	sourceAreaName?: string;
+}): LayoutId {
+	if (input.decorationArea?.layoutIntent) {
+		return toLayoutId(
+			"area",
+			AREA_LAYOUT_ID_BY_PATTERN_ROLE[input.decorationArea.layoutIntent.areaPatternRole],
+		);
+	}
+
+	if (input.slot === "header") return toLayoutId("area", "area-app-bar");
+	if (input.slot === "bottom") return toLayoutId("area", "bottom-action-area");
+
+	const areaName = input.sourceAreaName?.toLowerCase() ?? "";
+	const componentTypes = input.componentTypes.map((type) => type.toLowerCase());
+
+	if (areaName.includes("term") || componentTypes.some((type) => type.includes("list"))) {
+		return toLayoutId("area", "list-stack");
+	}
+	if (componentTypes.some((type) => type.includes("checkbox"))) {
+		return toLayoutId("area", "checkbox-stack");
+	}
+	if (componentTypes.some((type) => type.includes("textfield") || type.includes("text-field"))) {
+		return toLayoutId("area", "field-stack");
+	}
+	if (componentTypes.some((type) => type.includes("message"))) {
+		return toLayoutId("area", "message-stack");
+	}
+
+	return toLayoutId("area", "list-stack");
+}
+
+function findDecorationAreas(
+	decorationPlan: DecorationPlanContract | undefined,
+	sourceAreaId: string,
+): DecorationArea[] {
+	return decorationPlan?.areas.filter((area) => area.sourceAreaId === sourceAreaId) ?? [];
 }
 
 function createComponentLayerCandidate(input: {
@@ -157,10 +251,19 @@ const REGION_TYPE_BY_SLOT = {
 >;
 
 const REGION_LAYOUT_FALLBACK_BY_TYPE = {
-	"Screen.Bottom": toLayoutId("region", "commerce-detail-bottom-action"),
-	"Screen.Contents": toLayoutId("region", "subscription-detail-rich-content"),
-	"Screen.Header": toLayoutId("region", "plain-stack"),
+	"Screen.Bottom": toLayoutId("region", "bottom"),
+	"Screen.Contents": toLayoutId("region", "contents"),
+	"Screen.Header": toLayoutId("region", "header"),
 } as const satisfies Record<"Screen.Bottom" | "Screen.Contents" | "Screen.Header", LayoutId>;
+
+const AREA_LAYOUT_ID_BY_PATTERN_ROLE = {
+	"app-bar": "area-app-bar",
+	"bottom-action": "bottom-action-area",
+	"checkbox-stack": "checkbox-stack",
+	"field-stack": "field-stack",
+	"list-stack": "list-stack",
+	"message-stack": "message-stack",
+} as const satisfies Record<DecorationAreaPatternRole, string>;
 
 function toLayoutId(target: "area" | "composite" | "region" | "screen", id: string): string {
 	return `layout.${target}.${id.replace(/-([a-z0-9])/g, (_, char: string) => char.toUpperCase())}`;

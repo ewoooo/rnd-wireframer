@@ -1,6 +1,9 @@
 export { orchestrationBoundary } from "./public/contract";
 export {
 	buildCompositionPlanAgentInput,
+	buildDecorationPlan,
+	buildDesignContextBundleRefs,
+	buildGenerationNextAction,
 	buildPatternSelectionAgentInput,
 	buildQualityReviewAgentInput,
 	buildScreenGenerationAgentInput,
@@ -13,8 +16,11 @@ export {
 	type PatternLayerCandidateResolver,
 } from "./public/pattern-layer-candidates";
 export type {
+	BuildGenerationNextActionInput,
 	ComponentContractCatalog,
 	ComponentContractCatalogEntry,
+	DesignContextBundleSelection,
+	GenerationNextAction,
 	OrchestrationAgentTaskInput,
 	OrchestrationBoundary,
 	OrchestrationBoundaryName,

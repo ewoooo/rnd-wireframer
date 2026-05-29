@@ -1,5 +1,8 @@
 import {
 	buildCompositionPlanAgentInput,
+	buildDecorationPlan,
+	buildDesignContextBundleRefs,
+	buildGenerationNextAction,
 	buildPatternLayerCandidates,
 	buildPatternSelectionAgentInput,
 	buildQualityReviewAgentInput,
@@ -154,6 +157,36 @@ describe("@cx/orchestration public API", () => {
 		expect(input.context.sourceSummary.screenCode).toBe("NOVA-PRDD-PG-001-0");
 	});
 
+	it("builds a decoration plan that splits terms list and agreement controls", () => {
+		const sourceSpec = createTermsSourceSpec();
+
+		const decorationPlan = buildDecorationPlan({ sourceSpec });
+
+		expect(decorationPlan.schemaVersion).toBe(SCHEMA_VERSION.decorationPlan);
+		expect(decorationPlan.displayRules.hideInternalSourceNames).toBe(true);
+		expect(decorationPlan.areas.map((area) => area.displayTitle)).toContain("약관 목록 조회");
+		expect(decorationPlan.areas.map((area) => area.displayTitle)).toContain("약관 동의");
+		expect(decorationPlan.areas.find((area) => area.role === "content-list")).toMatchObject({
+			componentRefs: ["ListTextTerms"],
+			layoutIntent: { areaPatternRole: "list-stack" },
+			splitFrom: "1",
+		});
+		expect(
+			decorationPlan.areas.find((area) => area.role === "content-list")?.repeatedItems,
+		).toEqual([
+			expect.objectContaining({
+				label: "[필수] 서비스 이용약관",
+				propsHint: expect.objectContaining({ subText: "[필수] 서비스 이용약관" }),
+				required: true,
+			}),
+			expect.objectContaining({
+				label: "[선택] 마케팅 정보 수신 동의",
+				required: false,
+			}),
+		]);
+		expect(decorationPlan.diagnostics).toEqual([]);
+	});
+
 	it("builds pattern layer candidates as a pure orchestration helper", () => {
 		const sourceSpec: SourceSpec = {
 			schemaVersion: SCHEMA_VERSION.sourceSpec,
@@ -183,6 +216,53 @@ describe("@cx/orchestration public API", () => {
 							],
 							slot: "header",
 						},
+						{
+							children: [
+								{
+									children: [
+										{
+											componentType: "ListText",
+											kind: "component",
+											label: "ListTextTerms",
+											props: { title: "{약관명} (예: 서비스 이용약관)" },
+											sourceComponentId: "ListText",
+											sourceId: "ListTextTerms",
+										},
+										{
+											componentType: "Checkbox",
+											kind: "component",
+											label: "CheckboxTermsRequired",
+											props: { label: "[필수] {약관명} (예: 서비스 이용약관)" },
+											sourceComponentId: "Checkbox",
+											sourceId: "CheckboxTermsRequired",
+										},
+									],
+									kind: "area",
+									sourceAreaId: "1",
+									sourceAreaName: "TermsSection",
+								},
+							],
+							slot: "contents",
+						},
+						{
+							children: [
+								{
+									children: [
+										{
+											componentType: "ActionButton",
+											kind: "component",
+											label: "ActionButtonNext",
+											sourceComponentId: "ActionButton",
+											sourceId: "ActionButtonNext",
+										},
+									],
+									kind: "area",
+									sourceAreaId: "999",
+									sourceAreaName: "ActionButtonSection",
+								},
+							],
+							slot: "bottom",
+						},
 					],
 					route: "/nova/prdd/pg/001/0",
 					screenCode: "NOVA-PRDD-PG-001-0",
@@ -191,6 +271,7 @@ describe("@cx/orchestration public API", () => {
 		};
 
 		const candidates = buildPatternLayerCandidates({
+			decorationPlan: buildDecorationPlan({ sourceSpec }),
 			resolver: {
 				resolveComponentLayout: () => "layout.composite.componentAppBar",
 				resolveRegionLayout: ({ fallbackByType, type }) => fallbackByType[type],
@@ -198,13 +279,25 @@ describe("@cx/orchestration public API", () => {
 			sourceSpec,
 		});
 
-		expect(candidates.map((candidate) => candidate.level)).toEqual([
-			"screen",
-			"region",
-			"area",
-			"component",
-		]);
-		expect(candidates[3]?.layout).toBe("layout.composite.componentAppBar");
+		expect(
+			candidates
+				.filter((candidate) => candidate.level === "region")
+				.map((candidate) => candidate.layout),
+		).toEqual(["layout.region.header", "layout.region.contents", "layout.region.bottom"]);
+		expect(
+			candidates.find((candidate) => candidate.id === "layer.area.decor.area.1.content-list")
+				?.layout,
+		).toBe("layout.area.listStack");
+		expect(
+			candidates.find((candidate) => candidate.id === "layer.area.decor.area.1.agreement-controls")
+				?.layout,
+		).toBe("layout.area.checkboxStack");
+		expect(
+			candidates.find((candidate) => candidate.id === "layer.area.decor.area.999.0")?.layout,
+		).toBe("layout.area.bottomActionArea");
+		expect(
+			candidates.find((candidate) => candidate.id === "layer.component.0.AppBar")?.layout,
+		).toBe("layout.composite.componentAppBar");
 	});
 
 	it("builds quality review agent input from the generated candidate", () => {
@@ -238,6 +331,76 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain(SCHEMA_VERSION.qualityInspection);
 		expect(input.context.candidate).toBe(candidate);
 		expect(input.context.validationReport).toBe(validationReport);
+	});
+
+	it("selects design-context bundle refs without reading bundle files", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "검색 결과 목록",
+					regions: [],
+					route: "/search",
+					screenCode: "SEARCH-001",
+				},
+			},
+		};
+
+		const selection = buildDesignContextBundleRefs({
+			screenIntent: { primaryTask: "검색 결과 list를 확인한다" },
+			sourceSpec,
+			validationReport: {
+				summary: { errorCount: 0, warningCount: 1 },
+			},
+		});
+
+		expect(selection.bundleRefs.map((bundleRef) => bundleRef.id)).toEqual([
+			"layout-composition",
+			"visual-foundation",
+			"interaction-state",
+			"quality-review",
+		]);
+		expect(selection.bundleRefs[0]).toMatchObject({
+			version: "2026-05-29",
+		});
+	});
+
+	it("decides generation next actions from validation and quality results", () => {
+		expect(
+			buildGenerationNextAction({
+				retryCount: 0,
+				validationReport: {
+					summary: { errorCount: 1, warningCount: 0 },
+				},
+			}),
+		).toMatchObject({ action: "request-revision", target: "contract" });
+
+		expect(
+			buildGenerationNextAction({
+				qualityInspection: {
+					summary: { errorCount: 1, warningCount: 0 },
+				},
+				retryCount: 0,
+				validationReport: {
+					summary: { errorCount: 0, warningCount: 0 },
+				},
+			}),
+		).toMatchObject({ action: "request-revision", target: "quality" });
+
+		expect(
+			buildGenerationNextAction({
+				retryCount: 0,
+				validationReport: {
+					summary: { errorCount: 0, warningCount: 1 },
+				},
+			}),
+		).toMatchObject({ action: "request-human-review" });
 	});
 
 	it("builds screen revision agent input from a validation report", () => {
@@ -276,11 +439,15 @@ describe("@cx/orchestration public API", () => {
 			ok: false,
 			issues: [{ code: "required-field-missing", message: "layout missing" }],
 		};
+		const qualityInspection = {
+			findings: [{ code: "anti-slop", message: "placeholder", severity: "error" }],
+		};
 
 		const input = buildScreenRevisionAgentInput({
 			layerCandidates,
 			patternSelection,
 			previousCandidate,
+			qualityInspection,
 			sourceSpec,
 			validationReport,
 		});
@@ -293,7 +460,74 @@ describe("@cx/orchestration public API", () => {
 		expect(input.context.layerCandidates).toBe(layerCandidates);
 		expect(input.context.patternSelection).toBe(patternSelection);
 		expect(input.context.previousCandidate).toBe(previousCandidate);
+		expect(input.context.qualityInspection).toBe(qualityInspection);
 		expect(input.context.validationReport).toBe(validationReport);
 		expect(input.previousResult).toBe(previousCandidate);
 	});
 });
+
+function createTermsSourceSpec(): SourceSpec {
+	return {
+		schemaVersion: SCHEMA_VERSION.sourceSpec,
+		sourceImport: {
+			files: [],
+			importId: "sample",
+			receivedAt: "2026-05-27T00:00:00.000Z",
+			sourceKind: "prdd-markdown-bundle",
+		},
+		sourceShape: {
+			screen: {
+				name: "약관 동의",
+				regions: [
+					{
+						children: [
+							{
+								children: [
+									{
+										componentType: "ListText",
+										kind: "component",
+										label: "ListTextTerms",
+										props: {
+											showRightItem: true,
+											title: "{약관명} (예: 서비스 이용약관)",
+										},
+										sourceComponentId: "ListText",
+										sourceId: "ListTextTerms",
+										variant: "dot",
+									},
+									{
+										componentType: "Checkbox",
+										kind: "component",
+										label: "CheckboxTermsRequired",
+										props: {
+											label: "[필수] {약관명} (예: 서비스 이용약관)",
+										},
+										sourceComponentId: "Checkbox",
+										sourceId: "CheckboxTermsRequired",
+									},
+									{
+										componentType: "Checkbox",
+										kind: "component",
+										label: "CheckboxTermsOptional",
+										props: {
+											label: "[선택] {약관명} (예: 마케팅 정보 수신 동의)",
+										},
+										sourceComponentId: "Checkbox",
+										sourceId: "CheckboxTermsOptional",
+									},
+								],
+								kind: "area",
+								minCount: "2",
+								sourceAreaId: "1",
+								sourceAreaName: "TermsSection",
+							},
+						],
+						slot: "contents",
+					},
+				],
+				route: "/nova/mbr/pg/001/0",
+				screenCode: "NOVA-MBR-PG-001-0",
+			},
+		},
+	};
+}

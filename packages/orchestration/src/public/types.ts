@@ -1,4 +1,6 @@
 import type {
+	DecorationPlanContract,
+	DesignContextBundleRef,
 	GenerationArtifactKind,
 	JsonSchemaDocument,
 	SchemaVersion,
@@ -43,6 +45,11 @@ export type OrchestrationAgentTaskInput = {
 	context?: unknown;
 	previousResult?: unknown;
 	query: string;
+};
+
+export type DesignContextBundleSelection = {
+	bundleRefs: DesignContextBundleRef[];
+	rationale: string;
 };
 
 export type PatternLayerCandidate = {
@@ -97,6 +104,8 @@ export type ComponentContractCatalog = {
 
 export type PatternSelectionAgentContext = {
 	compositionPlan?: unknown;
+	decorationPlan?: DecorationPlanContract;
+	designContextBundleRefs?: DesignContextBundleRef[];
 	layerCandidates: PatternLayerCandidate[];
 	screenIntent?: unknown;
 	sourceSpec: SourceSpec;
@@ -165,6 +174,7 @@ export type ScreenGenerationAgentInput = OrchestrationAgentTaskInput & {
 
 export type ScreenRevisionAgentContext = ScreenGenerationAgentContext & {
 	previousCandidate: unknown;
+	qualityInspection?: unknown;
 	validationReport: unknown;
 };
 
@@ -181,3 +191,16 @@ export type QualityReviewAgentContext = ScreenGenerationAgentContext & {
 export type QualityReviewAgentInput = OrchestrationAgentTaskInput & {
 	context: QualityReviewAgentContext;
 };
+
+export type BuildGenerationNextActionInput = {
+	initialValidationReport?: unknown;
+	qualityInspection?: unknown;
+	retryCount: number;
+	validationReport?: unknown;
+};
+
+export type GenerationNextAction =
+	| { action: "request-human-review"; reason: string }
+	| { action: "request-revision"; reason: string; target: "contract" | "quality" }
+	| { action: "stop"; reason: string }
+	| { action: "write-artifacts"; reason: string };

@@ -2,7 +2,7 @@
 
 `@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 제공하는 패키지다.
 
-현재 MVP에서는 `SourceSpec`을 pattern-selection, screen-generation, screen-revision agent 입력으로 조립하는 순수 stage builder를 제공한다. pipeline 실행 순서와 stage runtime은 `@cx/pipeline`이 소유한다.
+현재 MVP에서는 `SourceSpec`을 screen-intent, composition-plan, pattern-selection, screen-generation, quality-review, screen-revision agent 입력으로 조립하는 순수 stage builder를 제공한다. pipeline 실행 순서와 stage runtime은 `@cx/pipeline`이 소유한다.
 
 ## 책임
 
@@ -53,13 +53,59 @@
 - side effect 실행
 - local runtime state를 읽어 workflow 결정
 
+## Source Layout
+
+`src/public/`는 외부에서 사용할 수 있는 순수 helper와 타입 surface다. 파일 이름은 책임 단위다.
+
+| 파일                          | 책임                                                            | 하지 않는 일                           |
+| ----------------------------- | --------------------------------------------------------------- | -------------------------------------- |
+| `contract.ts`                 | 패키지 boundary contract 선언                                   | runtime 실행                           |
+| `types.ts`                    | orchestration public DTO/type surface                           | helper 구현                            |
+| `source-context.ts`           | `SourceSpec`에서 source summary와 allowed source refs 추출      | source 의미 추론, validation           |
+| `pattern-layer-candidates.ts` | screen/region/area/component pattern layer 후보 조립            | pattern catalog 소유, agent 실행       |
+| `agent-inputs.ts`             | stage별 agent query/context 조립                                | Claude 실행, 파일 IO, next-action 결정 |
+| `design-context.ts`           | design-context bundle ref 선택                                  | bundle 파일 읽기, prompt 본문 로딩     |
+| `next-action.ts`              | validation/quality summary를 deterministic next action으로 변환 | revision 실행, pipeline stage 제어     |
+| `generation.ts`               | 기존 `@cx/orchestration/generation` import 호환 barrel          | 직접 구현 추가                         |
+
+새 helper를 추가할 때는 먼저 위 표에서 책임 파일을 고른다. 맞는 파일이 없으면 `generation.ts`에 붙이지 말고 새 책임 파일이 필요한지 검토한다.
+
+## Function Guide
+
+### Source Context
+
+- `buildSourceReferenceCatalog(sourceSpec)`: agent가 사용할 수 있는 source ref vocabulary를 만든다.
+- `createSourceSummary(sourceSpec)`: screen code/name/route와 area/component 개수를 요약한다.
+- `listSourceComponentIds(sourceSpec)`: source order 기준 component id 목록을 만든다.
+
+### Pattern Candidates
+
+- `buildPatternLayerCandidates({ sourceSpec, resolver })`: SourceSpec layer를 pattern candidate list로 바꾼다. resolver는 외부 catalog/layout 경계에서 주입한다.
+
+### Agent Inputs
+
+- `buildScreenIntentAgentInput(sourceSpec)`: 화면 목적과 우선순위를 추론하는 agent input을 만든다.
+- `buildCompositionPlanAgentInput(input)`: screen intent와 candidate를 바탕으로 section plan input을 만든다.
+- `buildPatternSelectionAgentInput(input)`: 허용된 layer candidate 안에서 pattern selection input을 만든다.
+- `buildScreenGenerationAgentInput(sourceSpec, options)`: RenderTree/tableGenerationResult 생성 input을 만든다.
+- `buildQualityReviewAgentInput(input)`: 생성 결과 검수 input을 만든다.
+- `buildScreenRevisionAgentInput(input)`: validation/quality finding 기반 bounded revision input을 만든다.
+
+### Design Context
+
+- `buildDesignContextBundleRefs(input)`: SourceSpec/upstream artifact/validation state를 보고 필요한 design-context bundle ref만 선택한다. 문서 본문은 읽지 않는다.
+
+### Next Action
+
+- `buildGenerationNextAction(input)`: validation summary와 quality inspection summary를 `write-artifacts`, `request-revision`, `request-human-review`, `stop` 중 하나로 변환한다.
+
 ## Public Subpaths
 
-| Subpath | 책임 |
-|---|---|
-| `@cx/orchestration` | 패키지 루트 public API |
-| `@cx/orchestration/contract` | 순수 orchestration boundary contract |
-| `@cx/orchestration/generation` | SourceSpec -> generation stage AgentTaskInput builder |
-| `@cx/orchestration/types` | stage, action, transition public type surface |
+| Subpath                        | 책임                                                                   |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `@cx/orchestration`            | 패키지 루트 public API                                                 |
+| `@cx/orchestration/contract`   | 순수 orchestration boundary contract                                   |
+| `@cx/orchestration/generation` | agent input, source context, design-context, next-action helper barrel |
+| `@cx/orchestration/types`      | stage, action, transition public type surface                          |
 
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.
