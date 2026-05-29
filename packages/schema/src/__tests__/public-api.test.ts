@@ -1,4 +1,5 @@
 import {
+	type ComponentProposalContract,
 	type DecorationPlanContract,
 	type DesignContextBundleContent,
 	type DesignContextBundleRef,
@@ -159,6 +160,29 @@ describe("@cx/schema public API", () => {
 
 		expect(content.id).toBe("visual-foundation");
 		expect(content.body.length).toBeGreaterThan(0);
+	});
+
+	it("exposes component-proposal schema and version", () => {
+		const proposal: ComponentProposalContract = {
+			schemaVersion: SCHEMA_VERSION.componentProposal,
+			proposals: [
+				{
+					id: "proposal-1",
+					title: "Highlighted price callout",
+					rationale: "Source emphasizes total price",
+					sourceEvidence: ["area.price"],
+					nearestCatalogMatch: "Callout",
+					suggestedProps: { emphasis: "strong" },
+				},
+			],
+		};
+
+		expect(proposal.proposals[0].nearestCatalogMatch).toBe("Callout");
+		expect(SCHEMA_VERSION.componentProposal).toBe("component-proposal.v0.1");
+		expect(getJsonSchema("component-proposal").$id).toBe(SCHEMA_VERSION.componentProposal);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["component-proposal"]).toBe(
+			SCHEMA_VERSION.componentProposal,
+		);
 	});
 
 	it("exposes decoration plan as a schema-owned intermediate artifact", () => {
