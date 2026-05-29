@@ -1,4 +1,6 @@
 import {
+	type DecorationPlanContract,
+	type DesignContextBundleRef,
 	getJsonSchema,
 	type RenderTreeContract,
 	SCHEMA_VERSION,
@@ -22,6 +24,7 @@ describe("@cx/schema public API", () => {
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["composition-plan"]).toBe(
 			SCHEMA_VERSION.compositionPlan,
 		);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["decoration-plan"]).toBe(SCHEMA_VERSION.decorationPlan);
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["table-generation-result"]).toBe(
 			SCHEMA_VERSION.tableGenerationResult,
 		);
@@ -54,12 +57,25 @@ describe("@cx/schema public API", () => {
 		expect(getJsonSchema("screen-intent")).toMatchObject({
 			$id: "screen-intent.v0.1",
 			additionalProperties: false,
+			properties: {
+				missingDecisions: {
+					type: "array",
+				},
+				stateCoverageHints: {
+					type: "array",
+				},
+			},
 			required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
 		});
 		expect(getJsonSchema("composition-plan")).toMatchObject({
 			$id: "composition-plan.v0.1",
 			additionalProperties: false,
 			required: ["schemaVersion", "screenLayout", "layoutStrategy", "sections"],
+		});
+		expect(getJsonSchema("decoration-plan")).toMatchObject({
+			$id: "decoration-plan.v0.1",
+			additionalProperties: false,
+			required: ["schemaVersion", "screenId", "sourceScreenRef", "displayRules", "areas"],
 		});
 		expect(getJsonSchema("quality-inspection")).toMatchObject({
 			$id: "quality-inspection.v0.1",
@@ -118,5 +134,39 @@ describe("@cx/schema public API", () => {
 
 		expect(sourceSpec.schemaVersion).toBe(SCHEMA_VERSION.sourceSpec);
 		expect(renderTree.version).toBe(SCHEMA_VERSION.renderTree);
+	});
+
+	it("exposes design-context bundle refs as schema-owned DTOs", () => {
+		const bundleRef: DesignContextBundleRef = {
+			id: "layout-composition",
+			reason: "screen composition guidance",
+			sourceDocs: ["docs/design/COMPOSITION_LAYERS.md"],
+			version: "2026-05-29",
+		};
+
+		expect(bundleRef.id).toBe("layout-composition");
+	});
+
+	it("exposes decoration plan as a schema-owned intermediate artifact", () => {
+		const decorationPlan: DecorationPlanContract = {
+			areas: [
+				{
+					componentRefs: ["ListTextTerms"],
+					displayTitle: "약관 목록 조회",
+					id: "decor.area.1.content-list",
+					layoutIntent: { areaPatternRole: "list-stack" },
+					role: "content-list",
+					sourceAreaId: "1",
+					splitFrom: "1",
+					targetRegion: "contents",
+				},
+			],
+			displayRules: { hideInternalSourceNames: true },
+			schemaVersion: SCHEMA_VERSION.decorationPlan,
+			screenId: "NOVA-MBR-PG-001-0",
+			sourceScreenRef: "NOVA-MBR-PG-001-0",
+		};
+
+		expect(decorationPlan.areas[0].displayTitle).toBe("약관 목록 조회");
 	});
 });

@@ -5,6 +5,7 @@ export type GenerationArtifactKind =
 	| "agent-result"
 	| "apply-result"
 	| "composition-plan"
+	| "decoration-plan"
 	| "draft-candidate"
 	| "generation-context"
 	| "preview"
@@ -20,6 +21,7 @@ export const SCHEMA_VERSION_BY_ARTIFACT_KIND = {
 	"agent-result": SCHEMA_VERSION.agentResult,
 	"apply-result": SCHEMA_VERSION.applyResult,
 	"composition-plan": SCHEMA_VERSION.compositionPlan,
+	"decoration-plan": SCHEMA_VERSION.decorationPlan,
 	"draft-candidate": SCHEMA_VERSION.draftCandidate,
 	"generation-context": SCHEMA_VERSION.generationContext,
 	preview: SCHEMA_VERSION.preview,

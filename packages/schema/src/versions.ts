@@ -2,6 +2,7 @@ export const SCHEMA_VERSION = {
 	agentRequest: "agent-request.v0.1",
 	agentResult: "agent-result.v0.1",
 	applyResult: "apply-result.v0.1",
+	decorationPlan: "decoration-plan.v0.1",
 	draftCandidate: "draft-candidate.v0.1",
 	generationContext: "generation-context.v0.1",
 	preview: "preview.v0.1",

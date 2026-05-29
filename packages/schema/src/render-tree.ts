@@ -39,6 +39,85 @@ export type RenderTreeNodeContract = {
 	type: string;
 };
 
+export type RenderTreeFlexLayoutProps = {
+	direction: "row" | "column";
+	gap?: number;
+	paddingX?: number;
+	paddingY?: number;
+	align?: "start" | "center" | "end" | "stretch";
+	justify?: "start" | "center" | "end" | "between";
+};
+
+export type RenderTreeGridLayoutProps = {
+	columns?: string;
+	rows?: string;
+	gap?: number;
+	paddingX?: number;
+	paddingY?: number;
+	align?: "start" | "center" | "end" | "stretch";
+	justify?: "start" | "center" | "end" | "stretch";
+};
+
+export type RenderTreeScreenHeaderNodeContract = Omit<
+	RenderTreeNodeContract,
+	"children" | "props" | "type"
+> & {
+	type: "Screen.Header";
+	props?: {
+		position: "fixed" | "sticky" | "static";
+		layout: RenderTreeFlexLayoutProps;
+		height?: number;
+		zIndex?: number;
+	};
+	children?: RenderTreeNodeContract[];
+};
+
+export type RenderTreeScreenContentsNodeContract = Omit<
+	RenderTreeNodeContract,
+	"children" | "props" | "type"
+> & {
+	type: "Screen.Contents";
+	props?: {
+		layout: RenderTreeFlexLayoutProps;
+		scroll: boolean;
+	};
+	children: RenderTreeNodeContract[];
+};
+
+export type RenderTreeScreenBottomNodeContract = Omit<
+	RenderTreeNodeContract,
+	"children" | "props" | "type"
+> & {
+	type: "Screen.Bottom";
+	props?: {
+		position: "fixed" | "sticky" | "static";
+		layout: RenderTreeFlexLayoutProps;
+		height?: number;
+		safeArea?: boolean;
+		zIndex?: number;
+	};
+	children?: RenderTreeNodeContract[];
+};
+
+export type RenderTreeScreenNodeContract = Omit<RenderTreeNodeContract, "children" | "type"> & {
+	type: "Screen";
+	children: [
+		RenderTreeScreenHeaderNodeContract,
+		RenderTreeScreenContentsNodeContract,
+		RenderTreeScreenBottomNodeContract,
+	];
+};
+
+export type RenderTreeLayoutFlexNodeContract = Omit<RenderTreeNodeContract, "props" | "type"> & {
+	type: "Layout.Flex";
+	props: RenderTreeFlexLayoutProps;
+};
+
+export type RenderTreeLayoutGridNodeContract = Omit<RenderTreeNodeContract, "props" | "type"> & {
+	type: "Layout.Grid";
+	props: RenderTreeGridLayoutProps;
+};
+
 export type RenderTreeContract = {
 	children: RenderTreeNodeContract[];
 	data?: Record<string, unknown>;

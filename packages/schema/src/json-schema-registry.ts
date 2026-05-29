@@ -17,6 +17,7 @@ export const JSON_SCHEMA_BY_ARTIFACT_KIND = {
 		]),
 	),
 	"composition-plan": createCompositionPlanJsonSchema(),
+	"decoration-plan": createDecorationPlanJsonSchema(),
 	"quality-inspection": createQualityInspectionJsonSchema(),
 	"render-tree": createRenderTreeJsonSchema(),
 	"screen-intent": createScreenIntentJsonSchema(),
@@ -51,6 +52,112 @@ function createJsonSchema(kind: string, version: string): JsonSchemaDocument {
 	};
 }
 
+function createDecorationPlanJsonSchema(): JsonSchemaDocument {
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.decorationPlan,
+		additionalProperties: false,
+		properties: {
+			areas: {
+				type: "array",
+				items: { $ref: "#/$defs/area" },
+			},
+			diagnostics: {
+				type: "array",
+				items: { $ref: "#/$defs/diagnostic" },
+			},
+			displayRules: {
+				type: "object",
+				additionalProperties: false,
+				required: ["hideInternalSourceNames"],
+				properties: {
+					hideInternalSourceNames: { type: "boolean" },
+				},
+			},
+			schemaVersion: { const: SCHEMA_VERSION.decorationPlan },
+			screenId: { type: "string", minLength: 1 },
+			sourceScreenRef: { type: "string", minLength: 1 },
+		},
+		required: ["schemaVersion", "screenId", "sourceScreenRef", "displayRules", "areas"],
+		title: "decoration-plan",
+		type: "object",
+		$defs: {
+			area: {
+				type: "object",
+				additionalProperties: false,
+				required: ["id", "sourceAreaId", "displayTitle", "role", "targetRegion", "componentRefs"],
+				properties: {
+					componentRefs: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+					displayTitle: { type: "string", minLength: 1 },
+					id: { type: "string", minLength: 1 },
+					layoutIntent: {
+						type: "object",
+						additionalProperties: false,
+						required: ["areaPatternRole"],
+						properties: {
+							areaPatternRole: {
+								enum: [
+									"app-bar",
+									"bottom-action",
+									"checkbox-stack",
+									"field-stack",
+									"list-stack",
+									"message-stack",
+								],
+							},
+						},
+					},
+					repeatedItems: {
+						type: "array",
+						items: { $ref: "#/$defs/repeatedItem" },
+					},
+					role: {
+						enum: [
+							"agreement-controls",
+							"bottom-action",
+							"content-list",
+							"form",
+							"message",
+							"navigation",
+						],
+					},
+					sourceAreaId: { type: "string", minLength: 1 },
+					splitFrom: { type: "string", minLength: 1 },
+					targetRegion: { enum: ["bottom", "contents", "header", "overlay"] },
+				},
+			},
+			diagnostic: {
+				type: "object",
+				additionalProperties: false,
+				required: ["code", "message", "severity"],
+				properties: {
+					code: { type: "string", minLength: 1 },
+					message: { type: "string", minLength: 1 },
+					severity: { enum: ["error", "warning"] },
+					sourceRef: { type: "string", minLength: 1 },
+				},
+			},
+			repeatedItem: {
+				type: "object",
+				additionalProperties: false,
+				required: ["sourceComponentRef", "label"],
+				properties: {
+					label: { type: "string", minLength: 1 },
+					propsHint: {
+						type: "object",
+						additionalProperties: true,
+					},
+					required: { type: "boolean" },
+					sourceComponentRef: { type: "string", minLength: 1 },
+				},
+			},
+		},
+	};
+}
+
 function createScreenIntentJsonSchema(): JsonSchemaDocument {
 	return {
 		$schema: "https://json-schema.org/draft/2020-12/schema",
@@ -61,7 +168,13 @@ function createScreenIntentJsonSchema(): JsonSchemaDocument {
 				type: "array",
 				items: { type: "string", minLength: 1 },
 			},
+			audience: { type: "string", minLength: 1 },
+			missingDecisions: {
+				type: "array",
+				items: { type: "string", minLength: 1 },
+			},
 			primaryUserAction: { type: "string", minLength: 1 },
+			primaryTask: { type: "string", minLength: 1 },
 			rationale: { type: "string", minLength: 1 },
 			schemaVersion: { const: SCHEMA_VERSION.screenIntent },
 			screenPurpose: { type: "string", minLength: 1 },
@@ -84,10 +197,35 @@ function createScreenIntentJsonSchema(): JsonSchemaDocument {
 					},
 				},
 			},
+			stateCoverageHints: {
+				type: "array",
+				items: { $ref: "#/$defs/stateCoverageHint" },
+			},
+			successMoment: { type: "string", minLength: 1 },
 		},
 		required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
 		title: "screen-intent",
 		type: "object",
+		$defs: {
+			stateCoverageHint: {
+				type: "object",
+				additionalProperties: false,
+				required: ["surface", "states", "reason"],
+				properties: {
+					reason: { type: "string", minLength: 1 },
+					states: {
+						type: "array",
+						minItems: 1,
+						items: {
+							enum: ["disabled", "empty", "error", "loading", "populated", "validation"],
+						},
+					},
+					surface: {
+						enum: ["async", "detail", "form", "list", "search"],
+					},
+				},
+			},
+		},
 	};
 }
 

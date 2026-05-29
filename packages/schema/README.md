@@ -28,7 +28,7 @@ import { SCHEMA_VERSION, getJsonSchema } from "@cx/schema";
 import type { SourceSpec, RenderTreeContract } from "@cx/schema";
 ```
 
-아래처럼 내부 파일이나 JSON schema 파일을 직접 import하지 않는다.
+아래처럼 내부 파일을 직접 import하거나 정적 JSON schema 파일을 기대하지 않는다.
 
 ```ts
 import type { SourceSpec } from "@cx/schema/src/source-spec";
@@ -36,6 +36,7 @@ import schema from "@cx/schema/src/json-schema/source-spec.schema.json";
 ```
 
 필요한 계약은 `src/index.ts`와 `package.json`의 root export에 공개한다.
+JSON Schema의 정본은 `getJsonSchema()`가 반환하는 registry 값이다.
 
 공개 표면:
 

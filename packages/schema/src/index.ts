@@ -4,6 +4,21 @@ export type { ApplyResultContract } from "./apply-result";
 export type { GenerationArtifactKind } from "./artifact-kind";
 export { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
 export type { CompositionPlanContract, CompositionPlanSection } from "./composition-plan";
+export type {
+	DecorationArea,
+	DecorationAreaPatternRole,
+	DecorationAreaRole,
+	DecorationDiagnostic,
+	DecorationDisplayRules,
+	DecorationLayoutIntent,
+	DecorationPlanContract,
+	DecorationRepeatedItem,
+} from "./decoration-plan";
+export type {
+	DesignContextBundleId,
+	DesignContextBundleRef,
+	StateCoverageHint,
+} from "./design-context";
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
 export type { JsonSchemaDocument } from "./json-schema-registry";
@@ -12,9 +27,17 @@ export type { PreviewContract } from "./preview";
 export type { QualityInspectionContract } from "./quality-inspection";
 export type {
 	RenderTreeContract,
+	RenderTreeFlexLayoutProps,
+	RenderTreeGridLayoutProps,
+	RenderTreeLayoutFlexNodeContract,
+	RenderTreeLayoutGridNodeContract,
 	RenderTreeMetadata,
 	RenderTreeNodeContract,
 	RenderTreeNodeMetadata,
+	RenderTreeScreenBottomNodeContract,
+	RenderTreeScreenContentsNodeContract,
+	RenderTreeScreenHeaderNodeContract,
+	RenderTreeScreenNodeContract,
 	SchemaPropBinding,
 	SchemaPropValue,
 } from "./render-tree";
