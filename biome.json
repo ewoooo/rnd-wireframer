@@ -5,8 +5,12 @@
 			"**",
 			"!node_modules",
 			"!.venv",
+			"!.claude",
 			"!.next",
 			"!**/.next",
+			"!tmp",
+			"!**/tmp",
+			"!*.tsbuildinfo",
 			"!dist",
 			"!build",
 			"!coverage"
