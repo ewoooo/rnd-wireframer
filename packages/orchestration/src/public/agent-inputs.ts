@@ -13,6 +13,7 @@ import {
 } from "./source-context";
 import type {
 	ComponentContractCatalog,
+	ComponentProposalAgentInput,
 	CompositionPlanAgentInput,
 	PatternLayerCandidate,
 	PatternSelectionAgentInput,
@@ -330,6 +331,49 @@ export function buildQualityReviewAgentInput(input: {
 			...generationInput.context,
 			candidate: input.candidate,
 			validationReport: input.validationReport,
+		},
+	};
+}
+
+/**
+ * Builds the non-binding component-proposal input.
+ * The task proposes components or variants outside the catalog with source evidence and a nearest
+ * catalog match. It never confirms or applies anything; promotion happens via catalog mutation only.
+ */
+export function buildComponentProposalAgentInput(input: {
+	candidate?: unknown;
+	componentContractCatalog?: ComponentContractCatalog;
+	compositionPlan?: unknown;
+	decorationPlan?: DecorationPlanContract;
+	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
+	layerCandidates?: PatternLayerCandidate[];
+	patternSelection?: unknown;
+	screenIntent?: unknown;
+	sourceSpec: SourceSpec;
+}): ComponentProposalAgentInput {
+	const generationInput = buildScreenGenerationAgentInput(input.sourceSpec, {
+		componentContractCatalog: input.componentContractCatalog,
+		compositionPlan: input.compositionPlan,
+		decorationPlan: input.decorationPlan,
+		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
+		layerCandidates: input.layerCandidates,
+		patternSelection: input.patternSelection,
+		screenIntent: input.screenIntent,
+	});
+
+	return {
+		query: [
+			"Propose components or variants that are NOT in the catalog but would improve this screen.",
+			"Each proposal must include sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
+			"Use context.designContextBundles[].body as bounded design guidance for what would improve the screen.",
+			"Return at most 5 proposals. Do not confirm or apply anything; this is a non-binding proposal artifact.",
+			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.componentProposal}.`,
+		].join("\n"),
+		context: {
+			...generationInput.context,
+			candidate: input.candidate,
 		},
 	};
 }

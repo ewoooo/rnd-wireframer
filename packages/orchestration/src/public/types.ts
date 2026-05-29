@@ -194,6 +194,14 @@ export type QualityReviewAgentInput = OrchestrationAgentTaskInput & {
 	context: QualityReviewAgentContext;
 };
 
+export type ComponentProposalAgentContext = ScreenGenerationAgentContext & {
+	candidate?: unknown;
+};
+
+export type ComponentProposalAgentInput = OrchestrationAgentTaskInput & {
+	context: ComponentProposalAgentContext;
+};
+
 export type BuildGenerationNextActionInput = {
 	initialValidationReport?: unknown;
 	qualityInspection?: unknown;

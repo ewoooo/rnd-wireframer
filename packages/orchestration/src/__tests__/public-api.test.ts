@@ -1,4 +1,5 @@
 import {
+	buildComponentProposalAgentInput,
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
@@ -116,6 +117,32 @@ describe("@cx/orchestration public API", () => {
 
 		expect(JSON.stringify(input.context)).toContain("DIVIDER RULE LINE");
 		expect(input.query).toContain("context.designContextBundles");
+	});
+
+	it("builds bounded component-proposal input", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildComponentProposalAgentInput({
+			sourceSpec,
+			candidate: { foo: "bar" },
+		});
+
+		expect(input.query).toContain("Propose");
+		expect(input.query).toContain("nearestCatalogMatch");
+		expect(input.query).toContain("component-proposal.v0.1");
+		expect(input.context.sourceSpec).toBe(sourceSpec);
+		expect(input.context.candidate).toEqual({ foo: "bar" });
 	});
 
 	it("instructs contextual divider, spacing, and hierarchy decisions", () => {
