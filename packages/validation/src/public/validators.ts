@@ -5,9 +5,8 @@ import type {
 	ComponentPropType,
 } from "@cx/components/types";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
-import { findLayoutPatternComponentByLayoutId } from "@cx/layout-pattern-store/components";
-import type { PropBinding } from "@cx/renderer";
-import type { GenerationArtifactKind, SourceSpec } from "@cx/schema";
+import { findPattern } from "@cx/layout-pattern-store";
+import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
 import { getJsonSchema } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
@@ -19,7 +18,10 @@ import type {
 } from "./types";
 
 export type ValidationOptions = {
+	allowedLayoutIds?: string[];
 	componentCatalog?: ComponentCatalog;
+	generatedArtifact?: unknown;
+	sourceSpec?: SourceSpec;
 };
 
 export type CompositionPlanValidationOptions = {
@@ -239,10 +241,17 @@ export function validateRenderTree(
 		});
 	}
 
+	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
+	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
+	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
+
 	return buildReport("render-tree", issues);
 }
 
-export function validateTableGenerationResult(input: unknown): ValidationReport {
+export function validateTableGenerationResult(
+	input: unknown,
+	options: Pick<ValidationOptions, "allowedLayoutIds"> = {},
+): ValidationReport {
 	const schemaReport = validateSchemaArtifact("table-generation-result", input);
 	const issues = [...schemaReport.issues];
 	const value = parseJsonLikeInput(input, issues);
@@ -264,6 +273,8 @@ export function validateTableGenerationResult(input: unknown): ValidationReport 
 			validateLayoutRef(component, "composite", ["components", index, "layout"], issues);
 		});
 	}
+
+	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
 
 	return buildReport("table-generation-result", issues);
 }
@@ -349,6 +360,132 @@ function collectSourceSpecRefs(sourceSpec: SourceSpec): Set<string> {
 	);
 }
 
+function validateSourceRefCoverage(
+	sourceSpec: SourceSpec | undefined,
+	generatedArtifact: unknown,
+	issues: ValidationIssue[],
+) {
+	if (!sourceSpec) return;
+	const generatedText = JSON.stringify(generatedArtifact);
+	const sourceRefs = collectMaterializationSourceRefs(sourceSpec);
+
+	sourceRefs.forEach((sourceRef) => {
+		if (generatedText.includes(sourceRef)) return;
+		addIssue(issues, {
+			code: "source-ref-not-materialized",
+			message: `SourceSpec ref is not visible in generated artifact: ${sourceRef}.`,
+			path: [],
+			severity: "warning",
+		});
+	});
+}
+
+function collectMaterializationSourceRefs(sourceSpec: SourceSpec): string[] {
+	return [
+		...new Set(
+			sourceSpec.sourceShape.screen.regions.flatMap((region) =>
+				region.children.flatMap((area) => [
+					area.sourceAreaId,
+					...area.children.map((component) => component.sourceId),
+					...area.children.map((component) => component.sourceComponentId),
+				]),
+			),
+		),
+	].filter((ref): ref is string => Boolean(ref));
+}
+
+function validateStateCoverage(
+	sourceSpec: SourceSpec | undefined,
+	generatedArtifact: unknown,
+	issues: ValidationIssue[],
+) {
+	if (!sourceSpec || !needsStateCoverage(sourceSpec)) return;
+	const generatedText = JSON.stringify(generatedArtifact).toLowerCase();
+	const hasStateRole = STATE_COVERAGE_TERMS.some((term) => generatedText.includes(term));
+	if (hasStateRole) return;
+
+	addIssue(issues, {
+		code: "state-coverage-missing",
+		message:
+			"SourceSpec implies a stateful surface, but generated artifact does not expose loading, empty, error, disabled, or validation state coverage.",
+		path: [],
+		severity: "warning",
+	});
+}
+
+function needsStateCoverage(sourceSpec: SourceSpec): boolean {
+	const sourceText = JSON.stringify(sourceSpec).toLowerCase();
+	return STATEFUL_SURFACE_TERMS.some((term) => sourceText.includes(term));
+}
+
+const STATEFUL_SURFACE_TERMS = [
+	"async",
+	"empty",
+	"error",
+	"form",
+	"input",
+	"list",
+	"loading",
+	"search",
+	"select",
+	"validation",
+	"검색",
+	"목록",
+	"에러",
+	"오류",
+	"입력",
+	"폼",
+	"필수",
+] as const;
+
+const STATE_COVERAGE_TERMS = [
+	"disabled",
+	"empty",
+	"error",
+	"loading",
+	"stateRole",
+	"validation",
+	"오류",
+	"로딩",
+	"빈",
+] as const;
+
+function validateLayoutCandidateCoverage(
+	input: unknown,
+	path: Path,
+	allowedLayoutIds: string[] | undefined,
+	issues: ValidationIssue[],
+) {
+	if (!allowedLayoutIds || allowedLayoutIds.length === 0) return;
+	const allowed = new Set(allowedLayoutIds);
+	collectLayoutRefs(input, path).forEach((layoutRef) => {
+		if (allowed.has(layoutRef.layout)) return;
+		addIssue(issues, {
+			code: "layout-ref-outside-candidates",
+			message: `Layout ref is outside selected pattern candidates: ${layoutRef.layout}.`,
+			path: layoutRef.path,
+			severity: "warning",
+		});
+	});
+}
+
+function collectLayoutRefs(input: unknown, path: Path): Array<{ layout: string; path: Path }> {
+	if (Array.isArray(input)) {
+		return input.flatMap((item, index) => collectLayoutRefs(item, [...path, index]));
+	}
+	if (!isRecord(input)) return [];
+
+	const current =
+		typeof input.layout === "string" ? [{ layout: input.layout, path: [...path, "layout"] }] : [];
+	return [
+		...current,
+		...Object.entries(input).flatMap(([key, value]) => {
+			if (key === "layout") return [];
+			return collectLayoutRefs(value, [...path, key]);
+		}),
+	];
+}
+
 function validateRegionLayoutRef(
 	input: Record<string, unknown>,
 	region: "bottom" | "contents" | "header",
@@ -385,6 +522,17 @@ function validateLayoutRef(
 		});
 		return;
 	}
+}
+
+function findLayoutPatternComponentByLayoutId(layoutId: string) {
+	return findPattern(layoutPatternIdToPatternId(layoutId));
+}
+
+function layoutPatternIdToPatternId(id: string): string {
+	return id
+		.replace(/^layout\.(screen|region|area|composite)\./, "")
+		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+		.toLowerCase();
 }
 
 export function validateLayoutProps(input: unknown): ValidationReport {
@@ -447,6 +595,7 @@ function validateNode(
 
 	validateNodeMetadata(input, path, issues, ids);
 	validateDisplay(input.display, [...path, "display"], issues);
+	validateRequiredLayoutPatternForNode(input.type, input.layout, [...path, "layout"], issues);
 	validateLayoutPatternIdForNode(input.type, input.layout, [...path, "layout"], issues);
 
 	if ("children" in input && !Array.isArray(input.children)) {
@@ -463,6 +612,7 @@ function validateNode(
 			validateLayoutPropsForType(input.type, props, [...path, "props"], issues);
 		const entry = findCatalogEntry(input.type, options.componentCatalog);
 		if (entry) validatePropsAgainstCatalog(entry, props, [...path, "props"], issues);
+		validateListTextVisibleTextProps(input.type, props, [...path, "props"], issues);
 	}
 
 	if (input.type === "Screen") {
@@ -474,6 +624,26 @@ function validateNode(
 			validateNode(child, [...path, "children", index], options, issues, ids);
 		});
 	}
+}
+
+function validateListTextVisibleTextProps(
+	nodeType: string,
+	props: Record<string, unknown>,
+	path: Path,
+	issues: ValidationIssue[],
+) {
+	if (nodeType !== "ListText") return;
+	const table = props.table;
+	const hasTitle = typeof props.title === "string" && props.title.length > 0;
+	const hasSubText = typeof props.subText === "string" && props.subText.length > 0;
+	if (table !== "dot" || !hasTitle || hasSubText) return;
+
+	addIssue(issues, {
+		code: "list-text-dot-subtext-missing",
+		message:
+			"ListText dot rows render subText as the visible row text, but this node only provides title.",
+		path,
+	});
 }
 
 function validateLayoutPatternIdForNode(
@@ -510,6 +680,23 @@ function validateLayoutPatternIdForNode(
 			path,
 		});
 	}
+}
+
+function validateRequiredLayoutPatternForNode(
+	nodeType: string,
+	input: unknown,
+	path: Path,
+	issues: ValidationIssue[],
+) {
+	if (input !== undefined) return;
+	const expectedTarget = getExpectedLayoutTargetForNodeType(nodeType);
+	if (!expectedTarget) return;
+
+	addIssue(issues, {
+		code: "required-field-missing",
+		message: `${nodeType} nodes must include a layout.${expectedTarget}.* ref.`,
+		path,
+	});
 }
 
 function getExpectedLayoutTargetForNodeType(
@@ -576,6 +763,16 @@ function validateNodeMetadata(
 		return;
 	}
 
+	const title = node.metadata.title;
+	if (typeof title === "string" && isInternalVisibleTitle(title)) {
+		addIssue(issues, {
+			code: "internal-visible-title",
+			message: `Render node metadata.title looks like an internal source name: ${title}.`,
+			path: [...path, "metadata", "title"],
+			severity: "warning",
+		});
+	}
+
 	if (ids.has(id)) {
 		addIssue(issues, {
 			code: "duplicate-id",
@@ -584,6 +781,10 @@ function validateNodeMetadata(
 		});
 	}
 	ids.add(id);
+}
+
+function isInternalVisibleTitle(value: string): boolean {
+	return /(?:Section|Component)$/.test(value);
 }
 
 function validateDisplay(input: unknown, path: Path, issues: ValidationIssue[]) {
@@ -785,7 +986,7 @@ function validateTypedProps(
 	}
 }
 
-function validateBinding(input: PropBinding, path: Path, issues: ValidationIssue[]) {
+function validateBinding(input: SchemaPropBinding, path: Path, issues: ValidationIssue[]) {
 	if (typeof input.bind !== "string" || input.bind.length === 0) {
 		addIssue(issues, {
 			code: "invalid-render-node",
@@ -878,7 +1079,7 @@ function isLayoutType(type: string) {
 	return type in LAYOUT_PROP_CONTRACTS;
 }
 
-function isBindingCandidate(input: unknown): input is PropBinding {
+function isBindingCandidate(input: unknown): input is SchemaPropBinding {
 	return isRecord(input) && "bind" in input;
 }
 

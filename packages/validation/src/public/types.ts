@@ -29,9 +29,13 @@ export type ValidationIssueCode =
 	| "readonly-prop-written"
 	| "invalid-render-node"
 	| "invalid-layout-prop"
+	| "internal-visible-title"
+	| "list-text-dot-subtext-missing"
 	| "source-ref-not-materialized"
+	| "state-coverage-missing"
 	| "unknown-source-ref"
-	| "unknown-layout-ref";
+	| "unknown-layout-ref"
+	| "layout-ref-outside-candidates";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;

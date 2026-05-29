@@ -71,4 +71,4 @@ type ValidationReport = {
 - `validateRenderTree`: RenderTree version, Screen/Header/Contents/Bottom 구조, 처리 가능한 node type, children 배열, display/binding/default 안전성을 확인한다.
 - `validateLayoutProps`: `Layout.Flex`, `Layout.Grid`, Screen region props의 enum과 숫자/문자/boolean 타입을 확인한다.
 
-필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`, `@cx/renderer`의 public API만 소비한다.
+필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`, `@cx/layout-pattern-store`의 public API만 소비한다.

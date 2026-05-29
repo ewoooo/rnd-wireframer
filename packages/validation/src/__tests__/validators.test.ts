@@ -229,6 +229,72 @@ describe("@cx/validation validators", () => {
 		);
 	});
 
+	it("reports RenderTree nodes without required layout refs", () => {
+		const tree = validRenderTree();
+		const contents = tree.children[0]?.children?.[1];
+		const area = contents?.children?.[0] as { layout?: string } | undefined;
+		if (!area) throw new Error("area node missing");
+		delete area.layout;
+
+		const report = validateRenderTree(tree, { componentCatalog: testCatalog });
+
+		expect(report.ok).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "required-field-missing",
+				path: ["children", 0, "children", 1, "children", 0, "layout"],
+			}),
+		);
+	});
+
+	it("warns when visible metadata titles expose internal source names", () => {
+		const tree = validRenderTree();
+		const contents = tree.children[0]?.children?.[1];
+		const area = contents?.children?.[0] as { metadata?: { title?: string } } | undefined;
+		if (!area?.metadata) throw new Error("area node missing");
+		area.metadata.title = "TermsSection";
+
+		const report = validateRenderTree(tree, { componentCatalog: testCatalog });
+
+		expect(report.ok).toBe(true);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "internal-visible-title",
+				path: ["children", 0, "children", 1, "children", 0, "metadata", "title"],
+				severity: "warning",
+			}),
+		);
+	});
+
+	it("warns when ListText dot rows omit visible subText", () => {
+		const tree = validRenderTree();
+		const contents = tree.children[0]?.children?.[1] as { children?: unknown[] } | undefined;
+		if (!contents) throw new Error("contents node missing");
+		contents.children = [
+			{
+				type: "ListText",
+				componentVersion: "1.0.0",
+				metadata: { id: "terms-list-row", title: "약관 목록 행" },
+				layout: "layout.composite.componentListText",
+				props: {
+					table: "dot",
+					title: "[필수] 서비스 이용약관",
+				},
+			},
+		];
+
+		const report = validateRenderTree(tree, { componentCatalog });
+
+		expect(report.ok).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "list-text-dot-subtext-missing",
+				path: ["children", 0, "children", 1, "children", 0, "props"],
+				severity: "error",
+			}),
+		);
+	});
+
 	it("accepts the final screen RenderTree handoff shape without region props", () => {
 		const report = validateRenderTree(finalScreenRenderTreeExample(), { componentCatalog });
 
@@ -335,7 +401,7 @@ it("rejects table-shaped generation records with unknown layout ids", () => {
 
 it("rejects table-shaped generation records with target/layout mismatches", () => {
 	const result = validTableGenerationResult();
-	result.areas[0].layout = "layout.region.plainStack";
+	result.areas[0].layout = "layout.region.header";
 	const report = validateTableGenerationResult(result);
 
 	expect(report.ok).toBe(false);
@@ -435,6 +501,55 @@ it("warns when composition plan source refs are not visible in generated artifac
 	);
 });
 
+it("warns when RenderTree layout refs are outside pattern candidates", () => {
+	const report = validateRenderTree(validRenderTree(), {
+		allowedLayoutIds: ["layout.screen.screenShell", "layout.region.header"],
+		componentCatalog: testCatalog,
+	});
+
+	expect(report.ok).toBe(true);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "layout-ref-outside-candidates",
+			path: ["children", 0, "children", 1, "children", 0, "layout"],
+			severity: "warning",
+		}),
+	);
+});
+
+it("warns when SourceSpec refs are not visible in a generated RenderTree", () => {
+	const report = validateRenderTree(validRenderTree(), {
+		componentCatalog: testCatalog,
+		sourceSpec: validSourceSpec(),
+	});
+
+	expect(report.ok).toBe(true);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "source-ref-not-materialized",
+			severity: "warning",
+		}),
+	);
+});
+
+it("warns when stateful source surfaces have no state coverage", () => {
+	const sourceSpec = validSourceSpec();
+	sourceSpec.sourceShape.screen.name = "검색 결과 목록";
+
+	const report = validateRenderTree(validRenderTree(), {
+		componentCatalog: testCatalog,
+		sourceSpec,
+	});
+
+	expect(report.ok).toBe(true);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "state-coverage-missing",
+			severity: "warning",
+		}),
+	);
+});
+
 function validRenderTree() {
 	return {
 		version: "render-tree.v0.1",
@@ -450,7 +565,7 @@ function validRenderTree() {
 					{
 						type: "Screen.Contents",
 						metadata: { id: "contents", title: "Contents" },
-						layout: "layout.region.plainStack",
+						layout: "layout.region.header",
 						props: {
 							layout: { direction: "column", gap: 12 },
 							scroll: true,
@@ -499,6 +614,7 @@ function finalScreenRenderTreeExample() {
 					{
 						type: "Screen.Header",
 						componentVersion: "0.1.0",
+						layout: "layout.region.header",
 						metadata: {
 							id: "NOVA-MBR-FP-001-0.header",
 							title: "고정 상단 영역",
@@ -523,6 +639,7 @@ function finalScreenRenderTreeExample() {
 					{
 						type: "Screen.Contents",
 						componentVersion: "0.1.0",
+						layout: "layout.region.contents",
 						metadata: {
 							id: "NOVA-MBR-FP-001-0.contents",
 							title: "스크롤 콘텐츠 영역",
@@ -558,6 +675,7 @@ function finalScreenRenderTreeExample() {
 					{
 						type: "Screen.Bottom",
 						componentVersion: "0.1.0",
+						layout: "layout.region.bottom",
 						metadata: {
 							id: "NOVA-MBR-FP-001-0.bottom",
 							title: "고정 하단 영역",
@@ -612,7 +730,7 @@ function screenRegion(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom
 		type,
 		componentVersion: "0.1.0",
 		metadata: { id, title: id },
-		layout: id === "header" ? "layout.region.plainStack" : "layout.region.plainStack",
+		layout: readRegionLayout(type),
 		props: {
 			layout: { direction: "column" },
 			position: "static",
@@ -633,6 +751,12 @@ function screenRegion(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom
 	return base;
 }
 
+function readRegionLayout(type: "Screen.Header" | "Screen.Contents" | "Screen.Bottom") {
+	if (type === "Screen.Header") return "layout.region.header";
+	if (type === "Screen.Contents") return "layout.region.contents";
+	return "layout.region.bottom";
+}
+
 function validTableGenerationResult() {
 	return {
 		schemaVersion: "table-generation-result.v0.1",
@@ -645,11 +769,9 @@ function validTableGenerationResult() {
 			screen: {
 				type: "screen.page",
 				regions: {
-					header: tableRegion("Screen.Header", "plain-stack", [{ kind: "area", id: "area-1" }]),
-					contents: tableRegion("Screen.Contents", "subscription-detail-rich-content", [
-						{ kind: "area", id: "area-2" },
-					]),
-					bottom: tableRegion("Screen.Bottom", "commerce-detail-bottom-action", []),
+					header: tableRegion("Screen.Header", [{ kind: "area", id: "area-1" }]),
+					contents: tableRegion("Screen.Contents", [{ kind: "area", id: "area-2" }]),
+					bottom: tableRegion("Screen.Bottom", []),
 				},
 			},
 		},
@@ -678,17 +800,12 @@ function validTableGenerationResult() {
 
 function tableRegion(
 	type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header",
-	layoutId: string,
 	children: Array<{ kind: "area" | "component"; id: string }>,
 ) {
 	return {
 		type,
 		metadata: { title: type },
-		layout: toRegionLayout(layoutId),
+		layout: readRegionLayout(type),
 		children,
 	};
-}
-
-function toRegionLayout(id: string) {
-	return `layout.region.${id.replace(/-([a-z0-9])/g, (_, char: string) => char.toUpperCase())}`;
 }
