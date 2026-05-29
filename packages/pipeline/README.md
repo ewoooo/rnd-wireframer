@@ -114,4 +114,6 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 | `@cx/pipeline/testing`  | 테스트 전용 memory adapter fixture                        |
 | `@cx/pipeline/types`    | public type surface                                       |
 
+`screen-generation` pipeline은 `loadDesignContextBundleContents`로 design-context bundle 본문을 로드해 generation/quality/revision/proposal stage에 주입한다(결정론 유지). `propose-components` stage는 비파괴 `component-proposal.json`을, quality-review 결과는 `design-critique.json`을 기록한다.
+
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.

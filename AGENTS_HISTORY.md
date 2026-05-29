@@ -36,6 +36,17 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Design Context Injection
+
+- 변경: `@cx/schema`에 `DesignContextBundleContent`, `ComponentProposalContract`, `QualityInspection.scores`를 추가하고 artifact-kind/JSON Schema에 등록함
+- 변경: design-context bundle 4종(`visual-foundation`, `layout-composition`, `interaction-state`, `quality-review`)을 `docs/design`에서 린트한 bounded 규칙으로 실체화하고, `@cx/pipeline`의 `loadDesignContextBundleContents`가 본문을 로드해 generation/quality/revision/proposal prompt context에 주입하도록 함
+- 변경: `@cx/orchestration`에 `buildComponentProposalAgentInput`을 추가하고 generation 프롬프트에 맥락 기반 divider(1px/4px)·spacing·시각 위계 지시를, quality-review 프롬프트에 hierarchy/separation/fidelity 점수 지시를 추가함
+- 변경: `@cx/agent`에 비파괴 `component-proposal` 태스크와 참조 docs를 추가하고, `@cx/validation`에 `validateComponentProposal`(근거·최근접 매치·개수 상한)을 추가함
+- 변경: `screen-generation` pipeline에 `propose-components` stage와 `component-proposal.json`·`design-critique.json` 아티팩트 write를 연결함
+- 이유: 누수(디자인 지식이 ref만 전달되고 본문이 모델에 도달하지 않던 문제, AI 파일 도구 부재)로 인해 AI 추론이 SourceSpec 전사에 그치던 것을, 결정론을 유지한 콘텐츠 주입으로 해결하고, 카탈로그 소유권을 지키면서 제안 레이어와 자기비평 루프를 추가하기 위함
+- 검증: `bun run test`(22 files, 155 tests), `bun run lint`, `bunx tsc -p tsconfig.json --noEmit`, fake smoke로 `17-agent-input.json`에 bundle 본문 주입과 `component-proposal.json`·`design-critique.json` 생성 확인
+- 후속: real `--use-ai` smoke로 divider/spacing/위계 개선과 실제 component 제안·점수 품질 확인
+
 ## 2026-05-29 - Decoration Plan Implementation
 
 - 변경: `@cx/schema`에 `DecorationPlan` 계약과 JSON Schema를 추가하고 `screen-generation` pipeline에 `derive-decoration-plan` stage를 연결함

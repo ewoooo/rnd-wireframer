@@ -70,5 +70,6 @@ type ValidationReport = {
 - `validateComponentUsage`: 주입받은 `ComponentCatalog` 기준으로 component type, required prop, prop type, enum 값, unknown prop, `aiWritable: false` 직접 작성을 확인한다.
 - `validateRenderTree`: RenderTree version, Screen/Header/Contents/Bottom 구조, 처리 가능한 node type, children 배열, display/binding/default 안전성을 확인한다.
 - `validateLayoutProps`: `Layout.Flex`, `Layout.Grid`, Screen region props의 enum과 숫자/문자/boolean 타입을 확인한다.
+- `validateComponentProposal`: 비파괴 `component-proposal` 아티팩트가 bounded인지(근거 ⊆ allowedRefs, nearestCatalogMatch ∈ 카탈로그 type, 개수 상한) 확인한다.
 
 필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`, `@cx/layout-pattern-store`의 public API만 소비한다.

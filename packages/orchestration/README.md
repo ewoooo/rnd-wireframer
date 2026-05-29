@@ -108,4 +108,6 @@
 | `@cx/orchestration/generation` | agent input, source context, design-context, next-action helper barrel |
 | `@cx/orchestration/types`      | stage, action, transition public type surface                          |
 
+`buildComponentProposalAgentInput`은 카탈로그 밖 후보를 제시하는 비파괴 제안 입력을 조립한다. design-context bundle은 ref만 선택하고(`buildDesignContextBundleRefs`), 본문 로드/주입은 `@cx/pipeline`이 담당한다. generation/quality/revision/proposal 입력의 `context.designContextBundles[].body`로 본문이 실린다.
+
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.

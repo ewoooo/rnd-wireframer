@@ -19,9 +19,13 @@ Markdown source
 -> SourceSpec
 -> @cx/orchestration deterministic stage helpers
 -> ScreenIntent / CompositionPlan
+-> @cx/orchestration design-context bundle refs
+-> @cx/pipeline design-context bundle content load + inject
 -> @cx/agent screen-generation
+-> @cx/agent component-proposal (non-binding)
 -> @cx/validation contract validation
--> @cx/pipeline artifact write
+-> @cx/agent quality-review (design scoring + critique)
+-> @cx/pipeline artifact write (final-result, component-proposal, design-critique)
 -> versioned artifact / apply log
 -> @cx/renderer
 -> React preview
@@ -32,6 +36,8 @@ Markdown source
 `@cx/table-materializer`는 table read model을 screen 단위 RenderTree로 조립하는 순수 변환 경계다.
 `@cx/smoke`는 위 흐름을 개발자가 반복 실행하는 통합 앱이다.
 생성/검수 prompt, checklist, output example 같은 문장형 참조 자산의 정본은 `packages/agent/docs/`가 소유한다. smoke/pipeline도 필요한 문장형 참조 자산은 이 정본 위치를 참조한다.
+design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/design-context/`다. `@cx/orchestration`은 bundle ref만 선택하고, `@cx/pipeline`이 `loadDesignContextBundleContents`로 본문을 로드해 generation/quality/revision/proposal 입력 context에 주입한다(결정론 유지, AI 파일 도구 미부여).
+`component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트다. generation은 카탈로그에 bounded인 채로 두고, 제안의 확정·반영은 `@cx/components` mutation으로만 한다. `quality-review`는 design-context 게이트로 hierarchy/separation/fidelity를 채점하고 P0 finding은 revision으로 환류된다.
 
 ## 3. 활성 패키지 요약
 

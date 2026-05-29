@@ -25,7 +25,8 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 - 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action helper는 `@cx/orchestration`에서 다룬다.
 - DTO, component reference, layout pattern reference, token reference 검증은 `@cx/validation`에서 결과 리포트로만 반환한다.
 - Claude 실행은 `@cx/agent`가 담당하며, 생성과 검수 모두 Claude 기반으로 운영한다.
-- 생성/검수용 참조 자산의 정본은 `@cx/agent` 내부 문서 자산으로 관리한다.
+- 생성/검수용 참조 자산의 정본은 `@cx/agent` 내부 문서 자산으로 관리한다. design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/design-context/`이며, `docs/design/`을 린트한 결과다.
+- design-context bundle은 `@cx/orchestration`이 ref만 선택하고 `@cx/pipeline`이 본문을 로드해 prompt context에 주입한다. AI에 파일시스템 도구를 주지 않고 결정론을 유지한다.
 - React render는 `@cx/renderer`가 RenderTree JSON을 렌더링하는 책임만 가진다.
 - component, layout, token, layout pattern 값은 각 소유 패키지의 public API와 README를 기준으로 소비한다.
 - 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고 런타임 데이터와 섞지 않는다.
@@ -75,7 +76,7 @@ Markdown Source
 - `@cx/renderer`에 table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `apps/web`에 생성, 검수, 저장, 파일 시스템 side effect를 되돌리지 않는다.
 - `database/client-imports`, `database/ai-imports`, `database/tables` 기반 old pipeline 호환 layer를 재도입하지 않는다.
-- AI가 component, token, layout pattern의 소유권을 우회해 임의 값을 확정하지 않는다.
+- AI가 component, token, layout pattern의 소유권을 우회해 임의 값을 확정하지 않는다. 단, AI는 `component-proposal` 같은 비파괴 제안 아티팩트로 후보를 제시할 수 있으며, 확정·반영은 사람의 카탈로그 mutation을 통해서만 이뤄진다.
 
 ## 7. 고도화 순서
 
