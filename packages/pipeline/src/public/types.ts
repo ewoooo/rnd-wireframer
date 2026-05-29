@@ -12,6 +12,7 @@ export type PipelineId = "screen-generation";
 
 export type PipelineStageId =
 	| "derive-screen-intent"
+	| "derive-decoration-plan"
 	| "generate-render-tree"
 	| "parse-source"
 	| "plan-composition"

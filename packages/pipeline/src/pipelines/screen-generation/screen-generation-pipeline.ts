@@ -12,6 +12,7 @@ import {
 } from "@cx/layout-pattern-store/resolver";
 import {
 	buildCompositionPlanAgentInput,
+	buildDecorationPlan,
 	buildDesignContextBundleRefs,
 	buildGenerationNextAction,
 	buildPatternLayerCandidates,
@@ -35,6 +36,7 @@ import type {
 } from "@cx/orchestration/types";
 import {
 	type CompositionPlanContract,
+	type DecorationPlanContract,
 	SCHEMA_VERSION,
 	type SourceSpec,
 	type ValidationReportContract,
@@ -81,6 +83,7 @@ export const screenGenerationPipelineDefinition = {
 		"parse-source",
 		"derive-screen-intent",
 		"plan-composition",
+		"derive-decoration-plan",
 		"select-pattern",
 		"generate-render-tree",
 		"validate-render-tree",
@@ -97,6 +100,7 @@ type ScreenGenerationPipelineState = {
 	compositionPlanAgentInput?: CompositionPlanAgentInput;
 	compositionPlanAgentResult?: AgentRunResult;
 	compositionPlanRunnerRequest?: AgentRunnerRequest;
+	decorationPlan?: DecorationPlanContract;
 	designContextBundleSelection?: DesignContextBundleSelection;
 	generationNextAction?: GenerationNextAction;
 	generationSkillCatalog?: GenerationSkill[];
@@ -139,6 +143,7 @@ type ScreenGenerationStageExecutor = (state: ScreenGenerationPipelineState) => P
 
 const screenGenerationStageExecutors = {
 	"derive-screen-intent": runDeriveScreenIntentStage,
+	"derive-decoration-plan": runDeriveDecorationPlanStage,
 	"generate-render-tree": runGenerateRenderTreeStage,
 	"parse-source": runParseSourceStage,
 	"plan-composition": runPlanCompositionStage,
@@ -180,6 +185,7 @@ export async function runScreenGenerationPipeline(
 		compositionPlanAgentInput: state.compositionPlanAgentInput,
 		compositionPlanAgentResult: state.compositionPlanAgentResult,
 		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
+		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
@@ -330,12 +336,25 @@ async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Pr
 	});
 }
 
+function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): void {
+	const sourceSpec = requireSourceSpec(state);
+	state.decorationPlan = buildDecorationPlan({
+		compositionPlan: state.compositionPlanAgentResult?.payload,
+		sourceSpec,
+	});
+	state.patternLayerCandidates = buildScreenGenerationPatternLayerCandidates(
+		sourceSpec,
+		state.decorationPlan,
+	);
+}
+
 async function runSelectPatternStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
 	const layerCandidates =
 		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(sourceSpec);
 	const patternSelectionInput = buildPatternSelectionAgentInput({
 		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -384,6 +403,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 			state.patternLayerCandidates ?? [],
 		),
 		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
@@ -417,6 +437,7 @@ function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void 
 	state.validationReport = createRenderTreeValidationReport(state.agentResult?.payload, {
 		allowedLayoutIds: state.patternLayerCandidates?.map((candidate) => candidate.layout),
 		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
 		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec: state.sourceSpec,
 	});
@@ -441,6 +462,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 			state.patternLayerCandidates ?? [],
 		),
 		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
@@ -497,6 +519,7 @@ async function runReviseRenderTreeIfInvalidStage(
 			state.patternLayerCandidates ?? [],
 		),
 		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
@@ -548,6 +571,7 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 		compositionPlanAgentInput: state.compositionPlanAgentInput,
 		compositionPlanAgentResult: state.compositionPlanAgentResult,
 		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
+		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
@@ -695,8 +719,10 @@ function requireSourceSpec(state: ScreenGenerationPipelineState): SourceSpec {
 
 function buildScreenGenerationPatternLayerCandidates(
 	sourceSpec: SourceSpec,
+	decorationPlan?: DecorationPlanContract,
 ): PatternLayerCandidate[] {
 	return buildPatternLayerCandidates({
+		decorationPlan,
 		resolver: {
 			resolveComponentLayout: ({ componentType, sourceComponentId }) =>
 				resolveCompositeLayoutByComponentType(componentType ?? sourceComponentId),
@@ -817,13 +843,13 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 
 	return {
 		agentMode: state.options.agentMode,
-		agentResult: "artifacts/18-agent-result.json",
+		agentResult: "artifacts/19-agent-result.json",
 		artifactRoot: "artifacts",
 		createdAt: new Date().toISOString(),
 		finalResult: "artifacts/final-result.json",
 		pipelineId: "screen-generation",
-		pipelineResult: "artifacts/28-pipeline-result.json",
-		qualityReview: "artifacts/22-quality-review-agent-result.json",
+		pipelineResult: "artifacts/29-pipeline-result.json",
+		qualityReview: "artifacts/23-quality-review-agent-result.json",
 		runId: state.options.runId,
 		schemaVersion: "smoke-run-manifest.v0.1",
 		sourcePath: path.relative(resolveInvocationRoot(), state.options.sourcePath),
@@ -838,7 +864,7 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 			usage: "validation-and-comparison-only",
 		},
 		tags: [],
-		validationReport: "artifacts/27-validation-report.json",
+		validationReport: "artifacts/28-validation-report.json",
 	};
 }
 
@@ -862,6 +888,7 @@ function createRenderTreeValidationReport(
 	options: {
 		allowedLayoutIds?: string[];
 		compositionPlan?: unknown;
+		decorationPlan?: unknown;
 		screenIntent?: unknown;
 		sourceSpec?: SourceSpec;
 	} = {},
@@ -886,6 +913,10 @@ function createRenderTreeValidationReport(
 					generatedArtifact: payload,
 					sourceSpec: options.sourceSpec,
 				});
+	const decorationPlanReport =
+		options.decorationPlan === undefined
+			? undefined
+			: validateSchemaArtifact("decoration-plan", options.decorationPlan);
 	const tableReport =
 		tableGenerationResult === undefined
 			? createMissingArtifactReport("tableGenerationResult")
@@ -895,6 +926,7 @@ function createRenderTreeValidationReport(
 	const issues: ValidationReportContract["issues"] = [
 		...(screenIntentReport?.issues ?? []),
 		...(compositionPlanReport?.issues ?? []),
+		...(decorationPlanReport?.issues ?? []),
 		...schemaReport.issues,
 		...semanticReport.issues,
 	];

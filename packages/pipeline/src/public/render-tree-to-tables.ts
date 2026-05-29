@@ -93,10 +93,16 @@ function extractRegion(
 
 	return {
 		children: extractChildren(region.children ?? [], areasById, componentsById, warnings),
-		layout: readLayout(region, "layout.region.plainStack", warnings),
+		layout: readLayout(region, defaultRegionLayout(regionKey), warnings),
 		metadata: { title: region.metadata.title },
 		type: region.type as TableGenerationRegion["type"],
 	};
+}
+
+function defaultRegionLayout(regionKey: RegionKey): string {
+	if (regionKey === "header") return "layout.region.header";
+	if (regionKey === "contents") return "layout.region.contents";
+	return "layout.region.bottom";
 }
 
 function extractChildren(
@@ -106,6 +112,13 @@ function extractChildren(
 	warnings: string[],
 ): TableChildRef[] {
 	return nodes.flatMap((node) => {
+		if (isNonBaseStateNode(node)) {
+			warnings.push(
+				`Dropped non-base state node from default table projection: ${node.metadata.id}`,
+			);
+			return [];
+		}
+
 		if (isGeneratedWrapper(node)) {
 			warnings.push(`Flattened generated wrapper node: ${node.metadata.id}`);
 			return extractChildren(node.children ?? [], areasById, componentsById, warnings);
@@ -190,4 +203,9 @@ function isGeneratedWrapper(node: RenderTreeNodeContract) {
 
 function isGeneratedDivider(node: RenderTreeNodeContract) {
 	return node.type === "Divider" && /-divider-\d+$/u.test(node.metadata.id);
+}
+
+function isNonBaseStateNode(node: RenderTreeNodeContract) {
+	const stateRole = node.display?.stateRole;
+	return Boolean(stateRole && stateRole !== "base");
 }

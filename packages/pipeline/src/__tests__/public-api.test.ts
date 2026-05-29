@@ -193,7 +193,15 @@ describe("@cx/pipeline public API", () => {
 			expect.objectContaining({
 				id: "write-design-context-bundle-selection",
 				input: expect.objectContaining({
-					targetPath: expect.stringContaining("13-design-context-bundle-selection.json"),
+					targetPath: expect.stringContaining("14-design-context-bundle-selection.json"),
+				}),
+			}),
+		);
+		expect(commands).toContainEqual(
+			expect.objectContaining({
+				id: "write-decoration-plan",
+				input: expect.objectContaining({
+					targetPath: expect.stringContaining("10-decoration-plan.json"),
 				}),
 			}),
 		);
@@ -285,21 +293,21 @@ describe("@cx/pipeline public API", () => {
 								},
 							],
 							componentVersion: "0.1.0",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.header",
 							metadata: { id: "screen.header", title: "Header" },
 							type: "Screen.Header",
 						},
 						{
 							children: [],
 							componentVersion: "0.1.0",
-							layout: "layout.region.subscriptionDetailRichContent",
+							layout: "layout.region.contents",
 							metadata: { id: "screen.contents", title: "Contents" },
 							type: "Screen.Contents",
 						},
 						{
 							children: [],
 							componentVersion: "0.1.0",
-							layout: "layout.region.commerceDetailBottomAction",
+							layout: "layout.region.bottom",
 							metadata: { id: "screen.bottom", title: "Bottom" },
 							type: "Screen.Bottom",
 						},
@@ -330,6 +338,86 @@ describe("@cx/pipeline public API", () => {
 		);
 	});
 
+	it("drops non-base state nodes from default table projection", () => {
+		const renderTree: RenderTreeContract = {
+			children: [
+				{
+					children: [
+						screenRegionNode("Screen.Header", "layout.region.header", []),
+						screenRegionNode("Screen.Contents", "layout.region.contents", [
+							{
+								children: [
+									{
+										componentVersion: "0.1.0",
+										display: { stateRole: "base" },
+										layout: "layout.composite.componentListText",
+										metadata: { id: "list-base", title: "Base row" },
+										props: { subText: "Base row", table: "dot" },
+										type: "ListText",
+									},
+									{
+										componentVersion: "0.1.0",
+										display: {
+											stateRole: "loading",
+											when: { bind: "terms.loading", default: false },
+										},
+										layout: "layout.composite.componentListText",
+										metadata: { id: "list-loading", title: "Loading row" },
+										props: { subText: "Loading row", table: "dot" },
+										type: "ListText",
+									},
+								],
+								componentVersion: "0.1.0",
+								layout: "layout.area.listStack",
+								metadata: { id: "terms-list", title: "약관 목록 조회" },
+								type: "area.dynamic",
+							},
+						]),
+						screenRegionNode("Screen.Bottom", "layout.region.bottom", [
+							{
+								children: [
+									{
+										componentVersion: "0.1.0",
+										display: { stateRole: "disabled" },
+										layout: "layout.composite.componentActionButton",
+										metadata: { id: "cta-disabled", title: "Disabled CTA" },
+										props: { label: "다음" },
+										type: "ActionButton",
+									},
+								],
+								componentVersion: "0.1.0",
+								layout: "layout.area.bottomActionArea",
+								metadata: { id: "bottom-area", title: "하단 액션" },
+								type: "area.dynamic",
+							},
+						]),
+					],
+					componentVersion: "0.1.0",
+					layout: "layout.screen.commerceDetailScreen",
+					metadata: { id: "screen", title: "Screen" },
+					type: "Screen",
+				},
+			],
+			metadata: { id: "screen" },
+			version: "render-tree.v0.1",
+		};
+
+		const result = renderTreeToTableGenerationResult(renderTree);
+
+		expect(result.tableGenerationResult.components.map((component) => component.id)).toEqual([
+			"list-base",
+		]);
+		expect(
+			result.tableGenerationResult.areas.find((area) => area.id === "bottom-area")?.children,
+		).toEqual([]);
+		expect(result.warnings).toContain(
+			"Dropped non-base state node from default table projection: list-loading",
+		);
+		expect(result.warnings).toContain(
+			"Dropped non-base state node from default table projection: cta-disabled",
+		);
+	});
+
 	it("merges final RenderTree rows into table data", () => {
 		const tables = {
 			areas: { areas: [tableArea("old-area", [])] },
@@ -342,8 +430,8 @@ describe("@cx/pipeline public API", () => {
 			children: [
 				{
 					children: [
-						screenRegionNode("Screen.Header", "layout.region.plainStack", []),
-						screenRegionNode("Screen.Contents", "layout.region.plainStack", [
+						screenRegionNode("Screen.Header", "layout.region.header", []),
+						screenRegionNode("Screen.Contents", "layout.region.contents", [
 							{
 								children: [],
 								componentVersion: "0.1.0",
@@ -352,7 +440,7 @@ describe("@cx/pipeline public API", () => {
 								type: "area.dynamic",
 							},
 						]),
-						screenRegionNode("Screen.Bottom", "layout.region.plainStack", []),
+						screenRegionNode("Screen.Bottom", "layout.region.bottom", []),
 					],
 					componentVersion: "0.1.0",
 					layout: "layout.screen.commerceDetailScreen",
@@ -401,10 +489,16 @@ function tableRegion(
 ) {
 	return {
 		children,
-		layout: "layout.region.plainStack",
+		layout: readRegionLayout(type),
 		metadata: { title: type },
 		type,
 	};
+}
+
+function readRegionLayout(type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header") {
+	if (type === "Screen.Header") return "layout.region.header";
+	if (type === "Screen.Contents") return "layout.region.contents";
+	return "layout.region.bottom";
 }
 
 function tableArea(id: string, children: Array<{ id: string; kind: "area" | "component" }>) {

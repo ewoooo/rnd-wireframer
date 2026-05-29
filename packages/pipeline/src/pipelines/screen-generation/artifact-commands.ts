@@ -8,6 +8,7 @@ export type GenerationSmokeArtifactInput = {
 	compositionPlanAgentInput?: unknown;
 	compositionPlanAgentResult?: unknown;
 	compositionPlanRunnerRequest?: unknown;
+	decorationPlan?: unknown;
 	designContextBundleSelection?: unknown;
 	finalResult: unknown;
 	generationSkillCatalog?: unknown;
@@ -88,107 +89,113 @@ export function createGenerationSmokeArtifactCommands(
 			input.compositionPlanAgentResult,
 		),
 		createWriteCommand(
+			"write-decoration-plan",
+			input.outDir,
+			"10-decoration-plan.json",
+			input.decorationPlan,
+		),
+		createWriteCommand(
 			"write-pattern-selection-agent-input",
 			input.outDir,
-			"10-pattern-selection-agent-input.json",
+			"11-pattern-selection-agent-input.json",
 			input.patternSelectionAgentInput,
 		),
 		createWriteCommand(
 			"write-pattern-selection-agent-runner-request",
 			input.outDir,
-			"11-pattern-selection-agent-runner-request.json",
+			"12-pattern-selection-agent-runner-request.json",
 			input.patternSelectionRunnerRequest,
 		),
 		createWriteCommand(
 			"write-pattern-selection-agent-result",
 			input.outDir,
-			"12-pattern-selection-agent-result.json",
+			"13-pattern-selection-agent-result.json",
 			input.patternSelectionAgentResult,
 		),
 		createWriteCommand(
 			"write-design-context-bundle-selection",
 			input.outDir,
-			"13-design-context-bundle-selection.json",
+			"14-design-context-bundle-selection.json",
 			input.designContextBundleSelection,
 		),
 		createWriteCommand(
 			"write-generation-skill-catalog",
 			input.outDir,
-			"14-generation-skill-catalog.json",
+			"15-generation-skill-catalog.json",
 			input.generationSkillCatalog,
 		),
 		createWriteCommand(
 			"write-render-tree-generation-skill",
 			input.outDir,
-			"15-render-tree-generation-skill.json",
+			"16-render-tree-generation-skill.json",
 			input.renderTreeGenerationSkill,
 		),
-		createWriteCommand("write-agent-input", input.outDir, "16-agent-input.json", input.agentInput),
+		createWriteCommand("write-agent-input", input.outDir, "17-agent-input.json", input.agentInput),
 		createWriteCommand(
 			"write-agent-runner-request",
 			input.outDir,
-			"17-agent-runner-request.json",
+			"18-agent-runner-request.json",
 			input.runnerRequest,
 		),
 		createWriteCommand(
 			"write-agent-result",
 			input.outDir,
-			"18-agent-result.json",
+			"19-agent-result.json",
 			input.agentResult,
 		),
 		createWriteCommand(
 			"write-initial-validation-report",
 			input.outDir,
-			"19-initial-validation-report.json",
+			"20-initial-validation-report.json",
 			input.initialValidationReport,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-input",
 			input.outDir,
-			"20-quality-review-agent-input.json",
+			"21-quality-review-agent-input.json",
 			input.qualityReviewAgentInput,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-runner-request",
 			input.outDir,
-			"21-quality-review-agent-runner-request.json",
+			"22-quality-review-agent-runner-request.json",
 			input.qualityReviewRunnerRequest,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-result",
 			input.outDir,
-			"22-quality-review-agent-result.json",
+			"23-quality-review-agent-result.json",
 			input.qualityReviewAgentResult,
 		),
 		createWriteCommand(
 			"write-revision-decision",
 			input.outDir,
-			"23-revision-decision.json",
+			"24-revision-decision.json",
 			input.revisionDecision,
 		),
 		createWriteCommand(
 			"write-revision-agent-input",
 			input.outDir,
-			"24-revision-agent-input.json",
+			"25-revision-agent-input.json",
 			input.revisionAgentInput,
 		),
 		createWriteCommand(
 			"write-revision-agent-runner-request",
 			input.outDir,
-			"25-revision-agent-runner-request.json",
+			"26-revision-agent-runner-request.json",
 			input.revisionRunnerRequest,
 		),
 		createWriteCommand(
 			"write-revision-agent-result",
 			input.outDir,
-			"26-revision-agent-result.json",
+			"27-revision-agent-result.json",
 			input.revisionAgentResult,
 		),
 		createWriteCommand("write-final-result", input.outDir, "final-result.json", input.finalResult),
 		createWriteCommand(
 			"write-validation-report",
 			input.outDir,
-			"27-validation-report.json",
+			"28-validation-report.json",
 			input.validationReport,
 		),
 	];
@@ -214,7 +221,7 @@ export function createGenerationSmokePipelineResultCommands(input: {
 		createWriteCommand(
 			"write-pipeline-result",
 			input.outDir,
-			"28-pipeline-result.json",
+			"29-pipeline-result.json",
 			input.pipelineResult,
 		),
 	];

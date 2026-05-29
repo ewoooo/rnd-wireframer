@@ -57,7 +57,7 @@ function createFakeRenderTree(agentInput: ScreenGenerationAgentInput) {
 						],
 						componentVersion: "0.1.0",
 						metadata: { id: `${screenCode}.header`, title: "Header" },
-						layout: "layout.region.plainStack",
+						layout: "layout.region.header",
 						type: "Screen.Header",
 					},
 					{
@@ -87,6 +87,7 @@ function createFakeRenderTree(agentInput: ScreenGenerationAgentInput) {
 						],
 						componentVersion: "0.1.0",
 						metadata: { id: `${screenCode}.contents`, title: "Contents" },
+						layout: "layout.region.contents",
 						type: "Screen.Contents",
 					},
 					{
@@ -117,7 +118,7 @@ function createFakeRenderTree(agentInput: ScreenGenerationAgentInput) {
 						],
 						componentVersion: "0.1.0",
 						metadata: { id: `${screenCode}.bottom`, title: "Bottom" },
-						layout: "layout.region.commerceDetailBottomAction",
+						layout: "layout.region.bottom",
 						type: "Screen.Bottom",
 					},
 				],
@@ -153,13 +154,13 @@ function createFakeTableGenerationResult(agentInput: ScreenGenerationAgentInput)
 			screen: {
 				type: "screen.page",
 				regions: {
-					header: tableRegion("Screen.Header", "plain-stack", [
+					header: tableRegion("Screen.Header", "header", [
 						{ kind: "area", id: `${screenCode}__area0` },
 					]),
-					contents: tableRegion("Screen.Contents", "subscription-detail-rich-content", [
+					contents: tableRegion("Screen.Contents", "contents", [
 						{ kind: "area", id: `${screenCode}__area1` },
 					]),
-					bottom: tableRegion("Screen.Bottom", "commerce-detail-bottom-action", [
+					bottom: tableRegion("Screen.Bottom", "bottom", [
 						{ kind: "area", id: `${screenCode}__area999` },
 					]),
 				},
