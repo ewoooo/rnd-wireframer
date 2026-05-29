@@ -27,17 +27,29 @@ It is not a production runtime package. It calls `@cx/pipeline` and records pipe
 import { runGenerationSmoke } from "@cx/smoke/generation";
 
 const result = await runGenerationSmoke(
-	"data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
-	{
-		useAI: false,
-		runId: "stable-smoke-run",
-	},
+  "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
+  {
+    useAI: false,
+    runId: "stable-smoke-run",
+  },
 );
 
 console.log(result.summary);
 ```
 
 `useAI: false` uses the fake pipeline runner. `useAI: true` asks `@cx/pipeline` to call the local Claude runner through `@cx/agent`.
+
+By default, generation smoke writes run artifacts to:
+
+```text
+data/runs/screen-generation/<run-id>/
+  manifest.json
+  artifacts/
+    final-result.json
+```
+
+Use `--artifact-store local-transient` for temporary debug runs, or `--out-dir`
+only for the legacy direct-output override.
 
 ## CLI
 
@@ -57,23 +69,38 @@ Use `--use-ai` to call the real local Claude runner.
 
 ## Apply Smoke Result To Tables
 
-After reviewing a smoke run, merge its `tableGenerationResult` into `data/tables`
-with the apply CLI.
+After reviewing a smoke run, merge its `final-result.json` RenderTree into
+`data/tables` with the apply CLI. The CLI reads `manifest.json`, decomposes the
+final RenderTree into screen, area, and component table rows, and leaves
+`tableGenerationResult` as a validation/comparison-only intermediate.
 
 Dry-run:
 
 ```bash
-npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id>
+npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id>
 ```
 
 Write:
 
 ```bash
-npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id> --write
+npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id> --write
 ```
 
-By default the command refuses runs whose `25-validation-report.json` has errors.
+By default the command refuses runs whose validation report has errors.
 Use `--allow-invalid` only after manual inspection.
+
+## Promote Smoke Fixture
+
+Promote a reviewed run into the web fixture folder for long-running comparison
+sets:
+
+```bash
+npm run smoke:promote-fixture -- --run-dir data/runs/screen-generation/<run-id>
+```
+
+The command copies the run directory to `apps/web/fixtures/smoke-runs/<run-id>`.
+Default web browsing still reads `data/runs/screen-generation`; fixtures are for
+curated benchmark sets.
 
 ## Extending Generation Flow
 
@@ -115,12 +142,12 @@ assets from `packages/agent/docs/screen-generation/` and records them as smoke
 artifacts. These assets are owned by `@cx/agent`; the smoke harness only records
 the reference context used by the pipeline.
 
-`generate-render-tree` now expects the agent payload to contain both:
+`generate-render-tree` now expects the agent payload to contain the materialized
+`renderTree` consumed by `@cx/renderer`. A `tableGenerationResult` may still be
+recorded as a table-shaped intermediate for validation and comparison, but it is
+not the apply source of truth.
 
-- `tableGenerationResult`: the table-shaped intermediate artifact aligned with `data/tables/`.
-- `renderTree`: the materialized preview artifact consumed by `@cx/renderer`.
-
-`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `layout.<target>.<PatternName>` layout id from `@cx/layout-pattern-store`.
+`validate-render-tree` validates the final RenderTree shape and component props.
 
 The final generated screen artifact is always written to `final-result.json`.
 That file contains the RenderTree itself, not the raw agent result envelope, and

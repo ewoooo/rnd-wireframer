@@ -30,6 +30,7 @@ describe("App workbench navigation", () => {
 		fireEvent.click(screen.getByRole("button", { name: "AGT" }));
 
 		expect(screen.getByRole("heading", { name: "Agent" })).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: "SMK" })).toHaveAttribute("href", "/smoke");
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", () => {

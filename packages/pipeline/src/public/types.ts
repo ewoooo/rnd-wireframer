@@ -29,9 +29,15 @@ export type PipelineDefinition = {
 };
 
 export type PipelineAgentMode = "claude-local-first" | "fake";
+export type ArtifactStorePreset = "data-run" | "local-transient" | "web-fixture";
 
 export type ScreenGenerationPipelineOptions = {
 	agentMode?: PipelineAgentMode;
+	artifactStore?: {
+		preset?: ArtifactStorePreset;
+		rootDir?: string;
+		saveLocal?: boolean;
+	};
 	outDir?: string;
 	runId?: string;
 	source:

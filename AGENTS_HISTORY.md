@@ -8,11 +8,11 @@
 
 `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
 
-| 주제 | 기준 문서 |
-|---|---|
-| 제품 방향 | [MASTER_PLAN.md](./MASTER_PLAN.md) |
-| 패키지 관계망 | [PACKAGE_MAP.md](./PACKAGE_MAP.md) |
-| 에이전트 운영 | [AGENTS.md](./AGENTS.md) |
+| 주제          | 기준 문서                                                                        |
+| ------------- | -------------------------------------------------------------------------------- |
+| 제품 방향     | [MASTER_PLAN.md](./MASTER_PLAN.md)                                               |
+| 패키지 관계망 | [PACKAGE_MAP.md](./PACKAGE_MAP.md)                                               |
+| 에이전트 운영 | [AGENTS.md](./AGENTS.md)                                                         |
 | 프로젝트 구조 | [docs/development/PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md) |
 
 ## 2. 기록 형식
@@ -36,6 +36,69 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Smoke Web Testbed Plan
+
+- 변경: `docs/development/SMOKE_WEB_TESTBED_PLAN.md`를 추가해 smoke 결과를 web에서 조회/비교하기 위한 테스트베드 계획을 정리함
+- 변경: `tmp/generation-runs`, web 내부 fixture, `data/runs/screen-generation` artifact store 선택지를 비교하고, manifest 기반 run 조회와 artifact store preset 방향을 제안함
+- 변경: 만족한 smoke run을 명시적 approve/apply action으로 `data/tables`에 등록하는 Phase 5 계획을 추가함
+- 변경: 과거 `apps/web/src/adapters/render-tree-to-tables.ts`의 RenderTree 분해 알고리즘을 현재 `RenderTreeContract -> data/tables` apply helper로 이식하는 디렉터리 계획을 추가함
+- 변경: screen generation smoke 기본 저장소를 `data/runs/screen-generation/<run-id>`로 전환하고 run root `manifest.json`, artifacts `final-result.json` 구조를 추가함
+- 변경: `@cx/pipeline/apply`에 final RenderTree를 table row로 분해/merge하는 public helper를 추가하고, `apply-tables` CLI와 web apply API가 이 helper를 사용하도록 연결함
+- 변경: web `/smoke`에서 run 목록, side-by-side preview, RenderTree diff/scorecard, `Dry`/`Apply` 버튼을 제공하고 smoke fixture 승격 CLI를 추가함
+- 이유: 중간 AI inference stage가 늘어난 뒤에도 최종 RenderTree 품질 차이를 비교하기 어려워, run browser, side-by-side preview, RenderTree diff, scorecard, baseline/annotation 기능을 계획하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, targeted `npx biome check`, targeted `npx prettier --check`, `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/components/App.test.tsx`, `npm --workspace @rnd-screen-generator/web run build`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id codex-data-run-check`, `npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/codex-data-run-check`, `/api/smoke-runs/apply` dry-run curl, `npm run smoke:promote-fixture` temp target
+
+## 2026-05-29 - Orchestration File Responsibility Split
+
+- 변경: `packages/orchestration/src/public/generation.ts`를 호환 barrel로 축소하고 agent input, source context, design context, next action helper를 각각 `agent-inputs.ts`, `source-context.ts`, `design-context.ts`, `next-action.ts`로 분리함
+- 변경: `packages/orchestration/README.md`에 `src/public/` 파일별 책임, 하지 않는 일, public 함수 guide를 추가함
+- 변경: orchestration public helper에 함수별 JSDoc을 추가해 처음 보는 사람이 각 함수의 입력 조립/판단/비소유 책임을 확인할 수 있게 함
+- 변경: `ORCHESTRATION_FILE_RESPONSIBILITY_SPLIT_PLAN.md`에 구현 완료 상태를 표시함
+- 이유: `generation.ts`에 agent input builder, source context 추출, bundle selection, next-action decision이 함께 쌓이던 상태를 파일 단위 책임으로 정리하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check packages/orchestration/src/public packages/orchestration/src/index.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx prettier --check packages/orchestration/README.md docs/development/ORCHESTRATION_FILE_RESPONSIBILITY_SPLIT_PLAN.md`, `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id open-design-split-smoke --out-dir tmp/generation-runs/open-design-split-smoke`
+
+## 2026-05-29 - Open Design Inference Adaptation Implementation
+
+- 변경: `packages/agent/docs/design-context/`에 `layout-composition`, `interaction-state`, `visual-foundation`, `quality-review` bundle 초안을 추가하고 agent docs README에 반영함
+- 변경: `@cx/schema`에 `DesignContextBundleRef`, `StateCoverageHint`, screen intent의 `missingDecisions`/state hint 관련 선택 필드를 추가함
+- 변경: `@cx/orchestration`에 `buildDesignContextBundleRefs()`와 `buildGenerationNextAction()`을 추가하고 screen generation/revision/review input에 bundle refs를 전달할 수 있게 함
+- 변경: `@cx/validation`에 source ref materialization, pattern candidate 밖 layout id, state coverage 누락 warning을 추가함
+- 변경: `@cx/pipeline`이 design-context bundle selection과 revision decision artifact를 기록하고 quality review P0 finding도 revision trigger로 사용할 수 있게 연결함
+- 변경: CLI smoke에서 CSS module import가 끌려오지 않도록 validation은 layout-pattern-store catalog 경로를 사용하고 renderer만 render-time components resolver를 사용하도록 분리함
+- 변경: `OPEN_DESIGN_SCREEN_INFERENCE_ADAPTATION_PLAN.md`에 Phase 1~5 완료 상태와 변경된 artifact 번호를 반영함
+- 이유: Open Design 적용 계획의 전체 phase를 현재 패키지 경계 안에서 완료하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check` targeted, `npx prettier --check` targeted docs, `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id open-design-phase-all-smoke --out-dir tmp/generation-runs/open-design-phase-all-smoke`
+- 후속: 실제 Claude local-first 생성 결과에서 warning 양과 quality revision 빈도를 관찰해 bundle 선택/validation warning 민감도를 조정
+
+## 2026-05-29 - Layout Pattern Divider Restore
+
+- 변경: `@cx/layout-pattern-store`의 실제 region/area layout component에서 divider prop/default를 해석해 children 사이에 `@cx/components` Divider를 렌더하도록 복구함
+- 변경: `@cx/components`에 이미 있는 `Divider`와 component catalog 등록을 확인하고, layout pattern catalog의 stack `divider` prop contract를 boolean으로 정리함
+- 변경: old main의 `childWrap.divider`와 `layoutProps.divider` 의미를 catalog default가 아니라 component default로 이식하고, `props.divider: true` trailing divider, `props.divider: false` disable, string/object override를 지원함
+- 변경: 현재 table에서 divider가 보여야 하는 row stack인 `ogn-mbr-term-list`, `ogn-mbr-auth-select`에 `props.divider: true`를 추가함
+- 이유: layout pattern component 전환 과정에서 table이 아니라 old pattern-store layout 의미에 있던 divider가 실제 화면에서 누락됐기 때문
+- 검증: `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/table-materializer/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false`, `npx vitest run`, targeted `npx biome check`
+
+## 2026-05-29 - Open Design Phase 1 Gate Absorption
+
+- 변경: `packages/agent/docs/quality-review/checklist.md`에 state coverage, anti-slop, source-fidelity P0/P1 gate를 추가함
+- 변경: `packages/agent/docs/screen-generation/checklist.md`에 source 없는 metric/placeholder 금지와 form/list/detail/complete/bottom sheet 화면 유형별 P0/P1 gate를 추가함
+- 변경: `packages/agent/docs/screen-generation/prompt-contract.md`에 design-context bundle 수용 규칙을 추가하되 Phase 1에서는 schema 계약으로 고정하지 않는다고 명시함
+- 이유: `OPEN_DESIGN_SCREEN_INFERENCE_ADAPTATION_PLAN.md` Phase 1의 문서 gate 흡수를 코드 패키지 경계 변경 없이 먼저 적용하기 위함
+- 검증: agent 문서 변경 범위 대조, `rg "state-coverage|anti-slop|Design Context Bundle|source 없는 metric|Form screen" packages/agent/docs`
+- 후속: design-context bundle 초안 작성과 bundle selection helper 설계
+
+## 2026-05-29 - Boundary Cleanup Pass
+
+- 변경: Biome 검사 범위에서 `tmp`, `.claude`, `*.tsbuildinfo`를 제외하고 전역 `biome check .`가 생성 산출물에 막히지 않도록 정리함
+- 변경: 사용처가 없는 web `scroll-area`/`tabs` UI wrapper, `packages/component/src/catalog-types.ts`, pipeline command/error/executor re-export dead code를 제거함
+- 변경: `@cx/schema`에 RenderTree screen/layout node 계약 타입을 추가하고, `@cx/renderer`는 이를 렌더용 타입으로 재노출하도록 정리함
+- 변경: `@cx/table-materializer`와 `@cx/validation`의 `@cx/renderer` 타입 의존을 제거하고 `@cx/schema` 계약 타입을 직접 소비하도록 변경함
+- 변경: 정적 `packages/schema/src/json-schema/*.schema.json` 파일을 제거하고 `getJsonSchema()`/`json-schema-registry.ts`를 JSON Schema 정본으로 확정함
+- 변경: `@cx/renderer/renderer` subpath는 과거 public import 호환 entrypoint로만 유지한다고 `PACKAGE_MAP.md`에 명시함
+- 이유: 전수검사에서 발견된 dead code, 검사 소음, RenderTree 타입 중복, renderer 역방향 의존을 줄여 패키지 책임 경계를 선명하게 유지하기 위함
+- 검증: `npx biome check .`, `npx tsc --noEmit --pretty false`, `node scripts/check-react-hooks-policy.mjs apps packages`, `npx vitest run`
+
 ## 2026-05-29 - Page Navigation Panel UI Restore
 
 - 변경: `apps/web/src/components/layout/NavigationPanel.tsx`의 SCN 패널에 원격 main 계열의 분할 핸들, 도메인/루트 hover 액션 아이콘, 루트 추가 행을 UI-only 상태로 복구함
@@ -53,6 +116,14 @@
 - 이유: `WEB_COMPONENT_RESTRUCTURE_PLAN.md`의 목표대로 원격 main의 책임 분리 구조를 현재 `ScreenSummary`/`@cx/table-materializer` 흐름을 유지한 채 적용하기 위함
 - 검증: `npm run lint`, `npm test`, `npm run build`, `curl -I http://127.0.0.1:3000`
 - 후속: build의 기존 Turbopack NFT trace warning은 `screen-sources.ts` 파일 IO 경로 정리 작업에서 별도 처리
+
+## 2026-05-29 - Open Design Screen Inference Adaptation Plan
+
+- 변경: `docs/development/OPEN_DESIGN_SCREEN_INFERENCE_ADAPTATION_PLAN.md`를 추가해 Open Design의 화면 infer 방식 중 바로 흡수 가능한 gate와 개념적으로 번역할 process를 적용 계획, 성공 기준, 리스크, 예상 화면 품질 기준으로 정리함
+- 변경: 현재 `screen-generation` pipeline stage 흐름과 `@cx/orchestration` public helper/interface 기준을 추가해 각 적용 후보가 어느 stage와 input context에 연결되는지 명시함
+- 이유: Open Design의 skill/design-system/craft 기반 추론 제어를 현재 `@cx/schema`, `@cx/orchestration`, `@cx/agent`, `@cx/validation`, `@cx/pipeline`, `@cx/renderer` 경계와 충돌하지 않게 적용하기 위함
+- 검증: 문서 책임 대조
+- 후속: quality-review/screen-generation checklist 보강과 design-context bundle 초안 작성
 
 ## 2026-05-29 - Web Component Restructure Plan
 
@@ -1172,3 +1243,36 @@
 - 이유: 구형 `button` 레코드가 renderer에서 일반 `Button`으로 해석되며 기본 `medium` 높이(36px)로 렌더되는 문제를 막기 위함
 - 검증: `jq empty data/tables/components.json`, `npm run test -- --run packages/renderer/src/__tests__/table-screen-render.test.tsx packages/renderer/src/__tests__/renderer.test.tsx`
 - 참고: `npx tsc --noEmit --pretty false`는 기존 `apps/web/src/components/App.tsx`의 `getModuleName` 미정의와 `ScreenRouteGroup` never 타입 오류로 실패함
+
+## 2026-05-29 - Layout Divider Restore
+
+- 변경: `PageStackArea` 계열(`listStack`, `fieldStack`, `checkboxStack`, `accordionList`, `messageStack`)이 `divider: true` prop을 소비해 PageStack contents slot 안에 trailing `Divider`를 렌더하도록 연결함
+- 변경: layout pattern catalog/registry의 PageStack area prop 계약에 `divider`를 추가하고, `accordionList + divider: true` 회귀 테스트를 추가함
+- 이유: MBR 약관 목록의 `ogn-mbr-term-list`가 `layout.area.accordionList`를 사용해 `GeneralArea`의 divider 삽입 경로를 타지 못하고 화면에 구분선이 나타나지 않았기 때문
+- 검증: `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout-pattern-store/src/components/area/PageStackArea.tsx packages/layout-pattern-store/src/components/registry.ts packages/layout-pattern-store/src/catalog/area-patterns.json packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, `npx vitest run`
+
+## 2026-05-29 - MBR Section Stack Contents
+
+- 변경: MBR 화면 53개의 `Screen.Contents` region에 `layout.region.sectionStack`을 명시해 area 사이 section divider가 region 책임으로 렌더되도록 정규화함
+- 변경: `@cx/table-materializer` 테스트가 contents region layout을 RenderTree에 보존하는지 확인하도록 보강함
+- 이유: area 간 굵은 separator는 area trailing prop이 아니라 contents region 조합 규칙이어야 하며, 기존 MBR table은 contents layout이 비어 있어 `SectionStackRegion` 구현을 타지 못했기 때문
+- 검증: `npx vitest run packages/table-materializer/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, `npx tsc --noEmit --pretty false`, `npx biome check data/tables/screens.json packages/table-materializer/src/__tests__/public-api.test.ts`
+
+## 2026-05-29 - NOVA-MBR-PG-001-0 Smoke Apply
+
+- 변경: `data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md` 생성 스모크 결과의 `final-result.json`을 `data/tables`에 등록함
+- 변경: `NOVA-MBR-PG-001-0` screen, route, variant와 생성된 area 3개, component 5개를 추가함
+- 이유: 방금 생성한 약관 동의 PG 화면을 테이블 기반 렌더/비교 대상에 포함하기 위함
+- 검증: `npm run smoke:apply-tables -- --run-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-compare-20260529' --module-id mbr --write`, `node` JSON parse 확인
+- 참고: `final-result.json` area 노드에 layout이 없어 apply helper가 area layout fallback `layout.area.productHeroSummary`를 사용함
+
+## 2026-05-29 - Region Rail And Area Layout Guard
+
+- 변경: pattern layer 후보 생성이 region layout을 `layout.region.header`, `layout.region.contents`, `layout.region.bottom` 3개 표준 rail로만 만들도록 정리함
+- 변경: contents/bottom area 후보를 source component 성격에 따라 `listStack`, `checkboxStack`, `fieldStack`, `messageStack`, `bottomActionArea`로 고르도록 보강함
+- 변경: `@cx/validation`이 RenderTree의 screen/region/area/component node layout 누락을 error로 검출하도록 강화함
+- 변경: `layout-pattern-store`에 표준 region rail alias 3개를 등록하고 region rail 자체는 padding, gap, safe area를 소유하지 않도록 `PlainStackRegion` 기반으로 정리함
+- 변경: smoke apply CLI가 manifest 경로와 flat artifact 경로가 어긋난 run도 처리하도록 보강함
+- 변경: `NOVA-MBR-PG-001-0` 테이블 등록본을 새 smoke 결과로 갱신해 `TermsSection`은 `layout.area.listStack`, `ActionButtonSection`은 `layout.area.bottomActionArea`를 사용하게 함
+- 이유: 약관 동의 생성 결과가 area layout 없이 통과하고 apply 단계에서 `productHeroSummary` fallback으로 저장되는 문제를 원천 차단하기 위함
+- 검증: `npm test -- --run packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx biome check apps/smoke/src/apply-tables-cli.ts packages/orchestration/src/public/pattern-layer-candidates.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/public/validators.ts packages/validation/src/__tests__/validators.test.ts packages/layout-pattern-store/src/catalog/region-patterns.json packages/layout-pattern-store/src/components/registry.ts`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id 'NOVA-MBR-PG-001-0-layout-fix-20260529' --out-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-layout-fix-20260529' --use-ai`, `npm run smoke:apply-tables -- --run-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-layout-fix-20260529' --module-id mbr --write`

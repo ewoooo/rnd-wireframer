@@ -8,6 +8,10 @@ export async function runGenerationSmoke(
 ): Promise<GenerationSmokeResult> {
 	return runPipeline("screen-generation", {
 		agentMode: options.useAI ? "claude-local-first" : "fake",
+		artifactStore: {
+			preset: options.artifactStore,
+			rootDir: options.artifactRoot,
+		},
 		outDir: options.outDir,
 		runId: options.runId,
 		source: {

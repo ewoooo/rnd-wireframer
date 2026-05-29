@@ -14,6 +14,7 @@
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
 		"smoke:apply-tables": "tsx apps/smoke/src/apply-tables-cli.ts",
 		"smoke:pipeline": "tsx apps/smoke/src/cli.ts",
+		"smoke:promote-fixture": "tsx apps/smoke/src/promote-fixture-cli.ts",
 		"test": "vitest run",
 		"test:watch": "vitest"
 	},

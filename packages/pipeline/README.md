@@ -12,6 +12,8 @@ stage/runtime 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Docu
 
 screen generation의 최종 산출물은 `final-result.json`으로 저장한다. 이 파일은 agent raw result나 table-shaped intermediate가 아니라 `RenderTreeContract` 자체이며, `children` 아래에 `Screen` root와 Header/Contents/Bottom region을 갖는 스크린 렌더트리 형태여야 한다.
 
+기본 smoke artifact store는 `data/runs/screen-generation/<run-id>`이며, run root에는 `manifest.json`, 실제 산출물은 `artifacts/` 아래에 둔다. `tmp/generation-runs`는 local-transient/debug preset으로만 사용한다.
+
 테이블 반영은 `final-result.json` RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. apply 단계는 새 생성, 의미 재해석, 디자인 보정, validation retry를 하지 않는다.
 
 ## 책임
@@ -51,11 +53,11 @@ packages/pipeline/src/
 import { runPipeline } from "@cx/pipeline";
 
 await runPipeline("screen-generation", {
-	agentMode: "fake",
-	source: {
-		path: "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
-		type: "file",
-	},
+  agentMode: "fake",
+  source: {
+    path: "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
+    type: "file",
+  },
 });
 ```
 
@@ -99,16 +101,17 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 
 ## Public Subpaths
 
-| Subpath | 책임 |
-|---|---|
-| `@cx/pipeline` | 패키지 루트 public API |
-| `@cx/pipeline/adapters` | Node adapter factory |
-| `@cx/pipeline/commands` | side effect command 타입과 command helper |
-| `@cx/pipeline/contract` | side effect boundary contract |
-| `@cx/pipeline/parser` | 이미 읽힌 Markdown source를 parser로 전달하는 MVP adapter |
-| `@cx/pipeline/runner` | side effect command runner |
-| `@cx/pipeline/runtime` | pipeline runtime builder/runner |
-| `@cx/pipeline/testing` | 테스트 전용 memory adapter fixture |
-| `@cx/pipeline/types` | public type surface |
+| Subpath                 | 책임                                                      |
+| ----------------------- | --------------------------------------------------------- |
+| `@cx/pipeline`          | 패키지 루트 public API                                    |
+| `@cx/pipeline/adapters` | Node adapter factory                                      |
+| `@cx/pipeline/apply`    | final RenderTree -> table apply helper                    |
+| `@cx/pipeline/commands` | side effect command 타입과 command helper                 |
+| `@cx/pipeline/contract` | side effect boundary contract                             |
+| `@cx/pipeline/parser`   | 이미 읽힌 Markdown source를 parser로 전달하는 MVP adapter |
+| `@cx/pipeline/runner`   | side effect command runner                                |
+| `@cx/pipeline/runtime`  | pipeline runtime builder/runner                           |
+| `@cx/pipeline/testing`  | 테스트 전용 memory adapter fixture                        |
+| `@cx/pipeline/types`    | public type surface                                       |
 
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.

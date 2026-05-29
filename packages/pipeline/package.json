@@ -8,6 +8,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./adapters": "./src/adapters/index.ts",
+		"./apply": "./src/public/apply.ts",
 		"./commands": "./src/commands/index.ts",
 		"./contract": "./src/public/contract.ts",
 		"./runner": "./src/runner/index.ts",

@@ -1,6 +1,8 @@
 import { runGenerationSmoke } from "./generation";
 
 type SmokeCliOptions = {
+	artifactRoot?: string;
+	artifactStore?: "data-run" | "local-transient" | "web-fixture";
 	outDir?: string;
 	runId?: string;
 	target: string;
@@ -10,6 +12,8 @@ type SmokeCliOptions = {
 async function main() {
 	const options = parseArgs(process.argv.slice(2));
 	const result = await runGenerationSmoke(options.target, {
+		artifactRoot: options.artifactRoot,
+		artifactStore: options.artifactStore,
 		outDir: options.outDir,
 		runId: options.runId,
 		useAI: options.useAI,
@@ -47,6 +51,22 @@ function parseArgs(args: string[]): SmokeCliOptions {
 			continue;
 		}
 
+		if (arg === "--artifact-store") {
+			const value = readRequiredValue(args, index, "--artifact-store");
+			if (value !== "data-run" && value !== "local-transient" && value !== "web-fixture") {
+				throw new Error(`Unknown artifact store: ${value}`);
+			}
+			options.artifactStore = value;
+			index += 1;
+			continue;
+		}
+
+		if (arg === "--artifact-root") {
+			options.artifactRoot = readRequiredValue(args, index, "--artifact-root");
+			index += 1;
+			continue;
+		}
+
 		if (arg === "--use-ai" || arg === "--real-agent") {
 			options.useAI = true;
 			continue;
@@ -70,6 +90,8 @@ function parseArgs(args: string[]): SmokeCliOptions {
 	}
 
 	return {
+		artifactRoot: options.artifactRoot,
+		artifactStore: options.artifactStore,
 		outDir: options.outDir,
 		runId: options.runId,
 		target: options.target,
@@ -92,7 +114,11 @@ function printUsage() {
 Options:
   --target <path>   Client import markdown file to smoke.
   --run-id <id>     Stable output id. Defaults to <target-basename>-<timestamp>.
-  --out-dir <path>  Output directory. Defaults to tmp/generation-runs/<run-id>.
+  --out-dir <path>  Legacy output directory override.
+  --artifact-store <data-run|local-transient|web-fixture>
+                   Output store. Defaults to data-run.
+  --artifact-root <path>
+                   Root directory for run folders. Defaults to data/runs/screen-generation.
   --use-ai          Call the real local Claude runner instead of the fake smoke runner.
   --real-agent      Alias for --use-ai.
 `);

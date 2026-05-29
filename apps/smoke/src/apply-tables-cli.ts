@@ -1,12 +1,8 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import {
-	extractTableGenerationResultFromAgentPayload,
-	type GenerationTableData,
-	mergeTableGenerationResultIntoTables,
-} from "@cx/pipeline";
-import type { SourceSpec } from "@cx/schema";
+import { type GenerationTableData, mergeRenderTreeIntoTables } from "@cx/pipeline";
+import type { RenderTreeContract, SourceSpec } from "@cx/schema";
 
 type ApplyTablesCliOptions = {
 	allowInvalid: boolean;
@@ -22,30 +18,28 @@ async function main() {
 	const options = parseArgs(process.argv.slice(2));
 	const runDir = path.resolve(process.cwd(), options.runDir);
 	const tablesDir = path.resolve(process.cwd(), options.tablesDir);
-	const agentResult = await readJson(path.join(runDir, "17-agent-result.json"));
-	const validationReport = await readOptionalJson(path.join(runDir, "25-validation-report.json"));
-	const sourceSpec = (await readOptionalJson(path.join(runDir, "02-source-spec.json"))) as
+	const runArtifacts = await resolveRunArtifacts(runDir);
+	const renderTree = (await readJson(runArtifacts.finalResultPath)) as RenderTreeContract;
+	const validationReport = await readOptionalJson(runArtifacts.validationReportPath);
+	const sourceSpec = (await readOptionalJson(runArtifacts.sourceSpecPath)) as
 		| SourceSpec
 		| undefined;
-	const tableGenerationResult = extractTableGenerationResultFromAgentPayload(agentResult);
-
-	if (!tableGenerationResult) {
-		throw new Error(`No tableGenerationResult found in ${runDir}/17-agent-result.json`);
-	}
 
 	if (!options.allowInvalid && hasValidationErrors(validationReport)) {
 		throw new Error(
 			[
 				"Smoke validation report has errors.",
 				"Pass --allow-invalid to apply anyway after manual inspection.",
-				`Report: ${runDir}/25-validation-report.json`,
+				`Report: ${runArtifacts.validationReportPath}`,
 			].join(" "),
 		);
 	}
 
 	const tables = await readTables(tablesDir);
-	const result = mergeTableGenerationResultIntoTables(tables, tableGenerationResult, {
+	const result = mergeRenderTreeIntoTables(tables, renderTree, {
 		moduleId: options.moduleId,
+		screenId: readRenderTreeScreenId(renderTree),
+		screenVariantId: readRenderTreeScreenId(renderTree),
 		sourceSpec,
 	});
 
@@ -58,14 +52,77 @@ async function main() {
 			{
 				changed: result.changed,
 				mode: options.write ? "write" : "dry-run",
-				screenId: tableGenerationResult.screen.id,
-				screenVariantId: tableGenerationResult.screen.screenVariantId,
+				screenId: readRenderTreeScreenId(renderTree),
 				tablesDir,
+				warnings: result.warnings,
 			},
 			null,
 			2,
 		),
 	);
+}
+
+type ResolvedRunArtifacts = {
+	finalResultPath: string;
+	sourceSpecPath: string;
+	validationReportPath: string;
+};
+
+async function resolveRunArtifacts(runDir: string): Promise<ResolvedRunArtifacts> {
+	const manifestPath = path.join(runDir, "manifest.json");
+	const manifest = (await readOptionalJson(manifestPath)) as
+		| {
+				artifactRoot?: string;
+				finalResult?: string;
+				validationReport?: string;
+		  }
+		| undefined;
+
+	if (manifest?.finalResult) {
+		const artifactRoot = manifest.artifactRoot ?? "artifacts";
+		return {
+			finalResultPath: await resolveExistingArtifactPath(
+				runDir,
+				manifest.finalResult,
+				"final-result.json",
+			),
+			sourceSpecPath: await resolveExistingArtifactPath(
+				runDir,
+				path.join(artifactRoot, "02-source-spec.json"),
+				"02-source-spec.json",
+			),
+			validationReportPath: await resolveExistingArtifactPath(
+				runDir,
+				manifest.validationReport ?? path.join(artifactRoot, "27-validation-report.json"),
+				"27-validation-report.json",
+			),
+		};
+	}
+
+	return {
+		finalResultPath: path.join(runDir, "final-result.json"),
+		sourceSpecPath: path.join(runDir, "02-source-spec.json"),
+		validationReportPath: path.join(runDir, "27-validation-report.json"),
+	};
+}
+
+async function resolveExistingArtifactPath(
+	runDir: string,
+	manifestRelativePath: string,
+	flatFileName: string,
+): Promise<string> {
+	const manifestPath = path.resolve(runDir, manifestRelativePath);
+	if (await fileExists(manifestPath)) return manifestPath;
+	return path.join(runDir, flatFileName);
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+	try {
+		await access(filePath);
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 function parseArgs(args: string[]): ApplyTablesCliOptions {
@@ -184,6 +241,11 @@ function hasValidationErrors(input: unknown): boolean {
 	return typeof summary?.errorCount === "number" && summary.errorCount > 0;
 }
 
+function readRenderTreeScreenId(renderTree: RenderTreeContract): string {
+	const screen = renderTree.children.find((node) => node.type === "Screen");
+	return screen?.metadata.id ?? renderTree.metadata.id;
+}
+
 function readRequiredValue(args: string[], index: number, optionName: string): string {
 	const value = args[index + 1];
 	if (!value || value.startsWith("--")) {
@@ -194,14 +256,14 @@ function readRequiredValue(args: string[], index: number, optionName: string): s
 
 function printUsage() {
 	console.log(`Usage:
-  npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id>
-  npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id> --write
+  npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id>
+  npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id> --write
 
 Options:
-  --run-dir <path>      Smoke output directory containing 17-agent-result.json.
+  --run-dir <path>      Smoke run directory containing manifest.json or final-result.json.
   --tables-dir <path>   Target tables directory. Default: data/tables.
   --module-id <id>      Module id for generated screen route. Default: preview.
-  --allow-invalid       Apply even when 25-validation-report.json has errors.
+  --allow-invalid       Apply even when validation report has errors.
   --write               Write changes. Without this, only prints a dry-run summary.
 `);
 }

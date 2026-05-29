@@ -1,6 +1,6 @@
 import path from "node:path";
-
 import type { SideEffectCommand } from "@cx/pipeline/types";
+import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 
 export type GenerationSmokeArtifactInput = {
 	agentInput: unknown;
@@ -8,6 +8,7 @@ export type GenerationSmokeArtifactInput = {
 	compositionPlanAgentInput?: unknown;
 	compositionPlanAgentResult?: unknown;
 	compositionPlanRunnerRequest?: unknown;
+	designContextBundleSelection?: unknown;
 	finalResult: unknown;
 	generationSkillCatalog?: unknown;
 	initialValidationReport?: unknown;
@@ -20,6 +21,7 @@ export type GenerationSmokeArtifactInput = {
 	qualityReviewAgentInput?: unknown;
 	qualityReviewAgentResult?: unknown;
 	qualityReviewRunnerRequest?: unknown;
+	revisionDecision?: unknown;
 	revisionAgentInput?: unknown;
 	revisionAgentResult?: unknown;
 	revisionRunnerRequest?: unknown;
@@ -104,80 +106,104 @@ export function createGenerationSmokeArtifactCommands(
 			input.patternSelectionAgentResult,
 		),
 		createWriteCommand(
+			"write-design-context-bundle-selection",
+			input.outDir,
+			"13-design-context-bundle-selection.json",
+			input.designContextBundleSelection,
+		),
+		createWriteCommand(
 			"write-generation-skill-catalog",
 			input.outDir,
-			"13-generation-skill-catalog.json",
+			"14-generation-skill-catalog.json",
 			input.generationSkillCatalog,
 		),
 		createWriteCommand(
 			"write-render-tree-generation-skill",
 			input.outDir,
-			"14-render-tree-generation-skill.json",
+			"15-render-tree-generation-skill.json",
 			input.renderTreeGenerationSkill,
 		),
-		createWriteCommand("write-agent-input", input.outDir, "15-agent-input.json", input.agentInput),
+		createWriteCommand("write-agent-input", input.outDir, "16-agent-input.json", input.agentInput),
 		createWriteCommand(
 			"write-agent-runner-request",
 			input.outDir,
-			"16-agent-runner-request.json",
+			"17-agent-runner-request.json",
 			input.runnerRequest,
 		),
 		createWriteCommand(
 			"write-agent-result",
 			input.outDir,
-			"17-agent-result.json",
+			"18-agent-result.json",
 			input.agentResult,
 		),
 		createWriteCommand(
 			"write-initial-validation-report",
 			input.outDir,
-			"18-initial-validation-report.json",
+			"19-initial-validation-report.json",
 			input.initialValidationReport,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-input",
 			input.outDir,
-			"19-quality-review-agent-input.json",
+			"20-quality-review-agent-input.json",
 			input.qualityReviewAgentInput,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-runner-request",
 			input.outDir,
-			"20-quality-review-agent-runner-request.json",
+			"21-quality-review-agent-runner-request.json",
 			input.qualityReviewRunnerRequest,
 		),
 		createWriteCommand(
 			"write-quality-review-agent-result",
 			input.outDir,
-			"21-quality-review-agent-result.json",
+			"22-quality-review-agent-result.json",
 			input.qualityReviewAgentResult,
+		),
+		createWriteCommand(
+			"write-revision-decision",
+			input.outDir,
+			"23-revision-decision.json",
+			input.revisionDecision,
 		),
 		createWriteCommand(
 			"write-revision-agent-input",
 			input.outDir,
-			"22-revision-agent-input.json",
+			"24-revision-agent-input.json",
 			input.revisionAgentInput,
 		),
 		createWriteCommand(
 			"write-revision-agent-runner-request",
 			input.outDir,
-			"23-revision-agent-runner-request.json",
+			"25-revision-agent-runner-request.json",
 			input.revisionRunnerRequest,
 		),
 		createWriteCommand(
 			"write-revision-agent-result",
 			input.outDir,
-			"24-revision-agent-result.json",
+			"26-revision-agent-result.json",
 			input.revisionAgentResult,
 		),
 		createWriteCommand("write-final-result", input.outDir, "final-result.json", input.finalResult),
 		createWriteCommand(
 			"write-validation-report",
 			input.outDir,
-			"25-validation-report.json",
+			"27-validation-report.json",
 			input.validationReport,
 		),
 	];
+}
+
+export function createGenerationSmokeManifestCommand(input: {
+	manifest: SmokeRunManifest;
+	runDir: string;
+}): SideEffectCommand {
+	return createWriteCommand(
+		"write-smoke-run-manifest",
+		input.runDir,
+		"manifest.json",
+		input.manifest,
+	);
 }
 
 export function createGenerationSmokePipelineResultCommands(input: {
@@ -188,7 +214,7 @@ export function createGenerationSmokePipelineResultCommands(input: {
 		createWriteCommand(
 			"write-pipeline-result",
 			input.outDir,
-			"26-pipeline-result.json",
+			"28-pipeline-result.json",
 			input.pipelineResult,
 		),
 	];

@@ -1,7 +1,9 @@
 import {
 	buildPipeline,
 	createNodePipelineAdapters,
+	mergeRenderTreeIntoTables,
 	mergeTableGenerationResultIntoTables,
+	renderTreeToTableGenerationResult,
 	runPipeline,
 	runSideEffects,
 	sideEffectBoundary,
@@ -9,6 +11,7 @@ import {
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
 import { createTestPipelineAdapters } from "@cx/pipeline/testing";
 import type { SideEffectExecutionResult, SideEffectOperation } from "@cx/pipeline/types";
+import type { RenderTreeContract, RenderTreeNodeContract } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 import { createGenerationSmokeArtifactCommands } from "../pipelines/screen-generation/artifact-commands";
 
@@ -167,6 +170,7 @@ describe("@cx/pipeline public API", () => {
 		const commands = createGenerationSmokeArtifactCommands({
 			agentInput: {},
 			agentResult: { payload: { renderTree: finalResult } },
+			designContextBundleSelection: { bundleRefs: [] },
 			finalResult,
 			outDir: "runs/sample",
 			parseCommandResult: {},
@@ -183,6 +187,14 @@ describe("@cx/pipeline public API", () => {
 					targetPath: expect.stringContaining("final-result.json"),
 				}),
 				operation: "versioned-artifact-write",
+			}),
+		);
+		expect(commands).toContainEqual(
+			expect.objectContaining({
+				id: "write-design-context-bundle-selection",
+				input: expect.objectContaining({
+					targetPath: expect.stringContaining("13-design-context-bundle-selection.json"),
+				}),
 			}),
 		);
 	});
@@ -248,6 +260,118 @@ describe("@cx/pipeline public API", () => {
 			expect.objectContaining({ id: "sample-route", name: "Sample" }),
 		);
 	});
+
+	it("decomposes final RenderTree into table rows for apply", () => {
+		const renderTree: RenderTreeContract = {
+			children: [
+				{
+					children: [
+						{
+							children: [
+								{
+									children: [
+										{
+											componentVersion: "0.1.0",
+											layout: "layout.composite.componentAppBar",
+											metadata: { id: "component-appbar", title: "AppBar" },
+											props: { title: "약관 동의" },
+											type: "AppBar",
+										},
+									],
+									componentVersion: "0.1.0",
+									layout: "layout.area.areaAppBar",
+									metadata: { id: "area-header", title: "Header area" },
+									type: "area.static",
+								},
+							],
+							componentVersion: "0.1.0",
+							layout: "layout.region.plainStack",
+							metadata: { id: "screen.header", title: "Header" },
+							type: "Screen.Header",
+						},
+						{
+							children: [],
+							componentVersion: "0.1.0",
+							layout: "layout.region.subscriptionDetailRichContent",
+							metadata: { id: "screen.contents", title: "Contents" },
+							type: "Screen.Contents",
+						},
+						{
+							children: [],
+							componentVersion: "0.1.0",
+							layout: "layout.region.commerceDetailBottomAction",
+							metadata: { id: "screen.bottom", title: "Bottom" },
+							type: "Screen.Bottom",
+						},
+					],
+					componentVersion: "0.1.0",
+					layout: "layout.screen.commerceDetailScreen",
+					metadata: { id: "screen", title: "Screen" },
+					type: "Screen",
+				},
+			],
+			metadata: { id: "screen" },
+			version: "render-tree.v0.1",
+		};
+
+		const result = renderTreeToTableGenerationResult(renderTree);
+
+		expect(result.tableGenerationResult.screen.screen.regions.header.children).toEqual([
+			{ id: "area-header", kind: "area" },
+		]);
+		expect(result.tableGenerationResult.areas).toHaveLength(1);
+		expect(result.tableGenerationResult.components).toContainEqual(
+			expect.objectContaining({
+				children: [{ component: { type: "AppBar" }, props: { title: "약관 동의" } }],
+				id: "component-appbar",
+				layout: "layout.composite.componentAppBar",
+				type: "AppBar",
+			}),
+		);
+	});
+
+	it("merges final RenderTree rows into table data", () => {
+		const tables = {
+			areas: { areas: [tableArea("old-area", [])] },
+			components: { components: [tableComponent("old-component")] },
+			screenRoutes: { screenRoutes: [] },
+			screenVariants: { screenVariants: [] },
+			screens: { screens: [tableScreen("screen", "screen", ["old-area"])] },
+		};
+		const renderTree: RenderTreeContract = {
+			children: [
+				{
+					children: [
+						screenRegionNode("Screen.Header", "layout.region.plainStack", []),
+						screenRegionNode("Screen.Contents", "layout.region.plainStack", [
+							{
+								children: [],
+								componentVersion: "0.1.0",
+								layout: "layout.area.productHeroSummary",
+								metadata: { id: "new-area", title: "New area" },
+								type: "area.dynamic",
+							},
+						]),
+						screenRegionNode("Screen.Bottom", "layout.region.plainStack", []),
+					],
+					componentVersion: "0.1.0",
+					layout: "layout.screen.commerceDetailScreen",
+					metadata: { id: "screen", title: "Screen" },
+					type: "Screen",
+				},
+			],
+			metadata: { id: "screen" },
+			version: "render-tree.v0.1",
+		};
+
+		const result = mergeRenderTreeIntoTables(tables, renderTree);
+
+		expect(result.tables.screens.screens).toHaveLength(1);
+		expect(result.tables.areas.areas.map((area) => area.id)).toEqual(["new-area"]);
+		expect(result.tables.components.components.map((component) => component.id)).toEqual([
+			"old-component",
+		]);
+	});
 });
 
 function tableScreen(id: string, screenVariantId: string, areaIds: string[]) {
@@ -302,5 +426,19 @@ function tableComponent(id: string) {
 		metadata: { title: id },
 		type: "AppBar",
 		version: "0.1.0",
+	};
+}
+
+function screenRegionNode(
+	type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header",
+	layout: string,
+	children: RenderTreeNodeContract[],
+) {
+	return {
+		children,
+		componentVersion: "0.1.0",
+		layout,
+		metadata: { id: type, title: type },
+		type,
 	};
 }

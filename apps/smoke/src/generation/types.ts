@@ -6,6 +6,8 @@ import type {
 } from "@cx/pipeline/types";
 
 export type GenerationSmokeOptions = {
+	artifactRoot?: string;
+	artifactStore?: "data-run" | "local-transient" | "web-fixture";
 	outDir?: string;
 	runId?: string;
 	useAI?: boolean;

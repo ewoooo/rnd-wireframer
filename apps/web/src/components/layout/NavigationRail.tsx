@@ -1,4 +1,5 @@
-import { Box, Boxes, Smartphone, Table2 } from "lucide-react";
+import { Box, Boxes, FlaskConical, Smartphone, Table2 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 
@@ -10,6 +11,14 @@ type NavigationRailProps = {
 type NavigationTab = {
 	description: string;
 	id: NavigatorTab;
+	icon: typeof Smartphone;
+	label: string;
+	name: string;
+};
+
+type NavigationLink = {
+	description: string;
+	href: string;
 	icon: typeof Smartphone;
 	label: string;
 	name: string;
@@ -49,6 +58,16 @@ const secondaryNavigationTabs: NavigationTab[] = [
 	},
 ];
 
+const utilityNavigationLinks: NavigationLink[] = [
+	{
+		description: "스모크 실행 결과 조회 및 품질 비교",
+		href: "/smoke",
+		icon: FlaskConical,
+		label: "SMK",
+		name: "Smoke",
+	},
+];
+
 export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) {
 	return (
 		<nav
@@ -61,6 +80,10 @@ export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) 
 			<div className="my-1 w-6 border-t border-sidebar-border" />
 			{secondaryNavigationTabs.map((tab) => (
 				<NavigationButton key={tab.id} activeTab={activeTab} onSelectTab={onSelectTab} tab={tab} />
+			))}
+			<div className="my-1 w-6 border-t border-sidebar-border" />
+			{utilityNavigationLinks.map((item) => (
+				<NavigationLinkButton item={item} key={item.href} />
 			))}
 		</nav>
 	);
@@ -92,5 +115,20 @@ function NavigationButton({
 		>
 			<Icon className="size-4" data-icon="inline-start" />
 		</button>
+	);
+}
+
+function NavigationLinkButton({ item }: { item: NavigationLink }) {
+	const Icon = item.icon;
+
+	return (
+		<Link
+			aria-label={item.label}
+			className="flex size-10 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+			href={item.href}
+			title={`${item.name} (${item.label}) - ${item.description}`}
+		>
+			<Icon className="size-4" data-icon="inline-start" />
+		</Link>
 	);
 }
