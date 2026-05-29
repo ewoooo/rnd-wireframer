@@ -11,6 +11,7 @@ import {
 	resolveRegionLayoutFromScreenLayout,
 } from "@cx/layout-pattern-store/resolver";
 import {
+	buildComponentProposalAgentInput,
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
@@ -24,6 +25,7 @@ import {
 } from "@cx/orchestration";
 import type {
 	ComponentContractCatalog,
+	ComponentProposalAgentInput,
 	CompositionPlanAgentInput,
 	DesignContextBundleSelection,
 	GenerationNextAction,
@@ -37,11 +39,13 @@ import type {
 import {
 	type CompositionPlanContract,
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	SCHEMA_VERSION,
 	type SourceSpec,
 	type ValidationReportContract,
 } from "@cx/schema";
 import {
+	validateComponentProposal,
 	validateCompositionPlan,
 	validateRenderTree,
 	validateSchemaArtifact,
@@ -66,6 +70,7 @@ import {
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
+import { loadDesignContextBundleContents } from "./design-context-catalog";
 import { createFakeGenerationAgentRunner } from "./fake-agent-runner";
 import {
 	findGenerationSkill,
@@ -87,6 +92,7 @@ export const screenGenerationPipelineDefinition = {
 		"select-pattern",
 		"generate-render-tree",
 		"validate-render-tree",
+		"propose-components",
 		"review-quality",
 		"revise-render-tree-if-invalid",
 		"validate-render-tree-after-revision",
@@ -100,7 +106,12 @@ type ScreenGenerationPipelineState = {
 	compositionPlanAgentInput?: CompositionPlanAgentInput;
 	compositionPlanAgentResult?: AgentRunResult;
 	compositionPlanRunnerRequest?: AgentRunnerRequest;
+	componentProposalAgentInput?: ComponentProposalAgentInput;
+	componentProposalAgentResult?: AgentRunResult;
+	componentProposalRunnerRequest?: AgentRunnerRequest;
+	componentProposalValidationReport?: ReturnType<typeof validateComponentProposal>;
 	decorationPlan?: DecorationPlanContract;
+	designContextBundleContents?: DesignContextBundleContent[];
 	designContextBundleSelection?: DesignContextBundleSelection;
 	generationNextAction?: GenerationNextAction;
 	generationSkillCatalog?: GenerationSkill[];
@@ -147,6 +158,7 @@ const screenGenerationStageExecutors = {
 	"generate-render-tree": runGenerateRenderTreeStage,
 	"parse-source": runParseSourceStage,
 	"plan-composition": runPlanCompositionStage,
+	"propose-components": runProposeComponentsStage,
 	"read-source": runReadSourceStage,
 	"review-quality": runReviewQualityStage,
 	"revise-render-tree-if-invalid": runReviseRenderTreeIfInvalidStage,
@@ -397,6 +409,9 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const agentInput = buildScreenGenerationAgentInput(sourceSpec, {
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -405,6 +420,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -453,8 +469,69 @@ function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void 
 	}
 }
 
+async function runProposeComponentsStage(state: ScreenGenerationPipelineState): Promise<void> {
+	const sourceSpec = requireSourceSpec(state);
+	const componentContractCatalog = buildSourceComponentContractCatalog(
+		sourceSpec,
+		state.patternLayerCandidates ?? [],
+	);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
+	const proposalInput = buildComponentProposalAgentInput({
+		candidate: state.agentResult?.payload,
+		componentContractCatalog,
+		compositionPlan: state.compositionPlanAgentResult?.payload,
+		decorationPlan: state.decorationPlan,
+		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
+		layerCandidates: state.patternLayerCandidates,
+		patternSelection: state.patternSelectionAgentResult?.payload,
+		screenIntent: state.screenIntentAgentResult?.payload,
+		sourceSpec,
+	});
+	const realRunner = createClaudeRunner({ localFirst: true });
+	const runtime = createAgentRuntime({
+		runner:
+			state.options.agentMode === "claude-local-first"
+				? async (request) => {
+						state.componentProposalRunnerRequest = request;
+						return realRunner(request);
+					}
+				: async (request) => {
+						state.componentProposalRunnerRequest = request;
+						return {
+							payload: createFakeComponentProposal(),
+							session: {
+								mode: request.session?.mode ?? "new",
+								sessionId: request.session?.sessionId,
+							},
+							taskKind: request.taskKind,
+						};
+					},
+	});
+
+	state.componentProposalAgentInput = proposalInput;
+	state.componentProposalAgentResult = await runAgentQuery(runtime, {
+		context: proposalInput.context,
+		query: proposalInput.query,
+		taskKind: "component-proposal",
+	});
+	// 제안은 비파괴 아티팩트다. 검증은 bounded 여부만 리포트하고 파이프라인을 실패시키지 않는다.
+	state.componentProposalValidationReport = validateComponentProposal(
+		state.componentProposalAgentResult.payload,
+		{
+			allowedRefs: componentContractCatalog.entries.flatMap((entry) => entry.sourceRefs),
+			catalogComponentTypes: componentContractCatalog.entries.map((entry) => entry.componentType),
+		},
+	);
+}
+
 async function runReviewQualityStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const qualityReviewInput = buildQualityReviewAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
@@ -464,6 +541,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -513,6 +591,9 @@ async function runReviseRenderTreeIfInvalidStage(
 
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const revisionInput = buildScreenRevisionAgentInput({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -521,6 +602,7 @@ async function runReviseRenderTreeIfInvalidStage(
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		previousCandidate,
@@ -571,6 +653,12 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 		compositionPlanAgentInput: state.compositionPlanAgentInput,
 		compositionPlanAgentResult: state.compositionPlanAgentResult,
 		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
+		componentProposalAgentInput: state.componentProposalAgentInput,
+		componentProposalAgentResult: state.componentProposalAgentResult,
+		componentProposalRunnerRequest: state.componentProposalRunnerRequest,
+		componentProposalValidationReport: state.componentProposalValidationReport,
+		componentProposal: state.componentProposalAgentResult?.payload,
+		designCritique: state.qualityReviewAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
@@ -996,6 +1084,13 @@ function createFakeQualityInspection(validationReport: ValidationReportContract 
 			errorCount: 0,
 			warningCount: warningCount > 0 ? 1 : 0,
 		},
+	};
+}
+
+function createFakeComponentProposal() {
+	return {
+		proposals: [],
+		schemaVersion: SCHEMA_VERSION.componentProposal,
 	};
 }
 

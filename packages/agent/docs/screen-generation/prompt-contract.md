@@ -31,5 +31,7 @@ Phase 1에서는 design-context bundle을 최종 schema 계약으로 고정하�
 4. Map source regions to `Screen.Header`, `Screen.Contents`, and `Screen.Bottom`.
 5. Keep source areas grouped unless the validation contract requires a structural wrapper.
 6. Put source component values into node `props`.
-7. Use `output-contract.md` for output shape rules.
-8. Use `checklist.md` before returning the final JSON object.
+7. Decide Divider and spacing from `context.designContextBundles` rules and screen context: 1px divider between list rows, 4px divider between sections, and omit dividers when card or group containers already separate content.
+8. Apply visual hierarchy through component choice and props within the catalog. Do not invent colors, gradients, or icons for emphasis.
+9. Use `output-contract.md` for output shape rules.
+10. Use `checklist.md` before returning the final JSON object.

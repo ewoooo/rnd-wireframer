@@ -4,6 +4,7 @@ import type { AgentRunnerRequest } from "../contract";
 import { createAgentRuntime } from "../runtime/create-agent-runtime";
 import { runAgentTask } from "../runtime/run-agent-task";
 import { agentTaskCatalog } from "../tasks";
+import { createComponentProposalPrompt } from "../tasks/component-proposal";
 
 describe("@cx/agent runtime", () => {
 	it("registers the Claude task kinds", () => {
@@ -14,7 +15,15 @@ describe("@cx/agent runtime", () => {
 			"screen-intent",
 			"screen-revision",
 			"quality-review",
+			"component-proposal",
 		]);
+	});
+
+	it("builds a component-proposal prompt", () => {
+		const prompt = createComponentProposalPrompt({ query: "q", context: {} });
+
+		expect(prompt.metadata?.taskKind).toBe("component-proposal");
+		expect(prompt.user).toBe("q");
 	});
 
 	it("builds a prompt and applies the task default session mode", async () => {

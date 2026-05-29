@@ -30,6 +30,8 @@ P0 items must pass before returning.
 - Node metadata titles are readable and traceable to source intent.
 - Layout props are objects, not string shortcuts.
 - Bottom actions are not placed in scrollable content when a bottom region exists.
+- Divider/spacing은 맥락에 맞게 둔다: 리스트 행 사이 1px, 섹션 사이 4px, 카드/그룹 컨테이너가 이미 분리를 제공하면 Divider 생략.
+- 시각 위계는 component 선택과 props로 표현하고, 강조용 임의 색/그라디언트/아이콘을 발명하지 않는다.
 - Source가 form, list, search, detail, async surface를 암시하면 필요한 상태 표현을 누락하지 않는다. 단순 정적 화면에는 불필요한 상태 node를 강제하지 않는다.
 - Form screen은 label, required/optional hint, validation/error placement, primary CTA를 화면 목적에 맞게 배치한다.
 - List/search screen은 empty/no-result, long item, secondary action, selected/filter state가 필요한지 고려한다.

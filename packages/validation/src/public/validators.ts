@@ -294,6 +294,72 @@ export function validateCompositionPlan(
 	return buildReport("composition-plan", issues);
 }
 
+export type ComponentProposalValidationOptions = {
+	allowedRefs?: string[];
+	catalogComponentTypes?: string[];
+	maxProposals?: number;
+};
+
+/**
+ * Validates a non-binding component-proposal artifact stays bounded.
+ * 근거(allowedRefs)·최근접 카탈로그 매치·개수 상한을 확인할 뿐, 카탈로그를 반영하지 않는다.
+ */
+export function validateComponentProposal(
+	input: unknown,
+	options: ComponentProposalValidationOptions = {},
+): ValidationReport {
+	const schemaReport = validateSchemaArtifact("component-proposal", input);
+	const issues = [...schemaReport.issues];
+	const value = parseJsonLikeInput(input, issues);
+	if (!isRecord(value)) return buildReport("component-proposal", issues);
+
+	const proposals = Array.isArray(value.proposals) ? value.proposals : [];
+	const maxProposals = options.maxProposals ?? 5;
+	if (proposals.length > maxProposals) {
+		addIssue(issues, {
+			code: "proposal-limit-exceeded",
+			message: `component-proposal returned ${proposals.length} proposals but at most ${maxProposals} are allowed.`,
+			path: ["proposals"],
+		});
+	}
+
+	const allowedRefs = options.allowedRefs ? new Set(options.allowedRefs) : undefined;
+	const catalogTypes = options.catalogComponentTypes
+		? new Set(options.catalogComponentTypes)
+		: undefined;
+
+	proposals.forEach((proposal, proposalIndex) => {
+		if (!isRecord(proposal)) return;
+
+		if (allowedRefs) {
+			const evidence = Array.isArray(proposal.sourceEvidence) ? proposal.sourceEvidence : [];
+			evidence.forEach((ref, refIndex) => {
+				if (typeof ref !== "string" || allowedRefs.has(ref)) return;
+				addIssue(issues, {
+					code: "proposal-source-evidence-missing",
+					message: `Component proposal sourceEvidence is not in allowedRefs: ${ref}.`,
+					path: ["proposals", proposalIndex, "sourceEvidence", refIndex],
+				});
+			});
+		}
+
+		if (
+			catalogTypes &&
+			typeof proposal.nearestCatalogMatch === "string" &&
+			!catalogTypes.has(proposal.nearestCatalogMatch)
+		) {
+			addIssue(issues, {
+				code: "proposal-nearest-match-unknown",
+				message: `Component proposal nearestCatalogMatch is not a catalog component type: ${proposal.nearestCatalogMatch}.`,
+				path: ["proposals", proposalIndex, "nearestCatalogMatch"],
+				severity: "warning",
+			});
+		}
+	});
+
+	return buildReport("component-proposal", issues);
+}
+
 function validateCompositionPlanSourceRefs(
 	input: Record<string, unknown>,
 	sourceSpec: SourceSpec | undefined,

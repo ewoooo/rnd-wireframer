@@ -16,6 +16,7 @@ export type PipelineStageId =
 	| "generate-render-tree"
 	| "parse-source"
 	| "plan-composition"
+	| "propose-components"
 	| "read-source"
 	| "review-quality"
 	| "revise-render-tree-if-invalid"

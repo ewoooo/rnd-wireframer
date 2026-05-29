@@ -1,7 +1,10 @@
 import {
+	type ComponentProposalContract,
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	type DesignContextBundleRef,
 	getJsonSchema,
+	type QualityInspectionContract,
 	type RenderTreeContract,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
@@ -145,6 +148,61 @@ describe("@cx/schema public API", () => {
 		};
 
 		expect(bundleRef.id).toBe("layout-composition");
+	});
+
+	it("exposes DesignContextBundleContent with ref provenance and body", () => {
+		const content: DesignContextBundleContent = {
+			id: "visual-foundation",
+			version: "2026-05-29",
+			reason: "test",
+			sourceDocs: ["docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md"],
+			body: "rule lines",
+		};
+
+		expect(content.id).toBe("visual-foundation");
+		expect(content.body.length).toBeGreaterThan(0);
+	});
+
+	it("exposes component-proposal schema and version", () => {
+		const proposal: ComponentProposalContract = {
+			schemaVersion: SCHEMA_VERSION.componentProposal,
+			proposals: [
+				{
+					id: "proposal-1",
+					title: "Highlighted price callout",
+					rationale: "Source emphasizes total price",
+					sourceEvidence: ["area.price"],
+					nearestCatalogMatch: "Callout",
+					suggestedProps: { emphasis: "strong" },
+				},
+			],
+		};
+
+		expect(proposal.proposals[0].nearestCatalogMatch).toBe("Callout");
+		expect(SCHEMA_VERSION.componentProposal).toBe("component-proposal.v0.1");
+		expect(getJsonSchema("component-proposal").$id).toBe(SCHEMA_VERSION.componentProposal);
+		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["component-proposal"]).toBe(
+			SCHEMA_VERSION.componentProposal,
+		);
+	});
+
+	it("includes design dimension scores in quality inspection", () => {
+		const quality: QualityInspectionContract = {
+			schemaVersion: SCHEMA_VERSION.qualityInspection,
+			inspection: {
+				compositionAligned: true,
+				sourceFaithful: true,
+				visualHierarchyClear: true,
+			},
+			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
+			findings: [],
+			summary: { errorCount: 0, warningCount: 0 },
+		};
+
+		expect(quality.scores?.hierarchy).toBe(4);
+		expect(getJsonSchema("quality-inspection")).toMatchObject({
+			properties: { scores: { type: "object" } },
+		});
 	});
 
 	it("exposes decoration plan as a schema-owned intermediate artifact", () => {

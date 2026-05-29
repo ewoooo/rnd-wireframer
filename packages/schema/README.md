@@ -84,4 +84,7 @@ schemaVersion에는 generation flow 이름을 넣지 않는다. 버전은 artifa
 source-spec.v0.1
 render-tree.v0.1
 agent-result.v0.1
+component-proposal.v0.1
 ```
+
+design-context bundle은 ref(`DesignContextBundleRef`)와 본문(`DesignContextBundleContent`)을 모두 계약으로 소유한다. `component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트 계약이고, `quality-inspection`은 hierarchy/separation/fidelity 점수(`scores`)를 선택 필드로 가진다.

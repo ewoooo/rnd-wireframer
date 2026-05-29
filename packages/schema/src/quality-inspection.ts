@@ -8,6 +8,12 @@ export type QualityInspectionFinding = {
 	suggestion?: string;
 };
 
+export type QualityInspectionScores = {
+	hierarchy: number;
+	separation: number;
+	fidelity: number;
+};
+
 export type QualityInspectionContract = {
 	findings: QualityInspectionFinding[];
 	inspection: {
@@ -15,6 +21,7 @@ export type QualityInspectionContract = {
 		sourceFaithful: boolean;
 		visualHierarchyClear: boolean;
 	};
+	scores?: QualityInspectionScores;
 	schemaVersion: typeof SCHEMA_VERSION.qualityInspection;
 	summary: {
 		errorCount: number;

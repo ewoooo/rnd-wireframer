@@ -1,4 +1,5 @@
 import {
+	buildComponentProposalAgentInput,
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
@@ -86,6 +87,113 @@ describe("@cx/orchestration public API", () => {
 			screenName: "상품 상세 핵심 요약 탐색",
 		});
 		expect(input.context.sourceSpec).toBe(sourceSpec);
+	});
+
+	it("embeds design-context bundle bodies into generation context", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildScreenGenerationAgentInput(sourceSpec, {
+			designContextBundles: [
+				{
+					id: "visual-foundation",
+					reason: "r",
+					sourceDocs: [],
+					version: "v",
+					body: "DIVIDER RULE LINE",
+				},
+			],
+		});
+
+		expect(JSON.stringify(input.context)).toContain("DIVIDER RULE LINE");
+		expect(input.query).toContain("context.designContextBundles");
+	});
+
+	it("instructs design scoring using injected bundles in quality review", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildQualityReviewAgentInput({
+			candidate: {},
+			sourceSpec,
+			designContextBundles: [
+				{ id: "quality-review", reason: "r", sourceDocs: [], version: "v", body: "GATE LINE" },
+			],
+		});
+
+		expect(input.query.toLowerCase()).toContain("score");
+		expect(input.query).toContain("hierarchy");
+		expect(input.query).toContain("separation");
+		expect(input.query).toContain("fidelity");
+		expect(JSON.stringify(input.context)).toContain("GATE LINE");
+	});
+
+	it("builds bounded component-proposal input", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildComponentProposalAgentInput({
+			sourceSpec,
+			candidate: { foo: "bar" },
+		});
+
+		expect(input.query).toContain("Propose");
+		expect(input.query).toContain("nearestCatalogMatch");
+		expect(input.query).toContain("component-proposal.v0.1");
+		expect(input.context.sourceSpec).toBe(sourceSpec);
+		expect(input.context.candidate).toEqual({ foo: "bar" });
+	});
+
+	it("instructs contextual divider, spacing, and hierarchy decisions", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const query = buildScreenGenerationAgentInput(sourceSpec).query;
+
+		expect(query.toLowerCase()).toContain("divider");
+		expect(query).toContain("1px");
+		expect(query).toContain("4px");
+		expect(query.toLowerCase()).toContain("hierarchy");
 	});
 
 	it("builds screen intent and composition plan agent inputs before generation", () => {

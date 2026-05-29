@@ -207,6 +207,67 @@ describe("@cx/pipeline public API", () => {
 		);
 	});
 
+	it("writes the component proposal as a standalone artifact", () => {
+		const componentProposal = {
+			schemaVersion: "component-proposal.v0.1",
+			proposals: [],
+		};
+
+		const commands = createGenerationSmokeArtifactCommands({
+			agentInput: {},
+			agentResult: {},
+			componentProposal,
+			designContextBundleSelection: { bundleRefs: [] },
+			finalResult: {},
+			outDir: "runs/sample",
+			parseCommandResult: {},
+			runnerRequest: {},
+			sourceSpec: {},
+			validationReport: {},
+		});
+
+		expect(commands).toContainEqual(
+			expect.objectContaining({
+				id: "write-component-proposal",
+				input: expect.objectContaining({
+					content: componentProposal,
+					targetPath: expect.stringContaining("component-proposal.json"),
+				}),
+			}),
+		);
+	});
+
+	it("writes the design critique as a standalone artifact", () => {
+		const designCritique = {
+			schemaVersion: "quality-inspection.v0.1",
+			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
+			findings: [],
+		};
+
+		const commands = createGenerationSmokeArtifactCommands({
+			agentInput: {},
+			agentResult: {},
+			designCritique,
+			designContextBundleSelection: { bundleRefs: [] },
+			finalResult: {},
+			outDir: "runs/sample",
+			parseCommandResult: {},
+			runnerRequest: {},
+			sourceSpec: {},
+			validationReport: {},
+		});
+
+		expect(commands).toContainEqual(
+			expect.objectContaining({
+				id: "write-design-critique",
+				input: expect.objectContaining({
+					content: designCritique,
+					targetPath: expect.stringContaining("design-critique.json"),
+				}),
+			}),
+		);
+	});
+
 	it("merges table generation results into table data without mutating input", () => {
 		const tables = {
 			areas: {

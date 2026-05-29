@@ -2,16 +2,51 @@
 
 Bundle id: `interaction-state`
 
-Source docs:
+Source docs: `docs/design/INTERACTION_PATTERNS.md`, `docs/design/SECTION_PATTERNS.md`
 
-- `docs/design/INTERACTION_PATTERNS.md`
-- `docs/design/SECTION_PATTERNS.md`
+이 번들은 state coverage·CTA·폼·오버레이 조합 규칙을 제공한다. 우선순위는 **source evidence ≥ schema/catalog > 이 번들 규칙**이다. 상태는 화면 surface가 암시할 때만 다루고, 단순 정적 화면에 불필요한 상태 node를 강제하지 않는다.
 
-Agent-facing rules:
+## State coverage (surface가 암시할 때만)
 
-- For form surfaces, preserve labels, required/optional hints, validation placement, disabled state when implied, and the primary submit action.
-- For list or search surfaces, consider populated, empty/no-result, long item, selected/filter, and secondary action states when the source implies them.
-- For detail surfaces, keep information priority clear and keep the primary or bottom action reachable.
-- For async surfaces, consider loading and error states when source text, component role, or screen intent implies remote data.
-- Do not force loading, empty, error, populated, and edge states onto static informational screens.
-- Represent state only with RenderTree-supported structure such as display state role, source-backed variants, or contract-safe nodes.
+- form: validation/error, disabled(제출 불가), required/optional.
+- list/search: empty/no-result, long item, selected/filter.
+- detail/async: loading, error, populated.
+- SourceSpec에 errorPolicy, 필수 동의, disabled, loading, validation 근거가 있으면 `display.stateRole`로 bounded 하게 표현한다.
+
+## CTA 위치·위계
+
+- 단일 페이지 진행: `Screen.Bottom`의 `SinglePrimaryAction`(full-width `ActionButton`).
+- primary-shaped CTA(같은 너비/높이/radius/pill/고대비/하단 근접)는 Bottom에 **1개만** 허용.
+- Content 내부 보조 액션은 Bottom CTA보다 최소 한 단계 낮은 시각 강도여야 한다: 짧은 너비, 낮은 높이, 약한 surface, field group 인접.
+- 인증/중복확인/재요청 등 field 종속 액션은 field 우측 slot·compact·text/link button으로. Content full-width ActionButton으로 올리지 않는다.
+- 섹션 더보기는 `TitleSection` 우측 링크 등 낮은 강도. primary로 올리지 않는다.
+- primary CTA를 스크롤 콘텐츠 중간에 직접 배치하지 않는다.
+- 2버튼 조합은 `Secondary + Primary` 순서. 동등하지 않으면 Primary가 더 넓은 비중.
+
+## 폼 조합
+
+- 관련 `TextField`는 그룹 제목과 묶는다. 제목 없이 필드만 나열하지 않는다.
+- 보조 버튼은 필드 외부 병렬보다 입력 component 우측 slot으로.
+- 에러 메시지는 해당 `TextField` 바로 아래 help text slot에. 별도 callout으로 필드 밖에 띄우지 않는다.
+- 약관 동의: `전체 동의 → Divider → 필수/선택 항목` 순서. 결제 약관은 Checkbox + 내용 확인 accordion/policy detail 연결.
+
+## 오버레이 선택
+
+- 옵션 1개 선택 / 3개 이상 목록·스크롤 / 여러 조건 필터: BottomSheet.
+- 2줄 이내 단순 확인·취소 / 결제 실패·에러 알림: Popup.
+- Popup 내부 스크롤이 생기면 BottomSheet로 전환. BottomSheet 중첩 금지.
+- Popup 버튼은 `PopupActionButton` 사용(일반 Button 직접 배치 금지).
+
+## 컴포넌트 상태 표현 (참고)
+
+- Accordion: 닫힘 h=21(제목만), 열림 h=95(전체). 첫 항목 열린 상태로 시작.
+- ListText(읽기 전용 22px) vs ListSelected(선택 가능 34~52px) 구분.
+
+## 완료 화면
+
+- 제목은 결과를 즉시 이해하는 친근한 구어체(예: `결제가 완료되었어요`).
+- 하단 2버튼: 좌측 Secondary(추가 탐색), 우측 Primary(확인/홈 복귀).
+
+## Boundaries
+
+- 누락된 interaction(primary CTA, bottom action, form validation, overlay close/action)은 발명하지 말고 source 근거가 있을 때만 채운다.

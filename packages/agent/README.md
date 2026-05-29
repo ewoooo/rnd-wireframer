@@ -212,7 +212,10 @@ Agent 패키지 내부 실행 계약을 둔다.
 
 - `screen-generation`: 사용자 쿼리와 생성 컨텍스트를 받아 신규 화면 후보를 생성한다.
 - `screen-revision`: 기존 후보와 피드백을 받아 수정 후보를 생성한다.
-- `quality-review`: 생성 후보를 기준 문서와 계약에 따라 검수한다.
+- `quality-review`: 생성 후보를 기준 문서와 계약에 따라 검수하고 hierarchy/separation/fidelity 점수를 매긴다.
+- `component-proposal`: 카탈로그 밖 component/변형 후보를 비파괴 제안 아티팩트로 산출한다(확정·반영은 사람의 카탈로그 mutation으로만).
+
+생성/검수/제안 prompt가 참조하는 design-context bundle 규칙 정본은 `docs/design-context/`에 있고, `docs/component-proposal/`은 제안 태스크의 참조 자산이다.
 
 각 task는 prompt 구성, 세션 정책, 결과 파싱 정책을 가진다. 런타임은 문자열 `switch`/`if` 분기 대신 task catalog를 조회해 실행한다.
 

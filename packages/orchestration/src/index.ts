@@ -1,5 +1,6 @@
 export { orchestrationBoundary } from "./public/contract";
 export {
+	buildComponentProposalAgentInput,
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
@@ -19,6 +20,8 @@ export type {
 	BuildGenerationNextActionInput,
 	ComponentContractCatalog,
 	ComponentContractCatalogEntry,
+	ComponentProposalAgentContext,
+	ComponentProposalAgentInput,
 	DesignContextBundleSelection,
 	GenerationNextAction,
 	OrchestrationAgentTaskInput,

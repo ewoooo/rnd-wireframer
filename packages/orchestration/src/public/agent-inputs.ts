@@ -1,5 +1,6 @@
 import {
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	type DesignContextBundleRef,
 	getJsonSchema,
 	SCHEMA_VERSION,
@@ -12,6 +13,7 @@ import {
 } from "./source-context";
 import type {
 	ComponentContractCatalog,
+	ComponentProposalAgentInput,
 	CompositionPlanAgentInput,
 	PatternLayerCandidate,
 	PatternSelectionAgentInput,
@@ -144,6 +146,7 @@ export function buildScreenGenerationAgentInput(
 		compositionPlan?: unknown;
 		decorationPlan?: DecorationPlanContract;
 		designContextBundleRefs?: DesignContextBundleRef[];
+		designContextBundles?: DesignContextBundleContent[];
 		layerCandidates?: PatternLayerCandidate[];
 		patternSelection?: unknown;
 		screenIntent?: unknown;
@@ -168,6 +171,7 @@ export function buildScreenGenerationAgentInput(
 			"Preserve high-priority source refs from context.compositionPlan.sections[].sourceRefs whenever possible.",
 			"Use context.patternSelection as layout-pattern guidance when present.",
 			"Use context.designContextBundleRefs as bounded design guidance when present; do not let bundles override SourceSpec, schema, component contracts, or candidate ids.",
+			"Use context.designContextBundles[].body as the actual design rules to apply (divider/spacing/hierarchy/state coverage). Keep priority: source evidence and schema/catalog over these rules.",
 			"Pattern-store exploration is mandatory: use context.layerCandidates as the explored screen, region, area, and component layout ids; do not invent layout ids.",
 			"Preserve the SourceSpec screen skeleton: Screen > Screen.Header/Screen.Contents/Screen.Bottom > area.static or area.dynamic > optional PageStack/layout wrapper > components.",
 			"Never output a render node with type Area. Use SourceSpec area.renderNodeType, area.static, or area.dynamic for area wrapper nodes.",
@@ -175,6 +179,8 @@ export function buildScreenGenerationAgentInput(
 			"Screen region containers may omit props. When region props are present, keep them valid and renderer-oriented.",
 			"Use PageStack or layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.",
 			"Use Divider only when the selected pattern-store candidate or source composition requires separation; keep it as a component node, not a raw border.",
+			"Decide Divider and spacing from context.designContextBundles rules and screen context: add a 1px divider between list rows, a 4px divider between sections, and omit dividers when card or group containers already separate content.",
+			"Apply visual hierarchy through component choice and props within the catalog (section titles vs rows, emphasis via component props). Do not invent colors, gradients, or icons for emphasis.",
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
 			"Use context.componentContractCatalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.",
@@ -199,6 +205,7 @@ export function buildScreenGenerationAgentInput(
 			compositionPlan: options.compositionPlan,
 			decorationPlan: options.decorationPlan,
 			designContextBundleRefs: options.designContextBundleRefs,
+			designContextBundles: options.designContextBundles,
 			intermediateArtifact: {
 				jsonSchema: getJsonSchema("table-generation-result"),
 				kind: "table-generation-result",
@@ -228,6 +235,7 @@ export function buildScreenRevisionAgentInput(input: {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	previousCandidate: unknown;
@@ -241,6 +249,7 @@ export function buildScreenRevisionAgentInput(input: {
 		compositionPlan: input.compositionPlan,
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
@@ -291,6 +300,7 @@ export function buildQualityReviewAgentInput(input: {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	screenIntent?: unknown;
@@ -302,6 +312,7 @@ export function buildQualityReviewAgentInput(input: {
 		compositionPlan: input.compositionPlan,
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
@@ -312,6 +323,9 @@ export function buildQualityReviewAgentInput(input: {
 			"Review the generated screen candidate for design quality after schema and semantic validation.",
 			"Use SourceSpec, screenIntent, compositionPlan, patternSelection, and validationReport as bounded evidence.",
 			"Check source fidelity, composition alignment, visual hierarchy, action clarity, and obvious accessibility risks.",
+			"Use context.designContextBundles[].body (quality-review gates) as the rule set for review.",
+			"Score the candidate 0-5 on three design dimensions and return them in scores: hierarchy, separation, fidelity.",
+			"Emit a finding with severity for any violated rule, for example missing dividers between sections or overused dividers inside cards.",
 			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.qualityInspection}.`,
 			"Return bounded findings only. Do not mutate files, approve artifacts, or invent schema fields.",
 			"Use findings with code, severity, message, optional path, and optional suggestion.",
@@ -320,6 +334,49 @@ export function buildQualityReviewAgentInput(input: {
 			...generationInput.context,
 			candidate: input.candidate,
 			validationReport: input.validationReport,
+		},
+	};
+}
+
+/**
+ * Builds the non-binding component-proposal input.
+ * The task proposes components or variants outside the catalog with source evidence and a nearest
+ * catalog match. It never confirms or applies anything; promotion happens via catalog mutation only.
+ */
+export function buildComponentProposalAgentInput(input: {
+	candidate?: unknown;
+	componentContractCatalog?: ComponentContractCatalog;
+	compositionPlan?: unknown;
+	decorationPlan?: DecorationPlanContract;
+	designContextBundleRefs?: DesignContextBundleRef[];
+	designContextBundles?: DesignContextBundleContent[];
+	layerCandidates?: PatternLayerCandidate[];
+	patternSelection?: unknown;
+	screenIntent?: unknown;
+	sourceSpec: SourceSpec;
+}): ComponentProposalAgentInput {
+	const generationInput = buildScreenGenerationAgentInput(input.sourceSpec, {
+		componentContractCatalog: input.componentContractCatalog,
+		compositionPlan: input.compositionPlan,
+		decorationPlan: input.decorationPlan,
+		designContextBundleRefs: input.designContextBundleRefs,
+		designContextBundles: input.designContextBundles,
+		layerCandidates: input.layerCandidates,
+		patternSelection: input.patternSelection,
+		screenIntent: input.screenIntent,
+	});
+
+	return {
+		query: [
+			"Propose components or variants that are NOT in the catalog but would improve this screen.",
+			"Each proposal must include sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
+			"Use context.designContextBundles[].body as bounded design guidance for what would improve the screen.",
+			"Return at most 5 proposals. Do not confirm or apply anything; this is a non-binding proposal artifact.",
+			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.componentProposal}.`,
+		].join("\n"),
+		context: {
+			...generationInput.context,
+			candidate: input.candidate,
 		},
 	};
 }

@@ -8,6 +8,7 @@ export type ValidationOperation = ValidationBoundary["owns"][number];
 
 export type ValidationTarget =
 	| "agent-result"
+	| "component-proposal"
 	| "composition-plan"
 	| "component-usage"
 	| "layout-props"
@@ -35,7 +36,10 @@ export type ValidationIssueCode =
 	| "state-coverage-missing"
 	| "unknown-source-ref"
 	| "unknown-layout-ref"
-	| "layout-ref-outside-candidates";
+	| "layout-ref-outside-candidates"
+	| "proposal-source-evidence-missing"
+	| "proposal-nearest-match-unknown"
+	| "proposal-limit-exceeded";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;

@@ -16,6 +16,7 @@ export const JSON_SCHEMA_BY_ARTIFACT_KIND = {
 			createJsonSchema(kind, version),
 		]),
 	),
+	"component-proposal": createComponentProposalJsonSchema(),
 	"composition-plan": createCompositionPlanJsonSchema(),
 	"decoration-plan": createDecorationPlanJsonSchema(),
 	"quality-inspection": createQualityInspectionJsonSchema(),
@@ -49,6 +50,43 @@ function createJsonSchema(kind: string, version: string): JsonSchemaDocument {
 		required: ["schemaVersion"],
 		title: kind,
 		type: "object",
+	};
+}
+
+function createComponentProposalJsonSchema(): JsonSchemaDocument {
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.componentProposal,
+		additionalProperties: false,
+		required: ["schemaVersion", "proposals"],
+		title: "component-proposal",
+		type: "object",
+		properties: {
+			schemaVersion: { const: SCHEMA_VERSION.componentProposal },
+			proposals: {
+				type: "array",
+				items: { $ref: "#/$defs/proposal" },
+			},
+		},
+		$defs: {
+			proposal: {
+				type: "object",
+				additionalProperties: false,
+				required: ["id", "title", "rationale", "sourceEvidence", "nearestCatalogMatch"],
+				properties: {
+					id: { type: "string", minLength: 1 },
+					title: { type: "string", minLength: 1 },
+					rationale: { type: "string", minLength: 1 },
+					sourceEvidence: {
+						type: "array",
+						minItems: 1,
+						items: { type: "string", minLength: 1 },
+					},
+					nearestCatalogMatch: { type: "string", minLength: 1 },
+					suggestedProps: { type: "object", additionalProperties: true },
+				},
+			},
+		},
 	};
 }
 
@@ -289,6 +327,16 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 					compositionAligned: { type: "boolean" },
 					sourceFaithful: { type: "boolean" },
 					visualHierarchyClear: { type: "boolean" },
+				},
+			},
+			scores: {
+				type: "object",
+				additionalProperties: false,
+				required: ["hierarchy", "separation", "fidelity"],
+				properties: {
+					hierarchy: { type: "integer", minimum: 0, maximum: 5 },
+					separation: { type: "integer", minimum: 0, maximum: 5 },
+					fidelity: { type: "integer", minimum: 0, maximum: 5 },
 				},
 			},
 			schemaVersion: { const: SCHEMA_VERSION.qualityInspection },
