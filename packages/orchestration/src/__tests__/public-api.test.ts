@@ -119,6 +119,35 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain("context.designContextBundles");
 	});
 
+	it("instructs design scoring using injected bundles in quality review", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const input = buildQualityReviewAgentInput({
+			candidate: {},
+			sourceSpec,
+			designContextBundles: [
+				{ id: "quality-review", reason: "r", sourceDocs: [], version: "v", body: "GATE LINE" },
+			],
+		});
+
+		expect(input.query.toLowerCase()).toContain("score");
+		expect(input.query).toContain("hierarchy");
+		expect(input.query).toContain("separation");
+		expect(input.query).toContain("fidelity");
+		expect(JSON.stringify(input.context)).toContain("GATE LINE");
+	});
+
 	it("builds bounded component-proposal input", () => {
 		const sourceSpec: SourceSpec = {
 			schemaVersion: SCHEMA_VERSION.sourceSpec,
