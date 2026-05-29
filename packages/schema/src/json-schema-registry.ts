@@ -16,12 +16,23 @@ export const JSON_SCHEMA_BY_ARTIFACT_KIND = {
 			createJsonSchema(kind, version),
 		]),
 	),
+	"composition-plan": createCompositionPlanJsonSchema(),
+	"quality-inspection": createQualityInspectionJsonSchema(),
 	"render-tree": createRenderTreeJsonSchema(),
+	"screen-intent": createScreenIntentJsonSchema(),
 	"table-generation-result": createTableGenerationResultJsonSchema(),
 } as Record<GenerationArtifactKind, JsonSchemaDocument>;
 
 export function getJsonSchema(kind: GenerationArtifactKind): JsonSchemaDocument {
 	return JSON_SCHEMA_BY_ARTIFACT_KIND[kind];
+}
+
+function layoutIdSchema(target?: "area" | "composite" | "region" | "screen") {
+	const targetPattern = target ?? "screen|region|area|composite";
+	return {
+		type: "string",
+		pattern: `^layout\\.(${targetPattern})\\.[A-Za-z0-9]+$`,
+	};
 }
 
 function createJsonSchema(kind: string, version: string): JsonSchemaDocument {
@@ -37,6 +48,144 @@ function createJsonSchema(kind: string, version: string): JsonSchemaDocument {
 		required: ["schemaVersion"],
 		title: kind,
 		type: "object",
+	};
+}
+
+function createScreenIntentJsonSchema(): JsonSchemaDocument {
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.screenIntent,
+		additionalProperties: false,
+		properties: {
+			contentPriority: {
+				type: "array",
+				items: { type: "string", minLength: 1 },
+			},
+			primaryUserAction: { type: "string", minLength: 1 },
+			rationale: { type: "string", minLength: 1 },
+			schemaVersion: { const: SCHEMA_VERSION.screenIntent },
+			screenPurpose: { type: "string", minLength: 1 },
+			sourceInterpretation: {
+				type: "object",
+				additionalProperties: false,
+				required: ["defer", "preserve", "summarize"],
+				properties: {
+					defer: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+					preserve: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+					summarize: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+				},
+			},
+		},
+		required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
+		title: "screen-intent",
+		type: "object",
+	};
+}
+
+function createCompositionPlanJsonSchema(): JsonSchemaDocument {
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.compositionPlan,
+		additionalProperties: false,
+		properties: {
+			layoutStrategy: { type: "string", minLength: 1 },
+			rationale: { type: "string", minLength: 1 },
+			schemaVersion: { const: SCHEMA_VERSION.compositionPlan },
+			screenLayout: layoutIdSchema("screen"),
+			sections: {
+				type: "array",
+				minItems: 1,
+				items: { $ref: "#/$defs/section" },
+			},
+		},
+		required: ["schemaVersion", "screenLayout", "layoutStrategy", "sections"],
+		title: "composition-plan",
+		type: "object",
+		$defs: {
+			section: {
+				type: "object",
+				additionalProperties: false,
+				required: ["targetRegion", "role", "priority", "sourceRefs", "strategy"],
+				properties: {
+					priority: { type: "integer", minimum: 1 },
+					role: {
+						enum: ["bottom-action", "content", "feedback", "form", "header", "summary"],
+					},
+					sourceRefs: {
+						type: "array",
+						minItems: 1,
+						items: { type: "string", minLength: 1 },
+					},
+					strategy: { type: "string", minLength: 1 },
+					targetRegion: { enum: ["bottom", "contents", "header", "overlay"] },
+				},
+			},
+		},
+	};
+}
+
+function createQualityInspectionJsonSchema(): JsonSchemaDocument {
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.qualityInspection,
+		additionalProperties: false,
+		properties: {
+			findings: {
+				type: "array",
+				items: { $ref: "#/$defs/finding" },
+			},
+			inspection: {
+				type: "object",
+				additionalProperties: false,
+				required: ["compositionAligned", "sourceFaithful", "visualHierarchyClear"],
+				properties: {
+					compositionAligned: { type: "boolean" },
+					sourceFaithful: { type: "boolean" },
+					visualHierarchyClear: { type: "boolean" },
+				},
+			},
+			schemaVersion: { const: SCHEMA_VERSION.qualityInspection },
+			summary: {
+				type: "object",
+				additionalProperties: false,
+				required: ["errorCount", "warningCount"],
+				properties: {
+					errorCount: { type: "integer", minimum: 0 },
+					warningCount: { type: "integer", minimum: 0 },
+				},
+			},
+		},
+		required: ["schemaVersion", "inspection", "findings", "summary"],
+		title: "quality-inspection",
+		type: "object",
+		$defs: {
+			finding: {
+				type: "object",
+				additionalProperties: false,
+				required: ["code", "message", "severity"],
+				properties: {
+					code: { type: "string", minLength: 1 },
+					message: { type: "string", minLength: 1 },
+					path: {
+						type: "array",
+						items: {
+							anyOf: [{ type: "string" }, { type: "integer" }],
+						},
+					},
+					severity: { enum: ["error", "info", "warning"] },
+					suggestion: { type: "string", minLength: 1 },
+				},
+			},
+		},
 	};
 }
 
@@ -134,15 +283,6 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 					},
 				},
 			},
-			patternRef: {
-				type: "object",
-				additionalProperties: false,
-				required: ["id"],
-				properties: {
-					id: { type: "string", minLength: 1 },
-					variant: { type: "string", minLength: 1 },
-				},
-			},
 			renderTreeNode: {
 				type: "object",
 				additionalProperties: false,
@@ -151,7 +291,9 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 					type: { type: "string", minLength: 1 },
 					componentVersion: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/renderTreeNodeMetadata" },
-					pattern: { $ref: "#/$defs/patternRef" },
+					layout: {
+						...layoutIdSchema(),
+					},
 					props: { $ref: "#/$defs/props" },
 					className: { type: "string" },
 					style: {
@@ -174,7 +316,6 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 }
 
 function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
-	const patternRef = { $ref: "#/$defs/patternRef" };
 	const childRef = { $ref: "#/$defs/childRef" };
 
 	return {
@@ -197,15 +338,6 @@ function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
 			},
 		},
 		$defs: {
-			patternRef: {
-				type: "object",
-				additionalProperties: false,
-				required: ["id"],
-				properties: {
-					id: { type: "string", minLength: 1 },
-					variant: { type: "string", minLength: 1 },
-				},
-			},
 			metadata: {
 				type: "object",
 				additionalProperties: true,
@@ -230,30 +362,30 @@ function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
 			regionRecord: {
 				type: "object",
 				additionalProperties: false,
-				required: ["type", "metadata", "pattern", "children"],
+				required: ["type", "metadata", "layout", "children"],
 				properties: {
 					type: { enum: ["Screen.Header", "Screen.Contents", "Screen.Bottom"] },
+					layout: layoutIdSchema("region"),
 					metadata: {
 						type: "object",
 						additionalProperties: true,
 						required: ["title"],
 						properties: { title: { type: "string", minLength: 1 } },
 					},
-					pattern: patternRef,
 					children: { type: "array", items: childRef },
 				},
 			},
 			screenRecord: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "version", "metadata", "screenVariantId", "pattern", "screen"],
+				required: ["id", "version", "metadata", "screenVariantId", "layout", "screen"],
 				properties: {
 					id: { type: "string", minLength: 1 },
 					version: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/metadata" },
 					screenVariantId: { type: "string", minLength: 1 },
 					minRendererVersion: { type: "string" },
-					pattern: patternRef,
+					layout: layoutIdSchema("screen"),
 					screen: {
 						type: "object",
 						additionalProperties: false,
@@ -277,12 +409,12 @@ function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
 			areaRecord: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "version", "metadata", "pattern", "type", "children"],
+				required: ["id", "version", "metadata", "layout", "type", "children"],
 				properties: {
 					id: { type: "string", minLength: 1 },
 					version: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/metadata" },
-					pattern: patternRef,
+					layout: layoutIdSchema("area"),
 					type: { enum: ["area.static", "area.dynamic"] },
 					props: { type: "object" },
 					children: { type: "array", items: childRef },
@@ -308,12 +440,12 @@ function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
 			componentRecord: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "version", "metadata", "pattern", "type", "children"],
+				required: ["id", "version", "metadata", "layout", "type", "children"],
 				properties: {
 					id: { type: "string", minLength: 1 },
 					version: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/metadata" },
-					pattern: patternRef,
+					layout: layoutIdSchema("composite"),
 					type: { type: "string", minLength: 1 },
 					children: { type: "array", items: { $ref: "#/$defs/componentChild" } },
 					hooks: { type: "array" },

@@ -10,10 +10,6 @@
 				"updatedAt": "2026-05-27T01:20:03.453Z",
 				"description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -33,7 +29,8 @@
 					"action": "navigate",
 					"target": "NOVA-PRDD-PG-001-0"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "dec-card-summary",
@@ -44,10 +41,6 @@
 				"createdAt": "2026-05-27T01:20:03.453Z",
 				"updatedAt": "2026-05-27T01:20:03.453Z",
 				"description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
-			},
-			"pattern": {
-				"id": "component-card-summary",
-				"variant": "default"
 			},
 			"type": "CardSummary",
 			"children": [
@@ -60,7 +53,8 @@
 						"subText": "Apple / 스마트폰 / 월 50,000원"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentCardSummary"
 		},
 		{
 			"id": "dec-badge-status",
@@ -71,10 +65,6 @@
 				"createdAt": "2026-05-27T01:20:03.453Z",
 				"updatedAt": "2026-05-27T01:20:03.453Z",
 				"description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
-			},
-			"pattern": {
-				"id": "component-badge",
-				"variant": "default"
 			},
 			"type": "Badge",
 			"children": [
@@ -88,7 +78,8 @@
 						"variant": "blue"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentBadge"
 		},
 		{
 			"id": "dec-product-more-link",
@@ -99,10 +90,6 @@
 				"createdAt": "2026-05-27T01:20:03.453Z",
 				"updatedAt": "2026-05-27T01:20:03.453Z",
 				"description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
-			},
-			"pattern": {
-				"id": "component-text-button",
-				"variant": "default"
 			},
 			"type": "TextButton",
 			"children": [
@@ -122,7 +109,8 @@
 					"action": "navigate",
 					"target": "NOVA-PRDD-PG-002-0"
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextButton"
 		},
 		{
 			"id": "dec-list-text-info",
@@ -133,10 +121,6 @@
 				"createdAt": "2026-05-27T01:20:03.453Z",
 				"updatedAt": "2026-05-27T01:20:03.453Z",
 				"description": "고객이 상품명, 유형, 대표 가격, 핵심 혜택, 대상 조건을 조회하고 가입 가능 요약을 확인해 다음 탐색 기준을 판단한다."
-			},
-			"pattern": {
-				"id": "component-info-text-list",
-				"variant": "default"
 			},
 			"type": "ListText",
 			"children": [
@@ -150,7 +134,8 @@
 						"subText": "T 우주패스 제휴 혜택 제공"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentInfoTextList"
 		},
 		{
 			"id": "list-cell-term-required",
@@ -161,10 +146,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-list-cell",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -186,7 +167,8 @@
 						"parameter": "checkedTerms"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentListCell"
 		},
 		{
 			"id": "list-cell-term-optional",
@@ -197,10 +179,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-list-cell",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -222,7 +200,8 @@
 						"parameter": "checkedTerms"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentListCell"
 		},
 		{
 			"id": "accordion-term-detail",
@@ -233,10 +212,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-accordion",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -255,7 +230,8 @@
 						"parameter": "expandedTermId"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentAccordion"
 		},
 		{
 			"id": "section-message-term-error",
@@ -266,10 +242,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -283,7 +255,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "checkbox-all-agree",
@@ -294,10 +267,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-checkbox",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -319,7 +288,8 @@
 						"parameter": "allTermsAgreed"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentCheckbox"
 		},
 		{
 			"id": "checkbox-term-required",
@@ -330,10 +300,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-checkbox",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -355,7 +321,8 @@
 						"parameter": "checkedTermId"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentCheckbox"
 		},
 		{
 			"id": "checkbox-term-optional",
@@ -366,10 +333,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-checkbox",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -391,7 +354,8 @@
 						"parameter": "checkedTermId"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentCheckbox"
 		},
 		{
 			"id": "section-message-required-error",
@@ -402,10 +366,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -419,7 +379,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-next",
@@ -430,10 +391,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -455,7 +412,8 @@
 						"parameter": "NOVA-MBR-FP-002-0"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "text-field-guardian-name",
@@ -466,10 +424,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -492,7 +446,8 @@
 						"parameter": "guardianName"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "text-field-guardian-phone",
@@ -503,10 +458,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -529,7 +480,8 @@
 						"parameter": "guardianPhone"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "section-message-guardian-info",
@@ -540,10 +492,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -557,7 +505,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-guardian-error",
@@ -568,10 +517,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -585,7 +530,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-guardian-request",
@@ -596,10 +542,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -617,7 +559,8 @@
 					"trigger": "onClick",
 					"action": "apiCall"
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-guardian-wait",
@@ -628,10 +571,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -645,7 +584,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-guardian-expire",
@@ -656,10 +596,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -673,7 +609,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "button-guardian-retry",
@@ -684,10 +621,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -705,7 +638,8 @@
 					"trigger": "onClick",
 					"action": "apiCall"
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "text-field-user-id",
@@ -716,10 +650,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -743,7 +673,8 @@
 						"parameter": "userId"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "text-field-password",
@@ -754,10 +685,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -781,7 +708,8 @@
 						"parameter": "password"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "text-field-email",
@@ -792,10 +720,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -818,7 +742,8 @@
 						"parameter": "email"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "text-field-phone",
@@ -829,10 +754,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -855,7 +776,8 @@
 						"parameter": "phone"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "section-message-input-error",
@@ -866,10 +788,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -883,7 +801,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-next-member-input",
@@ -894,10 +813,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -919,7 +834,8 @@
 						"parameter": "NOVA-MBR-FP-003-0"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-entry-existing",
@@ -930,10 +846,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -947,7 +859,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-entry-dormant",
@@ -958,10 +871,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -975,7 +884,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-entry-withdrawn",
@@ -986,10 +896,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1003,7 +909,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "list-cell-auth-phone",
@@ -1014,10 +921,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-list-cell",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1039,7 +942,8 @@
 						"parameter": "selectedAuthMethod"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentListCell"
 		},
 		{
 			"id": "list-cell-auth-pass",
@@ -1050,10 +954,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-list-cell",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1075,7 +975,8 @@
 						"parameter": "selectedAuthMethod"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentListCell"
 		},
 		{
 			"id": "list-cell-auth-cert",
@@ -1086,10 +987,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-list-cell",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1111,7 +1008,8 @@
 						"parameter": "selectedAuthMethod"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentListCell"
 		},
 		{
 			"id": "text-field-auth-code",
@@ -1122,10 +1020,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-text-field",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1149,7 +1043,8 @@
 						"parameter": "authCode"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextField"
 		},
 		{
 			"id": "list-text-auth-timer",
@@ -1161,10 +1056,6 @@
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z",
 				"description": "인증번호 입력 유효시간을 읽기 전용 상태값으로 표시한다."
-			},
-			"pattern": {
-				"id": "component-list-text",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1179,7 +1070,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentListText"
 		},
 		{
 			"id": "section-message-auth-error",
@@ -1190,10 +1082,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1207,7 +1095,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-auth-expire",
@@ -1218,10 +1107,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1235,7 +1120,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "text-button-auth-retry",
@@ -1247,10 +1133,6 @@
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z",
 				"description": "인증번호를 다시 요청하는 보조 텍스트 액션이다."
-			},
-			"pattern": {
-				"id": "component-text-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1268,7 +1150,8 @@
 					"trigger": "onClick",
 					"action": "apiCall"
 				}
-			]
+			],
+			"layout": "layout.composite.componentTextButton"
 		},
 		{
 			"id": "action-area-auth-confirm",
@@ -1279,10 +1162,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-action-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1302,7 +1181,8 @@
 					"trigger": "onClick",
 					"action": "apiCall"
 				}
-			]
+			],
+			"layout": "layout.composite.componentActionButton"
 		},
 		{
 			"id": "section-message-status-dormant",
@@ -1313,10 +1193,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1330,7 +1206,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-status-withdrawn",
@@ -1341,10 +1218,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1358,7 +1231,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-status-error",
@@ -1369,10 +1243,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1386,7 +1256,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "button-status-retry",
@@ -1397,10 +1268,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1418,7 +1285,8 @@
 					"trigger": "onClick",
 					"action": "apiCall"
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-join-available",
@@ -1429,10 +1297,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1446,7 +1310,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-join-dormant",
@@ -1457,10 +1322,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1474,7 +1335,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-join-blocked",
@@ -1485,10 +1347,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1502,7 +1360,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-join-proceed",
@@ -1513,10 +1372,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1538,7 +1393,8 @@
 						"parameter": "NOVA-MBR-FP-005-0"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-join-success",
@@ -1549,10 +1405,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1566,7 +1418,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-session-error",
@@ -1577,10 +1430,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1594,7 +1443,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-join-done",
@@ -1605,10 +1455,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-action-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1632,7 +1478,8 @@
 						"parameter": "홈"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentActionButton"
 		},
 		{
 			"id": "section-message-dormant-guide",
@@ -1643,10 +1490,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1660,7 +1503,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-dormant-error",
@@ -1671,10 +1515,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1688,7 +1528,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-dormant-release",
@@ -1699,10 +1540,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1724,7 +1561,8 @@
 						"parameter": "NOVA-MBR-FP-007-0"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-eligibility-guide",
@@ -1735,10 +1573,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1752,7 +1586,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-eligibility-block",
@@ -1763,10 +1598,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1780,7 +1611,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-eligibility-error",
@@ -1791,10 +1623,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1808,7 +1636,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-eligibility-proceed",
@@ -1819,10 +1648,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1844,7 +1669,8 @@
 						"parameter": "NOVA-MBR-FP-008-0"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentButton"
 		},
 		{
 			"id": "section-message-release-progress",
@@ -1855,10 +1681,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1872,7 +1694,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-release-error",
@@ -1883,10 +1706,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1900,7 +1719,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-release-session-error",
@@ -1911,10 +1731,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1928,7 +1744,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "section-message-complete-result",
@@ -1939,10 +1756,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-section-message",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1956,7 +1769,8 @@
 					}
 				}
 			],
-			"hooks": []
+			"hooks": [],
+			"layout": "layout.composite.componentSectionMessage"
 		},
 		{
 			"id": "action-area-complete-home",
@@ -1967,10 +1781,6 @@
 				"author": "plus_x_athor_1",
 				"createdAt": "2026-05-22T05:58:12.837Z",
 				"updatedAt": "2026-05-22T05:58:12.837Z"
-			},
-			"pattern": {
-				"id": "component-action-button",
-				"variant": "default"
 			},
 			"children": [
 				{
@@ -1994,7 +1804,8 @@
 						"parameter": "홈"
 					}
 				}
-			]
+			],
+			"layout": "layout.composite.componentActionButton"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-001-0",
@@ -2006,10 +1817,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2029,7 +1836,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-001-e1",
@@ -2041,10 +1849,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2064,7 +1868,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-001-e2",
@@ -2076,10 +1881,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2099,7 +1900,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-001-e3",
@@ -2111,10 +1913,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2134,7 +1932,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-0",
@@ -2146,10 +1945,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2169,7 +1964,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-e1",
@@ -2181,10 +1977,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2204,7 +1996,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-e2",
@@ -2216,10 +2009,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2239,7 +2028,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-e3",
@@ -2251,10 +2041,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2274,7 +2060,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-e4",
@@ -2286,10 +2073,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2309,7 +2092,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-002-e5",
@@ -2321,10 +2105,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2344,7 +2124,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-003-0",
@@ -2356,10 +2137,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2379,7 +2156,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-003-e1",
@@ -2391,10 +2169,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2414,7 +2188,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-003-e2",
@@ -2426,10 +2201,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2449,7 +2220,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-003-e3",
@@ -2461,10 +2233,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2484,7 +2252,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-003-e4",
@@ -2496,10 +2265,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2519,7 +2284,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-0",
@@ -2531,10 +2297,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2554,7 +2316,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e1",
@@ -2566,10 +2329,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2589,7 +2348,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e2",
@@ -2601,10 +2361,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2624,7 +2380,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e3",
@@ -2636,10 +2393,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2659,7 +2412,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e4",
@@ -2671,10 +2425,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2694,7 +2444,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e5",
@@ -2706,10 +2457,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2729,7 +2476,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-004-e6",
@@ -2741,10 +2489,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2764,7 +2508,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-005-0",
@@ -2776,10 +2521,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2799,7 +2540,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-005-e1",
@@ -2811,10 +2553,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2834,7 +2572,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-005-e2",
@@ -2846,10 +2585,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2869,7 +2604,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-005-e3",
@@ -2881,10 +2617,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2904,7 +2636,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-0",
@@ -2916,10 +2649,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2939,7 +2668,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-e1",
@@ -2951,10 +2681,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -2974,7 +2700,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-e2",
@@ -2986,10 +2713,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3009,7 +2732,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-e3",
@@ -3021,10 +2745,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3044,7 +2764,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-e4",
@@ -3056,10 +2777,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3079,7 +2796,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-006-e5",
@@ -3091,10 +2809,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3114,7 +2828,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-007-0",
@@ -3126,10 +2841,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3149,7 +2860,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-007-e1",
@@ -3161,10 +2873,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3184,7 +2892,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-007-e2",
@@ -3196,10 +2905,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3219,7 +2924,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-007-e3",
@@ -3231,10 +2937,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3254,7 +2956,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-008-0",
@@ -3266,10 +2969,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3289,7 +2988,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-008-e1",
@@ -3301,10 +3001,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3324,7 +3020,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-008-e2",
@@ -3336,10 +3033,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3359,7 +3052,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-008-e3",
@@ -3371,10 +3065,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3394,7 +3084,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-008-e4",
@@ -3406,10 +3097,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3429,7 +3116,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-009-0",
@@ -3441,10 +3129,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3464,7 +3148,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-009-e1",
@@ -3476,10 +3161,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3499,7 +3180,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-009-e2",
@@ -3511,10 +3193,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3534,7 +3212,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-009-e3",
@@ -3546,10 +3225,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3569,7 +3244,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-010-0",
@@ -3581,10 +3257,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3604,7 +3276,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-010-e1",
@@ -3616,10 +3289,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3639,7 +3308,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-010-e2",
@@ -3651,10 +3321,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3674,7 +3340,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-010-e3",
@@ -3686,10 +3353,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3709,7 +3372,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-010-e4",
@@ -3721,10 +3385,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3744,7 +3404,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-011-0",
@@ -3756,10 +3417,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3779,7 +3436,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-011-e1",
@@ -3791,10 +3449,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3814,7 +3468,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		},
 		{
 			"id": "mbr-appbar-nova-mbr-fp-011-e2",
@@ -3826,10 +3481,6 @@
 				"updatedAt": "2026-05-27T00:00:00.000Z",
 				"description": "회원 가입/휴면 해제 MBR 화면의 현재 단계 제목과 뒤로가기 affordance를 제공한다."
 			},
-			"pattern": {
-				"id": "component-app-bar",
-				"variant": "default"
-			},
 			"type": "AppBar",
 			"children": [
 				{
@@ -3849,7 +3500,8 @@
 					"action": "navigate",
 					"target": "back"
 				}
-			]
+			],
+			"layout": "layout.composite.componentAppBar"
 		}
 	]
 }

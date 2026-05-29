@@ -8,6 +8,64 @@ export type SideEffectOperation = SideEffectBoundary["owns"][number];
 export type SideEffectCommandStatus = "failed" | "skipped" | "succeeded";
 export type PipelineRunMode = "commit" | "dry-run";
 
+export type PipelineId = "screen-generation";
+
+export type PipelineStageId =
+	| "derive-screen-intent"
+	| "generate-render-tree"
+	| "parse-source"
+	| "plan-composition"
+	| "read-source"
+	| "review-quality"
+	| "revise-render-tree-if-invalid"
+	| "select-pattern"
+	| "validate-render-tree"
+	| "validate-render-tree-after-revision"
+	| "write-artifacts";
+
+export type PipelineDefinition = {
+	id: PipelineId | string;
+	stages: PipelineStageId[];
+};
+
+export type PipelineAgentMode = "claude-local-first" | "fake";
+
+export type ScreenGenerationPipelineOptions = {
+	agentMode?: PipelineAgentMode;
+	outDir?: string;
+	runId?: string;
+	source:
+		| {
+				kind?: PipelineMarkdownSourceFile["kind"];
+				path: string;
+				type: "file";
+		  }
+		| string;
+	useAI?: boolean;
+};
+
+export type PipelineSummary = {
+	agentPayload?: unknown;
+	areaCount: number;
+	componentCount: number;
+	ok: boolean;
+	outDir: string;
+	screenCode?: string;
+	session?: unknown;
+	sourcePath: string;
+	validationOk?: boolean;
+};
+
+export type PipelineRunResult = {
+	outDir: string;
+	pipelineResult: SideEffectExecutionResult;
+	pipelineResultWrite: SideEffectExecutionResult;
+	runId: string;
+	sourcePath: string;
+	summary: PipelineSummary;
+	[key: string]: unknown;
+};
+
 export type SideEffectArtifactRef = {
 	kind: "directory" | "file" | "store";
 	uri: string;

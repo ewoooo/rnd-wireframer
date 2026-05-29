@@ -10,10 +10,15 @@ export type {
 	ValidationSeverity,
 	ValidationTarget,
 } from "./public/types";
-export type { ComponentUsageInput, ValidationOptions } from "./public/validators";
+export type {
+	ComponentUsageInput,
+	CompositionPlanValidationOptions,
+	ValidationOptions,
+} from "./public/validators";
 export {
 	validateAgentResult,
 	validateComponentUsage,
+	validateCompositionPlan,
 	validateLayoutProps,
 	validateRenderTree,
 	validateSchemaArtifact,

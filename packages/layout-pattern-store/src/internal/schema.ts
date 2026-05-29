@@ -6,6 +6,8 @@ import type {
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
+	LayoutPatternChildrenContract,
+	LayoutPatternPropContract,
 	Pattern,
 	PatternResolutionSignals,
 	PatternStore,
@@ -23,6 +25,8 @@ export type {
 	ChildWrapPreset,
 	CompositePattern,
 	CompositeVariant,
+	LayoutPatternChildrenContract,
+	LayoutPatternPropContract,
 	Pattern,
 	PatternResolutionSignals,
 	RegionPattern,
@@ -47,6 +51,7 @@ const propValueSchema: z.ZodType<PropValue> = z.lazy(() =>
 );
 
 const propsSchema: z.ZodType<Record<string, PropValue>> = z.record(z.string(), propValueSchema);
+const patternTargetSchema = z.enum(["screen", "region", "area", "composite"]);
 
 const patternIdSchema = z
 	.string()
@@ -55,6 +60,70 @@ const patternIdSchema = z
 
 const variantIdSchema = z.string().min(1);
 const nonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
+
+const layoutPatternPropContractSchema = z
+	.object({
+		type: z.enum(["array", "boolean", "enum", "node", "number", "object", "string"]),
+		aiWritable: z.boolean().optional(),
+		description: z.string().optional(),
+		required: z.boolean().optional(),
+		values: nonEmptyStringArraySchema.optional(),
+	})
+	.strict()
+	.superRefine((contract, ctx) => {
+		if (contract.type === "enum" && !contract.values) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "enum props must declare values",
+				path: ["values"],
+			});
+		}
+		if (contract.type !== "enum" && contract.values) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "values can only be declared for enum props",
+				path: ["values"],
+			});
+		}
+	}) satisfies z.ZodType<LayoutPatternPropContract>;
+
+const layoutPatternChildrenContractSchema = z
+	.object({
+		accepts: z.enum(["any", "area", "area-or-component", "component", "none", "region"]),
+		max: z.number().int().nonnegative().optional(),
+		min: z.number().int().nonnegative().optional(),
+	})
+	.superRefine((contract, ctx) => {
+		if (contract.max !== undefined && contract.min !== undefined && contract.max < contract.min) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "children.max must be greater than or equal to children.min",
+				path: ["max"],
+			});
+		}
+	}) satisfies z.ZodType<LayoutPatternChildrenContract>;
+
+export const layoutPatternCatalogEntrySchema = z
+	.object({
+		id: z.string().regex(/^layout\.(screen|region|area|composite)\.[A-Za-z0-9][A-Za-z0-9.-]*$/),
+		target: patternTargetSchema,
+		name: z.string().min(1),
+		componentID: z.string().min(1),
+		children: layoutPatternChildrenContractSchema.optional(),
+		description: z.string().optional(),
+		props: z.record(z.string(), layoutPatternPropContractSchema).optional(),
+		status: z.enum(["deprecated", "draft", "ready"]).optional(),
+	})
+	.superRefine((entry, ctx) => {
+		const expectedPrefix = `layout.${entry.target}.`;
+		if (!entry.id.startsWith(expectedPrefix)) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: `id for target '${entry.target}' must start with '${expectedPrefix}'`,
+				path: ["id"],
+			});
+		}
+	});
 
 const childWrapSchema = z.object({
 	kind: z.literal("page-stack"),
@@ -173,55 +242,7 @@ export const patternSchema = z.discriminatedUnion("target", [
 	compositePatternSchema,
 ]);
 
-const catalogMatchSchema = z
-	.object({
-		areas: setMatcherSchema,
-		composites: setMatcherSchema,
-		componentTypes: setMatcherSchema,
-		keywords: z.array(z.string()).optional(),
-		ids: z.array(z.string()).optional(),
-		priority: z.number().optional(),
-	})
-	.optional();
-
-const catalogBaseFields = {
-	id: patternIdSchema,
-	name: z.string().min(1),
-	description: z.string().optional(),
-	variant: variantIdSchema.optional(),
-	match: catalogMatchSchema,
-};
-
-const regionCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("region"),
-	layout: regionVariantSchema.optional(),
-});
-
-const areaCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("area"),
-	layout: areaVariantSchema.optional(),
-});
-
-const compositeCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("composite"),
-	layout: compositeVariantSchema.optional(),
-});
-
-const screenCatalogPatternSchema = z.object({
-	...catalogBaseFields,
-	target: z.literal("screen"),
-	layout: screenVariantSchema.optional(),
-});
-
-const catalogPatternSchema = z.discriminatedUnion("target", [
-	screenCatalogPatternSchema,
-	regionCatalogPatternSchema,
-	areaCatalogPatternSchema,
-	compositeCatalogPatternSchema,
-]);
+const catalogPatternSchema = layoutPatternCatalogEntrySchema;
 
 export const normalizedPatternStoreSchema: z.ZodType<PatternStore> = z
 	.object({
@@ -233,44 +254,68 @@ export const patternStoreSchema = z
 	.object({
 		patterns: z.array(catalogPatternSchema),
 	})
-	.superRefine(refineUniquePatternIds)
+	.superRefine(refineUniqueCatalogPatternIds)
 	.transform((store) => ({
-		patterns: store.patterns.map(normalizeCatalogPattern),
+		patterns: store.patterns.map(normalizeLayoutPatternCatalogEntry),
 	}));
 
-function normalizeCatalogPattern(pattern: CatalogPattern): Pattern {
-	const defaultVariant = pattern.variant ?? "default";
+function normalizeLayoutPatternCatalogEntry(
+	pattern: z.infer<typeof layoutPatternCatalogEntrySchema>,
+): Pattern {
+	const id = layoutPatternIdToPatternId(pattern.id);
+
 	return {
-		id: pattern.id,
+		id,
 		target: pattern.target,
 		name: pattern.name,
 		description: pattern.description,
-		defaultVariant,
-		resolution: normalizeCatalogMatch(pattern.match),
+		defaultVariant: "default",
 		variants: {
-			[defaultVariant]: pattern.layout ?? {},
+			default: {},
 		},
 	} as Pattern;
 }
 
-function normalizeCatalogMatch(match: CatalogMatch): PatternResolutionSignals | undefined {
-	if (!match) return undefined;
-	return {
-		areaPatterns: match.areas,
-		compositePatterns: match.composites,
-		componentTypes: match.componentTypes,
-		nameKeywords: match.keywords,
-		idPatterns: match.ids,
-		priority: match.priority,
-	};
+function refineUniqueCatalogPatternIds<T extends { patterns: Array<{ id?: string }> }>(
+	store: T,
+	ctx: z.RefinementCtx,
+) {
+	const seen = new Set<string>();
+	for (const [index, pattern] of store.patterns.entries()) {
+		const id = pattern.id?.startsWith("layout.")
+			? layoutPatternIdToPatternId(pattern.id)
+			: pattern.id;
+		if (!id) continue;
+		if (!seen.has(id)) {
+			seen.add(id);
+			continue;
+		}
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: `duplicate pattern id '${id}'`,
+			path: ["patterns", index, "id"],
+		});
+	}
+}
+
+function layoutPatternIdToPatternId(id: string): string {
+	return id
+		.replace(/^layout\.(screen|region|area|composite)\./, "")
+		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+		.toLowerCase();
 }
 
 export const patternCatalogSchema = z.object({
 	patterns: z.array(catalogPatternSchema),
 });
 
+export const layoutPatternCatalogSchema = z
+	.object({
+		patterns: z.array(layoutPatternCatalogEntrySchema),
+	})
+	.superRefine(refineUniqueLayoutIds);
+
 export type CatalogPattern = z.infer<typeof catalogPatternSchema>;
-export type CatalogMatch = z.infer<typeof catalogMatchSchema>;
 
 function refineUniquePatternIds<T extends { patterns: Array<{ id: string }> }>(
 	store: T,
@@ -285,6 +330,24 @@ function refineUniquePatternIds<T extends { patterns: Array<{ id: string }> }>(
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
 			message: `duplicate pattern id '${pattern.id}'`,
+			path: ["patterns", index, "id"],
+		});
+	}
+}
+
+function refineUniqueLayoutIds<T extends { patterns: Array<{ id: string }> }>(
+	store: T,
+	ctx: z.RefinementCtx,
+) {
+	const seen = new Set<string>();
+	for (const [index, pattern] of store.patterns.entries()) {
+		if (!seen.has(pattern.id)) {
+			seen.add(pattern.id);
+			continue;
+		}
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: `duplicate layout id '${pattern.id}'`,
 			path: ["patterns", index, "id"],
 		});
 	}

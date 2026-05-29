@@ -1,16 +1,8 @@
-export {
-	createNodeRendererRegistry,
-	type NodeRenderContext,
-	type NodeRenderer,
-	type NodeRendererDefinition,
-	NodeRendererRegistry,
-} from "../registry/node-renderer-registry";
 export * from "../tree/bindings";
 export * from "../tree/path";
 export {
 	getScreenRegions,
 	type ResolvedRenderNode,
-	resolveNodeKind,
 	resolveRenderNode,
 	toBoolean,
 	toText,
@@ -26,3 +18,4 @@ export {
 	RenderTreeView,
 	renderJsonNode,
 } from "./render-tree-view";
+export type { RendererRuntime, ResolvedLayoutComponent } from "../interpreter";

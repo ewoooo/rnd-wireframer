@@ -14,47 +14,30 @@ describe("@cx/layout-pattern-store", () => {
 		expect(listPatterns("composite").length).toBeGreaterThan(0);
 	});
 
-	it("normalizes catalog layout patterns into variant-based contracts", () => {
+	it("normalizes layout component catalog patterns into variant-based contracts", () => {
 		const store = patternStoreSchema.parse({
 			patterns: [
 				{
-					id: "bottom-action-region",
+					id: "layout.region.commerceDetailBottomAction",
 					target: "region",
 					name: "Bottom action region",
 					description: "Pinned bottom CTA layout.",
-					layout: {
-						direction: "vertical",
-						gap: 12,
-						layoutProps: { paddingX: 20 },
-					},
-					match: {
-						areas: { anyOf: ["screen-1-bottom-actions"] },
-						priority: 90,
-					},
+					componentID: "CommerceDetailBottomActionRegion",
+					props: { gap: { type: "number" } },
+					children: { accepts: "area-or-component" },
+					status: "draft",
 				},
 			],
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "bottom-action-region",
+			id: "commerce-detail-bottom-action",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
 			defaultVariant: "default",
-			resolution: {
-				areaPatterns: { anyOf: ["screen-1-bottom-actions"] },
-				componentTypes: undefined,
-				compositePatterns: undefined,
-				idPatterns: undefined,
-				nameKeywords: undefined,
-				priority: 90,
-			},
 			variants: {
-				default: {
-					direction: "vertical",
-					gap: 12,
-					layoutProps: { paddingX: 20 },
-				},
+				default: {},
 			},
 		});
 	});

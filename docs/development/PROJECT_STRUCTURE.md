@@ -5,8 +5,9 @@
 이 문서는 저장소 디렉토리와 현재 패키지 책임 경계를 정의한다.
 
 패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
+`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
-현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약은 `@cx/schema`가 소유하고, 재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/`에 둔다.
+현재 생성 과정은 재설계 중이다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 다시 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog 패키지로 복구한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
 
 ## 2. 패키지 기준
 
@@ -20,9 +21,10 @@
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action 결정 |
+| `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
-| `@cx/pipeline` | 승인된 side effect 명령을 순서대로 전달하고 실행 결과를 회수하는 conveyor belt |
+| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
+| `@cx/table-materializer` | table read model -> screen RenderTree 순수 조립 |
 
 개발자용 앱:
 
@@ -42,13 +44,13 @@
 
 ```text
 packages/renderer/src/
-  index.ts            public renderer API
-  tree/               RenderTree JSON 타입, path, binding, runtime value helpers
-  registry/           node kind -> renderer 연결표와 kind map
-  render/             NodeRenderer와 재귀 render 실행
-  nodes/              renderer-owned structural/fallback node render definitions
-    area/             area.static / area.dynamic renderers
-    component/        @cx/components read-only resolver와 catalog prop adapter
+  index.ts       public renderer API
+  render/        public renderer compatibility entrypoint
+  interpreter/   RenderTree 순회, screen slot, layout wrapping, component render 실행
+  adapters/      layout/component resolve, prop coercion, primitive render, area policy, missing policy
+  runtime/       interpreter value helper
+  tree/          RenderTree JSON 타입, path, binding helper
+  nodes/area/    area.static / area.dynamic 내부 표시 정책
 ```
 
 두지 않는 책임:
@@ -60,6 +62,35 @@ packages/renderer/src/
 - AI runner/session adapter
 - component catalog CRUD
 - layout pattern CRUD/selection
+- fallback UI로 unknown node/component/layout을 성공 렌더처럼 숨기는 책임
+
+## 3-1. `packages/table-materializer`
+
+`@cx/table-materializer`는 table read model을 renderer가 바로 소비할 수 있는 screen 단위 RenderTree로 조립하는 순수 패키지다.
+
+```text
+packages/table-materializer/src/
+  index.ts       public materializer API
+  types.ts       table read model input types
+  materialize-table-screen.ts
+```
+
+공개 API는 `@cx/table-materializer` root export만 사용한다.
+
+책임:
+
+- `data/tables/*` read model shape의 plain object 입력을 받는다.
+- screen, region, area, component record 관계를 따라 `RenderTreeScreenNode`를 만든다.
+- 파일 IO 없이 순수 함수로 동작한다.
+
+두지 않는 책임:
+
+- React render
+- layout 선택
+- pattern 추천
+- spacing/default 보정
+- validation rule 판정
+- table 파일 읽기/쓰기
 
 ## 4. `packages/component`
 
@@ -110,10 +141,10 @@ apps/web/src/
 apps/smoke/src/
   index.ts       public app API
   cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke harness, plan executor, artifact command helper
+  generation/    runGenerationSmoke wrapper and public smoke types
 ```
 
-외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다.
+외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다. generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
 
 ## 7. `packages/token`
 
@@ -172,9 +203,11 @@ RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `me
 - React render
 - catalog 값 소유
 
-## 9. Mock Schema
+## 9. Result And Apply Contract
 
-재설계 예시 fixture는 `docs/development/mock-schemas/generation-v2/` 아래에 둔다. 런타임 데이터, 승인 데이터, 과거 AI import 산출물과 섞지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
+screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 이 RenderTree는 top-level `version`, `minRendererVersion`, `metadata`, `theme`, `children`를 갖고, `children` 아래에 `Screen` root와 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` region을 둔다.
+
+테이블 반영은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. table apply 단계는 새 화면을 생성하거나 RenderTree 의미를 재해석하지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
 
 ## 10. `packages/parser`
 
@@ -196,14 +229,35 @@ packages/parser/src/
 - catalog 값 검증
 - validation next action 결정
 
+## 10-1. `packages/agent` 문서 자산
+
+`@cx/agent`가 참조하는 생성/검수 문장형 자산은 패키지 내부 문서 디렉토리에서 관리한다.
+
+```text
+packages/agent/docs/
+  README.md
+  session-policy.md
+  screen-generation/
+    prompt-contract.md
+    checklist.md
+    output-contract.md
+  quality-review/
+    prompt-contract.md
+    checklist.md
+    output-contract.md
+```
+
+이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
+smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
+
 ## 11. `packages/orchestration`
 
-`@cx/orchestration`은 생성 과정의 순수한 업무 흐름을 담당한다. 현재는 작은 generation plan과 screen-generation stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
+`@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
 
 ```text
 packages/orchestration/src/
   index.ts       public barrel
-  public/        pure orchestration boundary contract, generation plan, public types
+  public/        pure orchestration boundary contract, generation helper, public types
 ```
 
 두지 않는 책임:
@@ -211,6 +265,8 @@ packages/orchestration/src/
 - 파일 읽기/쓰기
 - Claude Agent SDK 실행
 - 검증 rule 판정
+- pipeline 실행
+- stage 순서 소유
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
 - 승인 데이터 직접 반영
@@ -236,12 +292,14 @@ packages/validation/src/
 
 ## 13. `packages/pipeline`
 
-`@cx/pipeline`은 생성 과정의 side effect conveyor belt만 담당한다. MVP에서는 승인된 side effect command 배열을 순서대로 실행하고, source artifact read/versioned artifact/write log/approved artifact apply 결과를 감사 가능한 envelope로 반환한다.
+`@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
 
 ```text
 packages/pipeline/src/
   index.ts       public barrel
   public/        side effect boundary contract, parser adapter, public types
+  runtime/       buildPipeline/runPipeline
+  pipelines/     screen-generation pipeline definition and stages
   commands/      approved side effect command contracts and command helpers
   runner/        command sequence execution, executor registry, result envelope
   executors/     source artifact read, versioned artifact write, run log write, approved artifact apply
@@ -252,11 +310,11 @@ packages/pipeline/src/
 
 두지 않는 책임:
 
-- Claude Agent SDK 실행
 - 순수 stage input/output 조립
 - Markdown parsing rule 소유
 - 검증 rule 판정
+- Claude adapter 구현
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
-- mock schema 원본 수정
+- final RenderTree 의미 재해석
 - 생성/검수 계약의 SSOT

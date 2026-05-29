@@ -36,6 +36,283 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Renderer Resolver Interpreter Implementation
+
+- 변경: `@cx/renderer`를 resolver 기반 interpreter 구조로 전환하고 `interpreter/`, `adapters/`, `runtime/` 디렉토리를 추가함
+- 변경: `default-node-renderers.tsx`, node kind registry, fallback renderer 경로를 제거하고 missing layout/component/primitive는 throw policy로 드러내도록 함
+- 변경: renderer test fixture의 `UnknownLeaf` 의존을 제거하고 validation이 unknown leaf component with layout wrapper를 error로 잡도록 보강함
+- 이유: renderer를 RenderTree-to-React 실행부로 단순화하고, 외부 패키지 조회와 prop coercion은 adapter 경계에 두기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run`, Next dev server HTTP 200 smoke, missing runtime error string scan
+- 후속: web inspection panel에 validation report 연결, Playwright smoke test 추가
+
+## 2026-05-29 - Renderer Interpreter Restructure Plan
+
+- 변경: `docs/development/RENDERER_INTERPRETER_RESTRUCTURE_PLAN.md`를 추가해 renderer fallback 제거, resolver 기반 interpreter core 분리, adapter 디렉토리 분리, 디렉토리 재편 작업 단계를 기록함
+- 이유: `@cx/renderer`를 RenderTree-to-React 순수 interpreter로 만들기 전에 살아있는 fallback UI 경로, node kind registry 중심 구조, 외부 catalog/store 직접 의존을 단계적으로 걷어내기 위함
+- 검증: 문서 책임 대조
+- 후속: fallback 의존 테스트 제거부터 단계별 구현
+
+## 2026-05-28 - Layout Rendering Redesign Final Verification
+
+- 변경: layout rendering redesign plan의 남은 항목을 최종 감사하고 public surface, catalog shape, renderer table legacy import, table data pattern field를 current state 기준으로 확인함
+- 변경: redesign plan의 현재 상태를 최종 완료 감사 수행 상태로 갱신함
+- 이유: 계획서에 작성된 layout pattern store 전환, renderer interpreter 경계, table materializer 분리, validation 강제, legacy 제거가 모두 현재 상태로 증명되는지 확인하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run`, `rg '"pattern"\\s*:' data/tables`, `rg '"layoutId"' packages/layout-pattern-store/src/catalog`, `rg '"layout"\\s*:' packages/layout-pattern-store/src/catalog`, `rg '"default"\\s*:' packages/layout-pattern-store/src/catalog`, renderer table legacy import scan, package export scan, catalog shape scan
+
+## 2026-05-28 - Legacy Pattern Normalization Removal
+
+- 변경: `@cx/layout-pattern-store` schema에서 legacy `layout`/`match` catalog record normalization을 제거하고 `layout.*` component catalog entry만 pattern store input으로 허용함
+- 변경: schema/pattern-store tests를 새 component catalog normalization 기준으로 갱신하고 legacy catalog record rejection test를 추가함
+- 이유: catalog JSON 전환 완료 후 old/new catalog 동시 유지 상태를 끝내고 componentID registry 기반 계약만 남기기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`
+
+## 2026-05-28 - Renderer Table Legacy Removal
+
+- 변경: `@cx/renderer` public exports에서 `./table`, `./table-view`, `TableScreenView`, `materializeTableScreen(s)`를 제거하고 renderer 내부 table source/test를 삭제함
+- 변경: validation test를 갱신해 RenderTree와 table-shaped generation record 모두 node target과 `layout.<target>.*` mismatch를 error로 검출함을 고정함
+- 변경: layout rendering redesign plan의 현재 상태에서 renderer table legacy 제거와 validation target/layout mismatch 강제를 완료 상태로 반영함
+- 이유: table-to-RenderTree 조립 책임을 `@cx/table-materializer`로만 유지하고 renderer를 RenderTree-to-React interpreter로 남기기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/validation/src/__tests__/validators.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/table-materializer/src/__tests__/public-api.test.ts`, renderer table subpath code scan
+
+## 2026-05-28 - Composite Pattern Catalog Completion
+
+- 변경: composite 49개를 `layout.composite.*` component catalog entry로 전환하고 공통 `createCompositeWrapper` component factory를 추가함
+- 변경: registry의 composite contract table에서 각 composite의 gap, height, width, minHeight, padding, action button height 같은 wrapper default를 실제 component default로 주입하도록 함
+- 변경: layout pattern inventory를 전체 109개 중 109개 converted, pending 0으로 갱신함
+- 이유: renderer가 composite layout도 legacy catalog 해석 없이 registered wrapper component로만 렌더하도록 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, 전체 layout pattern catalog legacy/default scan
+
+## 2026-05-28 - Area Pattern Catalog Completion
+
+- 변경: 남은 area 18개를 `layout.area.*` component catalog entry로 전환하고 `GeneralArea` component group을 추가함
+- 변경: form/action/detail/footer/appbar/accordion/text-list area가 `PageStack`, `VStack`, `HStack`, `BottomFixedArea` wrapper 중 하나를 실제 component default로 선택하도록 함
+- 변경: layout pattern inventory를 area 40개 중 40개 converted, pending 0으로 갱신함
+- 이유: area target에서 legacy `layout`/`match` catalog shape를 제거하고 renderer가 모든 area layout을 registered component로만 소비하게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "bottom action area|commerce detail section|commerce detail padding|selectable list|text list group"`, area catalog legacy/default scan
+
+## 2026-05-28 - Area Collection Pattern Conversion
+
+- 변경: `@cx/layout-pattern-store`에 `CollectionArea` component group을 추가하고 option grid, benefit/store list, product list controls, horizontal/row card list 등 area collection 계열 17개를 실제 registered layout component로 전환함
+- 변경: 해당 area catalog entry를 `layout.area.*` component catalog entry로 바꾸고 `componentGap`, `componentGaps`, `titleGap`, `filterGap`, `controlGap`, `columns`, `mapHeight`를 prop type contract로 보존함
+- 변경: layout pattern inventory를 area 40개 중 22개 converted, 18개 pending으로 갱신함
+- 이유: Batch 4 collection/option 계열에서 renderer가 layout id를 추측하지 않고 등록 component를 통해 Grid/HStack/PageStack wrapper를 적용하게 하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "option collection|horizontal card collection|row card collection|layout-pattern-store"`, area catalog converted entry legacy/default scan
+
+## 2026-05-28 - Layout Redesign Responsibility Clarification
+
+- 변경: layout rendering redesign plan에 `@cx/table-materializer`, `@cx/renderer`, `@cx/layout-pattern-store`, `@cx/layout`, `@cx/components`, `@cx/validation`, `apps/web`의 실행 체크 책임을 보강함
+- 변경: materializer가 catalog를 알거나 spacing/layout을 보정하지 않고, renderer가 미등록 layout을 generic wrapper로 숨기지 않는다는 사용자 우려 대응 결정을 추가함
+- 변경: 현재 상태를 실제 완료분 기준으로 갱신해 table-materializer 분리, web 연결, region/screen component catalog 전환 완료와 남은 legacy 제거 작업을 명시함
+- 이유: renderer 순수 interpreter 전환과 screen 단위 table materializer 경계가 이후 자동 구현 중 섞이지 않도록 하기 위함
+- 검증: 문서 diff 검토
+
+## 2026-05-28 - Screen Pattern Component Conversion
+
+- 변경: `screen-patterns.json` 4개를 `layout.screen.*` component catalog entry로 전환하고 `ScreenShell`, `CommerceDetailScreen`, `TextListScreen`, `CardListScreen` registry component identity를 추가함
+- 변경: screen catalog children contract에 `region`을 사용할 수 있도록 layout pattern children contract를 확장함
+- 변경: layout pattern inventory의 screen 상태를 converted로 갱신함
+- 이유: screen catalog도 실제 layout component identity를 갖게 하되, renderer의 `AppScreen` screen root 처리와 slot 책임은 충돌시키지 않기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, screen catalog legacy/default scan
+
+## 2026-05-28 - Region Pattern Component Conversion
+
+- 변경: `region-patterns.json` 16개를 `layout.region.*` component catalog entry로 전환하고 `SectionStackRegion`, `PlainStackRegion`, 상품/리스트 contents region component registry를 추가함
+- 변경: region component는 `VStack`/`BottomFixedArea`만 사용하고 PageStack을 직접 소유하지 않도록 하며 gap, padding, contentWidth, bottomSafeArea, sticky prop fallback을 실제 component default로 보존함
+- 변경: layout pattern inventory의 region 상태를 converted로 갱신함
+- 이유: region은 screen slot children 흐름과 bottom sticky/content width rail만 담당하고 PageStack section 책임은 area pattern으로 유지하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx -t "applies region layout wrappers|sticky bottom action region"`
+
+## 2026-05-28 - Table Materializer Boundary
+
+- 변경: table-to-RenderTree 순수 변환 경계를 `@cx/table-materializer` 패키지로 확정하고 `AGENTS.md`, `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, layout rendering redesign plan에 반영함
+- 변경: `@cx/table-materializer`는 screen/region/area/component table 관계를 따라 `RenderTreeScreenNode`만 조립하고, React render, layout 선택, spacing 보정, validation 판정, 파일 IO를 하지 않는다고 명시함
+- 이유: renderer를 RenderTree-to-React interpreter로 순수화하고 table 조립 책임을 renderer 밖으로 분리하기 위함
+- 검증: 문서 책임 대조
+
+## 2026-05-28 - Layout Pattern Catalog Inventory
+
+- 변경: `docs/development/LAYOUT_PATTERN_CATALOG_INVENTORY.md`를 추가해 screen/region/area/composite catalog 109개 pattern의 legacy id, 새 layout id, 예정 componentID, spacing key, children contract, 전환 상태를 기록함
+- 변경: 현재 전환 상태를 screen 4 pending, region 16 pending, area 40개 중 5 converted, composite 49 pending으로 요약함
+- 이유: 자동 catalog 변환 전에 대상 수량과 spacing 보존 key를 고정하기 위함
+- 검증: catalog JSON 기준 수량 대조
+
+## 2026-05-28 - Layout Rendering Redesign Plan
+
+- 변경: `docs/development/LAYOUT_RENDERING_REDESIGN_PLAN.md`를 추가해 pattern store의 실제 layout component library 전환, renderer interpreter 전환, table schema 전환, table-to-RenderTree materializer 분리 계획을 정리함
+- 변경: catalog 변환을 PageStack area, region chrome, screen shell, collection area, form/agreement/accordion/message area, composite wrapper, legacy 제거 batch로 나눠 padding/gap 보존 기준과 완료 조건을 명시함
+- 변경: catalog는 prop 이름과 타입 계약만 소유하고 runtime default는 실제 pattern component가 소유한다는 기준을 추가함
+- 변경: 전환 작업을 14개 커밋 단위 실행 단계로 쪼개고 각 단계의 목표, 작업, 검증, 커밋 메시지 후보를 기록함
+- 변경: 자동 실행을 위해 단계별 stop condition, 실행 전 확정 결정, 공통 검증 명령을 추가함
+- 변경: table materializer 출력이 `RenderTreeScreenNode`로 renderer에 바로 들어가야 한다는 연결 기준과, materializer가 table 관계 조립 외의 추측/보정을 하지 않는다는 사용자 우려 대응 결정을 추가함
+- 이유: `layoutId -> id`와 table `layout` 전환 이후 남은 전체 catalog 변환 범위와 spacing 손실 방지 절차를 먼저 고정하기 위함
+- 검증: 문서 변경
+
+## 2026-05-28 - PRDD Sidebar Visibility Restore
+
+- 변경: `apps/web` 사이드바를 원격 main 기준의 좌측 rail + 380px sidebar 구조로 다시 분리하고, Screen 탭을 도메인/루트 목록과 선택 루트의 variant 목록으로 상하 분리함
+- 변경: `screen-sources`의 table screen 필터에서 `NOVA-MBR-` 제한을 제거하고 `preview`/PRDD 모듈을 우선 정렬해 `NOVA-PRDD-PG-001-0` 화면이 기본 미리보기로 보이도록 함
+- 이유: 현재 사이드바 형태가 원격 저장소의 workbench 구조와 달라졌고 PRDD 화면이 기본 화면에서 보이지 않았기 때문
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src/components/App.tsx apps/web/src/lib/screen-sources.ts`, 브라우저 확인 `http://127.0.0.1:3000`에서 nav 56px, sidebar 380px, 기본 제목 `상품 상세 핵심 요약 탐색` 확인
+
+## 2026-05-28 - Area PageStack Responsibility Restore
+
+- 변경: `@cx/layout`의 `PageStack`을 단순 `VStack` alias에서 자체 padding, item gap, section padding, item template, title mode marker를 가진 section rail primitive로 복구함
+- 변경: `@cx/layout-pattern-store` area pattern component들이 `toPageStackProps`를 통해 area 단위 PageStack 기본값을 적용하도록 하고, `list-stack`, `field-stack`, `checkbox-stack`, `accordion-list`, `message-stack` prop 계약에 PageStack rail props를 추가함
+- 변경: 원격 pattern-store의 area gap 기본값을 반영해 `list-stack`은 8px, `field-stack`/`checkbox-stack`/`message-stack`은 12px, `accordion-list`는 0px item gap을 기본 적용함
+- 변경: region pattern component들은 PageStack wrapper 대신 단순 `VStack` 흐름으로 낮춰 PageStack 책임을 region childWrap이 아니라 area layout preset으로 이동함
+- 이유: `NOVA-MBR-FP-001-0` 본문에서 PageStack 리듬이 region이 아닌 OGN/area 단위로 적용되어야 하기 때문
+- 검증: `npx vitest run packages/layout/src/__tests__/layout.test.tsx packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/renderer/src/__tests__/table-screen-render.test.tsx packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts --reporter=dot`, `npx biome check packages/layout/src/primitives/PageStack.tsx packages/layout/src/__tests__/layout.test.tsx packages/layout-pattern-store/src/components/shared/primitive-props.ts packages/layout-pattern-store/src/components/area packages/layout-pattern-store/src/components/region packages/layout-pattern-store/src/catalog/area-patterns.json packages/layout-pattern-store/src/catalog/region-patterns.json packages/renderer/src/nodes/default-node-renderers.tsx packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/renderer/src/__tests__/table-screen-render.test.tsx AGENTS_HISTORY.md`, `npx tsc --noEmit --pretty false`
+
+## 2026-05-28 - Remote Main Sidebar Styling Sync
+
+- 변경: `origin/main`의 sidebar 스타일 기준을 현재 `apps/web` 사이드바에 이식해 rail 폭, sidebar 배경, accent active/hover, border, inspector header/content 레이아웃을 맞춤
+- 변경: 원격의 tooltip/sidebar/store 의존성은 가져오지 않고 현재 table 연결 구조와 `App.tsx` 단일 구성은 유지함
+- 변경: screen list를 flat screen card 나열에서 `screen_routes.json`/`screen_variants.json` 기반 route group + variant row + 기본/엣지 chip 구조로 바꿔 원격 main의 목록 형태와 맞춤
+- 이유: 현재 테이블 연동은 유지하면서 사이드바 시각 스타일만 원격 main 기준으로 맞추기 위함
+- 검증: `git fetch origin main`, `npx biome check apps/web/src/components/App.tsx apps/web/src/lib/screen-sources.ts AGENTS_HISTORY.md`, `npx tsc --noEmit --pretty false`, `curl -s -L http://localhost:3000 | rg "Final Result|runDir"`가 no match, `curl -s -L http://localhost:3000 | rg "회원 가입 및 휴면 해제|약관 동의|약관 버전 불일치|필수 약관 미동의"`
+
+## 2026-05-28 - Web Sidebar Table Reconnect
+
+- 변경: `apps/web` 화면을 예전 workbench 사이드바 구조에 맞춰 좌측 navigation rail/list, 중앙 preview canvas, 우측 inspector 3열 레이아웃으로 복구함
+- 변경: 예전 커밋의 `@cx/agent`, `@cx/types`, store, renderer table adapter 의존성은 되살리지 않고 제거한 채 현재 `data/tables/*.json`을 `screen-sources`에서 직접 RenderTree로 materialize해 연결함
+- 변경: MBR 화면 목록 원천을 markdown `PG/PU` ID가 아니라 현재 table의 `NOVA-MBR-FP-*` screen record로 전환함
+- 이유: final-result preview 기능은 제거한 상태로 유지하면서, 사이드바 UI는 예전 workbench 형태로 돌리고 현재 테이블 데이터에 연결하기 위함
+- 검증: `npx biome check apps/web/src/app/page.tsx apps/web/src/components/App.tsx apps/web/src/components/screen/RenderedScreen.tsx apps/web/src/lib/screen-sources.ts`, `npx tsc --noEmit --pretty false`, `curl -s -L http://localhost:3000 | rg "Final Result|runDir"`가 no match, `curl -s -L http://localhost:3000 | rg "Workbench|Inspector|NOVA-MBR-FP-001-0"`
+
+## 2026-05-28 - Web Screen Rail Restore
+
+- 변경: `apps/web` 첫 화면에 이전 workbench 스타일의 좌측 `SCN/OGN/CMP/SRC/AGT` 아이콘 레일과 route/variant 기반 screen 탐색 패널을 복구하고, `data/client-imports/{id}/260528_mbr` Markdown frontmatter에서 화면 목록을 읽어 선택할 수 있게 함
+- 변경: 선택한 screen summary를 `@cx/renderer`가 소비하는 작은 RenderTree preview로 변환해 중앙 모바일 프레임에 표시함
+- 이유: 단일 preview 화면만 있는 상태에서 여러 screen을 빠르게 훑고 선택하는 작업 흐름이 막혔기 때문
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src/app/page.tsx apps/web/src/components/App.tsx apps/web/src/lib/screen-sources.ts AGENTS_HISTORY.md`, `curl -I http://localhost:3000/`, `curl -s http://localhost:3000/ | rg 'SCN|OGN|CMP|AGT|260528_mbr|NOVA-MBR-PG-001|약관 동의'`
+
+## 2026-05-28 - Web App Default Preview Restore
+
+- 변경: `apps/web` 첫 화면에서 `final-result.json` 자동 로딩과 `runDir` 상태 패널을 제거하고 기본 앱 preview 화면으로 되돌림
+- 변경: 현재 RenderTree node 타입 계약에 맞춰 기본 preview fixture의 legacy `pattern` provenance 필드를 제거함
+- 이유: 앱 실행 시 pipeline final result 검수 화면이 아니라 원래 웹 앱 화면이 열리도록 하기 위함
+- 검증: `npx biome check apps/web/src/app/page.tsx apps/web/src/components/App.tsx apps/web/src/components/screen/RenderedScreen.tsx`, `npx tsc --noEmit --pretty false`, `curl -s -L http://localhost:3000 | rg "Final Result|runDir"`가 no match, `curl -s -L http://localhost:3000 | rg "생성 과정 재설계|앱은 소비만 합니다"`
+
+## 2026-05-28 - Layout Pattern Component Registry
+
+- 변경: `@cx/layout-pattern-store`에 `components/`와 `registry/` 구조를 추가하고, 모든 catalog pattern id가 React layout component entry로 resolve되도록 함
+- 변경: `@cx/layout-pattern-store/components` public subpath를 추가해 `listLayoutPatternComponents`, `findLayoutPatternComponent`, `findLayoutPatternComponentByLayoutId`, `resolveLayoutPatternComponent`를 노출함
+- 변경: `@cx/layout`에 `VStack`, `HStack`, `PageStack`, `BottomFixedArea` primitive를 추가하고, 첫 core pattern 10개를 primitive wrapper component로 연결함
+- 변경: pattern catalog schema를 name/usage/props/children 계약 중심으로 정리하고, resolver가 pattern component와 계약 기반 component props/issue를 반환하도록 개선함
+- 변경: catalog JSON 4종을 새 계약으로 마이그레이션하고, schema에서 `layout`, `layoutProps`, `match`, `priority`, `variant`, `variants` 레거시 호환 변환을 제거함
+- 변경: catalog pattern 109개 전체에 named React component 파일을 추가하고, registry fallback component 생성을 제거해 컴포넌트 누락 시 즉시 실패하도록 함
+- 변경: catalog pattern component 109개 전체에 catalog 기반 `이상적인 구성`, 기대 자식, 전달 가능 props 주석을 추가하고 테스트로 주석 유지를 강제함
+- 변경: layout pattern component Batch 1로 stack primitive prop mapping을 보강해 metadata, align/justify, height/minHeight/width/contentWidth/padding 계열 props가 실제 `@cx/layout` primitive에 전달되도록 하고, `bottom-action-area`를 `BottomFixedArea`로 연결함
+- 변경: layout pattern component Batch 2로 option collection은 `Grid`, horizontal card/filter-sort collection은 `HStack`을 사용하도록 전환하고, `columns/controlGap/filterGap` 계열 props를 primitive layout에 반영함
+- 변경: layout pattern component Batch 2 후반으로 row card/text list/summary section/product group 반복 리스트 계열을 `PageStack` section wrapper로 전환함
+- 변경: layout pattern component Batch 3-5로 상품 상세/공지/선택 리스트/아코디언 섹션 계열을 `PageStack`으로 전환하고, `thumbnailHeight`, `infoPadding*`, `itemPadding*` alias props를 primitive layout/style로 전달하도록 보강함
+- 변경: RenderTree node에 `layout: "layout.<target>.<PatternName>"` 계약을 추가하고, `@cx/renderer`가 layout pattern resolver를 통해 pattern component로 children을 감싸 렌더하도록 연결함
+- 변경: RenderTree/table-generation/composition-plan/orchestration 후보에서 레거시 `{ pattern: { id, variant } }` ref를 제거하고 `layout.<target>.<PatternName>` layout id 계약으로 통일함
+- 변경: `data/tables/screens.json`, `areas.json`, `components.json`의 등록 record에서 `pattern` schema를 제거하고 screen/region/area/composite `layout` id로 마이그레이션함
+- 변경: table record 조립 책임을 `@cx/renderer/table`로 이관해 `materializeTableScreen(s)`와 `TableScreenView`를 제공하고, web은 table JSON을 읽은 뒤 renderer API를 소비만 하도록 정리함
+- 이유: RenderTree의 pattern schema 제거에 앞서, 패턴스토어의 모든 패턴을 실제 렌더 가능한 layout component identity로 승격하기 위함
+- 검증: `npx vitest run packages/layout/src/__tests__/layout.test.tsx packages/layout/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `npx vitest run packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/mutations.test.ts packages/layout-pattern-store/src/__tests__/components.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts`, `npx vitest run packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/validation/src/__tests__/validators.test.ts packages/schema/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/layout-pattern-store/src/internal/schema.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/catalog/area-patterns.json packages/layout-pattern-store/src/catalog/composite-patterns.json packages/layout-pattern-store/src/catalog/region-patterns.json packages/layout-pattern-store/src/catalog/screen-patterns.json`
+
+## 2026-05-28 - RenderTree Final Result And Table Apply Boundary
+
+- 변경: screen generation의 최종 결과물은 `final-result.json` RenderTree이고, table 반영은 이 RenderTree를 screen/area/composite 레이어로 분해해 등록하는 apply 단계만 수행한다는 기준을 문서화함
+- 변경: 삭제된 `docs/development/mock-schemas/generation-v2/` 위치를 정본처럼 참조하던 문장을 `@cx/schema` 계약과 테스트/문서 기준으로 정리함
+- 변경: fake screen-generation runner가 `minRendererVersion`, `theme`, `Screen > Region > area.static|area.dynamic > component` 형태를 가진 최종 RenderTree 예시를 반환하도록 맞춤
+- 이유: AI 경로와 fake smoke 경로가 같은 최종 result 계약을 따르게 하고, table-shaped intermediate가 최종 산출물처럼 오해되지 않게 하기 위함
+
+## 2026-05-28 - Final Screen RenderTree Handoff Shape
+
+- 변경: 최종 `final-result.json`/테이블 전달 기준을 top-level RenderTree + `Screen` root + `Screen.Header/Contents/Bottom` region + `area.static|area.dynamic` children 형태로 고정함
+- 변경: `Screen.Header`, `Screen.Contents`, `Screen.Bottom`의 region `props`는 필수가 아니라 선택값으로 낮춰 예시 handoff JSON을 그대로 검증할 수 있게 함
+- 변경: generation/revision prompt가 최종 RenderTree handoff shape와 pattern-store 탐색 결과를 기준으로 생성/수정하도록 명시함
+- 이유: Markdown 파서 이후 모든 생성 단계의 `result`가 테이블 전달용 Screen RenderTree 계약을 기준으로 움직이게 하기 위함
+
+## 2026-05-28 - SourceSpec Render Skeleton and Pattern Exploration
+
+- 변경: Markdown parser가 화면 구성 표의 섹션 유형/설명/레이아웃/노출 조건/개수/오류 처리와 컴포넌트 상세 표의 props/description/note를 SourceSpec에 구조화해 보존하도록 함
+- 변경: SourceSpec area node에 `renderNodeType`을 추가해 `Screen > Region > area.static|area.dynamic > Component` 기반의 렌더 스켈레톤을 AI 입력으로 전달하도록 함
+- 변경: generation/revision prompt가 pattern-store 탐색 결과인 `layerCandidates`를 필수 근거로 사용하고, `Area` 같은 비계약 타입을 제거할 때 wrapper를 납작하게 만들지 말고 `area.static`/`area.dynamic`으로 보존하도록 강화함
+- 이유: AI 생성 결과에서 PageStack/Divider/약관 설명이 빠지는 원인이 SourceSpec의 구조화 부족과 revision 단계의 region flattening에 있었기 때문
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/orchestration/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema/src/source-spec.ts packages/parser/src/public/markdown.ts packages/parser/src/__tests__/markdown.test.ts packages/orchestration/src/public/generation.ts packages/orchestration/src/public/types.ts packages/orchestration/src/public/pattern-layer-candidates.ts`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id mbr-parser-structure-check --out-dir tmp/generation-runs/mbr-parser-structure-check`
+
+## 2026-05-28 - Web Final Result Preview
+
+- 변경: `apps/web` 첫 화면이 smoke run의 `final-result.json`을 읽어 `@cx/renderer`로 바로 렌더하도록 연결함
+- 변경: `?runDir=tmp/generation-runs/<run-id>`로 특정 smoke 결과를 지정할 수 있고, 지정하지 않으면 가장 최근 `final-result.json`이 있는 run을 자동 선택하도록 함
+- 이유: 생성 결과를 파일 확인 단계에서 멈추지 않고, 최종 Screen RenderTree를 즉시 화면에서 확인하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check apps/web/src/app/page.tsx apps/web/src/components/App.tsx apps/web/src/lib/final-result.ts`, `curl -I 'http://localhost:3000/?runDir=tmp/generation-runs/final-result-contract-check'`
+
+## 2026-05-28 - Final RenderTree Artifact
+
+- 변경: screen generation smoke 산출물에 `final-result.json`을 추가하고, agent payload에서 추출한 `renderTree` 자체를 저장하도록 함
+- 변경: `17-agent-result.json`은 raw agent result 기록으로 유지하고, 최종 소비 대상은 `final-result.json`으로 분리함
+- 이유: 최종 결과물이 항상 `@cx/renderer`가 소비하는 Screen RenderTree 형태로 보관되도록 산출물 계약을 명확히 하기 위함
+- 검증: `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/README.md packages/pipeline/README.md AGENTS_HISTORY.md`
+
+## 2026-05-28 - Source Reference and Component Contract Context
+
+- 변경: SourceSpec component node에 `sourceId`, `roleAlias`, `componentType`를 추가하고, area node에 `sourceAreaName`을 추가해 원본 컴포넌트 명과 실제 렌더 컴포넌트 타입을 분리함
+- 변경: Markdown parser가 MBR형 `화면 구성.섹션 명`과 `컴포넌트 상세.섹션 명`을 연결해 `AppBarHeader`, `ListTextTerms`, `ActionButtonNext`를 각각 header/contents/bottom area 아래 source id로 보존하도록 보강함
+- 변경: `@cx/orchestration` agent input context에 `sourceReferenceCatalog`를 추가해 AI가 사용할 수 있는 sourceRef vocabulary를 명시하고, `@cx/pipeline`이 `@cx/components/catalog`와 `@cx/layout-pattern-store` resolver 결과로 `componentContractCatalog`를 주입하도록 함
+- 변경: layout pattern resolver가 component signal뿐 아니라 pattern keyword/priority를 함께 점수화하도록 보강해 리터럴 매핑 없이 `ListText`에 더 적합한 `component-list-text` 후보를 선택하게 함
+- 이유: AI가 `AppBarHeader` 같은 원본 source id를 invented ref로 오판하거나, `ListText`에 없는 `label/items/variant` prop과 잘못된 composite pattern을 쓰는 문제를 줄이기 위함
+- 검증: `npx vitest run packages/parser/src/__tests__/markdown.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false`, `npx biome check packages/parser/src/public/markdown.ts packages/layout-pattern-store/src/internal/matcher.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id mbr-contract-context-check-3 --out-dir tmp/generation-runs/mbr-contract-context-check-3`
+- 후속: 실제 Claude 생성에서 revision prompt가 `componentContractCatalog`를 얼마나 잘 따르는지 확인하고, 필요하면 validation error를 component contract 기반 수정 지시로 더 구조화한다.
+
+## 2026-05-28 - Agent Reference Asset Absorption
+
+- 변경: `docs/development/generation-skills/render-tree-generation/`의 RenderTree 생성 workflow, checklist, output 규칙을 `packages/agent/docs/screen-generation/`의 prompt contract/checklist/output contract로 흡수하고 기존 generation-skills 파일을 제거함
+- 변경: `@cx/pipeline`의 screen-generation reference loader가 `docs/development/generation-skills/*/SKILL.md` 대신 `packages/agent/docs/screen-generation/` 정본 문서를 읽어 smoke artifact로 남기도록 변경함
+- 변경: `AGENTS.md`, `PACKAGE_MAP.md`, `docs/development/PROJECT_STRUCTURE.md`, `docs/development/AGENT_RUNTIME_PROTOCOL.md`, `docs/development/PIPELINE_STAGE_PROTOCOL.md`, `apps/smoke/README.md`, `packages/agent/docs/README.md`에서 생성 문장형 자산의 정본 위치를 `packages/agent/docs/`로 통일함
+- 이유: generation-skills 자산이 smoke 실험 fixture라기보다 `@cx/agent`의 생성 프롬프트/체크리스트/출력 규약 성격을 갖게 되어, 패키지 책임 경계와 문서 SSOT를 맞추기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check AGENTS.md PACKAGE_MAP.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md docs/development/AGENT_RUNTIME_PROTOCOL.md docs/development/PIPELINE_STAGE_PROTOCOL.md apps/smoke/README.md packages/agent/docs/README.md packages/agent/docs/screen-generation/checklist.md packages/agent/docs/screen-generation/prompt-contract.md packages/agent/docs/screen-generation/output-contract.md packages/pipeline/src/pipelines/screen-generation/skill-catalog.ts`, `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts`
+- 후속: smoke artifact 파일명과 내부 타입명에 남은 `generationSkill` 표현은 필요 시 별도 정리한다.
+
+## 2026-05-28 - Agent Runtime and Pipeline Protocol Docs
+
+- 변경: `docs/development/AGENT_RUNTIME_PROTOCOL.md`, `docs/development/PIPELINE_STAGE_PROTOCOL.md`를 추가해 `@cx/agent`, `@cx/orchestration`, `@cx/pipeline`의 실행 계약과 stage/runtime 경계를 별도 SSOT 문서로 분리함
+- 변경: `packages/agent/docs/`를 추가하고 screen-generation, quality-review, session policy용 prompt contract/checklist/output 규약 문서를 패키지 내부 참조 자산으로 정리함
+- 변경: `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `docs/development/PROJECT_STRUCTURE.md`, `docs/development/SCREEN_DESIGN_STAGE_PLAN.md`, `packages/agent/README.md`, `packages/pipeline/README.md`에서 새 프로토콜 문서와 `packages/agent/docs/` 자산 위치를 기준선으로 연결함
+- 이유: 전역 문서는 패키지 경계를 잘 설명하고 있었지만 Claude 실행 계약과 stage/runtime 프로토콜의 별도 정본이 약했고, 생성/검수 문장형 자산도 smoke 실험 자산과 장기 기준 자산을 구분할 필요가 있었기 때문
+- 검증: 문서 구조와 상호 참조를 수동 점검함. 코드 실행/테스트는 수행하지 않음
+- 후속: 실제 prompt 조립 코드가 문서 자산을 직접 로드하도록 바꾸는 단계가 필요해지면 `@cx/agent` 내부에서만 연결하고, `@cx/pipeline`은 자산 위치만 참조한다.
+
+## 2026-05-28 - Pipeline Runtime Restructure Implementation
+
+- 변경: `@cx/pipeline`에 `buildPipeline()`/`runPipeline()` runtime API와 `screen-generation` pipeline definition/stage 구현을 추가함
+- 변경: 기존 smoke generation executor, fake runner, pattern candidate resolver, generation skill catalog, artifact command helper를 `packages/pipeline/src/pipelines/screen-generation/`으로 이동하고 `apps/smoke`는 `runPipeline("screen-generation")`만 호출하도록 축소함
+- 변경: `@cx/orchestration`의 `buildGenerationPlan`, `GENERATION_PLAN_STEP`, generation plan 타입 public export를 제거하고 stage input helper만 남김
+- 변경: `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS.md`, `docs/development/PROJECT_STRUCTURE.md`, `apps/smoke/README.md`, `packages/pipeline/README.md`, `packages/orchestration/README.md`에 pipeline runtime 중심 책임 경계를 반영함
+- 이유: `ScreenIntent`, `CompositionPlan`, `QualityInspection` 확장 전에 smoke 소비처가 orchestration/agent/validation/IO를 직접 보는 구조를 제거하고, stage 추가 위치를 `@cx/pipeline`으로 고정하기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/parser/src/__tests__/markdown.test.ts packages/validation/src/__tests__/validators.test.ts`, `npx biome check apps/smoke packages/pipeline packages/orchestration MASTER_PLAN.md PACKAGE_MAP.md AGENTS.md AGENTS_HISTORY.md docs/development/PROJECT_STRUCTURE.md docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id pipeline-runtime-restructure-final-check --out-dir tmp/generation-runs/pipeline-runtime-restructure-final-check`
+- 후속: 다음 생성 개선 단계에서 `derive-screen-intent`, `plan-composition`, `review-quality`, `decide-revision`을 pipeline stage로 추가하고, 순수 입력 조립은 `@cx/orchestration` helper로 둔다.
+
+## 2026-05-28 - Pipeline Runtime Restructure Plan
+
+- 변경: `docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md`를 추가해 `apps/smoke -> @cx/pipeline`, `@cx/pipeline -> @cx/orchestration/@cx/agent/@cx/validation/@cx/schema`, `@cx/orchestration -> @cx/schema` 의존성 목표를 문서화함
+- 변경: `@cx/pipeline`을 `buildPipeline()`/`runPipeline()` 기반 실행 런타임으로 승격하고, 기존 side-effect command runner는 IO/effect 유틸리티로 유지하는 단계별 마이그레이션 계획을 작성함
+- 변경: `@cx/orchestration`은 생성 plan 실행자가 아니라 stage별 deterministic helper로 낮추고, `apps/smoke`는 pipeline만 호출하는 얇은 개발자용 harness로 정리하는 완료 기준을 기록함
+- 이유: `ScreenIntent`, `CompositionPlan`, `QualityInspection` 및 Open Design 흡수 stage를 추가하기 전에 smoke 소비처가 orchestration/agent/validation/IO를 모두 직접 보는 구조를 먼저 줄이기 위함
+- 검증: 문서 작성 및 기준 문서 참조 확인
+- 후속: 다음 구현 세션에서 계획서 Phase 1-2만 먼저 수행해 pipeline runtime shell을 추가하고 현재 smoke 실행 로직을 behavior change 없이 `@cx/pipeline` stage로 이동한다.
+
+## 2026-05-28 - Docker Development Environment
+
+- 변경: 루트 `Dockerfile`, `docker-compose.yml`, `.dockerignore`를 추가해 Next.js workbench와 Node 기반 검증 명령을 컨테이너에서 실행할 수 있게 함
+- 변경: `docs/development/DOCKER.md`에 Docker의 역할, 최초 실행, 종료, 검증 명령 실행법을 초심자 기준으로 문서화하고 `README.md`에서 연결함
+- 이유: 로컬 개발 환경을 재현 가능하게 고정하되, 현재 패키지 책임과 생성 파이프라인 경계를 바꾸지 않는 외곽 실행 환경을 마련하기 위함
+- 검증: `docker compose config` 실행 시 현재 머신에 Docker CLI가 없어 `zsh: command not found: docker`로 실제 Compose 검증은 미수행. `npx biome check README.md docs/development/DOCKER.md AGENTS_HISTORY.md`는 Markdown 파일이 Biome 설정에서 ignored라 처리 대상 없음. Docker Desktop 설치 후 `docker compose up --build`로 확인 필요
+- 후속: FastAPI, DB, queue, Claude Agent SDK 실행 단위가 확정되면 `docker-compose.yml`에 별도 service로 추가한다.
+
+## 2026-05-28 - Generation Skill Smoke Catalog
+
+- 변경: `docs/development/generation-skills/render-tree-generation/`에 smoke용 `SKILL.md`, RenderTree 출력 규칙, checklist reference를 추가함
+- 변경: `apps/smoke`에 deterministic generation skill catalog loader를 추가하고, `render-tree-generation` skill을 smoke artifact로 남기도록 연결함
+- 변경: smoke artifact에 `generation-skill-catalog.json`, `render-tree-generation-skill.json`을 남기도록 확장함
+- 이유: Open Design식 skill/reference/checklist 흐름을 아직 생성 prompt에 강제하지 않고, 먼저 smoke에서 읽고 추적 가능한 catalog/reference 환경만 만들기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx vitest run packages/orchestration/src/__tests__/public-api.test.ts`, `npx biome check apps/smoke packages/orchestration docs/development/generation-skills AGENTS_HISTORY.md`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id generation-skill-context-check --out-dir tmp/generation-runs/generation-skill-context-check`
+- 후속: generation structure가 확정되면 skill을 어떤 stage input에 주입할지 별도 계약으로 결정한다.
+
 ## 2026-05-27 - Table-shaped Pattern Contract
 
 - 변경: `@cx/schema`에 `table-generation-result.v0.1` 계약을 추가해 `data/tables` 정본과 같은 screen/region/area/component 중간 산출물 shape를 정의함
@@ -829,3 +1106,26 @@
 - 이유: 파이프라인 AI 실행 모델이 호출부/CLI 기본값에 암묵적으로 의존하지 않게 하기 위함
 - 검증: `npm test -- packages/agent/src/__tests__/claude-internals.test.ts`, `npx biome check packages/agent/src/claude/claude-model.ts packages/agent/src/claude/claude-agent-sdk-runner.ts packages/agent/src/claude/index.ts packages/agent/src/__tests__/claude-internals.test.ts`
 - 참고: `npx tsc --noEmit --pretty false`는 기존 smoke/pipeline 변경 상태의 누락 파일과 `source-artifact-read` executor registry 타입 오류로 실패함
+
+## 2026-05-28 - Screen Design Stage Seed
+
+- 변경: `screen-intent`와 `composition-plan` schema 계약, agent task kind, orchestration input builder, pipeline stage를 추가함
+- 변경: `screen-generation` 파이프라인 순서를 `SourceSpec -> ScreenIntent -> CompositionPlan -> PatternSelection -> RenderTree`로 확장하고 smoke artifact에 각 stage input/request/result를 남기도록 함
+- 변경: `SourceSpec -> PatternLayerCandidate[]` 후보 조립 규칙을 `@cx/pipeline`에서 `@cx/orchestration` 순수 helper로 이동하고, pipeline은 layout pattern resolver 주입만 담당하도록 경계를 정리함
+- 변경: `screen-intent`와 `composition-plan` 전용 JSON Schema를 추가하고, `validateCompositionPlan()`으로 SourceSpec sourceRef 존재 여부와 생성 산출물 반영 여부를 검증하도록 함
+- 변경: `screen-generation`/`screen-revision` prompt가 `screenIntent`, `compositionPlan`, `sections[].sourceRefs`를 결과에 보존하도록 강화함
+- 변경: `quality-inspection` JSON Schema를 bounded findings 구조로 강화하고, `review-quality` pipeline stage와 `buildQualityReviewAgentInput()`을 추가함
+- 변경: fake generation result의 table area props에 `CompositionPlan.sections[].sourceRefs` provenance를 남겨 composition 반영 warning을 0으로 줄임
+- 변경: smoke artifact 파일명에 stage 순서를 나타내는 `01-*`부터 `26-*`까지의 numeric prefix를 추가함
+- 변경: smoke `tableGenerationResult`를 `data/tables` 래퍼 구조에 순수 함수로 병합하는 `mergeTableGenerationResultIntoTables()`와 `smoke:apply-tables` CLI를 추가함
+- 변경: 후속 흡수/구조 개선 계획을 `docs/development/SCREEN_DESIGN_STAGE_PLAN.md`에 작성함
+- 이유: Markdown에서 바로 RenderTree JSON을 만들며 디자인 판단이 뭉개지는 문제를 줄이고, 생성 전 의도와 구성 결정을 검수 가능한 중간 산출물로 만들기 위함
+- 검증: `npx tsc --noEmit --pretty false`, `npx biome check packages/schema packages/validation packages/orchestration packages/pipeline`, `npx vitest run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id quality-review-stage-check --out-dir tmp/generation-runs/quality-review-stage-check`
+
+## 2026-05-28 - MBR ActionButton Size Contract
+
+- 변경: MBR 주요 액션 레코드 `action-area-next`, `action-area-guardian-request`, `action-area-next-member-input`, `action-area-join-proceed`, `action-area-dormant-release`, `action-area-eligibility-proceed`를 `button`/`componentButton`에서 `ActionButton`/`componentActionButton`으로 정규화함
+- 변경: 각 주요 액션 props를 `variant: primary`, `fullWidth: true`, `size: xlarge`로 맞춤
+- 이유: 구형 `button` 레코드가 renderer에서 일반 `Button`으로 해석되며 기본 `medium` 높이(36px)로 렌더되는 문제를 막기 위함
+- 검증: `jq empty data/tables/components.json`, `npm run test -- --run packages/renderer/src/__tests__/table-screen-render.test.tsx packages/renderer/src/__tests__/renderer.test.tsx`
+- 참고: `npx tsc --noEmit --pretty false`는 기존 `apps/web/src/components/App.tsx`의 `getModuleName` 미정의와 `ScreenRouteGroup` never 타입 오류로 실패함

@@ -152,21 +152,6 @@
 				}
 			}
 		},
-		"patternRef": {
-			"type": "object",
-			"additionalProperties": false,
-			"required": ["id"],
-			"properties": {
-				"id": {
-					"type": "string",
-					"minLength": 1
-				},
-				"variant": {
-					"type": "string",
-					"minLength": 1
-				}
-			}
-		},
 		"renderTreeNode": {
 			"type": "object",
 			"additionalProperties": false,
@@ -183,8 +168,9 @@
 				"metadata": {
 					"$ref": "#/$defs/renderTreeNodeMetadata"
 				},
-				"pattern": {
-					"$ref": "#/$defs/patternRef"
+				"layout": {
+					"type": "string",
+					"pattern": "^layout\\.(screen|region|area|composite)\\.[A-Za-z0-9]+$"
 				},
 				"props": {
 					"$ref": "#/$defs/props"

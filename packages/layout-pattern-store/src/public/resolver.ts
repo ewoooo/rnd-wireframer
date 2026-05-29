@@ -1,6 +1,55 @@
+import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/types";
 import { componentSignals, scorePatternSignals } from "../internal/matcher";
 import { findPattern, listPatterns } from "../internal/store";
-import type { DatabasePatternRef, PatternStorePattern, ScreenRegionType } from "./types";
+import { findLayoutPatternComponentByLayoutId } from "./components";
+import type {
+	DatabasePatternRef,
+	LayoutPatternCatalogEntry,
+	PatternStorePattern,
+	PatternStoreTarget,
+	ScreenRegionType,
+} from "./types";
+
+export type PatternResolveIssueCode = "missing-pattern" | "missing-component";
+
+export type PatternResolveIssue = {
+	code: PatternResolveIssueCode;
+	message: string;
+	path?: Array<string | number>;
+};
+
+export type ResolvePatternComponentInput = {
+	layoutId?: string;
+	patternId?: string;
+	props?: Record<string, unknown>;
+	target?: PatternStoreTarget;
+};
+
+export type ResolvedPatternComponent = {
+	Component: LayoutPatternComponent;
+	componentProps: LayoutPatternComponentProps;
+	issues: PatternResolveIssue[];
+	pattern: LayoutPatternCatalogEntry;
+};
+
+export function resolvePatternComponent(
+	input: ResolvePatternComponentInput,
+): ResolvedPatternComponent | undefined {
+	const layoutId = input.layoutId ?? input.patternId;
+	if (!layoutId) return undefined;
+
+	const entry = findLayoutPatternComponentByLayoutId(layoutId);
+	if (!entry) return undefined;
+
+	return {
+		Component: entry.component,
+		componentProps: {
+			props: input.props ?? {},
+		},
+		issues: [],
+		pattern: entry.pattern,
+	};
+}
 
 export function resolveCompositePatternByComponentType(
 	type: string,
@@ -15,6 +64,11 @@ export function resolveCompositePatternByComponentType(
 		.sort((a, b) => b.score - a.score || a.pattern.id.localeCompare(b.pattern.id));
 	const selected = scored[0]?.pattern;
 	return selected ? { id: selected.id, variant: selected.defaultVariant } : undefined;
+}
+
+export function resolveCompositeLayoutByComponentType(type: string): string | undefined {
+	const pattern = resolveCompositePatternByComponentType(type);
+	return pattern ? `layout.composite.${pattern.id}` : undefined;
 }
 
 export function resolveContentsRegionPatternFromScreenPattern(args: {
@@ -44,6 +98,15 @@ export function resolveRegionPatternFromScreenPattern(args: {
 		fallback: args.fallbackByType[args.type],
 		screenPattern: args.screenPattern,
 	});
+}
+
+export function resolveRegionLayoutFromScreenLayout(args: {
+	compositionText: string;
+	fallbackByType: Record<ScreenRegionType, string>;
+	screenLayout: string;
+	type: ScreenRegionType;
+}): string {
+	return args.fallbackByType[args.type];
 }
 
 function findRegionPatternFromScreenLayoutProps(

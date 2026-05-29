@@ -5,9 +5,9 @@ import type {
 	ComponentPropType,
 } from "@cx/components/types";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
-import { findPattern } from "@cx/layout-pattern-store";
+import { findLayoutPatternComponentByLayoutId } from "@cx/layout-pattern-store/components";
 import type { PropBinding } from "@cx/renderer";
-import type { GenerationArtifactKind } from "@cx/schema";
+import type { GenerationArtifactKind, SourceSpec } from "@cx/schema";
 import { getJsonSchema } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
@@ -20,6 +20,11 @@ import type {
 
 export type ValidationOptions = {
 	componentCatalog?: ComponentCatalog;
+};
+
+export type CompositionPlanValidationOptions = {
+	generatedArtifact?: unknown;
+	sourceSpec?: SourceSpec;
 };
 
 export type ComponentUsageInput = {
@@ -70,14 +75,14 @@ const LAYOUT_PROP_CONTRACTS = {
 		numberProps: ["height", "zIndex"],
 		stringProps: [],
 		booleanProps: [],
-		requiredProps: ["position", "layout"],
+		requiredProps: [],
 	},
 	"Screen.Contents": {
 		enumProps: {},
 		numberProps: [],
 		stringProps: [],
 		booleanProps: ["scroll"],
-		requiredProps: ["layout", "scroll"],
+		requiredProps: [],
 	},
 	"Screen.Bottom": {
 		enumProps: {
@@ -86,7 +91,7 @@ const LAYOUT_PROP_CONTRACTS = {
 		numberProps: ["height", "zIndex"],
 		stringProps: [],
 		booleanProps: ["safeArea"],
-		requiredProps: ["position", "layout"],
+		requiredProps: [],
 	},
 } as const;
 
@@ -243,27 +248,108 @@ export function validateTableGenerationResult(input: unknown): ValidationReport 
 	const value = parseJsonLikeInput(input, issues);
 	if (!isRecord(value)) return buildReport("table-generation-result", issues);
 
-	validatePatternRef(value.screen, "screen", ["screen", "pattern"], issues);
-	validateRegionPatternRef(value, "header", issues);
-	validateRegionPatternRef(value, "contents", issues);
-	validateRegionPatternRef(value, "bottom", issues);
+	validateLayoutRef(value.screen, "screen", ["screen", "layout"], issues);
+	validateRegionLayoutRef(value, "header", issues);
+	validateRegionLayoutRef(value, "contents", issues);
+	validateRegionLayoutRef(value, "bottom", issues);
 
 	if (Array.isArray(value.areas)) {
 		value.areas.forEach((area, index) => {
-			validatePatternRef(area, "area", ["areas", index, "pattern"], issues);
+			validateLayoutRef(area, "area", ["areas", index, "layout"], issues);
 		});
 	}
 
 	if (Array.isArray(value.components)) {
 		value.components.forEach((component, index) => {
-			validatePatternRef(component, "composite", ["components", index, "pattern"], issues);
+			validateLayoutRef(component, "composite", ["components", index, "layout"], issues);
 		});
 	}
 
 	return buildReport("table-generation-result", issues);
 }
 
-function validateRegionPatternRef(
+export function validateCompositionPlan(
+	input: unknown,
+	options: CompositionPlanValidationOptions = {},
+): ValidationReport {
+	const schemaReport = validateSchemaArtifact("composition-plan", input);
+	const issues = [...schemaReport.issues];
+	const value = parseJsonLikeInput(input, issues);
+	if (!isRecord(value)) return buildReport("composition-plan", issues);
+
+	validateCompositionPlanSourceRefs(value, options.sourceSpec, issues);
+	validateCompositionPlanMaterialization(value, options.generatedArtifact, issues);
+
+	return buildReport("composition-plan", issues);
+}
+
+function validateCompositionPlanSourceRefs(
+	input: Record<string, unknown>,
+	sourceSpec: SourceSpec | undefined,
+	issues: ValidationIssue[],
+) {
+	if (!sourceSpec) return;
+	const availableRefs = collectSourceSpecRefs(sourceSpec);
+	const sections = Array.isArray(input.sections) ? input.sections : [];
+
+	sections.forEach((section, sectionIndex) => {
+		if (!isRecord(section) || !Array.isArray(section.sourceRefs)) return;
+		section.sourceRefs.forEach((sourceRef, sourceRefIndex) => {
+			if (typeof sourceRef !== "string" || sourceRef.length === 0) return;
+			if (availableRefs.has(sourceRef)) return;
+			addIssue(issues, {
+				code: "unknown-source-ref",
+				message: `CompositionPlan sourceRef does not exist in SourceSpec: ${sourceRef}.`,
+				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
+			});
+		});
+	});
+}
+
+function validateCompositionPlanMaterialization(
+	input: Record<string, unknown>,
+	generatedArtifact: unknown,
+	issues: ValidationIssue[],
+) {
+	if (generatedArtifact === undefined) return;
+	const generatedText = JSON.stringify(generatedArtifact);
+	const sections = Array.isArray(input.sections) ? input.sections : [];
+
+	sections.forEach((section, sectionIndex) => {
+		if (!isRecord(section) || !Array.isArray(section.sourceRefs)) return;
+		section.sourceRefs.forEach((sourceRef, sourceRefIndex) => {
+			if (typeof sourceRef !== "string" || sourceRef.length === 0) return;
+			if (generatedText.includes(sourceRef)) return;
+			addIssue(issues, {
+				code: "source-ref-not-materialized",
+				message: `CompositionPlan sourceRef is not visible in generated artifact: ${sourceRef}.`,
+				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
+				severity: "warning",
+			});
+		});
+	});
+}
+
+function collectSourceSpecRefs(sourceSpec: SourceSpec): Set<string> {
+	return new Set(
+		[
+			sourceSpec.sourceShape.screen.screenCode,
+			sourceSpec.sourceShape.screen.route,
+			...sourceSpec.sourceShape.screen.regions.flatMap((region) =>
+				region.children.flatMap((area) => [
+					area.sourceAreaId,
+					area.sourceAreaName,
+					...area.children.map((component) => component.sourceComponentId),
+					...area.children.map((component) => component.sourceId),
+					...area.children.map((component) => component.roleAlias),
+					...area.children.map((component) => component.componentType),
+				]),
+			),
+		].filter((ref): ref is string => Boolean(ref)),
+	);
+}
+
+function validateRegionLayoutRef(
 	input: Record<string, unknown>,
 	region: "bottom" | "contents" | "header",
 	issues: ValidationIssue[],
@@ -272,44 +358,32 @@ function validateRegionPatternRef(
 	const regions =
 		isRecord(screen?.screen) && isRecord(screen.screen.regions) ? screen.screen.regions : undefined;
 	const regionRecord = isRecord(regions?.[region]) ? regions[region] : undefined;
-	validatePatternRef(
+	validateLayoutRef(
 		regionRecord,
 		"region",
-		["screen", "screen", "regions", region, "pattern"],
+		["screen", "screen", "regions", region, "layout"],
 		issues,
 	);
 }
 
-function validatePatternRef(
+function validateLayoutRef(
 	input: unknown,
 	target: "area" | "composite" | "region" | "screen",
 	path: Path,
 	issues: ValidationIssue[],
 ) {
 	if (!isRecord(input)) return;
-	const pattern = input.pattern;
-	if (!isRecord(pattern)) return;
+	const layout = input.layout;
+	if (typeof layout !== "string" || layout.length === 0) return;
 
-	const id = pattern.id;
-	if (typeof id !== "string" || id.length === 0) return;
-
-	const resolved = findPattern(id, target);
-	if (!resolved) {
+	const resolved = findLayoutPatternComponentByLayoutId(layout);
+	if (!resolved || resolved.target !== target) {
 		addIssue(issues, {
-			code: "unknown-pattern-ref",
-			message: `Unknown ${target} pattern ref: ${id}.`,
+			code: "unknown-layout-ref",
+			message: `Unknown ${target} layout ref: ${layout}.`,
 			path,
 		});
 		return;
-	}
-
-	const variant = pattern.variant;
-	if (typeof variant === "string" && !resolved.variants[variant]) {
-		addIssue(issues, {
-			code: "unknown-pattern-ref",
-			message: `Unknown ${target} pattern variant: ${id}/${variant}.`,
-			path: [...path, "variant"],
-		});
 	}
 }
 
@@ -356,7 +430,14 @@ function validateNode(
 		return;
 	}
 
-	if (!canRenderNodeType(input.type, options.componentCatalog)) {
+	const hasKnownLayout =
+		typeof input.layout === "string" && findLayoutPatternComponentByLayoutId(input.layout);
+	const hasRenderableChildren = Array.isArray(input.children) && input.children.length > 0;
+
+	if (
+		!canRenderNodeType(input.type, options.componentCatalog) &&
+		!(hasKnownLayout && hasRenderableChildren)
+	) {
 		addIssue(issues, {
 			code: "unknown-component-type",
 			message: `Render node type is not known to the renderer contract: ${input.type}.`,
@@ -366,6 +447,7 @@ function validateNode(
 
 	validateNodeMetadata(input, path, issues, ids);
 	validateDisplay(input.display, [...path, "display"], issues);
+	validateLayoutPatternIdForNode(input.type, input.layout, [...path, "layout"], issues);
 
 	if ("children" in input && !Array.isArray(input.children)) {
 		addIssue(issues, {
@@ -392,6 +474,52 @@ function validateNode(
 			validateNode(child, [...path, "children", index], options, issues, ids);
 		});
 	}
+}
+
+function validateLayoutPatternIdForNode(
+	nodeType: string,
+	input: unknown,
+	path: Path,
+	issues: ValidationIssue[],
+) {
+	if (input === undefined) return;
+	if (typeof input !== "string" || input.length === 0) {
+		addIssue(issues, {
+			code: "unknown-layout-ref",
+			message: "Layout pattern id must be a non-empty string.",
+			path,
+		});
+		return;
+	}
+
+	const resolved = findLayoutPatternComponentByLayoutId(input);
+	if (!resolved) {
+		addIssue(issues, {
+			code: "unknown-layout-ref",
+			message: `Unknown layout pattern id: ${input}.`,
+			path,
+		});
+		return;
+	}
+
+	const expectedTarget = getExpectedLayoutTargetForNodeType(nodeType);
+	if (expectedTarget && resolved.target !== expectedTarget) {
+		addIssue(issues, {
+			code: "unknown-layout-ref",
+			message: `${nodeType} nodes must use layout.${expectedTarget}.* refs, but received ${input}.`,
+			path,
+		});
+	}
+}
+
+function getExpectedLayoutTargetForNodeType(
+	nodeType: string,
+): "area" | "composite" | "region" | "screen" | undefined {
+	if (nodeType === "Screen") return "screen";
+	if (LAYOUT_NODE_TYPES.screenRegion.some((regionType) => regionType === nodeType)) return "region";
+	if (nodeType.startsWith("area.")) return "area";
+	if (LAYOUT_NODE_TYPES.layout.some((layoutType) => layoutType === nodeType)) return undefined;
+	return "composite";
 }
 
 function validateScreenStructure(

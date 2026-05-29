@@ -3,14 +3,32 @@ export type { ParseMarkdownSourceCommand, ParseMarkdownSourceCommandResult } fro
 export { runParseMarkdownSourceCommand } from "./commands";
 export { sideEffectBoundary } from "./public/contract";
 export type {
+	GenerationTableData,
+	MergeGeneratedTablesOptions,
+	MergeGeneratedTablesResult,
+	ScreenRouteRecord,
+	ScreenVariantRecord,
+} from "./public/table-merge";
+export {
+	extractTableGenerationResultFromAgentPayload,
+	mergeTableGenerationResultIntoTables,
+} from "./public/table-merge";
+export type {
 	ApplyApprovedArtifactCommand,
 	PipelineAdapters,
+	PipelineAgentMode,
 	PipelineClockAdapter,
+	PipelineDefinition,
 	PipelineFileSystemAdapter,
+	PipelineId,
 	PipelineIdAdapter,
 	PipelineMarkdownSourceFile,
 	PipelineRunMode,
+	PipelineRunResult,
+	PipelineStageId,
+	PipelineSummary,
 	RunSideEffectsInput,
+	ScreenGenerationPipelineOptions,
 	SideEffectArtifactRef,
 	SideEffectBoundary,
 	SideEffectBoundaryName,
@@ -29,3 +47,4 @@ export type {
 	WriteVersionedArtifactCommand,
 } from "./public/types";
 export { runSideEffects } from "./runner";
+export { buildPipeline, runPipeline } from "./runtime";

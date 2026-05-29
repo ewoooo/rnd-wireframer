@@ -1,4 +1,13 @@
-import { AppScreen, Flex, Grid, isScreenNode } from "@cx/layout";
+import {
+	AppScreen,
+	BottomFixedArea,
+	Flex,
+	Grid,
+	HStack,
+	isScreenNode,
+	PageStack,
+	VStack,
+} from "@cx/layout";
 import { ScreenRegion } from "@cx/layout/chrome";
 import { Flex as PrimitiveFlex, Grid as PrimitiveGrid } from "@cx/layout/primitives";
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/style";
@@ -11,6 +20,10 @@ describe("@cx/layout public API", () => {
 		expect(ScreenRegion).toBeTypeOf("function");
 		expect(Flex).toBe(PrimitiveFlex);
 		expect(Grid).toBe(PrimitiveGrid);
+		expect(VStack).toBeTypeOf("function");
+		expect(HStack).toBeTypeOf("function");
+		expect(PageStack).toBeTypeOf("function");
+		expect(BottomFixedArea).toBeTypeOf("function");
 		expect(isScreenNode).toBeTypeOf("function");
 		expect(LAYOUT_NODE_TYPES.screenRoot).toEqual(["Screen"]);
 	});

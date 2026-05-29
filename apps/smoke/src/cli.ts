@@ -18,7 +18,7 @@ async function main() {
 	console.log(JSON.stringify(result.summary, null, 2));
 
 	if (!result.parseCommandResult.parseResult.ok) {
-		throw new Error(`Parse smoke failed. See ${result.outDir}/parse-result.json`);
+		throw new Error(`Parse smoke failed. See ${result.outDir}/01-parse-result.json`);
 	}
 }
 

@@ -1,15 +1,21 @@
 export { orchestrationBoundary } from "./public/contract";
 export {
-	buildGenerationPlan,
+	buildCompositionPlanAgentInput,
 	buildPatternSelectionAgentInput,
+	buildQualityReviewAgentInput,
 	buildScreenGenerationAgentInput,
+	buildScreenIntentAgentInput,
 	buildScreenRevisionAgentInput,
+	buildSourceReferenceCatalog,
 } from "./public/generation";
+export {
+	buildPatternLayerCandidates,
+	type PatternLayerCandidateResolver,
+} from "./public/pattern-layer-candidates";
 export type {
-	GenerationPlan,
-	GenerationPlanOptions,
-	GenerationPlanStep,
-	GenerationPlanStepKind,
+	ComponentContractCatalog,
+	ComponentContractCatalogEntry,
+	OrchestrationAgentTaskInput,
 	OrchestrationBoundary,
 	OrchestrationBoundaryName,
 	OrchestrationDecision,
@@ -21,9 +27,12 @@ export type {
 	PatternLayerCandidate,
 	PatternSelectionAgentContext,
 	PatternSelectionAgentInput,
+	QualityReviewAgentContext,
+	QualityReviewAgentInput,
 	ScreenGenerationAgentContext,
 	ScreenGenerationAgentInput,
 	ScreenRevisionAgentContext,
 	ScreenRevisionAgentInput,
+	SourceReferenceCatalog,
+	SourceReferenceCatalogEntry,
 } from "./public/types";
-export { GENERATION_PLAN_STEP } from "./public/types";

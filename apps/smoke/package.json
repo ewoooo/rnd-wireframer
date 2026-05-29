@@ -6,6 +6,7 @@
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"scripts": {
+		"apply-tables": "tsx src/apply-tables-cli.ts",
 		"generation": "tsx src/cli.ts"
 	},
 	"exports": {
@@ -13,11 +14,7 @@
 		"./generation": "./src/generation/index.ts"
 	},
 	"dependencies": {
-		"@cx/agent": "0.1.0",
-		"@cx/components": "0.1.0",
-		"@cx/orchestration": "0.1.0",
 		"@cx/pipeline": "0.1.0",
-		"@cx/schema": "0.1.0",
-		"@cx/validation": "0.1.0"
+		"@cx/schema": "0.1.0"
 	}
 }

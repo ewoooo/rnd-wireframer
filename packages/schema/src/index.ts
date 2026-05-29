@@ -3,6 +3,7 @@ export type { AgentResultContract } from "./agent-result";
 export type { ApplyResultContract } from "./apply-result";
 export type { GenerationArtifactKind } from "./artifact-kind";
 export { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
+export type { CompositionPlanContract, CompositionPlanSection } from "./composition-plan";
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
 export type { JsonSchemaDocument } from "./json-schema-registry";
@@ -17,6 +18,7 @@ export type {
 	SchemaPropBinding,
 	SchemaPropValue,
 } from "./render-tree";
+export type { ScreenIntentContract } from "./screen-intent";
 export type {
 	SourceFileKind,
 	SourceSpec,
@@ -35,7 +37,6 @@ export type {
 	TableGenerationRegion,
 	TableGenerationResultContract,
 	TableGenerationScreen,
-	TablePatternRef,
 } from "./table-generation-result";
 export type { SchemaValidationIssue, ValidationReportContract } from "./validation-report";
 export type { SchemaVersion } from "./versions";

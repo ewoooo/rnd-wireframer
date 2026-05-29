@@ -8,6 +8,7 @@ export type ValidationOperation = ValidationBoundary["owns"][number];
 
 export type ValidationTarget =
 	| "agent-result"
+	| "composition-plan"
 	| "component-usage"
 	| "layout-props"
 	| "render-tree"
@@ -28,7 +29,9 @@ export type ValidationIssueCode =
 	| "readonly-prop-written"
 	| "invalid-render-node"
 	| "invalid-layout-prop"
-	| "unknown-pattern-ref";
+	| "source-ref-not-materialized"
+	| "unknown-source-ref"
+	| "unknown-layout-ref";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;

@@ -7,6 +7,8 @@ export const SCHEMA_VERSION = {
 	preview: "preview.v0.1",
 	qualityInspection: "quality-inspection.v0.1",
 	renderTree: "render-tree.v0.1",
+	compositionPlan: "composition-plan.v0.1",
+	screenIntent: "screen-intent.v0.1",
 	sourceSpec: "source-spec.v0.1",
 	tableGenerationResult: "table-generation-result.v0.1",
 	validationReport: "validation-report.v0.1",

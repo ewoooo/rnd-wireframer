@@ -1,14 +1,14 @@
 # @cx/smoke
 
-`@cx/smoke` is a developer-facing integration app for running generation smoke flows across workspace packages.
+`@cx/smoke` is a developer-facing CLI wrapper for running workspace pipelines.
 
-It is not a production runtime package. It calls public package APIs and records smoke artifacts for inspection.
+It is not a production runtime package. It calls `@cx/pipeline` and records pipeline artifacts for inspection.
 
 ## Responsibility
 
 - Run repeatable integration smoke flows.
 - Provide a single public function for each smoke flow.
-- Keep CLI scripts thin by moving execution harness logic here.
+- Keep CLI scripts thin by delegating execution to `@cx/pipeline`.
 - Record intermediate artifacts for debugging and regression checks.
 
 ## Non-Goals
@@ -18,6 +18,8 @@ It is not a production runtime package. It calls public package APIs and records
 - Claude runner implementation
 - renderer implementation
 - catalog or token ownership
+- orchestration stage execution
+- artifact command construction
 
 ## Public Usage
 
@@ -35,7 +37,7 @@ const result = await runGenerationSmoke(
 console.log(result.summary);
 ```
 
-`useAI: false` uses the fake smoke runner. `useAI: true` calls the local Claude runner through `@cx/agent`.
+`useAI: false` uses the fake pipeline runner. `useAI: true` asks `@cx/pipeline` to call the local Claude runner through `@cx/agent`.
 
 ## CLI
 
@@ -53,58 +55,85 @@ npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/sc
 
 Use `--use-ai` to call the real local Claude runner.
 
+## Apply Smoke Result To Tables
+
+After reviewing a smoke run, merge its `tableGenerationResult` into `data/tables`
+with the apply CLI.
+
+Dry-run:
+
+```bash
+npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id>
+```
+
+Write:
+
+```bash
+npm run smoke:apply-tables -- --run-dir tmp/generation-runs/<run-id> --write
+```
+
+By default the command refuses runs whose `25-validation-report.json` has errors.
+Use `--allow-invalid` only after manual inspection.
+
 ## Extending Generation Flow
 
-Generation smoke executes the small plan returned by `@cx/orchestration`.
-Keep the flow order in orchestration and keep smoke as the plan executor harness.
+Generation smoke executes the `screen-generation` pipeline from `@cx/pipeline`.
+Keep the flow order in pipeline definitions and keep smoke as a thin CLI/harness.
 
 The moving parts are:
 
 ```text
-@cx/orchestration
-  owns the step id contract and returns the ordered plan
-
 apps/smoke
-  binds each step id to a local executor and runs the plan
-
-@cx/agent
-  runs Claude tasks when an executor needs AI
-
-@cx/validation
-  validates generated artifacts when an executor needs validation
+  parses CLI options and calls @cx/pipeline
 
 @cx/pipeline
-  reads source artifacts and writes artifacts/logs when an executor needs side effects
-```
+  owns pipeline definitions, stage execution, agent/validation/IO wiring
 
-`GENERATION_PLAN_STEP` is the step id source of truth. `buildGenerationPlan()` returns serializable plan data. `apps/smoke/src/generation/plan-executor.ts` reads that plan and executes the matching function from `generationPlanStepExecutors`.
+@cx/orchestration
+  provides deterministic stage helpers used by pipeline stages
+```
 
 Current flow:
 
 ```text
-buildGenerationPlan()
+runPipeline("screen-generation")
+-> read-source
+-> parse-source
+-> derive-screen-intent
+-> plan-composition
 -> select-pattern
 -> generate-render-tree
 -> validate-render-tree
+-> review-quality
 -> revise-render-tree-if-invalid
 -> validate-render-tree
 -> write-artifacts
 ```
+
+During `generate-render-tree`, the pipeline loads screen-generation reference
+assets from `packages/agent/docs/screen-generation/` and records them as smoke
+artifacts. These assets are owned by `@cx/agent`; the smoke harness only records
+the reference context used by the pipeline.
 
 `generate-render-tree` now expects the agent payload to contain both:
 
 - `tableGenerationResult`: the table-shaped intermediate artifact aligned with `data/tables/`.
 - `renderTree`: the materialized preview artifact consumed by `@cx/renderer`.
 
-`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `{ id, variant }` pattern ref from `@cx/layout-pattern-store`.
+`validate-render-tree` validates both artifacts. RenderTree validation checks renderer shape and component props. Table generation validation checks that every screen, region, area, and component record carries a real `layout.<target>.<PatternName>` layout id from `@cx/layout-pattern-store`.
 
-To add a new generation step:
+The final generated screen artifact is always written to `final-result.json`.
+That file contains the RenderTree itself, not the raw agent result envelope, and
+must keep the screen render tree shape consumed by `@cx/renderer`.
 
-1. Add the step id to `GENERATION_PLAN_STEP` in `packages/orchestration/src/public/types.ts`.
-2. Add the step to `buildGenerationPlan()` in `packages/orchestration/src/public/generation.ts`.
-3. Add a matching executor to `generationPlanStepExecutors` in `apps/smoke/src/generation/plan-executor.ts`.
-4. If the step writes files or logs, route that work through `@cx/pipeline`.
-5. Add or update orchestration tests and run the smoke command.
+To add a new generation stage:
+
+1. Add the stage id to the pipeline stage contract in `@cx/pipeline`.
+2. Add the stage to the `screen-generation` pipeline definition.
+3. Add a matching pipeline stage implementation.
+4. Put deterministic agent-input or next-action helper logic in `@cx/orchestration`.
+5. Keep agent execution, validation calls, and IO inside `@cx/pipeline`.
+6. Add or update pipeline tests and run the smoke command.
 
 Example extension:
 
@@ -120,29 +149,31 @@ select-pattern
 
 Keep these boundaries:
 
-- `@cx/orchestration` decides the step order and builds stage inputs.
-- `apps/smoke` executes known smoke steps for local inspection.
+- `@cx/pipeline` decides the stage order and executes pipeline stages.
+- `@cx/orchestration` builds deterministic stage inputs and next-action data.
+- `apps/smoke` calls `runPipeline("screen-generation", options)`.
+- `packages/agent/docs` stores prompt/checklist/output reference assets.
 - `@cx/agent` runs Claude tasks.
 - `@cx/validation` owns RenderTree and table-shaped generation validation rules.
 - `@cx/pipeline` reads files, writes artifacts, and writes logs.
 
-Avoid adding flow decisions directly inside the smoke harness. When a new AI or validation pass changes the generation process, represent it as a plan step first, then add the smoke executor for that step.
+Avoid adding flow decisions directly inside the smoke harness. When a new AI or validation pass changes the generation process, represent it as a pipeline stage first.
 
 ## Harness Boundary
 
-`apps/smoke` executes the orchestration plan for developer smoke runs.
+`apps/smoke` executes registered pipelines for developer smoke runs.
 
 It may:
 
-- run plan step executors
-- call `@cx/agent`
-- call `@cx/validation`
-- create side effect commands for smoke source/artifacts
+- parse CLI options
+- call `@cx/pipeline`
+- format and print a summary
 
 It must not:
 
-- invent workflow order outside `@cx/orchestration`
+- invent workflow order outside `@cx/pipeline`
+- call `@cx/orchestration`, `@cx/agent`, or `@cx/validation` directly
 - read or write files directly
 - own parser, validation, renderer, or Claude adapter rules
 
-File, log, and artifact IO execution must be delegated to `@cx/pipeline`.
+File, log, artifact IO, validation execution, and agent execution wiring must be delegated to `@cx/pipeline`.

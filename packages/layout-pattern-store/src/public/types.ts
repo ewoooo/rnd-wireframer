@@ -65,6 +65,47 @@ export type PatternResolutionSignals = {
 };
 
 export type PatternStoreTarget = "screen" | "region" | "area" | "composite";
+export type LayoutPatternTarget = PatternStoreTarget;
+
+export type LayoutPatternPropType =
+	| "array"
+	| "boolean"
+	| "enum"
+	| "node"
+	| "number"
+	| "object"
+	| "string";
+
+export type LayoutPatternPropContract = {
+	type: LayoutPatternPropType;
+	aiWritable?: boolean;
+	description?: string;
+	required?: boolean;
+	values?: string[];
+};
+
+export type LayoutPatternChildrenContract = {
+	accepts: "any" | "area" | "area-or-component" | "component" | "none" | "region";
+	max?: number;
+	min?: number;
+};
+
+export type LayoutPatternStatus = "deprecated" | "draft" | "ready";
+
+export type LayoutPatternCatalogEntry = {
+	id: `layout.${LayoutPatternTarget}.${string}`;
+	target: LayoutPatternTarget;
+	name: string;
+	componentID: string;
+	children?: LayoutPatternChildrenContract;
+	description?: string;
+	props?: Record<string, LayoutPatternPropContract>;
+	status?: LayoutPatternStatus;
+};
+
+export type LayoutPatternCatalog = {
+	patterns: LayoutPatternCatalogEntry[];
+};
 
 export type PatternStorePattern = {
 	id: string;

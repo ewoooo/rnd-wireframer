@@ -63,16 +63,11 @@ export interface RenderTreeNodeMetadata extends RenderTreeMetadata {
 	title: string;
 }
 
-export interface RenderTreeNodePattern {
-	id: string;
-	variant?: string;
-}
-
 export interface RenderTreeNode {
 	type: string;
 	componentVersion: string;
 	metadata: RenderTreeNodeMetadata;
-	pattern?: RenderTreeNodePattern;
+	layout?: string;
 	props?: Record<string, PropValue>;
 	className?: string;
 	style?: RenderTreeStyle;
@@ -82,7 +77,7 @@ export interface RenderTreeNode {
 
 export type RenderTreeScreenHeaderNode = Omit<RenderTreeNode, "props" | "children"> & {
 	type: (typeof NODE_TYPES.screenRegion)[0];
-	props: {
+	props?: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
 		height?: number;
@@ -93,7 +88,7 @@ export type RenderTreeScreenHeaderNode = Omit<RenderTreeNode, "props" | "childre
 
 export type RenderTreeScreenContentsNode = Omit<RenderTreeNode, "props" | "children"> & {
 	type: (typeof NODE_TYPES.screenRegion)[1];
-	props: {
+	props?: {
 		layout: FlexLayoutProps;
 		scroll: boolean;
 	};
@@ -102,7 +97,7 @@ export type RenderTreeScreenContentsNode = Omit<RenderTreeNode, "props" | "child
 
 export type RenderTreeScreenBottomNode = Omit<RenderTreeNode, "props" | "children"> & {
 	type: (typeof NODE_TYPES.screenRegion)[2];
-	props: {
+	props?: {
 		position: "fixed" | "sticky" | "static";
 		layout: FlexLayoutProps;
 		height?: number;
