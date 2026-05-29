@@ -49,6 +49,7 @@ read-source
 -> parse-source
 -> derive-screen-intent
 -> plan-composition
+-> derive-decoration-plan
 -> select-pattern
 -> generate-render-tree
 -> validate-render-tree
@@ -89,11 +90,19 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 - 출력: `composition-plan` agent result
 - side effect: 없음
 
+### `derive-decoration-plan`
+
+- 입력 조립 소유: `@cx/orchestration`
+- 실행 소유: `@cx/pipeline` -> `@cx/orchestration`
+- 출력: deterministic `DecorationPlan`
+- 책임: SourceSpec 내부 이름과 사용자 노출 구조를 분리하고, 약관 목록/동의 controls처럼 source section 안에서 역할이 갈리는 area를 contract에 따라 split한다.
+- side effect: 없음
+
 ### `select-pattern`
 
 - 입력 조립 소유: `@cx/orchestration`
 - AI 실행 소유: `@cx/agent`
-- 출력: pattern-selection agent result, layer candidates 참조
+- 출력: pattern-selection agent result, DecorationPlan 기반 layer candidates 참조
 - side effect: 없음
 
 ### `generate-render-tree`
@@ -157,6 +166,7 @@ pipeline은 가능한 한 각 stage의 입력과 결과를 감사 가능한 arti
 - parse result / `SourceSpec`
 - screen-intent agent input/result
 - composition-plan agent input/result
+- decoration plan
 - pattern-selection input/result
 - generation input/result
 - validation reports

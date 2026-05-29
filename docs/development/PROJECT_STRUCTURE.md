@@ -180,7 +180,7 @@ packages/schema/src/
   validation-report.ts
   preview.ts
   apply-result.ts
-  json-schema/
+  json-schema-registry.ts
 ```
 
 외부 패키지는 root export만 사용한다. schema 계약의 원천은 `@cx/schema` 하나로 유지하고, 파일별 subpath나 `src/*` 직접 import는 공개 소비 표면으로 보지 않는다.
@@ -190,7 +190,7 @@ import { SCHEMA_VERSION, getJsonSchema } from "@cx/schema";
 import type { SourceSpec } from "@cx/schema";
 ```
 
-`@cx/schema/src/*`, `@cx/schema/*`, `src/json-schema/*` 직접 import는 금지한다. 필요한 계약은 `@cx/schema` root export에 먼저 추가한다.
+`@cx/schema/src/*`, `@cx/schema/*` 직접 import는 금지한다. 필요한 계약은 `@cx/schema` root export에 먼저 추가한다. JSON Schema의 정본은 정적 JSON 파일이 아니라 `getJsonSchema()`와 `json-schema-registry.ts`다.
 
 RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `metadata.title`만 허용한다. JSON Schema 구조 검증은 `@cx/schema`가 제공하고, 컴포넌트별 prop 검증은 `@cx/validation`이 `@cx/components/catalog`를 주입받아 수행한다.
 

@@ -36,6 +36,32 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Decoration Plan Implementation
+
+- 변경: `@cx/schema`에 `DecorationPlan` 계약과 JSON Schema를 추가하고 `screen-generation` pipeline에 `derive-decoration-plan` stage를 연결함
+- 변경: `@cx/orchestration`에 decoration contract/helper를 추가해 약관 SourceSpec의 `ListText` 목록과 `Checkbox` 동의 controls를 `약관 목록 조회`, `약관 동의` area로 deterministic split하도록 함
+- 변경: pattern layer candidates와 generation/revision/review input이 `DecorationPlan`의 displayTitle, role, layoutIntent, repeatedItems propsHint를 참조하도록 연결함
+- 변경: `@cx/validation`에 내부 source name visible title warning과 `ListText` dot row `subText` 누락 error를 추가함
+- 변경: Claude output parser가 JSON 뒤에 설명을 붙인 경우에도 첫 번째 balanced JSON payload를 파싱하도록 보강함
+- 변경: `NOVA-MBR-PG-001-0` 최종 AI smoke 결과를 `data/tables`에 반영해 table의 region layout 3종, 약관 목록/동의 split, `ListText.subText` 보존을 확인함
+- 이유: SourceSpec 내부명 노출, 약관 목록 누락, `ListText` 기본값 렌더링 문제를 prompt 추론이 아니라 감사 가능한 decoration contract로 해결하기 위함
+- 검증: `npm test -- --run packages/agent/src/__tests__/claude-internals.test.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx biome check ...`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id 'NOVA-MBR-PG-001-0-decoration-plan-ai-state-20260529' --out-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-decoration-plan-ai-state-20260529' --use-ai`, `npm run smoke:apply-tables -- --run-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-decoration-plan-ai-state-20260529' --module-id mbr --write`
+
+## 2026-05-29 - Region Layout Id Cleanup
+
+- 변경: region layout id를 `layout.region.header`, `layout.region.contents`, `layout.region.bottom` 세 개로 정리하고, layout-pattern-store catalog/registry에서 세부 region layout id를 제거함
+- 변경: screen generation fake runner, RenderTree to table fallback, table data, renderer/table-materializer/validation/pipeline 테스트 fixture가 세 region layout id만 쓰도록 갱신함
+- 변경: region divider 복구 계획 문서에서 region-level divider 복원을 폐기하고 area pattern 책임으로 명시함
+- 이유: 최신 계약상 screen region은 Header/Contents/Bottom 3 rail만 고정하고, 화면별 세부 구조는 screen/area/component pattern에서 표현해야 하기 때문
+- 검증: `npx tsc --noEmit --pretty false`, targeted `npx biome check`, `npx vitest run packages/layout-pattern-store/src/__tests__/pattern-store.test.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/table-materializer/src/__tests__/public-api.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts`
+
+## 2026-05-29 - Decoration Plan Implementation Plan
+
+- 변경: `docs/development/DECORATION_PLAN_IMPLEMENTATION_PLAN.md`를 추가해 SourceSpec과 RenderTree 사이의 사용자 노출 구조 보강 단계인 `DecorationPlan` 구현 계획을 정리함
+- 변경: 약관 화면에서 내부 section name 노출, 약관 목록/동의 area 미분리, `ListText` 기본값 렌더링 문제를 해결하기 위한 schema, orchestration contract, validation, smoke 계획을 문서화함
+- 이유: AI prompt 내부 판단에 섞여 있던 화면 장식 책임을 deterministic contract와 감사 가능한 artifact로 분리하기 위함
+- 검증: 문서 추가
+
 ## 2026-05-29 - Smoke Web Testbed Plan
 
 - 변경: `docs/development/SMOKE_WEB_TESTBED_PLAN.md`를 추가해 smoke 결과를 web에서 조회/비교하기 위한 테스트베드 계획을 정리함
