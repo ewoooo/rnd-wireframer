@@ -152,7 +152,7 @@ export function ScreenVariantCard({
 				<span className={cn("shrink-0 text-xs tabular-nums", isRowSelected ? "text-primary" : "text-muted-foreground")}>
 					{screenVariant.order}
 				</span>
-				<span className={cn("flex-1 truncate text-xs", isRowSelected ? "font-semibold text-primary" : "font-medium")}>
+				<span className={cn("flex-1 truncate text-sm", isRowSelected ? "font-semibold text-primary" : "font-normal")}>
 					{screenVariant.name}
 				</span>
 				<button

@@ -7,8 +7,9 @@ import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
 export function buildPuckConfig(areas: AppArea[], screen: AppScreen | undefined): Config {
 	const components: Config["components"] = {};
 	const schemaData = screen?.schema.data;
+	const sortedAreas = [...areas].sort((a, b) => a.name.localeCompare(b.name, "ko"));
 
-	for (const area of areas) {
+	for (const area of sortedAreas) {
 		components[area.code] = {
 			label: area.name,
 			fields: {},

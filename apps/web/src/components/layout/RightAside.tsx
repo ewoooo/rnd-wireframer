@@ -33,14 +33,13 @@ export function RightAside() {
 				</Panel>
 			) : (
 				<>
+					{/* Area List = 스크린 선택과 무관하게 항상 area를 꺼내주는 독립 컴포넌트 (텐키처럼) */}
 					<Panel title="Area List" defaultSize={50} minSize={15}>
-						{!screen ? (
-							<p className="p-3 text-sm text-muted-foreground">스크린을 선택해주세요.</p>
-						) : (
-							<TooltipProvider>
+						<TooltipProvider>
+							<div className="area-list-drawer">
 								<Puck.Components />
-							</TooltipProvider>
-						)}
+							</div>
+						</TooltipProvider>
 					</Panel>
 
 					<Panel title="Properties" defaultSize={50} minSize={20}>
