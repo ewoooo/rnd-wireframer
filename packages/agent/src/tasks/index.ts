@@ -1,3 +1,4 @@
+import { componentProposalTask } from "./component-proposal";
 import { compositionPlanningTask } from "./composition-planning";
 import { patternSelectionTask } from "./pattern-selection";
 import { qualityReviewTask } from "./quality-review";
@@ -12,11 +13,13 @@ export const agentTaskCatalog = {
 	"screen-intent": screenIntentTask,
 	"screen-revision": screenRevisionTask,
 	"quality-review": qualityReviewTask,
+	"component-proposal": componentProposalTask,
 } as const;
 
 export type AgentTaskCatalog = typeof agentTaskCatalog;
 
 export {
+	componentProposalTask,
 	compositionPlanningTask,
 	patternSelectionTask,
 	qualityReviewTask,

@@ -1,4 +1,5 @@
 export type AgentTaskKind =
+	| "component-proposal"
 	| "composition-planning"
 	| "pattern-selection"
 	| "quality-review"
