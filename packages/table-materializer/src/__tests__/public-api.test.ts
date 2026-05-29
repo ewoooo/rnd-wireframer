@@ -1,21 +1,26 @@
-import type { RenderTreeScreenNode } from "@cx/renderer";
+import type { RenderTreeScreenNodeContract } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 import { materializeTableScreen, materializeTableScreens, type TableScreenData } from "../index";
 
 describe("@cx/table-materializer", () => {
 	it("materializes table records into a renderer-compatible screen node", () => {
 		const node = materializeTableScreen({ screenId: "screen-1", tables: tableFixture });
-		const renderable: RenderTreeScreenNode | undefined = node;
+		const renderable: RenderTreeScreenNodeContract | undefined = node;
 
 		expect(renderable?.type).toBe("Screen");
 		expect(renderable?.layout).toBe("layout.screen.screenShell");
 		expect(renderable?.children[0]).toMatchObject({
 			type: "Screen.Header",
-			layout: "layout.region.plainStack",
+			layout: "layout.region.header",
+		});
+		expect(renderable?.children[1]).toMatchObject({
+			type: "Screen.Contents",
+			layout: "layout.region.contents",
 		});
 		expect(renderable?.children[1].children[0]).toMatchObject({
 			type: "area.static",
 			layout: "layout.area.fieldStack",
+			props: { divider: true },
 		});
 		expect(renderable?.children[1].children[0]?.children?.[0]).toMatchObject({
 			type: "TextField",
@@ -41,19 +46,19 @@ const tableFixture = {
 					regions: {
 						header: {
 							type: "Screen.Header",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.header",
 							metadata: { title: "Header" },
 							children: [],
 						},
 						contents: {
 							type: "Screen.Contents",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.contents",
 							metadata: { title: "Contents" },
 							children: [{ kind: "area", id: "field-area" }],
 						},
 						bottom: {
 							type: "Screen.Bottom",
-							layout: "layout.region.plainStack",
+							layout: "layout.region.bottom",
 							metadata: { title: "Bottom" },
 							children: [],
 						},
@@ -70,6 +75,7 @@ const tableFixture = {
 				version: "1.0.0",
 				layout: "layout.area.fieldStack",
 				metadata: { title: "Field area" },
+				props: { divider: true },
 				children: [{ kind: "component", id: "name-field" }],
 			},
 		],

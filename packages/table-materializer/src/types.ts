@@ -1,4 +1,11 @@
-import type { SchemaPropValue } from "@cx/schema";
+import type {
+	RenderTreeNodeContract,
+	RenderTreeScreenBottomNodeContract,
+	RenderTreeScreenContentsNodeContract,
+	RenderTreeScreenHeaderNodeContract,
+	RenderTreeScreenNodeContract,
+	SchemaPropValue,
+} from "@cx/schema";
 
 export type TableChildRef = {
 	id: string;
@@ -73,74 +80,8 @@ export type TableScreenData = {
 	};
 };
 
-export type MaterializedRenderTreeNode = {
-	children?: MaterializedRenderTreeNode[];
-	componentVersion: string;
-	layout?: string;
-	metadata: {
-		description?: string;
-		id: string;
-		title: string;
-	};
-	props?: Record<string, SchemaPropValue>;
-	type: string;
-};
-
-export type MaterializedFlexLayoutProps = {
-	direction: "row" | "column";
-	align?: "center" | "end" | "start" | "stretch";
-	gap?: number;
-	justify?: "between" | "center" | "end" | "start";
-	paddingX?: number;
-	paddingY?: number;
-};
-
-export type MaterializedRenderTreeScreenHeaderNode = Omit<
-	MaterializedRenderTreeNode,
-	"children" | "props" | "type"
-> & {
-	type: "Screen.Header";
-	children?: MaterializedRenderTreeNode[];
-	props?: {
-		position: "fixed" | "static" | "sticky";
-		layout: MaterializedFlexLayoutProps;
-		height?: number;
-		zIndex?: number;
-	};
-};
-
-export type MaterializedRenderTreeScreenContentsNode = Omit<
-	MaterializedRenderTreeNode,
-	"children" | "props" | "type"
-> & {
-	type: "Screen.Contents";
-	children: MaterializedRenderTreeNode[];
-	props?: {
-		layout: MaterializedFlexLayoutProps;
-		scroll: boolean;
-	};
-};
-
-export type MaterializedRenderTreeScreenBottomNode = Omit<
-	MaterializedRenderTreeNode,
-	"children" | "props" | "type"
-> & {
-	type: "Screen.Bottom";
-	children?: MaterializedRenderTreeNode[];
-	props?: {
-		position: "fixed" | "static" | "sticky";
-		layout: MaterializedFlexLayoutProps;
-		height?: number;
-		safeArea?: boolean;
-		zIndex?: number;
-	};
-};
-
-export type MaterializedRenderTreeScreenNode = Omit<MaterializedRenderTreeNode, "children"> & {
-	type: "Screen";
-	children: [
-		MaterializedRenderTreeScreenHeaderNode,
-		MaterializedRenderTreeScreenContentsNode,
-		MaterializedRenderTreeScreenBottomNode,
-	];
-};
+export type MaterializedRenderTreeNode = RenderTreeNodeContract;
+export type MaterializedRenderTreeScreenHeaderNode = RenderTreeScreenHeaderNodeContract;
+export type MaterializedRenderTreeScreenContentsNode = RenderTreeScreenContentsNodeContract;
+export type MaterializedRenderTreeScreenBottomNode = RenderTreeScreenBottomNodeContract;
+export type MaterializedRenderTreeScreenNode = RenderTreeScreenNodeContract;
