@@ -37,6 +37,7 @@ import type {
 import {
 	type CompositionPlanContract,
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	SCHEMA_VERSION,
 	type SourceSpec,
 	type ValidationReportContract,
@@ -66,6 +67,7 @@ import {
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
+import { loadDesignContextBundleContents } from "./design-context-catalog";
 import { createFakeGenerationAgentRunner } from "./fake-agent-runner";
 import {
 	findGenerationSkill,
@@ -101,6 +103,7 @@ type ScreenGenerationPipelineState = {
 	compositionPlanAgentResult?: AgentRunResult;
 	compositionPlanRunnerRequest?: AgentRunnerRequest;
 	decorationPlan?: DecorationPlanContract;
+	designContextBundleContents?: DesignContextBundleContent[];
 	designContextBundleSelection?: DesignContextBundleSelection;
 	generationNextAction?: GenerationNextAction;
 	generationSkillCatalog?: GenerationSkill[];
@@ -397,6 +400,9 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const agentInput = buildScreenGenerationAgentInput(sourceSpec, {
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -405,6 +411,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -455,6 +462,9 @@ function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void 
 
 async function runReviewQualityStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const qualityReviewInput = buildQualityReviewAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
@@ -464,6 +474,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -513,6 +524,9 @@ async function runReviseRenderTreeIfInvalidStage(
 
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
 	const revisionInput = buildScreenRevisionAgentInput({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -521,6 +535,7 @@ async function runReviseRenderTreeIfInvalidStage(
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designContextBundles: state.designContextBundleContents,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		previousCandidate,
