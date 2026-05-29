@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createModule, deleteModule, duplicateModule, updateModule } from "@/app/actions/module-actions";
 import { createRoute, deleteRoute, duplicateRoute, updateRoute } from "@/app/actions/route-actions";
+import { createVariant } from "@/app/actions/screen-actions";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,10 @@ export function NavigationPanel() {
 	const [pendingEditModuleId, setPendingEditModuleId] = useState<string | null>(null);
 	const [isCreatingModule, startCreatingModule] = useTransition();
 
+	// 방금 생성된 variant ID → 해당 ScreenVariantCard가 자동으로 편집 모드 진입
+	const [pendingEditVariantId, setPendingEditVariantId] = useState<string | null>(null);
+	const [isCreatingVariant, startCreatingVariant] = useTransition();
+
 	// 캔버스 선택 → 루트 셀렉터 동기화
 	useEffect(() => {
 		if (selectedScreen?.screenRouteId) {
@@ -62,6 +67,17 @@ export function NavigationPanel() {
 			if (result.id) {
 				router.refresh();
 				setPendingEditModuleId(result.id);
+			}
+		});
+	}
+
+	function handleCreateVariant() {
+		if (!activeRoute) return;
+		startCreatingVariant(async () => {
+			const result = await createVariant({ routeId: activeRoute.code });
+			if (result.variantId) {
+				router.refresh();
+				setPendingEditVariantId(result.variantId);
 			}
 		});
 	}
@@ -136,16 +152,51 @@ export function NavigationPanel() {
 					{/* ── B: 선택된 루트의 스크린 배리언트 목록 ── */}
 					<ResizablePanel defaultSize={65} minSize={20}>
 						<div className="flex h-full flex-col overflow-hidden">
+							{/* 헤더 */}
+							<div className="border-b px-3 py-2">
+								<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+									{activeRoute ? `${activeRoute.screenVariants.length}개 스크린` : "스크린"}
+								</span>
+							</div>
+
 							<div className="min-h-0 flex-1 overflow-y-auto [&>*:first-child]:border-t-0">
+								{activeRoute?.screenVariants.length === 0 && (
+									<p className="px-3 py-4 text-center text-xs text-muted-foreground/60">
+										스크린이 없습니다
+									</p>
+								)}
 								{activeRoute?.screenVariants.map((variant) => (
 									<ScreenVariantCard
 										key={variant.id}
+										isAutoEditing={pendingEditVariantId === variant.id}
+										onAutoEditDone={() => setPendingEditVariantId(null)}
+										onDeleted={() => {
+											router.refresh();
+										}}
+										onSaved={() => router.refresh()}
 										onSelect={selectScreenVariant}
 										screenVariant={variant}
 										selectedScreenCode={selectedScreenCode}
 									/>
 								))}
 							</div>
+
+							{/* 스크린 추가 버튼 */}
+							{activeRoute && (
+								<div className="px-3 py-1.5">
+									<button
+										type="button"
+										className="flex w-full items-center gap-1 rounded-md px-3 py-1.5 hover:ring-1 hover:ring-border disabled:opacity-40"
+										disabled={isCreatingVariant}
+										onClick={handleCreateVariant}
+									>
+										<Plus className="size-3 text-muted-foreground/60" />
+										<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+											스크린 추가
+										</span>
+									</button>
+								</div>
+							)}
 						</div>
 					</ResizablePanel>
 				</ResizablePanelGroup>

@@ -88,6 +88,7 @@ interface InitializeWorkbenchInput {
 
 interface WorkbenchState {
 	activeNavigatorTab: NavigatorTab;
+	activeRouteId: string;
 	activeScreen?: AppScreen;
 	agentGenerationMessage: string;
 	agentGenerationStatus: "error" | "idle" | "loading" | "success";
@@ -138,6 +139,7 @@ export interface AgentClientImport {
 
 const initialWorkbenchState = {
 	activeNavigatorTab: "scn" as NavigatorTab,
+	activeRouteId: "",
 	activeScreen: undefined,
 	agentGenerationMessage: "",
 	agentGenerationStatus: "idle" as const,
@@ -194,8 +196,12 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			? state.selectedComponentCode
 			: (components[0]?.code ?? "");
 
+		const selectedScreen = getSelectedScreen(screens, selectedScreenCode);
+		const activeRouteId = selectedScreen?.screenRouteId ?? routes[0]?.id ?? state.activeRouteId;
+
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
+			activeRouteId,
 			agentRegistry,
 			agentWarnings: agentRegistry?.warnings ?? [],
 			components,
@@ -211,6 +217,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
 		set({
 			...nextState,
+			activeRouteId,
 			screenModules: modules,
 			...getDerivedWorkbenchState(nextState),
 		});
@@ -252,11 +259,13 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 		const nextState = {
 			...state,
 			activeNavigatorTab: "scn",
+			activeRouteId: screenRouteId,
 			selectedScreenCode: screenCode,
 		} satisfies WorkbenchState;
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
+			activeRouteId: screenRouteId,
 			selectedScreenCode: screenCode,
 			...getDerivedWorkbenchState(nextState),
 		});

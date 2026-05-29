@@ -18,7 +18,21 @@ export function Canvas() {
 	const selectedArea = useWorkbenchStore((state) => state.selectedArea);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 
+	const activeRouteId = useWorkbenchStore((state) => state.activeRouteId);
+	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
+
+	const isScreenTab = activeTab !== "agent" && !isComponentView && !isAreaView;
+	const activeRoute = screenRoutes.find((r) => r.code === activeRouteId);
+
+	let canvasEmptyMessage: string | undefined;
+	if (isScreenTab) {
+		if (screenRoutes.length === 0) {
+			canvasEmptyMessage = "선택한 도메인에 루트가 없습니다.";
+		} else if (activeRoute && activeRoute.screenVariants.length === 0) {
+			canvasEmptyMessage = "선택한 루트에 스크린이 없습니다.";
+		}
+	}
 
 	return (
 		<SidebarInset>
@@ -61,7 +75,11 @@ export function Canvas() {
 						</div>
 					</div>
 				) : (
-					<RenderedScreen data={selectedScreen?.schema.data} node={screenNode} />
+					<RenderedScreen
+						data={canvasEmptyMessage ? undefined : selectedScreen?.schema.data}
+						emptyMessage={canvasEmptyMessage}
+						node={canvasEmptyMessage ? undefined : screenNode}
+					/>
 				)}
 			</SidebarContent>
 		</SidebarInset>
