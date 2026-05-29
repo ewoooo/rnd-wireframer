@@ -17,7 +17,7 @@
 ## 진행 단계 개요
 
 - [x] Phase 0 — 공통 토대: 번들 본문 주입(누수 1·2 해결) — Task 1~5 ✅ (전체 test 144 green, lint green, smoke 주입 실측)
-- [ ] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6
+- [x] Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화 — Task 6 ✅
 - [ ] Phase 2 — 컴포넌트 제안 레이어 — Task 7~11
 - [ ] Phase 3 — 디자인 품질 자기비평 루프 — Task 12~14
 - [ ] Phase 4 — 문서·거버넌스 정합 — Task 15
@@ -343,7 +343,7 @@ git commit -m "pipeline: load and inject design-context bundle bodies into agent
 
 ## Phase 1 — 세퍼레이터·스페이싱·시각 위계 강화
 
-### Task 6: generation/revision 프롬프트의 divider·spacing·hierarchy 지시 강화
+### Task 6: generation/revision 프롬프트의 divider·spacing·hierarchy 지시 강화 ✅ 완료
 
 **Files:**
 - Modify: `packages/orchestration/src/public/agent-inputs.ts`
