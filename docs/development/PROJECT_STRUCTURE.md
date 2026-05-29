@@ -44,13 +44,13 @@
 
 ```text
 packages/renderer/src/
-  index.ts            public renderer API
-  tree/               RenderTree JSON 타입, path, binding, runtime value helpers
-  registry/           node kind -> renderer 연결표와 kind map
-  render/             NodeRenderer와 재귀 render 실행
-  nodes/              renderer-owned structural/fallback node render definitions
-    area/             area.static / area.dynamic renderers
-    component/        @cx/components read-only resolver와 catalog prop adapter
+  index.ts       public renderer API
+  render/        public renderer compatibility entrypoint
+  interpreter/   RenderTree 순회, screen slot, layout wrapping, component render 실행
+  adapters/      layout/component resolve, prop coercion, primitive render, area policy, missing policy
+  runtime/       interpreter value helper
+  tree/          RenderTree JSON 타입, path, binding helper
+  nodes/area/    area.static / area.dynamic 내부 표시 정책
 ```
 
 두지 않는 책임:
@@ -62,6 +62,7 @@ packages/renderer/src/
 - AI runner/session adapter
 - component catalog CRUD
 - layout pattern CRUD/selection
+- fallback UI로 unknown node/component/layout을 성공 렌더처럼 숨기는 책임
 
 ## 3-1. `packages/table-materializer`
 

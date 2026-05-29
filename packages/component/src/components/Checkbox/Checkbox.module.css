@@ -73,13 +73,13 @@
 	border-color: rgba(6, 12, 31, 0.2);
 }
 
-.input:disabled ~ .text {
-	color: rgba(5, 0, 26, 0.1);
-}
-
 .text {
 	min-width: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.input:disabled ~ .text {
+	color: rgba(5, 0, 26, 0.1);
 }

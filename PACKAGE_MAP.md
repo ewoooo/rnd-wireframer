@@ -44,7 +44,7 @@ Markdown source
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, parser adapter | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
 | `@cx/table-materializer` | table read model -> screen RenderTree 순수 조립 | `materializeTableScreen`, `materializeTableScreens`, table record relation compose | React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정, 파일 IO |
-| `@cx/renderer` | RenderTree JSON을 React로 렌더링 | RenderTree 타입, node renderer registry, area/component node render | table projection, schema validation, materializer, AI 실행 |
+| `@cx/renderer` | RenderTree JSON을 React로 렌더링 | RenderTree 타입, resolver 기반 interpreter, renderer adapter runtime | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
 | `@cx/layout` | 화면 chrome과 layout primitive | `AppScreen`, `Flex`, `Grid`, layout style helper, DTO guards | component catalog, token SSOT, 생성 workflow |
 | `@cx/tokens` | foundation/semantic token SSOT | token constants, CSS variables, Tailwind v4 `@theme` entrypoint | component alias token, generated file 직접 소비 |
@@ -66,7 +66,7 @@ Markdown source
 | `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
 | `@cx/layout` | `.`, `./chrome`, `./contract`, `./primitives`, `./style`, `./types` |
 | `@cx/tokens` | `.`, `./variables.css`, `./tailwind.css` |
-| `@cx/layout-pattern-store` | `.`, `./catalog`, `./components`, `./mutations`, `./resolver`, `./types` |
+| `@cx/layout-pattern-store` | `.`, `./components`, `./mutations`, `./resolver`, `./types` |
 | `@cx/smoke` | `.`, `./generation` |
 
 외부 패키지는 `src/internal/*`, 구현 디렉토리, generated artifact를 직접 import하지 않는다. `@cx/schema`는 root export만 사용하고 `@cx/schema/*`, `src/json-schema/*`를 직접 import하지 않는다.

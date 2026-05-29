@@ -9,6 +9,7 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
+		"@cx/renderer": "0.1.0",
 		"@cx/schema": "0.1.0"
 	}
 }
