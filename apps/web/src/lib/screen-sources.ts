@@ -21,9 +21,15 @@ export type ScreenSummary = {
 	variantType?: string;
 };
 
-const MBR_SOURCE_DIR = path.join(process.cwd(), "data/client-imports/{id}/260528_mbr");
-const PRDD_SOURCE_DIR = path.join(process.cwd(), "data/client-imports/{id}/260527_prdd");
-const TABLES_DIR = path.join(process.cwd(), "data/tables");
+const MBR_SOURCE_DIR = path.join(
+	/* turbopackIgnore: true */ process.cwd(),
+	"data/client-imports/{id}/260528_mbr",
+);
+const PRDD_SOURCE_DIR = path.join(
+	/* turbopackIgnore: true */ process.cwd(),
+	"data/client-imports/{id}/260527_prdd",
+);
+const TABLES_DIR = path.join(/* turbopackIgnore: true */ process.cwd(), "data/tables");
 const MODULE_SORT_ORDER: Record<string, number> = {
 	preview: 0,
 	mbr: 1,

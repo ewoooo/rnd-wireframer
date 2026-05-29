@@ -36,7 +36,7 @@ export function createEntry(
 	}
 
 	const parsed = validateEntry(input.entry);
-	if (!parsed.ok) return parsed;
+	if (parsed.ok === false) return { ok: false, issues: parsed.issues };
 
 	const nextEntry = { ...parsed.entry, status: input.status };
 	const nextRegistry = { ...registry, [nextEntry.type]: nextEntry };
@@ -58,7 +58,7 @@ export function updateEntry(
 
 	const nextPublicEntry = { ...before, ...input.patch, type: before.type };
 	const parsed = validateEntry(nextPublicEntry);
-	if (!parsed.ok) return parsed;
+	if (parsed.ok === false) return { ok: false, issues: parsed.issues };
 
 	const nextEntry = { ...parsed.entry, status: before.status };
 	const nextRegistry = { ...registry, [before.type]: nextEntry };
@@ -119,7 +119,7 @@ export function upsertEntry(
 	}
 
 	const parsed = validateEntry(input.entry);
-	if (!parsed.ok) return parsed;
+	if (parsed.ok === false) return { ok: false, issues: parsed.issues };
 
 	const nextEntry = { ...parsed.entry, status: input.status };
 	const nextRegistry = { ...registry, [nextEntry.type]: nextEntry };
