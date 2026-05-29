@@ -43,12 +43,15 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 	return (
 		<div className="flex h-screen w-screen overflow-hidden">
 			<NavigationRail activeTab={activeTab} onSelectTab={selectTab} />
+			<div className="h-full w-[6px] shrink-0 border-x border-sidebar-border bg-sidebar" />
 			<SidebarProvider
 				className="flex-1 overflow-hidden"
 				style={{ "--sidebar-width": ASIDE_WIDTH } as React.CSSProperties}
 			>
 				<NavigationPanel />
+				<div className="h-full w-[6px] shrink-0 border-x border-sidebar-border bg-sidebar" />
 				<Canvas />
+				<div className="h-full w-[6px] shrink-0 border-x border-sidebar-border bg-sidebar" />
 				<InspectionPanel />
 			</SidebarProvider>
 		</div>

@@ -84,7 +84,7 @@ export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) 
 		<TooltipProvider delayDuration={400}>
 			<nav
 				aria-label="Workbench navigation"
-				className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar p-2"
+				className="flex w-14 shrink-0 flex-col items-center gap-1 bg-sidebar p-2"
 			>
 				{primaryItems.map((item) => (
 					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
