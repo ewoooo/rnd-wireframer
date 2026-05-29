@@ -36,6 +36,31 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-05-29 - Page Navigation Panel UI Restore
+
+- 변경: `apps/web/src/components/layout/NavigationPanel.tsx`의 SCN 패널에 원격 main 계열의 분할 핸들, 도메인/루트 hover 액션 아이콘, 루트 추가 행을 UI-only 상태로 복구함
+- 변경: `apps/web/src/components/screen/ScreenVariantCard.tsx`를 원격 main에 가깝게 30/70 row layout, primary highlight, row label click으로 기본 option 선택이 가능하도록 조정함
+- 이유: 구조 분리 이후에도 사용자가 기대한 페이지 네비게이션 패널의 시각적 affordance를 현재 데이터 흐름과 충돌 없이 되살리기 위함
+- 검증: `npm run lint`, `npx tsc --noEmit --pretty false`, `npx vitest run apps/web/src/components/App.test.tsx`, `npm run build`
+- 후속: 실제 도메인/루트 편집 액션은 DB/action 경계 재정의 후 별도 연결
+
+## 2026-05-29 - Web Component Restructure Implementation
+
+- 변경: `apps/web/src/components/App.tsx`를 69줄 shell로 축소하고 navigation rail, navigation panel, canvas, inspection panel, screen variant card를 별도 컴포넌트로 분리함
+- 변경: `apps/web/src/model/workbench-view-model.ts`를 추가해 screen route/module/variant grouping과 selected area/component traversal helper를 UI shell 밖으로 이동함
+- 변경: `apps/web/src/components/App.test.tsx`를 추가해 탭 전환, disconnected view placeholder, route 선택, variant chip 선택을 검증함
+- 변경: web component test에서 Next alias를 해석할 수 있도록 `vitest.config.ts`에 `@` alias를 추가함
+- 이유: `WEB_COMPONENT_RESTRUCTURE_PLAN.md`의 목표대로 원격 main의 책임 분리 구조를 현재 `ScreenSummary`/`@cx/table-materializer` 흐름을 유지한 채 적용하기 위함
+- 검증: `npm run lint`, `npm test`, `npm run build`, `curl -I http://127.0.0.1:3000`
+- 후속: build의 기존 Turbopack NFT trace warning은 `screen-sources.ts` 파일 IO 경로 정리 작업에서 별도 처리
+
+## 2026-05-29 - Web Component Restructure Plan
+
+- 변경: `docs/development/WEB_COMPONENT_RESTRUCTURE_PLAN.md`를 추가해 원격 `origin/main`의 web 책임 분리 구조를 현재 재설계 브랜치에 맞게 이식하는 작업 순서와 완료 기준을 정의함
+- 이유: 현재 `apps/web/src/components/App.tsx`에 집중된 navigation, canvas, inspection, view model 책임을 분리하되 DB/action/legacy 의존성은 복원하지 않기 위함
+- 검증: 문서 책임 대조
+- 후속: 계획에 따라 view model 분리부터 단계별 구현
+
 ## 2026-05-29 - Completed Planning Docs Archive
 
 - 변경: 완료된 계획/전환 점검 문서를 `docs/archive/completed-plans/`로 이동함
