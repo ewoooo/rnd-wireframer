@@ -3,6 +3,7 @@ import type { ComponentCatalog } from "@cx/components/types";
 import type { SourceSpec } from "@cx/schema";
 import {
 	validateAgentResult,
+	validateComponentProposal,
 	validateComponentUsage,
 	validateCompositionPlan,
 	validateLayoutProps,
@@ -809,3 +810,70 @@ function tableRegion(
 		children,
 	};
 }
+
+describe("validateComponentProposal", () => {
+	const base = {
+		schemaVersion: "component-proposal.v0.1" as const,
+	};
+
+	it("passes a bounded proposal with evidence and known catalog match", () => {
+		const report = validateComponentProposal(
+			{
+				...base,
+				proposals: [
+					{
+						id: "p1",
+						title: "Price callout",
+						rationale: "Source emphasizes total price",
+						sourceEvidence: ["area.price"],
+						nearestCatalogMatch: "Callout",
+					},
+				],
+			},
+			{ allowedRefs: ["area.price"], catalogComponentTypes: ["Callout"] },
+		);
+
+		expect(report.ok).toBe(true);
+		expect(report.target).toBe("component-proposal");
+	});
+
+	it("flags proposal whose source evidence is not in allowedRefs", () => {
+		const report = validateComponentProposal(
+			{
+				...base,
+				proposals: [
+					{
+						id: "p1",
+						title: "t",
+						rationale: "r",
+						sourceEvidence: ["area.unknown"],
+						nearestCatalogMatch: "Callout",
+					},
+				],
+			},
+			{ allowedRefs: ["area.price"], catalogComponentTypes: ["Callout"] },
+		);
+
+		expect(report.ok).toBe(false);
+		expect(report.issues.some((issue) => issue.code === "proposal-source-evidence-missing")).toBe(
+			true,
+		);
+	});
+
+	it("flags more than the allowed number of proposals", () => {
+		const proposals = Array.from({ length: 6 }, (_unused, index) => ({
+			id: `p${index}`,
+			title: "t",
+			rationale: "r",
+			sourceEvidence: ["area.price"],
+			nearestCatalogMatch: "Callout",
+		}));
+		const report = validateComponentProposal(
+			{ ...base, proposals },
+			{ allowedRefs: ["area.price"], catalogComponentTypes: ["Callout"], maxProposals: 5 },
+		);
+
+		expect(report.ok).toBe(false);
+		expect(report.issues.some((issue) => issue.code === "proposal-limit-exceeded")).toBe(true);
+	});
+});

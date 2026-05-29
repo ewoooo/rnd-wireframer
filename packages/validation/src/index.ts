@@ -11,12 +11,14 @@ export type {
 	ValidationTarget,
 } from "./public/types";
 export type {
+	ComponentProposalValidationOptions,
 	ComponentUsageInput,
 	CompositionPlanValidationOptions,
 	ValidationOptions,
 } from "./public/validators";
 export {
 	validateAgentResult,
+	validateComponentProposal,
 	validateComponentUsage,
 	validateCompositionPlan,
 	validateLayoutProps,
