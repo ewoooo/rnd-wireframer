@@ -178,6 +178,8 @@ export function buildScreenGenerationAgentInput(
 			"Screen region containers may omit props. When region props are present, keep them valid and renderer-oriented.",
 			"Use PageStack or layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.",
 			"Use Divider only when the selected pattern-store candidate or source composition requires separation; keep it as a component node, not a raw border.",
+			"Decide Divider and spacing from context.designContextBundles rules and screen context: add a 1px divider between list rows, a 4px divider between sections, and omit dividers when card or group containers already separate content.",
+			"Apply visual hierarchy through component choice and props within the catalog (section titles vs rows, emphasis via component props). Do not invent colors, gradients, or icons for emphasis.",
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
 			"Use context.componentContractCatalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.",

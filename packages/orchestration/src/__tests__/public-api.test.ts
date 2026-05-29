@@ -118,6 +118,28 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain("context.designContextBundles");
 	});
 
+	it("instructs contextual divider, spacing, and hierarchy decisions", () => {
+		const sourceSpec: SourceSpec = {
+			schemaVersion: SCHEMA_VERSION.sourceSpec,
+			sourceImport: {
+				files: [],
+				importId: "sample",
+				receivedAt: "2026-05-27T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: { name: "샘플", regions: [], route: "/sample", screenCode: "SAMPLE" },
+			},
+		};
+
+		const query = buildScreenGenerationAgentInput(sourceSpec).query;
+
+		expect(query.toLowerCase()).toContain("divider");
+		expect(query).toContain("1px");
+		expect(query).toContain("4px");
+		expect(query.toLowerCase()).toContain("hierarchy");
+	});
+
 	it("builds screen intent and composition plan agent inputs before generation", () => {
 		const sourceSpec: SourceSpec = {
 			schemaVersion: SCHEMA_VERSION.sourceSpec,
