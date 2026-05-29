@@ -59,12 +59,6 @@ export function InspectionPanel() {
 									<p className="text-sm text-muted-foreground">스크린을 선택해주세요.</p>
 								) : (
 									<div className="flex flex-col gap-4">
-										<div className="flex flex-col gap-2">
-											<InfoRow
-												label="Route"
-												value={`${screen.screenRouteName} (${screen.screenRouteId})`}
-											/>
-										</div>
 										{component ? <ComponentInspection component={component} /> : null}
 										{area ? <AreaInspection area={area} /> : null}
 									</div>
