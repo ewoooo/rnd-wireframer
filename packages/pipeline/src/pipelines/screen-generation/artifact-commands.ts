@@ -8,6 +8,11 @@ export type GenerationSmokeArtifactInput = {
 	compositionPlanAgentInput?: unknown;
 	compositionPlanAgentResult?: unknown;
 	compositionPlanRunnerRequest?: unknown;
+	componentProposalAgentInput?: unknown;
+	componentProposalAgentResult?: unknown;
+	componentProposalRunnerRequest?: unknown;
+	componentProposalValidationReport?: unknown;
+	componentProposal?: unknown;
 	decorationPlan?: unknown;
 	designContextBundleSelection?: unknown;
 	finalResult: unknown;
@@ -197,6 +202,36 @@ export function createGenerationSmokeArtifactCommands(
 			input.outDir,
 			"28-validation-report.json",
 			input.validationReport,
+		),
+		createWriteCommand(
+			"write-component-proposal-agent-input",
+			input.outDir,
+			"30-component-proposal-agent-input.json",
+			input.componentProposalAgentInput,
+		),
+		createWriteCommand(
+			"write-component-proposal-agent-runner-request",
+			input.outDir,
+			"31-component-proposal-agent-runner-request.json",
+			input.componentProposalRunnerRequest,
+		),
+		createWriteCommand(
+			"write-component-proposal-agent-result",
+			input.outDir,
+			"32-component-proposal-agent-result.json",
+			input.componentProposalAgentResult,
+		),
+		createWriteCommand(
+			"write-component-proposal-validation-report",
+			input.outDir,
+			"33-component-proposal-validation-report.json",
+			input.componentProposalValidationReport,
+		),
+		createWriteCommand(
+			"write-component-proposal",
+			input.outDir,
+			"component-proposal.json",
+			input.componentProposal,
 		),
 	];
 }
