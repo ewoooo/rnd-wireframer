@@ -26,7 +26,7 @@
 								"id": "NOVA-PRDD-PG-001-0__area0"
 							}
 						],
-						"layout": "layout.region.plainStack"
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -39,7 +39,7 @@
 								"id": "NOVA-PRDD-PG-001-0__area1"
 							}
 						],
-						"layout": "layout.region.subscriptionDetailRichContent"
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -47,7 +47,7 @@
 							"title": "Screen.Bottom"
 						},
 						"children": [],
-						"layout": "layout.region.commerceDetailBottomAction"
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -81,7 +81,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-001-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -105,14 +106,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-guardian-result"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -146,7 +149,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-001-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -170,14 +174,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-guardian-result"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -211,7 +217,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-001-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -235,14 +242,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-guardian-result"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -276,7 +285,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-001-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -300,14 +310,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-guardian-result"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -341,7 +353,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -357,14 +370,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -398,7 +413,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -414,14 +430,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -455,7 +473,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -471,14 +490,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -512,7 +533,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -528,14 +550,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -569,7 +593,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -585,14 +610,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -626,7 +653,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-002-e5"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -642,14 +670,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-entry-check"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -683,7 +713,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-003-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -699,7 +730,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -711,7 +743,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -745,7 +778,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-003-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -761,7 +795,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -773,7 +808,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -807,7 +843,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-003-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -823,7 +860,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -835,7 +873,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -869,7 +908,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-003-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -885,7 +925,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -897,7 +938,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -931,7 +973,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-003-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -947,7 +990,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -959,7 +1003,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -993,7 +1038,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1009,14 +1055,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1050,7 +1098,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1066,14 +1115,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1107,7 +1158,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1123,14 +1175,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1164,7 +1218,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1180,14 +1235,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1221,7 +1278,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1237,14 +1295,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1278,7 +1338,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e5"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1294,14 +1355,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1335,7 +1398,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-004-e6"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1351,14 +1415,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-path"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1392,7 +1458,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-005-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1404,7 +1471,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1416,7 +1484,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1450,7 +1519,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-005-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1462,7 +1532,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1474,7 +1545,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1508,7 +1580,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-005-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1520,7 +1593,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1532,7 +1606,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1566,7 +1641,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-005-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1578,7 +1654,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -1590,7 +1667,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-join-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1624,7 +1702,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1640,14 +1719,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1681,7 +1762,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1697,14 +1779,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1738,7 +1822,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1754,14 +1839,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1795,7 +1882,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1811,14 +1899,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1852,7 +1942,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1868,14 +1959,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1909,7 +2002,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-006-e5"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1925,14 +2019,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-detect"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -1966,7 +2062,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-007-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -1982,14 +2079,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-eligibility"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2023,7 +2122,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-007-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2039,14 +2139,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-eligibility"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2080,7 +2182,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-007-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2096,14 +2199,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-eligibility"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2137,7 +2242,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-007-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2153,14 +2259,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-eligibility"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2194,7 +2302,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-008-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2210,7 +2319,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2222,7 +2332,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2256,7 +2367,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-008-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2272,7 +2384,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2284,7 +2397,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2318,7 +2432,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-008-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2334,7 +2449,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2346,7 +2462,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2380,7 +2497,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-008-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2396,7 +2514,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2408,7 +2527,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2442,7 +2562,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-008-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2458,7 +2579,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-request"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -2470,7 +2592,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-auth-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2504,7 +2627,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-009-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2520,14 +2644,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-term-agree"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2561,7 +2687,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-009-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2577,14 +2704,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-term-agree"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2618,7 +2747,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-009-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2634,14 +2764,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-term-agree"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2675,7 +2807,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-009-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2691,14 +2824,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-term-agree"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2732,7 +2867,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-010-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2744,14 +2880,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-release"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2785,7 +2923,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-010-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2797,14 +2936,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-release"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2838,7 +2979,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-010-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2850,14 +2992,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-release"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2891,7 +3035,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-010-e3"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2903,14 +3048,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-release"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2944,7 +3091,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-010-e4"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -2956,14 +3104,16 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-release"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
 						"metadata": {
 							"title": "고정 하단 영역"
 						},
-						"children": []
+						"children": [],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -2997,7 +3147,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-011-0"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -3009,7 +3160,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -3021,7 +3173,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -3055,7 +3208,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-011-e1"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -3067,7 +3221,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -3079,7 +3234,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
@@ -3113,7 +3269,8 @@
 								"kind": "component",
 								"id": "mbr-appbar-nova-mbr-fp-011-e2"
 							}
-						]
+						],
+						"layout": "layout.region.header"
 					},
 					"contents": {
 						"type": "Screen.Contents",
@@ -3125,7 +3282,8 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete"
 							}
-						]
+						],
+						"layout": "layout.region.contents"
 					},
 					"bottom": {
 						"type": "Screen.Bottom",
@@ -3137,11 +3295,70 @@
 								"kind": "area",
 								"id": "ogn-mbr-dormant-complete-actions"
 							}
-						]
+						],
+						"layout": "layout.region.bottom"
 					}
 				}
 			},
 			"layout": "layout.screen.screenShell"
+		},
+		{
+			"id": "NOVA-MBR-PG-001-0",
+			"layout": "layout.screen.commerceDetailScreen",
+			"metadata": {
+				"title": "약관 동의"
+			},
+			"minRendererVersion": "0.1.0",
+			"screen": {
+				"regions": {
+					"bottom": {
+						"children": [
+							{
+								"id": "decor.area.999.0",
+								"kind": "area"
+							}
+						],
+						"layout": "layout.region.bottom",
+						"metadata": {
+							"title": "하단 액션 영역"
+						},
+						"type": "Screen.Bottom"
+					},
+					"contents": {
+						"children": [
+							{
+								"id": "decor.area.1.content-list",
+								"kind": "area"
+							},
+							{
+								"id": "decor.area.1.agreement-controls",
+								"kind": "area"
+							}
+						],
+						"layout": "layout.region.contents",
+						"metadata": {
+							"title": "본문 영역"
+						},
+						"type": "Screen.Contents"
+					},
+					"header": {
+						"children": [
+							{
+								"id": "decor.area.0.0",
+								"kind": "area"
+							}
+						],
+						"layout": "layout.region.header",
+						"metadata": {
+							"title": "헤더 영역"
+						},
+						"type": "Screen.Header"
+					}
+				},
+				"type": "screen.page"
+			},
+			"screenVariantId": "NOVA-MBR-PG-001-0",
+			"version": "0.1.0"
 		}
 	]
 }

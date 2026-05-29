@@ -3502,6 +3502,145 @@
 				}
 			],
 			"layout": "layout.composite.componentAppBar"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"title": "약관 동의",
+						"showBack": true,
+						"showLogo": false
+					}
+				}
+			],
+			"id": "AppBarHeader",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"description": "가입 약관 헤더",
+				"title": "AppBarHeader"
+			},
+			"type": "AppBar",
+			"version": "0.1.0"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"table": "dot",
+						"title": "[필수] 서비스 이용약관",
+						"subText": "[필수] 서비스 이용약관",
+						"showRightItem": true
+					}
+				}
+			],
+			"id": "ListTextTerms.required",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"title": "[필수] 서비스 이용약관"
+			},
+			"type": "ListText",
+			"version": "0.1.0"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"table": "dot",
+						"title": "[선택] 마케팅 정보 수신 동의",
+						"subText": "[선택] 마케팅 정보 수신 동의",
+						"showRightItem": true
+					}
+				}
+			],
+			"id": "ListTextTerms.optional",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"title": "[선택] 마케팅 정보 수신 동의"
+			},
+			"type": "ListText",
+			"version": "0.1.0"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "Checkbox"
+					},
+					"props": {
+						"label": "[필수] 서비스 이용약관",
+						"checked": {
+							"bind": "agreements.required",
+							"default": false
+						},
+						"variant": "medium"
+					}
+				}
+			],
+			"id": "CheckboxTermsRequired",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"description": "필수 약관 동의 체크",
+				"title": "[필수] 서비스 이용약관"
+			},
+			"type": "Checkbox",
+			"version": "0.1.0"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "Checkbox"
+					},
+					"props": {
+						"label": "[선택] 마케팅 정보 수신 동의",
+						"checked": {
+							"bind": "agreements.optional",
+							"default": false
+						},
+						"variant": "medium"
+					}
+				}
+			],
+			"id": "CheckboxTermsOptional",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"description": "선택 약관 동의 체크",
+				"title": "[선택] 마케팅 정보 수신 동의"
+			},
+			"type": "Checkbox",
+			"version": "0.1.0"
+		},
+		{
+			"children": [
+				{
+					"component": {
+						"type": "ActionButton"
+					},
+					"props": {
+						"label": "다음",
+						"variant": "primary",
+						"size": "large",
+						"fullWidth": true
+					}
+				}
+			],
+			"id": "ActionButtonNext",
+			"layout": "layout.composite.componentSectionMessage",
+			"metadata": {
+				"description": "다음 단계 진행 CTA",
+				"title": "다음"
+			},
+			"type": "ActionButton",
+			"version": "0.1.0"
 		}
 	]
 }

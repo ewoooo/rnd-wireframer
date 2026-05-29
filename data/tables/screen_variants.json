@@ -95,6 +95,14 @@
 			"order": 11,
 			"variantType": "base",
 			"followUp": null
+		},
+		{
+			"followUp": null,
+			"id": "NOVA-MBR-PG-001-0",
+			"name": "약관 동의",
+			"order": 1,
+			"screenRouteId": "NOVA-MBR-PG-001-0-route",
+			"variantType": "base"
 		}
 	]
 }

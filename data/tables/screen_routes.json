@@ -13,6 +13,13 @@
 			"name": "회원 가입 및 휴면 해제",
 			"order": 1,
 			"processId": null
+		},
+		{
+			"id": "NOVA-MBR-PG-001-0-route",
+			"moduleId": "mbr",
+			"name": "약관 동의",
+			"order": 1,
+			"processId": null
 		}
 	]
 }
