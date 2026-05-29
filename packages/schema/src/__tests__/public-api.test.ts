@@ -1,5 +1,6 @@
 import {
 	type DecorationPlanContract,
+	type DesignContextBundleContent,
 	type DesignContextBundleRef,
 	getJsonSchema,
 	type RenderTreeContract,
@@ -145,6 +146,19 @@ describe("@cx/schema public API", () => {
 		};
 
 		expect(bundleRef.id).toBe("layout-composition");
+	});
+
+	it("exposes DesignContextBundleContent with ref provenance and body", () => {
+		const content: DesignContextBundleContent = {
+			id: "visual-foundation",
+			version: "2026-05-29",
+			reason: "test",
+			sourceDocs: ["docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md"],
+			body: "rule lines",
+		};
+
+		expect(content.id).toBe("visual-foundation");
+		expect(content.body.length).toBeGreaterThan(0);
 	});
 
 	it("exposes decoration plan as a schema-owned intermediate artifact", () => {

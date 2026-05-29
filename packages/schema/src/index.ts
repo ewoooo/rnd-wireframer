@@ -15,6 +15,7 @@ export type {
 	DecorationRepeatedItem,
 } from "./decoration-plan";
 export type {
+	DesignContextBundleContent,
 	DesignContextBundleId,
 	DesignContextBundleRef,
 	StateCoverageHint,
