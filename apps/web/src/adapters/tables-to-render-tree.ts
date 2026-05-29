@@ -319,7 +319,7 @@ export function getInitialScreenCode(screens: AppScreen[]) {
 }
 
 export function getSelectedScreen(screens: AppScreen[], selectedScreenCode: string) {
-	return screens.find((screen) => screen.code === selectedScreenCode) ?? screens[0];
+	return screens.find((screen) => screen.code === selectedScreenCode);
 }
 
 export function getScreenNode(screen?: AppScreen) {

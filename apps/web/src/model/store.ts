@@ -182,9 +182,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			agentRegistry && findSelectedAgentAsset(agentRegistry, state.selectedAgentNode)
 				? state.selectedAgentNode
 				: getDefaultAgentSelection(agentRegistry);
-		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
-			? state.selectedScreenCode
-			: getInitialScreenCode(screens);
+		const selectedScreenCode = "";
 		const selectedAreaCode = areas.some(
 			(area) => area.code === state.selectedAreaCode,
 		)
@@ -196,8 +194,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			? state.selectedComponentCode
 			: (components[0]?.code ?? "");
 
-		const selectedScreen = getSelectedScreen(screens, selectedScreenCode);
-		const activeRouteId = selectedScreen?.screenRouteId ?? routes[0]?.id ?? state.activeRouteId;
+		const activeRouteId = "";
 
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
@@ -255,7 +252,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	selectScreenRoute: (screenRouteId) => {
 		const state = get();
 		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteId);
-		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? state.selectedScreenCode;
+		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? "";
 		const nextState = {
 			...state,
 			activeNavigatorTab: "scn",

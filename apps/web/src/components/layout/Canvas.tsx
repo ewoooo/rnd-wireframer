@@ -26,12 +26,8 @@ export function Canvas() {
 	const activeRoute = screenRoutes.find((r) => r.code === activeRouteId);
 
 	let canvasEmptyMessage: string | undefined;
-	if (isScreenTab) {
-		if (screenRoutes.length === 0) {
-			canvasEmptyMessage = "선택한 도메인에 루트가 없습니다.";
-		} else if (activeRoute && activeRoute.screenVariants.length === 0) {
-			canvasEmptyMessage = "선택한 루트에 스크린이 없습니다.";
-		}
+	if (isScreenTab && !selectedScreen) {
+		canvasEmptyMessage = "스크린을 선택해주세요.";
 	}
 
 	return (
@@ -48,7 +44,7 @@ export function Canvas() {
 					})}
 				</h1>
 			</SidebarHeader>
-			<SidebarContent className="items-center justify-center bg-secondary/50 p-6">
+			<SidebarContent className="items-center justify-center bg-muted p-6">
 				{activeTab === "agent" ? (
 					<AgentRegistryPreview
 						registry={agentRegistry}

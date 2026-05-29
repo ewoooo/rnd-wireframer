@@ -1,12 +1,12 @@
-import type { RenderTreeNode, RenderTree } from "@cx/renderer";
-import { Copy, GripVertical, Save, Trash2, Workflow } from "lucide-react";
+import type { RenderTreeNode } from "@cx/renderer";
+import { Copy, GripVertical, Workflow } from "lucide-react";
 import { useState, useTransition } from "react";
-import { renderTreeToTables } from "@/adapters/render-tree-to-tables";
-import { cloneArea, cloneScreen, deleteScreen, updateScreenRegions, updateScreenTitle } from "@/app/actions/screen-actions";
+import { cloneArea } from "@/app/actions/screen-actions";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import type { SelectedComponentContext, SelectedAreaContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
@@ -26,86 +26,112 @@ export function InspectionPanel() {
 	const validationWarnings = useWorkbenchStore((state) => state.validationWarnings);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
 
-	const title = activeTab === "agent" ? "Agent" : "Information";
-
 	return (
 		<Sidebar side="right">
-			<SidebarHeader className="border-b border-sidebar-border">
-				<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-					<Workflow data-icon="inline-start" />
-					{title}
-				</h2>
-			</SidebarHeader>
-			<SidebarContent className="p-3">
-				{activeTab === "agent" ? (
-					<AgentRegistryInspection
-						registry={agentRegistry}
-						selectedAsset={selectedAgentAsset}
-						warnings={agentWarnings}
-					/>
-				) : !screen ? (
-					<p className="text-sm text-muted-foreground">화면을 선택하세요</p>
-				) : (
-					<div className="flex flex-col gap-4">
-						<ScreenActions screenCode={screen.code} screenName={screen.name} schema={screen.schema} screenVariantId={screen.screenVariantId} />
-						<div className="flex flex-col gap-2">
-							<InfoRow label="Screen code" value={screen.code} />
-							<InfoRow
-								label="Route"
-								value={`${screen.screenRouteName} (${screen.screenRouteId})`}
-							/>
-							<InfoRow
-								label="Variant"
-								value={`${screen.screenVariantName} (${screen.screenVariantId})`}
-							/>
-							<InfoRow label="Variant type" value={screen.screenVariantType} />
-							<InfoRow label="Module" value={screen.module} />
-						</div>
-						{component ? <ComponentInspection component={component} /> : null}
-						{area ? <AreaInspection area={area} /> : null}
-						<Separator />
-						<ConnectedAreaList
-							onReorder={reorderScreenAreas}
-							screenCode={screen.code}
-							screenAreas={screen.areas}
+			{activeTab === "agent" ? (
+				<>
+					<SidebarHeader className="border-b border-sidebar-border">
+						<h2 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
+							<Workflow data-icon="inline-start" />
+							Agent
+						</h2>
+					</SidebarHeader>
+					<SidebarContent className="p-3">
+						<AgentRegistryInspection
+							registry={agentRegistry}
+							selectedAsset={selectedAgentAsset}
+							warnings={agentWarnings}
 						/>
-						<Separator />
-						<div className="flex flex-col gap-2">
-							<h2 className="text-sm font-semibold">검증 상태</h2>
-							<div className="flex flex-wrap gap-2">
-								<Badge variant={validationSuccess ? "default" : "outline"}>
-									{validationLabel}
-								</Badge>
-								{validationWarnings.length > 0 ? (
-									<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
+					</SidebarContent>
+				</>
+			) : (
+				<ResizablePanelGroup orientation="vertical" className="h-full">
+					{/* ── A: 스크린 정보 ── */}
+					<ResizablePanel defaultSize={50} minSize={15}>
+						<div className="flex h-full flex-col overflow-hidden">
+							<div className="border-b px-3 py-2">
+								<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+									스크린 정보
+								</span>
+							</div>
+							<div className="min-h-0 flex-1 overflow-y-auto p-3">
+								{!screen ? (
+									<p className="text-sm text-muted-foreground">스크린을 선택해주세요.</p>
+								) : (
+									<div className="flex flex-col gap-4">
+										<div className="flex flex-col gap-2">
+											<InfoRow
+												label="Route"
+												value={`${screen.screenRouteName} (${screen.screenRouteId})`}
+											/>
+										</div>
+										{component ? <ComponentInspection component={component} /> : null}
+										{area ? <AreaInspection area={area} /> : null}
+									</div>
+								)}
+							</div>
+						</div>
+					</ResizablePanel>
+
+					<ResizableHandle />
+
+					{/* ── B: 연결 Area + 검증 ── */}
+					<ResizablePanel defaultSize={50} minSize={20}>
+						<div className="flex h-full flex-col overflow-hidden">
+							<div className="border-b px-3 py-2">
+								<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+									검증 / Area
+								</span>
+							</div>
+							<div className="min-h-0 flex-1 overflow-y-auto p-3">
+								{screen ? (
+									<div className="flex flex-col gap-4">
+										<ConnectedAreaList
+											onReorder={reorderScreenAreas}
+											screenCode={screen.code}
+											screenAreas={screen.areas}
+										/>
+										<Separator />
+										<div className="flex flex-col gap-2">
+											<h2 className="text-sm font-semibold">검증 상태</h2>
+											<div className="flex flex-wrap gap-2">
+												<Badge variant={validationSuccess ? "default" : "outline"}>
+													{validationLabel}
+												</Badge>
+												{validationWarnings.length > 0 ? (
+													<Badge variant="secondary">{validationWarnings.length} warnings</Badge>
+												) : null}
+											</div>
+											{validationStats ? <ValidationStats stats={validationStats} /> : null}
+											{validationWarnings.length > 0 ? (
+												<div className="flex flex-col gap-2">
+													{validationWarnings.map((warning) => (
+														<div
+															key={warning}
+															className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+														>
+															{warning}
+														</div>
+													))}
+												</div>
+											) : null}
+											{validationSuccess ? null : (
+												<div className="flex flex-col gap-2">
+													{validationErrors.map((error) => (
+														<div key={error} className="rounded-lg border bg-background p-3 text-sm">
+															{error}
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									</div>
 								) : null}
 							</div>
-							{validationStats ? <ValidationStats stats={validationStats} /> : null}
-							{validationWarnings.length > 0 ? (
-								<div className="flex flex-col gap-2">
-									{validationWarnings.map((warning) => (
-										<div
-											key={warning}
-											className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
-										>
-											{warning}
-										</div>
-									))}
-								</div>
-							) : null}
-							{validationSuccess ? null : (
-								<div className="flex flex-col gap-2">
-									{validationErrors.map((error) => (
-										<div key={error} className="rounded-lg border bg-background p-3 text-sm">
-											{error}
-										</div>
-									))}
-								</div>
-							)}
 						</div>
-					</div>
-				)}
-			</SidebarContent>
+					</ResizablePanel>
+				</ResizablePanelGroup>
+			)}
 		</Sidebar>
 	);
 }
@@ -309,145 +335,3 @@ function AreaActions({ areaCode, screenCode }: { areaCode: string; screenCode: s
 	);
 }
 
-function ScreenActions({ screenCode, screenName, schema, screenVariantId }: { screenCode: string; screenName: string; schema: RenderTree; screenVariantId: string }) {
-	const [isPending, startTransition] = useTransition();
-	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
-	const [message, setMessage] = useState("");
-	const [editingTitle, setEditingTitle] = useState(false);
-	const [title, setTitle] = useState(screenName);
-	const [confirmDelete, setConfirmDelete] = useState(false);
-
-	function handleSave() {
-		startTransition(async () => {
-			setStatus("idle");
-			const { screens: { screens: [sampleScreen] }, warnings } = renderTreeToTables(schema, { screenVariantId });
-			if (warnings.length > 0) {
-				console.warn("[ScreenActions] renderTreeToTables warnings:", warnings);
-			}
-			const result = await updateScreenRegions(screenCode, sampleScreen.screen);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage("저장 완료");
-			}
-		});
-	}
-
-	function handleClone() {
-		startTransition(async () => {
-			setStatus("idle");
-			const result = await cloneScreen(screenCode);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage(`복제 완료 → ${result.newScreenId}`);
-			}
-		});
-	}
-
-	function handleSaveTitle() {
-		startTransition(async () => {
-			setStatus("idle");
-			const result = await updateScreenTitle(screenCode, title);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage("저장 완료");
-				setEditingTitle(false);
-			}
-		});
-	}
-
-	function handleDelete() {
-		startTransition(async () => {
-			setStatus("idle");
-			const result = await deleteScreen(screenCode);
-			if (result.error) {
-				setStatus("error");
-				setMessage(result.error);
-			} else {
-				setStatus("success");
-				setMessage("삭제 완료");
-			}
-			setConfirmDelete(false);
-		});
-	}
-
-	return (
-		<div className="flex flex-col gap-2 rounded-lg border bg-background p-3">
-			<div className="flex items-center justify-between gap-2">
-				<span className="text-xs font-semibold text-muted-foreground">화면 작업</span>
-				<div className="flex gap-1">
-					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleSave}>
-						<Save className="mr-1 size-3" />
-						{isPending ? "저장 중..." : "저장"}
-					</Button>
-					<Button type="button" size="sm" variant="outline" disabled={isPending} onClick={handleClone}>
-						<Copy className="mr-1 size-3" />
-						{isPending ? "복제 중..." : "복제"}
-					</Button>
-					{confirmDelete ? (
-						<>
-							<Button type="button" size="sm" variant="destructive" disabled={isPending} onClick={handleDelete}>
-								{isPending ? "삭제 중..." : "확인"}
-							</Button>
-							<Button type="button" size="sm" variant="ghost" onClick={() => setConfirmDelete(false)}>
-								취소
-							</Button>
-						</>
-					) : (
-						<Button
-							type="button"
-							size="sm"
-							variant="ghost"
-							className="text-destructive hover:text-destructive"
-							disabled={isPending}
-							onClick={() => setConfirmDelete(true)}
-						>
-							<Trash2 className="mr-1 size-3" />
-							삭제
-						</Button>
-					)}
-				</div>
-			</div>
-			{editingTitle ? (
-				<div className="flex gap-2">
-					<input
-						className="flex-1 rounded-md border bg-background px-2 py-1 text-sm"
-						value={title}
-						onChange={(e) => setTitle(e.target.value)}
-						onKeyDown={(e) => e.key === "Enter" && handleSaveTitle()}
-					/>
-					<Button type="button" size="sm" disabled={isPending} onClick={handleSaveTitle}>
-						{isPending ? "저장 중..." : "저장"}
-					</Button>
-					<Button type="button" size="sm" variant="ghost" onClick={() => setEditingTitle(false)}>
-						취소
-					</Button>
-				</div>
-			) : (
-				<button
-					type="button"
-					className="text-left text-xs text-muted-foreground underline-offset-2 hover:underline"
-					onClick={() => { setTitle(screenName); setEditingTitle(true); }}
-				>
-					제목 편집
-				</button>
-			)}
-			{confirmDelete && (
-				<p className="text-xs text-destructive">이 화면을 삭제할까요? 되돌릴 수 없습니다.</p>
-			)}
-			{status !== "idle" && (
-				<p className={`text-xs ${status === "success" ? "text-green-600" : "text-destructive"}`}>
-					{message}
-				</p>
-			)}
-		</div>
-	);
-}
