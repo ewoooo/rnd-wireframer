@@ -8,6 +8,7 @@
 .alignCenter {
 	align-items: center;
 }
+
 .alignStart {
 	align-items: flex-start;
 }
@@ -83,7 +84,6 @@
 	flex: 1 0 0;
 	min-width: 1px;
 	margin: 0;
-	padding-left: 21px;
 	font-family: "Pretendard Variable", "Pretendard", sans-serif;
 	font-size: 14px;
 	font-weight: 400;
@@ -93,7 +93,6 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	list-style-type: disc;
 }
 
 /* firstTitle: 16px semibold */
