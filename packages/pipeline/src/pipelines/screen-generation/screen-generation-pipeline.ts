@@ -658,6 +658,7 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 		componentProposalRunnerRequest: state.componentProposalRunnerRequest,
 		componentProposalValidationReport: state.componentProposalValidationReport,
 		componentProposal: state.componentProposalAgentResult?.payload,
+		designCritique: state.qualityReviewAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),

@@ -13,6 +13,7 @@ export type GenerationSmokeArtifactInput = {
 	componentProposalRunnerRequest?: unknown;
 	componentProposalValidationReport?: unknown;
 	componentProposal?: unknown;
+	designCritique?: unknown;
 	decorationPlan?: unknown;
 	designContextBundleSelection?: unknown;
 	finalResult: unknown;
@@ -232,6 +233,12 @@ export function createGenerationSmokeArtifactCommands(
 			input.outDir,
 			"component-proposal.json",
 			input.componentProposal,
+		),
+		createWriteCommand(
+			"write-design-critique",
+			input.outDir,
+			"design-critique.json",
+			input.designCritique,
 		),
 	];
 }
