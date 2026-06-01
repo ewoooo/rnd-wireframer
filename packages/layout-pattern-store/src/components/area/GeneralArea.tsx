@@ -7,7 +7,12 @@ import {
 	VStack,
 	type VStackProps,
 } from "@cx/layout/primitives";
-import { type LayoutDivider, renderChildrenWithDividers, resolveDivider } from "../shared/divider";
+import {
+	type LayoutDivider,
+	renderChildrenWithDividers,
+	resolveDivider,
+	withTrailingSectionDivider,
+} from "../shared/divider";
 import type { LayoutPatternComponentProps } from "../types";
 
 type StackAreaDefaults = {
@@ -135,7 +140,7 @@ function createPageStackArea(defaults: StackAreaDefaults) {
 		props = {},
 	}: LayoutPatternComponentProps) {
 		const divider = resolveDivider(props.divider, defaults.divider);
-		return (
+		return withTrailingSectionDivider(
 			<PageStack
 				{...toPageStackProps(props, defaults)}
 				className={className}
@@ -148,7 +153,8 @@ function createPageStackArea(defaults: StackAreaDefaults) {
 				}}
 			>
 				{renderChildrenWithDividers(children, divider)}
-			</PageStack>
+			</PageStack>,
+			props.sectionDivider,
 		);
 	};
 }

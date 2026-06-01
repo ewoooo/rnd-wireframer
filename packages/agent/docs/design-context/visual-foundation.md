@@ -11,7 +11,7 @@ Source docs: `docs/design/LAYOUT_SPACING_CONTRACT.md`, `docs/design/VISUAL_FOUND
 구분선은 기본적으로 **area stack 노드의 `props.divider`**로 표현한다(렌더러가 stack children 사이에 자동으로 그림). 별도 Divider leaf 노드를 행 구분용으로 끼우지 않는다.
 
 - 리스트/체크박스/필드 stack(예: `layout.area.listStack`, `layout.area.checkboxStack`)의 행 사이 1px 구분: 해당 area 노드에 `props.divider: true`(또는 `"contents"`).
-- 섹션 단위 4px 구분: `props.divider: "section"`.
+- 섹션(area) **사이** 4px 구분: 앞 area 노드에 `props.sectionDivider: true`(stack 뒤 trailing section divider). 한 stack 내부에서 4px가 필요하면 `props.divider: "section"`.
 - 카드/그룹 컨테이너(`Card 0/PagestackItem`, `Local_CardSection`, `CardSection`)가 이미 시각적 분리를 제공하면 `props.divider`를 켜지 않는다(생략/false).
 - 같은 카드 내부 인접 요소 분리에 divider를 남발하지 않는다(그 경우 spacing으로 처리).
 - 예외: AccordionList의 `Accordion ↔ Divider` 교번, InfoTextList total 행 위 구분처럼 **패턴이 명시적으로 Divider 노드를 조합하는 경우**에만 Divider leaf component를 쓴다. raw border/그림자는 금지.

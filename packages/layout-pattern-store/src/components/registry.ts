@@ -155,6 +155,11 @@ const generalAreaPropContractByKey = {
 		type: "boolean",
 		description: "When true, render trailing contents dividers between stack children.",
 	},
+	sectionDivider: {
+		type: "boolean",
+		description:
+			"When true, render a trailing 4px section divider after the area stack to separate it from the next area.",
+	},
 	filterGap: { type: "number" },
 	gap: { type: "number" },
 	hideTitle: { type: "boolean" },
@@ -804,7 +809,7 @@ const areaGeneralLayouts: Array<{
 		componentID: "ProductDisclosureAccordionArea",
 		layoutId: "layout.area.productDisclosureAccordion",
 		name: "Product Disclosure Accordion Area",
-		props: generalAreaProps(["componentGap", "divider", "gap", "titleGap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
 	},
 	{
 		component: ProductFooterLegalArea,
@@ -818,42 +823,42 @@ const areaGeneralLayouts: Array<{
 		componentID: "PriceAccordionStackArea",
 		layoutId: "layout.area.priceAccordionStackArea",
 		name: "Price Accordion Stack Area",
-		props: generalAreaProps(["componentGap", "divider", "gap", "titleGap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
 	},
 	{
 		component: DeliveryInfoAccordionArea,
 		componentID: "DeliveryInfoAccordionArea",
 		layoutId: "layout.area.deliveryInfoAccordionArea",
 		name: "Delivery Info Accordion Area",
-		props: generalAreaProps(["componentGap", "divider", "gap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
 	},
 	{
 		component: NoticeAccordionStackArea,
 		componentID: "NoticeAccordionStackArea",
 		layoutId: "layout.area.noticeAccordionStackArea",
 		name: "Notice Accordion Stack Area",
-		props: generalAreaProps(["componentGap", "divider", "gap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
 	},
 	{
 		component: PagestackInfoTextSectionArea,
 		componentID: "PagestackInfoTextSectionArea",
 		layoutId: "layout.area.pagestackInfoTextSection",
 		name: "Pagestack Info Text Section Area",
-		props: generalAreaProps(["componentGap", "divider", "gap", "titleGap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
 	},
 	{
 		component: TextListGroupArea,
 		componentID: "TextListGroupArea",
 		layoutId: "layout.area.textListGroupArea",
 		name: "Text List Group Area",
-		props: generalAreaProps(["componentGap", "divider", "gap", "rowCount", "titleGap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "rowCount", "titleGap"]),
 	},
 	{
 		component: PlainInfoTextListArea,
 		componentID: "PlainInfoTextListArea",
 		layoutId: "layout.area.plainInfoTextListArea",
 		name: "Plain Info Text List Area",
-		props: generalAreaProps(["componentGap", "divider", "gap", "hideTitle", "rowCount"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "hideTitle", "rowCount"]),
 	},
 	{
 		component: TabChipSearchAccordionArea,
@@ -867,7 +872,7 @@ const areaGeneralLayouts: Array<{
 		componentID: "AccordionNoticeListArea",
 		layoutId: "layout.area.accordionNoticeListArea",
 		name: "Accordion Notice List Area",
-		props: generalAreaProps(["componentGap", "divider", "gap"]),
+		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
 	},
 	{
 		component: AreaAppBarArea,
@@ -1208,6 +1213,7 @@ function generalAreaProps(
 		| "primaryActionPlacement"
 		| "rowCount"
 		| "secondaryActionPlacement"
+		| "sectionDivider"
 		| "sectionGap"
 		| "sectionModel"
 		| "sectionPaddingX"
