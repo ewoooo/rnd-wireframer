@@ -8,7 +8,8 @@ import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
 import {
 	componentCatalog,
 	getComponentCatalogEntry,
-	listCandidateComponentEntries,
+	getComponentCatalogStatus,
+	getComponentCatalogTypes,
 } from "@cx/components/catalog";
 import {
 	resolveCompositeLayoutByComponentType,
@@ -888,22 +889,35 @@ function buildSourceComponentContractCatalog(
 		),
 	);
 
-	const candidates = listCandidateComponentEntries().map((entry) => ({
-		componentType: entry.type,
-		props: Object.fromEntries(
-			Object.entries(entry.props ?? {}).map(([propName, contract]) => [
-				propName,
-				{
-					required: contract.required,
-					role: contract.role,
-					type: contract.type,
-					values: contract.values,
-				},
-			]),
-		),
-	}));
+	// Expose the registry (status-tagged) beyond the source-mapped entries, so the agent
+	// may reach for a better-fitting component. Visibility is independent of status;
+	// promotion (candidate->stable) only flips the tag, it does not drop the component.
+	const entryCanonicalTypes = new Set(
+		entries.map((entry) => getComponentCatalogEntry(entry.componentType)?.type ?? entry.componentType),
+	);
+	const available = getComponentCatalogTypes()
+		.filter((type) => !entryCanonicalTypes.has(type))
+		.filter((type) => !type.startsWith("Layout.") && type !== "PageStack")
+		.map((type) => {
+			const entry = getComponentCatalogEntry(type);
+			return {
+				componentType: type,
+				status: getComponentCatalogStatus(type) ?? ("stable" as const),
+				props: Object.fromEntries(
+					Object.entries(entry?.props ?? {}).map(([propName, contract]) => [
+						propName,
+						{
+							required: contract.required,
+							role: contract.role,
+							type: contract.type,
+							values: contract.values,
+						},
+					]),
+				),
+			};
+		});
 
-	return candidates.length > 0 ? { candidates, entries } : { entries };
+	return available.length > 0 ? { available, entries } : { entries };
 }
 
 function getSourceFileFromReadResult(

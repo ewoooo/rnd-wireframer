@@ -102,13 +102,19 @@ export type ComponentContractCatalogEntry = {
 	sourceRefs: string[];
 };
 
-export type ComponentContractCandidate = {
+/**
+ * A catalog component the agent MAY use that is not tied to a source ref.
+ * Exposure is independent of status; `status` only marks stability (candidate is flagged).
+ */
+export type ComponentContractAvailableEntry = {
 	componentType: string;
+	status: "candidate" | "stable";
 	props: ComponentContractCatalogEntry["props"];
 };
 
 export type ComponentContractCatalog = {
-	candidates?: ComponentContractCandidate[];
+	/** Registry components beyond the source refs, each tagged with status. */
+	available?: ComponentContractAvailableEntry[];
 	entries: ComponentContractCatalogEntry[];
 };
 

@@ -201,7 +201,7 @@ export function buildScreenGenerationAgentInput(
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
 			"Use context.componentContractCatalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.",
-			"context.componentContractCatalog.candidates lists unstable candidate components you MAY use when no stable component expresses the source need (e.g., multi-option single-select → RadioGroup with props.options). Prefer stable components; use a candidate only with clear source evidence.",
+			"context.componentContractCatalog.available lists other catalog components you MAY use beyond the source refs, each with a status. Prefer entries (source-relevant); reach into available when a better-fitting component exists (e.g., multi-option single-select → RadioGroup with props.options). status:candidate components are unstable and will be flagged, so use them only with clear source evidence.",
 			"Respect sourceShape.screen.regions: each region contains area nodes, and each area contains component nodes.",
 			"Map header, contents, and bottom regions to Screen.Header, Screen.Contents, and Screen.Bottom.",
 			`Also produce tableGenerationResult using schemaVersion: ${SCHEMA_VERSION.tableGenerationResult}.`,
