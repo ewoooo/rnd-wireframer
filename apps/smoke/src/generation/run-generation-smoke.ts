@@ -19,5 +19,6 @@ export async function runGenerationSmoke(
 			path: target,
 			type: "file",
 		},
+		tags: options.tags,
 	}) as Promise<GenerationSmokeResult>;
 }

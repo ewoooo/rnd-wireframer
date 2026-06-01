@@ -11,6 +11,7 @@ export type GenerationSmokeOptions = {
 	disableDesignContext?: boolean;
 	outDir?: string;
 	runId?: string;
+	tags?: string[];
 	useAI?: boolean;
 };
 

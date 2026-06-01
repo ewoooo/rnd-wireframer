@@ -27,12 +27,7 @@ export function globToRegExp(pattern: string): RegExp {
 export async function resolveBatchTargets(dir: string, glob?: string): Promise<string[]> {
 	const matcher = glob ? globToRegExp(glob) : undefined;
 
-	let entries: Awaited<ReturnType<typeof readdir>>;
-	try {
-		entries = await readdir(dir, { withFileTypes: true });
-	} catch {
-		return [];
-	}
+	const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
 
 	return entries
 		.filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
