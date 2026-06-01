@@ -18,31 +18,31 @@ import {
 	RowCardListArea,
 } from "./area/CollectionArea";
 import {
-	AccordionNoticeListArea,
-	ActionStackArea,
 	AreaAppBarArea,
 	AreaVerticalArea,
+	BottomActionArea,
+	ProductFooterLegalArea,
+	ProductHeroSummaryArea,
+} from "./area/GeneralArea";
+import {
+	AccordionListArea,
+	AccordionNoticeListArea,
+	ActionStackArea,
 	AuthCodeEntryArea,
 	AuthMethodListArea,
-	BottomActionArea,
+	CheckboxStackArea,
 	DeliveryInfoAccordionArea,
+	FieldStackArea,
+	ListStackArea,
+	MessageStackArea,
 	NoticeAccordionStackArea,
 	PagestackInfoTextSectionArea,
 	PlainInfoTextListArea,
 	PriceAccordionStackArea,
 	ProductDisclosureAccordionArea,
-	ProductFooterLegalArea,
-	ProductHeroSummaryArea,
 	ProductInfoSectionArea,
 	TabChipSearchAccordionArea,
 	TextListGroupArea,
-} from "./area/GeneralArea";
-import {
-	AccordionListArea,
-	CheckboxStackArea,
-	FieldStackArea,
-	ListStackArea,
-	MessageStackArea,
 } from "./area/PageStackArea";
 import {
 	type CompositeWrapperDefaults,
