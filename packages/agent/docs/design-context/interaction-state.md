@@ -17,6 +17,7 @@ Source docs: `docs/design/INTERACTION_PATTERNS.md`, `docs/design/SECTION_PATTERN
 ## CTA 위치·위계
 
 - 단일 페이지 진행: `Screen.Bottom`의 `SinglePrimaryAction`(full-width `ActionButton`).
+- **Screen.Bottom의 primary `ActionButton`은 size를 생략하거나 `xlarge`(full-width, 56px)로 둔다.** 하단 주 CTA는 최대 강조 사이즈이므로 `large` 이하로 낮추지 않는다(생략 시 기본값이 `xlarge`다).
 - primary-shaped CTA(같은 너비/높이/radius/pill/고대비/하단 근접)는 Bottom에 **1개만** 허용.
 - Content 내부 보조 액션은 Bottom CTA보다 최소 한 단계 낮은 시각 강도여야 한다: 짧은 너비, 낮은 높이, 약한 surface, field group 인접.
 - 인증/중복확인/재요청 등 field 종속 액션은 **`TextField` props.button: true + props.buttonLabel**로 표현한다(입력란 우측 compact 버튼). `props.rightElement`는 renderer 소유라 AI가 쓰지 않는다(render-node 객체를 넣으면 무시되거나 깨진다). Content full-width ActionButton으로 올리지 않는다.
