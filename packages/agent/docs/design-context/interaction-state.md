@@ -31,6 +31,7 @@ Source docs: `docs/design/INTERACTION_PATTERNS.md`, `docs/design/SECTION_PATTERN
 - 보조 버튼은 필드 외부 병렬보다 입력 component 우측 slot으로.
 - 에러 메시지는 해당 `TextField` 바로 아래 help text slot에. 별도 callout으로 필드 밖에 띄우지 않는다.
 - 약관 동의: `전체 동의 → Divider → 필수/선택 항목` 순서. 결제 약관은 Checkbox + 내용 확인 accordion/policy detail 연결.
+- 다중 옵션 단일 선택(예: 인증수단 휴대폰/PASS/공동인증서)은 `RadioGroup`(`props.options` 배열 + `selectedValue`)으로 표현한다. 단일 `Radio`를 옵션 수만큼 나열하거나, 옵션이 source 노트에만 있다고 1개만 렌더하지 않는다. options는 source의 나열(`순서=A → B → C`)에서 추출한다. RadioGroup이 candidate면 `componentContractCatalog.candidates`에 노출된 계약을 따른다.
 
 ## 오버레이 선택
 
