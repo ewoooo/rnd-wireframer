@@ -88,6 +88,8 @@ const COMPONENT_RENDERERS: Record<string, ComponentRenderer> = {
 			/>
 		);
 	},
+	RadioText: renderRadioRow,
+	Radio: renderRadioRow,
 	HeaderBase: ({ node, props: resolvedProps }) => {
 		const props = buildComponentProps(node.type, resolvedProps, {
 			titleContent: node.metadata.title,
@@ -118,6 +120,28 @@ const COMPONENT_RENDERERS: Record<string, ComponentRenderer> = {
 		);
 	},
 };
+
+function renderRadioRow({
+	node,
+	props: resolvedProps,
+}: {
+	node: RenderTreeNode;
+	props: Record<string, unknown>;
+}): ReactNode {
+	const props = buildComponentProps(node.type, resolvedProps, {
+		label: node.metadata.title,
+	});
+	return (
+		<ListSelected
+			key={node.metadata.id}
+			type="radio"
+			label={toText(props.label, node.metadata.title)}
+			checked={resolvedProps.checked !== undefined ? Boolean(resolvedProps.checked) : undefined}
+			showButton={false}
+			showPrice={false}
+		/>
+	);
+}
 
 const componentsByType: Record<string, ComponentType<unknown>> = {};
 

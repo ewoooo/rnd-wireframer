@@ -32,6 +32,21 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(getPageStackItems(child)).toHaveStyle({ gap: "8px", paddingInline: "20px" });
 	});
 
+	it("renders a Radio node as a selectable list row without crashing", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "Radio",
+					componentVersion: "0.1.0",
+					metadata: { id: "radio-1", title: "휴대폰 본인인증" },
+					props: { checked: true },
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
+	});
+
 	it("preserves area pattern default item gaps from the pattern components", () => {
 		render(
 			<>
