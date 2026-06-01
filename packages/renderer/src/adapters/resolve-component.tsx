@@ -89,7 +89,6 @@ const COMPONENT_RENDERERS: Record<string, ComponentRenderer> = {
 		);
 	},
 	RadioText: renderRadioRow,
-	Radio: renderRadioRow,
 	HeaderBase: ({ node, props: resolvedProps }) => {
 		const props = buildComponentProps(node.type, resolvedProps, {
 			titleContent: node.metadata.title,
