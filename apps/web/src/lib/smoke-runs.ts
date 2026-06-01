@@ -21,6 +21,7 @@ export type SmokeRunManifest = {
 	screenIntent?: string;
 	sourcePath: string;
 	sourceSpec?: string;
+	stageLayers?: SmokeRunManifestLayerGroup[];
 	stageOrder?: string[];
 	summary: {
 		errorCount: number;
@@ -33,6 +34,28 @@ export type SmokeRunManifest = {
 	validationReport: string;
 };
 
+export type SmokeRunManifestLayer = "compose" | "revise" | "understand";
+
+export type SmokeRunManifestLayerGroup = {
+	artifacts: string[];
+	layer: SmokeRunManifestLayer;
+	stages: string[];
+	traceKeys: string[];
+};
+
+export type SmokeCompositionPlan = {
+	density?: string;
+	patternRationale?: string;
+	primaryUserAction?: string;
+	rejectedPatterns?: Array<{ pattern?: string; reason?: string }>;
+	sectionRhythm?: string;
+	visualHierarchy?: string;
+};
+
+export type SmokeRunTrace = {
+	layers?: Record<string, { artifacts?: string[]; traceKeys?: string[] }>;
+};
+
 export type SmokeValidationReport = {
 	issues?: Array<{ code: string; message: string; severity: string }>;
 	ok?: boolean;
@@ -41,11 +64,13 @@ export type SmokeValidationReport = {
 };
 
 export type SmokeRunSummary = {
+	compositionPlan?: SmokeCompositionPlan;
 	finalResult?: RenderTree;
 	id: string;
 	manifest: SmokeRunManifest;
 	quality: QualityScorecard;
 	runDir: string;
+	trace?: SmokeRunTrace;
 	validationReport?: SmokeValidationReport;
 };
 
@@ -85,13 +110,21 @@ async function readSmokeRunSummary(runDir: string): Promise<SmokeRunSummary | un
 		const validationReport = await readOptionalJson<SmokeValidationReport>(
 			path.resolve(runDir, manifest.validationReport),
 		);
+		const compositionPlan = manifest.compositionPlan
+			? await readOptionalJson<SmokeCompositionPlan>(path.resolve(runDir, manifest.compositionPlan))
+			: undefined;
+		const trace = manifest.trace
+			? await readOptionalJson<SmokeRunTrace>(path.resolve(runDir, manifest.trace))
+			: undefined;
 
 		return {
+			compositionPlan,
 			finalResult,
 			id: manifest.runId,
 			manifest,
 			quality: createQualityScorecard(finalResult),
 			runDir,
+			trace,
 			validationReport,
 		};
 	} catch {

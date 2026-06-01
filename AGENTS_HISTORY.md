@@ -36,6 +36,22 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-01 - Smoke Navigation Rail
+
+- 변경: smoke 비교 화면의 최좌측에 공통 `NavigationRail`을 추가하고, smoke 페이지에서도 워크벤치(`/`)와 smoke(`/smoke`) 간 이동이 가능하도록 레일을 재사용 가능하게 조정함
+- 변경: smoke run 선택 패널을 run별 Left/Right 버튼 방식에서 상단 `Left | Right` 슬롯 선택 후 리스트 항목을 고르는 방식으로 변경함
+- 변경: smoke run 선택 패널의 상단 슬롯 토글을 제거하고, 패널 내부를 `Left`/`Right` 1:1 상하 영역으로 분리해 각 영역의 리스트에서 직접 비교 대상을 고르도록 변경함
+- 변경: smoke 선택 패널 폭을 `clamp(220px,32vw,320px)`로 조정하고 내부 grid/flex/list/button에 `min-w-0`과 overflow 경계를 보강해 선택 패널이 비교 화면 영역을 밀어내지 않도록 함
+- 변경: smoke 비교 화면에서 table apply용 `Dry`/`Apply` 액션과 관련 상태/handler를 제거함
+- 변경: smoke run 선택 패널의 반복 `ok`/`check` validation 배지를 제거함
+- 이유: smoke testbed가 독립 화면이 되면서 기존 워크벤치 네비게이션으로 돌아갈 수 있는 UI 진입/탈출 경로가 필요했기 때문
+- 이유: 비교 슬롯 선택과 run 선택을 분리해 여러 run을 빠르게 훑으며 baseline/candidate를 바꾸기 쉽게 하기 위함
+- 이유: Left와 Right의 선택 맥락을 동시에 노출해 토글 상태를 기억하지 않아도 비교 대상을 바꿀 수 있게 하기 위함
+- 이유: 긴 source path와 action button이 패널 경계를 넘어가면서 preview 영역과 겹치는 화면 문제를 막기 위함
+- 이유: 현재 smoke 화면은 조회/비교 테스트베드이며 table 등록 액션은 비교 UI의 책임이 아니기 때문
+- 이유: 리스트에 노출되는 smoke run은 이미 최종 산출물 조회 대상이므로 반복 validation 배지가 비교 선택에 유의미한 정보를 주지 않기 때문
+- 검증: `SmokeRunExplorer` 네비게이션 테스트 추가
+
 ## 2026-05-29 - Design Context Injection
 
 - 변경: `@cx/schema`에 `DesignContextBundleContent`, `ComponentProposalContract`, `QualityInspection.scores`를 추가하고 artifact-kind/JSON Schema에 등록함
@@ -1313,3 +1329,30 @@
 - 변경: `NOVA-MBR-PG-001-0` 테이블 등록본을 새 smoke 결과로 갱신해 `TermsSection`은 `layout.area.listStack`, `ActionButtonSection`은 `layout.area.bottomActionArea`를 사용하게 함
 - 이유: 약관 동의 생성 결과가 area layout 없이 통과하고 apply 단계에서 `productHeroSummary` fallback으로 저장되는 문제를 원천 차단하기 위함
 - 검증: `npm test -- --run packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/schema.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx biome check apps/smoke/src/apply-tables-cli.ts packages/orchestration/src/public/pattern-layer-candidates.ts packages/orchestration/src/__tests__/public-api.test.ts packages/validation/src/public/validators.ts packages/validation/src/__tests__/validators.test.ts packages/layout-pattern-store/src/catalog/region-patterns.json packages/layout-pattern-store/src/components/registry.ts`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260528_mbr/NOVA-MBR-PG-001-0.md' --run-id 'NOVA-MBR-PG-001-0-layout-fix-20260529' --out-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-layout-fix-20260529' --use-ai`, `npm run smoke:apply-tables -- --run-dir 'tmp/generation-runs/NOVA-MBR-PG-001-0-layout-fix-20260529' --module-id mbr --write`
+
+## 2026-05-30 - Generated Run Lint Scope
+
+- 변경: `data/runs/**` 생성 산출물을 Biome 검사 대상에서 제외함
+- 이유: run artifact JSON은 버전 있는 생성 결과 보관소이며, 소스/계약 lint 대상에 포함되면 실제 코드 경계 점검이 산출물 포맷 소음에 묻히기 때문
+- 검증: `npx biome check . --max-diagnostics=40`
+
+## 2026-06-01 - CompositionPlan Design Decision Fields
+
+- 변경: `CompositionPlan` 계약에 `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, `rejectedPatterns`를 필수 디자인 판단 필드로 추가함
+- 변경: composition planning agent input이 새 필드를 생성하도록 지시하고, `layout-composition` design-context 문서가 관련 디자인 문서(`COMPOSITION_LAYERS`, `SECTION_PATTERNS`, `SCREEN_PATTERN_SUMMARY`, `LAYOUT_SPACING_CONTRACT`, `INTERACTION_PATTERNS`)와 각 필드를 연결하도록 보강함
+- 이유: pattern selection과 RenderTree generation이 섹션 목록뿐 아니라 화면 위계, CTA, 밀도, 패턴 선택/배제 이유를 근거 있는 중간 산출물로 재사용하게 하기 위함
+- 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx biome check packages/schema/src/composition-plan.ts packages/schema/src/index.ts packages/schema/src/json-schema-registry.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/validation/src/__tests__/validators.test.ts packages/agent/docs/design-context/layout-composition.md docs/SCREEN_GENERATION_PIPELINE.md`
+
+## 2026-06-01 - Understand Compose Revise Artifact Docs
+
+- 변경: `SCREEN_GENERATION_PIPELINE.md`, `SCREEN_DESIGN_STAGE_PLAN.md`, `packages/pipeline/README.md`, `apps/smoke/README.md`에 `Understand -> Compose -> Revise` 논리 레이어와 flat artifact + `trace.json` 통합 저장 기준을 반영함
+- 변경: 번호 prefix 없는 결과 파일 목록, `trace.json` key 기반 레이어 해석, manifest 포인터 기반 소비 원칙을 문서화함
+- 이유: 실제 artifact 저장 구조가 stage 번호 파일에서 flat 결과 파일 + consolidated trace로 바뀌었으므로, 후속 web/smoke 구현이 파일명 추측 대신 manifest/trace 계약을 따르게 하기 위함
+- 검증: 관련 문서에서 numeric prefix, trace, layer, quality artifact 표현 검색 확인. `npx biome check`는 Markdown 경로가 현재 설정에서 ignore되어 처리 대상 없음
+
+## 2026-06-01 - Layered Smoke Artifact Implementation
+
+- 변경: smoke run `manifest.json`에 `stageLayers`를 추가하고, `trace.json`에 `layers`를 기록해 `Understand`, `Compose`, `Revise` 논리 그룹을 산출물 계약에 반영함
+- 변경: web smoke explorer가 manifest/trace 기반 레이어 요약과 `CompositionPlan` 디자인 판단 필드를 preview 패널에 표시하도록 추가함
+- 이유: artifact 파일은 flat하게 유지하면서도 smoke UI와 후속 도구가 파일명 번호나 위치 추측 없이 추론 과정을 레이어 단위로 탐색하게 하기 위함
+- 검증: `npm test -- --run packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npx biome check packages/pipeline/src/public/smoke-run-manifest.ts packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/lib/smoke-runs.ts apps/web/src/components/smoke/SmokeRunExplorer.tsx apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --run-id 'layered-artifacts-check' --artifact-store local-transient`

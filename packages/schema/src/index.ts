@@ -4,7 +4,12 @@ export type { ApplyResultContract } from "./apply-result";
 export type { GenerationArtifactKind } from "./artifact-kind";
 export { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
 export type { ComponentProposal, ComponentProposalContract } from "./component-proposal";
-export type { CompositionPlanContract, CompositionPlanSection } from "./composition-plan";
+export type {
+	CompositionPlanContract,
+	CompositionPlanDensity,
+	CompositionPlanRejectedPattern,
+	CompositionPlanSection,
+} from "./composition-plan";
 export type {
 	DecorationArea,
 	DecorationAreaPatternRole,

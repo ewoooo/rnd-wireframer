@@ -1,4 +1,4 @@
-Z# 화면 추론 파이프라인 (screen-generation)
+# 화면 추론 파이프라인 (screen-generation)
 
 이 문서는 `screen-generation` 파이프라인의 13단계를 각 단계의 **입력 구성·프롬프트(query)·출력(schema)·참조 문서** 기준으로 설명한다. 정본 소스는 아래와 같다.
 
@@ -31,6 +31,22 @@ read-source → parse-source → derive-screen-intent → plan-composition
 → revise-render-tree-if-invalid → validate-render-tree-after-revision
 → write-artifacts
 ```
+
+### 추론 레이어
+
+세부 stage는 유지하되, 사람이 읽는 추론 모델은 아래 3개 레이어로 접는다.
+
+```text
+Understand -> Compose -> Revise
+```
+
+| 레이어 | 포함 stage | 목적 | 주요 결과 |
+|---|---|---|---|
+| `Understand` | `read-source`, `parse-source`, `derive-screen-intent` | SourceSpec을 정규화하고 화면 목적·사용자 행동·정보 우선순위를 이해한다. | `source-spec.json`, `screen-intent.json` |
+| `Compose` | `plan-composition`, `derive-decoration-plan`, `select-pattern`, `generate-render-tree`, `propose-components` | 이해한 의도를 화면 구조·섹션 리듬·패턴·RenderTree 후보로 설계한다. | `composition-plan.json`, `decoration-plan.json`, `pattern-selection.json`, `agent-result.json`, `component-proposal.json` |
+| `Revise` | `validate-render-tree`, `review-quality`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts` | schema/계약/품질을 검증하고 필요한 경우 최소 수정한 뒤 최종 산출물을 기록한다. | `validation-report.json`, `quality-review.json`, `final-result.json`, `pipeline-result.json` |
+
+물리 파일은 `<runId>/artifacts/` 아래 flat하게 유지한다. 레이어는 폴더명이 아니라 `manifest.json`과 `trace.json`이 해석하는 **논리 그룹**이다. 따라서 파일명을 stage 순서 번호에 의존하지 않고, web/smoke는 manifest 포인터와 trace key로 탐색한다.
 
 ### 결정성 (runner 호출 형태)
 
@@ -106,11 +122,11 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.4 `plan-composition` — AI
 - **입력 구성**: `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
-- **AI 추론**: "이 의도를 화면에 어떻게 나눠 담을 것인가?"를 결정한다. intent를 받아 콘텐츠를 **섹션으로 분해**하고, 각 섹션을 어느 region(Header/Contents/Bottom)에 둘지, 어떤 role·priority를 줄지, 어떤 sourceRef가 묶이는지를 **배치 판단**한다. 전체 화면의 레이아웃 전략(`layoutStrategy`)을 세운다. 구체 layout id는 아직 고르지 않는다 — "무엇을 어디에, 어떤 비중으로"까지만.
-- **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
+- **AI 추론**: "이 의도를 화면에 어떻게 나눠 담을 것인가?"를 결정한다. intent를 받아 콘텐츠를 **섹션으로 분해**하고, 각 섹션을 어느 region(Header/Contents/Bottom)에 둘지, 어떤 role·priority를 줄지, 어떤 sourceRef가 묶이는지를 **배치 판단**한다. 전체 화면의 레이아웃 전략(`layoutStrategy`)을 세우고, 화면 위계·주 행동·섹션 리듬·밀도·패턴 선택/배제 이유까지 디자인 판단으로 남긴다. 구체 layout id는 아직 고르지 않는다 — "무엇을 어디에, 어떤 비중과 리듬으로"까지.
+- **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 디자인 판단 필드로 `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, `rejectedPatterns`를 함께 작성한다. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
 - **출력**: `composition-plan.v0.1`. 아티팩트 `composition-plan.json`(결과), input/runner-request→`trace.json`.
 - **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`trace.json`의 `designContextBundleSelection`).
-- **참조**: (선택된 번들 refs는 다음 단계부터 가이드로 전달).
+- **참조**: `packages/agent/docs/design-context/layout-composition.md`가 `COMPOSITION_LAYERS`, `SECTION_PATTERNS`, `SCREEN_PATTERN_SUMMARY`, `LAYOUT_SPACING_CONTRACT`, `INTERACTION_PATTERNS`를 디자인 판단 필드의 근거 문서로 연결한다. 선택된 번들 refs는 다음 단계부터 가이드로 전달된다.
 
 ### 4.5 `derive-decoration-plan` — 순수
 - **입력**: `compositionPlan`, `sourceSpec`.
@@ -181,6 +197,8 @@ claude --print --output-format json --no-session-persistence \
 
 `<runId>/artifacts/` 아래 기록(`artifact-commands.ts`, `ARTIFACT_FILES`). **과정별 결과물은 개별 파일, 입력·runner-request·중간 스캐폴딩은 `trace.json` 하나로 묶는다.** 소비자는 파일명을 하드코딩하지 않고 `manifest.json` 포인터로 접근한다(run당 ~36개 → 12개).
 
+파일명에는 stage 번호를 붙이지 않는다. 순서와 레이어 의미는 `manifest.stageOrder`와 `trace` key가 담당한다.
+
 ### 결과 파일 (개별, manifest 포인터로 노출)
 
 | 파일 | manifest 포인터 | 내용 |
@@ -202,6 +220,14 @@ claude --print --output-format json --no-session-persistence \
 | 파일 | manifest 포인터 | 내용(stage 키) |
 |---|---|---|
 | `trace.json` | `trace` | `parseResult`, `screenIntent/composition/patternSelection/generation/qualityReview/revision/componentProposal`의 `{input, runnerRequest}`, `patternLayerCandidates`, `designContextBundleSelection`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `initialValidationReport`, `revisionDecision` |
+
+권장 trace 레이어 해석:
+
+| 레이어 | trace keys | 연결 결과 파일 |
+|---|---|---|
+| `Understand` | `parseResult`, `screenIntent` | `source-spec.json`, `screen-intent.json` |
+| `Compose` | `composition`, `patternLayerCandidates`, `patternSelection`, `designContextBundleSelection`, `generation`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `componentProposal` | `composition-plan.json`, `decoration-plan.json`, `pattern-selection.json`, `agent-result.json`, `component-proposal.json` |
+| `Revise` | `initialValidationReport`, `qualityReview`, `revisionDecision`, `revision` | `validation-report.json`, `quality-review.json`, `final-result.json` |
 
 ### 인덱스
 
@@ -233,16 +259,24 @@ screen-intent.v0.1 · composition-plan.v0.1 · pattern-selection.v0.1
 ## 7. 요약 데이터 흐름
 
 ```
-md → SourceSpec(parse)
-   → screen-intent(목적/우선순위)
-   → composition-plan(섹션/region 배치) + 번들 선택
-   → decoration-plan(디바이더/분할, 순수)
-   → pattern-selection(슬롯별 layout)
-   → RenderTree 생성 ← 번들 규칙 본문 주입
-   → validate(스키마/계약/state/CTA)
-   → component-proposal(비파괴) · quality-review(3축 점수+findings)
-   → next-action 게이팅 → (필요 시) 1회 revision → 재검증
-   → write artifacts + manifest
+Understand
+  md → SourceSpec(parse)
+     → screen-intent(목적/우선순위)
+
+Compose
+  screen-intent
+     → composition-plan(위계/주 행동/섹션 리듬/밀도/패턴 판단)
+     → decoration-plan(디바이더/분할, 순수)
+     → pattern-selection(슬롯별 layout)
+     → RenderTree 생성 ← 번들 규칙 본문 주입
+     → component-proposal(비파괴 catalog gap 분석)
+
+Revise
+  RenderTree
+     → validate(스키마/계약/state/CTA)
+     → quality-review(3축 점수+findings)
+     → next-action 게이팅 → (필요 시) 1회 revision → 재검증
+     → write flat artifacts + manifest + trace
 ```
 
 핵심 원칙: **source evidence·schema/catalog > design-context 번들 규칙**. 번들은 SourceSpec·스키마·component contract·pattern 후보를 우회하지 못하고, 화면 구조·state coverage·interaction·visual foundation·review 기준을 좁히는 보조 context로만 작동한다.

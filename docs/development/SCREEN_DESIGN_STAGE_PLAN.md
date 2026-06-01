@@ -4,7 +4,15 @@
 
 This document defines the next generation pipeline expansion after the pipeline runtime restructure.
 
-The goal is to stop treating RenderTree JSON as the first design artifact. The pipeline should first capture why the screen exists and how it should be composed, then let later stages materialize that design decision into table-shaped output and RenderTree JSON.
+The goal is to stop treating RenderTree JSON as the first design artifact. The pipeline should first capture why the screen exists, compose the design decision, then revise the generated output against schema and craft quality gates.
+
+The implementation model is:
+
+```text
+Understand -> Compose -> Revise
+```
+
+This is a logical inference layer, not a physical folder layout. Runtime artifacts stay flat under `artifacts/`; `manifest.json` and `trace.json` provide the semantic grouping.
 
 ## 2. Current Baseline
 
@@ -15,20 +23,56 @@ read-source
 parse-source
 derive-screen-intent
 plan-composition
+derive-decoration-plan
 select-pattern
 generate-render-tree
 validate-render-tree
+propose-components
+review-quality
 revise-render-tree-if-invalid
 validate-render-tree-after-revision
 write-artifacts
 ```
 
-The first two design-stage artifacts are now explicit:
+The early design-stage artifacts are now explicit:
 
 - `screen-intent`: screen purpose, primary user action, content priority, source interpretation.
-- `composition-plan`: screen pattern, layout strategy, section roles, source refs, composition rationale.
+- `composition-plan`: screen pattern, layout strategy, section roles, source refs, composition rationale, visual hierarchy, primary user action, section rhythm, density, pattern rationale, and rejected patterns.
+- `decoration-plan`: deterministic display structure such as area split, display title, divider, and repeated item hints.
+- `pattern-selection`: selected layout candidates from the allowed pattern vocabulary.
+- `component-proposal`: non-destructive catalog gap proposal.
 
 `apps/smoke` still consumes only `@cx/pipeline`. Stage helper construction stays inside `@cx/orchestration`, and executable stage order stays inside `@cx/pipeline`.
+
+Artifact storage baseline:
+
+```text
+data/runs/screen-generation/<run-id>/
+  manifest.json
+  artifacts/
+    source-spec.json
+    screen-intent.json
+    composition-plan.json
+    decoration-plan.json
+    pattern-selection.json
+    agent-result.json
+    final-result.json
+    validation-report.json
+    quality-review.json
+    component-proposal.json
+    pipeline-result.json
+    trace.json
+```
+
+Standalone files are result artifacts. `trace.json` consolidates agent inputs, runner requests, intermediate candidates, bundle selections, skill references, initial validation, revision decisions, and proposal validation. File names do not carry numeric stage prefixes.
+
+## 2.1 Logical Layers
+
+| Layer | Pipeline stages | Boundary |
+|---|---|---|
+| `Understand` | `read-source`, `parse-source`, `derive-screen-intent` | Interpret source meaning only. Do not choose final layout or component substitutions. |
+| `Compose` | `plan-composition`, `derive-decoration-plan`, `select-pattern`, `generate-render-tree`, `propose-components` | Turn intent into screen structure, design decisions, pattern choices, RenderTree candidate, and non-binding catalog proposals. |
+| `Revise` | `validate-render-tree`, `review-quality`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts` | Validate, critique, minimally revise, and record final artifacts. |
 
 ## 3. Absorption Direction
 
@@ -52,10 +96,11 @@ Do not absorb:
 
 ### Phase A - Contract Hardening
 
-Status as of 2026-05-28: first pass implemented.
+Status as of 2026-06-01: first pass implemented.
 
 - Replace generic JSON schema fallback for `screen-intent` and `composition-plan` with stricter schema documents.
 - Add validation tests for required fields, section target region, section role, and schema version.
+- Keep `CompositionPlan` as the central Compose artifact with design decision fields: `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, `rejectedPatterns`.
 - Decide whether `pattern-selection` should become a schema artifact kind or remain an agent-local result.
 
 ### Phase B - Composition-Aware Generation
@@ -85,7 +130,15 @@ Status as of 2026-05-28: first pass implemented.
 
 - Run fake mode first for artifact completeness.
 - Run Claude local-first only after schema validation and prompt fixtures are stable.
-- Store runner requests/results as versioned artifacts for every design stage.
+- Store result artifacts as standalone files and consolidate inputs, runner requests, and intermediate scaffolding into `trace.json`.
+
+### Phase F - Layered Smoke Explorer
+
+- Keep physical artifact files flat.
+- Use `manifest.json` pointers and `trace.json` keys to group smoke details into `Understand`, `Compose`, and `Revise`.
+- Do not make web/smoke infer stage order from filename prefixes.
+- Show `CompositionPlan` design decision fields in the Compose panel.
+- Surface quality findings by layer once validation/review reports expose layer metadata.
 
 ## 5. Done Criteria
 
@@ -93,4 +146,5 @@ Status as of 2026-05-28: first pass implemented.
 - `@cx/orchestration` has no IO, Claude, validation, or executable stage-order ownership.
 - `@cx/pipeline` writes all intermediate artifacts needed to inspect design decisions.
 - RenderTree generation receives upstream design artifacts instead of inferring design directly from Markdown.
+- Artifact consumers use manifest pointers and trace keys instead of numeric filename prefixes.
 - Important decisions are recorded in `AGENTS_HISTORY.md`.

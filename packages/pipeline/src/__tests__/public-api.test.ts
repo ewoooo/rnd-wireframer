@@ -199,9 +199,26 @@ describe("@cx/pipeline public API", () => {
 		);
 		// Intermediate scaffolding (e.g. design-context bundle selection) is consolidated into trace.json.
 		const trace = commands.find((command) => command.id === "write-trace");
-		const traceInput = trace?.input as { content: { designContextBundleSelection?: unknown }; targetPath: string };
+		const traceInput = trace?.input as {
+			content: { designContextBundleSelection?: unknown; layers?: unknown };
+			targetPath: string;
+		};
 		expect(traceInput.targetPath).toContain("trace.json");
 		expect(traceInput.content.designContextBundleSelection).toEqual({ bundleRefs: [] });
+		expect(traceInput.content.layers).toMatchObject({
+			compose: {
+				artifacts: expect.arrayContaining(["composition-plan.json", "agent-result.json"]),
+				traceKeys: expect.arrayContaining(["composition", "generation"]),
+			},
+			revise: {
+				artifacts: expect.arrayContaining(["validation-report.json", "final-result.json"]),
+				traceKeys: expect.arrayContaining(["qualityReview", "revision"]),
+			},
+			understand: {
+				artifacts: expect.arrayContaining(["source-spec.json", "screen-intent.json"]),
+				traceKeys: expect.arrayContaining(["parseResult", "screenIntent"]),
+			},
+		});
 	});
 
 	it("writes the component proposal as a standalone artifact", () => {

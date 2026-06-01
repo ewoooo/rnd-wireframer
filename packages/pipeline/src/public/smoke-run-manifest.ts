@@ -1,5 +1,14 @@
 export type SmokeRunManifestArtifactUsage = "apply-source" | "validation-and-comparison-only";
 
+export type SmokeRunManifestLayer = "compose" | "revise" | "understand";
+
+export type SmokeRunManifestLayerGroup = {
+	artifacts: string[];
+	layer: SmokeRunManifestLayer;
+	stages: string[];
+	traceKeys: string[];
+};
+
 export type SmokeRunManifest = {
 	agentMode: string;
 	agentResult: string;
@@ -18,6 +27,7 @@ export type SmokeRunManifest = {
 	screenIntent: string;
 	sourcePath: string;
 	sourceSpec: string;
+	stageLayers: SmokeRunManifestLayerGroup[];
 	stageOrder: string[];
 	summary: {
 		errorCount: number;

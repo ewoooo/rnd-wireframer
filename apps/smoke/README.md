@@ -45,11 +45,28 @@ By default, generation smoke writes run artifacts to:
 data/runs/screen-generation/<run-id>/
   manifest.json
   artifacts/
+    source-spec.json
+    screen-intent.json
+    composition-plan.json
+    decoration-plan.json
+    pattern-selection.json
+    agent-result.json
     final-result.json
+    validation-report.json
+    quality-review.json
+    component-proposal.json
+    pipeline-result.json
+    trace.json
 ```
 
 Use `--artifact-store local-transient` for temporary debug runs, or `--out-dir`
 only for the legacy direct-output override.
+
+Artifact result files are flat and do not use numeric stage prefixes. `trace.json`
+consolidates agent inputs, runner requests, pattern candidates, design-context
+bundle selection, skill references, initial validation, revision decisions, and
+component proposal validation. Consumers should follow `manifest.json` pointers
+instead of guessing paths from file names.
 
 ## CLI
 
@@ -128,19 +145,47 @@ runPipeline("screen-generation")
 -> parse-source
 -> derive-screen-intent
 -> plan-composition
+-> derive-decoration-plan
 -> select-pattern
 -> generate-render-tree
 -> validate-render-tree
+-> propose-components
 -> review-quality
 -> revise-render-tree-if-invalid
--> validate-render-tree
+-> validate-render-tree-after-revision
 -> write-artifacts
 ```
 
+For humans and smoke UI, the flow should be grouped as:
+
+```text
+Understand
+  read-source
+  parse-source
+  derive-screen-intent
+
+Compose
+  plan-composition
+  derive-decoration-plan
+  select-pattern
+  generate-render-tree
+  propose-components
+
+Revise
+  validate-render-tree
+  review-quality
+  revise-render-tree-if-invalid
+  validate-render-tree-after-revision
+  write-artifacts
+```
+
+This grouping is logical only. The artifact directory stays flat, while
+`manifest.json` and `trace.json` provide the order and debug context.
+
 During `generate-render-tree`, the pipeline loads screen-generation reference
 assets from `packages/agent/docs/screen-generation/` and records them as smoke
-artifacts. These assets are owned by `@cx/agent`; the smoke harness only records
-the reference context used by the pipeline.
+trace context. These assets are owned by `@cx/agent`; the smoke harness only
+records the reference context used by the pipeline.
 
 `generate-render-tree` now expects the agent payload to contain the materialized
 `renderTree` consumed by `@cx/renderer`. A `tableGenerationResult` may still be

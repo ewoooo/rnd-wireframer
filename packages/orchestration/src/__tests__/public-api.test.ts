@@ -225,6 +225,9 @@ describe("@cx/orchestration public API", () => {
 		expect(intentInput.query).toContain("Derive the screen intent");
 		expect(intentInput.context.targetArtifact.kind).toBe("screen-intent");
 		expect(compositionInput.query).toContain("Create a composition plan");
+		expect(compositionInput.query).toContain("visualHierarchy");
+		expect(compositionInput.query).toContain("rejectedPatterns");
+		expect(compositionInput.query).toContain("COMPOSITION_LAYERS");
 		expect(compositionInput.context.screenIntent).toBe(screenIntent);
 		expect(compositionInput.context.targetArtifact.kind).toBe("composition-plan");
 	});

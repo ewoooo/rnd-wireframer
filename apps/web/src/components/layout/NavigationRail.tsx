@@ -4,8 +4,9 @@ import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 
 type NavigationRailProps = {
-	activeTab: NavigatorTab;
-	onSelectTab: (tab: NavigatorTab) => void;
+	activeHref?: string;
+	activeTab?: NavigatorTab;
+	onSelectTab?: (tab: NavigatorTab) => void;
 };
 
 type NavigationTab = {
@@ -68,7 +69,7 @@ const utilityNavigationLinks: NavigationLink[] = [
 	},
 ];
 
-export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) {
+export function NavigationRail({ activeHref, activeTab, onSelectTab }: NavigationRailProps) {
 	return (
 		<nav
 			aria-label="Workbench navigation"
@@ -83,7 +84,7 @@ export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) 
 			))}
 			<div className="my-1 w-6 border-t border-sidebar-border" />
 			{utilityNavigationLinks.map((item) => (
-				<NavigationLinkButton item={item} key={item.href} />
+				<NavigationLinkButton isActive={activeHref === item.href} item={item} key={item.href} />
 			))}
 		</nav>
 	);
@@ -94,37 +95,51 @@ function NavigationButton({
 	onSelectTab,
 	tab,
 }: {
-	activeTab: NavigatorTab;
-	onSelectTab: (tab: NavigatorTab) => void;
+	activeTab?: NavigatorTab;
+	onSelectTab?: (tab: NavigatorTab) => void;
 	tab: NavigationTab;
 }) {
 	const Icon = tab.icon;
 	const isActive = activeTab === tab.id;
+	const className = cn(
+		"flex size-10 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+		isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-none",
+	);
+	const title = `${tab.name} (${tab.label}) - ${tab.description}`;
+
+	if (!onSelectTab) {
+		return (
+			<Link aria-label={tab.label} className={className} href="/" title={title}>
+				<Icon className="size-4" data-icon="inline-start" />
+			</Link>
+		);
+	}
 
 	return (
 		<button
 			type="button"
-			className={cn(
-				"flex size-10 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-				isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-none",
-			)}
+			className={className}
 			aria-label={tab.label}
 			aria-pressed={isActive}
 			onClick={() => onSelectTab(tab.id)}
-			title={`${tab.name} (${tab.label}) - ${tab.description}`}
+			title={title}
 		>
 			<Icon className="size-4" data-icon="inline-start" />
 		</button>
 	);
 }
 
-function NavigationLinkButton({ item }: { item: NavigationLink }) {
+function NavigationLinkButton({ isActive, item }: { isActive: boolean; item: NavigationLink }) {
 	const Icon = item.icon;
 
 	return (
 		<Link
 			aria-label={item.label}
-			className="flex size-10 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+			aria-current={isActive ? "page" : undefined}
+			className={cn(
+				"flex size-10 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-none",
+			)}
 			href={item.href}
 			title={`${item.name} (${item.label}) - ${item.description}`}
 		>

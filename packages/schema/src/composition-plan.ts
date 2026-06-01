@@ -8,10 +8,23 @@ export type CompositionPlanSection = {
 	targetRegion: "bottom" | "contents" | "header" | "overlay";
 };
 
+export type CompositionPlanDensity = "high" | "low" | "medium";
+
+export type CompositionPlanRejectedPattern = {
+	pattern: string;
+	reason: string;
+};
+
 export type CompositionPlanContract = {
+	density: CompositionPlanDensity;
 	layoutStrategy: string;
+	patternRationale: string;
+	primaryUserAction: string;
 	rationale?: string;
+	rejectedPatterns: CompositionPlanRejectedPattern[];
 	schemaVersion: typeof SCHEMA_VERSION.compositionPlan;
 	screenLayout: string;
+	sectionRhythm: string;
 	sections: CompositionPlanSection[];
+	visualHierarchy: string;
 };

@@ -62,12 +62,52 @@ export const ARTIFACT_FILES = {
 	validationReport: "validation-report.json",
 } as const;
 
+export const ARTIFACT_LAYER_GROUPS = {
+	understand: {
+		artifacts: [ARTIFACT_FILES.sourceSpec, ARTIFACT_FILES.screenIntent],
+		traceKeys: ["parseResult", "screenIntent"],
+	},
+	compose: {
+		artifacts: [
+			ARTIFACT_FILES.compositionPlan,
+			ARTIFACT_FILES.decorationPlan,
+			ARTIFACT_FILES.patternSelection,
+			ARTIFACT_FILES.agentResult,
+			ARTIFACT_FILES.componentProposal,
+		],
+		traceKeys: [
+			"composition",
+			"patternLayerCandidates",
+			"patternSelection",
+			"designContextBundleSelection",
+			"generation",
+			"generationSkillCatalog",
+			"renderTreeGenerationSkill",
+			"componentProposal",
+		],
+	},
+	revise: {
+		artifacts: [
+			ARTIFACT_FILES.validationReport,
+			ARTIFACT_FILES.qualityReview,
+			ARTIFACT_FILES.finalResult,
+			ARTIFACT_FILES.pipelineResult,
+		],
+		traceKeys: ["initialValidationReport", "qualityReview", "revisionDecision", "revision"],
+	},
+} as const;
+
 export function createGenerationSmokeArtifactCommands(
 	input: GenerationSmokeArtifactInput,
 ): SideEffectCommand[] {
 	return [
 		// Per-stage result artifacts (standalone files).
-		createWriteCommand("write-source-spec", input.outDir, ARTIFACT_FILES.sourceSpec, input.sourceSpec),
+		createWriteCommand(
+			"write-source-spec",
+			input.outDir,
+			ARTIFACT_FILES.sourceSpec,
+			input.sourceSpec,
+		),
 		createWriteCommand(
 			"write-screen-intent",
 			input.outDir,
@@ -98,7 +138,12 @@ export function createGenerationSmokeArtifactCommands(
 			ARTIFACT_FILES.agentResult,
 			input.agentResult,
 		),
-		createWriteCommand("write-final-result", input.outDir, ARTIFACT_FILES.finalResult, input.finalResult),
+		createWriteCommand(
+			"write-final-result",
+			input.outDir,
+			ARTIFACT_FILES.finalResult,
+			input.finalResult,
+		),
 		createWriteCommand(
 			"write-validation-report",
 			input.outDir,
@@ -124,6 +169,7 @@ export function createGenerationSmokeArtifactCommands(
 
 function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown> {
 	return {
+		layers: ARTIFACT_LAYER_GROUPS,
 		parseResult: input.parseCommandResult,
 		screenIntent: {
 			input: input.screenIntentAgentInput,

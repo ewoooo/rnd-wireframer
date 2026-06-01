@@ -1,5 +1,6 @@
 import {
 	type ComponentProposalContract,
+	type CompositionPlanContract,
 	type DecorationPlanContract,
 	type DesignContextBundleContent,
 	type DesignContextBundleRef,
@@ -73,7 +74,22 @@ describe("@cx/schema public API", () => {
 		expect(getJsonSchema("composition-plan")).toMatchObject({
 			$id: "composition-plan.v0.1",
 			additionalProperties: false,
-			required: ["schemaVersion", "screenLayout", "layoutStrategy", "sections"],
+			properties: {
+				density: { enum: ["low", "medium", "high"] },
+				rejectedPatterns: { type: "array" },
+			},
+			required: [
+				"schemaVersion",
+				"screenLayout",
+				"layoutStrategy",
+				"sections",
+				"visualHierarchy",
+				"primaryUserAction",
+				"sectionRhythm",
+				"density",
+				"patternRationale",
+				"rejectedPatterns",
+			],
 		});
 		expect(getJsonSchema("decoration-plan")).toMatchObject({
 			$id: "decoration-plan.v0.1",
@@ -161,6 +177,37 @@ describe("@cx/schema public API", () => {
 
 		expect(content.id).toBe("visual-foundation");
 		expect(content.body.length).toBeGreaterThan(0);
+	});
+
+	it("exposes composition plan design decisions as schema-owned fields", () => {
+		const plan: CompositionPlanContract = {
+			density: "medium",
+			layoutStrategy: "Use a detail screen with a stable content rail.",
+			patternRationale: "Detail composition keeps the primary facts ahead of the action slot.",
+			primaryUserAction: "confirm-selection",
+			rejectedPatterns: [
+				{
+					pattern: "main-browse",
+					reason: "The source has no repeated discovery sections.",
+				},
+			],
+			schemaVersion: SCHEMA_VERSION.compositionPlan,
+			screenLayout: "layout.screen.commerceDetailScreen",
+			sectionRhythm: "Header, content summary, and bottom action.",
+			sections: [
+				{
+					priority: 1,
+					role: "content",
+					sourceRefs: ["area-1"],
+					strategy: "Place primary content in the contents region.",
+					targetRegion: "contents",
+				},
+			],
+			visualHierarchy: "Primary summary first, supporting rows second, action last.",
+		};
+
+		expect(plan.visualHierarchy).toContain("Primary summary");
+		expect(plan.rejectedPatterns[0].pattern).toBe("main-browse");
 	});
 
 	it("exposes component-proposal schema and version", () => {

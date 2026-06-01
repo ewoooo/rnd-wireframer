@@ -6,6 +6,17 @@ Source docs: `docs/design/COMPOSITION_LAYERS.md`, `docs/design/SECTION_PATTERNS.
 
 이 번들은 Screen/Region/Area 조합과 섹션 그룹핑 규칙을 제공한다. 우선순위는 **source evidence ≥ schema/catalog > 이 번들 규칙**이다.
 
+## CompositionPlan 디자인 판단 필드
+
+`CompositionPlan`은 섹션 목록만 남기지 않고, 이후 pattern selection과 RenderTree generation이 참조할 디자인 판단을 명시한다.
+
+- `visualHierarchy`: 사용자가 가장 먼저 보고 이해해야 하는 정보 순서. `COMPOSITION_LAYERS.md`의 Screen/Area 조합 원칙과 `SCREEN_PATTERN_SUMMARY.md`의 화면 유형별 위계를 따른다.
+- `primaryUserAction`: 핵심 CTA 또는 주 행동의 의미와 위치. `INTERACTION_PATTERNS.md`의 CTA/Overlay 규칙과 bottom action slot 원칙을 따른다.
+- `sectionRhythm`: 섹션 제목, PageStack 반복, divider cadence, bottom action 전환 리듬. `SECTION_PATTERNS.md`와 `LAYOUT_SPACING_CONTRACT.md`를 따른다.
+- `density`: `low`, `medium`, `high` 중 하나. 정보량과 반복 항목 수, 폼 필드 수, 섹션 수를 기준으로 정하고 spacing/section divider 판단에 연결한다.
+- `patternRationale`: 선택한 화면 구성 패턴이 intent와 source evidence에 맞는 이유. `SCREEN_PATTERN_SUMMARY.md`의 8가지 화면 구성 패턴을 근거로 쓴다.
+- `rejectedPatterns`: 검토했지만 쓰지 않은 대안 패턴과 배제 이유. 후보 밖 layout id를 만들지 않고, 왜 `main`, `list`, `detail`, `form`, `completion`, `overlay` 계열이 맞지 않는지 짧게 남긴다.
+
 ## 조합 레이어
 
 - 어휘는 `Component → Pattern → Area → Screen`으로 해석한다. 외부 `Atom` 분류를 직접 쓰지 않는다.

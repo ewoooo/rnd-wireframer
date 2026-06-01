@@ -418,9 +418,14 @@ it("validates composition plan source refs against SourceSpec", () => {
 	const sourceSpec = validSourceSpec();
 	const report = validateCompositionPlan(
 		{
+			density: "medium",
 			layoutStrategy: "Keep source order.",
+			patternRationale: "Use detail composition because the source has one content area.",
+			primaryUserAction: "continue",
+			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
 			screenLayout: "layout.screen.commerceDetailScreen",
+			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
 					priority: 1,
@@ -430,6 +435,7 @@ it("validates composition plan source refs against SourceSpec", () => {
 					targetRegion: "contents",
 				},
 			],
+			visualHierarchy: "Content first, then action.",
 		},
 		{ sourceSpec },
 	);
@@ -450,9 +456,14 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 	sourceSpec.sourceShape.screen.regions[0].children[0].children[0].roleAlias = "PrimaryNextAction";
 	const report = validateCompositionPlan(
 		{
+			density: "medium",
 			layoutStrategy: "Keep source order.",
+			patternRationale: "Use detail composition because the source has one content area.",
+			primaryUserAction: "continue",
+			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
 			screenLayout: "layout.screen.commerceDetailScreen",
+			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
 					priority: 1,
@@ -462,6 +473,7 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 					targetRegion: "contents",
 				},
 			],
+			visualHierarchy: "Content first, then action.",
 		},
 		{ sourceSpec },
 	);
@@ -473,9 +485,14 @@ it("warns when composition plan source refs are not visible in generated artifac
 	const sourceSpec = validSourceSpec();
 	const report = validateCompositionPlan(
 		{
+			density: "medium",
 			layoutStrategy: "Keep source order.",
+			patternRationale: "Use detail composition because the source has one content area.",
+			primaryUserAction: "continue",
+			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
 			screenLayout: "layout.screen.commerceDetailScreen",
+			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
 					priority: 1,
@@ -485,6 +502,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 					targetRegion: "contents",
 				},
 			],
+			visualHierarchy: "Content first, then action.",
 		},
 		{
 			generatedArtifact: { renderTree: { metadata: { id: "area-1" } } },

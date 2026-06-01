@@ -72,7 +72,13 @@ function createComponentProposalJsonSchema(): JsonSchemaDocument {
 			proposal: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "proposedComponentType", "rationale", "sourceEvidence", "nearestCatalogMatch"],
+				required: [
+					"id",
+					"proposedComponentType",
+					"rationale",
+					"sourceEvidence",
+					"nearestCatalogMatch",
+				],
 				properties: {
 					id: { type: "string", minLength: 1 },
 					proposedComponentType: { type: "string", minLength: 1 },
@@ -273,20 +279,49 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 		$id: SCHEMA_VERSION.compositionPlan,
 		additionalProperties: false,
 		properties: {
+			density: { enum: ["low", "medium", "high"] },
 			layoutStrategy: { type: "string", minLength: 1 },
+			patternRationale: { type: "string", minLength: 1 },
+			primaryUserAction: { type: "string", minLength: 1 },
 			rationale: { type: "string", minLength: 1 },
+			rejectedPatterns: {
+				type: "array",
+				items: { $ref: "#/$defs/rejectedPattern" },
+			},
 			schemaVersion: { const: SCHEMA_VERSION.compositionPlan },
 			screenLayout: layoutIdSchema("screen"),
+			sectionRhythm: { type: "string", minLength: 1 },
 			sections: {
 				type: "array",
 				minItems: 1,
 				items: { $ref: "#/$defs/section" },
 			},
+			visualHierarchy: { type: "string", minLength: 1 },
 		},
-		required: ["schemaVersion", "screenLayout", "layoutStrategy", "sections"],
+		required: [
+			"schemaVersion",
+			"screenLayout",
+			"layoutStrategy",
+			"sections",
+			"visualHierarchy",
+			"primaryUserAction",
+			"sectionRhythm",
+			"density",
+			"patternRationale",
+			"rejectedPatterns",
+		],
 		title: "composition-plan",
 		type: "object",
 		$defs: {
+			rejectedPattern: {
+				type: "object",
+				additionalProperties: false,
+				required: ["pattern", "reason"],
+				properties: {
+					pattern: { type: "string", minLength: 1 },
+					reason: { type: "string", minLength: 1 },
+				},
+			},
 			section: {
 				type: "object",
 				additionalProperties: false,

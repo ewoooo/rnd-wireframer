@@ -23,7 +23,7 @@ async function runFake(runId: string, tags?: string[]) {
 	});
 	const manifest = JSON.parse(
 		await readFile(path.join(rootDir, runId, "manifest.json"), "utf8"),
-	) as { tags: string[] };
+	) as { stageLayers: Array<{ layer: string; traceKeys: string[] }>; tags: string[] };
 	return manifest;
 }
 
@@ -36,5 +36,18 @@ describe("screen-generation manifest tags", () => {
 	it("defaults to an empty tag list when none are provided", async () => {
 		const manifest = await runFake("tags-off");
 		expect(manifest.tags).toEqual([]);
+	});
+
+	it("writes logical inference layer metadata into the run manifest", async () => {
+		const manifest = await runFake("layered");
+
+		expect(manifest.stageLayers.map((layer) => layer.layer)).toEqual([
+			"understand",
+			"compose",
+			"revise",
+		]);
+		expect(manifest.stageLayers.find((layer) => layer.layer === "compose")?.traceKeys).toContain(
+			"generation",
+		);
 	});
 });

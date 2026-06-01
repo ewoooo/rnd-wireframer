@@ -67,6 +67,7 @@ import type {
 import { runSideEffects } from "../../runner";
 import {
 	ARTIFACT_FILES,
+	ARTIFACT_LAYER_GROUPS,
 	createGenerationSmokeArtifactCommands,
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
@@ -947,6 +948,7 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 		screenIntent: artifact(ARTIFACT_FILES.screenIntent),
 		sourcePath: path.relative(resolveInvocationRoot(), state.options.sourcePath),
 		sourceSpec: artifact(ARTIFACT_FILES.sourceSpec),
+		stageLayers: createSmokeRunStageLayers(artifact),
 		stageOrder: [...screenGenerationPipelineDefinition.stages],
 		summary: {
 			errorCount: validationSummary?.errorCount ?? 0,
@@ -962,6 +964,43 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 		trace: artifact(ARTIFACT_FILES.trace),
 		validationReport: artifact(ARTIFACT_FILES.validationReport),
 	};
+}
+
+function createSmokeRunStageLayers(
+	artifact: (fileName: string) => string,
+): SmokeRunManifest["stageLayers"] {
+	return [
+		{
+			artifacts: ARTIFACT_LAYER_GROUPS.understand.artifacts.map(artifact),
+			layer: "understand",
+			stages: ["read-source", "parse-source", "derive-screen-intent"],
+			traceKeys: [...ARTIFACT_LAYER_GROUPS.understand.traceKeys],
+		},
+		{
+			artifacts: ARTIFACT_LAYER_GROUPS.compose.artifacts.map(artifact),
+			layer: "compose",
+			stages: [
+				"plan-composition",
+				"derive-decoration-plan",
+				"select-pattern",
+				"generate-render-tree",
+				"propose-components",
+			],
+			traceKeys: [...ARTIFACT_LAYER_GROUPS.compose.traceKeys],
+		},
+		{
+			artifacts: ARTIFACT_LAYER_GROUPS.revise.artifacts.map(artifact),
+			layer: "revise",
+			stages: [
+				"validate-render-tree",
+				"review-quality",
+				"revise-render-tree-if-invalid",
+				"validate-render-tree-after-revision",
+				"write-artifacts",
+			],
+			traceKeys: [...ARTIFACT_LAYER_GROUPS.revise.traceKeys],
+		},
+	];
 }
 
 function countSourceAreas(sourceSpec: SourceSpec): number {
@@ -1141,12 +1180,19 @@ function createFakeCompositionPlan(
 		"layout.screen.commerceDetailScreen";
 
 	return {
+		density: sourceSpec.sourceShape.screen.regions.length > 3 ? "high" : "medium",
 		layoutStrategy:
 			"Keep source regions as stable screen rails, then let RenderTree generation materialize components.",
+		patternRationale:
+			"Fake composition keeps the available screen layout while preserving source region order for later pattern selection.",
+		primaryUserAction: "complete-primary-flow",
 		rationale:
 			"Fake composition plan records the design composition decision before pattern selection.",
+		rejectedPatterns: [],
 		schemaVersion: SCHEMA_VERSION.compositionPlan,
 		screenLayout,
+		sectionRhythm:
+			"Preserve source region order and use region boundaries as the first section rhythm signal.",
 		sections: sourceSpec.sourceShape.screen.regions.map((region, index) => ({
 			priority: index + 1,
 			role: REGION_SECTION_ROLE[region.slot] ?? "content",
@@ -1157,6 +1203,8 @@ function createFakeCompositionPlan(
 			strategy: `Preserve ${region.slot} source order and map it to a stable screen section.`,
 			targetRegion: REGION_TARGET[region.slot] ?? "contents",
 		})),
+		visualHierarchy:
+			"Header establishes context, contents carry the main information, and bottom action closes the flow when present.",
 	};
 }
 
