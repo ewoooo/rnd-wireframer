@@ -9,7 +9,7 @@
 | 필드 | 필수 | 설명 |
 |---|---|---|
 | `id` | O | 제안 식별자 |
-| `title` | O | 제안 component/변형의 짧은 이름 |
+| `proposedComponentType` | O | 제안하는 신규 component/변형의 이름(type) |
 | `rationale` | O | 왜 이 화면에 필요한지 (source 근거 기반) |
 | `sourceEvidence` | O | `context.sourceReferenceCatalog.allowedRefs` 안의 ref 1개 이상 |
 | `nearestCatalogMatch` | O | `context.componentContractCatalog` 안의 가장 가까운 component type |

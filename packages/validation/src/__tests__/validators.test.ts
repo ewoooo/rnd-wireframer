@@ -823,7 +823,7 @@ describe("validateComponentProposal", () => {
 				proposals: [
 					{
 						id: "p1",
-						title: "Price callout",
+						proposedComponentType: "PriceCallout",
 						rationale: "Source emphasizes total price",
 						sourceEvidence: ["area.price"],
 						nearestCatalogMatch: "Callout",
@@ -844,7 +844,7 @@ describe("validateComponentProposal", () => {
 				proposals: [
 					{
 						id: "p1",
-						title: "t",
+						proposedComponentType: "t",
 						rationale: "r",
 						sourceEvidence: ["area.unknown"],
 						nearestCatalogMatch: "Callout",
@@ -863,7 +863,7 @@ describe("validateComponentProposal", () => {
 	it("flags more than the allowed number of proposals", () => {
 		const proposals = Array.from({ length: 6 }, (_unused, index) => ({
 			id: `p${index}`,
-			title: "t",
+			proposedComponentType: "t",
 			rationale: "r",
 			sourceEvidence: ["area.price"],
 			nearestCatalogMatch: "Callout",

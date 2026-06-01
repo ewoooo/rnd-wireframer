@@ -169,7 +169,7 @@ describe("@cx/schema public API", () => {
 			proposals: [
 				{
 					id: "proposal-1",
-					title: "Highlighted price callout",
+					proposedComponentType: "PriceCallout",
 					rationale: "Source emphasizes total price",
 					sourceEvidence: ["area.price"],
 					nearestCatalogMatch: "Callout",
@@ -178,7 +178,7 @@ describe("@cx/schema public API", () => {
 			],
 		};
 
-		expect(proposal.proposals[0].nearestCatalogMatch).toBe("Callout");
+		expect(proposal.proposals[0].proposedComponentType).toBe("PriceCallout");
 		expect(SCHEMA_VERSION.componentProposal).toBe("component-proposal.v0.1");
 		expect(getJsonSchema("component-proposal").$id).toBe(SCHEMA_VERSION.componentProposal);
 		expect(SCHEMA_VERSION_BY_ARTIFACT_KIND["component-proposal"]).toBe(

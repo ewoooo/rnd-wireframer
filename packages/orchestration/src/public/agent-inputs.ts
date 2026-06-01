@@ -369,7 +369,7 @@ export function buildComponentProposalAgentInput(input: {
 	return {
 		query: [
 			"Propose components or variants that are NOT in the catalog but would improve this screen.",
-			"Each proposal must include sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
+			"Each proposal must include id, proposedComponentType (the name of the proposed new component/variant), sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
 			"Use context.designContextBundles[].body as bounded design guidance for what would improve the screen.",
 			"Return at most 5 proposals. Do not confirm or apply anything; this is a non-binding proposal artifact.",
 			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.componentProposal}.`,

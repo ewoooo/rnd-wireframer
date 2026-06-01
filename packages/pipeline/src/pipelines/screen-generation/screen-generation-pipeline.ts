@@ -515,10 +515,11 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 		taskKind: "component-proposal",
 	});
 	// 제안은 비파괴 아티팩트다. 검증은 bounded 여부만 리포트하고 파이프라인을 실패시키지 않는다.
+	// allowedRefs는 source reference catalog(생성 입력 context)의 전체 vocabulary를 기준으로 한다.
 	state.componentProposalValidationReport = validateComponentProposal(
 		state.componentProposalAgentResult.payload,
 		{
-			allowedRefs: componentContractCatalog.entries.flatMap((entry) => entry.sourceRefs),
+			allowedRefs: proposalInput.context.sourceReferenceCatalog.allowedRefs,
 			catalogComponentTypes: componentContractCatalog.entries.map((entry) => entry.componentType),
 		},
 	);
