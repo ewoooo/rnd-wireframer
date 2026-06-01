@@ -14,8 +14,10 @@ export {
 export {
 	componentCatalogAliases,
 	getComponentCatalogEntry,
+	getComponentCatalogStatus,
 	getComponentCatalogTypes,
 	getComponentPropContract,
+	listCandidateComponentEntries,
 } from "./resolver";
 export type {
 	ComponentCatalog,

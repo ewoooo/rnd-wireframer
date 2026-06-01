@@ -1,6 +1,10 @@
 import { assembleComponentCatalog } from "../internal/assembly";
 import { internalComponentCatalog } from "../internal/registry";
-import type { ComponentCatalogEntry, ComponentPropContract } from "./types";
+import type {
+	ComponentCatalogEntry,
+	ComponentCatalogStatus,
+	ComponentPropContract,
+} from "./types";
 
 const componentCatalogForResolver = assembleComponentCatalog(internalComponentCatalog);
 
@@ -37,4 +41,20 @@ export function getComponentPropContract(
 
 export function getComponentCatalogTypes(): ComponentCatalogType[] {
 	return Object.keys(componentCatalogForResolver).sort() as ComponentCatalogType[];
+}
+
+/** Status (stable | candidate) of a catalog type, resolving aliases. */
+export function getComponentCatalogStatus(type: string): ComponentCatalogStatus | undefined {
+	const canonicalType = componentCatalogForResolver[type as ComponentCatalogType]
+		? (type as ComponentCatalogType)
+		: componentCatalogAliases[type];
+	if (!canonicalType) return undefined;
+	return internalComponentCatalog[canonicalType]?.status;
+}
+
+/** Public catalog entries currently staged as candidates (not yet promoted to stable). */
+export function listCandidateComponentEntries(): ComponentCatalogEntry[] {
+	return Object.values(internalComponentCatalog)
+		.filter((entry) => entry.status === "candidate")
+		.map((entry) => componentCatalogForResolver[entry.type as ComponentCatalogType]);
 }

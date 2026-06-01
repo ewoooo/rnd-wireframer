@@ -2,12 +2,15 @@ import type {
 	DecorationPlanContract,
 	DesignContextBundleContent,
 	DesignContextBundleRef,
+	DesignSkillSelectionContract,
 	GenerationArtifactKind,
 	JsonSchemaDocument,
 	SchemaVersion,
 	SourceSpec,
 } from "@cx/schema";
 import type { orchestrationBoundary } from "./contract";
+
+export type { DesignSkillSelectionContract } from "@cx/schema";
 
 export type OrchestrationBoundary = typeof orchestrationBoundary;
 export type OrchestrationBoundaryName = OrchestrationBoundary["name"];
@@ -99,7 +102,13 @@ export type ComponentContractCatalogEntry = {
 	sourceRefs: string[];
 };
 
+export type ComponentContractCandidate = {
+	componentType: string;
+	props: ComponentContractCatalogEntry["props"];
+};
+
 export type ComponentContractCatalog = {
+	candidates?: ComponentContractCandidate[];
 	entries: ComponentContractCatalogEntry[];
 };
 
@@ -107,6 +116,7 @@ export type PatternSelectionAgentContext = {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designSkillSelection?: DesignSkillSelectionContract;
 	layerCandidates: PatternLayerCandidate[];
 	screenIntent?: unknown;
 	sourceSpec: SourceSpec;

@@ -5,7 +5,11 @@ import { createAgentRuntime } from "@cx/agent";
 import { runAgentQuery } from "@cx/agent/adapters";
 import { createClaudeRunner } from "@cx/agent/claude";
 import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
-import { componentCatalog, getComponentCatalogEntry } from "@cx/components/catalog";
+import {
+	componentCatalog,
+	getComponentCatalogEntry,
+	listCandidateComponentEntries,
+} from "@cx/components/catalog";
 import {
 	resolveCompositeLayoutByComponentType,
 	resolveRegionLayoutFromScreenLayout,
@@ -15,6 +19,7 @@ import {
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
+	buildDesignSkillSelection,
 	buildGenerationNextAction,
 	buildPatternLayerCandidates,
 	buildPatternSelectionAgentInput,
@@ -40,6 +45,7 @@ import {
 	type CompositionPlanContract,
 	type DecorationPlanContract,
 	type DesignContextBundleContent,
+	type DesignSkillSelectionContract,
 	SCHEMA_VERSION,
 	type SourceSpec,
 	type ValidationReportContract,
@@ -115,6 +121,7 @@ type ScreenGenerationPipelineState = {
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleContents?: DesignContextBundleContent[];
 	designContextBundleSelection?: DesignContextBundleSelection;
+	designSkillSelection?: DesignSkillSelectionContract;
 	generationNextAction?: GenerationNextAction;
 	generationSkillCatalog?: GenerationSkill[];
 	initialValidationReport?: ValidationReportContract;
@@ -203,6 +210,7 @@ export async function runScreenGenerationPipeline(
 		compositionPlanRunnerRequest: state.compositionPlanRunnerRequest,
 		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
+		designSkillSelection: state.designSkillSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
 		initialValidationReport: state.initialValidationReport,
@@ -311,7 +319,13 @@ async function runDeriveScreenIntentStage(state: ScreenGenerationPipelineState):
 async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
 	const layerCandidates = buildScreenGenerationPatternLayerCandidates(sourceSpec);
+	const designSkillSelection = buildDesignSkillSelection({
+		layerCandidates,
+		screenIntent: state.screenIntentAgentResult?.payload,
+		sourceSpec,
+	});
 	const compositionPlanInput = buildCompositionPlanAgentInput({
+		designSkillSelection,
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec,
@@ -327,7 +341,7 @@ async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Pr
 				: async (request) => {
 						state.compositionPlanRunnerRequest = request;
 						return {
-							payload: createFakeCompositionPlan(sourceSpec, layerCandidates),
+							payload: createFakeCompositionPlan(sourceSpec, layerCandidates, designSkillSelection),
 							session: {
 								mode: request.session?.mode ?? "new",
 								sessionId: request.session?.sessionId,
@@ -338,6 +352,7 @@ async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Pr
 	});
 
 	state.patternLayerCandidates = layerCandidates;
+	state.designSkillSelection = designSkillSelection;
 	state.compositionPlanAgentInput = compositionPlanInput;
 	state.compositionPlanAgentResult = await runAgentQuery(runtime, {
 		context: compositionPlanInput.context,
@@ -372,6 +387,7 @@ async function runSelectPatternStage(state: ScreenGenerationPipelineState): Prom
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		designSkillSelection: state.designSkillSelection,
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec,
@@ -423,6 +439,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
+		designSkillSelection: state.designSkillSelection,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -485,6 +502,7 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
+		designSkillSelection: state.designSkillSelection,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -541,6 +559,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
+		designSkillSelection: state.designSkillSelection,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -600,6 +619,7 @@ async function runReviseRenderTreeIfInvalidStage(
 		decorationPlan: state.decorationPlan,
 		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
+		designSkillSelection: state.designSkillSelection,
 		layerCandidates: state.patternLayerCandidates,
 		patternSelection: state.patternSelectionAgentResult?.payload,
 		previousCandidate,
@@ -658,6 +678,7 @@ async function runWriteArtifactsStage(state: ScreenGenerationPipelineState): Pro
 		designCritique: state.qualityReviewAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		designContextBundleSelection: state.designContextBundleSelection,
+		designSkillSelection: state.designSkillSelection,
 		finalResult: extractPayloadArtifact(state.agentResult?.payload, "renderTree"),
 		generationSkillCatalog: state.generationSkillCatalog,
 		initialValidationReport: state.initialValidationReport,
@@ -867,7 +888,22 @@ function buildSourceComponentContractCatalog(
 		),
 	);
 
-	return { entries };
+	const candidates = listCandidateComponentEntries().map((entry) => ({
+		componentType: entry.type,
+		props: Object.fromEntries(
+			Object.entries(entry.props ?? {}).map(([propName, contract]) => [
+				propName,
+				{
+					required: contract.required,
+					role: contract.role,
+					type: contract.type,
+					values: contract.values,
+				},
+			]),
+		),
+	}));
+
+	return candidates.length > 0 ? { candidates, entries } : { entries };
 }
 
 function getSourceFileFromReadResult(
@@ -1183,17 +1219,17 @@ function createFakeScreenIntent(sourceSpec: SourceSpec) {
 function createFakeCompositionPlan(
 	sourceSpec: SourceSpec,
 	layerCandidates: PatternLayerCandidate[],
+	designSkillSelection?: DesignSkillSelectionContract,
 ): CompositionPlanContract {
 	const screenLayout =
 		layerCandidates.find((candidate) => candidate.level === "screen")?.layout ??
 		"layout.screen.commerceDetailScreen";
+	const skillId = designSkillSelection?.selectedSkill.id ?? "generic-composition";
 
 	return {
 		density: sourceSpec.sourceShape.screen.regions.length > 3 ? "high" : "medium",
-		layoutStrategy:
-			"Keep source regions as stable screen rails, then let RenderTree generation materialize components.",
-		patternRationale:
-			"Fake composition keeps the available screen layout while preserving source region order for later pattern selection.",
+		layoutStrategy: `Use ${skillId} guidance while keeping source regions as stable screen rails for RenderTree generation.`,
+		patternRationale: `Fake composition keeps the available screen layout while preserving source region order and ${skillId} design-skill gates for later pattern selection.`,
 		primaryUserAction: "complete-primary-flow",
 		rationale:
 			"Fake composition plan records the design composition decision before pattern selection.",
@@ -1212,8 +1248,7 @@ function createFakeCompositionPlan(
 			strategy: `Preserve ${region.slot} source order and map it to a stable screen section.`,
 			targetRegion: REGION_TARGET[region.slot] ?? "contents",
 		})),
-		visualHierarchy:
-			"Header establishes context, contents carry the main information, and bottom action closes the flow when present.",
+		visualHierarchy: `Header establishes context, contents carry the main information, and bottom action closes the flow when present under ${skillId}.`,
 	};
 }
 

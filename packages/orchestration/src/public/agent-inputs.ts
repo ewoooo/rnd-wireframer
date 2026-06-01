@@ -2,6 +2,7 @@ import {
 	type DecorationPlanContract,
 	type DesignContextBundleContent,
 	type DesignContextBundleRef,
+	type DesignSkillSelectionContract,
 	getJsonSchema,
 	SCHEMA_VERSION,
 	type SourceSpec,
@@ -61,6 +62,7 @@ export function buildScreenIntentAgentInput(sourceSpec: SourceSpec): ScreenInten
  * The function only assembles context; it does not choose or validate a final layout.
  */
 export function buildCompositionPlanAgentInput(input: {
+	designSkillSelection?: DesignSkillSelectionContract;
 	layerCandidates?: PatternLayerCandidate[];
 	screenIntent?: unknown;
 	sourceSpec: SourceSpec;
@@ -73,6 +75,9 @@ export function buildCompositionPlanAgentInput(input: {
 			"Create a composition plan before pattern selection and RenderTree generation.",
 			"Use context.screenIntent to preserve product/design purpose when present.",
 			"Use context.layerCandidates as available layout ids; do not invent unavailable layout ids.",
+			"Use context.designSkillSelection.selectedSkill as the bounded design skill for CompositionPlan decisions when present.",
+			"Apply selected skill quality gates to visualHierarchy, primaryUserAction, sectionRhythm, density, patternRationale, and rejectedPatterns.",
+			"Use context.designSkillSelection.selectedSkill.requiredDesignDocs as the intended design-doc reference set; do not invent additional design documents.",
 			"Use only refs listed in context.sourceReferenceCatalog.allowedRefs in sections[].sourceRefs.",
 			"Prefer sourceReferenceCatalog.entries[].sourceId for component refs when available.",
 			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.compositionPlan}.`,
@@ -85,6 +90,7 @@ export function buildCompositionPlanAgentInput(input: {
 			`Route: ${screen.route}`,
 		].join("\n"),
 		context: {
+			designSkillSelection: input.designSkillSelection,
 			layerCandidates: input.layerCandidates ?? [],
 			screenIntent: input.screenIntent,
 			sourceSpec: input.sourceSpec,
@@ -108,6 +114,7 @@ export function buildPatternSelectionAgentInput(input: {
 	compositionPlan?: unknown;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
+	designSkillSelection?: DesignSkillSelectionContract;
 	screenIntent?: unknown;
 	sourceSpec: SourceSpec;
 }): PatternSelectionAgentInput {
@@ -124,11 +131,13 @@ export function buildPatternSelectionAgentInput(input: {
 			"Use upstream screenIntent and compositionPlan as guidance when present.",
 			"Use context.decorationPlan role and layoutIntent as deterministic area-level guidance when present.",
 			"Use context.designContextBundleRefs as bounded design guidance when present; do not let bundles override SourceSpec or candidate ids.",
+			"Use context.designSkillSelection.selectedSkill to keep selected patterns aligned with the composition skill when present.",
 		].join("\n"),
 		context: {
 			compositionPlan: input.compositionPlan,
 			decorationPlan: input.decorationPlan,
 			designContextBundleRefs: input.designContextBundleRefs,
+			designSkillSelection: input.designSkillSelection,
 			layerCandidates: input.layerCandidates,
 			screenIntent: input.screenIntent,
 			sourceSpec: input.sourceSpec,
@@ -150,6 +159,7 @@ export function buildScreenGenerationAgentInput(
 		decorationPlan?: DecorationPlanContract;
 		designContextBundleRefs?: DesignContextBundleRef[];
 		designContextBundles?: DesignContextBundleContent[];
+		designSkillSelection?: DesignSkillSelectionContract;
 		layerCandidates?: PatternLayerCandidate[];
 		patternSelection?: unknown;
 		screenIntent?: unknown;
@@ -176,6 +186,7 @@ export function buildScreenGenerationAgentInput(
 			"Use context.patternSelection as layout-pattern guidance when present.",
 			"Use context.designContextBundleRefs as bounded design guidance when present; do not let bundles override SourceSpec, schema, component contracts, or candidate ids.",
 			"Use context.designContextBundles[].body as the actual design rules to apply (divider/spacing/hierarchy/state coverage). Keep priority: source evidence and schema/catalog over these rules.",
+			"Use context.designSkillSelection.selectedSkill as the selected composition skill. Respect its qualityGates and requiredDesignDocs while generating RenderTree structure.",
 			"Pattern-store exploration is mandatory: use context.layerCandidates as the explored screen, region, area, and component layout ids; do not invent layout ids.",
 			"Preserve the SourceSpec screen skeleton: Screen > Screen.Header/Screen.Contents/Screen.Bottom > area.static or area.dynamic > optional PageStack/layout wrapper > components.",
 			"Never output a render node with type Area. Use SourceSpec area.renderNodeType, area.static, or area.dynamic for area wrapper nodes.",
@@ -190,6 +201,7 @@ export function buildScreenGenerationAgentInput(
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
 			"Use context.componentContractCatalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.",
+			"context.componentContractCatalog.candidates lists unstable candidate components you MAY use when no stable component expresses the source need (e.g., multi-option single-select → RadioGroup with props.options). Prefer stable components; use a candidate only with clear source evidence.",
 			"Respect sourceShape.screen.regions: each region contains area nodes, and each area contains component nodes.",
 			"Map header, contents, and bottom regions to Screen.Header, Screen.Contents, and Screen.Bottom.",
 			`Also produce tableGenerationResult using schemaVersion: ${SCHEMA_VERSION.tableGenerationResult}.`,
@@ -212,6 +224,7 @@ export function buildScreenGenerationAgentInput(
 			decorationPlan: options.decorationPlan,
 			designContextBundleRefs: options.designContextBundleRefs,
 			designContextBundles: options.designContextBundles,
+			designSkillSelection: options.designSkillSelection,
 			intermediateArtifact: {
 				jsonSchema: getJsonSchema("table-generation-result"),
 				kind: "table-generation-result",
@@ -242,6 +255,7 @@ export function buildScreenRevisionAgentInput(input: {
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
 	designContextBundles?: DesignContextBundleContent[];
+	designSkillSelection?: DesignSkillSelectionContract;
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	previousCandidate: unknown;
@@ -256,6 +270,7 @@ export function buildScreenRevisionAgentInput(input: {
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
 		designContextBundles: input.designContextBundles,
+		designSkillSelection: input.designSkillSelection,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
@@ -285,6 +300,7 @@ export function buildScreenRevisionAgentInput(input: {
 			'Use layout props as objects, for example: {"direction":"column"}. Do not use layout strings such as "stack".',
 			"Fix required-field-missing and invalid-render-node errors before addressing warnings.",
 			"When context.qualityInspection is present, also fix bounded P0 quality findings without rewriting unrelated valid structure.",
+			"When context.designSkillSelection is present, keep the selected skill gates satisfied during revision.",
 		].join("\n"),
 		context: {
 			...generationInput.context,
@@ -307,6 +323,7 @@ export function buildQualityReviewAgentInput(input: {
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
 	designContextBundles?: DesignContextBundleContent[];
+	designSkillSelection?: DesignSkillSelectionContract;
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	screenIntent?: unknown;
@@ -319,6 +336,7 @@ export function buildQualityReviewAgentInput(input: {
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
 		designContextBundles: input.designContextBundles,
+		designSkillSelection: input.designSkillSelection,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
@@ -330,6 +348,7 @@ export function buildQualityReviewAgentInput(input: {
 			"Use SourceSpec, screenIntent, compositionPlan, patternSelection, and validationReport as bounded evidence.",
 			"Check source fidelity, composition alignment, visual hierarchy, action clarity, and obvious accessibility risks.",
 			"Use context.designContextBundles[].body (quality-review gates) as the rule set for review.",
+			"Use context.designSkillSelection.selectedSkill.qualityGates as additional bounded gates for findings when present.",
 			"Score the candidate 0-5 on six design dimensions and return them in scores: hierarchy, separation, fidelity, actionClarity, densityFit, patternFit.",
 			"Emit a finding with severity for any violated rule, for example missing dividers between sections or overused dividers inside cards.",
 			"Set findings[].layer to understand, compose, or revise so the smoke UI can identify whether the issue came from intent, design composition, or final validation/revision.",
@@ -357,6 +376,7 @@ export function buildComponentProposalAgentInput(input: {
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleRefs?: DesignContextBundleRef[];
 	designContextBundles?: DesignContextBundleContent[];
+	designSkillSelection?: DesignSkillSelectionContract;
 	layerCandidates?: PatternLayerCandidate[];
 	patternSelection?: unknown;
 	screenIntent?: unknown;
@@ -368,6 +388,7 @@ export function buildComponentProposalAgentInput(input: {
 		decorationPlan: input.decorationPlan,
 		designContextBundleRefs: input.designContextBundleRefs,
 		designContextBundles: input.designContextBundles,
+		designSkillSelection: input.designSkillSelection,
 		layerCandidates: input.layerCandidates,
 		patternSelection: input.patternSelection,
 		screenIntent: input.screenIntent,
