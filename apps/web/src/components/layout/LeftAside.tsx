@@ -13,7 +13,7 @@ import { cn } from "@/components/utils";
 import type { AppScreenModule, AppScreenRoute } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { ScreenVariantCard } from "../screen/ScreenVariantCard";
-import { Aside, Panel } from "./Aside";
+import { Aside, Divider, Panel } from "./Aside";
 
 export function LeftAside() {
 	const router = useRouter();
@@ -135,6 +135,8 @@ export function LeftAside() {
 						</div>
 					</Panel>
 
+					<Divider />
+
 					{/* ── B: 선택된 루트의 스크린 배리언트 목록 ── */}
 					<Panel
 						title={activeRoute ? `${activeRoute.screenVariants.length}개 스크린` : "스크린"}
@@ -143,7 +145,7 @@ export function LeftAside() {
 						bodyClassName="[&>*:first-child]:border-t-0"
 						footer={
 							activeRoute ? (
-								<div className="px-3 py-1.5">
+								<div className="border-t border-sidebar-border px-3 py-1.5">
 									<button
 										type="button"
 										className="flex w-full items-center gap-1 rounded-md px-3 py-1.5 hover:ring-1 hover:ring-border disabled:opacity-40"

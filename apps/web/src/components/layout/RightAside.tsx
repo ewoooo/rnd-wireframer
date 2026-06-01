@@ -3,7 +3,7 @@ import { Workflow } from "lucide-react";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useWorkbenchStore } from "@/model/store";
-import { Aside, Panel } from "./Aside";
+import { Aside, Divider, Panel } from "./Aside";
 
 export function RightAside() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
@@ -33,15 +33,6 @@ export function RightAside() {
 				</Panel>
 			) : (
 				<>
-					{/* Area List = 스크린 선택과 무관하게 항상 area를 꺼내주는 독립 컴포넌트 (텐키처럼) */}
-					<Panel title="Area List" defaultSize={50} minSize={15}>
-						<TooltipProvider>
-							<div className="area-list-drawer">
-								<Puck.Components />
-							</div>
-						</TooltipProvider>
-					</Panel>
-
 					<Panel title="Properties" defaultSize={50} minSize={20}>
 						{screen ? (
 							<div className="flex flex-col gap-4">
@@ -49,6 +40,21 @@ export function RightAside() {
 							</div>
 						) : null}
 					</Panel>
+
+					{/* Area List = Screen 페이지 전용 패널. area를 화면에 꺼내주는 드로어(텐키처럼) */}
+					{activeTab === "scn" ? (
+						<>
+							<Divider />
+
+							<Panel title="Area List" defaultSize={50} minSize={15}>
+								<TooltipProvider>
+									<div className="area-list-drawer">
+										<Puck.Components />
+									</div>
+								</TooltipProvider>
+							</Panel>
+						</>
+					) : null}
 				</>
 			)}
 		</Aside>

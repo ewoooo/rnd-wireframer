@@ -101,7 +101,8 @@ export function ScreenVariantCard({
 	}
 
 	const handleRowClick = () => {
-		if (baseOption) onSelect(baseOption.screenCode);
+		const target = baseOption ?? screenVariant.options[0];
+		if (target) onSelect(target.screenCode);
 	};
 
 	if (isEditing) {
