@@ -36,6 +36,39 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-01 - Product Detail SOT Observation
+
+- 변경: Figma 상품 상세화면 SOT `10069:97828`의 `상세_구독상품`, `상세_기프티콘`, `상세_단말기` frame을 조회하고 `figma-sot-observations.md`에 1차 관찰을 기록함
+- 변경: 상품 상세 SOT를 `subscription-product-detail-screen`, `gifticon-product-detail-screen`, `device-product-detail-screen`으로 분리하고 공통 domain skill 후보 `product-hero-info`, `product-detail-media-section`, `notice-accordion-list`, `bottom-purchase-cta`를 추가함
+- 변경: `figma-source.md`와 `FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md`의 상태와 skill backlog를 상품 상세화면 관찰 결과에 맞게 갱신함
+- 이유: checkout/form SOT 다음으로 상품 상세 계열의 화면 inference와 component promotion 후보를 수집하기 위함
+- 검증: `rg -n "상품 상세화면|10069:97829|10069:97927|10069:121732|subscription-product-detail-screen|gifticon-product-detail-screen|device-product-detail-screen|product-hero-info|notice-accordion-list" docs/design/reference/figma-sot-observations.md docs/design/reference/figma-source.md docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-01 - Figma Skill Collection First
+
+- 변경: `docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md`에 Figma SOT 기반 skill 후보 수집을 pipeline 구현 변경보다 우선한다는 현재 작업 결정을 추가함
+- 변경: 수집된 skill 후보가 RenderTree node type이 아니라 `DesignSkillSelection`, `CompositionPlan`, `PatternSelection`, `Generate RenderTree`, `Validate/Revise`에 적용되는 판단 규칙임을 문서화함
+- 변경: scenario/domain/atomic skill 후보 backlog와 각 후보의 SOT 근거, 상태, 나중에 작성할 핵심 규칙을 추가함
+- 이유: 스킬을 먼저 충분히 모은 뒤 schema/orchestration/pipeline 연결을 설계하도록 컨텍스트 회귀를 방지하기 위함
+- 검증: `rg -n "Current Working Decision|Skill candidate levels|Skill Collection Backlog|scenario skill과 atomic" docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-01 - Figma Reference Skill Structure Plan
+
+- 변경: `docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md`를 추가해 Figma SOT 확인 후 reference md, domain design skill, orchestration/artifact 구조를 어떻게 개선할지 고정함
+- 변경: `docs/development/README.md`에 해당 계획 문서를 활성 개발 문서로 연결함
+- 변경: `docs/design/reference/figma-source.md`에 `SKT GenUI Test 0514`의 메인 페이지, 사용자 정보입력, 상품 상세화면, 텍스트 리스트, 카드 리스트, 결과 및 확인 완료 Figma node 링크를 등록함
+- 변경: `docs/design/reference/README.md`를 추가하고 `docs/design/README.md`에서 Figma-derived reference contract 위치를 연결함
+- 이유: Figma 링크 제공 전후로 컨텍스트가 회귀하지 않도록, 디자인 정본 reference 구조와 component promotion 연동 방향을 문서화하기 위함
+- 검증: 문서 추가 및 링크 반영
+
+## 2026-06-01 - Docs Cleanup
+
+- 변경: 완료됐거나 최신 기준 문서에 흡수된 development/superpowers 계획 문서를 `docs/archive/completed-plans/`로 이동함
+- 변경: `docs/development/README.md`를 추가해 현재 활성 개발 문서와 archive 이동 기준을 명확히 함
+- 변경: archive README와 이동된 superpowers/archive 내부 참조를 새 위치에 맞게 정리함
+- 이유: `docs/` 아래 이전 구현 계획과 현재 운영 기준 문서가 섞여 있어 screen inference/pipeline 문서의 기준점을 빠르게 파악하기 어렵기 때문
+- 검증: archive 이동 후 docs tree와 잔여 참조를 확인
+
 ## 2026-06-01 - Smoke Navigation Rail
 
 - 변경: smoke 비교 화면의 최좌측에 공통 `NavigationRail`을 추가하고, smoke 페이지에서도 워크벤치(`/`)와 smoke(`/smoke`) 간 이동이 가능하도록 레일을 재사용 가능하게 조정함
@@ -1363,3 +1396,63 @@
 - 변경: quality review prompt/checklist/output 문서와 fake quality result가 새 score/layer 계약을 따르도록 보강함
 - 이유: Revise 단계가 단순 pass/fail이나 3축 점수에 머물지 않고, action 명료성·밀도·패턴 적합성 문제를 Compose/Revise 원인으로 분리해 smoke UI와 재시도 전략에 활용하게 하기 위함
 - 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `npx biome check packages/schema/src/quality-inspection.ts packages/schema/src/index.ts packages/schema/src/json-schema-registry.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --run-id 'layered-quality-check' --artifact-store local-transient`
+
+## 2026-06-01 - Design Skill Backlog Planning
+
+- 변경: `docs/development/SCREEN_DESIGN_STAGE_PLAN.md`에 `Phase G - Design Skill Selection`을 추가하고, 초기 구현 스킬 3개와 후속 구현 후보 8개를 기입함
+- 변경: 각 design skill 후보에 primary use, required design docs, 도입 순서 이유/완료 기준, 패키지 소유 경계를 함께 명시함
+- 이유: Open Design식 skill catalog를 무작정 확장하지 않고, `CompositionPlan` 품질 개선에 필요한 Compose reference부터 점진적으로 구현하기 위함
+- 검증: 문서 변경만 수행. `rg -n "Phase G|detail-confirmation-screen|empty-state-guidance" docs/development/SCREEN_DESIGN_STAGE_PLAN.md AGENTS_HISTORY.md`
+
+## 2026-06-01 - Design Skill Verification Criteria
+
+- 변경: `docs/development/SCREEN_DESIGN_STAGE_PLAN.md`의 `Phase G - Design Skill Selection`에 구현 완료 기준, 검증 완료 기준, 최소 검증 명령 세트를 추가함
+- 이유: 후속 구현자가 skill 문서 생성에서 멈추지 않고 schema/orchestration/pipeline/trace/smoke UI까지 완료 여부를 확인하게 하기 위함
+- 검증: `rg -n "Completion criteria|Verification criteria|trace.json.designSkillSelection|Minimum verification command set" docs/development/SCREEN_DESIGN_STAGE_PLAN.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-01 - Design Skill Selection Implementation
+
+- 변경: `@cx/schema`에 `DesignSkillSelectionContract`와 관련 skill id/screen family/quality gate 타입을 추가함
+- 변경: `@cx/orchestration`에 `buildDesignSkillSelection()` 순수 helper를 추가하고, composition/pattern/generation/proposal/review/revision agent input context에 선택 결과를 전달함
+- 변경: `@cx/pipeline`이 Compose 단계에서 design skill을 선택해 `trace.json.designSkillSelection`에 기록하고, fake `CompositionPlan`에도 선택 skill id를 반영하도록 연결함
+- 변경: 초기 design skill 문서 `detail-confirmation-screen`, `form-entry-screen`, `list-selection-screen`을 `packages/agent/docs/design-skills/`에 추가하고, web smoke explorer가 선택 skill/gate/doc count를 표시하도록 보강함
+- 이유: Open Design식 skill catalog를 RenderTree runtime이 아니라 `CompositionPlan`과 quality review를 위한 bounded Compose reference로 흡수하기 위함
+- 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema/src/design-skill.ts packages/schema/src/versions.ts packages/schema/src/index.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/design-skills.ts packages/orchestration/src/public/types.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/public/generation.ts packages/orchestration/src/index.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/lib/smoke-runs.ts apps/web/src/components/smoke/SmokeRunExplorer.tsx apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --run-id 'design-skill-selection-final-check' --artifact-store local-transient`, `git diff --check`
+
+## 2026-06-01 - Pipeline Stage Protocol Consolidation
+
+- 변경: `PIPELINE_STAGE_PROTOCOL.md`를 screen-generation stage 순서와 입출력 계약의 정본으로 확장하고, 실제 구현에 존재하는 `propose-components`, `review-quality`, design skill/context 주입, `Understand -> Compose -> Revise` 레이어, flat artifact/trace 기준을 반영함
+- 변경: `PACKAGE_MAP.md`와 `packages/pipeline/README.md`의 stage 상세 중복을 줄이고, stage 순서·계약은 `PIPELINE_STAGE_PROTOCOL.md`를 참조하도록 정리함
+- 이유: pipeline 구현, stage protocol, package map, package README 사이에 stage 순서와 품질/revision 흐름 설명이 중복되어 불일치가 생기던 문제를 줄이기 위함
+- 검증: `rg -n "propose-components|review-quality|stage 순서|PIPELINE_STAGE_PROTOCOL" docs/development/PIPELINE_STAGE_PROTOCOL.md PACKAGE_MAP.md packages/pipeline/README.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-01 - Figma SOT Observation Notes
+
+- 변경: `docs/design/reference/figma-sot-observations.md`를 추가하고, Figma 사용자 정보입력 SOT의 `상세_정보입력인풋` frame 관찰을 기록함
+- 변경: `docs/design/reference/README.md`와 `figma-source.md`에 SOT 관찰 문서 링크와 현재 분석 상태를 반영함
+- 이유: Figma 정본을 바로 skill로 굳히기 전에 화면별 구조, component usage, layout rhythm, inference 적용 후보, skill 승격 후보를 누적하기 위함
+- 검증: 문서 변경 후 `rg`와 `git diff --check` 예정
+
+## 2026-06-01 - Figma SOT Skill Preparation Notes
+
+- 변경: `figma-sot-observations.md`에 모든 관찰 기록이 추후 skill 생성을 위한 준비 기록임을 명시함
+- 변경: 사용자 정보입력 SOT 묶음에서 `10095:23484`는 `form-entry-screen`, `10095:23501`은 `checkout-additional-info`로 screen family를 분리해 기록함
+- 변경: 각 후보 skill별로 실제 skill 생성 직전 재조회할 Figma node, 조회 목적, 작성할 내용을 `Skill creation lookup plan`으로 추가함
+- 이유: skill 생성 시 오래된 관찰만 믿지 않고, 어떤 SOT의 어떤 node를 다시 확인해야 하는지와 skill에 어떤 규칙을 써야 하는지를 명확히 하기 위함
+- 검증: 문서 변경 후 `rg`와 `git diff --check` 예정
+
+## 2026-06-01 - Figma SOT Recheck And Skill Brief Rewrite
+
+- 변경: `10095:23484`, `10095:23501`을 Figma에서 재조회하고 `figma-sot-observations.md`의 상태를 재조회 완료로 갱신함
+- 변경: 사용자 정보입력 SOT 묶음에 `form-entry-screen`과 `checkout-additional-info`의 공통/분리 기준, skill 생성 브리프, 재조회 순서를 추가함
+- 변경: `10095:23501`이 confirmation screen이 아니라 `추가 정보 입력` title의 checkout 추가 옵션/배송 정보 화면임을 명확히 기록함
+- 이유: 추후 skill 생성자가 SOT를 다시 조회하기 전에도 어떤 node를 왜 볼지, 어떤 내용을 skill에 작성할지 판단할 수 있게 하기 위함
+- 검증: 문서 변경 후 `rg`와 `git diff --check` 예정
+
+## 2026-06-01 - User Info SOT Remaining Frames
+
+- 변경: 사용자 정보입력 SOT 묶음의 남은 frame `10161:49136` `상세_결제`, `10161:49258` `상세_장바구니`를 Figma에서 조회함
+- 변경: `상세_결제`를 `checkout-payment-screen`, `상세_장바구니`를 `cart-review-screen`으로 1차 분류하고 각각 section order, component/promotion 후보, skill creation lookup plan을 기록함
+- 변경: 공통/분리 기준에 `payment-summary-ledger`, `agreement-gate-cta`, `cart-product-list`, `payment-method-selection` 후보를 추가하고 Figma source 상태를 사용자 정보입력 묶음 4개 frame 1차 관찰 완료로 갱신함
+- 이유: 사용자 정보입력 SOT 묶음 전체를 본 뒤 checkout 계열 scenario/domain skill 경계를 정리하기 위함
+- 검증: 문서 변경 후 `rg`와 `git diff --check` 예정
