@@ -1,0 +1,235 @@
+# 화면 추론 파이프라인 (screen-generation)
+
+이 문서는 `screen-generation` 파이프라인의 13단계를 각 단계의 **입력 구성·프롬프트(query)·출력(schema)·참조 문서** 기준으로 설명한다. 정본 소스는 아래와 같다.
+
+- 오케스트레이션: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`
+- 입력/프롬프트 구성: `packages/orchestration/src/public/agent-inputs.ts`
+- 번들 선택: `packages/orchestration/src/public/design-context.ts`
+- agent task(시스템 프롬프트): `packages/agent/src/tasks/<task>/prompt.ts`
+- agent runner: `packages/agent/src/claude/claude-agent-sdk-runner.ts`
+- design-context 규칙 본문: `packages/agent/docs/design-context/*.md`
+- 디자인 정본: `docs/design/*.md`
+- 출력 스키마: `@cx/schema` (`SCHEMA_VERSION`)
+- 아티팩트 기록: `packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts`
+
+---
+
+## 1. 오케스트레이션 모델
+
+`runScreenGenerationPipeline`은 단일 `state` 객체에 단계별 산출물을 누적하며 **순차 실행**한다.
+
+- **parse 실패 단락**: `parse-source` 결과가 `ok=false`면 `write-artifacts`를 제외한 모든 단계를 건너뛴다. 잘못된 입력으로 AI를 호출하지 않는다.
+- **agentMode 분기**: 각 AI 단계는 `claude-local-first`(실제 `createClaudeRunner`) 또는 `fake`(결정적 스텁, `createFake*`)로 실행된다. smoke의 `--use-ai` 여부가 이를 결정한다.
+- 단계 구성: **IO/순수 6개 + AI 호출 6개 + 조건부 revision 1개** = 화면당 최대 7회 AI 호출.
+
+### 실행 단계 순서
+
+```
+read-source → parse-source → derive-screen-intent → plan-composition
+→ derive-decoration-plan → select-pattern → generate-render-tree
+→ validate-render-tree → propose-components → review-quality
+→ revise-render-tree-if-invalid → validate-render-tree-after-revision
+→ write-artifacts
+```
+
+### 결정성 (runner 호출 형태)
+
+실제 호출은 `claude-agent-sdk-runner.ts`에서 다음 플래그로 이뤄진다.
+
+```
+claude --print --output-format json --no-session-persistence \
+       --tools "" --system-prompt <task system> --model <model> <user query>
+```
+
+`--tools ""`로 도구를 비활성화해 추론을 결정적으로 유지한다. agent task의 system 프롬프트는 짧고(예: `"You are the Claude generation agent for RND Screen Generator."`), 실제 지시·context는 전부 `agent-inputs.ts`가 만든 `query`/`context`에 담긴다.
+
+---
+
+## 2. 공통 입력 빌딩 블록
+
+모든 AI 단계의 `context`는 아래 공통 요소를 공유한다(`buildScreenGenerationAgentInput`이 상위 입력의 베이스이며, revision/quality/proposal은 이를 확장한다).
+
+| 블록 | 출처 | 역할 |
+|---|---|---|
+| `sourceSpec` | `parse-source` | 단일 진실원. 화면/region/area/component 구조 |
+| `sourceReferenceCatalog` | `buildSourceReferenceCatalog(sourceSpec)` | 유효한 source ref vocabulary(`allowedRefs`, `entries[].props/description/notes`). 발명 방지 |
+| `sourceSummary` | `createSourceSummary(sourceSpec)` | 화면 요약 |
+| `componentContractCatalog` | `buildSourceComponentContractCatalog` | 사용 가능한 component type·props·composite layout 후보 |
+| `layerCandidates` | `buildScreenGenerationPatternLayerCandidates` | 탐색된 screen/region/area/component **layout id 후보**. 발명 금지 vocabulary |
+| `decorationPlan` | `buildDecorationPlan` (순수) | 디바이더·area 분할·displayTitle·repeatedItems 등 결정적 표시 구조 |
+| `designContextBundleRefs` | `buildDesignContextBundleRefs` | 적용할 design-context 번들 **선택 결과**(id+이유) |
+| `designContextBundles[].body` | `loadBundleContentsForState` | 선택된 번들의 **실제 규칙 본문**(generate/proposal/review/revise 단계만 로드) |
+| `targetArtifact.jsonSchema` | `getJsonSchema(kind)` | 출력 강제 스키마 |
+
+---
+
+## 3. design-context 번들 선택 규칙
+
+`buildDesignContextBundleRefs` (`design-context.ts`)는 **결정적**으로 번들을 고른다.
+
+| 번들 id | 파일 | 항상? | 추가 조건 |
+|---|---|---|---|
+| `layout-composition` | `layout-composition.md` | ✅ 항상 | — |
+| `visual-foundation` | `visual-foundation.md` | ✅ 항상 | — |
+| `interaction-state` | `interaction-state.md` | 조건부 | sourceSpec/intent/plan에 stateful 신호(`form`,`list`,`error`,`loading`,`empty`,`search`,`select`,`validation`,`async`,`input`) 존재 시 |
+| `quality-review` | `quality-review.md` | 조건부 | validation report에 issue 존재 시 |
+
+- 번들 **ref 선택**은 순수 로직(`plan-composition`, `validate-render-tree`에서 갱신).
+- 번들 **본문 로드**는 IO(`loadBundleContentsForState` → `BUNDLE_FILE_BY_ID`로 `.md` 읽기, `disableDesignContext`면 생략).
+- `--no-design-context` 플래그로 본문 주입을 꺼서 A/B 비교 가능.
+
+번들 정본 책임: `docs/design/`(원문) → `packages/agent/docs/design-context/`(압축 규칙) → `@cx/schema`(ref DTO) → `@cx/orchestration`(선택) → `@cx/pipeline`(기록).
+
+---
+
+## 4. 단계별 상세
+
+각 단계: **유형 / 입력 구성 / 프롬프트 핵심 / 출력 / 참조 문서**.
+
+### 4.1 `read-source` — IO
+- **입력**: `sourcePath`, `sourceKind`.
+- **동작**: side-effect `source-artifact-read`로 md 파일 읽기.
+- **출력**: `sourceFile`(raw markdown). 아티팩트 없음(다음 단계 입력).
+
+### 4.2 `parse-source` — 순수
+- **입력**: `sourceFile`.
+- **동작**: `runParseMarkdownSourceCommand` — md를 `SourceSpec`으로 파싱.
+- **출력**: `sourceSpec`, `parseCommandResult`. 아티팩트 `01-parse-result.json`, `02-source-spec.json`.
+- **참조**: 파서 규칙(`@cx/parser`).
+
+### 4.3 `derive-screen-intent` — AI
+- **입력 구성**: `sourceSpec`, `sourceReferenceCatalog`, `sourceSummary`, `targetArtifact(screen-intent)`.
+- **프롬프트 핵심**(`buildScreenIntentAgentInput`): "SourceSpec만을 진실원으로 화면 의도를 도출." `screenPurpose`, `primaryUserAction`, `contentPriority`(이해 순서대로 ref 나열), `sourceInterpretation`, `rationale` 캡처. 증거가 있으면 `audience`, `primaryTask`, `successMoment`, `missingDecisions`, `stateCoverageHints`도. `allowedRefs` 밖 alias 발명 금지.
+- **출력**: `screen-intent.v0.1` JSON 1개. 아티팩트 `03~05`.
+- **참조**: 없음(순수 SourceSpec 해석).
+
+### 4.4 `plan-composition` — AI
+- **입력 구성**: `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
+- **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
+- **출력**: `composition-plan.v0.1`. 아티팩트 `07~09`.
+- **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`14-design-context-bundle-selection.json`).
+- **참조**: (선택된 번들 refs는 다음 단계부터 가이드로 전달).
+
+### 4.5 `derive-decoration-plan` — 순수
+- **입력**: `compositionPlan`, `sourceSpec`.
+- **동작**: `buildDecorationPlan` — 디바이더/패턴/area 분할/displayTitle/repeatedItems 등 **결정적 장식 배치**. 그 결과로 `layerCandidates` 재생성.
+- **출력**: `decorationPlan`. 아티팩트 `06-pattern-layer-candidates.json`, `10-decoration-plan.json`.
+- **참조**: pattern-store(`@cx/layout-pattern-store` catalog).
+
+### 4.6 `select-pattern` — AI
+- **입력 구성**: `compositionPlan`, `decorationPlan`, `designContextBundleRefs`, `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`.
+- **프롬프트 핵심**(`buildPatternSelectionAgentInput`): "후보 중 pattern layer 전략 선택." `selectedCandidates`, `confidence`, `reason`. 각 후보는 `id/level/targetRef/layout` 보존. `layerCandidates` 밖 layout id 금지. `decorationPlan`의 role·layoutIntent를 결정적 가이드로, `designContextBundleRefs`를 bounded 가이드로 사용(SourceSpec·후보 id 우선).
+- **출력**: `pattern-selection.v0.1`. 아티팩트 `11~13`.
+- **참조**: `designContextBundleRefs`(ref만, 본문 미주입).
+
+### 4.7 `generate-render-tree` — AI · 핵심
+- **입력 구성**: 공통 블록 전부 + `componentContractCatalog`, `compositionPlan`, `decorationPlan`, `patternSelection`, `screenIntent`, `designContextBundleRefs`, **`designContextBundles[].body`(규칙 본문 주입)**, `intermediateArtifact(table-generation-result)`, `targetArtifact(render-tree)`.
+- **프롬프트 핵심**(`buildScreenGenerationAgentInput`, 가장 김): SourceSpec 진실원 + upstream(intent/composition/decoration/pattern) 가이드로 **RenderTree 생성**. 주요 규칙:
+  - 스켈레톤 보존: `Screen > Screen.Header/Contents/Bottom > area.static/area.dynamic > (PageStack/layout wrapper) > components`. `type:"Area"` 노드 금지.
+  - 가시 area 제목은 `decorationPlan.areas[].displayTitle` 우선. area 분할 시 분할 area를 RenderTree·table에 반영.
+  - **디바이더는 area stack prop**: stack 행 구분은 `props.divider`(true=1px, `"section"`=4px), 섹션 간 구분은 leading area의 `props.sectionDivider:true`. Divider leaf 노드/raw border 금지. `designContextBundles` 규칙과 화면 맥락으로 결정.
+  - **state coverage**: errorPolicy/필수 동의/disabled/loading/validation 증거가 있으면 bounded `display.stateRole`. 한 슬롯 상태 변형(특히 Bottom CTA)은 `display.when`으로 상호배타 게이팅 또는 단일 노드. 게이팅 없는 primary CTA 2개 금지.
+  - **시각 위계**: catalog 안 component 선택·props로만. 색/그라데이션/아이콘 발명 금지.
+  - `allowedRefs`/`componentContractCatalog`/`layerCandidates` 밖 vocabulary 금지.
+  - `designContextBundles[].body`를 실제 적용 규칙으로 사용하되 **우선순위: source evidence·schema/catalog > 번들 규칙**.
+  - 동시에 `tableGenerationResult`(table-generation-result.v0.1)도 생성.
+- **출력**: `renderTree`(render-tree.v0.1) + `tableGenerationResult`. 아티팩트 `15~19`, `final-result.json`.
+- **참조**: 선택된 모든 번들 본문(layout-composition, visual-foundation, +조건부 interaction-state/quality-review).
+
+### 4.8 `validate-render-tree` — 순수
+- **입력**: `agentResult.payload`, `layerCandidates`, `compositionPlan`, `decorationPlan`, `screenIntent`, `sourceSpec`.
+- **동작**: `createRenderTreeValidationReport` — schema/catalog/contract 위반, state coverage, `bottom-cta-state-ungated` 등 검사. `initialValidationReport`로 보관, validation 피드백 반영해 번들 refs 재선택.
+- **출력**: `validationReport`. 아티팩트 `20-initial-validation-report.json`, `28-validation-report.json`.
+- **참조**: validation 규칙(`@cx/validation`).
+
+### 4.9 `propose-components` — AI · 비파괴
+- **입력 구성**: generation 베이스 + `candidate`(생성 트리).
+- **프롬프트 핵심**(`buildComponentProposalAgentInput`): "catalog에 없지만 화면을 개선할 component/변형 제안." 각 제안은 `id`, `proposedComponentType`, `sourceEvidence`(allowedRefs ref 배열), `nearestCatalogMatch`(catalog componentType 1개), `rationale`, 선택 `suggestedProps`. **최대 5개**, 확정/적용 안 함(비파괴).
+- **출력**: `component-proposal.v0.1`. 아티팩트 `30~33`. 검증은 bounded 여부만 리포트하고 **파이프라인을 실패시키지 않음**.
+- **참조**: `designContextBundles[].body`(개선 가이드).
+
+### 4.10 `review-quality` — AI · 자기비평
+- **입력 구성**: generation 베이스 + `candidate`, `validationReport`.
+- **프롬프트 핵심**(`buildQualityReviewAgentInput`): schema/semantic 검증 후 디자인 품질 리뷰. source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험 점검. **3축 점수(`hierarchy`/`separation`/`fidelity`, 0–5)** + 위반마다 finding(`code/severity/message/optional path/suggestion`). bounded findings만, mutate·승인·필드 발명 금지.
+- **출력**: `quality-inspection.v0.1`(scores + findings). 아티팩트 `21~23`.
+- **참조**: `quality-review.md` 번들 본문(게이트 기준).
+
+### 4.11 `revise-render-tree-if-invalid` — 순수 게이팅 + 조건부 AI
+- **게이팅**(`buildGenerationNextAction`): `initialValidationReport` + `qualityInspection` + `retryCount`(최대 1) + `validationReport`로 다음 행동 결정. `request-revision`이 아니면 통과.
+- **AI 교정 입력**: generation 베이스 + `previousCandidate`(이전 트리, `previousResult`로도 전달) + `qualityInspection` + `validationReport`.
+- **프롬프트 핵심**(`buildScreenRevisionAgentInput`): validation report를 만족하도록 이전 트리를 **제자리 교정**. 스켈레톤·area wrapper·pattern·upstream 가이드 보존. invalid Area 노드는 제거가 아니라 area.static/area.dynamic로 치환. invented ref/props/layout id는 catalog/allowedRefs로 교정. `required-field-missing`·`invalid-render-node` 먼저, 그다음 warning. quality P0 finding도 bounded 교정. `agentResult`를 교정본으로 교체.
+- **출력**: 교정된 `renderTree`. 아티팩트 `24-revision-decision.json`, `25~27`.
+- **참조**: 선택된 모든 번들 본문 + quality findings.
+
+### 4.12 `validate-render-tree-after-revision` — 순수
+- 4.8과 동일 검증기로 교정본 **재검증**. 결과를 `validationReport`에 반영.
+
+### 4.13 `write-artifacts` — IO
+- **동작**: 모든 단계 산출물 + `manifest.json`을 run 폴더에 기록(`data/runs/screen-generation/<runId>/`). web explorer가 manifest를 읽어 표시.
+- **출력 파일**: 아래 아티팩트 맵 참조.
+
+---
+
+## 5. 출력 아티팩트 맵
+
+`<runId>/artifacts/` 아래 번호순 기록(`artifact-commands.ts`).
+
+| 파일 | 내용 |
+|---|---|
+| `01-parse-result.json` / `02-source-spec.json` | 파싱 결과 / SourceSpec |
+| `03~05-screen-intent-*` | intent input / runner request / result |
+| `06-pattern-layer-candidates.json` | layout id 후보 |
+| `07~09-composition-plan-*` | composition input / request / result |
+| `10-decoration-plan.json` | 결정적 장식 plan |
+| `11~13-pattern-selection-*` | pattern input / request / result |
+| `14-design-context-bundle-selection.json` | 번들 선택 결과 |
+| `15-generation-skill-catalog.json` / `16-render-tree-generation-skill.json` | 생성 skill |
+| `17~19-agent-*` | generation input / request / result |
+| `20-initial-validation-report.json` | 초기 검증 |
+| `21~23-quality-review-*` | quality input / request / result |
+| `24-revision-decision.json` | next-action 결정 |
+| `25~27-revision-agent-*` | revision input / request / result |
+| `28-validation-report.json` | 최종 검증 |
+| `29-pipeline-result.json` | side-effect 실행 결과 |
+| `30~33-component-proposal-*` | proposal input / request / result / validation |
+| `final-result.json` | 최종 RenderTree(렌더 대상) |
+| `component-proposal.json` / `design-critique.json` | 독립 제안 / 비평 아티팩트 |
+| `../manifest.json` | run 메타(`tags`, `summary`, 파일 포인터) |
+
+---
+
+## 6. 참조 문서 계보
+
+| 레이어 | 위치 | 책임 |
+|---|---|---|
+| 디자인 정본 | `docs/design/*.md` (SECTION_PATTERNS, LAYOUT_SPACING_CONTRACT, SCREEN_PATTERN_SUMMARY, INTERACTION_PATTERNS 등) | SKT SDUI 패턴 원문 |
+| agent 규칙 | `packages/agent/docs/design-context/*.md` | 프롬프트 주입용 압축 규칙(번들 본문) |
+| task 계약 | `packages/agent/docs/<task>/{prompt-contract,output-contract,checklist}.md` | 단계별 입출력 계약 |
+| 스키마 | `@cx/schema` `SCHEMA_VERSION` | 출력 DTO 버전 |
+
+### SCHEMA_VERSION
+
+```
+screen-intent.v0.1 · composition-plan.v0.1 · pattern-selection.v0.1
+· render-tree.v0.1 · table-generation-result.v0.1
+· quality-inspection.v0.1 · component-proposal.v0.1
+```
+
+---
+
+## 7. 요약 데이터 흐름
+
+```
+md → SourceSpec(parse)
+   → screen-intent(목적/우선순위)
+   → composition-plan(섹션/region 배치) + 번들 선택
+   → decoration-plan(디바이더/분할, 순수)
+   → pattern-selection(슬롯별 layout)
+   → RenderTree 생성 ← 번들 규칙 본문 주입
+   → validate(스키마/계약/state/CTA)
+   → component-proposal(비파괴) · quality-review(3축 점수+findings)
+   → next-action 게이팅 → (필요 시) 1회 revision → 재검증
+   → write artifacts + manifest
+```
+
+핵심 원칙: **source evidence·schema/catalog > design-context 번들 규칙**. 번들은 SourceSpec·스키마·component contract·pattern 후보를 우회하지 못하고, 화면 구조·state coverage·interaction·visual foundation·review 기준을 좁히는 보조 context로만 작동한다.
