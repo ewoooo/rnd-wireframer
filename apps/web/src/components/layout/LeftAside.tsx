@@ -13,6 +13,7 @@ import type { AppComponent, AppScreenModule, AppScreenRoute } from "@/model/stor
 import { useWorkbenchStore } from "@/model/store";
 import type { AppArea } from "@/adapters/tables-to-render-tree";
 import { AreaUsageList, getScreensUsingArea } from "../area/AreaUsageList";
+import { ComponentUsageList, getAreasUsingComponent } from "../component/ComponentUsageList";
 import { ScreenVariantCard } from "../screen/ScreenVariantCard";
 import { Aside, Divider, Panel } from "./Aside";
 
@@ -258,9 +259,19 @@ export function LeftAside() {
 						</div>
 					</Panel>
 				</>
-			) : (
-				<Panel bodyClassName="p-2">
-					{activeTab === "comp" ? (
+			) : activeTab === "comp" ? (
+				<>
+					{/* 위 패널: 이 컴포넌트를 사용하는 area 역참조 (도메인/루트 없이 flat) */}
+					<Panel
+						title={`${getAreasUsingComponent(areas, selectedComponentCode).length}개 area에서 사용`}
+						defaultSize={30}
+						minSize={10}
+						bodyClassName="py-1"
+					>
+						<ComponentUsageList />
+					</Panel>
+					<Divider />
+					<Panel defaultSize={70} minSize={30} bodyClassName="p-2">
 						<div className="flex flex-col gap-3">
 							{groupComponentsByType(components).map((group) => (
 								<div key={group.type} className="flex flex-col gap-1">
@@ -283,7 +294,10 @@ export function LeftAside() {
 								</div>
 							))}
 						</div>
-					) : null}
+					</Panel>
+				</>
+			) : (
+				<Panel bodyClassName="p-2">
 					{activeTab === "agent" ? (
 						<AgentRegistryNavigation
 							registry={agentRegistry}
