@@ -877,3 +877,73 @@ describe("validateComponentProposal", () => {
 		expect(report.issues.some((issue) => issue.code === "proposal-limit-exceeded")).toBe(true);
 	});
 });
+
+describe("validateRenderTree bottom CTA state gating", () => {
+	function bottomCtaTree(displayA: unknown, displayB: unknown) {
+		return {
+			version: "render-tree.v0.1",
+			metadata: { id: "tree" },
+			children: [
+				{
+					type: "Screen",
+					componentVersion: "0.1.0",
+					metadata: { id: "screen", title: "Screen" },
+					children: [
+						{
+							type: "Screen.Bottom",
+							componentVersion: "0.1.0",
+							metadata: { id: "bottom", title: "Bottom" },
+							children: [
+								{
+									type: "ActionButton",
+									componentVersion: "1.0.0",
+									metadata: { id: "cta-a", title: "CTA A" },
+									display: displayA,
+									props: { label: "다음", variant: "primary" },
+								},
+								{
+									type: "ActionButton",
+									componentVersion: "1.0.0",
+									metadata: { id: "cta-b", title: "CTA B" },
+									display: displayB,
+									props: { label: "다음", variant: "primary" },
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+	}
+
+	it("flags state-variant bottom CTAs that are not gated by display.when", () => {
+		const report = validateRenderTree(
+			bottomCtaTree({ stateRole: "disabled" }, { stateRole: "success" }),
+			{ componentCatalog: testCatalog },
+		);
+
+		const flagged = report.issues.filter((issue) => issue.code === "bottom-cta-state-ungated");
+		expect(flagged).toHaveLength(2);
+		expect(report.ok).toBe(false);
+	});
+
+	it("accepts state-variant bottom CTAs gated by display.when", () => {
+		const report = validateRenderTree(
+			bottomCtaTree(
+				{ stateRole: "disabled", when: { bind: "terms.notAllChecked", default: true } },
+				{ stateRole: "success", when: { bind: "terms.allChecked", default: false } },
+			),
+			{ componentCatalog: testCatalog },
+		);
+
+		expect(report.issues.some((issue) => issue.code === "bottom-cta-state-ungated")).toBe(false);
+	});
+
+	it("does not flag a secondary+primary pair without state roles", () => {
+		const report = validateRenderTree(bottomCtaTree(undefined, undefined), {
+			componentCatalog: testCatalog,
+		});
+
+		expect(report.issues.some((issue) => issue.code === "bottom-cta-state-ungated")).toBe(false);
+	});
+});

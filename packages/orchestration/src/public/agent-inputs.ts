@@ -167,6 +167,7 @@ export function buildScreenGenerationAgentInput(
 			"When context.decorationPlan.areas[].repeatedItems exists, use its propsHint values before falling back to placeholder source props.",
 			"ListText with props.table dot must include props.subText for visible row copy.",
 			"When SourceSpec includes errorPolicy, required agreement, disabled, loading, or validation evidence, include bounded display.stateRole coverage in RenderTree.",
+			"State-variant nodes that share one slot (especially Bottom CTAs) MUST be mutually exclusive via display.when, or be expressed as a single node. Never place two ungated primary CTAs in Screen.Bottom; the renderer shows every node without a falsy display.when.",
 			"Every CompositionPlan section should be visible in tableGenerationResult through matching region, area, component, metadata, or provenance identifiers.",
 			"Preserve high-priority source refs from context.compositionPlan.sections[].sourceRefs whenever possible.",
 			"Use context.patternSelection as layout-pattern guidance when present.",

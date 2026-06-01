@@ -39,7 +39,8 @@ export type ValidationIssueCode =
 	| "layout-ref-outside-candidates"
 	| "proposal-source-evidence-missing"
 	| "proposal-nearest-match-unknown"
-	| "proposal-limit-exceeded";
+	| "proposal-limit-exceeded"
+	| "bottom-cta-state-ungated";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;
