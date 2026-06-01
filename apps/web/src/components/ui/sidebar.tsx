@@ -26,8 +26,6 @@ export function Sidebar({
 			data-slot="sidebar"
 			className={cn(
 				"flex h-svh min-h-0 shrink-0 w-[var(--sidebar-width,380px)] flex-col overflow-hidden bg-sidebar text-sidebar-foreground",
-				side === "left" && "border-r border-sidebar-border",
-				side === "right" && "border-l border-sidebar-border",
 				className,
 			)}
 			{...props}

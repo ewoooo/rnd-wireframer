@@ -1,10 +1,14 @@
+import { SystemHeader } from "@cx/layout/chrome";
 import { RenderTreeNodeRenderer } from "@cx/renderer";
+import { Puck } from "@measured/puck";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
+import { cn } from "@/components/utils";
 import type { SelectedComponentContext, SelectedAreaContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { RenderedScreen } from "../screen/RenderedScreen";
+import { CanvasToolbar } from "./CanvasToolbar";
 
 export function Canvas() {
 	const isComponentView = useWorkbenchStore((state) => state.isComponentView);
@@ -17,8 +21,20 @@ export function Canvas() {
 	const selectedComponent = useWorkbenchStore((state) => state.selectedComponent);
 	const selectedArea = useWorkbenchStore((state) => state.selectedArea);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
+	const showStatusBar = useWorkbenchStore((state) => state.showStatusBar);
+	const darkMode = useWorkbenchStore((state) => state.darkMode);
 
+	const activeRouteId = useWorkbenchStore((state) => state.activeRouteId);
+	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
+
+	const isScreenTab = activeTab !== "agent" && !isComponentView && !isAreaView;
+	const activeRoute = screenRoutes.find((r) => r.code === activeRouteId);
+
+	let canvasEmptyMessage: string | undefined;
+	if (isScreenTab && !selectedScreen) {
+		canvasEmptyMessage = "스크린을 선택해주세요.";
+	}
 
 	return (
 		<SidebarInset>
@@ -34,7 +50,10 @@ export function Canvas() {
 					})}
 				</h1>
 			</SidebarHeader>
-			<SidebarContent className="items-center justify-center bg-secondary/50 p-6">
+			<SidebarContent className="relative items-center justify-center bg-muted p-6">
+				<div className="absolute left-1/2 top-3 z-10 -translate-x-1/2">
+					<CanvasToolbar />
+				</div>
 				{activeTab === "agent" ? (
 					<AgentRegistryPreview
 						registry={agentRegistry}
@@ -60,8 +79,21 @@ export function Canvas() {
 							/>
 						</div>
 					</div>
+				) : canvasEmptyMessage ? (
+					<RenderedScreen emptyMessage={canvasEmptyMessage} />
 				) : (
-					<RenderedScreen data={selectedScreen?.schema.data} node={screenNode} />
+					<div
+						className={cn(
+							"flex h-211 w-98 max-w-full flex-col overflow-hidden border shadow-xl",
+							showStatusBar ? "rounded-[28px]" : "rounded-none",
+							darkMode ? "bg-neutral-200" : "bg-background",
+						)}
+					>
+						{showStatusBar ? <SystemHeader /> : null}
+						<div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+							<Puck.Preview />
+						</div>
+					</div>
 				)}
 			</SidebarContent>
 		</SidebarInset>

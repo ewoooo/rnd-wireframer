@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { createModule, deleteModule, duplicateModule, updateModule } from "@/app/actions/module-actions";
 import { createRoute, deleteRoute, duplicateRoute, updateRoute } from "@/app/actions/route-actions";
+import { createVariant } from "@/app/actions/screen-actions";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import type { AppScreenModule, AppScreenRoute } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { ScreenVariantCard } from "../screen/ScreenVariantCard";
+import { Aside, Divider, Panel } from "./Aside";
 
-export function NavigationPanel() {
+export function LeftAside() {
 	const router = useRouter();
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
@@ -38,6 +38,10 @@ export function NavigationPanel() {
 	// 방금 생성된 도메인 ID → 해당 DomainGroup이 자동으로 편집 모드 진입
 	const [pendingEditModuleId, setPendingEditModuleId] = useState<string | null>(null);
 	const [isCreatingModule, startCreatingModule] = useTransition();
+
+	// 방금 생성된 variant ID → 해당 ScreenVariantCard가 자동으로 편집 모드 진입
+	const [pendingEditVariantId, setPendingEditVariantId] = useState<string | null>(null);
+	const [isCreatingVariant, startCreatingVariant] = useTransition();
 
 	// 캔버스 선택 → 루트 셀렉터 동기화
 	useEffect(() => {
@@ -66,91 +70,120 @@ export function NavigationPanel() {
 		});
 	}
 
+	function handleCreateVariant() {
+		if (!activeRoute) return;
+		startCreatingVariant(async () => {
+			const result = await createVariant({ routeId: activeRoute.code });
+			if (result.variantId) {
+				router.refresh();
+				setPendingEditVariantId(result.variantId);
+			}
+		});
+	}
+
 	return (
-		<Sidebar side="left">
+		<Aside side="left">
 			{activeTab === "scn" ? (
-				<ResizablePanelGroup orientation="vertical" className="h-full">
-					{/* ── A: 루트 목록 ── */}
-					<ResizablePanel defaultSize={35} minSize={15}>
-						<div className="flex h-full flex-col overflow-hidden">
-							{/* 헤더 */}
-							<div className="border-b px-3 py-2">
-								<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-									{screenModules.length}개 도메인
+				<>
+					{/* ── A: 도메인/루트 목록 ── */}
+					<Panel title={`${screenModules.length}개 도메인`} defaultSize={35} minSize={15} bodyClassName="py-1">
+						{screenModules.map((mod) => {
+							const modRoutes = screenRoutes.filter((r) => r.moduleId === mod.id);
+							return (
+								<DomainGroup
+									key={mod.id}
+									module={mod}
+									routes={modRoutes}
+									activeRouteCode={activeRoute?.code}
+									isAutoEditing={pendingEditModuleId === mod.id}
+									onAutoEditDone={() => setPendingEditModuleId(null)}
+									onSelectRoute={(code) => {
+										setActiveRouteCode(code);
+										selectScreenRoute(code);
+									}}
+									onRouteCreated={(id) => {
+										router.refresh();
+										setActiveRouteCode(id);
+									}}
+									onRouteSaved={() => router.refresh()}
+									onRouteDeleted={(routeCode) => {
+										router.refresh();
+										if (routeCode === activeRouteCode) {
+											const next = screenRoutes.find((r) => r.code !== routeCode);
+											if (next) setActiveRouteCode(next.code);
+										}
+									}}
+									onModuleSaved={() => router.refresh()}
+									onModuleDeleted={() => router.refresh()}
+								/>
+							);
+						})}
+
+						{/* 도메인 추가 버튼 — 목록 맨 아래 */}
+						<div className="px-3 py-1.5">
+							<button
+								type="button"
+								className="flex w-full items-center gap-1 rounded-md px-3 py-1.5 hover:ring-1 hover:ring-border disabled:opacity-40"
+								disabled={isCreatingModule}
+								onClick={handleCreateModule}
+							>
+								<Plus className="size-3 text-muted-foreground/60" />
+								<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+									도메인 추가
 								</span>
-							</div>
-
-							<div className="min-h-0 flex-1 overflow-y-auto py-1">
-								{screenModules.map((mod) => {
-									const modRoutes = screenRoutes.filter((r) => r.moduleId === mod.id);
-									return (
-										<DomainGroup
-											key={mod.id}
-											module={mod}
-											routes={modRoutes}
-											activeRouteCode={activeRoute?.code}
-											isAutoEditing={pendingEditModuleId === mod.id}
-											onAutoEditDone={() => setPendingEditModuleId(null)}
-											onSelectRoute={(code) => {
-												setActiveRouteCode(code);
-												selectScreenRoute(code);
-											}}
-											onRouteCreated={(id) => {
-												router.refresh();
-												setActiveRouteCode(id);
-											}}
-											onRouteSaved={() => router.refresh()}
-											onRouteDeleted={(routeCode) => {
-												router.refresh();
-												if (routeCode === activeRouteCode) {
-													const next = screenRoutes.find((r) => r.code !== routeCode);
-													if (next) setActiveRouteCode(next.code);
-												}
-											}}
-											onModuleSaved={() => router.refresh()}
-										onModuleDeleted={() => router.refresh()}
-										/>
-									);
-								})}
-
-								{/* 도메인 추가 버튼 — 목록 맨 아래 */}
-								<div className="px-3 py-1.5">
-								<button
-									type="button"
-									className="flex w-full items-center gap-1 rounded-md px-3 py-1.5 hover:ring-1 hover:ring-border disabled:opacity-40"
-									disabled={isCreatingModule}
-									onClick={handleCreateModule}
-								>
-									<Plus className="size-3 text-muted-foreground/60" />
-									<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-										도메인 추가
-									</span>
-								</button>
-							</div>
+							</button>
 						</div>
-					</div>
-					</ResizablePanel>
+					</Panel>
 
-					<ResizableHandle />
+					<Divider />
 
 					{/* ── B: 선택된 루트의 스크린 배리언트 목록 ── */}
-					<ResizablePanel defaultSize={65} minSize={20}>
-						<div className="flex h-full flex-col overflow-hidden">
-							<div className="min-h-0 flex-1 overflow-y-auto [&>*:first-child]:border-t-0">
-								{activeRoute?.screenVariants.map((variant) => (
-									<ScreenVariantCard
-										key={variant.id}
-										onSelect={selectScreenVariant}
-										screenVariant={variant}
-										selectedScreenCode={selectedScreenCode}
-									/>
-								))}
-							</div>
-						</div>
-					</ResizablePanel>
-				</ResizablePanelGroup>
+					<Panel
+						title={activeRoute ? `${activeRoute.screenVariants.length}개 스크린` : "스크린"}
+						defaultSize={65}
+						minSize={20}
+						bodyClassName="[&>*:first-child]:border-t-0"
+						footer={
+							activeRoute ? (
+								<div className="border-t border-sidebar-border px-3 py-1.5">
+									<button
+										type="button"
+										className="flex w-full items-center gap-1 rounded-md px-3 py-1.5 hover:ring-1 hover:ring-border disabled:opacity-40"
+										disabled={isCreatingVariant}
+										onClick={handleCreateVariant}
+									>
+										<Plus className="size-3 text-muted-foreground/60" />
+										<span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+											스크린 추가
+										</span>
+									</button>
+								</div>
+							) : null
+						}
+					>
+						{activeRoute?.screenVariants.length === 0 && (
+							<p className="px-3 py-4 text-center text-xs text-muted-foreground/60">
+								스크린이 없습니다
+							</p>
+						)}
+						{activeRoute?.screenVariants.map((variant) => (
+							<ScreenVariantCard
+								key={variant.id}
+								isAutoEditing={pendingEditVariantId === variant.id}
+								onAutoEditDone={() => setPendingEditVariantId(null)}
+								onDeleted={() => {
+									router.refresh();
+								}}
+								onSaved={() => router.refresh()}
+								onSelect={selectScreenVariant}
+								screenVariant={variant}
+								selectedScreenCode={selectedScreenCode}
+							/>
+						))}
+					</Panel>
+				</>
 			) : (
-				<SidebarContent className="p-2">
+				<Panel bodyClassName="p-2">
 					{activeTab === "ogn" ? (
 						<div className="flex flex-col gap-2">
 							{areas.map((area) => (
@@ -208,9 +241,9 @@ export function NavigationPanel() {
 							onSelectNode={selectAgentNode}
 						/>
 					) : null}
-				</SidebarContent>
+				</Panel>
 			)}
-		</Sidebar>
+		</Aside>
 	);
 }
 
@@ -560,18 +593,18 @@ function RouteListItem({ isActive, route, onSelect, onSaved, onDeleted }: RouteL
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			className={cn(
-				"group flex items-center gap-1 px-3 py-2 transition-colors hover:bg-accent",
+				"group flex cursor-pointer items-center gap-1 px-3 py-2 transition-colors hover:bg-accent",
 				isActive && "bg-primary/10 text-primary",
 			)}
+			onClick={onSelect}
+			onKeyDown={(e) => e.key === "Enter" && onSelect()}
 		>
-			{/* 이름 영역 (클릭 = 선택) + 수정 버튼 이름 바로 옆 */}
+			{/* 이름 영역 + 수정 버튼 이름 바로 옆 */}
 			<div
-				role="button"
-				tabIndex={0}
-				className="flex min-w-0 flex-1 cursor-pointer flex-col"
-				onClick={onSelect}
-				onKeyDown={(e) => e.key === "Enter" && onSelect()}
+				className="flex min-w-0 flex-1 flex-col"
 			>
 				<div className="flex items-center gap-1">
 					<span className={cn("truncate text-sm", isActive ? "font-semibold" : "font-normal")}>

@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/store";
 
-interface NavigationRailProps {
+interface RailProps {
 	activeTab: NavigatorTab;
 	onSelectTab: (tab: NavigatorTab) => void;
 }
@@ -79,12 +79,12 @@ function NavButton({ item, isActive, onSelectTab }: { item: NavItem; isActive: b
 	);
 }
 
-export function NavigationRail({ activeTab, onSelectTab }: NavigationRailProps) {
+export function Rail({ activeTab, onSelectTab }: RailProps) {
 	return (
 		<TooltipProvider delayDuration={400}>
 			<nav
 				aria-label="Workbench navigation"
-				className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-sidebar-border bg-sidebar p-2"
+				className="flex w-14 shrink-0 flex-col items-center gap-1 bg-sidebar p-2"
 			>
 				{primaryItems.map((item) => (
 					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />

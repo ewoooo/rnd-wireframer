@@ -1,5 +1,6 @@
 import { loadPatternStore } from "@cx/agent/pattern-store";
 import {
+	buildAreaCatalog,
 	tablesToRenderTrees,
 	validateSampleScreenSource,
 	type SampleComposite,
@@ -166,7 +167,7 @@ export async function loadDbWorkbenchData() {
 		};
 	});
 
-	const areaCatalog = getAreaCatalog(sampleScreens);
+	const areaCatalog = buildAreaCatalog({ areas, composites, patternStore: loadPatternStore() });
 
 	return {
 		modules: screenModules,
@@ -186,18 +187,6 @@ function extractAreas(schema: RenderTree) {
 		result.push({ order: result.length + 1, areaCode: String(node.props?.areaCode ?? node.metadata.id) });
 	});
 	return result;
-}
-
-function getAreaCatalog(schemas: RenderTree[]) {
-	const byCode = new Map<string, { code: string; componentCount: number; name: string; stateCount: number; usage: string }>();
-	for (const schema of schemas) {
-		forEachNode(schema.children, (node) => {
-			if (!isAreaType(node.type)) return;
-			const code = String(node.props?.areaCode ?? node.metadata.id);
-			byCode.set(code, { code, name: String(node.props?.name ?? node.metadata.title), usage: "section", stateCount: 1, componentCount: node.children?.length ?? 0 });
-		});
-	}
-	return Array.from(byCode.values());
 }
 
 function forEachNode(nodes: RenderTreeNode[], cb: (n: RenderTreeNode) => void) {

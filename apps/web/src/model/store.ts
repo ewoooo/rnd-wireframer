@@ -88,6 +88,7 @@ interface InitializeWorkbenchInput {
 
 interface WorkbenchState {
 	activeNavigatorTab: NavigatorTab;
+	activeRouteId: string;
 	activeScreen?: AppScreen;
 	agentGenerationMessage: string;
 	agentGenerationStatus: "error" | "idle" | "loading" | "success";
@@ -115,6 +116,10 @@ interface WorkbenchState {
 	setAgentGenerationStatus: (status: WorkbenchState["agentGenerationStatus"]) => void;
 	setAgentImports: (imports: AgentClientImport[]) => void;
 	setAgentRegistry: (registry?: RegisteredNodeTree) => void;
+	darkMode: boolean;
+	toggleDarkMode: () => void;
+	showStatusBar: boolean;
+	toggleStatusBar: () => void;
 	selectedAgentAsset?: SelectedAgentAsset;
 	selectedAgentNode: AgentNodeSelection;
 	selectedComponent?: SelectedComponentContext;
@@ -138,6 +143,7 @@ export interface AgentClientImport {
 
 const initialWorkbenchState = {
 	activeNavigatorTab: "scn" as NavigatorTab,
+	activeRouteId: "",
 	activeScreen: undefined,
 	agentGenerationMessage: "",
 	agentGenerationStatus: "idle" as const,
@@ -163,6 +169,8 @@ const initialWorkbenchState = {
 	selectedAreaCode: "",
 	selectedScreen: undefined,
 	selectedScreenCode: "",
+	darkMode: false,
+	showStatusBar: true,
 	validationErrors: [],
 	validationLabel: "screen source + render tree valid",
 	validationStats: undefined,
@@ -172,6 +180,8 @@ const initialWorkbenchState = {
 
 export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	...initialWorkbenchState,
+	toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+	toggleStatusBar: () => set((state) => ({ showStatusBar: !state.showStatusBar })),
 	initializeWorkbench: ({ agentRegistry, areas, modules = [], routes = [], screens }) => {
 		const components = getComponentCatalog(screens);
 		const screenRoutes = getScreenRouteCatalog(screens, routes);
@@ -182,7 +192,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 				: getDefaultAgentSelection(agentRegistry);
 		const selectedScreenCode = screens.some((screen) => screen.code === state.selectedScreenCode)
 			? state.selectedScreenCode
-			: getInitialScreenCode(screens);
+			: "";
 		const selectedAreaCode = areas.some(
 			(area) => area.code === state.selectedAreaCode,
 		)
@@ -194,8 +204,13 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			? state.selectedComponentCode
 			: (components[0]?.code ?? "");
 
+		const activeRouteId = screenRoutes.some((route) => route.code === state.activeRouteId)
+			? state.activeRouteId
+			: "";
+
 		const nextState = {
 			activeNavigatorTab: state.activeNavigatorTab,
+			activeRouteId,
 			agentRegistry,
 			agentWarnings: agentRegistry?.warnings ?? [],
 			components,
@@ -211,6 +226,7 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 
 		set({
 			...nextState,
+			activeRouteId,
 			screenModules: modules,
 			...getDerivedWorkbenchState(nextState),
 		});
@@ -248,15 +264,17 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	selectScreenRoute: (screenRouteId) => {
 		const state = get();
 		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteId);
-		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? state.selectedScreenCode;
+		const screenCode = route?.screenVariants[0]?.options[0]?.screenCode ?? "";
 		const nextState = {
 			...state,
 			activeNavigatorTab: "scn",
+			activeRouteId: screenRouteId,
 			selectedScreenCode: screenCode,
 		} satisfies WorkbenchState;
 
 		set({
 			activeNavigatorTab: nextState.activeNavigatorTab,
+			activeRouteId: screenRouteId,
 			selectedScreenCode: screenCode,
 			...getDerivedWorkbenchState(nextState),
 		});
@@ -417,7 +435,7 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
 
 	if (contentsNode?.children) {
-		contentsNode.children = reorderAreaContainers(contentsNode.children, areaCodes);
+		contentsNode.children = rebuildAreaContainers(contentsNode.children, areaCodes);
 	}
 
 	return {
@@ -427,26 +445,23 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 	};
 }
 
-function reorderAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
-	const areaContainerByCode = new Map(
-		nodes
-			.map((node) => {
-				const areaCode = getContainedAreaCode(node);
-				return areaCode ? ([areaCode, node] as const) : undefined;
-			})
-			.filter(isAreaContainerEntry),
-	);
-	const nextAreaContainers = areaCodes
-		.map((areaCode) => areaContainerByCode.get(areaCode))
-		.filter(isRenderTreeNode);
-	let nextAreaIndex = 0;
+// contents region의 area 컨테이너를 Puck content 순서(areaCodes)에 맞춰 재구성한다.
+// 재정렬·복제·삭제를 모두 반영: areaCodes에 나온 만큼(중복 포함) 컨테이너를 만들고,
+// 빠진 area는 제거한다. contents에 없는 코드(header/bottom 영역의 area)는 무시한다.
+// divider 같은 비-area 노드는 저장 시 어차피 제거되고 로드 시 패턴이 재생성하므로 버린다.
+function rebuildAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
+	const templateByCode = new Map<string, RenderTreeNode>();
+	for (const node of nodes) {
+		const areaCode = getContainedAreaCode(node);
+		if (areaCode && !templateByCode.has(areaCode)) {
+			templateByCode.set(areaCode, node);
+		}
+	}
 
-	return nodes.map((node) => {
-		if (!getContainedAreaCode(node)) return node;
-		const nextNode = nextAreaContainers[nextAreaIndex];
-		nextAreaIndex += 1;
-		return nextNode ?? node;
-	});
+	return areaCodes
+		.map((areaCode) => templateByCode.get(areaCode))
+		.filter(isRenderTreeNode)
+		.map((node) => cloneSchema(node));
 }
 
 function getContainedAreaCode(node: RenderTreeNode): string | undefined {
@@ -457,12 +472,6 @@ function getContainedAreaCode(node: RenderTreeNode): string | undefined {
 
 function cloneSchema<T>(schema: T): T {
 	return JSON.parse(JSON.stringify(schema)) as T;
-}
-
-function isAreaContainerEntry(
-	entry: readonly [string, RenderTreeNode] | undefined,
-): entry is readonly [string, RenderTreeNode] {
-	return Boolean(entry);
 }
 
 function isRenderTreeNode(node: RenderTreeNode | undefined): node is RenderTreeNode {

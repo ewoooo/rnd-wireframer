@@ -3,6 +3,179 @@
 import { revalidatePath } from "next/cache";
 import { createServerClient } from "@/lib/supabase/server";
 
+const EMPTY_SCREEN_BODY = {
+	type: "page" as const,
+	regions: {
+		header: { type: "Screen.Header" as const, metadata: { title: "헤더" }, children: [] },
+		contents: { type: "Screen.Contents" as const, metadata: { title: "콘텐츠" }, children: [] },
+		bottom: { type: "Screen.Bottom" as const, metadata: { title: "바텀" }, children: [] },
+	},
+};
+
+export async function createVariant(input: {
+	routeId: string;
+	name?: string;
+}): Promise<{ error?: string; variantId?: string; screenId?: string }> {
+	const db = createServerClient();
+
+	const { data: rows } = await db
+		.from("screen_variants")
+		.select("order")
+		.eq("screen_route_id", input.routeId)
+		.order("order", { ascending: false })
+		.limit(1);
+
+	const nextOrder = (rows?.[0]?.order ?? 0) + 1;
+	const variantId = `var-${crypto.randomUUID().slice(0, 8)}`;
+	const screenId = `scr-${crypto.randomUUID().slice(0, 8)}`;
+	const name = input.name ?? "새 스크린";
+
+	const { error: variantError } = await db.from("screen_variants").insert({
+		id: variantId,
+		screen_route_id: input.routeId,
+		name,
+		order: nextOrder,
+		variant_type: "base",
+		base_variant_id: null,
+		trigger: null,
+		difference_from_base: null,
+		follow_up: null,
+		source_ref: null,
+	});
+
+	if (variantError) return { error: variantError.message };
+
+	const { error: screenError } = await db.from("screens").insert({
+		id: screenId,
+		screen_variant_id: variantId,
+		version: "1.0.0",
+		min_renderer_version: "1.0.0",
+		order: 1,
+		pattern_id: null,
+		pattern_variant: null,
+		theme_mode: "light",
+		title: name,
+		author: null,
+		screen: EMPTY_SCREEN_BODY,
+		source_ref: null,
+	});
+
+	if (screenError) {
+		await db.from("screen_variants").delete().eq("id", variantId);
+		return { error: screenError.message };
+	}
+
+	revalidatePath("/");
+	return { variantId, screenId };
+}
+
+export async function updateVariant(
+	variantId: string,
+	input: { name: string },
+): Promise<{ error?: string }> {
+	const db = createServerClient();
+
+	const name = input.name.trim();
+	if (!name) return {};
+
+	const { error } = await db
+		.from("screen_variants")
+		.update({ name })
+		.eq("id", variantId);
+
+	if (error) return { error: error.message };
+
+	revalidatePath("/");
+	return {};
+}
+
+export async function duplicateVariant(
+	variantId: string,
+): Promise<{ error?: string; variantId?: string }> {
+	const db = createServerClient();
+
+	const { data: original } = await db
+		.from("screen_variants")
+		.select("*")
+		.eq("id", variantId)
+		.single();
+
+	if (!original) return { error: "Variant not found" };
+
+	const { data: rows } = await db
+		.from("screen_variants")
+		.select("order")
+		.eq("screen_route_id", original.screen_route_id)
+		.order("order", { ascending: false })
+		.limit(1);
+
+	const newVariantId = `var-${crypto.randomUUID().slice(0, 8)}`;
+	const nextOrder = (rows?.[0]?.order ?? 0) + 1;
+
+	const { error: variantError } = await db.from("screen_variants").insert({
+		id: newVariantId,
+		screen_route_id: original.screen_route_id,
+		name: `${original.name} (복제본)`,
+		order: nextOrder,
+		variant_type: original.variant_type,
+		base_variant_id: original.base_variant_id,
+		trigger: original.trigger,
+		difference_from_base: original.difference_from_base,
+		follow_up: original.follow_up,
+		source_ref: original.source_ref,
+	});
+
+	if (variantError) return { error: variantError.message };
+
+	const { data: screens } = await db
+		.from("screens")
+		.select("*")
+		.eq("screen_variant_id", variantId);
+
+	for (const s of screens ?? []) {
+		await db.from("screens").insert({
+			id: `scr-${crypto.randomUUID().slice(0, 8)}`,
+			screen_variant_id: newVariantId,
+			version: s.version,
+			min_renderer_version: s.min_renderer_version,
+			order: s.order,
+			pattern_id: s.pattern_id,
+			pattern_variant: s.pattern_variant,
+			theme_mode: s.theme_mode,
+			title: s.title,
+			author: s.author,
+			screen: s.screen,
+			source_ref: s.source_ref,
+		});
+	}
+
+	revalidatePath("/");
+	return { variantId: newVariantId };
+}
+
+export async function deleteVariant(
+	variantId: string,
+): Promise<{ error?: string }> {
+	const db = createServerClient();
+
+	const { error: screenError } = await db
+		.from("screens")
+		.delete()
+		.eq("screen_variant_id", variantId);
+
+	if (screenError) return { error: screenError.message };
+
+	const { error: variantError } = await db
+		.from("screen_variants")
+		.delete()
+		.eq("id", variantId);
+
+	if (variantError) return { error: variantError.message };
+
+	revalidatePath("/");
+	return {};
+}
+
 export async function cloneScreen(screenId: string): Promise<{ error?: string; newScreenId?: string; newVariantId?: string }> {
 	const db = createServerClient();
 

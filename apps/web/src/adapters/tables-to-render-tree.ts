@@ -38,6 +38,7 @@ export interface AppArea {
 	code: string;
 	componentCount: number;
 	name: string;
+	node: RenderTreeNode;
 	stateCount: number;
 	usage: string;
 }
@@ -233,6 +234,39 @@ export function tablesToRenderTrees({
 	);
 }
 
+export function buildAreaCatalog({
+	areas,
+	composites,
+	patternStore,
+}: {
+	areas: SampleArea[];
+	composites: SampleComposite[];
+	patternStore?: PatternStore;
+}): AppArea[] {
+	const compositeById = new Map(composites.map((composite) => [composite.id, composite]));
+	const areaById = new Map(areas.map((area) => [area.id, area]));
+	const patternById = new Map(
+		(patternStore?.patterns ?? []).map((pattern) => [pattern.id, pattern]),
+	);
+
+	return areas.map((area) => {
+		const node = tableEntryToRenderNode(
+			{ kind: "area", id: area.id },
+			compositeById,
+			areaById,
+			patternById,
+		);
+		return {
+			code: String(node.props?.areaCode ?? node.metadata.id),
+			name: String(node.props?.name ?? node.metadata.title),
+			node,
+			usage: "section",
+			stateCount: 1,
+			componentCount: node.children?.length ?? 0,
+		};
+	});
+}
+
 export const SCREEN_NODE_COMPONENT_VERSION = "1.0.0";
 
 function deriveSchemaMetadata(screen: SampleScreen): RenderTreeMetadata {
@@ -319,7 +353,7 @@ export function getInitialScreenCode(screens: AppScreen[]) {
 }
 
 export function getSelectedScreen(screens: AppScreen[], selectedScreenCode: string) {
-	return screens.find((screen) => screen.code === selectedScreenCode) ?? screens[0];
+	return screens.find((screen) => screen.code === selectedScreenCode);
 }
 
 export function getScreenNode(screen?: AppScreen) {
