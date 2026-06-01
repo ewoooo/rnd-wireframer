@@ -31,9 +31,9 @@ function main() {
 	const entry = listCandidateComponentEntries().find((candidate) => candidate.type === type);
 
 	console.log(`Promote '${type}' (candidate -> stable):`);
-	console.log("1. Remove this entry from packages/component/src/internal/candidate-entries.ts");
-	console.log("2. Add it to packages/component/src/internal/component-entries.ts (becomes status stable)");
-	console.log("3. Ensure the React component is barrel-exported and renders.");
+	console.log(`1. Move the component: src/candidates/${type}/ -> src/components/${type}/`);
+	console.log(`2. Update its export path in packages/component/src/index.ts`);
+	console.log("3. Move the catalog entry: candidate-entries.ts -> component-entries.ts (status becomes stable)");
 	console.log("\nEntry to move:");
 	console.log(JSON.stringify(entry, null, 2));
 }

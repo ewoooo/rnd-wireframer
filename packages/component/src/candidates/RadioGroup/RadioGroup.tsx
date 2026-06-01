@@ -1,4 +1,4 @@
-import { ListSelected } from "../ListSelected/ListSelected";
+import { ListSelected } from "../../components/ListSelected/ListSelected";
 
 type RadioOption = string | { value?: string; label?: string };
 
@@ -20,7 +20,10 @@ function isSelected(option: RadioOption, selectedValue?: string): boolean {
 	return option.value === selectedValue || option.label === selectedValue;
 }
 
-/** Single-select group: renders one selectable radio row per option (string or {value,label}). */
+/**
+ * Candidate component (not yet promoted to src/components/).
+ * Single-select group: renders one selectable radio row per option (string or {value,label}).
+ */
 export function RadioGroup({ options = [], selectedValue }: RadioGroupProps) {
 	return (
 		<div className="flex flex-col">
