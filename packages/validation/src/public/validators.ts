@@ -324,7 +324,7 @@ export function validateCompositionPlan(
 	if (!isRecord(value)) return buildReport("composition-plan", issues);
 
 	validateCompositionPlanSourceRefs(value, options.sourceSpec, issues);
-	validateCompositionPlanMaterialization(value, options.generatedArtifact, issues);
+	validateCompositionPlanMaterialization(value, options.generatedArtifact, options.sourceSpec, issues);
 
 	return buildReport("composition-plan", issues);
 }
@@ -421,17 +421,21 @@ function validateCompositionPlanSourceRefs(
 function validateCompositionPlanMaterialization(
 	input: Record<string, unknown>,
 	generatedArtifact: unknown,
+	sourceSpec: SourceSpec | undefined,
 	issues: ValidationIssue[],
 ) {
 	if (generatedArtifact === undefined) return;
 	const generatedText = JSON.stringify(generatedArtifact);
+	const labelIndex = sourceSpec
+		? collectSourceRefLabelIndex(sourceSpec)
+		: new Map<string, string[]>();
 	const sections = Array.isArray(input.sections) ? input.sections : [];
 
 	sections.forEach((section, sectionIndex) => {
 		if (!isRecord(section) || !Array.isArray(section.sourceRefs)) return;
 		section.sourceRefs.forEach((sourceRef, sourceRefIndex) => {
 			if (typeof sourceRef !== "string" || sourceRef.length === 0) return;
-			if (generatedText.includes(sourceRef)) return;
+			if (refIsMaterialized(sourceRef, generatedText, labelIndex)) return;
 			addIssue(issues, {
 				code: "source-ref-not-materialized",
 				message: `CompositionPlan sourceRef is not visible in generated artifact: ${sourceRef}.`,
@@ -440,6 +444,49 @@ function validateCompositionPlanMaterialization(
 			});
 		});
 	});
+}
+
+/**
+ * A source ref counts as materialized when its id appears in the output, OR when a
+ * visible label from that source component does (the element was folded into a parent
+ * prop, e.g. a field-side action button rendered via TextField.buttonLabel).
+ */
+function refIsMaterialized(
+	ref: string,
+	generatedText: string,
+	labelIndex: Map<string, string[]>,
+): boolean {
+	if (generatedText.includes(ref)) return true;
+	return (labelIndex.get(ref) ?? []).some((label) => generatedText.includes(label));
+}
+
+function collectSourceRefLabelIndex(sourceSpec: SourceSpec): Map<string, string[]> {
+	const index = new Map<string, string[]>();
+	for (const region of sourceSpec.sourceShape.screen.regions) {
+		for (const area of region.children) {
+			for (const component of area.children) {
+				const labels = collectComponentLabels(component);
+				if (labels.length === 0) continue;
+				for (const ref of [
+					(component as { sourceId?: unknown }).sourceId,
+					(component as { sourceComponentId?: unknown }).sourceComponentId,
+					(component as { roleAlias?: unknown }).roleAlias,
+				]) {
+					if (typeof ref === "string" && ref.length > 0) {
+						index.set(ref, [...(index.get(ref) ?? []), ...labels]);
+					}
+				}
+			}
+		}
+	}
+	return index;
+}
+
+function collectComponentLabels(component: unknown): string[] {
+	if (!isRecord(component) || !isRecord(component.props)) return [];
+	return Object.values(component.props).filter(
+		(value): value is string => typeof value === "string" && value.trim().length >= 2,
+	);
 }
 
 function collectSourceSpecRefs(sourceSpec: SourceSpec): Set<string> {
@@ -468,10 +515,11 @@ function validateSourceRefCoverage(
 ) {
 	if (!sourceSpec) return;
 	const generatedText = JSON.stringify(generatedArtifact);
+	const labelIndex = collectSourceRefLabelIndex(sourceSpec);
 	const sourceRefs = collectMaterializationSourceRefs(sourceSpec);
 
 	sourceRefs.forEach((sourceRef) => {
-		if (generatedText.includes(sourceRef)) return;
+		if (refIsMaterialized(sourceRef, generatedText, labelIndex)) return;
 		addIssue(issues, {
 			code: "source-ref-not-materialized",
 			message: `SourceSpec ref is not visible in generated artifact: ${sourceRef}.`,

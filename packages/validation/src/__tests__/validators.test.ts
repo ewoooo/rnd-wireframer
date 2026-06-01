@@ -73,6 +73,73 @@ describe("@cx/validation validators", () => {
 		expect(report.issues.filter((issue) => issue.code === "uses-candidate-component")).toHaveLength(1);
 	});
 
+	it("treats a source ref as materialized when its label text is present (folded into a prop)", () => {
+		const sourceSpec = {
+			schemaVersion: "source-spec.v0.1",
+			sourceImport: {
+				files: [],
+				importId: "s",
+				receivedAt: "2026-01-01T00:00:00.000Z",
+				sourceKind: "prdd-markdown-bundle",
+			},
+			sourceShape: {
+				screen: {
+					name: "S",
+					route: "/s",
+					screenCode: "S",
+					regions: [
+						{
+							slot: "contents",
+							children: [
+								{
+									kind: "area",
+									sourceAreaId: "area-1",
+									children: [
+										{
+											kind: "component",
+											sourceComponentId: "Button",
+											sourceId: "ButtonAuthCodeRequest",
+											label: "ButtonAuthCodeRequest",
+											props: { label: "인증번호 요청" },
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			},
+		} as unknown as SourceSpec;
+
+		const plan = {
+			density: "medium",
+			layoutStrategy: "x",
+			patternRationale: "x",
+			primaryUserAction: "x",
+			rejectedPatterns: [],
+			schemaVersion: "composition-plan.v0.1",
+			screenLayout: "layout.screen.commerceDetailScreen",
+			sectionRhythm: "x",
+			sections: [
+				{
+					priority: 1,
+					role: "content",
+					sourceRefs: ["ButtonAuthCodeRequest"],
+					strategy: "x",
+					targetRegion: "contents",
+				},
+			],
+			visualHierarchy: "x",
+		};
+		// Output folds the button into a TextField prop: label text present, id absent.
+		const generatedArtifact = {
+			renderTree: { children: [{ type: "TextField", props: { buttonLabel: "인증번호 요청" } }] },
+		};
+
+		const report = validateCompositionPlan(plan, { sourceSpec, generatedArtifact });
+		expect(report.issues.some((issue) => issue.code === "source-ref-not-materialized")).toBe(false);
+	});
+
 	it("reports unknown component types as errors", () => {
 		const report = validateComponentUsage(
 			{ type: "MissingCard", props: {} },
