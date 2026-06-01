@@ -25,6 +25,7 @@ export { MapBlock } from "./components/MapBlock";
 export { OptionCard } from "./components/OptionCard";
 export { OptionList, type OptionListItem } from "./components/OptionList";
 export { ProductInfo } from "./components/ProductInfo";
+export { RadioGroup } from "./components/RadioGroup/RadioGroup";
 export { SearchBar } from "./components/SearchBar";
 export { StoreCard } from "./components/StoreCard";
 export type { TabItem } from "./components/Tab";

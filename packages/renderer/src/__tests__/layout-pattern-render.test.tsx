@@ -47,6 +47,26 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
 	});
 
+	it("renders a RadioGroup node as one selectable row per option", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "RadioGroup",
+					componentVersion: "0.1.0",
+					metadata: { id: "rg-1", title: "인증수단" },
+					props: {
+						options: ["휴대폰 본인인증", "PASS", "공동인증서"],
+						selectedValue: "휴대폰 본인인증",
+					},
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
+		expect(screen.getByText("PASS")).toBeInTheDocument();
+		expect(screen.getByText("공동인증서")).toBeInTheDocument();
+	});
+
 	it("renders a TextField field-side button from button/buttonLabel props", () => {
 		render(
 			<RenderNodeView
