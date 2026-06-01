@@ -367,11 +367,21 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 			scores: {
 				type: "object",
 				additionalProperties: false,
-				required: ["hierarchy", "separation", "fidelity"],
+				required: [
+					"hierarchy",
+					"separation",
+					"fidelity",
+					"actionClarity",
+					"densityFit",
+					"patternFit",
+				],
 				properties: {
-					hierarchy: { type: "integer", minimum: 0, maximum: 5 },
-					separation: { type: "integer", minimum: 0, maximum: 5 },
+					actionClarity: { type: "integer", minimum: 0, maximum: 5 },
+					densityFit: { type: "integer", minimum: 0, maximum: 5 },
 					fidelity: { type: "integer", minimum: 0, maximum: 5 },
+					hierarchy: { type: "integer", minimum: 0, maximum: 5 },
+					patternFit: { type: "integer", minimum: 0, maximum: 5 },
+					separation: { type: "integer", minimum: 0, maximum: 5 },
 				},
 			},
 			schemaVersion: { const: SCHEMA_VERSION.qualityInspection },
@@ -395,6 +405,7 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 				required: ["code", "message", "severity"],
 				properties: {
 					code: { type: "string", minLength: 1 },
+					layer: { enum: ["understand", "compose", "revise"] },
 					message: { type: "string", minLength: 1 },
 					path: {
 						type: "array",

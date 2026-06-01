@@ -241,14 +241,33 @@ describe("@cx/schema public API", () => {
 				sourceFaithful: true,
 				visualHierarchyClear: true,
 			},
-			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
-			findings: [],
+			scores: {
+				actionClarity: 4,
+				densityFit: 4,
+				fidelity: 5,
+				hierarchy: 4,
+				patternFit: 3,
+				separation: 3,
+			},
+			findings: [
+				{ code: "density-too-high", layer: "compose", message: "Dense", severity: "info" },
+			],
 			summary: { errorCount: 0, warningCount: 0 },
 		};
 
 		expect(quality.scores?.hierarchy).toBe(4);
+		expect(quality.findings[0].layer).toBe("compose");
 		expect(getJsonSchema("quality-inspection")).toMatchObject({
-			properties: { scores: { type: "object" } },
+			properties: {
+				scores: {
+					properties: {
+						actionClarity: { type: "integer" },
+						densityFit: { type: "integer" },
+						patternFit: { type: "integer" },
+					},
+					type: "object",
+				},
+			},
 		});
 	});
 

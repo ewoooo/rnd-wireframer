@@ -4,8 +4,9 @@ P0 finding은 revision 후보가 될 수 있는 결함이다. P1 finding은 huma
 
 ## 점수 (scores)
 
-- `context.designContextBundles`의 quality-review 게이트로 hierarchy, separation, fidelity를 0–5로 채점해 `scores`에 담는다.
+- `context.designContextBundles`의 quality-review 게이트로 hierarchy, separation, fidelity, actionClarity, densityFit, patternFit을 0–5로 채점해 `scores`에 담는다.
 - 위반 규칙(섹션 사이 divider 누락, 카드 내부 divider 남발 등)은 severity finding으로 기록한다.
+- finding은 원인 레이어를 `understand`, `compose`, `revise` 중 하나로 표시한다.
 
 ## P0
 

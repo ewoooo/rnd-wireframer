@@ -1114,6 +1114,7 @@ function createFakeQualityInspection(validationReport: ValidationReportContract 
 			? [
 					{
 						code: "validation-warning-review",
+						layer: "revise",
 						message: "Generation result has validation warnings that should be reviewed.",
 						path: ["validationReport", "issues"],
 						severity: "warning",
@@ -1125,6 +1126,14 @@ function createFakeQualityInspection(validationReport: ValidationReportContract 
 			compositionAligned: warningCount === 0,
 			sourceFaithful: warningCount === 0,
 			visualHierarchyClear: true,
+		},
+		scores: {
+			actionClarity: warningCount === 0 ? 5 : 3,
+			densityFit: warningCount === 0 ? 5 : 3,
+			fidelity: warningCount === 0 ? 5 : 3,
+			hierarchy: warningCount === 0 ? 5 : 3,
+			patternFit: warningCount === 0 ? 5 : 3,
+			separation: warningCount === 0 ? 5 : 3,
 		},
 		schemaVersion: SCHEMA_VERSION.qualityInspection,
 		summary: {

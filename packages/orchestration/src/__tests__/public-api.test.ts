@@ -145,6 +145,10 @@ describe("@cx/orchestration public API", () => {
 		expect(input.query).toContain("hierarchy");
 		expect(input.query).toContain("separation");
 		expect(input.query).toContain("fidelity");
+		expect(input.query).toContain("actionClarity");
+		expect(input.query).toContain("densityFit");
+		expect(input.query).toContain("patternFit");
+		expect(input.query).toContain("findings[].layer");
 		expect(JSON.stringify(input.context)).toContain("GATE LINE");
 	});
 

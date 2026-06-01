@@ -171,8 +171,8 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.10 `review-quality` — AI · 자기비평
 - **입력 구성**: generation 베이스 + `candidate`, `validationReport`.
-- **AI 추론**: "생성물이 디자인적으로 좋은가?"를 **스스로 채점**한다. schema/semantic 검증을 통과한 트리를 quality-review 게이트 기준으로 다시 읽어 → source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험을 **판단**하고, `hierarchy/separation/fidelity` 3축을 0–5로 점수화한다. 위반마다 bounded finding(코드·심각도·메시지·위치·제안)을 남긴다. 파일을 고치지는 않는다 — **비평만** 하고 다음 게이팅이 교정 여부를 정한다.
-- **프롬프트 핵심**(`buildQualityReviewAgentInput`): schema/semantic 검증 후 디자인 품질 리뷰. source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험 점검. **3축 점수(`hierarchy`/`separation`/`fidelity`, 0–5)** + 위반마다 finding(`code/severity/message/optional path/suggestion`). bounded findings만, mutate·승인·필드 발명 금지.
+- **AI 추론**: "생성물이 디자인적으로 좋은가?"를 **스스로 채점**한다. schema/semantic 검증을 통과한 트리를 quality-review 게이트 기준으로 다시 읽어 → source fidelity·composition 정합·시각 위계·action 명료성·밀도 적합성·패턴 적합성·접근성 위험을 **판단**하고, 6축 점수를 0–5로 남긴다. 위반마다 bounded finding(코드·심각도·메시지·원인 레이어·위치·제안)을 남긴다. 파일을 고치지는 않는다 — **비평만** 하고 다음 게이팅이 교정 여부를 정한다.
+- **프롬프트 핵심**(`buildQualityReviewAgentInput`): schema/semantic 검증 후 디자인 품질 리뷰. source fidelity·composition 정합·시각 위계·action 명료성·밀도·패턴 적합성·접근성 위험 점검. **6축 점수(`hierarchy`/`separation`/`fidelity`/`actionClarity`/`densityFit`/`patternFit`, 0–5)** + 위반마다 finding(`code/severity/message/optional layer/path/suggestion`). bounded findings만, mutate·승인·필드 발명 금지.
 - **출력**: `quality-inspection.v0.1`(scores + findings). 아티팩트 `quality-review.json`(결과), input/runner-request→`trace.json`.
 - **참조**: `quality-review.md` 번들 본문(게이트 기준).
 
@@ -211,7 +211,7 @@ claude --print --output-format json --no-session-persistence \
 | `agent-result.json` | `agentResult` | generation 전체 payload(renderTree+table) |
 | `final-result.json` | `finalResult` | 최종 RenderTree(렌더 대상) |
 | `validation-report.json` | `validationReport` | 최종 검증 |
-| `quality-review.json` | `qualityReview` | 3축 점수 + findings |
+| `quality-review.json` | `qualityReview` | 6축 점수 + findings |
 | `component-proposal.json` | `componentProposal` | 비파괴 제안 |
 | `pipeline-result.json` | `pipelineResult` | side-effect 실행 결과 |
 
@@ -274,7 +274,7 @@ Compose
 Revise
   RenderTree
      → validate(스키마/계약/state/CTA)
-     → quality-review(3축 점수+findings)
+     → quality-review(6축 점수+findings)
      → next-action 게이팅 → (필요 시) 1회 revision → 재검증
      → write flat artifacts + manifest + trace
 ```

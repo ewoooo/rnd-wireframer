@@ -33,6 +33,7 @@ export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-regis
 export type { PreviewContract } from "./preview";
 export type {
 	QualityInspectionContract,
+	QualityInspectionLayer,
 	QualityInspectionScores,
 } from "./quality-inspection";
 export type {

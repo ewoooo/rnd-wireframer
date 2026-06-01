@@ -1,7 +1,10 @@
 import type { SCHEMA_VERSION } from "./versions";
 
+export type QualityInspectionLayer = "compose" | "revise" | "understand";
+
 export type QualityInspectionFinding = {
 	code: string;
+	layer?: QualityInspectionLayer;
 	message: string;
 	path?: Array<string | number>;
 	severity: "error" | "info" | "warning";
@@ -9,9 +12,12 @@ export type QualityInspectionFinding = {
 };
 
 export type QualityInspectionScores = {
-	hierarchy: number;
-	separation: number;
+	actionClarity: number;
+	densityFit: number;
 	fidelity: number;
+	hierarchy: number;
+	patternFit: number;
+	separation: number;
 };
 
 export type QualityInspectionContract = {

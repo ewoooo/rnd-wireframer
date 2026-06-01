@@ -87,4 +87,4 @@ agent-result.v0.1
 component-proposal.v0.1
 ```
 
-design-context bundle은 ref(`DesignContextBundleRef`)와 본문(`DesignContextBundleContent`)을 모두 계약으로 소유한다. `component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트 계약이고, `quality-inspection`은 hierarchy/separation/fidelity 점수(`scores`)를 선택 필드로 가진다.
+design-context bundle은 ref(`DesignContextBundleRef`)와 본문(`DesignContextBundleContent`)을 모두 계약으로 소유한다. `component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트 계약이고, `quality-inspection`은 hierarchy/separation/fidelity/actionClarity/densityFit/patternFit 점수(`scores`)와 finding 원인 레이어(`understand`/`compose`/`revise`)를 선택 필드로 가진다.

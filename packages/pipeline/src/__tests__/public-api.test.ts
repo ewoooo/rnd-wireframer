@@ -254,7 +254,14 @@ describe("@cx/pipeline public API", () => {
 	it("writes the quality review as a standalone artifact", () => {
 		const designCritique = {
 			schemaVersion: "quality-inspection.v0.1",
-			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
+			scores: {
+				actionClarity: 4,
+				densityFit: 4,
+				fidelity: 5,
+				hierarchy: 4,
+				patternFit: 3,
+				separation: 3,
+			},
 			findings: [],
 		};
 
