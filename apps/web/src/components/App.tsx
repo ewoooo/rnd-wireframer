@@ -7,8 +7,8 @@ import { useEffect, useMemo } from "react";
 import { mockAgentAssetRegistry } from "@/agent/mock-agent-assets";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
-import type { AppScreenModule } from "@/model/store";
-import { useWorkbenchStore } from "@/model/store";
+import type { AppScreenModule, NavigatorTab } from "@/model/store";
+import { buildAreaComponentCatalog, useWorkbenchStore } from "@/model/store";
 import { buildPuckConfig, buildPuckData, buildPuckOverrides } from "./screen/puck-config";
 import { buildAreaPuckConfig, buildAreaPuckData } from "./area/area-puck-config";
 import { Canvas } from "./layout/Canvas";
@@ -27,6 +27,8 @@ interface AppProps {
 }
 
 const ASIDE_WIDTH = "380px";
+const NAV_TAB_STORAGE_KEY = "workbench:nav-tab";
+const NAV_TABS = new Set<string>(["scn", "ogn", "comp", "agent"]);
 
 export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: AppProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);
@@ -49,9 +51,23 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);
 
+	// nav 탭 선택을 새로고침 후에도 유지. 마운트 후(하이드레이션 이후) 복원하여
+	// 서버 기본값("scn")과의 하이드레이션 불일치를 피한다.
+	useEffect(() => {
+		const saved = window.localStorage.getItem(NAV_TAB_STORAGE_KEY);
+		if (saved && NAV_TABS.has(saved)) {
+			selectTab(saved as NavigatorTab);
+		}
+	}, [selectTab]);
+
+	useEffect(() => {
+		window.localStorage.setItem(NAV_TAB_STORAGE_KEY, activeTab);
+	}, [activeTab]);
+
+	const areaComponentCatalog = useMemo(() => buildAreaComponentCatalog(areas), [areas]);
 	const puckConfig = useMemo(
-		() => (isAreaView ? buildAreaPuckConfig(selectedArea?.node) : buildPuckConfig(areas, selectedScreen)),
-		[isAreaView, selectedArea?.node, areas, selectedScreen],
+		() => (isAreaView ? buildAreaPuckConfig(areaComponentCatalog) : buildPuckConfig(areas, selectedScreen)),
+		[isAreaView, areaComponentCatalog, areas, selectedScreen],
 	);
 	const puckData = useMemo(
 		() => (isAreaView ? buildAreaPuckData(selectedArea?.node) : buildPuckData(selectedScreen)),

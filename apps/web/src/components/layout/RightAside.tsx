@@ -10,7 +10,12 @@ export function RightAside() {
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
+	const isAreaView = useWorkbenchStore((state) => state.isAreaView);
 	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
+
+	// Properties(Puck.Fields)는 편집 컨텍스트가 있을 때 렌더. area 뷰는 activeScreen 이
+	// 없으므로 isAreaView 도 함께 본다.
+	const hasEditTarget = !!screen || isAreaView;
 
 	return (
 		<Aside side="right">
@@ -34,19 +39,25 @@ export function RightAside() {
 			) : (
 				<>
 					<Panel title="Properties" defaultSize={50} minSize={20}>
-						{screen ? (
+						{hasEditTarget ? (
 							<div className="flex flex-col gap-4">
 								<Puck.Fields />
 							</div>
 						) : null}
 					</Panel>
 
-					{/* Area List = Screen 페이지 전용 패널. area를 화면에 꺼내주는 드로어(텐키처럼) */}
-					{activeTab === "scn" ? (
+					{/* 드로어 패널: 캔버스에 끌어다 놓을 팔레트.
+					    Screen(scn)=Area List(area를 화면에 꺼냄), Area(ogn)=Component List(component를 area에 꺼냄).
+					    구조적으로 동일하며 Puck.Components 가 config.components 를 드래그 소스로 렌더한다. */}
+					{activeTab === "scn" || activeTab === "ogn" ? (
 						<>
 							<Divider />
 
-							<Panel title="Area List" defaultSize={50} minSize={15}>
+							<Panel
+								title={activeTab === "ogn" ? "Component List" : "Area List"}
+								defaultSize={50}
+								minSize={15}
+							>
 								<TooltipProvider>
 									<div className="area-list-drawer">
 										<Puck.Components />

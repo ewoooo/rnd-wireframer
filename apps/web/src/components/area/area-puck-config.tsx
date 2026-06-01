@@ -4,19 +4,17 @@ import type { RenderTreeNode } from "@cx/renderer";
 
 // Area 캔버스용 Puck 설정.
 // screen/puck-config 의 buildPuckConfig/buildPuckData 를 area 레벨로 미러한 것.
-// screen 에서는 area 들이 드래그 가능한 Puck content 였다면,
-// 여기서는 선택된 area 의 자식 component 들이 드래그 가능한 content 가 된다.
-export function buildAreaPuckConfig(areaNode: RenderTreeNode | undefined): Config {
+// config.components = 전체 component 카탈로그(드로어 팔레트). screen 이 config 에
+// 전체 area 카탈로그를 담아 우하단 드로어로 보여주는 것과 구조적으로 동일하다.
+// data.content(buildAreaPuckData)는 현재 선택 area 의 자식만(캔버스에 놓인 부분집합).
+export function buildAreaPuckConfig(catalog: Map<string, RenderTreeNode>): Config {
 	const components: Config["components"] = {};
-	if (!areaNode) return { components, root: { fields: {} } };
 
-	for (const child of areaNode.children ?? []) {
-		const key = child.metadata.id;
-		if (components[key]) continue;
-		components[key] = {
-			label: child.metadata.title,
+	for (const [id, node] of catalog) {
+		components[id] = {
+			label: node.metadata.title,
 			fields: {},
-			render: () => <RenderTreeNodeRenderer node={child} />,
+			render: () => <RenderTreeNodeRenderer node={node} />,
 		};
 	}
 
