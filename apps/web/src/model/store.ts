@@ -61,7 +61,9 @@ export interface AppScreenVariantOption {
 export interface SelectedAreaContext {
 	code: string;
 	node: RenderTreeNode;
-	screen: AppScreen;
+	// 화면에 임베드된 area(컴포넌트 부모 탐색용)일 때만 존재.
+	// area 페이지에서 카탈로그 노드를 직접 편집할 때는 screen 컨텍스트가 없다.
+	screen?: AppScreen;
 }
 
 export interface SelectedComponentContext {
@@ -105,6 +107,7 @@ interface WorkbenchState {
 	screenRoutes: AppScreenRoute[];
 	screens: AppScreen[];
 	reorderScreenAreas: (screenCode: string, areaCodes: string[]) => void;
+	reorderAreaChildren: (areaCode: string, childCodes: string[]) => void;
 	selectAgentNode: (node: AgentNodeSelection) => void;
 	selectComponent: (componentCode: string) => void;
 	selectArea: (areaCode: string) => void;
@@ -261,6 +264,27 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 			...getDerivedWorkbenchState(nextState),
 		});
 	},
+	reorderAreaChildren: (areaCode, childCodes) => {
+		const state = get();
+		const nextAreas = state.areas.map((area) => {
+			if (area.code !== areaCode) return area;
+			const nextNode = reorderWorkbenchAreaChildren(area.node, childCodes);
+			return {
+				...area,
+				node: nextNode,
+				componentCount: nextNode.children?.length ?? 0,
+			};
+		});
+		const nextState = {
+			...state,
+			areas: nextAreas,
+		} satisfies WorkbenchState;
+
+		set({
+			areas: nextAreas,
+			...getDerivedWorkbenchState(nextState),
+		});
+	},
 	selectScreenRoute: (screenRouteId) => {
 		const state = get();
 		const route = state.screenRoutes.find((candidate) => candidate.code === screenRouteId);
@@ -382,6 +406,7 @@ function getDerivedWorkbenchState(
 		WorkbenchState,
 		| "agentRegistry"
 		| "activeNavigatorTab"
+		| "areas"
 		| "screens"
 		| "selectedAgentNode"
 		| "selectedComponentCode"
@@ -390,7 +415,13 @@ function getDerivedWorkbenchState(
 	>,
 ) {
 	const selectedScreen = getSelectedScreen(state.screens, state.selectedScreenCode);
-	const selectedArea = getSelectedAreaContext(state.screens, state.selectedAreaCode);
+	// area 페이지는 카탈로그 노드(organisms 기반)를 직접 편집한다.
+	// 화면에 임베드된 인스턴스가 아니라 area 자체가 편집 대상이므로,
+	// 어느 screen에도 안 쓰인 area도 편집할 수 있다.
+	const areaCatalogEntry = state.areas.find((area) => area.code === state.selectedAreaCode);
+	const selectedArea: SelectedAreaContext | undefined = areaCatalogEntry
+		? { code: areaCatalogEntry.code, node: areaCatalogEntry.node }
+		: undefined;
 	const selectedComponent = getSelectedComponentContext(state.screens, state.selectedComponentCode);
 	const isAreaView = state.activeNavigatorTab === "ogn" && Boolean(selectedArea);
 	const isComponentView = state.activeNavigatorTab === "comp" && Boolean(selectedComponent);
@@ -443,6 +474,23 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 		areas: nextAreas,
 		schema,
 	};
+}
+
+// area 카탈로그 노드의 자식(component) 들을 Puck content 순서(childCodes)에 맞춰 재구성한다.
+// reorderWorkbenchScreenAreas 의 area 레벨 버전: 재정렬·복제·삭제를 모두 반영한다.
+function reorderWorkbenchAreaChildren(areaNode: RenderTreeNode, childCodes: string[]): RenderTreeNode {
+	const node = cloneSchema(areaNode);
+	const templateById = new Map<string, RenderTreeNode>();
+	for (const child of node.children ?? []) {
+		if (!templateById.has(child.metadata.id)) {
+			templateById.set(child.metadata.id, child);
+		}
+	}
+	node.children = childCodes
+		.map((code) => templateById.get(code))
+		.filter(isRenderTreeNode)
+		.map((child) => cloneSchema(child));
+	return node;
 }
 
 // contents region의 area 컨테이너를 Puck content 순서(areaCodes)에 맞춰 재구성한다.

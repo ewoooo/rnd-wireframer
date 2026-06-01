@@ -231,6 +231,16 @@ function getAreaId(node: RenderTreeNode) {
 		: node.metadata.id;
 }
 
+// area 카탈로그 노드(organisms 기반)의 자식들을 organisms.children 포맷
+// ({kind:"component", id}[]) 으로 직렬화한다. area 페이지 저장에서 사용.
+// children 의 순서/구성만 뽑으며 component 행 자체는 건드리지 않는다
+// (nodeToComposite 는 손실 변환이므로 components 테이블 갱신에는 쓰지 않는다).
+export function areaNodeToChildren(node: RenderTreeNode): SampleArea["children"] {
+	const warnings: string[] = [];
+	const throwawayComposites = new Map<string, SampleComposite>();
+	return extractAreaChildren(node.children ?? [], throwawayComposites, warnings);
+}
+
 function isGeneratedPageStack(node: RenderTreeNode) {
 	return node.type === "PageStack";
 }

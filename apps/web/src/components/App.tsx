@@ -10,6 +10,7 @@ import type { AppArea, AppScreen } from "@/adapters/tables-to-render-tree";
 import type { AppScreenModule } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { buildPuckConfig, buildPuckData, buildPuckOverrides } from "./screen/puck-config";
+import { buildAreaPuckConfig, buildAreaPuckData } from "./area/area-puck-config";
 import { Canvas } from "./layout/Canvas";
 import { LeftAside } from "./layout/LeftAside";
 import { Rail } from "./layout/Rail";
@@ -33,7 +34,10 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 	const selectTab = useWorkbenchStore((state) => state.selectTab);
 	const areas = useWorkbenchStore((state) => state.areas);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
+	const selectedArea = useWorkbenchStore((state) => state.selectedArea);
+	const isAreaView = useWorkbenchStore((state) => state.isAreaView);
 	const reorderScreenAreas = useWorkbenchStore((state) => state.reorderScreenAreas);
+	const reorderAreaChildren = useWorkbenchStore((state) => state.reorderAreaChildren);
 
 	useEffect(() => {
 		initializeWorkbench({
@@ -45,20 +49,38 @@ export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: App
 		});
 	}, [agentRegistry, initializeWorkbench, initialData]);
 
-	const puckConfig = useMemo(() => buildPuckConfig(areas, selectedScreen), [areas, selectedScreen]);
-	const puckData = useMemo(() => buildPuckData(selectedScreen), [selectedScreen]);
+	const puckConfig = useMemo(
+		() => (isAreaView ? buildAreaPuckConfig(selectedArea?.node) : buildPuckConfig(areas, selectedScreen)),
+		[isAreaView, selectedArea?.node, areas, selectedScreen],
+	);
+	const puckData = useMemo(
+		() => (isAreaView ? buildAreaPuckData(selectedArea?.node) : buildPuckData(selectedScreen)),
+		[isAreaView, selectedArea?.node, selectedScreen],
+	);
 	const puckOverrides = useMemo(() => buildPuckOverrides(puckConfig), [puckConfig]);
+
+	const puckKey = isAreaView ? `area:${selectedArea?.code ?? "none"}` : selectedScreen?.code ?? "no-screen";
 
 	return (
 		<Puck
-			key={selectedScreen?.code ?? "no-screen"}
+			key={puckKey}
 			config={puckConfig}
 			data={puckData}
 			overrides={puckOverrides}
 			iframe={{ enabled: false }}
 			onChange={(data) => {
-				if (!selectedScreen) return;
 				const nextCodes = data.content.map((item) => item.type as string);
+				if (isAreaView) {
+					if (!selectedArea) return;
+					const currentCodes = (selectedArea.node.children ?? []).map((child) => child.metadata.id);
+					const unchanged =
+						nextCodes.length === currentCodes.length &&
+						nextCodes.every((code, index) => code === currentCodes[index]);
+					if (unchanged) return;
+					reorderAreaChildren(selectedArea.code, nextCodes);
+					return;
+				}
+				if (!selectedScreen) return;
 				const currentCodes = [...selectedScreen.areas]
 					.sort((a, b) => a.order - b.order)
 					.map((area) => area.areaCode);

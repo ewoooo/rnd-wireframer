@@ -73,10 +73,7 @@ export function Canvas() {
 				) : isAreaView && selectedArea ? (
 					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
 						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<RenderTreeNodeRenderer
-								data={selectedArea.screen.schema.data}
-								node={selectedArea.node}
-							/>
+							<Puck.Preview />
 						</div>
 					</div>
 				) : canvasEmptyMessage ? (
