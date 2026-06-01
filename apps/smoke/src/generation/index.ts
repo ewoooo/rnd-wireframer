@@ -1,3 +1,13 @@
+export {
+	formatBatchReport,
+	resolveBatchTargets,
+	runGenerationBatch,
+} from "./batch";
+export type {
+	BatchResult,
+	BatchScreenResult,
+	RunGenerationBatchOptions,
+} from "./batch";
 export { runGenerationSmoke } from "./run-generation-smoke";
 export type {
 	GenerationSmokeOptions,

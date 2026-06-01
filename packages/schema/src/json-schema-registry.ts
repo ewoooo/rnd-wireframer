@@ -72,10 +72,10 @@ function createComponentProposalJsonSchema(): JsonSchemaDocument {
 			proposal: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "title", "rationale", "sourceEvidence", "nearestCatalogMatch"],
+				required: ["id", "proposedComponentType", "rationale", "sourceEvidence", "nearestCatalogMatch"],
 				properties: {
 					id: { type: "string", minLength: 1 },
-					title: { type: "string", minLength: 1 },
+					proposedComponentType: { type: "string", minLength: 1 },
 					rationale: { type: "string", minLength: 1 },
 					sourceEvidence: {
 						type: "array",

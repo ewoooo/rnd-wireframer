@@ -22,6 +22,7 @@ Source docs: `packages/agent/docs/quality-review/checklist.md`, `packages/agent/
 - interaction: primary CTA, bottom action, form validation, overlay close/action 등 완료 필수 interaction 누락.
 - state-coverage: form/list/search/detail/async surface가 암시됨에도 필요한 empty/error/loading/disabled/validation 상태가 전혀 없음.
 - separation: 섹션 구분 Divider 누락, 또는 카드 내부 Divider 남발.
+- interaction: Screen.Bottom에 `display.when` 게이팅 없는 primary CTA가 2개 이상(상태 변형이 동시 노출). 단일 CTA 또는 상호배타 when으로 수정.
 
 ## P1 finding (human review/warning 후보)
 

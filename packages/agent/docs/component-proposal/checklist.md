@@ -5,7 +5,7 @@
 ## P0
 
 - 출력은 단일 JSON object이고 `schemaVersion`은 `component-proposal.v0.1`.
-- 각 proposal은 `id`, `title`, `rationale`, `sourceEvidence`, `nearestCatalogMatch`를 갖는다.
+- 각 proposal은 `id`, `proposedComponentType`, `rationale`, `sourceEvidence`, `nearestCatalogMatch`를 갖는다.
 - `sourceEvidence`의 모든 ref는 `context.sourceReferenceCatalog.allowedRefs`에 존재한다.
 - `nearestCatalogMatch`는 `context.componentContractCatalog`의 component type 중 하나다.
 - `proposals`는 5개 이하다.

@@ -40,6 +40,8 @@ export type ScreenGenerationPipelineOptions = {
 		rootDir?: string;
 		saveLocal?: boolean;
 	};
+	/** Evaluation 전용: design-context bundle 본문 주입을 끈다(A/B 비교). */
+	disableDesignContext?: boolean;
 	outDir?: string;
 	runId?: string;
 	source:
@@ -49,6 +51,8 @@ export type ScreenGenerationPipelineOptions = {
 				type: "file";
 		  }
 		| string;
+	/** Batch 그룹 식별용 태그. manifest.tags로 기록된다. */
+	tags?: string[];
 	useAI?: boolean;
 };
 

@@ -6,7 +6,7 @@ import type { SCHEMA_VERSION } from "./versions";
  */
 export type ComponentProposal = {
 	id: string;
-	title: string;
+	proposedComponentType: string;
 	rationale: string;
 	sourceEvidence: string[];
 	nearestCatalogMatch: string;

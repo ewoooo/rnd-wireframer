@@ -143,11 +143,13 @@ type ScreenGenerationPipelineState = {
 
 type NormalizedScreenGenerationPipelineOptions = {
 	agentMode: "claude-local-first" | "fake";
+	disableDesignContext: boolean;
 	outDir: string;
 	runDir: string;
 	runId: string;
 	sourceKind: PipelineMarkdownSourceFile["kind"];
 	sourcePath: string;
+	tags: string[];
 };
 
 type ScreenGenerationStageExecutor = (state: ScreenGenerationPipelineState) => Promise<void> | void;
@@ -409,9 +411,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const agentInput = buildScreenGenerationAgentInput(sourceSpec, {
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -475,9 +475,7 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const proposalInput = buildComponentProposalAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog,
@@ -518,10 +516,11 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 		taskKind: "component-proposal",
 	});
 	// 제안은 비파괴 아티팩트다. 검증은 bounded 여부만 리포트하고 파이프라인을 실패시키지 않는다.
+	// allowedRefs는 source reference catalog(생성 입력 context)의 전체 vocabulary를 기준으로 한다.
 	state.componentProposalValidationReport = validateComponentProposal(
 		state.componentProposalAgentResult.payload,
 		{
-			allowedRefs: componentContractCatalog.entries.flatMap((entry) => entry.sourceRefs),
+			allowedRefs: proposalInput.context.sourceReferenceCatalog.allowedRefs,
 			catalogComponentTypes: componentContractCatalog.entries.map((entry) => entry.componentType),
 		},
 	);
@@ -529,9 +528,7 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 
 async function runReviewQualityStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const qualityReviewInput = buildQualityReviewAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
@@ -591,9 +588,7 @@ async function runReviseRenderTreeIfInvalidStage(
 
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const revisionInput = buildScreenRevisionAgentInput({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -726,10 +721,12 @@ function normalizeScreenGenerationPipelineOptions(
 
 	return {
 		agentMode: options.agentMode ?? (options.useAI ? "claude-local-first" : "fake"),
+		disableDesignContext: options.disableDesignContext ?? false,
 		...resolveRunOutputPaths(options, runId),
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
 		sourcePath,
+		tags: options.tags ?? [],
 	};
 }
 
@@ -951,7 +948,7 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 			source: "agentResult.payload.tableGenerationResult",
 			usage: "validation-and-comparison-only",
 		},
-		tags: [],
+		tags: state.options.tags,
 		validationReport: "artifacts/28-validation-report.json",
 	};
 }
@@ -1085,6 +1082,13 @@ function createFakeQualityInspection(validationReport: ValidationReportContract 
 			warningCount: warningCount > 0 ? 1 : 0,
 		},
 	};
+}
+
+async function loadBundleContentsForState(
+	state: ScreenGenerationPipelineState,
+): Promise<DesignContextBundleContent[]> {
+	if (state.options.disableDesignContext) return [];
+	return loadDesignContextBundleContents(state.designContextBundleSelection?.bundleRefs ?? []);
 }
 
 function createFakeComponentProposal() {

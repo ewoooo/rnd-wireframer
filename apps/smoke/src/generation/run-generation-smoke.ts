@@ -12,11 +12,13 @@ export async function runGenerationSmoke(
 			preset: options.artifactStore,
 			rootDir: options.artifactRoot,
 		},
+		disableDesignContext: options.disableDesignContext,
 		outDir: options.outDir,
 		runId: options.runId,
 		source: {
 			path: target,
 			type: "file",
 		},
+		tags: options.tags,
 	}) as Promise<GenerationSmokeResult>;
 }

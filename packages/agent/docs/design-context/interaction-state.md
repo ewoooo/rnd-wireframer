@@ -12,6 +12,7 @@ Source docs: `docs/design/INTERACTION_PATTERNS.md`, `docs/design/SECTION_PATTERN
 - list/search: empty/no-result, long item, selected/filter.
 - detail/async: loading, error, populated.
 - SourceSpec에 errorPolicy, 필수 동의, disabled, loading, validation 근거가 있으면 `display.stateRole`로 bounded 하게 표현한다.
+- **한 슬롯의 상태 변형(특히 Bottom CTA)은 반드시 `display.when`으로 상호배타 게이팅**하거나 단일 노드로 표현한다. 렌더러는 `display.when`이 falsy가 아닌 모든 노드를 그리므로, 게이팅 없는 primary CTA를 Bottom에 2개 두면 둘 다 보인다(규칙 위반).
 
 ## CTA 위치·위계
 

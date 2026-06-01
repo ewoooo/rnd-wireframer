@@ -167,6 +167,7 @@ export function buildScreenGenerationAgentInput(
 			"When context.decorationPlan.areas[].repeatedItems exists, use its propsHint values before falling back to placeholder source props.",
 			"ListText with props.table dot must include props.subText for visible row copy.",
 			"When SourceSpec includes errorPolicy, required agreement, disabled, loading, or validation evidence, include bounded display.stateRole coverage in RenderTree.",
+			"State-variant nodes that share one slot (especially Bottom CTAs) MUST be mutually exclusive via display.when, or be expressed as a single node. Never place two ungated primary CTAs in Screen.Bottom; the renderer shows every node without a falsy display.when.",
 			"Every CompositionPlan section should be visible in tableGenerationResult through matching region, area, component, metadata, or provenance identifiers.",
 			"Preserve high-priority source refs from context.compositionPlan.sections[].sourceRefs whenever possible.",
 			"Use context.patternSelection as layout-pattern guidance when present.",
@@ -178,8 +179,9 @@ export function buildScreenGenerationAgentInput(
 			'Use the final RenderTree handoff shape as the primary result contract: top-level version, minRendererVersion "0.1.0", metadata, theme {"mode":"light"}, and children containing a Screen root.',
 			"Screen region containers may omit props. When region props are present, keep them valid and renderer-oriented.",
 			"Use PageStack or layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.",
-			"Use Divider only when the selected pattern-store candidate or source composition requires separation; keep it as a component node, not a raw border.",
-			"Decide Divider and spacing from context.designContextBundles rules and screen context: add a 1px divider between list rows, a 4px divider between sections, and omit dividers when card or group containers already separate content.",
+			'Render separation between stack rows via the area stack node props.divider, not standalone Divider leaf nodes. Set props.divider: true on list/checkbox/field stack area nodes (e.g. layout.area.listStack, layout.area.checkboxStack) to draw 1px dividers between their children. Use props.divider: "section" for thicker (4px) section separation. Omit (false/absent) when card or group containers already separate content.',
+			"Decide props.divider from context.designContextBundles rules and screen context. The renderer draws trailing dividers between stack children from this prop; do not add raw borders or insert Divider components for stack-row separation.",
+			"For 4px separation BETWEEN sections (between two area nodes in Screen.Contents), set props.sectionDivider: true on the leading area node; the renderer draws a trailing section divider after that area. Omit it on the last section and when cards/groups already separate sections. props.divider is for rows inside a stack; props.sectionDivider is for breaks between stacks.",
 			"Apply visual hierarchy through component choice and props within the catalog (section titles vs rows, emphasis via component props). Do not invent colors, gradients, or icons for emphasis.",
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
@@ -369,7 +371,7 @@ export function buildComponentProposalAgentInput(input: {
 	return {
 		query: [
 			"Propose components or variants that are NOT in the catalog but would improve this screen.",
-			"Each proposal must include sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
+			"Each proposal must include id (string), proposedComponentType (string: the name of the proposed new component/variant), sourceEvidence (array of ref strings from context.sourceReferenceCatalog.allowedRefs), nearestCatalogMatch (a single string equal to one componentType from context.componentContractCatalog), rationale (string), and optional suggestedProps (object).",
 			"Use context.designContextBundles[].body as bounded design guidance for what would improve the screen.",
 			"Return at most 5 proposals. Do not confirm or apply anything; this is a non-binding proposal artifact.",
 			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.componentProposal}.`,

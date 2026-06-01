@@ -24,6 +24,20 @@ export function resolveDivider(
 	return toLayoutDivider(value);
 }
 
+/**
+ * Wraps area stack content with a trailing 4px section divider when sectionDivider is true.
+ * 행 사이 divider(renderChildrenWithDividers)와 직교한다. 섹션(area) 간 구분에 쓴다.
+ */
+export function withTrailingSectionDivider(content: ReactNode, sectionDivider: unknown): ReactNode {
+	if (sectionDivider !== true) return content;
+	return (
+		<>
+			{content}
+			<Divider type="section" />
+		</>
+	);
+}
+
 export function renderChildrenWithDividers(
 	children: ReactNode,
 	divider?: LayoutDivider,

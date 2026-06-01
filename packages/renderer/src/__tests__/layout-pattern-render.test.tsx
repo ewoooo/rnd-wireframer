@@ -541,6 +541,53 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(getPageStackItems(screen.getByText("Price row 1")).children).toHaveLength(4);
 	});
 
+	it("renders a trailing section divider after the area stack when sectionDivider is true", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.dynamic",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "terms-list", title: "약관 목록" },
+					props: { sectionDivider: true },
+					children: [
+						{
+							type: "ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "terms-row-1", title: "약관 1" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const dividers = screen.getAllByRole("separator");
+		expect(dividers).toHaveLength(1);
+		expect(dividers[0].className).toContain("section");
+	});
+
+	it("does not render a trailing section divider when sectionDivider is absent", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.dynamic",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "terms-list-2", title: "약관 목록" },
+					children: [
+						{
+							type: "ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "terms-row-a", title: "약관 1" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.queryAllByRole("separator")).toHaveLength(0);
+	});
+
 	it("does not add dividers to page stack patterns without divider defaults", () => {
 		render(
 			<RenderNodeView
