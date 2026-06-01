@@ -149,6 +149,7 @@ type NormalizedScreenGenerationPipelineOptions = {
 	runId: string;
 	sourceKind: PipelineMarkdownSourceFile["kind"];
 	sourcePath: string;
+	tags: string[];
 };
 
 type ScreenGenerationStageExecutor = (state: ScreenGenerationPipelineState) => Promise<void> | void;
@@ -725,6 +726,7 @@ function normalizeScreenGenerationPipelineOptions(
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
 		sourcePath,
+		tags: options.tags ?? [],
 	};
 }
 
@@ -946,7 +948,7 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 			source: "agentResult.payload.tableGenerationResult",
 			usage: "validation-and-comparison-only",
 		},
-		tags: [],
+		tags: state.options.tags,
 		validationReport: "artifacts/28-validation-report.json",
 	};
 }

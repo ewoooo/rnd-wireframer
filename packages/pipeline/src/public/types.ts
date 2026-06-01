@@ -51,6 +51,8 @@ export type ScreenGenerationPipelineOptions = {
 				type: "file";
 		  }
 		| string;
+	/** Batch 그룹 식별용 태그. manifest.tags로 기록된다. */
+	tags?: string[];
 	useAI?: boolean;
 };
 
