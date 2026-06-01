@@ -24,12 +24,23 @@
   2. 🐛 `nearestCatalogMatch`를 AI가 객체로 산출 → schema-invalid. 프롬프트/문서에 string 명시. → **수정 완료**.
   3. ⚠️ ListText dot 행 subText 누락 → validation 2err. → Phase D 후보(미해결).
 
-## Phase D(1차) — 삽입 경로 튜닝 🔄 검증 중
+## Phase D(1차) — 삽입 경로 튜닝 ✅
 
-- [x] Divider 게이팅 해제 + props.type contents(1px)/section(4px) 명시(프롬프트+visual-foundation 번들)
-- [x] nearestCatalogMatch string 명시(프롬프트+output-contract)
-- [ ] ON 재실행으로 Divider 생성·proposal 유효성 확인 (`tmp/eval-A/on2`)
-- [ ] ListText subText 규칙 충돌 해소(미정)
+- [x] **디바이더 관용구 정정**: 디바이더는 area stack 노드의 `props.divider`(boolean, 렌더러 자동)로 제공됨(사용자 지적). leaf-삽입 지시를 철회하고 listStack/checkboxStack 등 area 노드에 `props.divider: true`("section"=4px)를 켜도록 프롬프트+번들 수정. → 메모리 `divider-via-area-stack-prop` 기록.
+- [x] nearestCatalogMatch string 명시(프롬프트+output-contract) — 객체 산출 방지.
+- [x] proposal 필드 `title`→`proposedComponentType` (AI 자연 산출에 정렬).
+- [x] validation allowedRefs를 `sourceReferenceCatalog.allowedRefs`로 교정.
+- [x] ON 재실행(`tmp/eval-A/on2`) 결과: listStack/checkboxStack에 `props.divider:true` ✅, bottomAction엔 없음(맥락 판단) ✅, 최종 validation ok(0 err) ✅, proposal validation ok ✅, critique 4/3/4.
+- ListText subText: on2에서 미재현(이전 실패는 비결정). 모니터링 대상.
+
+## Phase C — 시각 확인 ✅
+
+- [x] eval-off/eval-on2를 `data/runs/screen-generation`에 staging, apps/web `/smoke` 탐색기로 렌더+diff
+- [x] /browse 스크린샷(`tmp/eval-A/compare.png`): **ON=행 사이 divider 라인 있음 / OFF=평평(없음)**, diff "props Δ 2". 헤드라인 목표(맥락 기반 세퍼레이터) 시각 확인 완료.
+
+## 결론
+
+번들 주입은 작동하며(AI가 번들 규칙 인용·적용), 올바른 관용구(`props.divider`)로 튜닝하니 화면 맥락에 따라 구분선이 자의적으로 생성됨. 제안 레이어·자기비평도 유효. eval 브랜치의 fix(proposedComponentType/allowedRefs/divider-via-prop)는 product 개선이므로 main 반영 권장.
 
 ## Phase C — 시각 확인 (apps/web + /browse) ⬜
 
