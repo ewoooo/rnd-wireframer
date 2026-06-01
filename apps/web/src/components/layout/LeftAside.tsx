@@ -591,18 +591,18 @@ function RouteListItem({ isActive, route, onSelect, onSaved, onDeleted }: RouteL
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			className={cn(
-				"group flex items-center gap-1 px-3 py-2 transition-colors hover:bg-accent",
+				"group flex cursor-pointer items-center gap-1 px-3 py-2 transition-colors hover:bg-accent",
 				isActive && "bg-primary/10 text-primary",
 			)}
+			onClick={onSelect}
+			onKeyDown={(e) => e.key === "Enter" && onSelect()}
 		>
-			{/* 이름 영역 (클릭 = 선택) + 수정 버튼 이름 바로 옆 */}
+			{/* 이름 영역 + 수정 버튼 이름 바로 옆 */}
 			<div
-				role="button"
-				tabIndex={0}
-				className="flex min-w-0 flex-1 cursor-pointer flex-col"
-				onClick={onSelect}
-				onKeyDown={(e) => e.key === "Enter" && onSelect()}
+				className="flex min-w-0 flex-1 flex-col"
 			>
 				<div className="flex items-center gap-1">
 					<span className={cn("truncate text-sm", isActive ? "font-semibold" : "font-normal")}>
