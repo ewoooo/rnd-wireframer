@@ -178,8 +178,8 @@ export function buildScreenGenerationAgentInput(
 			'Use the final RenderTree handoff shape as the primary result contract: top-level version, minRendererVersion "0.1.0", metadata, theme {"mode":"light"}, and children containing a Screen root.',
 			"Screen region containers may omit props. When region props are present, keep them valid and renderer-oriented.",
 			"Use PageStack or layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.",
-			"Use Divider only when the selected pattern-store candidate or source composition requires separation; keep it as a component node, not a raw border.",
-			"Decide Divider and spacing from context.designContextBundles rules and screen context: add a 1px divider between list rows, a 4px divider between sections, and omit dividers when card or group containers already separate content.",
+			'Divider is a catalog leaf component (type "Divider"); insert it directly as a component node where the design rules call for separation. It does NOT require a pattern-store layout candidate or layout id.',
+			'Decide Divider from context.designContextBundles rules and screen context: insert a Divider with props.type "contents" (1px) between list rows, and props.type "section" (4px) between sections; omit dividers when card or group containers already separate content. Never use a raw border.',
 			"Apply visual hierarchy through component choice and props within the catalog (section titles vs rows, emphasis via component props). Do not invent colors, gradients, or icons for emphasis.",
 			"Use context.sourceReferenceCatalog.allowedRefs as the only valid source ref vocabulary.",
 			"Use context.sourceReferenceCatalog.entries[].props, description, and raw notes as source text evidence for visible labels and descriptions.",
@@ -369,7 +369,7 @@ export function buildComponentProposalAgentInput(input: {
 	return {
 		query: [
 			"Propose components or variants that are NOT in the catalog but would improve this screen.",
-			"Each proposal must include id, proposedComponentType (the name of the proposed new component/variant), sourceEvidence (refs from context.sourceReferenceCatalog.allowedRefs), a nearestCatalogMatch from context.componentContractCatalog, a rationale, and optional suggestedProps.",
+			"Each proposal must include id (string), proposedComponentType (string: the name of the proposed new component/variant), sourceEvidence (array of ref strings from context.sourceReferenceCatalog.allowedRefs), nearestCatalogMatch (a single string equal to one componentType from context.componentContractCatalog), rationale (string), and optional suggestedProps (object).",
 			"Use context.designContextBundles[].body as bounded design guidance for what would improve the screen.",
 			"Return at most 5 proposals. Do not confirm or apply anything; this is a non-binding proposal artifact.",
 			`Return one JSON object only using schemaVersion: ${SCHEMA_VERSION.componentProposal}.`,

@@ -14,7 +14,8 @@ Source docs: `docs/design/LAYOUT_SPACING_CONTRACT.md`, `docs/design/VISUAL_FOUND
 - InfoTextList의 합계(total) 행 위에는 Divider를 둔다.
 - 카드/그룹 컨테이너(`Card 0/PagestackItem`, `Local_CardSection`, `CardSection`)가 이미 시각적 분리를 제공하면 Divider를 생략한다.
 - Footer 앞 풀블리드 얇은 구분선이 필요하면 `393×1px`.
-- Divider는 반드시 component node로 표현한다. raw border/그림자로 대체하지 않는다.
+- Divider는 카탈로그 leaf component node로 표현한다(raw border/그림자 금지). layout 후보 없이 직접 삽입한다.
+- 리스트 행 사이 Divider는 `props.type: "contents"`(1px), 섹션 사이는 `props.type: "section"`(4px)을 쓴다.
 - Divider를 같은 카드 내부 인접 요소 분리에 남발하지 않는다(그 경우 spacing으로 처리).
 
 ## Spacing 운영 (외부 margin보다 부모 gap/padding)

@@ -12,7 +12,7 @@
 | `proposedComponentType` | O | 제안하는 신규 component/변형의 이름(type) |
 | `rationale` | O | 왜 이 화면에 필요한지 (source 근거 기반) |
 | `sourceEvidence` | O | `context.sourceReferenceCatalog.allowedRefs` 안의 ref 1개 이상 |
-| `nearestCatalogMatch` | O | `context.componentContractCatalog` 안의 가장 가까운 component type |
+| `nearestCatalogMatch` | O | 문자열. `context.componentContractCatalog` 안의 component type 하나(객체 아님) |
 | `suggestedProps` | X | 제안 props(객체). 카탈로그 prop 어휘를 우선 참고 |
 
 - 제안만 한다. 어떤 것도 확정·반영하지 않는다.
