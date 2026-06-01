@@ -4,6 +4,7 @@ import {
 	type DecorationPlanContract,
 	type DesignContextBundleContent,
 	type DesignContextBundleRef,
+	type DesignSkillSelectionContract,
 	getJsonSchema,
 	type QualityInspectionContract,
 	type RenderTreeContract,
@@ -177,6 +178,33 @@ describe("@cx/schema public API", () => {
 
 		expect(content.id).toBe("visual-foundation");
 		expect(content.body.length).toBeGreaterThan(0);
+	});
+
+	it("exposes design skill selection as a schema-owned trace contract", () => {
+		const selection: DesignSkillSelectionContract = {
+			candidateSkills: [],
+			fallback: false,
+			rationale: "Detail confirmation screen has summary evidence and a bottom action.",
+			schemaVersion: SCHEMA_VERSION.designSkillSelection,
+			selectedSkill: {
+				appliesTo: ["detail-confirmation"],
+				id: "detail-confirmation-screen",
+				qualityGates: ["visual-hierarchy", "action-clarity", "pattern-fit"],
+				reason: "Summary and CTA source evidence match detail confirmation composition.",
+				requiredDesignDocs: [
+					"docs/design/COMPOSITION_LAYERS.md",
+					"docs/design/SCREEN_PATTERN_SUMMARY.md",
+					"docs/design/INTERACTION_PATTERNS.md",
+				],
+				version: "2026-06-01",
+			},
+		};
+
+		expect(selection.schemaVersion).toBe("design-skill-selection.v0.1");
+		expect(selection.selectedSkill.id).toBe("detail-confirmation-screen");
+		expect(selection.selectedSkill.requiredDesignDocs).toContain(
+			"docs/design/INTERACTION_PATTERNS.md",
+		);
 	});
 
 	it("exposes composition plan design decisions as schema-owned fields", () => {

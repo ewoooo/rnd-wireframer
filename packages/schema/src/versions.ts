@@ -4,6 +4,7 @@ export const SCHEMA_VERSION = {
 	applyResult: "apply-result.v0.1",
 	componentProposal: "component-proposal.v0.1",
 	decorationPlan: "decoration-plan.v0.1",
+	designSkillSelection: "design-skill-selection.v0.1",
 	draftCandidate: "draft-candidate.v0.1",
 	generationContext: "generation-context.v0.1",
 	preview: "preview.v0.1",

@@ -8,7 +8,7 @@
 
 **Tech Stack:** TypeScript 모노레포, vitest, biome, Claude Agent SDK(local-first), node fs adapter.
 
-**설계 문서:** `docs/superpowers/specs/2026-05-29-design-context-injection-design.md`
+**설계 문서:** `docs/archive/completed-plans/SUPERPOWERS_2026-05-29_DESIGN_CONTEXT_INJECTION_DESIGN.md`
 
 **테스트 실행:** `bun run test -- <패턴>` (vitest). 린트: `bun run lint`. 타입: `bun run typecheck`(있으면) 또는 `bunx tsc -p tsconfig.json --noEmit`.
 

@@ -14,30 +14,26 @@
 ```text
 Markdown source
 -> @cx/pipeline runtime
--> @cx/pipeline source artifact read
+-> screen-generation stage contract
 -> @cx/parser
 -> SourceSpec
 -> @cx/orchestration deterministic stage helpers
--> ScreenIntent / CompositionPlan
--> @cx/orchestration design-context bundle refs
--> @cx/pipeline design-context bundle content load + inject
--> @cx/agent screen-generation
--> @cx/agent component-proposal (non-binding)
+-> @cx/agent generation/review tasks
 -> @cx/validation contract validation
--> @cx/agent quality-review (design scoring + critique)
--> @cx/pipeline artifact write (final-result, component-proposal, design-critique)
--> versioned artifact / apply log
+-> @cx/pipeline artifact write
 -> @cx/renderer
 -> React preview
 ```
+
+stage 순서와 stage별 입출력 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)이다. 이 문서는 패키지 관계만 요약하고 stage 상세를 중복하지 않는다.
 
 `@cx/components`, `@cx/layout`, `@cx/tokens`, `@cx/layout-pattern-store`는 생성 흐름에서 참조되는 설계 계약과 렌더 계약의 source of truth다.
 `@cx/schema`는 generation pipeline 전반의 DTO와 JSON artifact 계약 버전을 추적한다.
 `@cx/table-materializer`는 table read model을 screen 단위 RenderTree로 조립하는 순수 변환 경계다.
 `@cx/smoke`는 위 흐름을 개발자가 반복 실행하는 통합 앱이다.
 생성/검수 prompt, checklist, output example 같은 문장형 참조 자산의 정본은 `packages/agent/docs/`가 소유한다. smoke/pipeline도 필요한 문장형 참조 자산은 이 정본 위치를 참조한다.
-design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/design-context/`다. `@cx/orchestration`은 bundle ref만 선택하고, `@cx/pipeline`이 `loadDesignContextBundleContents`로 본문을 로드해 generation/quality/revision/proposal 입력 context에 주입한다(결정론 유지, AI 파일 도구 미부여).
-`component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트다. generation은 카탈로그에 bounded인 채로 두고, 제안의 확정·반영은 `@cx/components` mutation으로만 한다. `quality-review`는 design-context 게이트로 hierarchy/separation/fidelity를 채점하고 P0 finding은 revision으로 환류된다.
+design skill과 design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/` 아래에 둔다. `@cx/orchestration`은 skill/bundle ref만 선택하고, `@cx/pipeline`이 bundle 본문을 로드해 agent stage context에 주입한다.
+`component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트다. generation은 카탈로그에 bounded인 채로 두고, 제안의 확정·반영은 `@cx/components` mutation으로만 한다.
 
 ## 3. 활성 패키지 요약
 
@@ -96,6 +92,7 @@ design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/d
 ## 6. Pipeline Runtime Boundary
 
 `@cx/pipeline`은 generation pipeline definition과 stage runtime을 소유한다. stage 순서, stage id, runtime context, agent 실행 연결, validation 호출 연결, artifact write 연결은 pipeline 경계에 둔다.
+stage 순서와 stage별 입출력, design skill/context 주입, revision 조건, artifact 추적 기준은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 `@cx/orchestration`은 pipeline stage 내부에서 쓰는 deterministic helper만 제공한다. SourceSpec, 후보 pattern, validation report 같은 입력을 agent task input이나 next-action data로 조립하지만 실행 가능한 plan을 소유하지 않는다.
 
@@ -109,13 +106,7 @@ design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/d
 script
 -> @cx/smoke/generation runGenerationSmoke
 -> @cx/pipeline runPipeline("screen-generation")
--> @cx/pipeline source artifact read
--> @cx/pipeline/parser
--> @cx/parser SourceSpec
--> @cx/orchestration/generation stage helpers
--> @cx/agent screen-generation
--> @cx/validation
--> @cx/pipeline artifact write
+-> PIPELINE_STAGE_PROTOCOL.md의 screen-generation stage sequence
 ```
 
 root script는 `apps/smoke` CLI를 호출한다. 외부 TypeScript 사용자는 `@cx/smoke/generation`의 `runGenerationSmoke(target, options)`를 사용할 수 있지만, 내부 구현은 `@cx/pipeline`의 `runPipeline("screen-generation", options)`를 호출한다.

@@ -3,6 +3,7 @@ import {
 	buildCompositionPlanAgentInput,
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
+	buildDesignSkillSelection,
 	buildGenerationNextAction,
 	buildPatternLayerCandidates,
 	buildPatternSelectionAgentInput,
@@ -222,6 +223,7 @@ describe("@cx/orchestration public API", () => {
 
 		const intentInput = buildScreenIntentAgentInput(sourceSpec);
 		const compositionInput = buildCompositionPlanAgentInput({
+			designSkillSelection: buildDesignSkillSelection({ sourceSpec, screenIntent }),
 			screenIntent,
 			sourceSpec,
 		});
@@ -230,10 +232,61 @@ describe("@cx/orchestration public API", () => {
 		expect(intentInput.context.targetArtifact.kind).toBe("screen-intent");
 		expect(compositionInput.query).toContain("Create a composition plan");
 		expect(compositionInput.query).toContain("visualHierarchy");
+		expect(compositionInput.query).toContain("designSkillSelection");
 		expect(compositionInput.query).toContain("rejectedPatterns");
 		expect(compositionInput.query).toContain("COMPOSITION_LAYERS");
 		expect(compositionInput.context.screenIntent).toBe(screenIntent);
+		expect(compositionInput.context.designSkillSelection?.selectedSkill.id).toBe(
+			"detail-confirmation-screen",
+		);
 		expect(compositionInput.context.targetArtifact.kind).toBe("composition-plan");
+	});
+
+	it("selects bounded design skills from source and intent evidence", () => {
+		const formSelection = buildDesignSkillSelection({
+			sourceSpec: {
+				schemaVersion: SCHEMA_VERSION.sourceSpec,
+				sourceImport: {
+					files: [],
+					importId: "sample",
+					receivedAt: "2026-05-27T00:00:00.000Z",
+					sourceKind: "prdd-markdown-bundle",
+				},
+				sourceShape: {
+					screen: {
+						name: "휴대폰 번호 입력",
+						regions: [
+							{
+								slot: "contents",
+								children: [
+									{
+										kind: "area",
+										sourceAreaId: "form",
+										children: [
+											{
+												componentType: "TextField",
+												kind: "component",
+												label: "휴대폰 번호 입력",
+												sourceComponentId: "TextFieldPhone",
+												sourceId: "phone-input",
+											},
+										],
+									},
+								],
+							},
+						],
+						route: "/sample",
+						screenCode: "SAMPLE-FORM",
+					},
+				},
+			},
+		});
+
+		expect(formSelection.selectedSkill.id).toBe("form-entry-screen");
+		expect(formSelection.selectedSkill.requiredDesignDocs).toContain(
+			"docs/design/INTERACTION_PATTERNS.md",
+		);
+		expect(formSelection.fallback).toBe(false);
 	});
 
 	it("builds pattern selection agent input from layer candidates", () => {

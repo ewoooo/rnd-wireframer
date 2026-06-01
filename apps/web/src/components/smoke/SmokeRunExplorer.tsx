@@ -184,6 +184,7 @@ function RunPreview({ run, title }: { run?: SmokeRunSummary; title: string }) {
 function RunLayerSummary({ run }: { run: SmokeRunSummary }) {
 	const layers = getLayerGroups(run);
 	const compositionPlan = run.compositionPlan;
+	const selectedSkill = run.trace?.designSkillSelection?.selectedSkill;
 
 	return (
 		<div className="mx-5 grid gap-2 rounded-md border bg-background p-3">
@@ -196,6 +197,21 @@ function RunLayerSummary({ run }: { run: SmokeRunSummary }) {
 					<LayerBadge key={layer.layer} layer={layer.layer} value={layer.artifactCount} />
 				))}
 			</div>
+			{selectedSkill ? (
+				<div className="grid gap-1 border-t pt-2 text-xs">
+					<p className="truncate">
+						<span className="text-muted-foreground">Skill</span> {selectedSkill.id ?? "-"}
+					</p>
+					<p className="truncate">
+						<span className="text-muted-foreground">Docs</span>{" "}
+						{selectedSkill.requiredDesignDocs?.length ?? 0}
+					</p>
+					<p className="truncate">
+						<span className="text-muted-foreground">Gates</span>{" "}
+						{selectedSkill.qualityGates?.join(", ") ?? "-"}
+					</p>
+				</div>
+			) : null}
 			{compositionPlan ? (
 				<div className="grid gap-1 border-t pt-2 text-xs">
 					<p className="truncate">

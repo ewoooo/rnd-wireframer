@@ -33,6 +33,7 @@ describe("SmokeRunExplorer navigation", () => {
 		expect(screen.queryByText("check")).not.toBeInTheDocument();
 		expect(screen.getAllByText("Inference Layers").length).toBeGreaterThan(0);
 		expect(screen.getAllByText("compose").length).toBeGreaterThan(0);
+		expect(screen.getAllByText("detail-confirmation-screen").length).toBeGreaterThan(0);
 		expect(screen.getAllByText("Content first").length).toBeGreaterThan(0);
 	});
 });
@@ -99,5 +100,14 @@ function createRun(id: string): SmokeRunSummary {
 			stateCoverageCount: 0,
 		},
 		runDir: `/tmp/${id}`,
+		trace: {
+			designSkillSelection: {
+				selectedSkill: {
+					id: "detail-confirmation-screen",
+					qualityGates: ["visual-hierarchy", "action-clarity"],
+					requiredDesignDocs: ["docs/design/COMPOSITION_LAYERS.md"],
+				},
+			},
+		},
 	};
 }

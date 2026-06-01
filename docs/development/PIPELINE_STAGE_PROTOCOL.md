@@ -2,11 +2,11 @@
 
 ## 1. 문서 책임
 
-이 문서는 `@cx/pipeline`이 실행하는 stage 순서, stage 간 입출력, side effect 경계를 정의한다.
+이 문서는 `@cx/pipeline`이 실행하는 stage 순서, stage 간 입출력, side effect 경계의 정본이다.
 
 제품 방향은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 패키지 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다.
 
-이 문서는 개별 validator 규칙 본문이나 prompt 원문을 소유하지 않는다. 해당 내용은 각 패키지와 [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)에서 관리한다.
+이 문서는 개별 validator 규칙 본문, prompt 원문, agent-facing design skill/checklist 본문을 소유하지 않는다. 해당 내용은 각 패키지와 [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)에서 관리한다.
 
 ## 2. 목적
 
@@ -14,6 +14,8 @@
 
 - 어떤 stage가 어떤 순서와 책임으로 실행되는가
 - 각 stage에서 어느 패키지가 입력 조립, AI 실행, 검증, 파일 반영을 소유하는가
+
+`PACKAGE_MAP.md`와 `packages/pipeline/README.md`는 패키지 관계와 사용법만 요약하고, stage 순서와 stage별 계약은 이 문서로 링크한다.
 
 ## 3. 소유 경계
 
@@ -34,6 +36,13 @@ source artifact read
 - `@cx/validation`: schema/catalog/layout 검증 리포트 반환
 - `@cx/renderer`: 완료된 RenderTree preview 소비만 담당
 
+design skill/context 경계:
+
+- `@cx/orchestration`: `DesignSkillSelection`과 design-context bundle ref를 결정론적으로 선택한다.
+- `@cx/pipeline`: 선택된 bundle ref의 agent-facing 본문을 로드해 필요한 agent stage context에 주입하고, 선택 결과를 artifact trace에 기록한다.
+- `@cx/agent`: 주입된 skill/context를 prompt 입력으로 소비한다. 파일 도구로 디자인 문서를 직접 읽지 않는다.
+- `packages/agent/docs/`: design skill 본문, design-context bundle 본문, prompt/checklist/output contract의 agent-facing 정본을 소유한다.
+
 ## 4. 현재 pipeline 식별자
 
 현재 실행 가능한 pipeline id:
@@ -53,6 +62,8 @@ read-source
 -> select-pattern
 -> generate-render-tree
 -> validate-render-tree
+-> propose-components
+-> review-quality
 -> revise-render-tree-if-invalid
 -> validate-render-tree-after-revision
 -> write-artifacts
@@ -60,7 +71,19 @@ read-source
 
 stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순서를 결정하지 않는다.
 
-## 6. Stage 입출력 계약
+## 6. 논리 레이어
+
+물리 artifact 파일은 stage 번호가 없는 flat 구조로 저장하지만, manifest와 trace는 stage를 다음 논리 레이어로 묶는다.
+
+| 레이어 | Stage |
+|---|---|
+| `Understand` | `read-source`, `parse-source`, `derive-screen-intent` |
+| `Compose` | `plan-composition`, `derive-decoration-plan`, `select-pattern`, `generate-render-tree`, `propose-components` |
+| `Revise` | `validate-render-tree`, `review-quality`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts` |
+
+소비자는 파일명 prefix를 추측하지 않고 `manifest.json.stageOrder`, `manifest.json.stageLayers`, `trace.json.layers`, artifact pointer를 따른다.
+
+## 7. Stage 입출력 계약
 
 ### `read-source`
 
@@ -87,7 +110,9 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 - 입력 조립 소유: `@cx/orchestration`
 - AI 실행 소유: `@cx/agent`
-- 출력: `composition-plan` agent result
+- 입력: SourceSpec, screen-intent result, pattern layer candidates, design skill selection
+- 출력: `composition-plan` agent result, selected design skill trace
+- 책임: `buildDesignSkillSelection()`으로 화면군별 bounded design skill을 선택하고 composition planning 입력에 포함한다.
 - side effect: 없음
 
 ### `derive-decoration-plan`
@@ -102,7 +127,9 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 - 입력 조립 소유: `@cx/orchestration`
 - AI 실행 소유: `@cx/agent`
-- 출력: pattern-selection agent result, DecorationPlan 기반 layer candidates 참조
+- 입력: SourceSpec, screen-intent result, composition-plan result, DecorationPlan, pattern layer candidates, design skill selection, design-context bundle refs
+- 출력: pattern-selection agent result
+- 책임: DecorationPlan 기반 layer candidates와 selected design skill을 함께 참조해 bounded pattern 후보를 고른다.
 - side effect: 없음
 
 ### `generate-render-tree`
@@ -110,7 +137,8 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 - 입력 조립 소유: `@cx/orchestration`
 - AI 실행 소유: `@cx/agent`
 - 출력: 최소 `tableGenerationResult` + `renderTree`를 포함하는 생성 결과
-- 참조 자산: `@cx/agent` 내부 생성 자산 문서
+- 참조 자산: `@cx/agent` 내부 생성 자산 문서, selected design skill, design-context bundle body
+- 책임: `@cx/pipeline`이 design-context bundle body를 로드해 generation 입력 context에 주입한다. 생성 결과의 primary handoff는 `RenderTreeContract`이며, `tableGenerationResult`는 validation/comparison용 intermediate다.
 - side effect: 없음
 
 ### `validate-render-tree`
@@ -118,14 +146,36 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 - 입력: generation result
 - 실행 소유: `@cx/validation`
 - 출력: validation report
+- 책임: schema/catalog/layout/source-ref 계약 검증 결과를 반환한다. 디자인 품질 판단과 retry 여부 결정은 소유하지 않는다.
+- side effect: 없음
+
+### `propose-components`
+
+- 입력 조립 소유: `@cx/orchestration`
+- AI 실행 소유: `@cx/agent`
+- 검증 소유: `@cx/validation`
+- 입력: SourceSpec, generated candidate, component contract catalog, upstream design artifacts, selected design skill, design-context bundle body
+- 출력: 비파괴 `component-proposal` agent result와 proposal validation report
+- 책임: catalog 밖 후보를 제안 artifact로만 남긴다. 확정·반영은 `@cx/components` mutation과 별도 승인 흐름으로만 수행한다.
+- side effect: 없음
+
+### `review-quality`
+
+- 입력 조립 소유: `@cx/orchestration`
+- AI 실행 소유: `@cx/agent`
+- 입력: SourceSpec, generated candidate, validation report, upstream design artifacts, selected design skill quality gates, design-context bundle body
+- 출력: `quality-review` / `quality-inspection` agent result
+- 책임: hierarchy, separation, fidelity, actionClarity, densityFit, patternFit 등 디자인 품질을 bounded finding으로 기록한다. P0 finding은 revision 판단의 입력이 된다.
 - side effect: 없음
 
 ### `revise-render-tree-if-invalid`
 
-- 조건: 초기 validation report가 실패일 때만 revision 실행
+- 조건: validation report 또는 quality review 결과가 revision을 요구할 때만 실행
 - 입력 조립 소유: `@cx/orchestration`
 - AI 실행 소유: `@cx/agent`
+- 입력: previous candidate, validation report, quality review, upstream design artifacts, selected design skill, design-context bundle body
 - 출력: revised generation result
+- 책임: 기존 selected design skill과 bundle context를 유지한 채 bounded revision을 수행한다.
 - side effect: 없음
 
 ### `validate-render-tree-after-revision`
@@ -137,26 +187,29 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `write-artifacts`
 
-- 입력: sourceSpec, agent result, validation report, 부가 artifact
+- 입력: sourceSpec, agent result, validation report, quality review, component proposal, selected design skill, design-context bundle selection, trace 대상 부가 artifact
 - 실행 소유: `@cx/pipeline`
 - 출력: versioned artifacts, run log, pipeline result envelope
 - side effect: 있음
 
-## 7. Stage별 금지 사항
+## 8. Stage별 금지 사항
 
 - `@cx/orchestration`은 파일 IO를 하지 않는다.
 - `@cx/orchestration`은 stage 순서와 retry 정책을 소유하지 않는다.
 - `@cx/agent`는 artifact write를 하지 않는다.
 - `@cx/validation`은 다음 액션을 결정하지 않는다.
-- `@cx/pipeline`은 prompt 원문과 validator 세부 규칙을 소유하지 않는다.
+- `@cx/pipeline`은 prompt 원문, design skill 본문, design-context bundle 본문, validator 세부 규칙을 소유하지 않는다.
+- `@cx/pipeline`은 design-context bundle 파일을 로드할 수 있지만, bundle 본문 규칙을 재작성하거나 해석하지 않는다.
+- `@cx/agent`는 디자인 문서를 파일 도구로 직접 읽지 않는다. 필요한 본문은 pipeline이 context로 주입한다.
 
-## 8. 실패와 중단 규칙
+## 9. 실패와 중단 규칙
 
 - `parse-source`가 실패하면 이후 design stage는 건너뛰고 `write-artifacts`만 수행할 수 있다.
-- validation 실패는 곧바로 파일 반영 금지를 뜻하지 않지만, revision 또는 후속 next action 판단의 입력이 된다.
+- validation 실패 또는 quality review P0 finding은 곧바로 파일 반영 금지를 뜻하지 않지만, revision 또는 후속 next action 판단의 입력이 된다.
 - 어느 stage를 재시도할지의 실행 판단은 `@cx/pipeline`이 소유하되, 재개 세션 해석은 `@cx/agent` 프로토콜을 따른다.
+- 기본 생성 요청은 새 세션이다. revision/retry/이어쓰기 흐름에서만 `@cx/agent` 세션 resume 정책을 따른다.
 
-## 9. Artifact 추적 규칙
+## 10. Artifact 추적 규칙
 
 pipeline은 가능한 한 각 stage의 입력과 결과를 감사 가능한 artifact로 남긴다.
 
@@ -170,17 +223,42 @@ pipeline은 가능한 한 각 stage의 입력과 결과를 감사 가능한 arti
 - pattern-selection input/result
 - generation input/result
 - validation reports
+- component proposal and validation report
+- quality review / quality inspection
+- design skill selection
+- design-context bundle selection
+- revision decision and revision input/result when executed
 - pipeline result summary
 
-## 10. 관련 참조 자산
+대표 flat artifact:
+
+- `source-spec.json`
+- `screen-intent.json`
+- `composition-plan.json`
+- `decoration-plan.json`
+- `pattern-selection.json`
+- `agent-result.json`
+- `final-result.json`
+- `validation-report.json`
+- `quality-review.json`
+- `component-proposal.json`
+- `trace.json`
+- `pipeline-result.json`
+
+agent input, runner request, 후보, bundle 선택, skill 선택, initial validation, revision decision 같은 디버그 스캐폴딩은 개별 stage 번호 파일로 흩뜨리지 않고 `trace.json`으로 통합한다.
+
+## 11. 관련 참조 자산
 
 - stage 순수 입력 조립: `@cx/orchestration`
 - agent prompt/checklist/output 규약: [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)
+- design skill 본문: [`packages/agent/docs/design-skills/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-skills)
+- design-context bundle 본문: [`packages/agent/docs/design-context/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-context)
 - 확장 설계 맥락: [SCREEN_DESIGN_STAGE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_DESIGN_STAGE_PLAN.md)
 
-## 11. 검증 기준
+## 12. 검증 기준
 
 - `PipelineStageId`와 문서의 stage 목록이 일치한다.
 - stage 순서 소유자가 `@cx/pipeline`으로 유지된다.
 - stage 입력 조립 소유자가 `@cx/orchestration`으로 유지된다.
 - `write-artifacts`만 side effect stage라는 기준이 유지된다.
+- `PACKAGE_MAP.md`와 `packages/pipeline/README.md`가 stage 순서 상세를 중복하지 않고 이 문서를 참조한다.

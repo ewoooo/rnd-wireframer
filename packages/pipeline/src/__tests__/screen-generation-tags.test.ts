@@ -24,22 +24,25 @@ async function runFake(runId: string, tags?: string[]) {
 	const manifest = JSON.parse(
 		await readFile(path.join(rootDir, runId, "manifest.json"), "utf8"),
 	) as { stageLayers: Array<{ layer: string; traceKeys: string[] }>; tags: string[] };
-	return manifest;
+	const trace = JSON.parse(
+		await readFile(path.join(rootDir, runId, "artifacts/trace.json"), "utf8"),
+	);
+	return { manifest, trace };
 }
 
 describe("screen-generation manifest tags", () => {
 	it("writes provided tags into the run manifest", async () => {
-		const manifest = await runFake("tags-on", ["batch-xyz"]);
+		const { manifest } = await runFake("tags-on", ["batch-xyz"]);
 		expect(manifest.tags).toEqual(["batch-xyz"]);
 	});
 
 	it("defaults to an empty tag list when none are provided", async () => {
-		const manifest = await runFake("tags-off");
+		const { manifest } = await runFake("tags-off");
 		expect(manifest.tags).toEqual([]);
 	});
 
 	it("writes logical inference layer metadata into the run manifest", async () => {
-		const manifest = await runFake("layered");
+		const { manifest, trace } = await runFake("layered");
 
 		expect(manifest.stageLayers.map((layer) => layer.layer)).toEqual([
 			"understand",
@@ -49,5 +52,7 @@ describe("screen-generation manifest tags", () => {
 		expect(manifest.stageLayers.find((layer) => layer.layer === "compose")?.traceKeys).toContain(
 			"generation",
 		);
+		expect(trace.layers.compose.traceKeys).toContain("designSkillSelection");
+		expect(trace.designSkillSelection.selectedSkill.id).toBeTruthy();
 	});
 });

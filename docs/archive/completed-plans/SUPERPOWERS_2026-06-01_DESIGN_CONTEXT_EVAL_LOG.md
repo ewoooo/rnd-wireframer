@@ -1,6 +1,6 @@
 # Design Context Injection — Real-AI 검증/튜닝 로그
 
-> 구현(`2026-05-29-design-context-injection.md`) 완료 후, real `--use-ai`로 효과를 검증하고 번들 규칙을 튜닝하는 단계. 단일 화면 피드백 루프(A→B→C→D)로 진행.
+> 구현(`SUPERPOWERS_2026-05-29_DESIGN_CONTEXT_INJECTION_PLAN.md`) 완료 후, real `--use-ai`로 효과를 검증하고 번들 규칙을 튜닝하는 단계. 단일 화면 피드백 루프(A→B→C→D)로 진행.
 
 대상 화면: `NOVA-MBR-PG-001-0` (약관/폼). 모델: `claude-opus-4-7`.
 

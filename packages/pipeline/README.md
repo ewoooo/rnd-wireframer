@@ -16,15 +16,7 @@ screen generation의 최종 산출물은 `final-result.json`으로 저장한다.
 
 `artifacts/` 아래 결과 파일은 stage 번호 없이 flat하게 저장한다. `source-spec.json`, `screen-intent.json`, `composition-plan.json`, `decoration-plan.json`, `pattern-selection.json`, `agent-result.json`, `final-result.json`, `validation-report.json`, `quality-review.json`, `component-proposal.json`, `pipeline-result.json` 같은 결과 파일은 개별로 두고, agent input, runner request, 후보, bundle 선택, skill 참조, initial validation, revision decision 같은 디버그 스캐폴딩은 `trace.json` 하나로 통합한다.
 
-추론 모델은 물리 폴더가 아니라 논리 레이어로 표현한다.
-
-```text
-Understand -> Compose -> Revise
-```
-
-- `Understand`: source read/parse와 screen intent.
-- `Compose`: composition plan, decoration plan, pattern selection, RenderTree candidate, component proposal.
-- `Revise`: validation, quality review, revision, final artifact write.
+추론 모델은 물리 폴더가 아니라 `Understand -> Compose -> Revise` 논리 레이어로 표현한다. 레이어별 stage 묶음과 stage 입출력 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 소비자는 파일명을 하드코딩하지 않고 `manifest.json` 포인터와 `trace.json` key를 따른다.
 
@@ -128,6 +120,6 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 | `@cx/pipeline/testing`  | 테스트 전용 memory adapter fixture                        |
 | `@cx/pipeline/types`    | public type surface                                       |
 
-`screen-generation` pipeline은 `loadDesignContextBundleContents`로 design-context bundle 본문을 로드해 generation/quality/revision/proposal stage에 주입한다(결정론 유지). `propose-components` stage는 비파괴 `component-proposal.json`을, quality-review 결과는 `quality-review.json`을 기록한다.
+`screen-generation` pipeline의 design skill/context 주입, component proposal, quality review, revision 조건은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)에 둔다.
 
 `src/internal/*`가 추가되더라도 외부에서는 직접 import하지 않는다.

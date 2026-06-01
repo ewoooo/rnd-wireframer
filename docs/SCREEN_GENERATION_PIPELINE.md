@@ -121,11 +121,12 @@ claude --print --output-format json --no-session-persistence \
 - **참조**: 없음(순수 SourceSpec 해석).
 
 ### 4.4 `plan-composition` — AI
-- **입력 구성**: `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
+- **입력 구성**: `layerCandidates`, `screenIntent`, `designSkillSelection`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
 - **AI 추론**: "이 의도를 화면에 어떻게 나눠 담을 것인가?"를 결정한다. intent를 받아 콘텐츠를 **섹션으로 분해**하고, 각 섹션을 어느 region(Header/Contents/Bottom)에 둘지, 어떤 role·priority를 줄지, 어떤 sourceRef가 묶이는지를 **배치 판단**한다. 전체 화면의 레이아웃 전략(`layoutStrategy`)을 세우고, 화면 위계·주 행동·섹션 리듬·밀도·패턴 선택/배제 이유까지 디자인 판단으로 남긴다. 구체 layout id는 아직 고르지 않는다 — "무엇을 어디에, 어떤 비중과 리듬으로"까지.
-- **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 디자인 판단 필드로 `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, `rejectedPatterns`를 함께 작성한다. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
+- **디자인 스킬 선택**(`buildDesignSkillSelection`): `SourceSpec`, `ScreenIntent`, `layerCandidates`에서 bounded design skill을 고른다. 현재 초기 구현 skill은 `detail-confirmation-screen`, `form-entry-screen`, `list-selection-screen`이며, 매칭 실패 시 `generic-composition` fallback을 명시한다.
+- **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 디자인 판단 필드로 `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, `rejectedPatterns`를 함께 작성한다. 선택된 `designSkillSelection.selectedSkill`의 quality gates와 required design docs를 bounded 기준으로 사용한다. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
 - **출력**: `composition-plan.v0.1`. 아티팩트 `composition-plan.json`(결과), input/runner-request→`trace.json`.
-- **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`trace.json`의 `designContextBundleSelection`).
+- **부수효과**: 선택 결과는 `trace.json`의 `designSkillSelection`에, 직후 `buildDesignContextBundleRefs` 번들 선택은 `trace.json`의 `designContextBundleSelection`에 기록된다.
 - **참조**: `packages/agent/docs/design-context/layout-composition.md`가 `COMPOSITION_LAYERS`, `SECTION_PATTERNS`, `SCREEN_PATTERN_SUMMARY`, `LAYOUT_SPACING_CONTRACT`, `INTERACTION_PATTERNS`를 디자인 판단 필드의 근거 문서로 연결한다. 선택된 번들 refs는 다음 단계부터 가이드로 전달된다.
 
 ### 4.5 `derive-decoration-plan` — 순수
@@ -135,14 +136,14 @@ claude --print --output-format json --no-session-persistence \
 - **참조**: pattern-store(`@cx/layout-pattern-store` catalog).
 
 ### 4.6 `select-pattern` — AI
-- **입력 구성**: `compositionPlan`, `decorationPlan`, `designContextBundleRefs`, `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`.
+- **입력 구성**: `compositionPlan`, `decorationPlan`, `designContextBundleRefs`, `designSkillSelection`, `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`.
 - **AI 추론**: "각 슬롯에 어떤 구체 레이아웃 패턴을 쓸 것인가?"를 고른다. plan의 섹션·decoration의 role/layoutIntent를 보고 → `layerCandidates`(허용된 layout id 집합) 안에서 screen/region/area/component 레벨별로 가장 맞는 패턴을 **선택**하고 확신도(`confidence`)와 이유를 단다. 후보 밖 id는 만들 수 없다 — "주어진 메뉴에서 고르는" 판단.
 - **프롬프트 핵심**(`buildPatternSelectionAgentInput`): "후보 중 pattern layer 전략 선택." `selectedCandidates`, `confidence`, `reason`. 각 후보는 `id/level/targetRef/layout` 보존. `layerCandidates` 밖 layout id 금지. `decorationPlan`의 role·layoutIntent를 결정적 가이드로, `designContextBundleRefs`를 bounded 가이드로 사용(SourceSpec·후보 id 우선).
 - **출력**: `pattern-selection.v0.1`. 아티팩트 `pattern-selection.json`(결과), input/runner-request→`trace.json`.
 - **참조**: `designContextBundleRefs`(ref만, 본문 미주입).
 
 ### 4.7 `generate-render-tree` — AI · 핵심
-- **입력 구성**: 공통 블록 전부 + `componentContractCatalog`, `compositionPlan`, `decorationPlan`, `patternSelection`, `screenIntent`, `designContextBundleRefs`, **`designContextBundles[].body`(규칙 본문 주입)**, `intermediateArtifact(table-generation-result)`, `targetArtifact(render-tree)`.
+- **입력 구성**: 공통 블록 전부 + `componentContractCatalog`, `compositionPlan`, `decorationPlan`, `patternSelection`, `screenIntent`, `designContextBundleRefs`, `designSkillSelection`, **`designContextBundles[].body`(규칙 본문 주입)**, `intermediateArtifact(table-generation-result)`, `targetArtifact(render-tree)`.
 - **AI 추론**: 위 모든 판단(intent·composition·decoration·pattern)과 design-context 규칙 본문을 **종합해 실제 RenderTree를 합성**한다. catalog/allowedRefs/candidates 제약 안에서 — 어떤 component를 어떤 props로 놓을지, source 텍스트를 어떤 가시 label로 옮길지, 행 사이 `props.divider`/섹션 사이 `props.sectionDivider`를 켤지 말지를 **화면 맥락으로 자율 결정**하고, 상태 증거가 있으면 `display.stateRole`/`display.when` 게이팅으로 상태 coverage를 짠다. 시각 위계는 색·아이콘 발명 없이 component 선택·props로만 표현. 동시에 table-shaped 결과(`tableGenerationResult`)도 만든다. 이 단계가 "판단을 실제 화면으로 굳히는" 핵심 추론이다.
 - **프롬프트 핵심**(`buildScreenGenerationAgentInput`, 가장 김): SourceSpec 진실원 + upstream(intent/composition/decoration/pattern) 가이드로 **RenderTree 생성**. 주요 규칙:
   - 스켈레톤 보존: `Screen > Screen.Header/Contents/Bottom > area.static/area.dynamic > (PageStack/layout wrapper) > components`. `type:"Area"` 노드 금지.
@@ -219,14 +220,14 @@ claude --print --output-format json --no-session-persistence \
 
 | 파일 | manifest 포인터 | 내용(stage 키) |
 |---|---|---|
-| `trace.json` | `trace` | `parseResult`, `screenIntent/composition/patternSelection/generation/qualityReview/revision/componentProposal`의 `{input, runnerRequest}`, `patternLayerCandidates`, `designContextBundleSelection`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `initialValidationReport`, `revisionDecision` |
+| `trace.json` | `trace` | `parseResult`, `screenIntent/composition/patternSelection/generation/qualityReview/revision/componentProposal`의 `{input, runnerRequest}`, `designSkillSelection`, `patternLayerCandidates`, `designContextBundleSelection`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `initialValidationReport`, `revisionDecision` |
 
 권장 trace 레이어 해석:
 
 | 레이어 | trace keys | 연결 결과 파일 |
 |---|---|---|
 | `Understand` | `parseResult`, `screenIntent` | `source-spec.json`, `screen-intent.json` |
-| `Compose` | `composition`, `patternLayerCandidates`, `patternSelection`, `designContextBundleSelection`, `generation`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `componentProposal` | `composition-plan.json`, `decoration-plan.json`, `pattern-selection.json`, `agent-result.json`, `component-proposal.json` |
+| `Compose` | `composition`, `designSkillSelection`, `patternLayerCandidates`, `patternSelection`, `designContextBundleSelection`, `generation`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `componentProposal` | `composition-plan.json`, `decoration-plan.json`, `pattern-selection.json`, `agent-result.json`, `component-proposal.json` |
 | `Revise` | `initialValidationReport`, `qualityReview`, `revisionDecision`, `revision` | `validation-report.json`, `quality-review.json`, `final-result.json` |
 
 ### 인덱스

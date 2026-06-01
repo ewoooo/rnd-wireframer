@@ -12,6 +12,8 @@ docs/design/*.md              (사람용 관찰 SSOT, 산문)
         └─ @cx/orchestration이 ref 선택 ─▶ @cx/pipeline이 본문 로드/주입 ─▶ AI prompt context
 ```
 
+Figma SOT를 screen inference가 직접 참조할 수 있게 분해한 reference contract는 [reference/](/Users/plusx/Documents/rnd-screen-generator/docs/design/reference/README.md)에 둔다. 원본 Figma node provenance는 [reference/figma-source.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/reference/figma-source.md)를 기준으로 한다.
+
 | 에이전트 번들 | 린트 원천(docs/design 등) |
 |---|---|
 | `visual-foundation` | `LAYOUT_SPACING_CONTRACT.md`, `VISUAL_FOUNDATION_OBSERVATIONS.md`, `COMPONENT_INVENTORY.md` |

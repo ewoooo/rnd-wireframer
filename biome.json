@@ -10,6 +10,8 @@
 			"!**/.next",
 			"!tmp",
 			"!**/tmp",
+			"!data/runs",
+			"!**/data/runs",
 			"!*.tsbuildinfo",
 			"!dist",
 			"!build",

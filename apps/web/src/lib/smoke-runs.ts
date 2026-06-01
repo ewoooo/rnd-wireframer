@@ -53,6 +53,16 @@ export type SmokeCompositionPlan = {
 };
 
 export type SmokeRunTrace = {
+	designSkillSelection?: {
+		fallback?: boolean;
+		rationale?: string;
+		selectedSkill?: {
+			id?: string;
+			qualityGates?: string[];
+			reason?: string;
+			requiredDesignDocs?: string[];
+		};
+	};
 	layers?: Record<string, { artifacts?: string[]; traceKeys?: string[] }>;
 };
 

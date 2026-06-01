@@ -20,6 +20,11 @@ packages/agent/docs/
     interaction-state.md
     visual-foundation.md
     quality-review.md
+  design-skills/
+    README.md
+    detail-confirmation-screen.md
+    form-entry-screen.md
+    list-selection-screen.md
   screen-generation/
     prompt-contract.md
     checklist.md

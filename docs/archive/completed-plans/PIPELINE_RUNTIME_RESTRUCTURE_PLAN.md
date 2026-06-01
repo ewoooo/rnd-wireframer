@@ -342,7 +342,7 @@ Run after each phase:
 ```bash
 npx tsc --noEmit --pretty false
 npx vitest run packages/pipeline/src/__tests__ packages/orchestration/src/__tests__ packages/parser/src/__tests__ packages/validation/src/__tests__
-npx biome check apps/smoke packages/pipeline packages/orchestration docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md
+npx biome check apps/smoke packages/pipeline packages/orchestration docs/archive/completed-plans/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md
 npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md' --run-id pipeline-runtime-restructure-check --out-dir tmp/generation-runs/pipeline-runtime-restructure-check
 ```
 
@@ -357,7 +357,7 @@ npm run smoke:pipeline -- --target 'data/client-imports/{id}/screen/NOVA-PRDD-PG
 The original restructuring handoff was:
 
 ```markdown
-Implement the pipeline runtime restructure described in docs/development/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md.
+Implement the pipeline runtime restructure described in docs/archive/completed-plans/PIPELINE_RUNTIME_RESTRUCTURE_PLAN.md.
 
 Start with Phase 1 and Phase 2 only:
 - add buildPipeline/runPipeline runtime APIs to @cx/pipeline

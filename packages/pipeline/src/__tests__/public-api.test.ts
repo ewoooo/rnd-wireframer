@@ -171,6 +171,10 @@ describe("@cx/pipeline public API", () => {
 			agentInput: {},
 			agentResult: { payload: { renderTree: finalResult } },
 			designContextBundleSelection: { bundleRefs: [] },
+			designSkillSelection: {
+				fallback: false,
+				selectedSkill: { id: "detail-confirmation-screen" },
+			},
 			finalResult,
 			outDir: "runs/sample",
 			parseCommandResult: {},
@@ -205,10 +209,16 @@ describe("@cx/pipeline public API", () => {
 		};
 		expect(traceInput.targetPath).toContain("trace.json");
 		expect(traceInput.content.designContextBundleSelection).toEqual({ bundleRefs: [] });
+		expect(traceInput.content).toMatchObject({
+			designSkillSelection: {
+				fallback: false,
+				selectedSkill: { id: "detail-confirmation-screen" },
+			},
+		});
 		expect(traceInput.content.layers).toMatchObject({
 			compose: {
 				artifacts: expect.arrayContaining(["composition-plan.json", "agent-result.json"]),
-				traceKeys: expect.arrayContaining(["composition", "generation"]),
+				traceKeys: expect.arrayContaining(["composition", "designSkillSelection", "generation"]),
 			},
 			revise: {
 				artifacts: expect.arrayContaining(["validation-report.json", "final-result.json"]),

@@ -26,6 +26,13 @@ export type {
 	DesignContextBundleRef,
 	StateCoverageHint,
 } from "./design-context";
+export type {
+	DesignSkillId,
+	DesignSkillQualityGate,
+	DesignSkillRef,
+	DesignSkillScreenFamily,
+	DesignSkillSelectionContract,
+} from "./design-skill";
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
 export type { JsonSchemaDocument } from "./json-schema-registry";

@@ -140,6 +140,69 @@ Status as of 2026-05-28: first pass implemented.
 - Show `CompositionPlan` design decision fields in the Compose panel.
 - Surface quality findings by layer once validation/review reports expose layer metadata.
 
+### Phase G - Design Skill Selection
+
+Open Design-style skills should be absorbed as bounded Compose references, not as a parallel runtime. Start with a small catalog, prove that `CompositionPlan` improves, then expand the backlog.
+
+Initial implementation skills:
+
+| Skill id | Primary use | Required design docs | Done criteria |
+|---|---|---|---|
+| `detail-confirmation-screen` | Summary, details, and confirmation CTA screens | `COMPOSITION_LAYERS`, `SCREEN_PATTERN_SUMMARY`, `INTERACTION_PATTERNS` | Produces clearer `visualHierarchy`, bottom action intent, and rejected list/form alternatives. |
+| `form-entry-screen` | Input, validation, consent, and submit flows | `SECTION_PATTERNS`, `INTERACTION_PATTERNS`, `LAYOUT_SPACING_CONTRACT` | Produces field grouping, validation rhythm, CTA placement, and density rationale. |
+| `list-selection-screen` | Repeating option lists, comparison lists, and selectable rows | `SECTION_PATTERNS`, `COMPONENT_INVENTORY`, `LAYOUT_SPACING_CONTRACT` | Produces list hierarchy, row affordance, selection action, and repetition density rationale. |
+
+Later follow-up skills:
+
+| Skill id | Primary use | Required design docs | Why later |
+|---|---|---|---|
+| `main-task-screen` | Landing-like task entry or dashboard start screens | `SCREEN_PATTERN_SUMMARY`, `COMPOSITION_LAYERS`, `VISUAL_FOUNDATION_OBSERVATIONS` | Useful after baseline detail/form/list behavior is stable. |
+| `completion-feedback-screen` | Completion, success, failure, pending, and receipt screens | `SECTION_PATTERNS`, `INTERACTION_PATTERNS`, `VISUAL_FOUNDATION_OBSERVATIONS` | Needs state tone and feedback variants before it can be scored well. |
+| `bottom-sheet-decision` | Bottom sheet choice, confirmation, filter, and consent flows | `SECTION_PATTERNS`, `INTERACTION_PATTERNS`, `LAYOUT_SPACING_CONTRACT` | Should follow overlay state coverage and bottom action rules. |
+| `empty-state-guidance` | Empty data, unavailable state, missing permission, and recovery screens | `SECTION_PATTERNS`, `INTERACTION_PATTERNS`, `VISUAL_FOUNDATION_OBSERVATIONS` | Needs source-state hints from `ScreenIntent` to avoid invented states. |
+| `account-status-alert` | Dormant, eligibility, limitation, warning, and account status screens | `SECTION_PATTERNS`, `INTERACTION_PATTERNS`, `COMPONENT_INVENTORY` | Useful for MBR/state-heavy flows after quality findings expose state severity. |
+| `multi-step-progress-screen` | Wizard, 가입, 신청, verification, and staged task flows | `COMPOSITION_LAYERS`, `SECTION_PATTERNS`, `INTERACTION_PATTERNS` | Requires stable cross-screen intent and progress metadata. |
+| `data-summary-card-screen` | Fee, plan, product, benefit, or usage summary screens | `COMPONENT_INVENTORY`, `SCREEN_PATTERN_SUMMARY`, `LAYOUT_SPACING_CONTRACT` | Best added after component proposal can identify summary-card catalog gaps. |
+| `comparison-choice-screen` | Plan comparison, option trade-off, and recommendation screens | `SECTION_PATTERNS`, `COMPONENT_INVENTORY`, `VISUAL_FOUNDATION_OBSERVATIONS` | Needs stronger separation and recommendation affordance review gates. |
+
+Implementation boundary:
+
+- `@cx/schema` owns the design skill reference and selection result contracts.
+- `@cx/orchestration` owns pure skill selection helpers and injects selected skill refs into agent inputs.
+- `@cx/agent` owns skill body, checklist, and output contract docs under `packages/agent/docs/`.
+- `@cx/pipeline` records selected skill ids and rationale in `trace.json`.
+- `@cx/validation` may later consume skill refs only as validation input; it does not choose skills.
+
+Completion criteria:
+
+- `@cx/schema` exposes a design skill selection contract with selected skill id, selection reason, applicable screen family, required design docs, and quality gates.
+- `@cx/orchestration` selects a design skill from `SourceSpec`, `ScreenIntent`, and `PatternLayerCandidate[]` without file IO or runtime side effects.
+- `buildCompositionPlanAgentInput()` receives selected skill refs and makes the skill rules visible to the composition prompt.
+- `packages/agent/docs/` contains the initial three skill documents, each with applies-to rules, required design docs, composition rules, component/layout proposal rules, good and bad `CompositionPlan` examples, quality gates, and revision hints.
+- `@cx/pipeline` records the selection result in `trace.json` and keeps result artifacts flat under `artifacts/`.
+- `quality-review` can reference selected skill gates in bounded findings without mutating artifacts directly.
+- Smoke explorer can show selected skill id, selection reason, required design docs, and related quality findings without inferring from filenames.
+
+Verification criteria:
+
+- Contract tests pass for `@cx/schema`, `@cx/orchestration`, and `@cx/pipeline`.
+- Type checking passes with `npx tsc --noEmit --pretty false`.
+- Biome passes for changed source and test files. Markdown-only edits may be verified by targeted text search when Markdown is ignored by the formatter/linter config.
+- A smoke run using fake mode writes `trace.json.designSkillSelection`, `composition-plan.json`, `quality-review.json`, and `final-result.json`.
+- `trace.json.designSkillSelection.selectedSkill.id` is one of the implemented initial skills or an explicit fallback.
+- `composition-plan.json` reflects the selected skill in `visualHierarchy`, `primaryUserAction`, `sectionRhythm`, `density`, `patternRationale`, and `rejectedPatterns`.
+- `quality-review.json` findings can identify whether the root cause belongs to `understand`, `compose`, or `revise`.
+- Existing smoke artifact consumers continue to resolve files through `manifest.json` pointers and `trace.json` keys.
+
+Minimum verification command set after implementation:
+
+```bash
+npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts
+npx biome check <changed-source-and-test-files>
+npx tsc --noEmit --pretty false
+npm run smoke:pipeline -- --target '<sample-md>' --run-id '<skill-selection-check>' --artifact-store local-transient
+```
+
 ## 5. Done Criteria
 
 - `apps/smoke` still imports only `@cx/pipeline`.

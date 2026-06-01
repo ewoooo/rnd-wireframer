@@ -16,6 +16,7 @@ export type GenerationSmokeArtifactInput = {
 	designCritique?: unknown;
 	decorationPlan?: unknown;
 	designContextBundleSelection?: unknown;
+	designSkillSelection?: unknown;
 	finalResult: unknown;
 	generationSkillCatalog?: unknown;
 	initialValidationReport?: unknown;
@@ -77,6 +78,7 @@ export const ARTIFACT_LAYER_GROUPS = {
 		],
 		traceKeys: [
 			"composition",
+			"designSkillSelection",
 			"patternLayerCandidates",
 			"patternSelection",
 			"designContextBundleSelection",
@@ -179,6 +181,7 @@ function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown
 			input: input.compositionPlanAgentInput,
 			runnerRequest: input.compositionPlanRunnerRequest,
 		},
+		designSkillSelection: input.designSkillSelection,
 		patternLayerCandidates: input.patternLayerCandidates,
 		patternSelection: {
 			input: input.patternSelectionAgentInput,
