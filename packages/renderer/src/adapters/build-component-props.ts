@@ -17,8 +17,11 @@ export function buildComponentProps(
 	const props = rawProps ?? {};
 	const out: Record<string, unknown> = {};
 	for (const [key, contract] of Object.entries(entry.props)) {
+		// Renderer owns non-AI-writable props (e.g. node slots). Ignore any AI-provided
+		// value — an illegally-written render-node object would otherwise reach React as a
+		// child and crash the page.
+		if (contract.aiWritable === false) continue;
 		const rawFromProps = readCatalogPropValue(props, key);
-		if (contract.aiWritable === false && rawFromProps === undefined) continue;
 		const raw = rawFromProps !== undefined ? rawFromProps : fallbacks[key];
 		if (raw === undefined) {
 			if (contract.defaultValue !== undefined) out[key] = contract.defaultValue;

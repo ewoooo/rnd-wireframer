@@ -12,6 +12,9 @@ interface TextFieldProps {
 	type?: string;
 	state?: TextFieldState;
 	error?: boolean;
+	button?: boolean;
+	buttonLabel?: string;
+	onButtonClick?: () => void;
 	rightElement?: React.ReactNode;
 	onChange?: (value: string) => void;
 }
@@ -24,6 +27,9 @@ export function TextField({
 	type = "text",
 	state = "default",
 	error = false,
+	button = false,
+	buttonLabel = "모두 사용",
+	onButtonClick,
 	rightElement,
 	onChange,
 }: TextFieldProps) {
@@ -54,7 +60,13 @@ export function TextField({
 						onChange={(e) => onChange?.(e.target.value)}
 					/>
 				</div>
-				{rightElement && <div className={styles.rightElement}>{rightElement}</div>}
+				{button ? (
+					<button type="button" className={styles.fieldButton} onClick={onButtonClick}>
+						{buttonLabel}
+					</button>
+				) : (
+					rightElement && <div className={styles.rightElement}>{rightElement}</div>
+				)}
 			</div>
 			{helperText && (
 				<p

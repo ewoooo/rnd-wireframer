@@ -47,6 +47,45 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
 	});
 
+	it("renders a TextField field-side button from button/buttonLabel props", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "TextField",
+					componentVersion: "0.1.0",
+					metadata: { id: "tf-1", title: "인증번호" },
+					props: { button: true, buttonLabel: "인증번호 요청", placeholder: "숫자만 입력" },
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("인증번호 요청")).toBeInTheDocument();
+	});
+
+	it("drops AI-written readonly props (rightElement object) without crashing", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "TextField",
+					componentVersion: "0.1.0",
+					metadata: { id: "tf-2", title: "휴대폰번호" },
+					props: {
+						placeholder: "숫자만 입력",
+						rightElement: {
+							type: "Button",
+							componentVersion: "0.1.0",
+							metadata: { id: "btn", title: "인증요청" },
+							props: { label: "인증요청" },
+						},
+					},
+				}}
+			/>,
+		);
+
+		// Renderer owns rightElement; an AI-written render-node object must be ignored, not crash.
+		expect(screen.getByPlaceholderText("숫자만 입력")).toBeInTheDocument();
+	});
+
 	it("preserves area pattern default item gaps from the pattern components", () => {
 		render(
 			<>

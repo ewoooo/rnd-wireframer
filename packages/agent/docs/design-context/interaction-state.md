@@ -19,7 +19,7 @@ Source docs: `docs/design/INTERACTION_PATTERNS.md`, `docs/design/SECTION_PATTERN
 - 단일 페이지 진행: `Screen.Bottom`의 `SinglePrimaryAction`(full-width `ActionButton`).
 - primary-shaped CTA(같은 너비/높이/radius/pill/고대비/하단 근접)는 Bottom에 **1개만** 허용.
 - Content 내부 보조 액션은 Bottom CTA보다 최소 한 단계 낮은 시각 강도여야 한다: 짧은 너비, 낮은 높이, 약한 surface, field group 인접.
-- 인증/중복확인/재요청 등 field 종속 액션은 field 우측 slot·compact·text/link button으로. Content full-width ActionButton으로 올리지 않는다.
+- 인증/중복확인/재요청 등 field 종속 액션은 **`TextField` props.button: true + props.buttonLabel**로 표현한다(입력란 우측 compact 버튼). `props.rightElement`는 renderer 소유라 AI가 쓰지 않는다(render-node 객체를 넣으면 무시되거나 깨진다). Content full-width ActionButton으로 올리지 않는다.
 - 섹션 더보기는 `TitleSection` 우측 링크 등 낮은 강도. primary로 올리지 않는다.
 - primary CTA를 스크롤 콘텐츠 중간에 직접 배치하지 않는다.
 - 2버튼 조합은 `Secondary + Primary` 순서. 동등하지 않으면 Primary가 더 넓은 비중.

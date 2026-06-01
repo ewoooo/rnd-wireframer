@@ -699,6 +699,8 @@ export const componentCatalogEntries = {
 				defaultValue: "default",
 			},
 			error: { type: "boolean", role: "state", defaultValue: false },
+			button: { type: "boolean", role: "styleVariant", defaultValue: false },
+			buttonLabel: { type: "string", role: "label" },
 			rightElement: { type: "node", role: "slot", aiWritable: false },
 		},
 	},
