@@ -53,7 +53,7 @@ RadioGroup end-to-end:
 ## 4. 예상 시스템 변동성 (blast radius)
 
 **변경 파일:**
-- `packages/component/src/components/RadioGroup/RadioGroup.tsx` (신규) + `index.ts` barrel export
+- `packages/component/src/candidates/RadioGroup/RadioGroup.tsx` (신규: candidate는 `candidates/`에 위치) + `index.ts` barrel export
 - `packages/component/src/internal/candidate-entries.ts` — RadioGroup candidate entry
 - `packages/renderer/src/__tests__/layout-pattern-render.test.tsx` — RadioGroup 렌더 테스트
 - `packages/validation/src/public/validators.ts` + `types.ts` — `uses-candidate-component` 규칙/코드 + 테스트
@@ -76,7 +76,7 @@ RadioGroup end-to-end:
 ## 5. File Structure
 
 ```
-packages/component/src/components/RadioGroup/RadioGroup.tsx   (신규: options→N ListSelected radio)
+packages/component/src/candidates/RadioGroup/RadioGroup.tsx  (신규: candidate 위치, options→N ListSelected radio)
 packages/component/src/index.ts                              (barrel export 추가)
 packages/component/src/internal/candidate-entries.ts         (RadioGroup candidate entry)
 packages/renderer/src/__tests__/layout-pattern-render.test.tsx (렌더 테스트)
@@ -92,7 +92,7 @@ apps/smoke/src/aggregate-proposals-cli.ts                    (CLI)
 
 ## Task 1: RadioGroup 컴포넌트 + barrel (TDD)
 
-**Files:** Create `packages/component/src/components/RadioGroup/RadioGroup.tsx`; Modify `packages/component/src/index.ts`; Test `packages/renderer/src/__tests__/layout-pattern-render.test.tsx`
+**Files:** Create `packages/component/src/candidates/RadioGroup/RadioGroup.tsx`; Modify `packages/component/src/index.ts`; Test `packages/renderer/src/__tests__/layout-pattern-render.test.tsx`
 
 - [ ] **Step 1: 실패 테스트** (렌더러 테스트에 추가)
 
@@ -119,7 +119,7 @@ it("renders a RadioGroup node as one selectable row per option", () => {
 - [ ] **Step 3: 컴포넌트 구현** — `RadioGroup.tsx`
 
 ```tsx
-import { ListSelected } from "../ListSelected/ListSelected";
+import { ListSelected } from "../../components/ListSelected/ListSelected";
 
 interface RadioGroupProps {
 	options?: string[];
@@ -148,7 +148,7 @@ export function RadioGroup({ options = [], selectedValue }: RadioGroupProps) {
 - [ ] **Step 4: barrel export** — `packages/component/src/index.ts`에 추가(알파벳 위치):
 
 ```ts
-export { RadioGroup } from "./components/RadioGroup/RadioGroup";
+export { RadioGroup } from "./candidates/RadioGroup/RadioGroup";
 ```
 
 - [ ] **Step 5: green** — `npx vitest run packages/renderer` PASS. (resolveComponentByType이 barrel에서 RadioGroup 찾음 — 별도 renderer 배선 불필요)
