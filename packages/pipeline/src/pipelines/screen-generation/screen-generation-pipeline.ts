@@ -66,6 +66,7 @@ import type {
 } from "../../public/types";
 import { runSideEffects } from "../../runner";
 import {
+	ARTIFACT_FILES,
 	createGenerationSmokeArtifactCommands,
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
@@ -926,18 +927,27 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 	const summary = createScreenGenerationPipelineSummary(state);
 	const validationSummary = state.validationReport?.summary;
 
+	const artifact = (fileName: string) => `artifacts/${fileName}`;
+
 	return {
 		agentMode: state.options.agentMode,
-		agentResult: "artifacts/19-agent-result.json",
+		agentResult: artifact(ARTIFACT_FILES.agentResult),
 		artifactRoot: "artifacts",
+		componentProposal: artifact(ARTIFACT_FILES.componentProposal),
+		compositionPlan: artifact(ARTIFACT_FILES.compositionPlan),
 		createdAt: new Date().toISOString(),
-		finalResult: "artifacts/final-result.json",
+		decorationPlan: artifact(ARTIFACT_FILES.decorationPlan),
+		finalResult: artifact(ARTIFACT_FILES.finalResult),
+		patternSelection: artifact(ARTIFACT_FILES.patternSelection),
 		pipelineId: "screen-generation",
-		pipelineResult: "artifacts/29-pipeline-result.json",
-		qualityReview: "artifacts/23-quality-review-agent-result.json",
+		pipelineResult: artifact(ARTIFACT_FILES.pipelineResult),
+		qualityReview: artifact(ARTIFACT_FILES.qualityReview),
 		runId: state.options.runId,
 		schemaVersion: "smoke-run-manifest.v0.1",
+		screenIntent: artifact(ARTIFACT_FILES.screenIntent),
 		sourcePath: path.relative(resolveInvocationRoot(), state.options.sourcePath),
+		sourceSpec: artifact(ARTIFACT_FILES.sourceSpec),
+		stageOrder: [...screenGenerationPipelineDefinition.stages],
 		summary: {
 			errorCount: validationSummary?.errorCount ?? 0,
 			ok: summary.ok,
@@ -949,7 +959,8 @@ function createSmokeRunManifest(state: ScreenGenerationPipelineState): SmokeRunM
 			usage: "validation-and-comparison-only",
 		},
 		tags: state.options.tags,
-		validationReport: "artifacts/28-validation-report.json",
+		trace: artifact(ARTIFACT_FILES.trace),
+		validationReport: artifact(ARTIFACT_FILES.validationReport),
 	};
 }
 

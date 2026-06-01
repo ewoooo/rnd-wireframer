@@ -74,6 +74,7 @@ async function resolveRunArtifacts(runDir: string): Promise<ResolvedRunArtifacts
 		| {
 				artifactRoot?: string;
 				finalResult?: string;
+				sourceSpec?: string;
 				validationReport?: string;
 		  }
 		| undefined;
@@ -88,21 +89,21 @@ async function resolveRunArtifacts(runDir: string): Promise<ResolvedRunArtifacts
 			),
 			sourceSpecPath: await resolveExistingArtifactPath(
 				runDir,
-				path.join(artifactRoot, "02-source-spec.json"),
-				"02-source-spec.json",
+				manifest.sourceSpec ?? path.join(artifactRoot, "source-spec.json"),
+				"source-spec.json",
 			),
 			validationReportPath: await resolveExistingArtifactPath(
 				runDir,
-				manifest.validationReport ?? path.join(artifactRoot, "27-validation-report.json"),
-				"27-validation-report.json",
+				manifest.validationReport ?? path.join(artifactRoot, "validation-report.json"),
+				"validation-report.json",
 			),
 		};
 	}
 
 	return {
 		finalResultPath: path.join(runDir, "final-result.json"),
-		sourceSpecPath: path.join(runDir, "02-source-spec.json"),
-		validationReportPath: path.join(runDir, "27-validation-report.json"),
+		sourceSpecPath: path.join(runDir, "source-spec.json"),
+		validationReportPath: path.join(runDir, "validation-report.json"),
 	};
 }
 

@@ -41,206 +41,126 @@ export type GenerationSmokeArtifactInput = {
 	validationReport: unknown;
 };
 
+/**
+ * Result artifacts kept as standalone files (per-stage outputs + render target).
+ * All other intermediate data (agent inputs, runner requests, candidates, skills,
+ * decision/selection scaffolding) is consolidated into a single trace.json.
+ * Consumers read these via manifest pointers, not hardcoded names.
+ */
+export const ARTIFACT_FILES = {
+	agentResult: "agent-result.json",
+	componentProposal: "component-proposal.json",
+	compositionPlan: "composition-plan.json",
+	decorationPlan: "decoration-plan.json",
+	finalResult: "final-result.json",
+	patternSelection: "pattern-selection.json",
+	pipelineResult: "pipeline-result.json",
+	qualityReview: "quality-review.json",
+	screenIntent: "screen-intent.json",
+	sourceSpec: "source-spec.json",
+	trace: "trace.json",
+	validationReport: "validation-report.json",
+} as const;
+
 export function createGenerationSmokeArtifactCommands(
 	input: GenerationSmokeArtifactInput,
 ): SideEffectCommand[] {
 	return [
+		// Per-stage result artifacts (standalone files).
+		createWriteCommand("write-source-spec", input.outDir, ARTIFACT_FILES.sourceSpec, input.sourceSpec),
 		createWriteCommand(
-			"write-parse-result",
+			"write-screen-intent",
 			input.outDir,
-			"01-parse-result.json",
-			input.parseCommandResult,
-		),
-		createWriteCommand("write-source-spec", input.outDir, "02-source-spec.json", input.sourceSpec),
-		createWriteCommand(
-			"write-screen-intent-agent-input",
-			input.outDir,
-			"03-screen-intent-agent-input.json",
-			input.screenIntentAgentInput,
-		),
-		createWriteCommand(
-			"write-screen-intent-agent-runner-request",
-			input.outDir,
-			"04-screen-intent-agent-runner-request.json",
-			input.screenIntentRunnerRequest,
-		),
-		createWriteCommand(
-			"write-screen-intent-agent-result",
-			input.outDir,
-			"05-screen-intent-agent-result.json",
+			ARTIFACT_FILES.screenIntent,
 			input.screenIntentAgentResult,
 		),
 		createWriteCommand(
-			"write-pattern-layer-candidates",
+			"write-composition-plan",
 			input.outDir,
-			"06-pattern-layer-candidates.json",
-			input.patternLayerCandidates,
-		),
-		createWriteCommand(
-			"write-composition-plan-agent-input",
-			input.outDir,
-			"07-composition-plan-agent-input.json",
-			input.compositionPlanAgentInput,
-		),
-		createWriteCommand(
-			"write-composition-plan-agent-runner-request",
-			input.outDir,
-			"08-composition-plan-agent-runner-request.json",
-			input.compositionPlanRunnerRequest,
-		),
-		createWriteCommand(
-			"write-composition-plan-agent-result",
-			input.outDir,
-			"09-composition-plan-agent-result.json",
+			ARTIFACT_FILES.compositionPlan,
 			input.compositionPlanAgentResult,
 		),
 		createWriteCommand(
 			"write-decoration-plan",
 			input.outDir,
-			"10-decoration-plan.json",
+			ARTIFACT_FILES.decorationPlan,
 			input.decorationPlan,
 		),
 		createWriteCommand(
-			"write-pattern-selection-agent-input",
+			"write-pattern-selection",
 			input.outDir,
-			"11-pattern-selection-agent-input.json",
-			input.patternSelectionAgentInput,
-		),
-		createWriteCommand(
-			"write-pattern-selection-agent-runner-request",
-			input.outDir,
-			"12-pattern-selection-agent-runner-request.json",
-			input.patternSelectionRunnerRequest,
-		),
-		createWriteCommand(
-			"write-pattern-selection-agent-result",
-			input.outDir,
-			"13-pattern-selection-agent-result.json",
+			ARTIFACT_FILES.patternSelection,
 			input.patternSelectionAgentResult,
-		),
-		createWriteCommand(
-			"write-design-context-bundle-selection",
-			input.outDir,
-			"14-design-context-bundle-selection.json",
-			input.designContextBundleSelection,
-		),
-		createWriteCommand(
-			"write-generation-skill-catalog",
-			input.outDir,
-			"15-generation-skill-catalog.json",
-			input.generationSkillCatalog,
-		),
-		createWriteCommand(
-			"write-render-tree-generation-skill",
-			input.outDir,
-			"16-render-tree-generation-skill.json",
-			input.renderTreeGenerationSkill,
-		),
-		createWriteCommand("write-agent-input", input.outDir, "17-agent-input.json", input.agentInput),
-		createWriteCommand(
-			"write-agent-runner-request",
-			input.outDir,
-			"18-agent-runner-request.json",
-			input.runnerRequest,
 		),
 		createWriteCommand(
 			"write-agent-result",
 			input.outDir,
-			"19-agent-result.json",
+			ARTIFACT_FILES.agentResult,
 			input.agentResult,
 		),
-		createWriteCommand(
-			"write-initial-validation-report",
-			input.outDir,
-			"20-initial-validation-report.json",
-			input.initialValidationReport,
-		),
-		createWriteCommand(
-			"write-quality-review-agent-input",
-			input.outDir,
-			"21-quality-review-agent-input.json",
-			input.qualityReviewAgentInput,
-		),
-		createWriteCommand(
-			"write-quality-review-agent-runner-request",
-			input.outDir,
-			"22-quality-review-agent-runner-request.json",
-			input.qualityReviewRunnerRequest,
-		),
-		createWriteCommand(
-			"write-quality-review-agent-result",
-			input.outDir,
-			"23-quality-review-agent-result.json",
-			input.qualityReviewAgentResult,
-		),
-		createWriteCommand(
-			"write-revision-decision",
-			input.outDir,
-			"24-revision-decision.json",
-			input.revisionDecision,
-		),
-		createWriteCommand(
-			"write-revision-agent-input",
-			input.outDir,
-			"25-revision-agent-input.json",
-			input.revisionAgentInput,
-		),
-		createWriteCommand(
-			"write-revision-agent-runner-request",
-			input.outDir,
-			"26-revision-agent-runner-request.json",
-			input.revisionRunnerRequest,
-		),
-		createWriteCommand(
-			"write-revision-agent-result",
-			input.outDir,
-			"27-revision-agent-result.json",
-			input.revisionAgentResult,
-		),
-		createWriteCommand("write-final-result", input.outDir, "final-result.json", input.finalResult),
+		createWriteCommand("write-final-result", input.outDir, ARTIFACT_FILES.finalResult, input.finalResult),
 		createWriteCommand(
 			"write-validation-report",
 			input.outDir,
-			"28-validation-report.json",
+			ARTIFACT_FILES.validationReport,
 			input.validationReport,
 		),
 		createWriteCommand(
-			"write-component-proposal-agent-input",
+			"write-quality-review",
 			input.outDir,
-			"30-component-proposal-agent-input.json",
-			input.componentProposalAgentInput,
-		),
-		createWriteCommand(
-			"write-component-proposal-agent-runner-request",
-			input.outDir,
-			"31-component-proposal-agent-runner-request.json",
-			input.componentProposalRunnerRequest,
-		),
-		createWriteCommand(
-			"write-component-proposal-agent-result",
-			input.outDir,
-			"32-component-proposal-agent-result.json",
-			input.componentProposalAgentResult,
-		),
-		createWriteCommand(
-			"write-component-proposal-validation-report",
-			input.outDir,
-			"33-component-proposal-validation-report.json",
-			input.componentProposalValidationReport,
+			ARTIFACT_FILES.qualityReview,
+			input.qualityReviewAgentResult ?? input.designCritique,
 		),
 		createWriteCommand(
 			"write-component-proposal",
 			input.outDir,
-			"component-proposal.json",
-			input.componentProposal,
+			ARTIFACT_FILES.componentProposal,
+			input.componentProposal ?? input.componentProposalAgentResult,
 		),
-		createWriteCommand(
-			"write-design-critique",
-			input.outDir,
-			"design-critique.json",
-			input.designCritique,
-		),
+		// Consolidated debug trace (inputs, runner requests, intermediate scaffolding).
+		createWriteCommand("write-trace", input.outDir, ARTIFACT_FILES.trace, buildTrace(input)),
 	];
+}
+
+function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown> {
+	return {
+		parseResult: input.parseCommandResult,
+		screenIntent: {
+			input: input.screenIntentAgentInput,
+			runnerRequest: input.screenIntentRunnerRequest,
+		},
+		composition: {
+			input: input.compositionPlanAgentInput,
+			runnerRequest: input.compositionPlanRunnerRequest,
+		},
+		patternLayerCandidates: input.patternLayerCandidates,
+		patternSelection: {
+			input: input.patternSelectionAgentInput,
+			runnerRequest: input.patternSelectionRunnerRequest,
+		},
+		designContextBundleSelection: input.designContextBundleSelection,
+		generation: {
+			input: input.agentInput,
+			runnerRequest: input.runnerRequest,
+		},
+		generationSkillCatalog: input.generationSkillCatalog,
+		renderTreeGenerationSkill: input.renderTreeGenerationSkill,
+		initialValidationReport: input.initialValidationReport,
+		qualityReview: {
+			input: input.qualityReviewAgentInput,
+			runnerRequest: input.qualityReviewRunnerRequest,
+		},
+		revisionDecision: input.revisionDecision,
+		revision: {
+			input: input.revisionAgentInput,
+			runnerRequest: input.revisionRunnerRequest,
+		},
+		componentProposal: {
+			input: input.componentProposalAgentInput,
+			runnerRequest: input.componentProposalRunnerRequest,
+			validationReport: input.componentProposalValidationReport,
+		},
+	};
 }
 
 export function createGenerationSmokeManifestCommand(input: {
@@ -263,7 +183,7 @@ export function createGenerationSmokePipelineResultCommands(input: {
 		createWriteCommand(
 			"write-pipeline-result",
 			input.outDir,
-			"29-pipeline-result.json",
+			ARTIFACT_FILES.pipelineResult,
 			input.pipelineResult,
 		),
 	];

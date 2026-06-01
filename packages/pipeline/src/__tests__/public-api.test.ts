@@ -191,20 +191,17 @@ describe("@cx/pipeline public API", () => {
 		);
 		expect(commands).toContainEqual(
 			expect.objectContaining({
-				id: "write-design-context-bundle-selection",
-				input: expect.objectContaining({
-					targetPath: expect.stringContaining("14-design-context-bundle-selection.json"),
-				}),
-			}),
-		);
-		expect(commands).toContainEqual(
-			expect.objectContaining({
 				id: "write-decoration-plan",
 				input: expect.objectContaining({
-					targetPath: expect.stringContaining("10-decoration-plan.json"),
+					targetPath: expect.stringContaining("decoration-plan.json"),
 				}),
 			}),
 		);
+		// Intermediate scaffolding (e.g. design-context bundle selection) is consolidated into trace.json.
+		const trace = commands.find((command) => command.id === "write-trace");
+		const traceInput = trace?.input as { content: { designContextBundleSelection?: unknown }; targetPath: string };
+		expect(traceInput.targetPath).toContain("trace.json");
+		expect(traceInput.content.designContextBundleSelection).toEqual({ bundleRefs: [] });
 	});
 
 	it("writes the component proposal as a standalone artifact", () => {
@@ -237,7 +234,7 @@ describe("@cx/pipeline public API", () => {
 		);
 	});
 
-	it("writes the design critique as a standalone artifact", () => {
+	it("writes the quality review as a standalone artifact", () => {
 		const designCritique = {
 			schemaVersion: "quality-inspection.v0.1",
 			scores: { hierarchy: 4, separation: 3, fidelity: 5 },
@@ -259,10 +256,10 @@ describe("@cx/pipeline public API", () => {
 
 		expect(commands).toContainEqual(
 			expect.objectContaining({
-				id: "write-design-critique",
+				id: "write-quality-review",
 				input: expect.objectContaining({
 					content: designCritique,
-					targetPath: expect.stringContaining("design-critique.json"),
+					targetPath: expect.stringContaining("quality-review.json"),
 				}),
 			}),
 		);

@@ -7,14 +7,21 @@ export type SmokeRunManifest = {
 	agentMode: string;
 	agentResult: string;
 	artifactRoot: string;
+	componentProposal?: string;
+	compositionPlan?: string;
 	createdAt: string;
+	decorationPlan?: string;
 	finalResult: string;
+	patternSelection?: string;
 	pipelineId: "screen-generation";
 	pipelineResult: string;
 	qualityReview: string;
 	runId: string;
 	schemaVersion: "smoke-run-manifest.v0.1";
+	screenIntent?: string;
 	sourcePath: string;
+	sourceSpec?: string;
+	stageOrder?: string[];
 	summary: {
 		errorCount: number;
 		ok: boolean;
@@ -22,6 +29,7 @@ export type SmokeRunManifest = {
 		warningCount: number;
 	};
 	tags: string[];
+	trace?: string;
 	validationReport: string;
 };
 

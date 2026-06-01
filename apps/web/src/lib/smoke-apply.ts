@@ -45,7 +45,7 @@ export async function applySmokeRunToTables({
 
 	const renderTree = await readJson<RenderTreeContract>(path.resolve(runDir, manifest.finalResult));
 	const sourceSpec = await readOptionalJson<SourceSpec>(
-		path.resolve(runDir, manifest.artifactRoot, "02-source-spec.json"),
+		path.resolve(runDir, manifest.sourceSpec ?? path.join(manifest.artifactRoot, "source-spec.json")),
 	);
 	const tables = await readTables(DEFAULT_TABLES_DIR);
 	const screenId = readRenderTreeScreenId(renderTree);
