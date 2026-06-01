@@ -94,35 +94,35 @@ claude --print --output-format json --no-session-persistence \
 ### 4.2 `parse-source` — 순수
 - **입력**: `sourceFile`.
 - **동작**: `runParseMarkdownSourceCommand` — md를 `SourceSpec`으로 파싱.
-- **출력**: `sourceSpec`, `parseCommandResult`. 아티팩트 `01-parse-result.json`, `02-source-spec.json`.
+- **출력**: `sourceSpec`, `parseCommandResult`. 아티팩트 `source-spec.json`(결과), `parseResult`→`trace.json`.
 - **참조**: 파서 규칙(`@cx/parser`).
 
 ### 4.3 `derive-screen-intent` — AI
 - **입력 구성**: `sourceSpec`, `sourceReferenceCatalog`, `sourceSummary`, `targetArtifact(screen-intent)`.
 - **AI 추론**: "이 화면은 무엇을 위한 화면인가?"를 판단한다. 구조만 있는 SourceSpec을 읽고 → 화면의 목적(폼/리스트/상세/완료 등), 사용자가 해야 할 핵심 행동, 성공 순간, 대상 사용자를 **해석**한다. 어떤 ref를 사용자가 먼저 이해해야 하는지 **우선순위를 매기고**(`contentPriority`), 명세에 빠진 결정(`missingDecisions`)과 상태 필요 신호(`stateCoverageHints`)를 **추론**한다. 레이아웃은 아직 결정하지 않는다 — "의미"만 잡는다.
 - **프롬프트 핵심**(`buildScreenIntentAgentInput`): "SourceSpec만을 진실원으로 화면 의도를 도출." `screenPurpose`, `primaryUserAction`, `contentPriority`(이해 순서대로 ref 나열), `sourceInterpretation`, `rationale` 캡처. 증거가 있으면 `audience`, `primaryTask`, `successMoment`, `missingDecisions`, `stateCoverageHints`도. `allowedRefs` 밖 alias 발명 금지.
-- **출력**: `screen-intent.v0.1` JSON 1개. 아티팩트 `03~05`.
+- **출력**: `screen-intent.v0.1` JSON 1개. 아티팩트 `screen-intent.json`(결과), input/runner-request→`trace.json`.
 - **참조**: 없음(순수 SourceSpec 해석).
 
 ### 4.4 `plan-composition` — AI
 - **입력 구성**: `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
 - **AI 추론**: "이 의도를 화면에 어떻게 나눠 담을 것인가?"를 결정한다. intent를 받아 콘텐츠를 **섹션으로 분해**하고, 각 섹션을 어느 region(Header/Contents/Bottom)에 둘지, 어떤 role·priority를 줄지, 어떤 sourceRef가 묶이는지를 **배치 판단**한다. 전체 화면의 레이아웃 전략(`layoutStrategy`)을 세운다. 구체 layout id는 아직 고르지 않는다 — "무엇을 어디에, 어떤 비중으로"까지만.
 - **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
-- **출력**: `composition-plan.v0.1`. 아티팩트 `07~09`.
-- **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`14-design-context-bundle-selection.json`).
+- **출력**: `composition-plan.v0.1`. 아티팩트 `composition-plan.json`(결과), input/runner-request→`trace.json`.
+- **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`trace.json`의 `designContextBundleSelection`).
 - **참조**: (선택된 번들 refs는 다음 단계부터 가이드로 전달).
 
 ### 4.5 `derive-decoration-plan` — 순수
 - **입력**: `compositionPlan`, `sourceSpec`.
 - **동작**: `buildDecorationPlan` — 디바이더/패턴/area 분할/displayTitle/repeatedItems 등 **결정적 장식 배치**. 그 결과로 `layerCandidates` 재생성.
-- **출력**: `decorationPlan`. 아티팩트 `06-pattern-layer-candidates.json`, `10-decoration-plan.json`.
+- **출력**: `decorationPlan`. 아티팩트 `decoration-plan.json`(결과), `patternLayerCandidates`→`trace.json`.
 - **참조**: pattern-store(`@cx/layout-pattern-store` catalog).
 
 ### 4.6 `select-pattern` — AI
 - **입력 구성**: `compositionPlan`, `decorationPlan`, `designContextBundleRefs`, `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`.
 - **AI 추론**: "각 슬롯에 어떤 구체 레이아웃 패턴을 쓸 것인가?"를 고른다. plan의 섹션·decoration의 role/layoutIntent를 보고 → `layerCandidates`(허용된 layout id 집합) 안에서 screen/region/area/component 레벨별로 가장 맞는 패턴을 **선택**하고 확신도(`confidence`)와 이유를 단다. 후보 밖 id는 만들 수 없다 — "주어진 메뉴에서 고르는" 판단.
 - **프롬프트 핵심**(`buildPatternSelectionAgentInput`): "후보 중 pattern layer 전략 선택." `selectedCandidates`, `confidence`, `reason`. 각 후보는 `id/level/targetRef/layout` 보존. `layerCandidates` 밖 layout id 금지. `decorationPlan`의 role·layoutIntent를 결정적 가이드로, `designContextBundleRefs`를 bounded 가이드로 사용(SourceSpec·후보 id 우선).
-- **출력**: `pattern-selection.v0.1`. 아티팩트 `11~13`.
+- **출력**: `pattern-selection.v0.1`. 아티팩트 `pattern-selection.json`(결과), input/runner-request→`trace.json`.
 - **참조**: `designContextBundleRefs`(ref만, 본문 미주입).
 
 ### 4.7 `generate-render-tree` — AI · 핵심
@@ -137,27 +137,27 @@ claude --print --output-format json --no-session-persistence \
   - `allowedRefs`/`componentContractCatalog`/`layerCandidates` 밖 vocabulary 금지.
   - `designContextBundles[].body`를 실제 적용 규칙으로 사용하되 **우선순위: source evidence·schema/catalog > 번들 규칙**.
   - 동시에 `tableGenerationResult`(table-generation-result.v0.1)도 생성.
-- **출력**: `renderTree`(render-tree.v0.1) + `tableGenerationResult`. 아티팩트 `15~19`, `final-result.json`.
+- **출력**: `renderTree`(render-tree.v0.1) + `tableGenerationResult`. 아티팩트 `agent-result.json`(전체 payload), `final-result.json`(렌더 대상). input/runner-request·skill·candidates→`trace.json`.
 - **참조**: 선택된 모든 번들 본문(layout-composition, visual-foundation, +조건부 interaction-state/quality-review).
 
 ### 4.8 `validate-render-tree` — 순수
 - **입력**: `agentResult.payload`, `layerCandidates`, `compositionPlan`, `decorationPlan`, `screenIntent`, `sourceSpec`.
 - **동작**: `createRenderTreeValidationReport` — schema/catalog/contract 위반, state coverage, `bottom-cta-state-ungated` 등 검사. `initialValidationReport`로 보관, validation 피드백 반영해 번들 refs 재선택.
-- **출력**: `validationReport`. 아티팩트 `20-initial-validation-report.json`, `28-validation-report.json`.
+- **출력**: `validationReport`. 아티팩트 `validation-report.json`(최종 결과), `initialValidationReport`→`trace.json`.
 - **참조**: validation 규칙(`@cx/validation`).
 
 ### 4.9 `propose-components` — AI · 비파괴
 - **입력 구성**: generation 베이스 + `candidate`(생성 트리).
 - **AI 추론**: "이 화면을 짓는 동안 catalog가 부족했던 지점은 어디인가?"를 **회고적으로 분석**한다. 생성된 트리를 증거로, catalog 컴포넌트로 근사할 수밖에 없었던 부분을 찾아 → 전용 컴포넌트/변형을 제안하고, 각 제안에 source 근거·가장 가까운 catalog 매치·근거를 단다. 이번 출력엔 반영되지 않는 **비파괴 gap 분석**(catalog 진화용 신호). 자세한 순서 근거는 같은 폴더 코드/대화 참조.
 - **프롬프트 핵심**(`buildComponentProposalAgentInput`): "catalog에 없지만 화면을 개선할 component/변형 제안." 각 제안은 `id`, `proposedComponentType`, `sourceEvidence`(allowedRefs ref 배열), `nearestCatalogMatch`(catalog componentType 1개), `rationale`, 선택 `suggestedProps`. **최대 5개**, 확정/적용 안 함(비파괴).
-- **출력**: `component-proposal.v0.1`. 아티팩트 `30~33`. 검증은 bounded 여부만 리포트하고 **파이프라인을 실패시키지 않음**.
+- **출력**: `component-proposal.v0.1`. 아티팩트 `component-proposal.json`(결과), input/runner-request/validation→`trace.json`. 검증은 bounded 여부만 리포트하고 **파이프라인을 실패시키지 않음**.
 - **참조**: `designContextBundles[].body`(개선 가이드).
 
 ### 4.10 `review-quality` — AI · 자기비평
 - **입력 구성**: generation 베이스 + `candidate`, `validationReport`.
 - **AI 추론**: "생성물이 디자인적으로 좋은가?"를 **스스로 채점**한다. schema/semantic 검증을 통과한 트리를 quality-review 게이트 기준으로 다시 읽어 → source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험을 **판단**하고, `hierarchy/separation/fidelity` 3축을 0–5로 점수화한다. 위반마다 bounded finding(코드·심각도·메시지·위치·제안)을 남긴다. 파일을 고치지는 않는다 — **비평만** 하고 다음 게이팅이 교정 여부를 정한다.
 - **프롬프트 핵심**(`buildQualityReviewAgentInput`): schema/semantic 검증 후 디자인 품질 리뷰. source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험 점검. **3축 점수(`hierarchy`/`separation`/`fidelity`, 0–5)** + 위반마다 finding(`code/severity/message/optional path/suggestion`). bounded findings만, mutate·승인·필드 발명 금지.
-- **출력**: `quality-inspection.v0.1`(scores + findings). 아티팩트 `21~23`.
+- **출력**: `quality-inspection.v0.1`(scores + findings). 아티팩트 `quality-review.json`(결과), input/runner-request→`trace.json`.
 - **참조**: `quality-review.md` 번들 본문(게이트 기준).
 
 ### 4.11 `revise-render-tree-if-invalid` — 순수 게이팅 + 조건부 AI
@@ -165,7 +165,7 @@ claude --print --output-format json --no-session-persistence \
 - **AI 교정 입력**: generation 베이스 + `previousCandidate`(이전 트리, `previousResult`로도 전달) + `qualityInspection` + `validationReport`.
 - **AI 추론**(교정이 트리거된 경우): "무엇을 최소로 고쳐야 유효해지는가?"를 판단한다. validation 에러와 quality P0 finding을 받아 → 이전 트리를 **제자리에서 표적 수정**한다(스켈레톤·area wrapper·upstream 가이드·유효한 구조는 보존). `required-field-missing`·`invalid-render-node` 같은 치명 오류를 먼저, invented ref/props/layout id는 catalog/allowedRefs로 교정. 전면 재작성이 아니라 "결함만 덜어내는" 보수적 추론.
 - **프롬프트 핵심**(`buildScreenRevisionAgentInput`): validation report를 만족하도록 이전 트리를 **제자리 교정**. 스켈레톤·area wrapper·pattern·upstream 가이드 보존. invalid Area 노드는 제거가 아니라 area.static/area.dynamic로 치환. invented ref/props/layout id는 catalog/allowedRefs로 교정. `required-field-missing`·`invalid-render-node` 먼저, 그다음 warning. quality P0 finding도 bounded 교정. `agentResult`를 교정본으로 교체.
-- **출력**: 교정된 `renderTree`. 아티팩트 `24-revision-decision.json`, `25~27`.
+- **출력**: 교정된 `renderTree`(`agent-result.json`·`final-result.json` 갱신). `revisionDecision`·revision input/runner-request→`trace.json`.
 - **참조**: 선택된 모든 번들 본문 + quality findings.
 
 ### 4.12 `validate-render-tree-after-revision` — 순수
@@ -179,29 +179,35 @@ claude --print --output-format json --no-session-persistence \
 
 ## 5. 출력 아티팩트 맵
 
-`<runId>/artifacts/` 아래 번호순 기록(`artifact-commands.ts`).
+`<runId>/artifacts/` 아래 기록(`artifact-commands.ts`, `ARTIFACT_FILES`). **과정별 결과물은 개별 파일, 입력·runner-request·중간 스캐폴딩은 `trace.json` 하나로 묶는다.** 소비자는 파일명을 하드코딩하지 않고 `manifest.json` 포인터로 접근한다(run당 ~36개 → 12개).
+
+### 결과 파일 (개별, manifest 포인터로 노출)
+
+| 파일 | manifest 포인터 | 내용 |
+|---|---|---|
+| `source-spec.json` | `sourceSpec` | 파싱된 SourceSpec |
+| `screen-intent.json` | `screenIntent` | intent 결과 |
+| `composition-plan.json` | `compositionPlan` | composition 결과 |
+| `decoration-plan.json` | `decorationPlan` | 결정적 장식 plan |
+| `pattern-selection.json` | `patternSelection` | pattern 선택 결과 |
+| `agent-result.json` | `agentResult` | generation 전체 payload(renderTree+table) |
+| `final-result.json` | `finalResult` | 최종 RenderTree(렌더 대상) |
+| `validation-report.json` | `validationReport` | 최종 검증 |
+| `quality-review.json` | `qualityReview` | 3축 점수 + findings |
+| `component-proposal.json` | `componentProposal` | 비파괴 제안 |
+| `pipeline-result.json` | `pipelineResult` | side-effect 실행 결과 |
+
+### 디버그 번들
+
+| 파일 | manifest 포인터 | 내용(stage 키) |
+|---|---|---|
+| `trace.json` | `trace` | `parseResult`, `screenIntent/composition/patternSelection/generation/qualityReview/revision/componentProposal`의 `{input, runnerRequest}`, `patternLayerCandidates`, `designContextBundleSelection`, `generationSkillCatalog`, `renderTreeGenerationSkill`, `initialValidationReport`, `revisionDecision` |
+
+### 인덱스
 
 | 파일 | 내용 |
 |---|---|
-| `01-parse-result.json` / `02-source-spec.json` | 파싱 결과 / SourceSpec |
-| `03~05-screen-intent-*` | intent input / runner request / result |
-| `06-pattern-layer-candidates.json` | layout id 후보 |
-| `07~09-composition-plan-*` | composition input / request / result |
-| `10-decoration-plan.json` | 결정적 장식 plan |
-| `11~13-pattern-selection-*` | pattern input / request / result |
-| `14-design-context-bundle-selection.json` | 번들 선택 결과 |
-| `15-generation-skill-catalog.json` / `16-render-tree-generation-skill.json` | 생성 skill |
-| `17~19-agent-*` | generation input / request / result |
-| `20-initial-validation-report.json` | 초기 검증 |
-| `21~23-quality-review-*` | quality input / request / result |
-| `24-revision-decision.json` | next-action 결정 |
-| `25~27-revision-agent-*` | revision input / request / result |
-| `28-validation-report.json` | 최종 검증 |
-| `29-pipeline-result.json` | side-effect 실행 결과 |
-| `30~33-component-proposal-*` | proposal input / request / result / validation |
-| `final-result.json` | 최종 RenderTree(렌더 대상) |
-| `component-proposal.json` / `design-critique.json` | 독립 제안 / 비평 아티팩트 |
-| `../manifest.json` | run 메타(`tags`, `summary`, 파일 포인터) |
+| `../manifest.json` | run 메타: 위 모든 결과 파일 포인터 + `trace` + `stageOrder`(13단계 순서) + `tags` + `summary` + `tableGenerationResult` |
 
 ---
 
