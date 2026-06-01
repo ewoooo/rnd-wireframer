@@ -67,6 +67,28 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("공동인증서")).toBeInTheDocument();
 	});
 
+	it("renders RadioGroup options given as {value,label} objects", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "RadioGroup",
+					componentVersion: "0.1.0",
+					metadata: { id: "rg-2", title: "인증수단" },
+					props: {
+						options: [
+							{ value: "phone", label: "휴대폰 본인인증" },
+							{ value: "pass", label: "PASS" },
+						],
+						selectedValue: "phone",
+					},
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
+		expect(screen.getByText("PASS")).toBeInTheDocument();
+	});
+
 	it("renders a TextField field-side button from button/buttonLabel props", () => {
 		render(
 			<RenderNodeView
