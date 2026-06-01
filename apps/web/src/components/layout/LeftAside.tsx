@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
 import type { AppScreenModule, AppScreenRoute } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
+import { AreaUsageList, getScreensUsingArea } from "../area/AreaUsageList";
 import { ScreenVariantCard } from "../screen/ScreenVariantCard";
 import { Aside, Divider, Panel } from "./Aside";
 
@@ -21,6 +22,7 @@ export function LeftAside() {
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const components = useWorkbenchStore((state) => state.components);
 	const areas = useWorkbenchStore((state) => state.areas);
+	const screens = useWorkbenchStore((state) => state.screens);
 	const screenModules = useWorkbenchStore((state) => state.screenModules);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
@@ -182,9 +184,19 @@ export function LeftAside() {
 						))}
 					</Panel>
 				</>
-			) : (
-				<Panel bodyClassName="p-2">
-					{activeTab === "ogn" ? (
+			) : activeTab === "ogn" ? (
+				<>
+					{/* 위 패널: 선택한 area를 사용하는 스크린 역참조 (도메인→루트→스크린) */}
+					<Panel
+						title={`${getScreensUsingArea(screens, selectedAreaCode).length}개 스크린에서 사용`}
+						defaultSize={30}
+						minSize={10}
+						bodyClassName="py-1"
+					>
+						<AreaUsageList />
+					</Panel>
+					<Divider />
+					<Panel defaultSize={70} minSize={30} bodyClassName="p-2">
 						<div className="flex flex-col gap-2">
 							{areas.map((area) => (
 								<button
@@ -208,7 +220,10 @@ export function LeftAside() {
 								</button>
 							))}
 						</div>
-					) : null}
+					</Panel>
+				</>
+			) : (
+				<Panel bodyClassName="p-2">
 					{activeTab === "comp" ? (
 						<div className="flex flex-col gap-2">
 							{components.map((component) => (
