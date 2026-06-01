@@ -29,6 +29,50 @@ const testCatalog = {
 } satisfies ComponentCatalog;
 
 describe("@cx/validation validators", () => {
+	it("flags use of a candidate-status component as a bounded warning", () => {
+		const tree = {
+			version: "render-tree.v0.1",
+			metadata: { id: "tree" },
+			children: [
+				{
+					type: "Screen",
+					componentVersion: "0.1.0",
+					metadata: { id: "screen", title: "Screen" },
+					layout: "layout.screen.screenShell",
+					children: [
+						screenRegion("Screen.Header", "header"),
+						{
+							type: "Screen.Contents",
+							metadata: { id: "contents", title: "Contents" },
+							layout: "layout.region.header",
+							props: { layout: { direction: "column", gap: 12 }, scroll: true },
+							children: [
+								{
+									type: "RadioGroup",
+									componentVersion: "1.0.0",
+									metadata: { id: "auth-method", title: "인증수단" },
+									props: { options: ["휴대폰 본인인증", "PASS"], selectedValue: "휴대폰 본인인증" },
+								},
+							],
+						},
+						screenRegion("Screen.Bottom", "bottom"),
+					],
+				},
+			],
+		};
+
+		const report = validateRenderTree(tree, { componentCatalog });
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "uses-candidate-component",
+				severity: "warning",
+				path: ["children", 0, "children", 1, "children", 0, "type"],
+			}),
+		);
+		// warning does not flip the report to not-ok on its own
+		expect(report.issues.filter((issue) => issue.code === "uses-candidate-component")).toHaveLength(1);
+	});
+
 	it("reports unknown component types as errors", () => {
 		const report = validateComponentUsage(
 			{ type: "MissingCard", props: {} },

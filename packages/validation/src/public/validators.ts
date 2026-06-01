@@ -4,6 +4,7 @@ import type {
 	ComponentPropContract,
 	ComponentPropType,
 } from "@cx/components/types";
+import { getComponentCatalogStatus } from "@cx/components/catalog";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
 import { findPattern } from "@cx/layout-pattern-store";
 import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
@@ -690,6 +691,15 @@ function validateNode(
 			code: "unknown-component-type",
 			message: `Render node type is not known to the renderer contract: ${input.type}.`,
 			path: [...path, "type"],
+		});
+	}
+
+	if (getComponentCatalogStatus(input.type) === "candidate") {
+		addIssue(issues, {
+			code: "uses-candidate-component",
+			message: `Component '${input.type}' is a catalog candidate, not yet promoted to stable.`,
+			path: [...path, "type"],
+			severity: "warning",
 		});
 	}
 
