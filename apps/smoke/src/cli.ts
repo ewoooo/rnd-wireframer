@@ -3,6 +3,7 @@ import { runGenerationSmoke } from "./generation";
 type SmokeCliOptions = {
 	artifactRoot?: string;
 	artifactStore?: "data-run" | "local-transient" | "web-fixture";
+	disableDesignContext?: boolean;
 	outDir?: string;
 	runId?: string;
 	target: string;
@@ -14,6 +15,7 @@ async function main() {
 	const result = await runGenerationSmoke(options.target, {
 		artifactRoot: options.artifactRoot,
 		artifactStore: options.artifactStore,
+		disableDesignContext: options.disableDesignContext,
 		outDir: options.outDir,
 		runId: options.runId,
 		useAI: options.useAI,
@@ -72,6 +74,11 @@ function parseArgs(args: string[]): SmokeCliOptions {
 			continue;
 		}
 
+		if (arg === "--no-design-context") {
+			options.disableDesignContext = true;
+			continue;
+		}
+
 		if (arg === "--help" || arg === "-h") {
 			printUsage();
 			process.exit(0);
@@ -92,6 +99,7 @@ function parseArgs(args: string[]): SmokeCliOptions {
 	return {
 		artifactRoot: options.artifactRoot,
 		artifactStore: options.artifactStore,
+		disableDesignContext: options.disableDesignContext ?? false,
 		outDir: options.outDir,
 		runId: options.runId,
 		target: options.target,
@@ -115,6 +123,7 @@ Options:
   --target <path>   Client import markdown file to smoke.
   --run-id <id>     Stable output id. Defaults to <target-basename>-<timestamp>.
   --out-dir <path>  Legacy output directory override.
+  --no-design-context  Eval 전용: design-context bundle 본문 주입을 끈다(A/B 비교).
   --artifact-store <data-run|local-transient|web-fixture>
                    Output store. Defaults to data-run.
   --artifact-root <path>

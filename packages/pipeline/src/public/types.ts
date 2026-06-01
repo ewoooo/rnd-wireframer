@@ -40,6 +40,8 @@ export type ScreenGenerationPipelineOptions = {
 		rootDir?: string;
 		saveLocal?: boolean;
 	};
+	/** Evaluation 전용: design-context bundle 본문 주입을 끈다(A/B 비교). */
+	disableDesignContext?: boolean;
 	outDir?: string;
 	runId?: string;
 	source:

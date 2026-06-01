@@ -143,6 +143,7 @@ type ScreenGenerationPipelineState = {
 
 type NormalizedScreenGenerationPipelineOptions = {
 	agentMode: "claude-local-first" | "fake";
+	disableDesignContext: boolean;
 	outDir: string;
 	runDir: string;
 	runId: string;
@@ -409,9 +410,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const agentInput = buildScreenGenerationAgentInput(sourceSpec, {
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -475,9 +474,7 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const proposalInput = buildComponentProposalAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog,
@@ -529,9 +526,7 @@ async function runProposeComponentsStage(state: ScreenGenerationPipelineState): 
 
 async function runReviewQualityStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const qualityReviewInput = buildQualityReviewAgentInput({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
@@ -591,9 +586,7 @@ async function runReviseRenderTreeIfInvalidStage(
 
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
-	state.designContextBundleContents = await loadDesignContextBundleContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const revisionInput = buildScreenRevisionAgentInput({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			sourceSpec,
@@ -726,6 +719,7 @@ function normalizeScreenGenerationPipelineOptions(
 
 	return {
 		agentMode: options.agentMode ?? (options.useAI ? "claude-local-first" : "fake"),
+		disableDesignContext: options.disableDesignContext ?? false,
 		...resolveRunOutputPaths(options, runId),
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
@@ -1085,6 +1079,13 @@ function createFakeQualityInspection(validationReport: ValidationReportContract 
 			warningCount: warningCount > 0 ? 1 : 0,
 		},
 	};
+}
+
+async function loadBundleContentsForState(
+	state: ScreenGenerationPipelineState,
+): Promise<DesignContextBundleContent[]> {
+	if (state.options.disableDesignContext) return [];
+	return loadDesignContextBundleContents(state.designContextBundleSelection?.bundleRefs ?? []);
 }
 
 function createFakeComponentProposal() {

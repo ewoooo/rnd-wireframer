@@ -12,6 +12,7 @@ export async function runGenerationSmoke(
 			preset: options.artifactStore,
 			rootDir: options.artifactRoot,
 		},
+		disableDesignContext: options.disableDesignContext,
 		outDir: options.outDir,
 		runId: options.runId,
 		source: {
