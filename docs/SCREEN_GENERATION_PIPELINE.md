@@ -1,4 +1,4 @@
-# 화면 추론 파이프라인 (screen-generation)
+Z# 화면 추론 파이프라인 (screen-generation)
 
 이 문서는 `screen-generation` 파이프라인의 13단계를 각 단계의 **입력 구성·프롬프트(query)·출력(schema)·참조 문서** 기준으로 설명한다. 정본 소스는 아래와 같다.
 
@@ -99,12 +99,14 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.3 `derive-screen-intent` — AI
 - **입력 구성**: `sourceSpec`, `sourceReferenceCatalog`, `sourceSummary`, `targetArtifact(screen-intent)`.
+- **AI 추론**: "이 화면은 무엇을 위한 화면인가?"를 판단한다. 구조만 있는 SourceSpec을 읽고 → 화면의 목적(폼/리스트/상세/완료 등), 사용자가 해야 할 핵심 행동, 성공 순간, 대상 사용자를 **해석**한다. 어떤 ref를 사용자가 먼저 이해해야 하는지 **우선순위를 매기고**(`contentPriority`), 명세에 빠진 결정(`missingDecisions`)과 상태 필요 신호(`stateCoverageHints`)를 **추론**한다. 레이아웃은 아직 결정하지 않는다 — "의미"만 잡는다.
 - **프롬프트 핵심**(`buildScreenIntentAgentInput`): "SourceSpec만을 진실원으로 화면 의도를 도출." `screenPurpose`, `primaryUserAction`, `contentPriority`(이해 순서대로 ref 나열), `sourceInterpretation`, `rationale` 캡처. 증거가 있으면 `audience`, `primaryTask`, `successMoment`, `missingDecisions`, `stateCoverageHints`도. `allowedRefs` 밖 alias 발명 금지.
 - **출력**: `screen-intent.v0.1` JSON 1개. 아티팩트 `03~05`.
 - **참조**: 없음(순수 SourceSpec 해석).
 
 ### 4.4 `plan-composition` — AI
 - **입력 구성**: `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`, `targetArtifact(composition-plan)`.
+- **AI 추론**: "이 의도를 화면에 어떻게 나눠 담을 것인가?"를 결정한다. intent를 받아 콘텐츠를 **섹션으로 분해**하고, 각 섹션을 어느 region(Header/Contents/Bottom)에 둘지, 어떤 role·priority를 줄지, 어떤 sourceRef가 묶이는지를 **배치 판단**한다. 전체 화면의 레이아웃 전략(`layoutStrategy`)을 세운다. 구체 layout id는 아직 고르지 않는다 — "무엇을 어디에, 어떤 비중으로"까지만.
 - **프롬프트 핵심**(`buildCompositionPlanAgentInput`): "pattern 선택·RenderTree 생성 전에 composition plan 작성." `screenLayout`, `layoutStrategy`, `sections`, `rationale` 정의. 각 section은 `targetRegion`, `role`, `priority`, `sourceRefs`, `strategy` 식별. `layerCandidates` 밖 layout id·`allowedRefs` 밖 ref 금지.
 - **출력**: `composition-plan.v0.1`. 아티팩트 `07~09`.
 - **부수효과**: 직후 `buildDesignContextBundleRefs`로 번들 선택(`14-design-context-bundle-selection.json`).
@@ -118,12 +120,14 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.6 `select-pattern` — AI
 - **입력 구성**: `compositionPlan`, `decorationPlan`, `designContextBundleRefs`, `layerCandidates`, `screenIntent`, `sourceSpec`, `sourceReferenceCatalog`.
+- **AI 추론**: "각 슬롯에 어떤 구체 레이아웃 패턴을 쓸 것인가?"를 고른다. plan의 섹션·decoration의 role/layoutIntent를 보고 → `layerCandidates`(허용된 layout id 집합) 안에서 screen/region/area/component 레벨별로 가장 맞는 패턴을 **선택**하고 확신도(`confidence`)와 이유를 단다. 후보 밖 id는 만들 수 없다 — "주어진 메뉴에서 고르는" 판단.
 - **프롬프트 핵심**(`buildPatternSelectionAgentInput`): "후보 중 pattern layer 전략 선택." `selectedCandidates`, `confidence`, `reason`. 각 후보는 `id/level/targetRef/layout` 보존. `layerCandidates` 밖 layout id 금지. `decorationPlan`의 role·layoutIntent를 결정적 가이드로, `designContextBundleRefs`를 bounded 가이드로 사용(SourceSpec·후보 id 우선).
 - **출력**: `pattern-selection.v0.1`. 아티팩트 `11~13`.
 - **참조**: `designContextBundleRefs`(ref만, 본문 미주입).
 
 ### 4.7 `generate-render-tree` — AI · 핵심
 - **입력 구성**: 공통 블록 전부 + `componentContractCatalog`, `compositionPlan`, `decorationPlan`, `patternSelection`, `screenIntent`, `designContextBundleRefs`, **`designContextBundles[].body`(규칙 본문 주입)**, `intermediateArtifact(table-generation-result)`, `targetArtifact(render-tree)`.
+- **AI 추론**: 위 모든 판단(intent·composition·decoration·pattern)과 design-context 규칙 본문을 **종합해 실제 RenderTree를 합성**한다. catalog/allowedRefs/candidates 제약 안에서 — 어떤 component를 어떤 props로 놓을지, source 텍스트를 어떤 가시 label로 옮길지, 행 사이 `props.divider`/섹션 사이 `props.sectionDivider`를 켤지 말지를 **화면 맥락으로 자율 결정**하고, 상태 증거가 있으면 `display.stateRole`/`display.when` 게이팅으로 상태 coverage를 짠다. 시각 위계는 색·아이콘 발명 없이 component 선택·props로만 표현. 동시에 table-shaped 결과(`tableGenerationResult`)도 만든다. 이 단계가 "판단을 실제 화면으로 굳히는" 핵심 추론이다.
 - **프롬프트 핵심**(`buildScreenGenerationAgentInput`, 가장 김): SourceSpec 진실원 + upstream(intent/composition/decoration/pattern) 가이드로 **RenderTree 생성**. 주요 규칙:
   - 스켈레톤 보존: `Screen > Screen.Header/Contents/Bottom > area.static/area.dynamic > (PageStack/layout wrapper) > components`. `type:"Area"` 노드 금지.
   - 가시 area 제목은 `decorationPlan.areas[].displayTitle` 우선. area 분할 시 분할 area를 RenderTree·table에 반영.
@@ -144,12 +148,14 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.9 `propose-components` — AI · 비파괴
 - **입력 구성**: generation 베이스 + `candidate`(생성 트리).
+- **AI 추론**: "이 화면을 짓는 동안 catalog가 부족했던 지점은 어디인가?"를 **회고적으로 분석**한다. 생성된 트리를 증거로, catalog 컴포넌트로 근사할 수밖에 없었던 부분을 찾아 → 전용 컴포넌트/변형을 제안하고, 각 제안에 source 근거·가장 가까운 catalog 매치·근거를 단다. 이번 출력엔 반영되지 않는 **비파괴 gap 분석**(catalog 진화용 신호). 자세한 순서 근거는 같은 폴더 코드/대화 참조.
 - **프롬프트 핵심**(`buildComponentProposalAgentInput`): "catalog에 없지만 화면을 개선할 component/변형 제안." 각 제안은 `id`, `proposedComponentType`, `sourceEvidence`(allowedRefs ref 배열), `nearestCatalogMatch`(catalog componentType 1개), `rationale`, 선택 `suggestedProps`. **최대 5개**, 확정/적용 안 함(비파괴).
 - **출력**: `component-proposal.v0.1`. 아티팩트 `30~33`. 검증은 bounded 여부만 리포트하고 **파이프라인을 실패시키지 않음**.
 - **참조**: `designContextBundles[].body`(개선 가이드).
 
 ### 4.10 `review-quality` — AI · 자기비평
 - **입력 구성**: generation 베이스 + `candidate`, `validationReport`.
+- **AI 추론**: "생성물이 디자인적으로 좋은가?"를 **스스로 채점**한다. schema/semantic 검증을 통과한 트리를 quality-review 게이트 기준으로 다시 읽어 → source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험을 **판단**하고, `hierarchy/separation/fidelity` 3축을 0–5로 점수화한다. 위반마다 bounded finding(코드·심각도·메시지·위치·제안)을 남긴다. 파일을 고치지는 않는다 — **비평만** 하고 다음 게이팅이 교정 여부를 정한다.
 - **프롬프트 핵심**(`buildQualityReviewAgentInput`): schema/semantic 검증 후 디자인 품질 리뷰. source fidelity·composition 정합·시각 위계·action 명료성·접근성 위험 점검. **3축 점수(`hierarchy`/`separation`/`fidelity`, 0–5)** + 위반마다 finding(`code/severity/message/optional path/suggestion`). bounded findings만, mutate·승인·필드 발명 금지.
 - **출력**: `quality-inspection.v0.1`(scores + findings). 아티팩트 `21~23`.
 - **참조**: `quality-review.md` 번들 본문(게이트 기준).
@@ -157,6 +163,7 @@ claude --print --output-format json --no-session-persistence \
 ### 4.11 `revise-render-tree-if-invalid` — 순수 게이팅 + 조건부 AI
 - **게이팅**(`buildGenerationNextAction`): `initialValidationReport` + `qualityInspection` + `retryCount`(최대 1) + `validationReport`로 다음 행동 결정. `request-revision`이 아니면 통과.
 - **AI 교정 입력**: generation 베이스 + `previousCandidate`(이전 트리, `previousResult`로도 전달) + `qualityInspection` + `validationReport`.
+- **AI 추론**(교정이 트리거된 경우): "무엇을 최소로 고쳐야 유효해지는가?"를 판단한다. validation 에러와 quality P0 finding을 받아 → 이전 트리를 **제자리에서 표적 수정**한다(스켈레톤·area wrapper·upstream 가이드·유효한 구조는 보존). `required-field-missing`·`invalid-render-node` 같은 치명 오류를 먼저, invented ref/props/layout id는 catalog/allowedRefs로 교정. 전면 재작성이 아니라 "결함만 덜어내는" 보수적 추론.
 - **프롬프트 핵심**(`buildScreenRevisionAgentInput`): validation report를 만족하도록 이전 트리를 **제자리 교정**. 스켈레톤·area wrapper·pattern·upstream 가이드 보존. invalid Area 노드는 제거가 아니라 area.static/area.dynamic로 치환. invented ref/props/layout id는 catalog/allowedRefs로 교정. `required-field-missing`·`invalid-render-node` 먼저, 그다음 warning. quality P0 finding도 bounded 교정. `agentResult`를 교정본으로 교체.
 - **출력**: 교정된 `renderTree`. 아티팩트 `24-revision-decision.json`, `25~27`.
 - **참조**: 선택된 모든 번들 본문 + quality findings.
