@@ -14,11 +14,22 @@
   4. ⚠️ ListText subText: validation은 필수, critique는 redundant라 지적(규칙 충돌). → Phase D 후보.
 - 산출물: `tmp/eval-A/on`(초기), 수정 후 재실행은 Phase B A/B에 포함.
 
-## Phase B — 번들 on/off A/B 🔄 진행 중
+## Phase B — 번들 on/off A/B ✅
 
 - [x] `--no-design-context` 토글 추가(pipeline+smoke), 기본 false라 기존 동작 불변
-- [ ] off/on 각 1회 real AI 실행 후 구조 지표 diff(divider 수·area 그룹핑·proposal 유효성·critique 점수)
-- 산출물: `tmp/eval-A/off`, `tmp/eval-A/on`
+- [x] off/on 각 1회 real AI 실행, 구조 지표 diff
+- 결과(단일 run, 노이즈 감안): Divider off=0/on=0, ListText off=4/on=2, critique(h/s/f) off=4/3/5 on=4/4/2, 최종 validation off=ok / on=2err.
+- **근본 원인 3가지**:
+  1. 🐛 디바이더 미생성(헤드라인 차단): 프롬프트가 Divider를 pattern-store 후보에 묶어 억제. Divider는 카탈로그 leaf라 layout 후보 없이 삽입 가능. → **Phase D 수정 완료**.
+  2. 🐛 `nearestCatalogMatch`를 AI가 객체로 산출 → schema-invalid. 프롬프트/문서에 string 명시. → **수정 완료**.
+  3. ⚠️ ListText dot 행 subText 누락 → validation 2err. → Phase D 후보(미해결).
+
+## Phase D(1차) — 삽입 경로 튜닝 🔄 검증 중
+
+- [x] Divider 게이팅 해제 + props.type contents(1px)/section(4px) 명시(프롬프트+visual-foundation 번들)
+- [x] nearestCatalogMatch string 명시(프롬프트+output-contract)
+- [ ] ON 재실행으로 Divider 생성·proposal 유효성 확인 (`tmp/eval-A/on2`)
+- [ ] ListText subText 규칙 충돌 해소(미정)
 
 ## Phase C — 시각 확인 (apps/web + /browse) ⬜
 
