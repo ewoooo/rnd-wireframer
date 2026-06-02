@@ -36,6 +36,103 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-02 - Puck Adapter Package Boundary
+
+- 변경: `@cx/adapters` 패키지 shell을 추가하고 public subpath를 `./markdown`, `./table`, `./puck`으로 제한함
+- 변경: Web 내부 `apps/web/src/lib/puck-screen-adapter.ts`를 `@cx/adapters/puck`으로 이동하고, Puck UI는 새 subpath를 소비하도록 변경함
+- 변경: `apps/web`은 Puck React UI와 save facade만 소유하고, RenderTree <-> Puck editable data 변환은 `@cx/adapters/puck` 계약으로 분리함
+- 이유: Puck/Workbench가 앱 내부 helper나 DB row shape에 직접 결합하지 않고 계약 단위로 순수 변환 서비스를 소비하게 하기 위함
+- 검증: `pnpm exec vitest run packages/adapters/src/__tests__/public-api.test.ts packages/adapters/src/__tests__/puck.test.ts apps/web/src/components/App.test.tsx`, `pnpm exec next build apps/web`
+
+## 2026-06-02 - Table Adapter Package Boundary
+
+- 변경: `@cx/table-materializer`의 `materializeRenderScreenFromRows()` 구현과 row 타입을 `@cx/adapters/table`로 이동함
+- 변경: `apps/web`의 DB loader/save facade가 `@cx/adapters/table` 계약을 직접 소비하도록 변경함
+- 변경: `@cx/table-materializer` compatibility re-export 패키지를 제거하고 신규 소비 경계를 `@cx/adapters/table`로 단일화함
+- 이유: DB/read-model row bundle -> RenderTree 조립을 format adapter 경계로 모으고, Web facade가 materializer 전용 패키지에 직접 결합하지 않게 하기 위함
+- 검증: `pnpm exec vitest run packages/adapters/src/__tests__/table-to-render-tree.test.ts apps/web/src/lib/screen-db-loader.test.ts apps/web/src/lib/screen-db-save.test.ts`, `pnpm exec next build apps/web`
+
+## 2026-06-02 - Text List SOT Observation
+
+- 변경: Figma 텍스트 리스트 SOT `10042:46203`의 `리스트_이용내역`, `리스트_T플러스포인트내역`, `리스트_할인내역`, `리스트_이용안내`, `리스트_공지사항` frame을 조회하고 `figma-sot-observations.md`에 1차 관찰을 기록함
+- 변경: 텍스트 리스트 SOT를 `usage-history-list-screen`, `point-history-list-screen`, `discount-history-list-screen`, `faq-guide-list-screen`, `notice-text-list-screen`으로 분리하고 `summary-card-ledger`, `info-text-list-row`, `filter-chip-row`, `month-grouped-info-list`, `faq-accordion-list` 후보를 추가함
+- 변경: `figma-source.md`와 `FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md`의 상태와 skill backlog를 텍스트 리스트 관찰 결과에 맞게 갱신함
+- 이유: list 계열 screen inference가 summary/filter/search/accordion을 과잉 또는 누락하지 않도록 내역형 리스트와 안내/공지 리스트의 정본 기준을 분리하기 위함
+- 검증: `rg -n "텍스트 리스트|10042:46203|10082:58057|10082:58364|10082:58227|10082:43724|10082:47225|text-list-screen|faq-guide-list-screen|summary-card-ledger|info-text-list-row" docs/design/reference/figma-sot-observations.md docs/design/reference/figma-source.md docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-02 - Old Remote Table Consumer Retirement
+
+- 변경: `RENDER_DB_REST_LOADER_TRANSITION_PLAN.md`의 상태를 갱신해 old remote Supabase table은 아직 별도 drop migration 대상이지만, 현재 app/package runtime 소비자는 제거 완료로 구분함
+- 변경: old table consumer 검색 기준을 추가하고, `apps/smoke/src/push-render-db-cli.ts`의 local source filename(`screen_routes.json`, `screen_variants.json`)은 remote table consumer가 아님을 명시함
+- 변경: `DB_SCHEMA.dbml`의 상태 주석을 갱신해 non-render table이 남아 있어도 current app/package runtime은 이를 소비하지 않아야 한다고 명시함
+- 이유: old remote table drop과 old remote table consumer 제거를 분리하고, 현재 Web/Puck/Workbench 경로가 screen DB facade와 `render_*` read model만 쓰는 상태를 명확히 하기 위함
+- 검증: `rg -n "(^|[^A-Za-z0-9_])(screen_routes|screen_variants|organisms|component_renderer_kinds)([^A-Za-z0-9_]|$)" apps packages --glob '!**/*.test.ts' --glob '!**/*.test.tsx' --glob '!apps/smoke/src/push-render-db-cli.ts'`, `rg -n "from\\(\\s*['\\\"](screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)['\\\"]|/rest/v1/(screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)" apps packages`
+
+## 2026-06-02 - Adapters Package Transition Plan
+
+- 변경: `docs/development/ADAPTERS_PACKAGE_TRANSITION_PLAN.md`를 추가해 `@cx/adapters` 승격 목적, public subpath, 해야 할 책임, 금지 책임, 패키지/앱 반영 범위, 단계별 커밋 단위를 정리함
+- 변경: `docs/development/README.md`에 adapter 전환 계획 문서를 등록함
+- 이유: Markdown/Table/Puck 변환 로직이 parser, table-materializer, pipeline, web에 흩어진 상태를 순수 adapter layer로 정리하되 IO/AI/React/DB write 책임이 섞이지 않게 하기 위함
+- 검증: `rg -n "ADAPTERS_PACKAGE_TRANSITION_PLAN|Forbidden Responsibilities|Development Phases|Commit" docs/development/ADAPTERS_PACKAGE_TRANSITION_PLAN.md docs/development/README.md AGENTS_HISTORY.md`, `git diff --check`
+
+## 2026-06-02 - RenderTree Node Type Contract Constants
+
+- 변경: `@cx/schema`에 RenderTree node type 상수, area node type guard, screen region node type guard를 추가하고 root export/public API 테스트를 보강함
+- 변경: `@cx/table-materializer`의 DB row type -> RenderTree node type 변환을 계약 테이블 조회로 정리하고, web DB save/Puck adapter/pipeline table projection의 RenderTree 타입 판정을 schema guard/상수로 교체함
+- 이유: `Screen.*`, `area.*` 문자열 literal 판정이 feature별로 흩어져 DB materializer, web save, Puck adapter, pipeline projection의 경계가 느슨해지는 문제를 줄이기 위함
+- 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/table-materializer/src/__tests__/public-api.test.ts apps/web/src/lib/screen-db-save.test.ts apps/web/src/lib/puck-screen-adapter.test.ts apps/web/src/lib/screen-db-loader.test.ts packages/pipeline/src/__tests__/render-tree-to-tables.test.ts`, `npx tsc --noEmit --pretty false --incremental false`, `npm run lint`
+
+## 2026-06-02 - Screen DB Loader And Materializer Implementation
+
+- 변경: `origin/main`에 존재하는 Puck prototype을 현재 브랜치로 직접 덮어쓰지 않고, `RenderTreeScreenNode <-> Puck data/config` adapter 방식으로 이식하기로 전환 계획에 명시함
+- 변경: `puck-screen-adapter.ts`, `ScreenPuckEditor`, `AreaPuckEditor`를 후보 구현 단위로 잡고, 1차 MVP 범위를 Screen.Contents area reorder와 area child component reorder로 제한함
+- 변경: `apps/web/src/lib/puck-screen-adapter.ts`를 추가해 `RenderTreeScreenNode`와 area node를 reorder-only Puck data로 변환하고, Puck 편집 결과를 원본을 mutate하지 않는 RenderTree candidate로 되돌리는 순수 adapter를 구현함
+- 변경: `apps/web/src/lib/puck-screen-adapter.test.ts`를 추가해 Screen.Contents area reorder, area 내부 component reorder, unknown/duplicate Puck item diagnostics를 검증함
+- 변경: `@measured/puck`을 `apps/web` workspace dependency로 복구하고, `ScreenPuckEditor`/`AreaPuckEditor`를 추가해 Puck UI가 RenderTree adapter를 통해서만 candidate를 만들도록 연결함
+- 변경: Workbench rail에 `PCK` 탭을 추가하고, 선택된 `ScreenSummary.renderTree`를 Puck editor로 열어 screen-level reorder candidate를 메모리 상태로 유지하도록 연결함
+- 변경: `ARE` 탭에서 선택 화면의 첫 area를 `AreaPuckEditor`로 열고, area-level component order/props 변경을 상위 `RenderTreeScreenNode` candidate에 병합하도록 연결함
+- 변경: Puck item props에 `nodePropsJson`을 추가해 RenderTree node `props`를 JSON textarea로 편집할 수 있게 하고, invalid JSON은 adapter diagnostic으로 차단함
+- 변경: `apps/web/src/lib/screen-db-save.ts`와 `PUT /api/screens/:screenId/tree`를 추가해 Puck이 publish한 RenderTree candidate에서 region child order와 area child order를 분해하고 DB child relation row를 교체하는 reorder-only apply 경로를 연결함
+- 변경: `apps/web/src/lib/screen-db-save.ts`가 component child `props`를 `render_component_children.props`로 함께 투영하고, 기존 DB row의 `variant`는 보존하도록 확장함
+- 변경: `apps/web/src/lib/screen-db-save.test.ts`를 추가해 RenderTree candidate가 `render_screen_region_children`/`render_area_children`/`render_component_children` row로 투영되고, unknown component가 write 전 error diagnostic으로 막히는지 검증함
+- 변경: `@cx/table-materializer`에 `RenderReadModelRows` row 타입, `MaterializeDiagnostic`, `materializeRenderScreenFromRows()` public API를 추가함
+- 변경: `materializeRenderScreenFromRows()`가 `render_*` relational row bundle에서 `RenderTreeScreenNode`를 조립하고, missing screen/region/area/component와 child order 문제를 diagnostics로 반환하도록 구현함
+- 변경: `apps/web/src/lib/screen-db-loader.ts`를 추가해 Supabase REST/PostgREST에서 screen rows를 server-side로 조회하고 `loadScreenTree()`에서 materializer를 호출하도록 연결함
+- 변경: `apps/web/src/lib/screen-db-loader.test.ts`를 추가해 screen route/list/rows/tree loader와 empty parent id 방어를 mock fetch로 검증함
+- 변경: `/api/screens/routes`, `/api/screens`, `/api/screens/:screenId/rows`, `/api/screens/:screenId/tree` Next API facade를 추가함
+- 변경: Web screen source가 DB-backed screen summaries와 RenderTree를 직접 사용하도록 연결하고, `SCREEN_SOURCE`/local-table fallback을 제거함
+- 변경: Web의 `/api/smoke-runs/apply`와 `smoke-apply` helper를 제거해 `data/tables` 직접 반영은 smoke CLI/migration utility로만 남김
+- 변경: `@cx/table-materializer` public export에서 old local-table `materializeTableScreen(s)` API와 관련 타입/테스트를 제거하고, row-based `materializeRenderScreenFromRows()`만 활성 materializer API로 유지함
+- 변경: `smoke:apply-tables`, `apps/smoke/src/apply-tables-cli.ts`, `@cx/pipeline/apply`, `mergeRenderTreeIntoTables()`를 제거해 승인된 smoke 결과가 local table JSON에 쓰이는 경로를 닫음
+- 이유: local table JSON 중심 preview에서 DB-backed screen read path로 점진 전환하되, 기존 Puck/Web old table 경로를 즉시 제거하지 않기 위함
+- 검증: `npm test -- --run apps/web/src/lib/screen-db-save.test.ts apps/web/src/lib/puck-screen-adapter.test.ts apps/web/src/lib/screen-db-loader.test.ts packages/table-materializer/src/__tests__/public-api.test.ts apps/web/src/components/App.test.tsx`, `npx tsc --noEmit --pretty false --incremental false`, `npm run lint`, `npm run build`, 브라우저 검증(`http://localhost:3411`에서 `PCK` 탭 진입, Puck UI 표시, console error 0; 이후 `ARE` 탭 재검증은 browser session route 단절로 보류), REST loader 직접 검증(`screenCount 55`, first tree diagnostics 0), HTTP API 검증(`/api/screens/routes`, `/api/screens`, `/api/screens/NOVA-PRDD-PG-001-0/rows`, `/api/screens/NOVA-PRDD-PG-001-0/tree`)
+
+## 2026-06-02 - Screen DB REST Loader Transition Plan
+
+- 변경: `docs/development/RENDER_DB_REST_LOADER_TRANSITION_PLAN.md`를 추가해 `render_*` relational DB에서 REST loader, `@cx/table-materializer`, Web/Puck/Workbench로 이어지는 전환 계획을 문서화함
+- 변경: `render_*` table prefix가 나중에 제거될 예정이므로 코드 파일/API route/env source 이름은 `screen-db-loader.ts`, `/api/screens/*`, `SCREEN_SOURCE=screen-db`처럼 중립 명칭으로 잡음
+- 변경: 기존 local table materializer API를 즉시 제거하지 않고 `materializeRenderScreenFromRows()`를 추가한 뒤 `SCREEN_SOURCE=screen-db`로 Web 경로를 점진 전환하는 순서를 명시함
+- 변경: old API/table 제거 조건을 Web rail, preview, Puck, Workbench가 모두 screen DB facade를 쓰는 시점으로 고정함
+- 변경: 전환 완료 시 기대 효과, 성공 기준, 실행 순서, 예상 위험과 방지 대책을 추가함
+- 이유: 기존 Puck/Web 기능을 깨지 않으면서 DB에서 RenderTree를 조립하는 목표 흐름으로 안전하게 이전하기 위함
+- 검증: 문서 추가와 development README 링크 반영
+
+## 2026-06-02 - Relational Render DB Activation
+
+- 변경: 기존 Puck/Web이 참조하는 old Supabase table(`screen_routes`, `screen_variants`, `screens`, `organisms`, `components`, `component_renderer_kinds`)은 유지하고, 신규 relational `render_*` read model을 별도 schema로 활성화함
+- 변경: `docs/development/DB_SCHEMA.dbml`을 활성 `render_*` ERD/reference로 갱신하고, `supabase/migrations/20260602000004_create_render_relational_tables.sql`로 screen/region/area/component/children 관계와 순서를 정규화한 테이블을 추가함
+- 변경: `apps/smoke/src/push-render-db-cli.ts`와 `render-db:push-tables` script를 추가해 `data/tables/*.json`을 `render_*` row로 투영하고 Supabase PostgREST service-role 쓰기로 반영할 수 있게 함
+- 변경: `layout.area.areaAppBar` wrapper area를 `area.static`으로 정규화하고, AppBar direct shortcut은 `Screen.Header -> area -> component(AppBar)` 구조로 유지함
+- 이유: local inference 결과가 마음에 들면 DB에 등록하고, 이후 DB에서 RenderTree를 조립하는 방향으로 가되 기존 Puck/Web 연결 기능을 깨지 않기 위함
+- 검증: `supabase db push`, `npm run render-db:push-tables`, `npm run render-db:push-tables -- --write`, REST row count 확인(`render_screen_routes 3`, `render_screen_variants 13`, `render_screens 55`, `render_screen_regions 165`, `render_screen_region_children 178`, `render_areas 77`, `render_area_children 122`, `render_components 122`, `render_component_children 122`, old table count 유지), `npx tsc --noEmit --pretty false --incremental false`
+
+## 2026-06-02 - Refactor Hygiene Pass
+
+- 변경: component/schema/token README의 금지된 internal/generated import 코드 예시를 public surface 중심 설명으로 교체함
+- 변경: local Vercel output과 Playwright/test report 산출물을 `.gitignore`에 추가함
+- 이유: import boundary 검색이 문서의 negative example에 걸리지 않게 하고, refactor 분석 대상에서 로컬/generated 산출물 소음을 줄이기 위함
+- 검증: public import boundary 검색, `git diff --check`, `npm run lint`
+
 ## 2026-06-01 - Product Detail SOT Observation
 
 - 변경: Figma 상품 상세화면 SOT `10069:97828`의 `상세_구독상품`, `상세_기프티콘`, `상세_단말기` frame을 조회하고 `figma-sot-observations.md`에 1차 관찰을 기록함
@@ -1368,6 +1465,40 @@
 - 변경: `data/runs/**` 생성 산출물을 Biome 검사 대상에서 제외함
 - 이유: run artifact JSON은 버전 있는 생성 결과 보관소이며, 소스/계약 lint 대상에 포함되면 실제 코드 경계 점검이 산출물 포맷 소음에 묻히기 때문
 - 검증: `npx biome check . --max-diagnostics=40`
+
+## 2026-06-02 - Render DB Transition Schema
+
+- 변경: `docs/development/RENDER_DB_TRANSITION_PLAN.md`를 추가해 local inference 결과를 `render_*` DB read model로 이전하는 단계별 계획을 문서화함
+- 변경: 기존 Supabase schema를 유지한 채 local `data/tables/*.json` shape를 mirror하는 `render_screen_routes`, `render_screen_variants`, `render_screens`, `render_areas`, `render_components` migration을 추가함
+- 변경: `render_*` 테이블 API 접근을 위한 grant migration과 `data/tables/*.json`을 Supabase `render_*` 테이블로 upsert하는 `render-db:push-tables` CLI를 추가함
+- 변경: `docs/development/DB_SCHEMA.dbml`을 old `pattern_id`/`organisms` 기준에서 `render_*`와 `layout` 기준으로 갱신함
+- 이유: 로컬 테이블이 이미 `layout: "layout.area.areaAppBar"` 같은 layout schema를 사용하므로, DB read model도 pattern schema가 아니라 layout schema를 기준으로 RenderTree를 재구성해야 하기 때문
+- 검증: `rg '"pattern"|"layout"' data/tables/*.json`, `supabase db push`, `npm run render-db:push-tables -- --write`, `supabase db query --linked` row count 확인(`routes 3`, `variants 13`, `screens 55`, `areas 24`, `components 122`), `npx biome check . --max-diagnostics=80`, `npx tsc --noEmit --pretty false --incremental false`
+
+## 2026-06-02 - Render DB Mirror Schema Retraction
+
+- 변경: 임시 `render_*` mirror table migration을 원격 Supabase에 drop migration으로 제거함
+- 변경: `render-db:push-tables` CLI와 smoke README/package script의 활성 노출을 제거함
+- 변경: `docs/development/RENDER_DB_TRANSITION_PLAN.md`를 제거하고 `DB_SCHEMA.dbml`은 현재 활성 render DB schema가 없으며 다음 schema는 관계/순서 구조를 JSONB가 아닌 relational-first로 다시 설계해야 한다고 명시함
+- 이유: 기존 `render_*` schema가 screen/region/area/composite 관계와 child ordering을 충분히 정규화하지 못하고 nested JSONB를 과도하게 보존했기 때문
+- 검증: `supabase db push`, `supabase db query --linked "select table_name from information_schema.tables where table_schema = 'public' and table_name like 'render_%' order by table_name;"` 결과 0 rows
+
+## 2026-06-02 - Relational Render Read Model DBML Draft
+
+- 변경: `docs/development/DB_SCHEMA.dbml`을 실행 migration이 아닌 검토용 Supabase render read model 설계안으로 갱신함
+- 변경: `screens -> screen_regions -> screen_region_children`, `areas -> area_children`, `components -> component_children` 관계를 명시하고 render child ordering을 relation table로 분리함
+- 변경: 실제 `areas.json`의 area child 69개가 모두 component 참조임을 확인해 `area_children.child_kind`와 `child_area_id`를 제거하고 `component_id`만 남김
+- 변경: 실제 `screens.json`의 region 직속 component 53개가 모두 header AppBar shortcut임을 확인해 `screen_region_children`도 area만 참조하도록 정리하고, header AppBar 역시 `Screen.Header -> area -> component(AppBar)` 형태로 정규화하기로 함
+- 변경: `component_children.catalog_component_type`은 [catalog.ts](/Users/plusx/Documents/rnd-screen-generator/packages/component/src/catalog.ts)의 component type lookup key로만 두고, DB가 catalog component 정의를 다시 저장하지 않도록 설계함
+- 변경: node row의 자기 타입 컬럼은 `type`으로 통일하고 enum 이름만 `screen_variant_type`, `screen_type`, `screen_region_type`, `area_type`처럼 유지함
+- 변경: `screen_regions.type: header | contents | bottom`을 region node type의 단일 기준으로 두고 `region_key`, `node_type`, `description`을 제거함
+- 변경: node table 명명 규칙을 정리해 `areas.node_type`을 `areas.type`으로 바꾸고, `screen_regions.title`/`order_index`는 region `type`에서 파생되는 값으로 보아 제거함
+- 변경: node label 컬럼을 `name`으로 통일해 `areas.title`, `components.title`을 `name`으로 바꿈
+- 변경: AppBar wrapper area 54개를 `area.dynamic`에서 `area.static`으로 정규화해 `layout.area.areaAppBar` 영역이 동적 영역으로 오해되지 않게 함
+- 변경: `screens.name`과 `screen_type: page | bottomsheet | popup` 기준을 적용하고, row별 source timestamp, `screens.theme_mode`, `screens.min_renderer_version`, `screen_variants.follow_up`은 제거함
+- 변경: record metadata는 가능한 한 `name/title`, `description`, `author` 같은 컬럼으로 풀고, JSONB는 component child `props`, component `display`, `hooks: NodeHook[]`처럼 bounded payload에만 남김
+- 이유: DB에서 RenderTree를 재구성하되 screen/region/area/composite 관계와 순서를 JSONB에 숨기지 않기 위함
+- 검증: local `data/tables/*.json` -> DBML projection 점검 결과 issue 0건, `git diff --check`, `npx biome check . --max-diagnostics=100`, `npx tsc --noEmit --pretty false --incremental false`
 
 ## 2026-06-01 - CompositionPlan Design Decision Fields
 

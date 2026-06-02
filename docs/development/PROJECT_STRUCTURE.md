@@ -14,6 +14,7 @@
 | 패키지 | 책임 |
 |---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
+| `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 |
 | `@cx/renderer` | RenderTree JSON -> React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
 | `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
@@ -24,7 +25,6 @@
 | `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
-| `@cx/table-materializer` | table read model -> screen RenderTree 순수 조립 |
 
 개발자용 앱:
 
@@ -64,32 +64,42 @@ packages/renderer/src/
 - layout pattern CRUD/selection
 - fallback UI로 unknown node/component/layout을 성공 렌더처럼 숨기는 책임
 
-## 3-1. `packages/table-materializer`
+## 3-1. `packages/adapters`
 
-`@cx/table-materializer`는 table read model을 renderer가 바로 소비할 수 있는 screen 단위 RenderTree로 조립하는 순수 패키지다.
+`@cx/adapters`는 외부 표현과 내부 계약 사이의 순수 변환 패키지다.
 
 ```text
-packages/table-materializer/src/
-  index.ts       public materializer API
-  types.ts       table read model input types
-  materialize-table-screen.ts
+packages/adapters/src/
+  index.ts       public adapter package metadata
+  markdown/      Markdown/client input -> SourceSpec, pending migration
+  table/         DB/read-model row bundle -> RenderTree
+  puck/          RenderTree <-> Puck editable data
 ```
 
-공개 API는 `@cx/table-materializer` root export만 사용한다.
+공개 API는 subpath를 기준으로 사용한다.
+
+```ts
+import { materializeRenderScreenFromRows } from "@cx/adapters/table";
+import { renderTreeToPuckScreenData } from "@cx/adapters/puck";
+```
 
 책임:
 
-- `data/tables/*` read model shape의 plain object 입력을 받는다.
-- screen, region, area, component record 관계를 따라 `RenderTreeScreenNode`를 만든다.
+- 이미 로드된 plain object 입력을 받는다.
+- table/read-model row 관계를 따라 `RenderTreeScreenNode`를 만든다.
+- RenderTree와 Puck editable data를 상호 변환한다.
+- missing reference, child order, unknown/duplicate Puck item, invalid props JSON 문제를 diagnostics로 반환한다.
 - 파일 IO 없이 순수 함수로 동작한다.
 
 두지 않는 책임:
 
 - React render
+- Puck React UI
 - layout 선택
 - pattern 추천
 - spacing/default 보정
 - validation rule 판정
+- DB/REST 호출
 - table 파일 읽기/쓰기
 
 ## 4. `packages/component`
@@ -125,15 +135,31 @@ packages/layout/src/
 
 ## 6. 앱 구조 규칙
 
-`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다.
+`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, smoke explorer, workbench shell의 책임은 파일 위치와 import 방향으로 구분한다.
 
 ```text
 apps/web/src/
-  app/          Next.js route와 API route
-  components/   RenderTree 소비 UI
+  app/             Next.js route와 API route
+    api/screens/   screen DB facade
+  components/      RenderTree 소비 UI
+    layout/        workbench shell
+    puck/          Puck editor UI only
+    screen/        RenderTree preview UI
+    smoke/         smoke artifact explorer UI
+  lib/
+    screen-db-*    Supabase REST row read/write facade
+    smoke-*        smoke artifact read helper
+  model/           workbench view model
 ```
 
-재설계 기간에 앱은 `data`, `model`, `server`, `app/api`, `adapters` 계층을 두지 않는다. 생성, 검수, 저장, 파일 시스템 side effect, API route는 앱 책임이 아니다.
+재설계 기간에 앱은 product feature namespace를 깊게 만들지 않는다. 대신 `lib/*` helper의 책임 이름을 명확히 하고, 다음 import 방향을 지킨다.
+
+- Puck UI는 `@cx/adapters/puck`만 알고 DB row나 Supabase를 모른다.
+- screen DB loader/save는 Puck 타입을 모르고 RenderTree candidate와 DB row만 다룬다.
+- smoke explorer는 artifact 비교만 하고 DB apply를 수행하지 않는다.
+- workbench shell은 screen summary, candidate state, tab routing만 조립한다.
+
+생성, 검수, Claude 실행, stage orchestration은 앱 책임이 아니며 `@cx/pipeline`/`@cx/agent`/`@cx/validation` 경계를 따른다.
 
 `apps/smoke`는 사용자-facing 앱이 아니라 개발자-facing 통합 실행 앱이다.
 

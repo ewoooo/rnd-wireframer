@@ -32,7 +32,7 @@ Claude 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-s
 - `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일, 공개되지 않은 subpath, JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
 - `packages/parser`의 `@cx/parser` 패키지는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 parser로만 운영한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
-- `packages/table-materializer`의 `@cx/table-materializer` 패키지는 table read model을 screen 단위 `RenderTreeScreenNode`로 조립하는 순수 함수만 관리한다. 파일 IO, React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정 책임을 두지 않는다.
+- `packages/adapters`의 `@cx/adapters/table` subpath는 table/read model을 screen 단위 `RenderTreeScreenNode`로 조립하는 순수 함수만 관리한다. 파일 IO, React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정 책임을 두지 않는다.
 - `packages/orchestration`의 `@cx/orchestration` 패키지는 pipeline stage에서 사용하는 순수 입력 조립과 next action helper를 담당한다. pipeline 실행, stage 순서 소유, 파일 쓰기, Claude 실행, 검증 rule 판정, React render 책임을 두지 않는다.
 - `packages/validation`의 `@cx/validation` 패키지는 `@cx/schema` JSON Schema, DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
 - `packages/pipeline`의 `@cx/pipeline` 패키지는 pipeline runtime과 승인된 side effect/IO 유틸리티로 운영한다. stage별 순수 helper rule 소유, 검증 rule 판정, Claude adapter 구현, RenderTree render, catalog 값 소유, mock 원본 수정 책임을 두지 않는다.

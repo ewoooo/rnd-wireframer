@@ -28,8 +28,8 @@ docker compose up --build
 
 - `apps/web` — Next.js 앱
 - `apps/smoke` — generation smoke flow 실행 앱
-- `packages/{schema,parser,orchestration,agent,validation,pipeline,table-materializer,renderer,component,layout,layout-pattern-store,token}` — 생성, 검증, 렌더, 디자인 시스템 경계별 패키지
-- `data/` — 현재 preview와 table materializer가 소비하는 read model/sample data
+- `packages/{schema,parser,adapters,orchestration,agent,validation,pipeline,renderer,component,layout,layout-pattern-store,token}` — 생성, 변환, 검증, 렌더, 디자인 시스템 경계별 패키지
+- `data/` — 현재 preview와 adapter가 소비하는 read model/sample data
 - `docs/` — 디자인, 개발, 실행 계약 문서
 
 구조가 커질 때의 배치 기준은 [PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md)를 따른다.
