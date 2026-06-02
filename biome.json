@@ -17,7 +17,9 @@
 			"!*.tsbuildinfo",
 			"!dist",
 			"!build",
-			"!coverage"
+			"!coverage",
+			"!packages/figma-screen-sync",
+			"!scripts/*.generated.js"
 		]
 	},
 	"formatter": {

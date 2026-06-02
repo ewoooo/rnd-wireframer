@@ -6,6 +6,7 @@ import { AreaPuckEditor } from "../puck/AreaPuckEditor";
 import { ScreenPuckEditor } from "../puck/ScreenPuckEditor";
 import { RenderedScreen } from "../screen/RenderedScreen";
 import { CanvasToolbar, type SaveState } from "./CanvasToolbar";
+import { ExportToolbar } from "./ExportToolbar";
 
 type CanvasProps = {
 	activeTab: NavigatorTab;
@@ -42,6 +43,7 @@ export function Canvas({
 	const isPuckTab = activeTab === "puck";
 	const isAreaTab = activeTab === "ogn";
 	const isEditorTab = isPuckTab || isAreaTab;
+	const canExport = activeTab === "scn" && !!selectedScreen?.renderTree;
 
 	return (
 		<SidebarInset className="overflow-hidden">
@@ -57,13 +59,22 @@ export function Canvas({
 							</p>
 						) : null}
 					</div>
-					<CanvasToolbar
-						canSave={!!selectedScreen?.renderTree && !!onSaveSelectedScreen}
-						isStatusBarVisible={showStatusBar}
-						onSave={() => onSaveSelectedScreen?.()}
-						onToggleStatusBar={() => onToggleStatusBar?.()}
-						saveState={saveState}
-					/>
+					<div className="flex shrink-0 items-center gap-2">
+						<CanvasToolbar
+							canSave={!!selectedScreen?.renderTree && !!onSaveSelectedScreen}
+							isStatusBarVisible={showStatusBar}
+							onSave={() => onSaveSelectedScreen?.()}
+							onToggleStatusBar={() => onToggleStatusBar?.()}
+							saveState={saveState}
+						/>
+						<ExportToolbar
+							canExport={canExport}
+							disabledReason={
+								activeTab === "scn" ? "스크린을 선택해주세요" : "스크린 탭에서만 내보낼 수 있어요"
+							}
+							screen={selectedScreen}
+						/>
+					</div>
 				</div>
 			</SidebarHeader>
 			<SidebarContent
@@ -95,13 +106,7 @@ export function Canvas({
 	);
 }
 
-function CanvasLoadState({
-	message,
-	status,
-}: {
-	message?: string;
-	status: "error" | "loading";
-}) {
+function CanvasLoadState({ message, status }: { message?: string; status: "error" | "loading" }) {
 	return (
 		<div className="flex size-full flex-col items-center justify-center gap-2 p-6 text-center">
 			<p className="text-sm font-medium">
@@ -113,7 +118,8 @@ function CanvasLoadState({
 }
 
 function readCanvasContextLabel(activeTab: NavigatorTab, selectedScreen?: ScreenSummary) {
-	const tabLabel = activeTab === "puck" ? "Puck Editor" : activeTab === "ogn" ? "Area Editor" : "Preview";
+	const tabLabel =
+		activeTab === "puck" ? "Puck Editor" : activeTab === "ogn" ? "Area Editor" : "Preview";
 	const routeLabel = selectedScreen?.route ?? selectedScreen?.screenRouteId ?? "No route";
 	const statusLabel = selectedScreen?.status ?? "draft";
 	return `${tabLabel} · ${routeLabel} · ${statusLabel}`;

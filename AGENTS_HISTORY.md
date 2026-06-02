@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-02 - Origin Main Figma Export Merge Prep
+
+- 변경: `origin/main`의 Figma export 기능을 현재 로컬 workbench 경계에 맞춰 병합 준비함
+- 변경: 원격 `zustand` store, `LeftAside`/`RightAside`/`SaveButton`, server action 기반 저장 경계는 복원하지 않고 로컬 `App` state, `CanvasToolbar`, `@cx/adapters/puck`, `@cx/adapters/table`, `/api/screens/*` 흐름을 유지함
+- 변경: `ExportToolbar`를 `useWorkbenchStore` 의존 없이 `ScreenSummary.renderTree` prop 기반으로 수정하고, RenderTree screen node도 Figma build code/json export 입력으로 받을 수 있게 보강함
+- 변경: Figma plugin/generated 산출물은 Biome 검사 대상에서 제외하고, 사람이 관리하는 export scripts는 lint 경고 없이 통과하도록 정리함
+- 이유: 원격 기능 가치는 살리되 상태관리/DB apply 책임이 앱 전역 store로 다시 섞이지 않게 하기 위함
+- 검증: `npm run lint`, `npm test`, `npm run build`
+
 ## 2026-06-02 - Adapters Package Transition Complete
 
 - 변경: `@cx/parser` 구현과 Markdown parser 테스트를 `@cx/adapters/markdown`로 이동하고 legacy parser package를 제거함
