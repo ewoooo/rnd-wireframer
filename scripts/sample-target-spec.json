@@ -1,0 +1,85 @@
+{
+  "$schema": "screen-figma-export-v1",
+  "id": "NOVA-PRDD-PG-001-0",
+  "name": "상품 상세 핵심 요약 탐색",
+  "route": "/NOVA-PRDD-PG-001-0",
+  "type": "page",
+  "data": {},
+  "frame": {
+    "width": 375,
+    "height": 812,
+    "background": "{color.semantic.surface.page.normal}",
+    "inset": "{spacing.12}",
+    "gap": "{spacing.4}"
+  },
+  "root": {
+    "id": "NOVA-PRDD-PG-001-0-screen-root",
+    "type": "Screen",
+    "componentId": "screen",
+    "registered": false,
+    "children": [
+      {
+        "id": "NOVA-PRDD-PG-001-0__area0",
+        "type": "Area",
+        "componentId": "NOVA-PRDD-PG-001-0__area0",
+        "registered": true,
+        "slot": "top",
+        "children": [
+          {
+            "id": "d-appbar-1",
+            "type": "AppBar",
+            "componentId": "app-bar",
+            "registered": true,
+            "props": { "title": "상품 상세 핵심 요약 탐색", "showBack": true, "showLogo": false }
+          }
+        ]
+      },
+      {
+        "id": "screen-contents-section-1",
+        "type": "PageStack",
+        "componentId": "page-stack",
+        "registered": false,
+        "slot": "content",
+        "props": { "itemPaddingX": 16, "paddingY": 16, "sectionPaddingX": 16 },
+        "children": [
+          {
+            "id": "NOVA-PRDD-PG-001-0__area1",
+            "type": "Area",
+            "componentId": "NOVA-PRDD-PG-001-0__area1",
+            "registered": true,
+            "children": [
+              {
+                "id": "d-card-summary-1",
+                "type": "CardSummary",
+                "componentId": "card-summary",
+                "registered": true,
+                "props": { "title": "iPhone 16 Pro", "subText": "Apple / 스마트폰 / 월 50,000원" }
+              },
+              {
+                "id": "d-badge-status-1",
+                "type": "Badge",
+                "componentId": "badge",
+                "registered": true,
+                "props": { "variant": "blue" }
+              },
+              {
+                "id": "d-text-button-origin-1",
+                "type": "TextButton",
+                "componentId": "text-button",
+                "registered": true,
+                "props": { "label": "상품정보 자세히 보기", "underline": true }
+              },
+              {
+                "id": "d-list-text-info-1",
+                "type": "ListText",
+                "componentId": "list-text",
+                "registered": true,
+                "props": { "title": "혜택", "subText": "T 우주패스 제휴 혜택 제공", "table": "on" }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
