@@ -4,8 +4,12 @@
 // Run: node scripts/assemble-figma-introspect.mjs  →  paste scripts/figma-introspect.generated.js
 import { writeFileSync } from "node:fs";
 
-// component types our sample screen references (PascalCase as used in RenderTree)
-const TARGETS = ["AppBar", "CardSummary", "Badge", "TextButton", "ListText"];
+// Figma DS component names we need real schemas for (variant axes + text node NAMES + props),
+// to wire the registry. Callout = the real component behind app's `section-message` (alias).
+const TARGETS = [
+	"Callout", "CheckBox", "Divider", "ListText", "AppBar", "Badge", "TextButton",
+	"Button", "TitleSection/Default", "TitleSection", "TitleMain", "ActionButton",
+];
 
 const body = `
 const TARGETS = ${JSON.stringify(TARGETS)};
@@ -50,15 +54,29 @@ const TARGETS = ${JSON.stringify(TARGETS)};
     return out;
   }
 
+  // inner TEXT node names + their default characters (for text injection mapping)
+  function textNodes(node) {
+    var sample = node;
+    if (node.type === "COMPONENT_SET" && node.children && node.children[0]) sample = node.children[0];
+    var out = [];
+    try {
+      var texts = sample.findAll(function (n) { return n.type === "TEXT"; });
+      for (var i = 0; i < texts.length; i++) {
+        out.push({ name: texts[i].name, chars: String(texts[i].characters || "").slice(0, 24) });
+      }
+    } catch (e) {}
+    return out;
+  }
+
   var report = {};
   for (var t = 0; t < TARGETS.length; t++) {
     var name = TARGETS[t];
     var sets = figma.root.findAll(function (n) { return n.type === "COMPONENT_SET" && n.name === name; });
     var comps = figma.root.findAll(function (n) { return n.type === "COMPONENT" && n.name === name; });
     if (sets.length > 0) {
-      report[name] = { found: true, kind: "COMPONENT_SET", realName: sets[0].name, variantAxes: variantAxes(sets[0]), props: readProps(sets[0]) };
+      report[name] = { found: true, kind: "COMPONENT_SET", realName: sets[0].name, variantAxes: variantAxes(sets[0]), props: readProps(sets[0]), textNodes: textNodes(sets[0]) };
     } else if (comps.length > 0) {
-      report[name] = { found: true, kind: "COMPONENT", realName: comps[0].name, props: readProps(comps[0]) };
+      report[name] = { found: true, kind: "COMPONENT", realName: comps[0].name, props: readProps(comps[0]), textNodes: textNodes(comps[0]) };
     } else {
       // fuzzy: any master whose name contains the type (case-insensitive), or kebab form
       var needle = name.toLowerCase();

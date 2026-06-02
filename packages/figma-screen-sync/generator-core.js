@@ -540,7 +540,7 @@ function buildFrame(spec, variantName, tokens, loadedFonts) {
     if (child.kind === "text") {
       node = buildText(child, tokens, loadedFonts);
     } else if (child.kind === "ref") {
-      node = buildRef(child);
+      node = buildRef(child, loadedFonts);
     } else if (child.kind === "group") {
       // 익명 서브 프레임 — child 스펙을 mini-spec 으로 재귀 빌드
       node = buildFrame(child, child.id || "group", tokens, loadedFonts);
@@ -755,7 +755,7 @@ function applyInstanceProps(instance, props) {
 // we do NOT skip and do NOT auto-create a component — we emit a plain frame LAYER
 // (placeholder) so the node still exists in the tree. It auto-upgrades to an instance
 // once the named component appears in the Figma DS (no code change). Applies to ALL refs.
-function buildFallbackLayer(childSpec) {
+function buildFallbackLayer(childSpec, loadedFonts) {
   const f = figma.createFrame();
   f.name = childSpec.id || childSpec.component || "missing-component";
   f.layoutMode = "VERTICAL";
@@ -763,21 +763,39 @@ function buildFallbackLayer(childSpec) {
   f.counterAxisSizingMode = "FIXED";
   try { f.resize(343, 48); } catch (e) {}
   f.cornerRadius = 4;
+  f.paddingTop = 12;
+  f.paddingBottom = 12;
+  f.paddingLeft = 12;
+  f.paddingRight = 12;
   f.fills = [{ type: "SOLID", color: { r: 0.93, g: 0.94, b: 0.96 } }];
   f.strokes = [{ type: "SOLID", color: { r: 0.80, g: 0.82, b: 0.88 } }];
   f.strokeWeight = 1;
   f.setPluginData("figmaExportFallback", "1");
   f.setPluginData("figmaExportComponent", String(childSpec.component || ""));
+  // Text SSOT = app: a DS-missing leaf still shows its app-provided text (not a Figma decision).
+  if (childSpec.text) {
+    try {
+      const font = pickFont(String(childSpec.text), 400, loadedFonts || []);
+      const t = figma.createText();
+      t.fontName = font;
+      t.characters = String(childSpec.text);
+      t.fontSize = 14;
+      try { t.layoutSizingHorizontal = "FILL"; } catch (e) {}
+      f.appendChild(t);
+    } catch (e) {
+      console.warn("fallback text 실패 (" + childSpec.id + "):", e.message);
+    }
+  }
   return f;
 }
 
-function buildRef(childSpec) {
+function buildRef(childSpec, loadedFonts) {
   const setName = childSpec.component;
-  if (!setName) { console.warn("ref 에 component 이름 없음 — fallback layer"); return buildFallbackLayer(childSpec); }
+  if (!setName) { console.warn("ref 에 component 이름 없음 — fallback layer"); return buildFallbackLayer(childSpec, loadedFonts); }
   const master = findMasterForRef(setName);
   if (!master) {
     console.warn("참조 대상 없음(DS 미존재): " + setName + " — plain frame 레이어로 처리");
-    return buildFallbackLayer(childSpec);
+    return buildFallbackLayer(childSpec, loadedFonts);
   }
   let instance;
   if (master.kind === "set") {
@@ -795,7 +813,37 @@ function buildRef(childSpec) {
   }
   if (childSpec.id) instance.name = childSpec.id;
   applyInstanceProps(instance, childSpec.props);
+  // Text SSOT = app: inject app text into the instance's inner text nodes (by name or index).
+  // Deferred to an async pass (applyPendingTexts) because setting characters needs loadFontAsync.
+  if (childSpec.setTexts && childSpec.setTexts.length) {
+    PENDING_TEXTS.push({ instance: instance, setTexts: childSpec.setTexts });
+  }
   return instance;
+}
+
+// Collected during the (sync) build, applied after — loadFontAsync per target node, then set.
+const PENDING_TEXTS = [];
+async function applyPendingTexts() {
+  for (let i = 0; i < PENDING_TEXTS.length; i++) {
+    const op = PENDING_TEXTS[i];
+    let textNodes;
+    try { textNodes = op.instance.findAll(function (n) { return n.type === "TEXT"; }); }
+    catch (e) { continue; }
+    for (let j = 0; j < op.setTexts.length; j++) {
+      const st = op.setTexts[j];
+      let target = null;
+      if (st.name) {
+        for (let k = 0; k < textNodes.length; k++) { if (textNodes[k].name === st.name) { target = textNodes[k]; break; } }
+      }
+      if (!target && typeof st.index === "number") target = textNodes[st.index];
+      if (!target) { console.warn("setText 대상 텍스트노드 없음:", JSON.stringify(st)); continue; }
+      try {
+        await figma.loadFontAsync(target.fontName);
+        target.characters = String(st.value);
+      } catch (e) { console.warn("setText 실패 (" + (st.name || st.index) + "):", e.message); }
+    }
+  }
+  PENDING_TEXTS.length = 0;
 }
 
 // ---------- Auto-create missing section frame ----------
@@ -1236,6 +1284,7 @@ async function generateScreen(spec, tokens, fontResult) {
   frame.x = targetX;
   frame.y = targetY;
 
+  await applyPendingTexts();
   figma.notify("✓ Screen: " + spec.name);
   console.log("✓ Screen generated: " + spec.name + " at (" + targetX + ", " + targetY + "), replaced " + existing.length);
   return frame;
