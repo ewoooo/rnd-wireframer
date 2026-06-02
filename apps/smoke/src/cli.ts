@@ -56,7 +56,9 @@ async function runBatch(options: SmokeCliOptions) {
 	console.log(formatBatchReport(result));
 
 	if (result.results.length === 0) {
-		throw new Error(`No screens matched in ${options.targetDir}${options.glob ? ` (glob ${options.glob})` : ""}.`);
+		throw new Error(
+			`No screens matched in ${options.targetDir}${options.glob ? ` (glob ${options.glob})` : ""}.`,
+		);
 	}
 	if (result.failCount > 0) {
 		throw new Error(`${result.failCount} of ${result.results.length} screen(s) failed.`);

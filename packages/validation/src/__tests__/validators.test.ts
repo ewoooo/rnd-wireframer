@@ -70,7 +70,9 @@ describe("@cx/validation validators", () => {
 			}),
 		);
 		// warning does not flip the report to not-ok on its own
-		expect(report.issues.filter((issue) => issue.code === "uses-candidate-component")).toHaveLength(1);
+		expect(report.issues.filter((issue) => issue.code === "uses-candidate-component")).toHaveLength(
+			1,
+		);
 	});
 
 	it("treats a source ref as materialized when its label text is present (folded into a prop)", () => {

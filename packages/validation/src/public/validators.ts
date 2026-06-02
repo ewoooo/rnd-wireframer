@@ -1,10 +1,10 @@
+import { getComponentCatalogStatus } from "@cx/components/catalog";
 import type {
 	ComponentCatalog,
 	ComponentCatalogEntry,
 	ComponentPropContract,
 	ComponentPropType,
 } from "@cx/components/types";
-import { getComponentCatalogStatus } from "@cx/components/catalog";
 import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
 import { findPattern } from "@cx/layout-pattern-store";
 import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
@@ -324,7 +324,12 @@ export function validateCompositionPlan(
 	if (!isRecord(value)) return buildReport("composition-plan", issues);
 
 	validateCompositionPlanSourceRefs(value, options.sourceSpec, issues);
-	validateCompositionPlanMaterialization(value, options.generatedArtifact, options.sourceSpec, issues);
+	validateCompositionPlanMaterialization(
+		value,
+		options.generatedArtifact,
+		options.sourceSpec,
+		issues,
+	);
 
 	return buildReport("composition-plan", issues);
 }

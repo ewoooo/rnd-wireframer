@@ -1,7 +1,4 @@
-import {
-	getComponentCatalogStatus,
-	listCandidateComponentEntries,
-} from "@cx/components/catalog";
+import { getComponentCatalogStatus, listCandidateComponentEntries } from "@cx/components/catalog";
 
 /**
  * Promotion helper (candidate -> stable). Candidate metadata lives in code
@@ -33,7 +30,9 @@ function main() {
 	console.log(`Promote '${type}' (candidate -> stable):`);
 	console.log(`1. Move the component: src/candidates/${type}/ -> src/components/${type}/`);
 	console.log(`2. Update its export path in packages/component/src/index.ts`);
-	console.log("3. Move the catalog entry: candidate-entries.ts -> component-entries.ts (status becomes stable)");
+	console.log(
+		"3. Move the catalog entry: candidate-entries.ts -> component-entries.ts (status becomes stable)",
+	);
 	console.log("\nEntry to move:");
 	console.log(JSON.stringify(entry, null, 2));
 }

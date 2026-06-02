@@ -4,9 +4,33 @@ import { aggregateProposals } from "./aggregate";
 describe("aggregateProposals", () => {
 	it("dedups by proposedComponentType and counts frequency", () => {
 		const backlog = aggregateProposals([
-			{ proposals: [{ proposedComponentType: "RadioGroup", sourceEvidence: ["A"], nearestCatalogMatch: "Radio" }] },
-			{ proposals: [{ proposedComponentType: "RadioGroup", sourceEvidence: ["B"], nearestCatalogMatch: "Radio" }] },
-			{ proposals: [{ proposedComponentType: "TitleSection", sourceEvidence: ["C"], nearestCatalogMatch: "AppBar" }] },
+			{
+				proposals: [
+					{
+						proposedComponentType: "RadioGroup",
+						sourceEvidence: ["A"],
+						nearestCatalogMatch: "Radio",
+					},
+				],
+			},
+			{
+				proposals: [
+					{
+						proposedComponentType: "RadioGroup",
+						sourceEvidence: ["B"],
+						nearestCatalogMatch: "Radio",
+					},
+				],
+			},
+			{
+				proposals: [
+					{
+						proposedComponentType: "TitleSection",
+						sourceEvidence: ["C"],
+						nearestCatalogMatch: "AppBar",
+					},
+				],
+			},
 		]);
 
 		expect(backlog[0]).toMatchObject({ proposedComponentType: "RadioGroup", count: 2 });

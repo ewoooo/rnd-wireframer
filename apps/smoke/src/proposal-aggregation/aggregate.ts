@@ -48,7 +48,10 @@ export function aggregateProposals(docs: ProposalDocument[]): ProposalBacklogEnt
 			for (const ref of proposal.sourceEvidence ?? []) {
 				if (!existing.evidence.includes(ref)) existing.evidence.push(ref);
 			}
-			if (proposal.nearestCatalogMatch && !existing.nearestCatalogMatches.includes(proposal.nearestCatalogMatch)) {
+			if (
+				proposal.nearestCatalogMatch &&
+				!existing.nearestCatalogMatches.includes(proposal.nearestCatalogMatch)
+			) {
 				existing.nearestCatalogMatches.push(proposal.nearestCatalogMatch);
 			}
 			if (proposal.rationale) existing.rationales.push(proposal.rationale);
@@ -58,6 +61,7 @@ export function aggregateProposals(docs: ProposalDocument[]): ProposalBacklogEnt
 
 	return [...byType.values()].sort(
 		(left, right) =>
-			right.count - left.count || left.proposedComponentType.localeCompare(right.proposedComponentType),
+			right.count - left.count ||
+			left.proposedComponentType.localeCompare(right.proposedComponentType),
 	);
 }

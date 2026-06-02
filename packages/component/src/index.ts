@@ -1,3 +1,4 @@
+export { RadioGroup } from "./candidates/RadioGroup/RadioGroup";
 export { AccordionInfo, AccordionNoticeInfo, AccordionPriceInfo } from "./components/AccordionInfo";
 export { ActionButton } from "./components/ActionButton";
 export { AppBar } from "./components/AppBar";
@@ -25,7 +26,6 @@ export { MapBlock } from "./components/MapBlock";
 export { OptionCard } from "./components/OptionCard";
 export { OptionList, type OptionListItem } from "./components/OptionList";
 export { ProductInfo } from "./components/ProductInfo";
-export { RadioGroup } from "./candidates/RadioGroup/RadioGroup";
 export { SearchBar } from "./components/SearchBar";
 export { StoreCard } from "./components/StoreCard";
 export type { TabItem } from "./components/Tab";

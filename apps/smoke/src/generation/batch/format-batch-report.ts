@@ -11,9 +11,7 @@ export function formatBatchReport(result: BatchResult): string {
 			continue;
 		}
 		const status = entry.ok ? "ok  " : "FAIL";
-		lines.push(
-			`  ${status} ${entry.screen}  ${entry.errorCount} err  ${entry.warningCount} warn`,
-		);
+		lines.push(`  ${status} ${entry.screen}  ${entry.errorCount} err  ${entry.warningCount} warn`);
 	}
 
 	lines.push(`Summary: ${result.okCount} ok, ${result.failCount} fail`);

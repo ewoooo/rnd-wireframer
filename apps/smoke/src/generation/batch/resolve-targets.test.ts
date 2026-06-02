@@ -46,7 +46,11 @@ describe("resolveBatchTargets", () => {
 	it("collects only .md files sorted by name as absolute paths", async () => {
 		const dir = await makeFixtureDir(["b.md", "a.md", "note.txt", "c.md"]);
 		const targets = await resolveBatchTargets(dir);
-		expect(targets).toEqual([path.join(dir, "a.md"), path.join(dir, "b.md"), path.join(dir, "c.md")]);
+		expect(targets).toEqual([
+			path.join(dir, "a.md"),
+			path.join(dir, "b.md"),
+			path.join(dir, "c.md"),
+		]);
 	});
 
 	it("applies the glob filter against the basename", async () => {

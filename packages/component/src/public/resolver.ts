@@ -1,10 +1,6 @@
 import { assembleComponentCatalog } from "../internal/assembly";
 import { internalComponentCatalog } from "../internal/registry";
-import type {
-	ComponentCatalogEntry,
-	ComponentCatalogStatus,
-	ComponentPropContract,
-} from "./types";
+import type { ComponentCatalogEntry, ComponentCatalogStatus, ComponentPropContract } from "./types";
 
 const componentCatalogForResolver = assembleComponentCatalog(internalComponentCatalog);
 

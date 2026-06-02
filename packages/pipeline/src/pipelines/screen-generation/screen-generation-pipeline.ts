@@ -893,7 +893,9 @@ function buildSourceComponentContractCatalog(
 	// may reach for a better-fitting component. Visibility is independent of status;
 	// promotion (candidate->stable) only flips the tag, it does not drop the component.
 	const entryCanonicalTypes = new Set(
-		entries.map((entry) => getComponentCatalogEntry(entry.componentType)?.type ?? entry.componentType),
+		entries.map(
+			(entry) => getComponentCatalogEntry(entry.componentType)?.type ?? entry.componentType,
+		),
 	);
 	const available = getComponentCatalogTypes()
 		.filter((type) => !entryCanonicalTypes.has(type))

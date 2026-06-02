@@ -17,7 +17,9 @@ async function main() {
 	console.log(`Component proposal backlog (${docs.length} run(s)):`);
 	for (const entry of backlog) {
 		const near = entry.nearestCatalogMatches.join("/") || "-";
-		console.log(`  ${String(entry.count).padStart(2)}x  ${entry.proposedComponentType}  (near ${near})`);
+		console.log(
+			`  ${String(entry.count).padStart(2)}x  ${entry.proposedComponentType}  (near ${near})`,
+		);
 	}
 }
 
