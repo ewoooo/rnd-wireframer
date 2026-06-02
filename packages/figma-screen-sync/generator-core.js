@@ -751,13 +751,33 @@ function applyInstanceProps(instance, props) {
   }
 }
 
+// Component asset SSOT = Figma file. If a ref can't be resolved to a local master,
+// we do NOT skip and do NOT auto-create a component — we emit a plain frame LAYER
+// (placeholder) so the node still exists in the tree. It auto-upgrades to an instance
+// once the named component appears in the Figma DS (no code change). Applies to ALL refs.
+function buildFallbackLayer(childSpec) {
+  const f = figma.createFrame();
+  f.name = childSpec.id || childSpec.component || "missing-component";
+  f.layoutMode = "VERTICAL";
+  f.primaryAxisSizingMode = "AUTO";
+  f.counterAxisSizingMode = "FIXED";
+  try { f.resize(343, 48); } catch (e) {}
+  f.cornerRadius = 4;
+  f.fills = [{ type: "SOLID", color: { r: 0.93, g: 0.94, b: 0.96 } }];
+  f.strokes = [{ type: "SOLID", color: { r: 0.80, g: 0.82, b: 0.88 } }];
+  f.strokeWeight = 1;
+  f.setPluginData("figmaExportFallback", "1");
+  f.setPluginData("figmaExportComponent", String(childSpec.component || ""));
+  return f;
+}
+
 function buildRef(childSpec) {
   const setName = childSpec.component;
-  if (!setName) { console.warn("ref 에 component 이름 없음"); return null; }
+  if (!setName) { console.warn("ref 에 component 이름 없음 — fallback layer"); return buildFallbackLayer(childSpec); }
   const master = findMasterForRef(setName);
   if (!master) {
-    console.warn("참조 대상 없음: " + setName + " — 이 컴포넌트가 먼저 생성되어야 함");
-    return null;
+    console.warn("참조 대상 없음(DS 미존재): " + setName + " — plain frame 레이어로 처리");
+    return buildFallbackLayer(childSpec);
   }
   let instance;
   if (master.kind === "set") {

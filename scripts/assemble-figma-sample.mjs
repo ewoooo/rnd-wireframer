@@ -39,15 +39,19 @@ const COMPONENT_SPEC = {
 		layout: { mode: "VERTICAL", primaryAxisSizingMode: "FIXED", counterAxisSizingMode: "FIXED", primaryAxisAlignItems: "MIN", counterAxisAlignItems: "MIN", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, itemSpacing: 0, width: 375, height: 812 },
 		visual: { cornerRadius: 0, fill: "#ffffff", stroke: null, shadow: null },
 		children: [
+			// props = real Figma variant axes (from introspect). Text content deferred (option a).
 			group("NOVA-PRDD-PG-001-0__area0", col(), [
-				ref("d-appbar-1", "AppBar", { title: "상품 상세 핵심 요약 탐색", showBack: true, showLogo: false }),
+				// AppBar variant axes: LeftItem/Title/Logo/RightItem (On/Off)
+				ref("d-appbar-1", "AppBar", { LeftItem: "On", Title: "On", Logo: "Off" }),
 			]),
 			group("screen-contents-section-1", col({ paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16, itemSpacing: 12 }), [
 				group("NOVA-PRDD-PG-001-0__area1", col({ itemSpacing: 12 }), [
-					ref("d-card-summary-1", "CardSummary", { title: "iPhone 16 Pro", subText: "Apple / 스마트폰 / 월 50,000원" }),
-					ref("d-badge-status-1", "Badge", { variant: "blue" }),
-					ref("d-text-button-origin-1", "TextButton", { label: "상품정보 자세히 보기", underline: true }),
-					ref("d-list-text-info-1", "ListText", { title: "혜택", subText: "T 우주패스 제휴 혜택 제공", table: "on" }),
+					// CardSummary: not in DS → auto fallback to plain frame layer (props ignored)
+					ref("d-card-summary-1", "CardSummary", {}),
+					ref("d-badge-status-1", "Badge", { Type: "Blue" }),
+					// TextButton: only "Property 1" variant exists; label/underline have no mapping
+					ref("d-text-button-origin-1", "TextButton", {}),
+					ref("d-list-text-info-1", "ListText", { Table: "on" }),
 				]),
 			]),
 		],

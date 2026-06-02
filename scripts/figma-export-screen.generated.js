@@ -1,4 +1,4 @@
-// AUTO-GENERATED spike — paste into bridge plugin (JSON → Figma) and Run.
+// AUTO-GENERATED from RenderTree (NOVA-PRDD-PG-001-0) — paste into bridge plugin (JSON → Figma) and Run.
 const DS_TOKENS = {
   "foundation": {
     "dimension": {
@@ -14,7 +14,7 @@ const COMPONENT_SPEC = {
   "$schema": "component-spec-v1",
   "name": "page/nova-prdd-pg-001-0",
   "category": "page",
-  "description": "Spike: 상품 상세 핵심 요약 탐색",
+  "description": "상품 상세 핵심 요약 탐색",
   "base": {
     "layout": {
       "mode": "VERTICAL",
@@ -32,14 +32,14 @@ const COMPONENT_SPEC = {
     },
     "visual": {
       "cornerRadius": 0,
-      "fill": "#ffffff",
+      "fill": null,
       "stroke": null,
       "shadow": null
     },
     "children": [
       {
         "kind": "group",
-        "id": "NOVA-PRDD-PG-001-0__area0",
+        "id": "screen-header",
         "layout": {
           "mode": "VERTICAL",
           "primaryAxisSizingMode": "AUTO",
@@ -50,42 +50,6 @@ const COMPONENT_SPEC = {
           "paddingRight": 0,
           "paddingBottom": 0,
           "paddingLeft": 0,
-          "itemSpacing": 0,
-          "width": "FILL",
-          "height": "HUG"
-        },
-        "visual": {
-          "cornerRadius": 0,
-          "fill": null,
-          "stroke": null,
-          "shadow": null
-        },
-        "children": [
-          {
-            "kind": "ref",
-            "id": "d-appbar-1",
-            "component": "AppBar",
-            "props": {
-              "LeftItem": "On",
-              "Title": "On",
-              "Logo": "Off"
-            }
-          }
-        ]
-      },
-      {
-        "kind": "group",
-        "id": "screen-contents-section-1",
-        "layout": {
-          "mode": "VERTICAL",
-          "primaryAxisSizingMode": "AUTO",
-          "counterAxisSizingMode": "AUTO",
-          "primaryAxisAlignItems": "MIN",
-          "counterAxisAlignItems": "MIN",
-          "paddingTop": 16,
-          "paddingRight": 16,
-          "paddingBottom": 16,
-          "paddingLeft": 16,
           "itemSpacing": 12,
           "width": "FILL",
           "height": "HUG"
@@ -99,7 +63,7 @@ const COMPONENT_SPEC = {
         "children": [
           {
             "kind": "group",
-            "id": "NOVA-PRDD-PG-001-0__area1",
+            "id": "NOVA-PRDD-PG-001-0__area0",
             "layout": {
               "mode": "VERTICAL",
               "primaryAxisSizingMode": "AUTO",
@@ -123,35 +87,148 @@ const COMPONENT_SPEC = {
             "children": [
               {
                 "kind": "ref",
-                "id": "d-card-summary-1",
-                "component": "CardSummary",
-                "props": {}
-              },
-              {
-                "kind": "ref",
-                "id": "d-badge-status-1",
-                "component": "Badge",
+                "id": "d-appbar-1",
+                "component": "AppBar",
                 "props": {
-                  "Type": "Blue"
-                }
-              },
-              {
-                "kind": "ref",
-                "id": "d-text-button-origin-1",
-                "component": "TextButton",
-                "props": {}
-              },
-              {
-                "kind": "ref",
-                "id": "d-list-text-info-1",
-                "component": "ListText",
-                "props": {
-                  "Table": "on"
+                  "LeftItem": "On",
+                  "Logo": "Off",
+                  "Title": "On"
                 }
               }
             ]
           }
         ]
+      },
+      {
+        "kind": "group",
+        "id": "screen-contents",
+        "layout": {
+          "mode": "VERTICAL",
+          "primaryAxisSizingMode": "AUTO",
+          "counterAxisSizingMode": "AUTO",
+          "primaryAxisAlignItems": "MIN",
+          "counterAxisAlignItems": "MIN",
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "itemSpacing": 12,
+          "width": "FILL",
+          "height": "HUG"
+        },
+        "visual": {
+          "cornerRadius": 0,
+          "fill": null,
+          "stroke": null,
+          "shadow": null
+        },
+        "children": [
+          {
+            "kind": "group",
+            "id": "screen-contents-section-1",
+            "layout": {
+              "mode": "VERTICAL",
+              "primaryAxisSizingMode": "AUTO",
+              "counterAxisSizingMode": "AUTO",
+              "primaryAxisAlignItems": "MIN",
+              "counterAxisAlignItems": "MIN",
+              "paddingTop": 28,
+              "paddingRight": 12,
+              "paddingBottom": 28,
+              "paddingLeft": 12,
+              "itemSpacing": 20,
+              "width": "FILL",
+              "height": "HUG"
+            },
+            "visual": {
+              "cornerRadius": 0,
+              "fill": null,
+              "stroke": null,
+              "shadow": null
+            },
+            "children": [
+              {
+                "kind": "group",
+                "id": "NOVA-PRDD-PG-001-0__area1",
+                "layout": {
+                  "mode": "VERTICAL",
+                  "primaryAxisSizingMode": "AUTO",
+                  "counterAxisSizingMode": "AUTO",
+                  "primaryAxisAlignItems": "MIN",
+                  "counterAxisAlignItems": "MIN",
+                  "paddingTop": 0,
+                  "paddingRight": 0,
+                  "paddingBottom": 0,
+                  "paddingLeft": 0,
+                  "itemSpacing": 12,
+                  "width": "FILL",
+                  "height": "HUG"
+                },
+                "visual": {
+                  "cornerRadius": 0,
+                  "fill": null,
+                  "stroke": null,
+                  "shadow": null
+                },
+                "children": [
+                  {
+                    "kind": "ref",
+                    "id": "d-card-summary-1",
+                    "component": "CardSummary",
+                    "props": {}
+                  },
+                  {
+                    "kind": "ref",
+                    "id": "d-badge-status-1",
+                    "component": "Badge",
+                    "props": {
+                      "Type": "Blue"
+                    }
+                  },
+                  {
+                    "kind": "ref",
+                    "id": "d-text-button-origin-1",
+                    "component": "TextButton",
+                    "props": {}
+                  },
+                  {
+                    "kind": "ref",
+                    "id": "d-list-text-info-1",
+                    "component": "ListText",
+                    "props": {
+                      "Table": "on"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "group",
+        "id": "screen-bottom",
+        "layout": {
+          "mode": "VERTICAL",
+          "primaryAxisSizingMode": "AUTO",
+          "counterAxisSizingMode": "AUTO",
+          "primaryAxisAlignItems": "MIN",
+          "counterAxisAlignItems": "MIN",
+          "paddingTop": 0,
+          "paddingRight": 0,
+          "paddingBottom": 0,
+          "paddingLeft": 0,
+          "itemSpacing": 12,
+          "width": "FILL",
+          "height": "HUG"
+        },
+        "visual": {
+          "cornerRadius": 0,
+          "fill": null,
+          "stroke": null,
+          "shadow": null
+        },
+        "children": []
       }
     ]
   }
@@ -1404,7 +1481,7 @@ async function generateScreen(spec, tokens, fontResult) {
 (async () => {
   try {
     await generateComponentSet(COMPONENT_SPEC, DS_TOKENS);
-    figma.notify('✓ sample screen exported');
+    figma.notify('✓ screen exported: ' + COMPONENT_SPEC.name);
   } catch (e) {
     console.error('export error:', e);
     figma.notify('export error: ' + (e && e.message ? e.message : e), { error: true });
