@@ -1,7 +1,7 @@
 import type { RenderTreeNode } from "@cx/renderer";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
-export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
+export type NavigatorTab = "agent" | "comp" | "ogn" | "puck" | "scn";
 
 export type ScreenRouteGroup = {
 	id: string;

@@ -1,5 +1,31 @@
 import type { SCHEMA_VERSION } from "./versions";
 
+export const RENDER_TREE_NODE_TYPE = {
+	areaDynamic: "area.dynamic",
+	areaStatic: "area.static",
+	layoutFlex: "Layout.Flex",
+	layoutGrid: "Layout.Grid",
+	screen: "Screen",
+	screenBottom: "Screen.Bottom",
+	screenContents: "Screen.Contents",
+	screenHeader: "Screen.Header",
+} as const;
+
+export const RENDER_TREE_AREA_NODE_TYPES = [
+	RENDER_TREE_NODE_TYPE.areaStatic,
+	RENDER_TREE_NODE_TYPE.areaDynamic,
+] as const;
+
+export const RENDER_TREE_SCREEN_REGION_NODE_TYPES = [
+	RENDER_TREE_NODE_TYPE.screenHeader,
+	RENDER_TREE_NODE_TYPE.screenContents,
+	RENDER_TREE_NODE_TYPE.screenBottom,
+] as const;
+
+export type RenderTreeAreaNodeType = (typeof RENDER_TREE_AREA_NODE_TYPES)[number];
+export type RenderTreeScreenRegionNodeType =
+	(typeof RENDER_TREE_SCREEN_REGION_NODE_TYPES)[number];
+
 export type SchemaPropBinding = {
 	bind: string;
 	default?: string | number | boolean | null;
@@ -130,3 +156,26 @@ export type RenderTreeContract = {
 	};
 	version: typeof SCHEMA_VERSION.renderTree;
 };
+
+export function isRenderTreeAreaNodeType(type: string): type is RenderTreeAreaNodeType {
+	return (RENDER_TREE_AREA_NODE_TYPES as readonly string[]).includes(type);
+}
+
+export function isRenderTreeScreenRegionNodeType(
+	type: string,
+): type is RenderTreeScreenRegionNodeType {
+	return (RENDER_TREE_SCREEN_REGION_NODE_TYPES as readonly string[]).includes(type);
+}
+
+export function isRenderTreeAreaNode(node: RenderTreeNodeContract): boolean {
+	return isRenderTreeAreaNodeType(node.type);
+}
+
+export function isRenderTreeScreenRegionNode(
+	node: RenderTreeNodeContract,
+): node is
+	| RenderTreeScreenBottomNodeContract
+	| RenderTreeScreenContentsNodeContract
+	| RenderTreeScreenHeaderNodeContract {
+	return isRenderTreeScreenRegionNodeType(node.type);
+}

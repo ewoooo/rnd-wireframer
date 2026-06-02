@@ -12,6 +12,8 @@
 			"!**/tmp",
 			"!data/runs",
 			"!**/data/runs",
+			"!supabase/.temp",
+			"!**/supabase/.temp",
 			"!*.tsbuildinfo",
 			"!dist",
 			"!build",

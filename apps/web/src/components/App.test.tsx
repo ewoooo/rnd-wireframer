@@ -1,15 +1,21 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "@/components/App";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	vi.unstubAllGlobals();
+});
 
 describe("App workbench navigation", () => {
-	it("switches tabs and keeps safe placeholders for disconnected views", () => {
-		render(<App screens={createScreens()} />);
+	it("loads screens through the screen API, switches tabs, and keeps safe placeholders", async () => {
+		stubScreenFetch();
+		render(<App />);
 
-		expect(screen.getByRole("heading", { level: 1, name: "Preview Default" })).toBeInTheDocument();
+		expect(
+			await screen.findByRole("heading", { level: 1, name: "Preview Default" }),
+		).toBeInTheDocument();
 		expect(screen.getByText("Selected screen")).toBeInTheDocument();
 		expectStat("Areas", "0");
 		expectStat("Components", "0");
@@ -33,8 +39,11 @@ describe("App workbench navigation", () => {
 		expect(screen.getByRole("link", { name: "SMK" })).toHaveAttribute("href", "/smoke");
 	});
 
-	it("selects the first screen when a route is selected and switches variant chips", () => {
-		render(<App screens={createScreens()} />);
+	it("selects the first screen when a route is selected and switches variant chips", async () => {
+		stubScreenFetch();
+		render(<App />);
+
+		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
 
 		fireEvent.click(screen.getByRole("button", { name: /Member Route/ }));
 
@@ -91,6 +100,28 @@ function createScreens(): ScreenSummary[] {
 			type: "FP",
 		},
 	];
+}
+
+function stubScreenFetch() {
+	const screens = createScreens();
+	vi.stubGlobal(
+		"fetch",
+		vi.fn(async (input: string | URL) => {
+			const url = new URL(String(input), "http://localhost");
+			if (url.pathname === "/api/screens") {
+				return Response.json({ screens });
+			}
+			const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
+			if (treeMatch) {
+				const screenId = decodeURIComponent(treeMatch[1] ?? "");
+				return Response.json({
+					diagnostics: [],
+					node: screens.find((screen) => screen.id === screenId)?.renderTree,
+				});
+			}
+			return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
+		}),
+	);
 }
 
 function expectStat(label: string, value: string) {

@@ -29,6 +29,25 @@
 | 상품 상세화면 | `10069:97828` | `10069:97829` | `subscription-product-detail-screen` | 1차 관찰 완료 |
 | 상품 상세화면 | `10069:97828` | `10069:97927` | `gifticon-product-detail-screen` | 1차 관찰 완료 |
 | 상품 상세화면 | `10069:97828` | `10069:121732` | `device-product-detail-screen` | 1차 관찰 완료 |
+| 텍스트 리스트 | `10042:46203` | `10082:58057` | `usage-history-list-screen` | 1차 관찰 완료 |
+| 텍스트 리스트 | `10042:46203` | `10082:58364` | `point-history-list-screen` | 1차 관찰 완료 |
+| 텍스트 리스트 | `10042:46203` | `10082:58227` | `discount-history-list-screen` | 1차 관찰 완료 |
+| 텍스트 리스트 | `10042:46203` | `10082:43724` | `faq-guide-list-screen` | 1차 관찰 완료 |
+| 텍스트 리스트 | `10042:46203` | `10082:47225` | `notice-text-list-screen` | 1차 관찰 완료 |
+| 메인 페이지 | `10042:57541` | `10042:58271` | `management-home-screen` | 1차 관찰 완료 |
+| 메인 페이지 | `10042:57541` | `10095:44460` | `management-home-screen` | 1차 관찰 완료 |
+| 메인 페이지 | `10042:57541` | `10082:59886` | `search-home-screen` | 1차 관찰 완료 |
+| 메인 페이지 | `10042:57541` | `10042:58251` | `shopping-home-feed-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9792:110378` | `subscription-card-list-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9792:110351` | `device-card-grid-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9754:62082` | `benefit-card-list-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9754:62038` | `plan-card-list-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9754:62108` | `add-on-service-card-list-screen` | 1차 관찰 완료 |
+| 카드 리스트 | `9896:91122` | `9754:62134` | `internet-card-list-screen` | 1차 관찰 완료 |
+| 결과 및 확인 완료 | `10090:60588` | `10090:58791` | `activation-completion-screen` | 1차 관찰 완료 |
+| 결과 및 확인 완료 | `10090:60588` | `10090:58796` | `plan-change-completion-screen` | 1차 관찰 완료 |
+| 결과 및 확인 완료 | `10090:60588` | `10090:58816` | `cancellation-completion-screen` | 1차 관찰 완료 |
+| 결과 및 확인 완료 | `10090:60588` | `10090:58801` | `payment-receipt-completion-screen` | 1차 관찰 완료 |
 
 ## 4. 사용자 정보입력
 
@@ -764,9 +783,404 @@ Bottom ActionButton: 맞춤 옵션 바로 선택하기
 3. `AccordionNoticeInfo`와 `AccordionProductInfo`의 차이를 component promotion 후보로 분리할지 결정한다.
 4. checkout 화면의 `product-summary-sheet`와 상세 화면의 `ProductHeroInfo`가 공유할 수 있는 정보 축을 비교한다.
 
-## 9. 공통/분리 기준
+## 9. 텍스트 리스트
 
-### 9.1 공통으로 skill화할 후보
+### 9.1 Provenance
+
+- Figma file: `SKT GenUI Test 0514`
+- SOT section node: `10042:46203`
+- Section name: `Page (리스트-텍스트)`
+- 조회 frame: `10082:58057`, `10082:58364`, `10082:58227`, `10082:43724`, `10082:47225`
+- 조회일: 2026-06-02
+- 조회 상태: 5개 frame 1차 관찰 완료
+
+### 9.2 상위 SOT 묶음
+
+`텍스트 리스트` SOT node는 단순 row list 하나가 아니라 내역형 리스트와 안내/공지형 리스트를 함께 포함한다. screen inference와 skill 생성 기준으로는 summary card가 있는 거래/내역 계열과 검색/accordion이 있는 안내 계열을 분리한다.
+
+| Frame | Figma name | Inference screen family | 1차 해석 | Skill 후보 |
+|---:|---|---|---|---|
+| `10082:58057` | `리스트_이용내역` | `usage-history-list-screen` | 요약 카드와 최근 이용 내역을 section 단위로 보여주는 내역 화면 | `usage-history-list-screen`, `summary-card-ledger`, `info-text-list-row` |
+| `10082:58364` | `리스트_T플러스포인트내역` | `point-history-list-screen` | 포인트 잔액 요약, 기간 filter, chip, 월별 거래 내역 화면 | `point-history-list-screen`, `summary-card-ledger`, `filter-chip-row`, `month-grouped-info-list` |
+| `10082:58227` | `리스트_할인내역` | `discount-history-list-screen` | 할인 요약과 chip filter를 가진 월별 할인 내역 화면 | `discount-history-list-screen`, `summary-card-ledger`, `filter-chip-row`, `month-grouped-info-list` |
+| `10082:43724` | `리스트_이용안내` | `faq-guide-list-screen` | tab, chip, search, accordion으로 안내 정보를 탐색하는 FAQ 화면 | `faq-guide-list-screen`, `tab-chip-search-filter`, `faq-accordion-list` |
+| `10082:47225` | `리스트_공지사항` | `notice-text-list-screen` | 요약/필터 없이 공지 row를 고밀도로 훑는 공지 목록 화면 | `notice-text-list-screen`, `info-text-list-row` |
+
+### 9.2.1 SOT 묶음 스킬 생성 브리프
+
+이 SOT 묶음은 `텍스트 리스트`라는 이름 아래 두 갈래의 화면 의도를 포함한다.
+
+- 내역/거래 리스트: summary card, 기간/상태 filter, 월/날짜 group, `InfoTextList` 반복이 핵심이다.
+- 안내/공지 리스트: tab/chip/search 또는 순수 row list, FAQ accordion, 검색 가능한 정보 탐색이 핵심이다.
+
+| 기준 | `usage-history-list-screen` | `point-history-list-screen` | `discount-history-list-screen` | `faq-guide-list-screen` | `notice-text-list-screen` |
+|---|---|---|---|---|---|
+| Primary SOT | `10082:58057` | `10082:58364` | `10082:58227` | `10082:43724` | `10082:47225` |
+| 화면 title | 이용내역 | T 플러스포인트 내역 | 할인내역 | 이용안내 | 공지사항 |
+| Dominant UI | CardSummary, Pagestack, InfoTextList | CardSummary, Chip, TextListGroup | CardSummary, Chip, TextListGroup | Tab, Chip, SearchBar, AccordionNoticeInfo | Local_ListInfo, InfoTextList |
+| 주요 목적 | 이용 내역 요약과 최근 내역 확인 | 포인트 잔액과 적립/사용 내역 탐색 | 할인 내역 확인과 유형 필터링 | 자주 묻는 질문 검색과 category 탐색 | 공지 항목 scan과 상세 진입 |
+| 분리 이유 | summary + simple grouped row가 핵심 | 포인트 금액 강조와 chip filter가 핵심 | 할인 내역의 월별 group과 filter가 핵심 | FAQ 검색/accordion 상호작용이 핵심 | summary/filter 없는 순수 텍스트 목록이 핵심 |
+
+### 9.3 내역형 리스트 구조
+
+```text
+StatusBar
+AppBar(title)
+Contents
+  Local_Summary: CardSummary
+  ContentsTitle / TitleSection with optional right filter
+  Chip filter row (optional)
+  TextListGroup / Pagestack
+    Month or section TitleSection
+    InfoTextList
+    Divider
+    InfoTextList
+```
+
+### 9.4 안내/공지형 리스트 구조
+
+```text
+StatusBar
+AppBar(title)
+Contents
+  Tab row (optional)
+  Chip filter row (optional)
+  SearchBar (optional)
+  AccordionList or Local_ListInfo
+    AccordionNoticeInfo or InfoTextList
+    Divider
+```
+
+### 9.5 컴포넌트와 상태
+
+- `CardSummary`: 목록 앞에 aggregate metric을 제시한다. 사용 가능 포인트, 보유 포인트, 적립 예정 포인트처럼 primary metric과 secondary row/action이 함께 있다.
+- `InfoTextList`: 텍스트 리스트의 row primitive다. 내역형에서는 title, right value, sub meta, 날짜/유형을 담고 공지형에서는 title과 날짜를 밀도 있게 반복한다.
+- `Chip`: 리스트 filter를 가로로 제공한다. active chip은 brand primary fill, inactive chip은 gray alpha 계열로 보인다.
+- `TitleSection`: 목록 group title 또는 기간/정렬 filter를 제공한다.
+- `TextListGroup` / `Local_ListInfo`: `32px` side margin, `329px` rail을 기준으로 row를 쌓는다.
+- `Tab`: 안내 화면의 상위 category를 나눈다.
+- `SearchBar`: FAQ/안내 화면에서 질문 탐색을 좁힌다.
+- `AccordionNoticeInfo`: 질문/답변형 안내 row의 open/closed 상태를 표현한다.
+- `Divider`: row 사이는 `1px`, 큰 section 사이는 `4px` divider로 끊는다.
+
+### 9.6 Layout Rhythm
+
+- AppBar 아래 contents는 대체로 `y=107` 지점에서 시작한다.
+- summary card가 있는 내역형 화면은 card `x=12`, `w=369`, rounded `20` 계열로 시작하고 이후 list rail로 내려간다.
+- dense list rail은 `x=32`, `w=329`를 기준으로 한다.
+- `InfoTextList` row는 약 `71px` 높이, 상하 `16px` padding, `1px` divider rhythm을 가진다.
+- summary와 list 사이에는 title/filter stack이 들어가며, summary가 없는 공지 화면은 바로 list rail로 진입한다.
+- 이 묶음에는 bottom fixed CTA가 없다. primary action은 filter/search/row selection이다.
+
+### 9.7 디자인 판단 인사이트
+
+- 텍스트 리스트 화면은 하나의 패턴으로 묶으면 과하다. 내역/거래 리스트와 안내/공지 리스트를 먼저 나눠야 한다.
+- source에 잔액, 사용 가능 금액, 보유 수량 같은 aggregate가 있을 때만 summary card를 제안한다.
+- 내역형 리스트에서는 월/날짜 group title과 우측 기간 filter가 정보 탐색 품질을 높인다.
+- `InfoTextList`는 row primitive로 보고, 각 내역 row를 별도 component로 과승격하지 않는다.
+- FAQ/가이드 입력 신호가 있으면 plain `InfoTextList`가 아니라 `AccordionNoticeInfo` 기반으로 제안한다.
+- `공지사항`은 summary/filter 없이도 정본 패턴이다. source에 aggregate나 filter 신호가 없으면 card/filter를 임의로 만들지 않는다.
+- bottom CTA가 없는 묶음이므로 row selection이나 search가 primary user action인 화면에서는 `Screen.Bottom`을 만들지 않는다.
+
+### 9.8 Screen Inference 적용 후보
+
+| Source signal | 제안 화면/구조 |
+|---|---|
+| 이용내역, 사용내역, 최근 내역, 날짜별 기록 | `usage-history-list-screen`, summary card optional, grouped `InfoTextList` |
+| 포인트, 적립, 사용, 선물, 보유 포인트 | `point-history-list-screen`, `summary-card-ledger`, `filter-chip-row`, point value emphasis |
+| 할인, 할인내역, 쿠폰 적용 기록 | `discount-history-list-screen`, `summary-card-ledger`, monthly grouped list |
+| 자주 묻는 질문, FAQ, Q/A, 이용안내, 검색 | `faq-guide-list-screen`, `tab-chip-search-filter`, `faq-accordion-list` |
+| 공지사항, 알림 목록, 날짜 있는 단순 row | `notice-text-list-screen`, pure `InfoTextList` list |
+| 반복되는 title/meta/subtext row | `info-text-list-row` + `Divider` |
+
+### 9.9 Component Proposal / Promotion 후보
+
+| 후보 | 근거 SOT | 검토할 내용 |
+|---|---|---|
+| `SummaryCardLedger` | `10082:58057`, `10082:58364`, `10082:58227` | primary metric, secondary rows, optional action button을 catalog surface로 승격할 수 있는지 확인 |
+| `InfoTextListRow` | `10082:58057`, `10082:58364`, `10082:58227`, `10082:47225` | title, right value, sub meta, date, divider, chevron 여부를 prop surface로 정리 |
+| `FilterChipRow` | `10082:58364`, `10082:58227`, `10082:43724` | active/inactive state와 horizontal overflow 규칙 확인 |
+| `MonthGroupedInfoList` | `10082:58364`, `10082:58227` | month title + repeated row 묶음을 domain composite로 둘지 판단 |
+| `FAQAccordionList` | `10082:43724` | tab/chip/search와 accordion list를 한 scenario skill로 둘지, domain skill로 분리할지 판단 |
+| `NoticeTextList` | `10082:47225` | summary 없는 plain text list를 별도 scenario/domain 후보로 보존 |
+
+### 9.10 스킬화 후보
+
+| 후보 skill | 종류 | 포함할 규칙 |
+|---|---|---|
+| `text-list-screen` | scenario umbrella | 텍스트 리스트 SOT의 내역형/안내형 분기, summary/filter/search/row primitive 선택 |
+| `usage-history-list-screen` | scenario | summary optional, section title, recent usage row grouping |
+| `point-history-list-screen` | scenario | point summary, point value emphasis, chip filter, month group |
+| `discount-history-list-screen` | scenario | discount summary, filter chip, monthly discount row list |
+| `faq-guide-list-screen` | scenario | tab, chip, search, FAQ accordion open/closed state |
+| `notice-text-list-screen` | scenario | summary/filter 없는 dense notice row list |
+| `summary-card-ledger` | domain | aggregate metric, secondary row, optional action |
+| `info-text-list-row` | domain/atomic | title, right value, sub meta, date, divider rhythm |
+| `filter-chip-row` | domain | active/inactive filter chip row |
+| `month-grouped-info-list` | domain | month title, repeated InfoTextList, divider rhythm |
+| `faq-accordion-list` | domain | Q/A row, open body, closed rows, search/filter interaction |
+
+### 9.11 Skill creation lookup plan
+
+| 만들 skill | 재조회할 SOT node | 조회 목적 | 작성할 내용 |
+|---|---:|---|---|
+| `text-list-screen` | `10042:46203` | 텍스트 리스트 SOT 묶음의 공통/분기 skeleton 확인 | source signal, 내역형/안내형 분기, rejected pattern |
+| `usage-history-list-screen` | `10082:58057` | 이용내역 summary와 grouped row 구조 확인 | summary optional rule, row group, divider rhythm |
+| `point-history-list-screen` | `10082:58364` | 포인트 잔액/적립/사용 구조 확인 | point value emphasis, chip filter, month group |
+| `discount-history-list-screen` | `10082:58227` | 할인 내역 summary/filter 구조 확인 | discount summary, filter chip, month grouped row |
+| `faq-guide-list-screen` | `10082:43724` | tab/chip/search/accordion 조합 확인 | FAQ source signal, open/closed state, search placement |
+| `notice-text-list-screen` | `10082:47225` | pure notice row list 확인 | no-summary/no-filter rule, row density |
+| `summary-card-ledger` | `10082:58057`, `10082:58364`, `10082:58227` | CardSummary variant와 metric row 확인 | primary metric, secondary rows, action button |
+| `info-text-list-row` | `10082:58057`, `10082:58364`, `10082:58227`, `10082:47225` | row primitive의 prop surface 확인 | title/rightValue/subMeta/date/divider/chevron |
+| `filter-chip-row` | `10082:58364`, `10082:58227`, `10082:43724` | chip state와 filter semantics 확인 | active state, chip labels, horizontal overflow |
+| `faq-accordion-list` | `10082:43724` | FAQ accordion open/closed 구조 확인 | question title, body, closed row, divider |
+
+### 9.12 후속 조회 필요
+
+1. `InfoTextList` prop surface를 `@cx/components/catalog`와 대조해 row primitive로 바로 쓸 수 있는지 확인한다.
+2. `CardSummary` variant를 재조회해 내역/포인트/할인 summary의 공통 prop과 분기 prop을 나눈다.
+3. `Chip` active/inactive state와 filter label mapping을 확인한다.
+4. FAQ accordion의 open body, closed row height, divider를 재조회해 validation focus로 만들 수 있는지 확인한다.
+5. 카드 리스트 SOT를 조회한 뒤 텍스트 리스트와 card list의 row/card promotion 기준을 비교한다.
+
+## 10. 메인 페이지
+
+### 10.1 Provenance
+
+- Figma file: `SKT GenUI Test 0514`
+- SOT section node: `10042:57541`
+- Section name: `Page (메인)`
+- 조회 frame: `10042:58271`, `10095:44460`, `10082:59886`, `10042:58251`
+- 조회일: 2026-06-02
+- 조회 상태: 4개 frame 1차 관찰 완료
+
+### 10.2 상위 SOT 묶음
+
+`메인 페이지` SOT는 하나의 home pattern이 아니라 관리 홈, 검색 홈, 쇼핑 feed 홈으로 분리된다. 공통으로는 AppBar와 BottomNavigation을 가진 mobile home shell이지만, primary action과 content rhythm이 다르다.
+
+| Frame | Figma name | Inference screen family | 1차 해석 | Skill 후보 |
+|---:|---|---|---|---|
+| `10042:58271` | `메인_관리_세그먼트1` | `management-home-screen` | 보유 혜택/사용량/멤버십/청구 등 account management card stack | `management-home-screen`, `home-card-section-stack`, `bottom-navigation-shell` |
+| `10095:44460` | `메인_관리_세그먼트2` | `management-home-screen` | segment가 바뀐 관리 홈. 더 긴 card section과 nested contents item 포함 | `management-home-screen`, `home-card-section-stack`, `home-segment-variant` |
+| `10082:59886` | `메인_검색` | `search-home-screen` | 큰 hero search intent, keyword chip, search bar 중심 화면 | `search-home-screen`, `search-hero-banner`, `keyword-chip-cloud` |
+| `10042:58251` | `메인_쇼핑` | `shopping-home-feed-screen` | BannerShop, ChipImage, HomeCardCarousel 반복으로 구성된 긴 shopping feed | `shopping-home-feed-screen`, `home-card-carousel-feed`, `product-carousel-section` |
+
+### 10.3 화면 구조
+
+```text
+StatusBar
+AppBar
+Contents
+  management: BannerBenefit + CardSectionList + ButtonItem
+  search: TitleMain + BannerSearch carousel + keyword chips + SearchBar
+  shopping: BannerShop + ChipImage + repeated HomeCardCarousel
+BottomNavigation
+```
+
+### 10.4 디자인 판단 인사이트
+
+- 메인 화면은 `Screen.Bottom` CTA가 아니라 `BottomNavigation`이 shell 역할을 한다.
+- 관리 홈은 여러 task를 카드로 펼치는 dense dashboard다. hero를 크게 만들기보다 `CardSection`의 반복과 summary/action item을 우선한다.
+- 검색 홈은 primary user action이 검색이다. keyword chip과 search bar가 하단 CTA보다 중요하다.
+- 쇼핑 홈은 one-screen dashboard가 아니라 long feed다. `HomeCardCarousel` 반복이 section rhythm의 정본이다.
+- `main-task-screen` 하나로는 부족하므로 umbrella 아래 `management-home-screen`, `search-home-screen`, `shopping-home-feed-screen`을 둔다.
+
+### 10.5 Screen Inference 적용 후보
+
+| Source signal | 제안 화면/구조 |
+|---|---|
+| 보유 혜택, 사용량, 멤버십, 청구, barcode, MY, 관리 | `management-home-screen`, card section stack |
+| 검색, 키워드, 추천 검색어, 무엇을 찾나요 | `search-home-screen`, hero search + keyword chips + search bar |
+| 쇼핑, 추천 상품, 구독 상품, carousel, benefit feed | `shopping-home-feed-screen`, repeated HomeCardCarousel |
+| 하단 탭, MY/검색/쇼핑 같은 global navigation | `bottom-navigation-shell`; `Screen.Bottom` CTA로 대체하지 않는다 |
+
+### 10.6 스킬화 후보
+
+| 후보 skill | 종류 | 포함할 규칙 |
+|---|---|---|
+| `main-task-screen` | scenario umbrella | 관리/검색/쇼핑 home 분기, bottom navigation shell |
+| `management-home-screen` | scenario | BannerBenefit, CardSectionList, account task card stack |
+| `search-home-screen` | scenario | TitleMain, BannerSearch carousel, keyword chip cloud, SearchBar |
+| `shopping-home-feed-screen` | scenario | BannerShop, ChipImage, HomeCardCarousel repeated feed |
+| `home-card-section-stack` | domain | CardSection 반복, ButtonItem 더보기, banner insertion |
+| `home-card-carousel-feed` | domain | TitleMain + carousel slot 반복, section 간 vertical rhythm |
+| `bottom-navigation-shell` | atomic/domain | home shell navigation, bottom CTA 금지 조건 |
+
+### 10.7 Skill creation lookup plan
+
+| 만들 skill | 재조회할 SOT node | 조회 목적 | 작성할 내용 |
+|---|---:|---|---|
+| `main-task-screen` | `10042:57541` | 메인 묶음의 공통 shell과 분기 기준 확인 | home source signal, BottomNavigation rule, rejected bottom CTA |
+| `management-home-screen` | `10042:58271`, `10095:44460` | 관리 홈 segment variant와 card stack 확인 | card section order, summary/action item, segment variant |
+| `search-home-screen` | `10082:59886` | 검색 home의 hero/chip/search 구조 확인 | keyword signal, search primary action, chip cloud |
+| `shopping-home-feed-screen` | `10042:58251` | shopping feed의 carousel section 반복 확인 | carousel feed rhythm, banner/chip insertion |
+
+## 11. 카드 리스트
+
+### 11.1 Provenance
+
+- Figma file: `SKT GenUI Test 0514`
+- SOT section node: `9896:91122`
+- Section name: `Page (리스트-카드)`
+- 조회 frame: `9792:110378`, `9792:110351`, `9754:62082`, `9754:62038`, `9754:62108`, `9754:62134`
+- 조회일: 2026-06-02
+- 조회 상태: 6개 frame 1차 관찰 완료
+
+### 11.2 상위 SOT 묶음
+
+카드 리스트는 `Chip`, `FilterSorting`, `ProductListGroup`을 공통 상단 구조로 사용하지만 card shape는 상품군에 따라 달라진다. 구독상품/단말기는 image product grid, 혜택/요금제/부가서비스/인터넷은 horizontal 또는 plan-like card list가 중심이다.
+
+| Frame | Figma name | Inference screen family | 1차 해석 | Skill 후보 |
+|---:|---|---|---|---|
+| `9792:110378` | `리스트_구독상품` | `subscription-card-list-screen` | category chip + sort/filter + 2-column product cards | `subscription-card-list-screen`, `card-list-filter-bar`, `product-card-grid` |
+| `9792:110351` | `리스트_단말기` | `device-card-grid-screen` | 단말기 category chip + sort/filter + image-heavy product grid | `device-card-grid-screen`, `product-card-grid`, `device-card-emphasis` |
+| `9754:62082` | `리스트_혜택` | `benefit-card-list-screen` | 혜택 category chip + sort/filter + horizontal benefit cards | `benefit-card-list-screen`, `product-horizontal-card-list` |
+| `9754:62038` | `리스트_요금제` | `plan-card-list-screen` | 요금제 category chip + sort/filter + grouped horizontal cards | `plan-card-list-screen`, `plan-card-list`, `card-list-section-title` |
+| `9754:62108` | `리스트_부가서비스` | `add-on-service-card-list-screen` | chip 없이 count/sort/filter + dense add-on cards | `add-on-service-card-list-screen`, `service-card-list` |
+| `9754:62134` | `리스트_인터넷` | `internet-card-list-screen` | chip 없이 count/sort/filter + 인터넷 상품 cards | `internet-card-list-screen`, `service-card-list` |
+
+### 11.3 화면 구조
+
+```text
+StatusBar
+AppBar(title)
+Chip category row (optional)
+FilterSorting(count + sort + filter)
+ProductListGroup
+  ContentsTitle (optional)
+  ListProductRow / ListProductHorizontal repeated
+```
+
+### 11.4 디자인 판단 인사이트
+
+- 카드 리스트의 공통 핵심은 `FilterSorting`이다. 결과 개수, 정렬, 필터 affordance를 row 상단에 유지해야 한다.
+- 구독상품/단말기는 2-column 또는 image-heavy `ListProductRow`를 사용하고, 혜택/요금제/서비스는 full-width horizontal card에 가깝다.
+- `Chip`은 모든 카드 리스트에 있지 않다. 부가서비스/인터넷처럼 source가 count/sort/filter만 요구하면 chip을 만들지 않는다.
+- 카드 리스트는 텍스트 리스트보다 image/price/badge/benefit token의 시각 위계가 중요하다.
+- `ProductListGroup`은 list container로 유지하되, 세부 card type은 상품군 signal로 분기한다.
+
+### 11.5 Screen Inference 적용 후보
+
+| Source signal | 제안 화면/구조 |
+|---|---|
+| 구독상품, 쿠폰팩, 상품 이미지, 월 가격 | `subscription-card-list-screen`, product card grid |
+| 단말기, 휴대폰, iPhone, Galaxy, 할부/용량 | `device-card-grid-screen`, image-heavy grid |
+| 혜택, 제휴, 쿠폰, 브랜드 로고 | `benefit-card-list-screen`, horizontal benefit card list |
+| 요금제, 데이터, 5G/LTE, 월정액 | `plan-card-list-screen`, plan card list |
+| 부가서비스, 서비스명, 월 이용료 | `add-on-service-card-list-screen`, service card list |
+| 인터넷, 와이파이, 속도, 월 이용료 | `internet-card-list-screen`, service card list |
+| 전체 n개, 인기순, 필터 | `card-list-filter-bar`, `FilterSorting` 필수 |
+
+### 11.6 스킬화 후보
+
+| 후보 skill | 종류 | 포함할 규칙 |
+|---|---|---|
+| `card-list-screen` | scenario umbrella | card list 상품군 분기, chip/filter/sort, card type 선택 |
+| `subscription-card-list-screen` | scenario | subscription product card grid, price/badge hierarchy |
+| `device-card-grid-screen` | scenario | device image grid, capacity badge, discount price emphasis |
+| `benefit-card-list-screen` | scenario | benefit horizontal cards, merchant/category metadata |
+| `plan-card-list-screen` | scenario | plan price/data card, grouped sections |
+| `add-on-service-card-list-screen` | scenario | service card list without chip, count/sort/filter first |
+| `internet-card-list-screen` | scenario | internet product card list, speed and monthly price emphasis |
+| `card-list-filter-bar` | domain | count, sort, filter icon/button row |
+| `product-card-grid` | domain | 2-column product cards, image/title/price/badge |
+| `product-horizontal-card-list` | domain | full-width ListProductHorizontal stack |
+| `service-card-list` | domain | service/internet card copy density and tag chips |
+
+### 11.7 Skill creation lookup plan
+
+| 만들 skill | 재조회할 SOT node | 조회 목적 | 작성할 내용 |
+|---|---:|---|---|
+| `card-list-screen` | `9896:91122` | 카드 리스트 묶음의 공통 filter/sort/card type 확인 | source signal 분기, rejected plain text list |
+| `subscription-card-list-screen` | `9792:110378` | 구독상품 grid 구조 확인 | image/price/badge hierarchy, grid rhythm |
+| `device-card-grid-screen` | `9792:110351` | 단말기 card grid 구조 확인 | device image, capacity badge, discount price |
+| `benefit-card-list-screen` | `9754:62082` | 혜택 horizontal card 구조 확인 | merchant/category meta, benefit chips |
+| `plan-card-list-screen` | `9754:62038` | 요금제 grouped list 구조 확인 | plan group title, data/price emphasis |
+| `service-card-list` | `9754:62108`, `9754:62134` | 부가서비스/인터넷 card list 공통 확인 | no-chip rule, service tags, monthly fee |
+
+## 12. 결과 및 확인 완료
+
+### 12.1 Provenance
+
+- Figma file: `SKT GenUI Test 0514`
+- SOT section node: `10090:60588`
+- Section name: screenshot 기준 `결과 및 확인 완료` 묶음
+- 조회 frame: `10090:58791`, `10090:58796`, `10090:58816`, `10090:58801`
+- 조회일: 2026-06-02
+- 조회 상태: 4개 frame 1차 관찰 완료
+
+### 12.2 상위 SOT 묶음
+
+결과/완료 묶음은 성공 메시지만 있는 단순 완료 화면과, 결제/배송/상품/안내 정보를 길게 보여주는 receipt형 완료 화면을 함께 포함한다.
+
+| Frame | Figma name | Inference screen family | 1차 해석 | Skill 후보 |
+|---:|---|---|---|---|
+| `10090:58791` | `완료_개통` | `activation-completion-screen` | 축하 메시지, 개통 정보 summary, 데이터 옮기기/확인 CTA | `activation-completion-screen`, `completion-summary-card`, `completion-bottom-actions` |
+| `10090:58796` | `완료_요금제변경` | `plan-change-completion-screen` | 요금제 변경 완료 메시지와 요금제 정보 card | `plan-change-completion-screen`, `completion-summary-card` |
+| `10090:58816` | `완료_해지` | `cancellation-completion-screen` | 해지 완료 메시지, 추천 상품 carousel, 환불정보/확인 CTA | `cancellation-completion-screen`, `completion-recommendation-carousel` |
+| `10090:58801` | `완료_결제` | `payment-receipt-completion-screen` | 결제 정보, 상품/배송지/추천/선물 안내를 포함한 긴 receipt 화면 | `payment-receipt-completion-screen`, `receipt-ledger-section`, `completion-bottom-actions` |
+
+### 12.3 화면 구조
+
+```text
+StatusBar
+Close AppBar
+Completion hero message
+Optional summary / receipt sections
+Optional recommendation carousel
+Bottom fixed action rail
+```
+
+### 12.4 디자인 판단 인사이트
+
+- 완료 화면의 primary content는 성공/완료 메시지다. 기존 상세/결제 화면의 입력 UI를 계속 노출하지 않는다.
+- 단순 완료는 큰 hero message + rounded summary card + bottom action으로 충분하다.
+- 결제 완료는 receipt형이다. payment ledger, 상품, 배송지, 안내를 section divider로 길게 쌓는다.
+- 해지 완료처럼 next action이 추천/환불정보일 수 있다. 완료 화면이라고 무조건 `확인` 하나만 두면 다음 행동 품질이 낮아진다.
+- Close icon이 header action으로 보이며, bottom action은 완료 후 next task를 명확히 한다.
+
+### 12.5 Screen Inference 적용 후보
+
+| Source signal | 제안 화면/구조 |
+|---|---|
+| 개통 완료, 축하, 휴대폰/요금제/납부금액 | `activation-completion-screen`, summary card, data transfer secondary action |
+| 요금제 변경 완료, 변경된 요금제, 다음 적용일 | `plan-change-completion-screen`, plan info summary |
+| 해지 완료, 다음에 다시 만나요, 환불 | `cancellation-completion-screen`, recommendation carousel + refund action |
+| 결제 완료, 결제 정보, 배송지, 선물 안내, 최종 결제 금액 | `payment-receipt-completion-screen`, receipt sections |
+| 완료 후 다음 행동이 2개 이상 | `completion-bottom-actions`, primary/secondary split |
+
+### 12.6 스킬화 후보
+
+| 후보 skill | 종류 | 포함할 규칙 |
+|---|---|---|
+| `completion-feedback-screen` | scenario umbrella | 완료/결제/해지/변경 분기, hero message, next action |
+| `activation-completion-screen` | scenario | 개통 완료 summary, data transfer secondary action |
+| `plan-change-completion-screen` | scenario | 변경 완료 summary, 적용일/요금제 정보 |
+| `cancellation-completion-screen` | scenario | 해지 완료 message, recommendation/refund actions |
+| `payment-receipt-completion-screen` | scenario | receipt ledger, product/delivery/gift sections |
+| `completion-summary-card` | domain | rounded summary card with key/value rows |
+| `receipt-ledger-section` | domain | payment rows, final amount emphasis, divider |
+| `completion-recommendation-carousel` | domain | 완료 후 추천 상품 carousel |
+| `completion-bottom-actions` | atomic/domain | confirm/next task split, no input CTA carryover |
+
+### 12.7 Skill creation lookup plan
+
+| 만들 skill | 재조회할 SOT node | 조회 목적 | 작성할 내용 |
+|---|---:|---|---|
+| `completion-feedback-screen` | `10090:60588` | 완료 묶음의 단순/receipt 분기 확인 | source signal, hero message, next action, rejected input UI |
+| `activation-completion-screen` | `10090:58791` | 개통 완료 summary와 CTA 확인 | activation summary, secondary data transfer action |
+| `plan-change-completion-screen` | `10090:58796` | 요금제 변경 완료 summary 확인 | plan info, next billing/apply date |
+| `cancellation-completion-screen` | `10090:58816` | 해지 완료와 recommendation/refund action 확인 | completion + recommendation carousel |
+| `payment-receipt-completion-screen` | `10090:58801` | receipt형 완료 화면의 section order 확인 | payment ledger, product, delivery, notice, bottom actions |
+
+### 12.8 후속 조회 필요
+
+1. `10090:60588` metadata가 section 단위로 타임아웃되어 shallow tree 재조회가 필요하다.
+2. completion skill 생성 직전에는 각 frame의 `completion hero`, `summary card`, `bottom action` node를 다시 조회해 정확한 component name과 prop surface를 확인한다.
+
+## 13. 공통/분리 기준
+
+### 13.1 공통으로 skill화할 후보
 
 | 후보 skill | 참조 SOT | 이유 |
 |---|---|---|
@@ -780,8 +1194,16 @@ Bottom ActionButton: 맞춤 옵션 바로 선택하기
 | `product-detail-media-section` | `10069:97829`, `10069:121732` | 상세 이미지, tab, 더보기 조합이 긴 상품 상세에서 반복된다. |
 | `notice-accordion-list` | `10069:97829`, `10069:97927`, `10069:121732` | 안내/고시/판매자 정보를 accordion row list로 접어 density를 낮춘다. |
 | `bottom-purchase-cta` | `10069:97829`, `10069:97927`, `10069:121732` | 상품 유형별 primary purchase action을 하단 rail로 고정한다. |
+| `summary-card-ledger` | `10082:58057`, `10082:58364`, `10082:58227` | 목록 상단에서 잔액/사용 가능량/요약 수치를 먼저 제시하는 내역형 리스트 패턴이 반복된다. |
+| `info-text-list-row` | `10082:58057`, `10082:58364`, `10082:58227`, `10082:47225` | 텍스트 목록의 핵심 row primitive가 여러 내역/공지 화면에 반복된다. |
+| `filter-chip-row` | `10082:58364`, `10082:58227`, `10082:43724` | 리스트를 상태/유형별로 좁히는 chip filter가 반복된다. |
+| `month-grouped-info-list` | `10082:58364`, `10082:58227` | 월별 title 아래 내역 row를 반복하는 구조가 포인트/할인 화면에 반복된다. |
+| `bottom-navigation-shell` | `10042:58271`, `10095:44460`, `10082:59886`, `10042:58251` | 메인 화면은 bottom CTA가 아니라 BottomNavigation shell을 유지한다. |
+| `card-list-filter-bar` | `9792:110378`, `9792:110351`, `9754:62082`, `9754:62038`, `9754:62108`, `9754:62134` | 카드 리스트에서 count, sort, filter affordance가 반복된다. |
+| `completion-summary-card` | `10090:58791`, `10090:58796` | 완료 화면의 핵심 결과 정보를 rounded key/value card로 요약한다. |
+| `completion-bottom-actions` | `10090:58791`, `10090:58796`, `10090:58816`, `10090:58801` | 완료 후 다음 행동을 bottom rail에 명확히 분리한다. |
 
-### 9.2 분리해서 skill화할 후보
+### 13.2 분리해서 skill화할 후보
 
 | 후보 skill | Primary SOT | 분리 이유 |
 |---|---:|---|
@@ -797,8 +1219,27 @@ Bottom ActionButton: 맞춤 옵션 바로 선택하기
 | `gifticon-product-detail-screen` | `10069:97927` | 금액권 price, 사용처 meta, 안내사항, 구매 CTA가 핵심이다. |
 | `device-product-detail-screen` | `10069:121732` | 색상/용량/배송 옵션 선택과 guided CTA가 핵심이다. |
 | `device-option-selection` | `10069:121732` | option card selected/default state와 추천 badge가 핵심이다. |
+| `usage-history-list-screen` | `10082:58057` | 이용 내역 요약과 최근 내역 row grouping이 핵심이다. |
+| `point-history-list-screen` | `10082:58364` | 포인트 잔액, 적립/사용 filter, 포인트 value emphasis가 핵심이다. |
+| `discount-history-list-screen` | `10082:58227` | 할인 요약, filter chip, 월별 할인 내역이 핵심이다. |
+| `faq-guide-list-screen` | `10082:43724` | tab/chip/search와 FAQ accordion 탐색이 핵심이다. |
+| `notice-text-list-screen` | `10082:47225` | summary/filter 없이 공지 row를 scan하는 구조가 핵심이다. |
+| `faq-accordion-list` | `10082:43724` | 질문/답변 open/closed state와 검색 가능한 안내 탐색이 핵심이다. |
+| `management-home-screen` | `10042:58271`, `10095:44460` | account/task management card stack과 BottomNavigation shell이 핵심이다. |
+| `search-home-screen` | `10082:59886` | search hero, keyword chip, search bar가 primary action이다. |
+| `shopping-home-feed-screen` | `10042:58251` | HomeCardCarousel 반복 feed와 shopping category chip이 핵심이다. |
+| `subscription-card-list-screen` | `9792:110378` | 구독상품 image card grid와 price/badge hierarchy가 핵심이다. |
+| `device-card-grid-screen` | `9792:110351` | 단말기 image grid, 용량/할인 badge, device price가 핵심이다. |
+| `benefit-card-list-screen` | `9754:62082` | 혜택/브랜드 horizontal card list가 핵심이다. |
+| `plan-card-list-screen` | `9754:62038` | 요금제 data/price card와 grouped section이 핵심이다. |
+| `add-on-service-card-list-screen` | `9754:62108` | chip 없는 service card list와 count/sort/filter가 핵심이다. |
+| `internet-card-list-screen` | `9754:62134` | 인터넷 속도/월 이용료 중심 card list가 핵심이다. |
+| `activation-completion-screen` | `10090:58791` | 개통 완료 메시지와 개통 정보 summary가 핵심이다. |
+| `plan-change-completion-screen` | `10090:58796` | 요금제 변경 완료와 적용 정보 summary가 핵심이다. |
+| `cancellation-completion-screen` | `10090:58816` | 해지 완료 이후 환불/추천 next action이 핵심이다. |
+| `payment-receipt-completion-screen` | `10090:58801` | payment receipt, 배송지, 상품, 안내 section order가 핵심이다. |
 
-### 9.3 Skill 생성 전 다시 볼 것
+### 13.3 Skill 생성 전 다시 볼 것
 
 skill 생성자는 다음 순서로 SOT를 다시 조회한다.
 

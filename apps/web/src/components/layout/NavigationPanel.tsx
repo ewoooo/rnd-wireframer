@@ -1,3 +1,5 @@
+import { Layers3, Route } from "lucide-react";
+import type { ReactNode } from "react";
 import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
@@ -32,20 +34,32 @@ export function NavigationPanel({
 			{activeTab === "scn" ? (
 				<ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1 overflow-hidden">
 					<ResizablePanel defaultSize={35} minSize={15}>
-						<div className="h-full min-h-0 overflow-y-auto py-1">
-							{screenModules.map((module) => (
-								<ScreenModuleGroupView
-									key={module.id}
-									activeRouteId={activeRouteId}
-									module={module}
-									onSelectRoute={onSelectRoute}
-								/>
-							))}
+						<div className="flex h-full min-h-0 flex-col overflow-hidden">
+							<PanelTitle
+								count={screenModules.length}
+								icon={<Layers3 className="size-3.5" data-icon="inline-start" />}
+								title="Domains"
+							/>
+							<div className="min-h-0 flex-1 overflow-y-auto py-1">
+								{screenModules.map((module) => (
+									<ScreenModuleGroupView
+										key={module.id}
+										activeRouteId={activeRouteId}
+										module={module}
+										onSelectRoute={onSelectRoute}
+									/>
+								))}
+							</div>
 						</div>
 					</ResizablePanel>
 					<ResizableHandle />
 					<ResizablePanel defaultSize={65} minSize={20}>
 						<div className="flex h-full min-h-0 flex-col overflow-hidden">
+							<PanelTitle
+								count={screenRoute?.variants.length ?? 0}
+								icon={<Route className="size-3.5" data-icon="inline-start" />}
+								title={screenRoute?.name ?? "Screens"}
+							/>
 							<div className="min-h-0 flex-1 overflow-y-auto [&>*:first-child]:border-t-0">
 								{screenRoute?.variants.map((variant) => (
 									<ScreenVariantCard
@@ -65,6 +79,28 @@ export function NavigationPanel({
 				</SidebarContent>
 			)}
 		</Sidebar>
+	);
+}
+
+function PanelTitle({
+	count,
+	icon,
+	title,
+}: {
+	count: number;
+	icon: ReactNode;
+	title: string;
+}) {
+	return (
+		<div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
+			<div className="flex min-w-0 items-center gap-1.5">
+				{icon}
+				<p className="truncate text-xs font-semibold text-sidebar-foreground">{title}</p>
+			</div>
+			<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+				{count}
+			</span>
+		</div>
 	);
 }
 

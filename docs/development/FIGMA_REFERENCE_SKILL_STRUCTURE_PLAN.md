@@ -256,14 +256,32 @@ Figma SOT 관찰을 진행하면서 아래 목록을 계속 갱신한다. 이 �
 | `checkout-additional-info` | `10095:23501` | 후보 등록 | 상품 요약 sheet, 옵션 선택, 배송 정보 반복 입력, 다음 CTA |
 | `checkout-payment-screen` | `10161:49136` | 후보 등록 | 결제 수단, 포인트/할인, 약관, payment ledger, 결제 CTA |
 | `cart-review-screen` | `10161:49258` | 후보 등록 | 배송 요약, 카트 상품 목록, 인증/안내, 예상 금액, 약관 CTA |
-| `main-task-screen` | `10042:57541` | 미조회 | 메인 진입 화면의 정보 위계와 task entry 구조 |
+| `main-task-screen` | `10042:57541` | 후보 등록 | 메인 shell, 관리/검색/쇼핑 home 분기, BottomNavigation |
+| `management-home-screen` | `10042:58271`, `10095:44460` | 후보 등록 | account/task management card stack, segment variant |
+| `search-home-screen` | `10082:59886` | 후보 등록 | search hero, keyword chip cloud, SearchBar primary action |
+| `shopping-home-feed-screen` | `10042:58251` | 후보 등록 | BannerShop, ChipImage, repeated HomeCardCarousel feed |
 | `product-detail-screen` | `10069:97828` | 후보 등록 | 상품 상세 공통 hero, 가격/혜택 위계, 상품 유형별 CTA |
 | `subscription-product-detail-screen` | `10069:97829` | 후보 등록 | 구독 상품의 가격/혜택 accordion, 추천 상품, dual CTA |
 | `gifticon-product-detail-screen` | `10069:97927` | 후보 등록 | 금액권 price, 사용처 meta, 안내사항, 구매 CTA |
 | `device-product-detail-screen` | `10069:121732` | 후보 등록 | 색상/용량/배송 옵션 선택, guided CTA |
-| `text-list-screen` | `10042:46203` | 미조회 | 텍스트 목록 row rhythm, 선택/탐색 affordance |
-| `card-list-screen` | `9896:91122` | 미조회 | 카드형 목록 구조, 이미지/타이틀/메타 위계 |
-| `completion-feedback-screen` | `10090:60588` | 미조회 | 완료/확인/결과 피드백 구조와 다음 행동 |
+| `text-list-screen` | `10042:46203` | 후보 등록 | 내역형/안내형 분기, summary/filter/search/row primitive 선택 |
+| `usage-history-list-screen` | `10082:58057` | 후보 등록 | 이용 내역 summary, section grouping, InfoTextList rhythm |
+| `point-history-list-screen` | `10082:58364` | 후보 등록 | 포인트 summary, chip filter, point value emphasis, month group |
+| `discount-history-list-screen` | `10082:58227` | 후보 등록 | 할인 summary, chip filter, monthly discount row list |
+| `faq-guide-list-screen` | `10082:43724` | 후보 등록 | tab, chip, search, FAQ accordion open/closed state |
+| `notice-text-list-screen` | `10082:47225` | 후보 등록 | summary/filter 없는 dense notice row list |
+| `card-list-screen` | `9896:91122` | 후보 등록 | card list 상품군 분기, chip/filter/sort, card type 선택 |
+| `subscription-card-list-screen` | `9792:110378` | 후보 등록 | 구독상품 image card grid, price/badge hierarchy |
+| `device-card-grid-screen` | `9792:110351` | 후보 등록 | 단말기 image grid, capacity badge, discount price |
+| `benefit-card-list-screen` | `9754:62082` | 후보 등록 | 혜택/브랜드 horizontal card list |
+| `plan-card-list-screen` | `9754:62038` | 후보 등록 | 요금제 data/price card, grouped sections |
+| `add-on-service-card-list-screen` | `9754:62108` | 후보 등록 | chip 없는 service card list, count/sort/filter |
+| `internet-card-list-screen` | `9754:62134` | 후보 등록 | 인터넷 속도/월 이용료 중심 card list |
+| `completion-feedback-screen` | `10090:60588` | 후보 등록 | 완료/결제/해지/변경 분기, hero message, next action |
+| `activation-completion-screen` | `10090:58791` | 후보 등록 | 개통 완료 summary, data transfer secondary action |
+| `plan-change-completion-screen` | `10090:58796` | 후보 등록 | 요금제 변경 완료 summary, 적용일/요금제 정보 |
+| `cancellation-completion-screen` | `10090:58816` | 후보 등록 | 해지 완료 message, recommendation/refund actions |
+| `payment-receipt-completion-screen` | `10090:58801` | 후보 등록 | receipt ledger, product/delivery/gift sections |
 
 ### Domain skill candidates
 
@@ -285,6 +303,20 @@ Figma SOT 관찰을 진행하면서 아래 목록을 계속 갱신한다. 이 �
 | `notice-accordion-list` | `10069:97829`, `10069:97927`, `10069:121732` | 후보 등록 | 안내/고시/판매자 정보 accordion row list |
 | `device-option-selection` | `10069:121732` | 후보 등록 | 색상/용량/배송 옵션 selected/default/recommended state |
 | `merchant-usage-meta` | `10069:97927` | 후보 등록 | 금액권 사용처, 교환처, 사용 조건 meta |
+| `summary-card-ledger` | `10082:58057`, `10082:58364`, `10082:58227` | 후보 등록 | 목록 상단 aggregate metric, secondary row, optional action |
+| `info-text-list-row` | `10082:58057`, `10082:58364`, `10082:58227`, `10082:47225` | 후보 등록 | title/right value/sub meta/date/divider/chevron surface |
+| `filter-chip-row` | `10082:58364`, `10082:58227`, `10082:43724` | 후보 등록 | active/inactive chip state, horizontal filter semantics |
+| `month-grouped-info-list` | `10082:58364`, `10082:58227` | 후보 등록 | month title, repeated InfoTextList, divider rhythm |
+| `faq-accordion-list` | `10082:43724` | 후보 등록 | Q/A row, open body, closed row, search/filter 연결 |
+| `home-card-section-stack` | `10042:58271`, `10095:44460` | 후보 등록 | CardSection 반복, ButtonItem 더보기, banner insertion |
+| `home-card-carousel-feed` | `10042:58251` | 후보 등록 | TitleMain + carousel slot 반복, section vertical rhythm |
+| `card-list-filter-bar` | `9792:110378`, `9792:110351`, `9754:62082`, `9754:62038`, `9754:62108`, `9754:62134` | 후보 등록 | count, sort, filter icon/button row |
+| `product-card-grid` | `9792:110378`, `9792:110351` | 후보 등록 | 2-column product cards, image/title/price/badge |
+| `product-horizontal-card-list` | `9754:62082`, `9754:62038` | 후보 등록 | full-width ListProductHorizontal stack |
+| `service-card-list` | `9754:62108`, `9754:62134` | 후보 등록 | service/internet card copy density and tag chips |
+| `completion-summary-card` | `10090:58791`, `10090:58796` | 후보 등록 | 완료 결과 key/value summary card |
+| `receipt-ledger-section` | `10090:58801` | 후보 등록 | payment rows, final amount emphasis, divider |
+| `completion-recommendation-carousel` | `10090:58816`, `10090:58801` | 후보 등록 | 완료 후 추천 상품 carousel |
 
 ### Atomic skill candidates
 
@@ -294,7 +326,9 @@ Figma SOT 관찰을 진행하면서 아래 목록을 계속 갱신한다. 이 �
 | `bottom-fixed-cta` | 여러 checkout/form frame | 후보 등록 | Screen.Bottom primary action, label clarity, content와 action rail 분리 |
 | `section-divider-rhythm` | 여러 form/checkout frame | 후보 등록 | `Pagestack` 반복, 4px divider, section spacing |
 | `callout-after-selection` | `10095:23501` | 후보 등록 | 선택 직후 안내 callout 배치와 정보 밀도 |
-| `list-row-emphasis` | 텍스트/카드 리스트 SOT 예정 | 미조회 | row title/meta/subtext/chevron priority |
+| `list-row-emphasis` | `10082:58057`, `10082:58364`, `10082:58227`, `10082:47225`, `9896:91122` | 후보 등록 | row/card title/meta/subtext/right value/chevron priority |
+| `bottom-navigation-shell` | `10042:57541` | 후보 등록 | home shell navigation, bottom CTA 금지 조건 |
+| `completion-bottom-actions` | `10090:58791`, `10090:58796`, `10090:58816`, `10090:58801` | 후보 등록 | confirm/next task split, input CTA carryover 금지 |
 
 수집 단계의 완료 기준:
 

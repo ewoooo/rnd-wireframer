@@ -61,6 +61,16 @@
 - 이유: DB/read-model row bundle -> RenderTree 조립을 format adapter 경계로 모으고, Web facade가 materializer 전용 패키지에 직접 결합하지 않게 하기 위함
 - 검증: `pnpm exec vitest run packages/adapters/src/__tests__/table-to-render-tree.test.ts apps/web/src/lib/screen-db-loader.test.ts apps/web/src/lib/screen-db-save.test.ts`, `pnpm exec next build apps/web`
 
+## 2026-06-02 - Core SOT Observation Completion
+
+- 변경: Figma 메인 페이지 SOT `10042:57541`의 관리/검색/쇼핑 home frame 4개를 조회하고 `management-home-screen`, `search-home-screen`, `shopping-home-feed-screen` 후보를 기록함
+- 변경: Figma 카드 리스트 SOT `9896:91122`의 구독상품/단말기/혜택/요금제/부가서비스/인터넷 frame 6개를 조회하고 card list scenario/domain skill 후보를 기록함
+- 변경: Figma 결과 및 확인 완료 SOT `10090:60588`의 개통/요금제변경/해지/결제 완료 frame 4개를 조회하고 completion/receipt 계열 skill 후보를 기록함
+- 변경: `figma-source.md`와 `FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md`의 SOT 관찰 상태와 scenario/domain/atomic skill backlog를 남은 핵심 SOT 3개 결과에 맞게 갱신함
+- 이유: PRD/MBR client import의 메인, 카드형 목록, 완료/결과 화면 품질을 올릴 수 있는 SOT 기반 reference와 skill 후보 pool을 완성하기 위함
+- 검증: `rg -n "10042:57541|9896:91122|10090:60588|management-home-screen|card-list-screen|completion-feedback-screen|card-list-filter-bar|completion-bottom-actions" docs/design/reference/figma-sot-observations.md docs/design/reference/figma-source.md docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md AGENTS_HISTORY.md`, `git diff --check`
+- 후속: 결과 및 확인 완료 SOT `10090:60588`는 section metadata 조회가 타임아웃되어 skill 생성 직전 shallow tree를 재조회한다.
+
 ## 2026-06-02 - Text List SOT Observation
 
 - 변경: Figma 텍스트 리스트 SOT `10042:46203`의 `리스트_이용내역`, `리스트_T플러스포인트내역`, `리스트_할인내역`, `리스트_이용안내`, `리스트_공지사항` frame을 조회하고 `figma-sot-observations.md`에 1차 관찰을 기록함

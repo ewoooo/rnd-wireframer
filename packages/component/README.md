@@ -26,11 +26,7 @@ CSS and token compatibility exports are also public.
 
 Do not import implementation files or internal folders directly.
 
-```ts
-// Do not do this.
-import { Button } from "@cx/components/src/components/Button";
-import { CandidateCard } from "@cx/components/src/candidates/CandidateCard";
-```
+If a consumer needs a component, catalog lookup, mutation, resolver, or type that is not available from the public subpaths above, add it to the package public surface first instead of reaching into `src/` implementation folders.
 
 ## Directory Contract
 

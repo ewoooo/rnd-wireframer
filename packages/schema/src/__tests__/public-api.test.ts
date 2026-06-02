@@ -8,6 +8,11 @@ import {
 	getJsonSchema,
 	type QualityInspectionContract,
 	type RenderTreeContract,
+	isRenderTreeAreaNode,
+	isRenderTreeAreaNodeType,
+	isRenderTreeScreenRegionNode,
+	isRenderTreeScreenRegionNodeType,
+	RENDER_TREE_NODE_TYPE,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
 	type SourceSpec,
@@ -154,6 +159,28 @@ describe("@cx/schema public API", () => {
 
 		expect(sourceSpec.schemaVersion).toBe(SCHEMA_VERSION.sourceSpec);
 		expect(renderTree.version).toBe(SCHEMA_VERSION.renderTree);
+	});
+
+	it("exposes RenderTree node type constants and guards from the package root", () => {
+		expect(RENDER_TREE_NODE_TYPE.screenContents).toBe("Screen.Contents");
+		expect(isRenderTreeAreaNodeType(RENDER_TREE_NODE_TYPE.areaStatic)).toBe(true);
+		expect(isRenderTreeAreaNodeType("Screen.Contents")).toBe(false);
+		expect(isRenderTreeScreenRegionNodeType(RENDER_TREE_NODE_TYPE.screenBottom)).toBe(true);
+		expect(isRenderTreeScreenRegionNodeType("area.static")).toBe(false);
+		expect(
+			isRenderTreeAreaNode({
+				componentVersion: "1.0.0",
+				metadata: { id: "area-1", title: "Area" },
+				type: RENDER_TREE_NODE_TYPE.areaStatic,
+			}),
+		).toBe(true);
+		expect(
+			isRenderTreeScreenRegionNode({
+				componentVersion: "0.1.0",
+				metadata: { id: "screen.contents", title: "Contents" },
+				type: RENDER_TREE_NODE_TYPE.screenContents,
+			}),
+		).toBe(true);
 	});
 
 	it("exposes design-context bundle refs as schema-owned DTOs", () => {

@@ -1,4 +1,4 @@
-import { Box, Boxes, FlaskConical, Smartphone, Table2 } from "lucide-react";
+import { Box, Boxes, FlaskConical, MousePointer2, Smartphone, Table2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/workbench-view-model";
@@ -56,6 +56,13 @@ const secondaryNavigationTabs: NavigationTab[] = [
 		icon: Table2,
 		label: "AGT",
 		name: "Agent",
+	},
+	{
+		description: "DB-backed RenderTree를 Puck 편집 표면으로 확인",
+		id: "puck",
+		icon: MousePointer2,
+		label: "PCK",
+		name: "Puck",
 	},
 ];
 

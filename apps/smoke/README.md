@@ -84,27 +84,38 @@ npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/sc
 
 Use `--use-ai` to call the real local Claude runner.
 
-## Apply Smoke Result To Tables
+## Push Local Tables To Supabase Render DB
 
-After reviewing a smoke run, merge its `final-result.json` RenderTree into
-`data/tables` with the apply CLI. The CLI reads `manifest.json`, decomposes the
-final RenderTree into screen, area, and component table rows, and leaves
-`tableGenerationResult` as a validation/comparison-only intermediate.
+Project the existing migration snapshot in `data/tables/*.json` into the
+relational `render_*` Supabase read model. This is a migration utility for the
+current snapshot, not the active smoke result apply path.
 
 Dry-run:
 
 ```bash
-npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id>
+npm run render-db:push-tables
 ```
 
-Write:
+Generate SQL for inspection:
 
 ```bash
-npm run smoke:apply-tables -- --run-dir data/runs/screen-generation/<run-id> --write
+npm run render-db:push-tables -- --out-file tmp/render-db-push.sql
 ```
 
-By default the command refuses runs whose validation report has errors.
-Use `--allow-invalid` only after manual inspection.
+Write through Supabase PostgREST:
+
+```bash
+npm run render-db:push-tables -- --write
+```
+
+The command reads Supabase URL and service-role credentials from `env.shared`
+by default. It leaves the existing Puck/Web tables untouched and only refreshes
+the new `render_*` tables.
+
+Accepted smoke results should be promoted through a future direct
+`final-result.json -> render_*` apply command. The old `smoke:apply-tables`
+command has been retired so Web and smoke no longer write local table JSON as an
+approval step.
 
 ## Promote Smoke Fixture
 

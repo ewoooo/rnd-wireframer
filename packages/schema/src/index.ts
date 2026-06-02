@@ -45,6 +45,7 @@ export type {
 } from "./quality-inspection";
 export type {
 	RenderTreeContract,
+	RenderTreeAreaNodeType,
 	RenderTreeFlexLayoutProps,
 	RenderTreeGridLayoutProps,
 	RenderTreeLayoutFlexNodeContract,
@@ -56,8 +57,18 @@ export type {
 	RenderTreeScreenContentsNodeContract,
 	RenderTreeScreenHeaderNodeContract,
 	RenderTreeScreenNodeContract,
+	RenderTreeScreenRegionNodeType,
 	SchemaPropBinding,
 	SchemaPropValue,
+} from "./render-tree";
+export {
+	isRenderTreeAreaNode,
+	isRenderTreeAreaNodeType,
+	isRenderTreeScreenRegionNode,
+	isRenderTreeScreenRegionNodeType,
+	RENDER_TREE_AREA_NODE_TYPES,
+	RENDER_TREE_NODE_TYPE,
+	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
 } from "./render-tree";
 export type { ScreenIntentContract } from "./screen-intent";
 export type {

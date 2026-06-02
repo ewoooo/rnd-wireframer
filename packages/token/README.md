@@ -27,15 +27,7 @@ Public exports:
 
 Do not import generated files directly.
 
-```ts
-// Do not do this.
-import { Spacing12 } from "@cx/tokens/src/generated/tokens";
-```
-
-```css
-/* Do not do this. */
-@import "@cx/tokens/src/generated/tailwind-theme.css";
-```
+If a generated token or theme value is needed by consumers, expose it through `@cx/tokens`, `@cx/tokens/variables.css`, or `@cx/tokens/tailwind.css` instead of importing files under `generated/`.
 
 ## Directory Responsibilities
 

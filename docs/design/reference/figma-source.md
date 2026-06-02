@@ -11,7 +11,7 @@
 - 파일명: `SKT GenUI Test 0514`
 - URL: [SKT GenUI Test 0514](https://www.figma.com/design/ovg86eZdOa16MRWkuQXY7s/SKT_GenUI_Test_0514?node-id=10042-57541&t=zeiBzIdBwRDFfxnm-1)
 - 등록일: 2026-06-01
-- 상태: 링크 등록 완료, 사용자 정보입력 묶음 4개 frame과 상품 상세화면 묶음 3개 frame 1차 관찰 완료
+- 상태: 링크 등록 완료, 사용자 정보입력 묶음 4개 frame, 상품 상세화면 묶음 3개 frame, 텍스트 리스트 묶음 5개 frame, 메인 페이지 묶음 4개 frame, 카드 리스트 묶음 6개 frame, 결과 및 확인 완료 묶음 4개 frame 1차 관찰 완료
 
 ## 3. Registered SOT Nodes
 
