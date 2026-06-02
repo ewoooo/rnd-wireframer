@@ -79,12 +79,12 @@ Names may change during implementation, but the responsibility split should not 
 
 ## Package Impact
 
-| Package/App | Required Change |
+| Package/App | Result |
 |---|---|
 | `@cx/schema` | Keep DTO, RenderTree constants, and guards as SSOT. Do not add conversion logic. |
-| `@cx/parser` | Deprecate or re-export through `@cx/adapters/markdown` during transition. Remove after consumers migrate. |
+| Legacy parser package | Removed after consumers migrated to `@cx/adapters/markdown`. |
 | Legacy table materializer package | Removed after consumers migrated to `@cx/adapters/table`. |
-| `@cx/pipeline` | Call `@cx/adapters/markdown` and `@cx/adapters/table`; do not own parser/materializer/projection implementation. |
+| `@cx/pipeline` | Calls `@cx/adapters/markdown`; no longer owns parser/materializer/projection implementation. |
 | `@cx/renderer` | No behavior change. Continue to accept RenderTree JSON only. |
 | `@cx/validation` | No ownership change. May validate adapter output but does not live inside adapters. |
 | `@cx/orchestration` | No ownership change. Continue to provide pure planning helpers. |
@@ -101,13 +101,15 @@ Names may change during implementation, but the responsibility split should not 
 | `packages/pipeline/src/public/render-tree-to-tables.ts` | `packages/adapters/src/table/render-tree-to-table.ts` | Keep as projection only. No file IO or DB writes. |
 | `apps/web/src/lib/puck-screen-adapter.ts` | `packages/adapters/src/puck/*` | Keep Puck UI components in `apps/web`. |
 
-## Development Phases
+## Completion Status
 
-Each phase should be a separate commit. Do not bundle unrelated cleanup.
+All transition phases are complete. The historical phase plan below is kept as a record of the migration sequence and verification gates.
 
 ### Phase 1 - Create Adapter Package Shell
 
-Create `packages/adapters` with package metadata, tsconfig if needed, README, and public subpath placeholders.
+Status: Complete.
+
+Created `packages/adapters` with package metadata, README, and public subpath placeholders.
 
 Expected files:
 
@@ -137,22 +139,22 @@ chore(adapters): add package shell and public subpaths
 
 ### Phase 2 - Move Markdown Adapter
 
-Move Markdown parsing from `@cx/parser` to `@cx/adapters/markdown`.
+Status: Complete.
 
-Keep `@cx/parser` as a compatibility re-export for one transition window.
+Moved Markdown parsing from the legacy parser package to `@cx/adapters/markdown`, then removed the compatibility package after internal consumers migrated.
 
 Required changes:
 
-- Move implementation and tests.
-- Update `@cx/pipeline` parser adapter imports.
+- Move implementation and tests. Done.
+- Update `@cx/pipeline` markdown parse command imports. Done.
 - Update `packages/pipeline/README.md`.
 - Update `PACKAGE_MAP.md` and `PROJECT_STRUCTURE.md`.
-- Mark `@cx/parser` as deprecated in `packages/parser/README.md`.
+- Remove the legacy parser package and workspace/lockfile references. Done.
 
 Acceptance checks:
 
 ```bash
-npm test -- --run packages/adapters/src/__tests__/markdown.test.ts packages/parser/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts
+npm test -- --run packages/adapters/src/__tests__/markdown.test.ts packages/pipeline/src/__tests__/public-api.test.ts
 npx tsc --noEmit --pretty false --incremental false
 npm run lint
 ```
@@ -165,7 +167,9 @@ refactor(adapters): move markdown source parsing
 
 ### Phase 3 - Move Table To RenderTree Adapter
 
-Move row materialization into `@cx/adapters/table`, then remove the compatibility package once consumers migrate.
+Status: Complete.
+
+Moved row materialization into `@cx/adapters/table`, then removed the compatibility package once consumers migrated.
 
 Required changes:
 
@@ -192,14 +196,16 @@ refactor(adapters): move table rows to rendertree materializer
 
 ### Phase 4 - Move RenderTree To Table Projection
 
-Move RenderTree projection from `@cx/pipeline` to `@cx/adapters/table`.
+Status: Complete.
+
+Moved RenderTree projection from `@cx/pipeline` to `@cx/adapters/table`.
 
 Required changes:
 
-- Move `renderTreeToTableGenerationResult()`.
-- Keep `@cx/pipeline` as runtime/stage owner only.
-- Update smoke or pipeline imports.
-- Ensure projection returns diagnostics/warnings without DB writes.
+- Move `renderTreeToTableGenerationResult()`. Done.
+- Keep `@cx/pipeline` as runtime/stage owner only. Done.
+- Update tests/imports to consume `@cx/adapters/table`. Done.
+- Ensure projection returns diagnostics/warnings without DB writes. Done.
 - Keep direct DB apply as a future command outside adapters.
 
 Acceptance checks:
@@ -218,7 +224,9 @@ refactor(adapters): move rendertree to table projection
 
 ### Phase 5 - Move Puck Adapter
 
-Move Puck editable conversion from `apps/web` to `@cx/adapters/puck`.
+Status: Complete.
+
+Moved Puck editable conversion from `apps/web` to `@cx/adapters/puck`.
 
 Required changes:
 
@@ -245,7 +253,9 @@ refactor(adapters): move puck editable conversion
 
 ### Phase 6 - Remove Compatibility Packages
 
-Remove compatibility packages only after all internal imports use `@cx/adapters/*`.
+Status: Complete for legacy parser and table materializer packages.
+
+Removed compatibility packages after internal imports moved to `@cx/adapters/*`.
 
 Required changes:
 
@@ -257,7 +267,7 @@ Required changes:
 Stale import checks:
 
 ```bash
-rg -n "puck-screen-adapter" apps packages docs AGENTS.md PACKAGE_MAP.md
+	rg -n "@cx/parser|@cx/table-materializer|packages/parser|packages/table-materializer|puck-screen-adapter" apps packages AGENTS.md PACKAGE_MAP.md
 ```
 
 Acceptance checks:
@@ -280,7 +290,7 @@ chore(adapters): retire parser and table materializer packages
 
 - Prefer moved tests over rewritten tests when behavior is unchanged.
 - Add one public API test per adapter subpath.
-- Keep compatibility re-exports temporary and remove them as soon as consumers migrate.
+- Compatibility re-exports are temporary and should be removed as soon as consumers migrate.
 - Do not change DB schema during adapter package migration.
 - Do not add new AI behavior during adapter package migration.
 - Do not use this migration to redesign Puck UI.
@@ -292,6 +302,7 @@ The migration is complete when:
 
 - All pure conversion logic lives under `@cx/adapters/*`.
 - Apps and pipeline call adapter subpaths instead of owning conversion logic.
+- The legacy parser package is removed and has no active imports.
 - The legacy table materializer package is removed and has no active imports.
 - `@cx/adapters` has no file IO, Supabase calls, AI calls, React components, or DB writes.
 - `@cx/schema` remains the RenderTree and DTO contract source.
@@ -304,11 +315,11 @@ The migration is complete when:
 | Risk | Guard |
 |---|---|
 | `@cx/adapters` becomes a catch-all | Keep only `markdown`, `table`, and `puck` subpaths. Reject execution logic. |
-| Compatibility re-exports hide stale imports | Add stale import search to Phase 6 acceptance checks. |
+| Compatibility re-exports hide stale imports | Phase 6 stale import searches cover legacy parser/materializer package names. |
 | Puck UI logic leaks into adapters | Keep React components in `apps/web`; adapter only returns data/candidates. |
 | DB write logic leaks into adapters | Keep REST save/apply routes in `apps/web` or command packages. |
 | Table projection silently drops nodes | Return diagnostics/warnings and test unsupported children. |
-| Parser move breaks pipeline | Keep `@cx/parser` re-export until pipeline imports are migrated. |
+| Parser move breaks pipeline | Pipeline markdown parse command consumes `@cx/adapters/markdown`; adapter and pipeline tests cover the handoff. |
 
 ## First Implementation Commit Checklist
 

@@ -15,7 +15,7 @@
 Markdown source
 -> @cx/pipeline runtime
 -> screen-generation stage contract
--> @cx/parser
+-> @cx/adapters/markdown
 -> SourceSpec
 -> @cx/orchestration deterministic stage helpers
 -> @cx/agent generation/review tasks
@@ -29,7 +29,7 @@ stage 순서와 stage별 입출력 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.
 
 `@cx/components`, `@cx/layout`, `@cx/tokens`, `@cx/layout-pattern-store`는 생성 흐름에서 참조되는 설계 계약과 렌더 계약의 source of truth다.
 `@cx/schema`는 generation pipeline 전반의 DTO와 JSON artifact 계약 버전을 추적한다.
-`@cx/adapters`는 Markdown/Table/Puck 같은 외부 표현과 내부 계약 사이의 순수 변환 경계다. 현재 Table -> RenderTree adapter와 Puck adapter가 활성화되어 있고, Markdown과 RenderTree -> Table projection은 단계적으로 이관한다.
+`@cx/adapters`는 Markdown/Table/Puck 같은 외부 표현과 내부 계약 사이의 순수 변환 경계다. Markdown -> SourceSpec, Table -> RenderTree, RenderTree -> Table, Puck <-> RenderTree 변환을 소유한다.
 `@cx/smoke`는 위 흐름을 개발자가 반복 실행하는 통합 앱이다.
 생성/검수 prompt, checklist, output example 같은 문장형 참조 자산의 정본은 `packages/agent/docs/`가 소유한다. smoke/pipeline도 필요한 문장형 참조 자산은 이 정본 위치를 참조한다.
 design skill과 design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/` 아래에 둔다. `@cx/orchestration`은 skill/bundle ref만 선택하고, `@cx/pipeline`이 bundle 본문을 로드해 agent stage context에 주입한다.
@@ -40,12 +40,11 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 | 패키지 | 책임 | 주요 기능 | 두지 않는 책임 |
 |---|---|---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
-| `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 | `@cx/adapters/table` DB row bundle -> RenderTree, `@cx/adapters/puck` RenderTree <-> Puck editable data, markdown subpath 전환 shell | 파일 IO, Supabase/REST 호출, DB write, AI 실행, validation policy, React/Puck UI render |
-| `@cx/parser` | Markdown/source 입력을 SourceSpec으로 정규화 | PRDD Markdown 파싱, source metadata 보존, parser issue 반환 | 파일 IO, Claude 실행, RenderTree 생성, catalog 검증 |
+| `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 | `@cx/adapters/markdown` Markdown -> SourceSpec, `@cx/adapters/table` DB row bundle -> RenderTree와 RenderTree -> table projection, `@cx/adapters/puck` RenderTree <-> Puck editable data | 파일 IO, Supabase/REST 호출, DB write, AI 실행, validation policy, React/Puck UI render |
 | `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern layer candidates, pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery`, 패키지 내부 참조 자산 관리 | 출력 타입 SSOT, workflow 소유, 저장, render |
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
-| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, parser adapter | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
+| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, markdown parse command facade | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
 | `@cx/renderer` | RenderTree JSON을 React로 렌더링 | `@cx/schema` RenderTree 계약 소비, resolver 기반 interpreter, renderer adapter runtime | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
 | `@cx/layout` | 화면 chrome과 layout primitive | `AppScreen`, `Flex`, `Grid`, layout style helper, DTO guards | component catalog, token SSOT, 생성 workflow |
@@ -59,7 +58,6 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 |---|---|
 | `@cx/schema` | `.` |
 | `@cx/adapters` | `.`, `./markdown`, `./table`, `./puck` |
-| `@cx/parser` | `.`, `./contract`, `./markdown`, `./types` |
 | `@cx/orchestration` | `.`, `./contract`, `./generation`, `./types` |
 | `@cx/agent` | `.`, `./adapters`, `./claude`, `./contract`, `./tasks` |
 | `@cx/validation` | `.`, `./contract`, `./types` |
@@ -77,9 +75,10 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 
 - `@cx/schema`는 DTO/schema 계약만 소유하고 실행/검증/렌더 책임을 갖지 않는다.
 - `@cx/adapters`는 이미 로드된 입력과 이미 조립된 DTO를 받아 다른 DTO로 변환하는 순수 함수만 제공한다.
+- `@cx/adapters/markdown`은 이미 읽힌 Markdown/source bundle을 받아 SourceSpec과 parser issue를 반환한다.
 - `@cx/adapters/table`은 DB/read-model row bundle을 받아 `RenderTreeScreenNodeContract`를 조립하고 diagnostics를 반환한다.
+- `@cx/adapters/table`은 최종 RenderTree를 table generation result로 투영하되 파일 IO나 DB write를 수행하지 않는다.
 - `@cx/adapters/puck`은 RenderTree와 Puck editable data 사이의 변환만 담당하고, Puck React UI나 저장 API를 소유하지 않는다.
-- `@cx/parser`는 catalog 목록을 소유하지 않고 Markdown에 명시된 source hint만 보존한다.
 - `@cx/orchestration`은 pipeline stage가 사용할 입력과 의도를 순수 데이터로 만든다.
 - `@cx/agent`는 Claude 실행만 담당하고, 결과의 최종 정합성 판단은 `@cx/validation`에 맡긴다.
 - `@cx/validation`은 필요한 catalog와 contract를 인자로 받으며 파일을 쓰지 않는다.

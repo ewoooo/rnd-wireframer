@@ -17,7 +17,6 @@
 | `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 |
 | `@cx/renderer` | RenderTree JSON -> React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
-| `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
 | `@cx/components` | leaf component 구현과 catalog 값/계약 |
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
@@ -35,6 +34,7 @@
 제거된 패키지:
 
 - `@cx/importer`
+- `@cx/parser`
 - `@cx/types`
 - `@cx/workflow`
 
@@ -71,8 +71,8 @@ packages/renderer/src/
 ```text
 packages/adapters/src/
   index.ts       public adapter package metadata
-  markdown/      Markdown/client input -> SourceSpec, pending migration
-  table/         DB/read-model row bundle -> RenderTree
+  markdown/      Markdown/client input -> SourceSpec
+  table/         DB/read-model row bundle -> RenderTree, RenderTree -> table projection
   puck/          RenderTree <-> Puck editable data
 ```
 
@@ -80,13 +80,17 @@ packages/adapters/src/
 
 ```ts
 import { materializeRenderScreenFromRows } from "@cx/adapters/table";
+import { parseMarkdownSourceBundle } from "@cx/adapters/markdown";
+import { renderTreeToTableGenerationResult } from "@cx/adapters/table";
 import { renderTreeToPuckScreenData } from "@cx/adapters/puck";
 ```
 
 책임:
 
 - 이미 로드된 plain object 입력을 받는다.
+- Markdown/source bundle을 SourceSpec으로 정규화한다.
 - table/read-model row 관계를 따라 `RenderTreeScreenNode`를 만든다.
+- RenderTree를 table generation result로 투영한다.
 - RenderTree와 Puck editable data를 상호 변환한다.
 - missing reference, child order, unknown/duplicate Puck item, invalid props JSON 문제를 diagnostics로 반환한다.
 - 파일 IO 없이 순수 함수로 동작한다.
@@ -235,27 +239,7 @@ screen generation의 최종 결과물은 `final-result.json`에 저장되는 Ren
 
 테이블 반영은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. table apply 단계는 새 화면을 생성하거나 RenderTree 의미를 재해석하지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
 
-## 10. `packages/parser`
-
-`@cx/parser`는 Markdown 같은 원천 입력 문자열을 생성 흐름에서 사용할 SourceSpec JSON으로 정규화하는 순수 parser 패키지다. MVP에서는 파일 시스템을 읽지 않고, 이미 읽힌 Markdown 문자열 묶음을 받아 SourceSpec과 parser issue를 반환한다.
-SourceSpec의 원문 구조는 `screen.regions[].children[]` 아래 area node로 보존하며, area node는 이름 없이 `sourceAreaId`와 component children만 갖는다.
-
-```text
-packages/parser/src/
-  index.ts       public barrel
-  public/        parser boundary contract, markdown parser, SourceSpec/parser types
-```
-
-두지 않는 책임:
-
-- 파일 읽기/쓰기
-- Claude Agent SDK 실행
-- DraftCandidate 생성
-- RenderTree 생성 또는 React render
-- catalog 값 검증
-- validation next action 결정
-
-## 10-1. `packages/agent` 문서 자산
+## 10. `packages/agent` 문서 자산
 
 `@cx/agent`가 참조하는 생성/검수 문장형 자산은 패키지 내부 문서 디렉토리에서 관리한다.
 

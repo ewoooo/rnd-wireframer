@@ -21,7 +21,7 @@
 
 ```text
 source artifact read
--> @cx/parser
+-> @cx/adapters/markdown
 -> @cx/orchestration
 -> @cx/agent
 -> @cx/validation
@@ -95,7 +95,7 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 ### `parse-source`
 
 - 입력: `PipelineMarkdownSourceFile`
-- 실행 소유: `@cx/pipeline` -> `@cx/parser`
+- 실행 소유: `@cx/pipeline` -> `@cx/adapters/markdown`
 - 출력: `SourceSpec`, parser issues
 - side effect: 없음
 

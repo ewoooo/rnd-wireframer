@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-02 - Adapters Package Transition Complete
+
+- 변경: `@cx/parser` 구현과 Markdown parser 테스트를 `@cx/adapters/markdown`로 이동하고 legacy parser package를 제거함
+- 변경: `renderTreeToTableGenerationResult()`를 `@cx/pipeline`에서 `@cx/adapters/table`로 이동하고 projection 테스트를 adapter 테스트로 분리함
+- 변경: `@cx/pipeline`은 Markdown parse command facade만 남기고 실제 parsing/projection rule은 `@cx/adapters/*`를 소비하도록 변경함
+- 변경: `AGENTS.md`, `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `PIPELINE_STAGE_PROTOCOL.md`, `ADAPTERS_PACKAGE_TRANSITION_PLAN.md`를 완료 상태 기준으로 갱신함
+- 이유: `ADAPTERS_PACKAGE_TRANSITION_PLAN.md`의 최종 기준대로 Markdown/Table/Puck 순수 변환을 `@cx/adapters`로 모으고, parser/materializer compatibility 패키지와 pipeline 내 projection 소유를 제거하기 위함
+- 검증: `pnpm exec vitest run packages/adapters/src/__tests__/markdown.test.ts packages/adapters/src/__tests__/render-tree-to-table.test.ts packages/adapters/src/__tests__/table-to-render-tree.test.ts packages/adapters/src/__tests__/puck.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, stale import search, `pnpm exec next build apps/web`, `git diff --check`
+
 ## 2026-06-02 - Puck Adapter Package Boundary
 
 - 변경: `@cx/adapters` 패키지 shell을 추가하고 public subpath를 `./markdown`, `./table`, `./puck`으로 제한함

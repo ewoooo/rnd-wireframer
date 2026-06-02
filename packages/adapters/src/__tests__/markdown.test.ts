@@ -1,7 +1,7 @@
-import { parseMarkdownSourceBundle } from "@cx/parser/markdown";
+import { parseMarkdownSourceBundle } from "@cx/adapters/markdown";
 import { describe, expect, it } from "vitest";
 
-describe("@cx/parser markdown MVP parser", () => {
+describe("@cx/adapters/markdown", () => {
 	it("parses markdown bundle into a SourceSpec shape", () => {
 		const result = parseMarkdownSourceBundle({
 			importId: "PRDD-2026-05-sample",

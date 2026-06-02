@@ -2,6 +2,7 @@ import type {
 	RenderTreeContract,
 	RenderTreeNodeContract,
 	RenderTreeScreenNodeContract,
+	RenderTreeScreenRegionNodeType,
 	TableChildRef,
 	TableGenerationArea,
 	TableGenerationComponent,
@@ -9,7 +10,7 @@ import type {
 	TableGenerationRegion,
 	TableGenerationResultContract,
 } from "@cx/schema";
-import { SCHEMA_VERSION } from "@cx/schema";
+import { isRenderTreeAreaNode, RENDER_TREE_NODE_TYPE, SCHEMA_VERSION } from "@cx/schema";
 
 export type RenderTreeToTablesOptions = {
 	screenId?: string;
@@ -23,11 +24,11 @@ export type RenderTreeToTablesResult = {
 
 type RegionKey = "bottom" | "contents" | "header";
 
-const REGION_KEY_BY_TYPE: Record<string, RegionKey> = {
-	"Screen.Bottom": "bottom",
-	"Screen.Contents": "contents",
-	"Screen.Header": "header",
-};
+const REGION_KEY_BY_TYPE = {
+	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
+	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
+	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
+} as const satisfies Record<RenderTreeScreenRegionNodeType, RegionKey>;
 
 export function renderTreeToTableGenerationResult(
 	renderTree: RenderTreeContract,
@@ -69,7 +70,9 @@ function getScreenNode(
 	renderTree: RenderTreeContract,
 	warnings: string[],
 ): RenderTreeScreenNodeContract {
-	const screenNodes = renderTree.children.filter((node) => node.type === "Screen");
+	const screenNodes = renderTree.children.filter(
+		(node) => node.type === RENDER_TREE_NODE_TYPE.screen,
+	);
 	if (screenNodes.length === 0) {
 		throw new Error("RenderTree must include a Screen node.");
 	}
@@ -129,7 +132,7 @@ function extractChildren(
 			return [];
 		}
 
-		if (isAreaNode(node)) {
+		if (isRenderTreeAreaNode(node)) {
 			const area = nodeToArea(node, areasById, componentsById, warnings);
 			areasById.set(area.id, area);
 			return [{ id: area.id, kind: "area" as const }];
@@ -191,10 +194,6 @@ function readLayout(node: RenderTreeNodeContract, fallback: string, warnings: st
 	if (node.layout) return node.layout;
 	warnings.push(`Node ${node.metadata.id} is missing layout; used ${fallback}.`);
 	return fallback;
-}
-
-function isAreaNode(node: RenderTreeNodeContract) {
-	return node.type === "area.static" || node.type === "area.dynamic";
 }
 
 function isGeneratedWrapper(node: RenderTreeNodeContract) {

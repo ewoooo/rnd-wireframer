@@ -1,5 +1,3 @@
-import type { parserBoundary } from "./contract";
-
 export type {
 	SourceFileKind,
 	SourceSpec,
@@ -11,11 +9,6 @@ export type {
 } from "@cx/schema";
 
 import type { SourceFileKind, SourceSpec } from "@cx/schema";
-
-export type ParserBoundary = typeof parserBoundary;
-export type ParserBoundaryName = ParserBoundary["name"];
-export type ParserOperation = ParserBoundary["owns"][number];
-export type ParserPackageName = ParserBoundary["packageName"];
 
 export type MarkdownSourceFileInput = {
 	areaCode?: string;

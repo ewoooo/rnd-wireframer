@@ -30,7 +30,7 @@ screen generation의 최종 산출물은 `final-result.json`으로 저장한다.
 - pipeline stage context와 stage artifact bag을 관리한다.
 - pipeline stage 내부에서 `@cx/agent`, `@cx/validation`, `@cx/orchestration` helper를 연결한다.
 - catalog CRUD 결과나 agent 실행 결과를 승인된 side effect 명령으로 연결한다.
-- 이미 읽힌 Markdown source를 `@cx/parser`에 전달해 MVP SourceSpec 산출물을 회수한다.
+- 이미 읽힌 Markdown source를 `@cx/adapters/markdown`에 전달해 MVP SourceSpec 산출물을 회수한다.
 - 승인된 side effect 명령의 실행 순서와 실행 결과 envelope를 관리한다.
 - CLI, 서버 action, 후속 backend bridge가 공유할 side effect 실행 경계를 제공한다.
 - 실행 결과와 실패 정보를 감사 가능한 형태로 돌려준다.
@@ -111,10 +111,9 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 | ----------------------- | --------------------------------------------------------- |
 | `@cx/pipeline`          | 패키지 루트 public API                                    |
 | `@cx/pipeline/adapters` | Node adapter factory                                      |
-| `@cx/pipeline/apply`    | final RenderTree -> table apply helper                    |
 | `@cx/pipeline/commands` | side effect command 타입과 command helper                 |
 | `@cx/pipeline/contract` | side effect boundary contract                             |
-| `@cx/pipeline/parser`   | 이미 읽힌 Markdown source를 parser로 전달하는 MVP adapter |
+| `@cx/pipeline/parser`   | 이미 읽힌 Markdown source를 markdown adapter로 전달하는 command facade |
 | `@cx/pipeline/runner`   | side effect command runner                                |
 | `@cx/pipeline/runtime`  | pipeline runtime builder/runner                           |
 | `@cx/pipeline/testing`  | 테스트 전용 memory adapter fixture                        |

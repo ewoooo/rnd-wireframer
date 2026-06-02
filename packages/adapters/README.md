@@ -8,8 +8,8 @@ It does not perform file IO, Supabase/REST calls, DB writes, AI execution, valid
 
 | Subpath | Responsibility |
 |---|---|
-| `@cx/adapters/markdown` | Already-loaded Markdown/client input -> SourceSpec. Pending migration from `@cx/parser`. |
-| `@cx/adapters/table` | Table/read-model rows -> RenderTree. RenderTree -> table projection remains pending. |
+| `@cx/adapters/markdown` | Already-loaded Markdown/client input -> SourceSpec. Active. |
+| `@cx/adapters/table` | Table/read-model rows -> RenderTree. RenderTree -> table projection. Active. |
 | `@cx/adapters/puck` | RenderTree <-> Puck editable data. Active. |
 
 ## Puck Boundary

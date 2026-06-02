@@ -1,5 +1,5 @@
-import { parseMarkdownSourceBundle } from "@cx/parser/markdown";
-import type { ParseMarkdownSourceBundleResult } from "@cx/parser/types";
+import type { ParseMarkdownSourceBundleResult } from "@cx/adapters/markdown";
+import { parseMarkdownSourceBundle } from "@cx/adapters/markdown";
 import type { PipelineMarkdownSourceFile } from "../public/types";
 
 export type ParseMarkdownSourceCommand = {
