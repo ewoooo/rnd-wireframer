@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Pretendard", "Inter", sans-serif;
+    margin: 0;
+    padding: 12px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 12px;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  h1 { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+  .desc { color: #64748b; font-size: 11px; margin-bottom: 10px; }
+
+  button {
+    border: 0;
+    background: #0f172a;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  button:hover { background: #1e293b; }
+  button.secondary { background: #e2e8f0; color: #1e293b; }
+  button.secondary:hover { background: #cbd5e1; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* 메인 탭 (모드 전환) — 좌우 full 균등 분할, 선택 시 블럭 강조 */
+  .main-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+  .main-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    background: transparent;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .main-tab:hover { background: #f1f5f9; }
+  .main-tab.active {
+    color: white;
+    background: #0f172a;
+  }
+  .main-tab.active:hover { background: #1e293b; }
+
+  textarea {
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 140px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    resize: none;
+    background: white;
+    line-height: 1.4;
+  }
+
+  /* 액션 행 (상단/하단 공용) */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .actions.bottom {
+    margin-bottom: 0;
+    margin-top: 8px;
+  }
+  .actions .status {
+    flex: 1;
+    font-size: 11px;
+    color: #64748b;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .actions .status.ok { color: #059669; }
+  .actions .status.err { color: #dc2626; }
+
+  /* 모드별 컨텐츠 영역 */
+  .panel { display: none; flex: 1; flex-direction: column; min-height: 0; }
+  .panel.active { display: flex; overflow-y: auto; }
+
+  /* 교정 결과 표시 — textarea 와 비례로 분배되되 최소 높이 보장 */
+  .wash-results {
+    flex: 1 1 0;
+    min-height: 180px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .wash-results .empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 24px 8px;
+  }
+  .wash-results .section { margin-bottom: 12px; }
+  .wash-results .section:last-child { margin-bottom: 0; }
+  .wash-results h3 {
+    font-size: 11px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .wash-results .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .wash-results .stat {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  .wash-results .stat .num {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .wash-results .stat .label {
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .wash-results ul { margin: 0; padding-left: 16px; }
+  .wash-results li { margin-bottom: 2px; word-break: break-all; }
+  .wash-results .ok { color: #059669; }
+  .wash-results .warn { color: #d97706; }
+  .wash-results .info { color: #2563eb; }
+  .wash-results .miss { color: #dc2626; }
+
+  .wash-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 10px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 10px;
+  }
+  .wash-controls .hint {
+    flex: 1;
+    font-size: 11px;
+    color: #64748b;
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+  .checkbox-row input { margin: 0; }
+</style>
+</head>
+<body>
+
+<h1>Genui Spec Tool</h1>
+
+<div class="main-tabs">
+  <div class="main-tab active" data-panel="extract">Figma → JSON</div>
+  <div class="main-tab" data-panel="build">JSON → Figma</div>
+</div>
+
+<!-- ============== Extract 패널 (추출 + 교정 통합) ============== -->
+<div class="panel active" id="panel-extract">
+  <div class="desc">Figma 노드 → component-specs JSON 추출 + DS 가이드대로 자동 정규화. 추출 시 spec JSON 클립보드 자동 복사. 추출 후 [교정] 으로 raw 값 → 토큰 / DP 룰 검출 미리보기, [적용] 누르면 figma 노드 변경 + spec JSON 갱신.</div>
+
+  <div class="actions">
+    <span class="status" id="extract-status">준비됨.</span>
+    <button id="extract-btn">추출</button>
+    <button class="secondary" id="copy-btn" disabled>📋 복사</button>
+  </div>
+
+  <textarea id="extract-output" placeholder="추출된 spec JSON 이 여기 표시됩니다."></textarea>
+
+  <!-- 교정 영역 — textarea 바로 아래 -->
+  <div class="wash-controls">
+    <span class="hint" id="wash-hint">추출 후 [교정] 클릭 → 변경 사항 검토 → [적용].</span>
+    <button id="wash-preview-btn" disabled>교정</button>
+    <button class="secondary" id="wash-apply-btn" disabled>적용</button>
+  </div>
+
+  <div class="wash-results" id="wash-results">
+    <div class="empty">[교정] 클릭 시 변경 사항이 여기 표시됩니다.</div>
+  </div>
+</div>
+
+<!-- ============== Build 패널 ============== -->
+<div class="panel" id="panel-build">
+  <div class="desc">scripter 빌드 코드 (.generated.js) 를 ⌘V 로 붙여넣고 Run.</div>
+
+  <textarea id="build-input" placeholder="빌드 코드를 여기 ⌘V 로 붙여넣고 Run."></textarea>
+
+  <div class="actions bottom">
+    <span class="status" id="build-status">코드를 붙여넣으세요 (⌘V).</span>
+    <button id="run-btn">▶ Run</button>
+  </div>
+</div>
+
+<script>
+  const els = {
+    mainTabs: document.querySelectorAll(".main-tab"),
+    panels: document.querySelectorAll(".panel"),
+
+    // extract
+    extractOutput: document.getElementById("extract-output"),
+    extractStatus: document.getElementById("extract-status"),
+    extractBtn: document.getElementById("extract-btn"),
+    copyBtn: document.getElementById("copy-btn"),
+
+    // wash (extract 패널 안)
+    washPreviewBtn: document.getElementById("wash-preview-btn"),
+    washApplyBtn: document.getElementById("wash-apply-btn"),
+    washResults: document.getElementById("wash-results"),
+    washHint: document.getElementById("wash-hint"),
+
+    // build
+    buildInput: document.getElementById("build-input"),
+    buildStatus: document.getElementById("build-status"),
+    runBtn: document.getElementById("run-btn"),
+  };
+
+  // 흐름 상태 — wash 적용 후 자동 재추출 트리거 트래킹
+  const state = { afterApply: false };
+
+  // 메인 탭 전환
+  els.mainTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const panelName = tab.dataset.panel;
+      els.mainTabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      els.panels.forEach((p) => p.classList.remove("active"));
+      document.getElementById("panel-" + panelName).classList.add("active");
+    });
+  });
+
+  // 추출 — 선택된 노드 있으면 selection, 없으면 page (자동 판단은 code.js 에서)
+  els.extractBtn.addEventListener("click", () => {
+    setStatus("extract", "추출 중…");
+    els.extractOutput.value = "";
+    els.copyBtn.disabled = true;
+    // 새 추출 시작 — wash 영역 초기화
+    els.washPreviewBtn.disabled = true;
+    els.washApplyBtn.disabled = true;
+    els.washHint.textContent = "추출 후 [교정] 클릭 → 변경 사항 검토 → [적용].";
+    els.washResults.innerHTML = '<div class="empty">[교정] 클릭 시 변경 사항이 여기 표시됩니다.</div>';
+    parent.postMessage({ pluginMessage: { type: "extract-auto" } }, "*");
+  });
+
+  // 복사 — 추출된 결과 다시 클립보드로
+  els.copyBtn.addEventListener("click", async () => {
+    if (!els.extractOutput.value) return;
+    try {
+      await navigator.clipboard.writeText(els.extractOutput.value);
+      setStatus("extract", "✓ 클립보드 복사됨.", "ok");
+    } catch (e) {
+      try {
+        els.extractOutput.select();
+        document.execCommand("copy");
+        setStatus("extract", "✓ 복사됨 (fallback).", "ok");
+      } catch (e2) {
+        setStatus("extract", "✗ 복사 실패. 수동으로 ⌘A ⌘C.", "err");
+      }
+    }
+  });
+
+  // Run
+  els.runBtn.addEventListener("click", () => {
+    const code = els.buildInput.value.trim();
+    if (!code) {
+      setStatus("build", "✗ 빌드 코드가 비었습니다.", "err");
+      return;
+    }
+    setStatus("build", "빌드 실행 중…");
+    parent.postMessage({ pluginMessage: { type: "build-from-code", code } }, "*");
+  });
+
+  // Wash — 미리보기 (dry-run)
+  els.washPreviewBtn.addEventListener("click", () => {
+    els.washHint.textContent = "교정 미리보기 중…";
+    els.washApplyBtn.disabled = true;
+    els.washResults.innerHTML = '<div class="empty">분석 중…</div>';
+    parent.postMessage({ pluginMessage: { type: "wash", dryRun: true } }, "*");
+  });
+
+  // Wash — 적용
+  els.washApplyBtn.addEventListener("click", () => {
+    els.washHint.textContent = "교정 적용 중…";
+    els.washApplyBtn.disabled = true;
+    parent.postMessage({ pluginMessage: { type: "wash", dryRun: false } }, "*");
+  });
+
+  // wash 결과 렌더링
+  function renderWashResult(r) {
+    const total = (r.report?.length || 0) + (r.fuzzyReport?.length || 0) + (r.ruleReport?.length || 0);
+    const detect = r.detectReport?.length || 0;
+    const unmatchedTotal = (r.unmatched?.colors?.length || 0) + (r.unmatched?.dimensions?.length || 0) + (r.unmatched?.fontSizes?.length || 0);
+
+    if (total === 0 && detect === 0 && unmatchedTotal === 0) {
+      els.washResults.innerHTML =
+        '<div class="empty">변경할 게 없습니다. 이미 시스템화된 노드입니다.</div>';
+      return;
+    }
+
+    const parts = [];
+    parts.push(
+      '<div class="section"><h3>통계 (' + r.targetCount + '개 노드' + (r.dryRun ? ' · dry-run' : ' · 적용 완료') + ')</h3>' +
+      '<div class="stat-grid">' +
+        statBox(r.stats.color, "색") +
+        statBox(r.stats.padding + r.stats.spacing, "spacing") +
+        statBox(r.stats.radius, "radius") +
+        statBox(r.stats.fontSize + r.stats.fontWeight + r.stats.letterSpacing, "typography") +
+      '</div></div>'
+    );
+
+    if (r.report && r.report.length) {
+      parts.push(
+        '<div class="section"><h3 class="ok">정확 매칭 (자동 적용 ' + r.report.length + ')</h3><ul>' +
+        r.report.slice(0, 30).map(li).join("") +
+        (r.report.length > 30 ? '<li>… +' + (r.report.length - 30) + '</li>' : "") +
+        '</ul></div>'
+      );
+    }
+    if (r.fuzzyReport && r.fuzzyReport.length) {
+      parts.push(
+        '<div class="section"><h3 class="warn">Fuzzy 매칭 — review 권장 (' + r.fuzzyReport.length + ')</h3><ul>' +
+        r.fuzzyReport.slice(0, 20).map(li).join("") +
+        '</ul></div>'
+      );
+    }
+    if (r.ruleReport && r.ruleReport.length) {
+      parts.push(
+        '<div class="section"><h3 class="info">DP 룰 자동 교정 (' + r.ruleReport.length + ')</h3><ul>' +
+        r.ruleReport.map(li).join("") +
+        '</ul></div>'
+      );
+    }
+    if (r.detectReport && r.detectReport.length) {
+      parts.push(
+        '<div class="section"><h3 class="warn">검출만 (수동 검토 권장 ' + r.detectReport.length + ')</h3><ul>' +
+        r.detectReport.map(li).join("") +
+        '</ul></div>'
+      );
+    }
+    if (unmatchedTotal > 0) {
+      const u = r.unmatched;
+      const lines = [];
+      (u.colors || []).forEach(function (x) { lines.push("color #" + x.value + " (" + x.count + "회)"); });
+      (u.dimensions || []).forEach(function (x) { lines.push("dimension " + x.value + "px (" + x.count + "회)"); });
+      (u.fontSizes || []).forEach(function (x) { lines.push("fontSize " + x.value + "px (" + x.count + "회)"); });
+      parts.push(
+        '<div class="section"><h3 class="miss">매칭 못 한 raw 값 (' + unmatchedTotal + ' 종)</h3><ul>' +
+        lines.map(li).join("") +
+        '</ul><div style="color:#64748b;margin-top:4px;">→ DS 토큰 추가 필요 또는 디자인 의도 재검토</div></div>'
+      );
+    }
+    els.washResults.innerHTML = parts.join("");
+  }
+  function statBox(num, label) {
+    return '<div class="stat"><div class="num">' + (num || 0) + '</div><div class="label">' + label + '</div></div>';
+  }
+  function li(s) { return '<li>' + escapeHtml(s) + '</li>'; }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // ===== plugin sandbox 메시지 수신 =====
+  window.addEventListener("message", async (event) => {
+    const msg = event.data.pluginMessage;
+    if (!msg) return;
+    console.log("[ui] received:", msg.type);
+    if (msg.type === "result") {
+      const json = JSON.stringify(msg.specs.length === 1 ? msg.specs[0] : msg.specs, null, 2);
+      els.extractOutput.value = json;
+      els.copyBtn.disabled = false;
+      // 자동 클립보드 복사
+      let copyNote = "";
+      try {
+        await navigator.clipboard.writeText(json);
+        copyNote = " · 클립보드 복사됨";
+      } catch (e) {
+        // fallback — execCommand
+        try {
+          els.extractOutput.select();
+          document.execCommand("copy");
+          copyNote = " · 클립보드 복사됨";
+        } catch (e2) {
+          copyNote = " · (📋 버튼으로 수동 복사)";
+        }
+      }
+      setStatus("extract", "✓ " + msg.specs.length + "개 spec 추출" + copyNote, "ok");
+      // 추출 끝나면 [교정] 버튼 활성화
+      els.washPreviewBtn.disabled = false;
+      // 적용 후 자동 재추출 흐름이면 결과 갱신 알림
+      if (state.afterApply) {
+        els.washHint.textContent = "✓ 적용 완료 — JSON 갱신됨. 클립보드도 갱신됐습니다.";
+        state.afterApply = false;
+      }
+    } else if (msg.type === "build-done") {
+      setStatus("build", "✓ 빌드 완료. " + (msg.note || ""), "ok");
+    } else if (msg.type === "build-error") {
+      setStatus("build", "✗ 빌드 실패: " + msg.message, "err");
+    } else if (msg.type === "wash-result") {
+      renderWashResult(msg);
+      const total = (msg.report?.length || 0) + (msg.fuzzyReport?.length || 0) + (msg.ruleReport?.length || 0);
+      if (msg.dryRun) {
+        if (total > 0) {
+          els.washHint.textContent = "✓ 교정 미리보기 (" + total + " fix 예정). 검토 후 [적용] 클릭.";
+          els.washApplyBtn.disabled = false;
+        } else {
+          els.washHint.textContent = "변경할 게 없습니다 — 이미 시스템화된 노드.";
+          els.washApplyBtn.disabled = true;
+        }
+      } else {
+        // 실제 적용 완료 — 자동 재추출로 spec JSON 갱신
+        els.washHint.textContent = "✓ 적용 완료 (" + total + " fix). JSON 갱신 중…";
+        els.washApplyBtn.disabled = true;
+        state.afterApply = true;
+        parent.postMessage({ pluginMessage: { type: "extract-auto" } }, "*");
+      }
+    } else if (msg.type === "wash-error") {
+      els.washHint.textContent = "✗ " + msg.message.split("\n")[0];
+      els.washResults.innerHTML = '<div class="empty miss">' + escapeHtml(msg.message) + '</div>';
+      els.washApplyBtn.disabled = true;
+    } else if (msg.type === "error") {
+      els.extractOutput.value = msg.message;
+      setStatus("extract", "✗ " + msg.message.split("\n")[0], "err");
+    }
+  });
+
+  function setStatus(panel, msg, kind) {
+    const el = panel === "build" ? els.buildStatus : els.extractStatus;
+    el.textContent = msg;
+    el.className = "status" + (kind ? " " + kind : "");
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "RND Wireframer Figma Sync",
+  "id": "rnd-wireframer-figma-sync",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["http://localhost:3000"],
+    "reasoning": "Figma 손작업 컴포넌트를 web 서비스 (localhost:3000) 의 워싱 메뉴로 자동 전송 — paste 단계 제거"
+  }
+}
