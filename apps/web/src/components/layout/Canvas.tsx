@@ -88,7 +88,10 @@ export function Canvas() {
 					>
 						{showStatusBar ? <SystemHeader /> : null}
 						<div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<Puck.Preview />
+							{/* TODO(임시): 하드코딩 스크린 컨테이너 — 콘텐츠 여백(p-7). 정식 container 정보 도입 시 제거 */}
+							<div className="p-7">
+								<Puck.Preview />
+							</div>
 						</div>
 					</div>
 				)}
