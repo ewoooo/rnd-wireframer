@@ -7,13 +7,49 @@ import { createModule, deleteModule, duplicateModule, updateModule } from "@/app
 import { createRoute, deleteRoute, duplicateRoute, updateRoute } from "@/app/actions/route-actions";
 import { createVariant } from "@/app/actions/screen-actions";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
-import type { AppScreenModule, AppScreenRoute } from "@/model/store";
+import type { AppComponent, AppScreenModule, AppScreenRoute } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
+import type { AppArea } from "@/adapters/tables-to-render-tree";
+import { AreaUsageList, getScreensUsingArea } from "../area/AreaUsageList";
+import { ComponentUsageList, getAreasUsingComponent } from "../component/ComponentUsageList";
 import { ScreenVariantCard } from "../screen/ScreenVariantCard";
 import { Aside, Divider, Panel } from "./Aside";
+
+// area 목록을 usage(태그)별로 그룹화한다. 그룹은 태그 알파벳순, 그룹 내부는 이름순.
+// (대부분 "section" 하나로 묶이지만 component 그룹화와 동일한 형태 유지)
+function groupAreasByUsage(areas: AppArea[]) {
+	const byUsage = new Map<string, AppArea[]>();
+	for (const area of areas) {
+		const list = byUsage.get(area.usage) ?? [];
+		list.push(area);
+		byUsage.set(area.usage, list);
+	}
+	return [...byUsage.entries()]
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([usage, items]) => ({
+			usage,
+			areas: [...items].sort((x, y) => x.name.localeCompare(y.name, "ko")),
+		}));
+}
+
+// 컴포넌트 목록을 태그(type)별로 그룹화한다. 그룹은 태그 알파벳순,
+// 그룹 내부는 이름순.
+function groupComponentsByType(components: AppComponent[]) {
+	const byType = new Map<string, AppComponent[]>();
+	for (const component of components) {
+		const list = byType.get(component.type) ?? [];
+		list.push(component);
+		byType.set(component.type, list);
+	}
+	return [...byType.entries()]
+		.sort(([a], [b]) => a.localeCompare(b))
+		.map(([type, comps]) => ({
+			type,
+			components: [...comps].sort((x, y) => x.name.localeCompare(y.name, "ko")),
+		}));
+}
 
 export function LeftAside() {
 	const router = useRouter();
@@ -21,6 +57,7 @@ export function LeftAside() {
 	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const components = useWorkbenchStore((state) => state.components);
 	const areas = useWorkbenchStore((state) => state.areas);
+	const screens = useWorkbenchStore((state) => state.screens);
 	const screenModules = useWorkbenchStore((state) => state.screenModules);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
@@ -182,58 +219,85 @@ export function LeftAside() {
 						))}
 					</Panel>
 				</>
+			) : activeTab === "ogn" ? (
+				<>
+					{/* 위 패널: 선택한 area를 사용하는 스크린 역참조 (도메인→루트→스크린) */}
+					<Panel
+						title={`${getScreensUsingArea(screens, selectedAreaCode).length}개 스크린에서 사용`}
+						defaultSize={30}
+						minSize={10}
+						bodyClassName="py-1"
+					>
+						<AreaUsageList />
+					</Panel>
+					<Divider />
+					<Panel defaultSize={70} minSize={30} bodyClassName="p-2">
+						<div className="flex flex-col gap-3">
+							{groupAreasByUsage(areas).map((group) => (
+								<div key={group.usage} className="flex flex-col gap-1">
+									<p className="px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+										{group.usage}
+									</p>
+									{group.areas.map((area) => (
+										<button
+											type="button"
+											key={area.code}
+											className={cn(
+												"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
+												area.code === selectedAreaCode && "border-primary bg-primary/5",
+											)}
+											onClick={() => selectArea(area.code)}
+										>
+											<p className="text-sm font-medium">{area.name}</p>
+											<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
+												<span>{area.stateCount} states</span>
+											</div>
+										</button>
+									))}
+								</div>
+							))}
+						</div>
+					</Panel>
+				</>
+			) : activeTab === "comp" ? (
+				<>
+					{/* 위 패널: 이 컴포넌트를 사용하는 area 역참조 (도메인/루트 없이 flat) */}
+					<Panel
+						title={`${getAreasUsingComponent(areas, selectedComponentCode).length}개 area에서 사용`}
+						defaultSize={30}
+						minSize={10}
+						bodyClassName="py-1"
+					>
+						<ComponentUsageList />
+					</Panel>
+					<Divider />
+					<Panel defaultSize={70} minSize={30} bodyClassName="p-2">
+						<div className="flex flex-col gap-3">
+							{groupComponentsByType(components).map((group) => (
+								<div key={group.type} className="flex flex-col gap-1">
+									<p className="px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+										{group.type}
+									</p>
+									{group.components.map((component) => (
+										<button
+											type="button"
+											key={component.code}
+											className={cn(
+												"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
+												component.code === selectedComponentCode && "border-primary bg-primary/5",
+											)}
+											onClick={() => selectComponent(component.code)}
+										>
+											<p className="truncate text-sm font-medium">{component.name}</p>
+										</button>
+									))}
+								</div>
+							))}
+						</div>
+					</Panel>
+				</>
 			) : (
 				<Panel bodyClassName="p-2">
-					{activeTab === "ogn" ? (
-						<div className="flex flex-col gap-2">
-							{areas.map((area) => (
-								<button
-									type="button"
-									key={area.code}
-									className={cn(
-										"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
-										area.code === selectedAreaCode && "border-primary bg-primary/5",
-									)}
-									onClick={() => selectArea(area.code)}
-								>
-									<div className="flex items-center justify-between gap-2">
-										<p className="text-sm font-medium">{area.name}</p>
-										<Badge variant="secondary">{area.usage}</Badge>
-									</div>
-									<p className="mt-1 text-xs text-muted-foreground">{area.code}</p>
-									<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-										<span>{area.stateCount} states</span>
-										<span>{area.componentCount} components</span>
-									</div>
-								</button>
-							))}
-						</div>
-					) : null}
-					{activeTab === "comp" ? (
-						<div className="flex flex-col gap-2">
-							{components.map((component) => (
-								<button
-									type="button"
-									key={component.code}
-									className={cn(
-										"rounded-lg border bg-background p-3 text-left transition-colors hover:bg-accent",
-										component.code === selectedComponentCode && "border-primary bg-primary/5",
-									)}
-									onClick={() => selectComponent(component.code)}
-								>
-									<div className="flex items-center justify-between gap-2">
-										<p className="truncate text-sm font-medium">{component.name}</p>
-										<Badge variant="secondary">{component.type}</Badge>
-									</div>
-									<p className="mt-1 truncate text-xs text-muted-foreground">{component.code}</p>
-									<div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-										<span>{component.sourceScreenCode}</span>
-										<span>{component.parentAreaCode ?? "screen"}</span>
-									</div>
-								</button>
-							))}
-						</div>
-					) : null}
 					{activeTab === "agent" ? (
 						<AgentRegistryNavigation
 							registry={agentRegistry}

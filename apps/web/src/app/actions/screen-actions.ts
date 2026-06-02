@@ -279,7 +279,9 @@ export async function updateScreenRegions(
 
 	if (error) return { error: error.message };
 
-	revalidatePath("/");
+	// 수동 저장이므로 revalidatePath 를 호출하지 않는다. 저장 시점에 클라이언트
+	// 스토어가 이미 최신이고, revalidate 는 라우터 refresh → 스토어 재초기화 →
+	// 캔버스 스크롤이 맨 위로 튀게 만든다. 다음 풀 로드에서 자연히 반영된다.
 	return {};
 }
 
