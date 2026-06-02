@@ -1,14 +1,17 @@
 import { SystemHeader } from "@cx/layout/chrome";
 import { RenderTreeNodeRenderer } from "@cx/renderer";
 import { Puck } from "@measured/puck";
+import { Bot, Box, Boxes, Smartphone } from "lucide-react";
+import type { ComponentType } from "react";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
-import type { SelectedComponentContext, SelectedAreaContext } from "@/model/store";
+import type { SelectedAreaContext, SelectedComponentContext } from "@/model/store";
 import { useWorkbenchStore } from "@/model/store";
 import { RenderedScreen } from "../screen/RenderedScreen";
 import { CanvasToolbar } from "./CanvasToolbar";
+import { ExportToolbar } from "./ExportToolbar";
 
 export function Canvas() {
 	const isComponentView = useWorkbenchStore((state) => state.isComponentView);
@@ -39,74 +42,99 @@ export function Canvas() {
 	return (
 		<SidebarInset>
 			<SidebarHeader className="border-b border-sidebar-border">
-				<h1 className="flex items-center gap-2 text-base font-semibold leading-none tracking-normal">
-					{getCanvasTitle({
+				{(() => {
+					const { kind, title } = getCanvasHeader({
 						activeTab,
 						isComponentView,
 						isAreaView,
 						selectedAgentAsset,
 						selectedComponent,
 						selectedArea,
-					})}
-				</h1>
+						selectedScreen,
+					});
+					const { label, Icon } = CANVAS_KIND[kind];
+					return (
+						<div className="flex h-8 items-center gap-2 tracking-normal">
+							<Icon className="size-4 shrink-0 text-muted-foreground" />
+							<span className="font-medium text-muted-foreground text-sm">{label}</span>
+							{title ? (
+								<span className="truncate font-semibold text-base leading-none">{title}</span>
+							) : null}
+						</div>
+					);
+				})()}
 			</SidebarHeader>
-			<SidebarContent className="relative items-center justify-center bg-muted p-6">
-				<div className="absolute left-1/2 top-3 z-10 -translate-x-1/2">
+			<SidebarContent className="items-center justify-center bg-muted p-6">
+				<div className="flex flex-col items-center gap-6">
 					<CanvasToolbar />
-				</div>
-				{activeTab === "agent" ? (
-					<AgentRegistryPreview
-						registry={agentRegistry}
-						selectedAsset={selectedAgentAsset}
-						selectedNode={selectedAgentNode}
-						onSelectNode={selectAgentNode}
-					/>
-				) : isComponentView && selectedComponent ? (
-					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
-						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<RenderTreeNodeRenderer
-								data={selectedComponent.screen.schema.data}
-								node={selectedComponent.node}
-							/>
+					{activeTab === "agent" ? (
+						<AgentRegistryPreview
+							registry={agentRegistry}
+							selectedAsset={selectedAgentAsset}
+							selectedNode={selectedAgentNode}
+							onSelectNode={selectAgentNode}
+						/>
+					) : isComponentView && selectedComponent ? (
+						<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
+							<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+								<RenderTreeNodeRenderer
+									data={selectedComponent.screen.schema.data}
+									node={selectedComponent.node}
+								/>
+							</div>
 						</div>
-					</div>
-				) : isAreaView && selectedArea ? (
-					<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
-						<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							<Puck.Preview />
-						</div>
-					</div>
-				) : canvasEmptyMessage ? (
-					<RenderedScreen emptyMessage={canvasEmptyMessage} />
-				) : (
-					<div
-						className={cn(
-							"flex h-211 w-98 max-w-full flex-col overflow-hidden border shadow-xl",
-							showStatusBar ? "rounded-[28px]" : "rounded-none",
-							darkMode ? "bg-neutral-200" : "bg-background",
-						)}
-					>
-						{showStatusBar ? <SystemHeader /> : null}
-						<div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-							{/* TODO(임시): 하드코딩 스크린 컨테이너 — 콘텐츠 여백(p-7). 정식 container 정보 도입 시 제거 */}
-							<div className="p-7">
+					) : isAreaView && selectedArea ? (
+						<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
+							<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 								<Puck.Preview />
 							</div>
 						</div>
-					</div>
-				)}
+					) : canvasEmptyMessage ? (
+						<RenderedScreen emptyMessage={canvasEmptyMessage} />
+					) : (
+						<div
+							className={cn(
+								"flex h-211 w-98 max-w-full flex-col overflow-hidden border shadow-xl",
+								showStatusBar ? "rounded-[28px]" : "rounded-none",
+								darkMode ? "bg-neutral-200" : "bg-background",
+							)}
+						>
+							{showStatusBar ? <SystemHeader /> : null}
+							<div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+								{/* TODO(임시): 하드코딩 스크린 컨테이너 — 콘텐츠 여백(p-7). 정식 container 정보 도입 시 제거 */}
+								<div className="p-7">
+									<Puck.Preview />
+								</div>
+							</div>
+						</div>
+					)}
+					<ExportToolbar />
+				</div>
 			</SidebarContent>
 		</SidebarInset>
 	);
 }
 
-function getCanvasTitle({
+type CanvasKind = "screen" | "area" | "component" | "agent";
+
+const CANVAS_KIND: Record<
+	CanvasKind,
+	{ label: string; Icon: ComponentType<{ className?: string }> }
+> = {
+	screen: { label: "Screen", Icon: Smartphone },
+	area: { label: "Area", Icon: Boxes },
+	component: { label: "Component", Icon: Box },
+	agent: { label: "Agent", Icon: Bot },
+};
+
+function getCanvasHeader({
 	activeTab,
 	isComponentView,
 	isAreaView,
 	selectedAgentAsset,
 	selectedComponent,
 	selectedArea,
+	selectedScreen,
 }: {
 	activeTab: string;
 	isComponentView: boolean;
@@ -114,9 +142,10 @@ function getCanvasTitle({
 	selectedAgentAsset?: SelectedAgentAsset;
 	selectedComponent?: SelectedComponentContext;
 	selectedArea?: SelectedAreaContext;
-}) {
-	if (activeTab === "agent") return selectedAgentAsset?.item.name ?? "Agent Registry";
-	if (isComponentView) return selectedComponent?.node.metadata.title;
-	if (isAreaView) return selectedArea?.node.metadata.title;
-	return null;
+	selectedScreen?: { name: string };
+}): { kind: CanvasKind; title?: string } {
+	if (activeTab === "agent") return { kind: "agent", title: selectedAgentAsset?.item.name };
+	if (isComponentView) return { kind: "component", title: selectedComponent?.node.metadata.title };
+	if (isAreaView) return { kind: "area", title: selectedArea?.node.metadata.title };
+	return { kind: "screen", title: selectedScreen?.name };
 }
