@@ -51,6 +51,9 @@ describe("screen-db-loader", () => {
 		expect(rows.screenRegions).toHaveLength(3);
 		expect(rows.areas).toHaveLength(1);
 		expect(rows.components).toHaveLength(1);
+		expect(rows.screenRegionChildren[0]?.id).toBe("screen-region-child-1");
+		expect(rows.areaChildren[0]?.id).toBe("area-child-1");
+		expect(rows.componentChildren[0]?.id).toBe("component-child-1");
 
 		const result = await loadScreenTree("screen-1");
 		expect(result.diagnostics).toEqual([]);
@@ -107,6 +110,7 @@ const screenDbResponses: ResponseMap = {
 		{
 			area_id: "area-1",
 			component_id: "component-1",
+			id: "area-child-1",
 			order_index: 0,
 		},
 	],
@@ -124,6 +128,7 @@ const screenDbResponses: ResponseMap = {
 		{
 			catalog_component_type: "TextField",
 			component_id: "component-1",
+			id: "component-child-1",
 			order_index: 0,
 			props: { label: "이름" },
 		},
@@ -140,6 +145,7 @@ const screenDbResponses: ResponseMap = {
 	"/rest/v1/render_screen_region_children": [
 		{
 			area_id: "area-1",
+			id: "screen-region-child-1",
 			order_index: 0,
 			screen_region_id: "screen-1.contents",
 		},

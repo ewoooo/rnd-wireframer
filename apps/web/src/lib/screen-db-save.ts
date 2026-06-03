@@ -111,6 +111,14 @@ export function projectScreenTreeOrder(input: {
 	const areaChildren: RenderAreaChildRow[] = [];
 	const componentChildren: RenderComponentChildRow[] = [];
 	const componentChildrenByComponentId = groupComponentChildren(input.rows.componentChildren);
+	const screenRegionChildIds = groupRowsByKey(
+		input.rows.screenRegionChildren,
+		(child) => `${child.screen_region_id}\u0000${child.area_id}`,
+	);
+	const areaChildIds = groupRowsByKey(
+		input.rows.areaChildren,
+		(child) => `${child.area_id}\u0000${child.component_id}`,
+	);
 
 	for (const regionNode of input.node.children as readonly RenderTreeNodeContract[]) {
 		if (!isRenderTreeScreenRegionNode(regionNode)) {
@@ -155,13 +163,19 @@ export function projectScreenTreeOrder(input: {
 				continue;
 			}
 
+			const screenRegionChildId = takeRowId(
+				screenRegionChildIds,
+				`${region.id}\u0000${child.metadata.id}`,
+			);
 			screenRegionChildren.push({
 				area_id: child.metadata.id,
+				...withRowId(screenRegionChildId),
 				order_index: index,
 				screen_region_id: region.id,
 			});
 			const projectedArea = projectAreaChildren({
 				area: child,
+				areaChildIds,
 				componentChildrenByComponentId,
 				componentIds,
 				diagnostics,
@@ -181,6 +195,7 @@ export function projectScreenTreeOrder(input: {
 
 function projectAreaChildren(input: {
 	area: RenderTreeNodeContract;
+	areaChildIds: Map<string, { id?: string }[]>;
 	componentChildrenByComponentId: Map<string, RenderComponentChildRow[]>;
 	componentIds: Set<string>;
 	diagnostics: SaveScreenTreeOrderDiagnostic[];
@@ -211,9 +226,14 @@ function projectAreaChildren(input: {
 			continue;
 		}
 
+		const areaChildId = takeRowId(
+			input.areaChildIds,
+			`${input.area.metadata.id}\u0000${child.metadata.id}`,
+		);
 		areaChildren.push({
 			area_id: input.area.metadata.id,
 			component_id: child.metadata.id,
+			...withRowId(areaChildId),
 			order_index: index,
 		});
 		componentChildren.push(
@@ -237,6 +257,7 @@ function projectComponentChildren(
 			{
 				catalog_component_type: existing?.catalog_component_type ?? node.type,
 				component_id: node.metadata.id,
+				...withRowId(existing?.id),
 				order_index: 0,
 				props: node.props ?? null,
 				variant: existing?.variant ?? null,
@@ -244,16 +265,56 @@ function projectComponentChildren(
 		];
 	}
 
+	const existingRowsByCatalogType = groupRowsByKey(
+		existingRows,
+		(row) => row.catalog_component_type,
+	);
 	return childNodes.map((child, index) => {
-		const existing = existingRows[index];
+		const existing = takeComponentChild(existingRowsByCatalogType, child.type);
 		return {
 			catalog_component_type: child.type,
 			component_id: node.metadata.id,
+			...withRowId(existing?.id),
 			order_index: index,
 			props: child.props ?? null,
 			variant: existing?.variant ?? null,
 		};
 	});
+}
+
+function groupRowsByKey<Row>(
+	rows: Row[],
+	readKey: (row: Row) => string,
+): Map<string, Row[]> {
+	const grouped = new Map<string, Row[]>();
+	for (const row of rows) {
+		const key = readKey(row);
+		const siblings = grouped.get(key) ?? [];
+		siblings.push(row);
+		grouped.set(key, siblings);
+	}
+	return grouped;
+}
+
+function takeComponentChild(
+	rowsByCatalogType: Map<string, RenderComponentChildRow[]>,
+	catalogComponentType: string,
+): RenderComponentChildRow | undefined {
+	const rows = rowsByCatalogType.get(catalogComponentType) ?? [];
+	const row = rows.shift();
+	if (rows.length === 0) rowsByCatalogType.delete(catalogComponentType);
+	return row;
+}
+
+function takeRowId(rowsByKey: Map<string, { id?: string }[]>, key: string): string | undefined {
+	const rows = rowsByKey.get(key) ?? [];
+	const row = rows.shift();
+	if (rows.length === 0) rowsByKey.delete(key);
+	return row?.id;
+}
+
+function withRowId(id: string | undefined): { id?: string } {
+	return id ? { id } : {};
 }
 
 async function replaceScreenTreeOrderRows(input: {

@@ -140,7 +140,7 @@ export async function loadScreenRows(screenId: string): Promise<RenderReadModelR
 		screenRegionIds.length > 0
 			? await readRestRows<RenderScreenRegionChildRow>(TABLES.screenRegionChildren, {
 					screen_region_id: inFilter(screenRegionIds),
-					select: "screen_region_id,area_id,order_index",
+					select: "id,screen_region_id,area_id,order_index",
 				})
 			: [];
 	const areaIds = unique(screenRegionChildren.map((child) => child.area_id));
@@ -155,7 +155,7 @@ export async function loadScreenRows(screenId: string): Promise<RenderReadModelR
 		areaIds.length > 0
 			? await readRestRows<RenderAreaChildRow>(TABLES.areaChildren, {
 					area_id: inFilter(areaIds),
-					select: "area_id,component_id,order_index",
+					select: "id,area_id,component_id,order_index",
 				})
 			: [];
 	const componentIds = unique(areaChildren.map((child) => child.component_id));
@@ -170,7 +170,7 @@ export async function loadScreenRows(screenId: string): Promise<RenderReadModelR
 		componentIds.length > 0
 			? await readRestRows<RenderComponentChildRow>(TABLES.componentChildren, {
 					component_id: inFilter(componentIds),
-					select: "component_id,order_index,catalog_component_type,variant,props",
+					select: "id,component_id,order_index,catalog_component_type,variant,props",
 				})
 			: [];
 

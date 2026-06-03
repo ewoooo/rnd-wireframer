@@ -29,6 +29,43 @@ describe("@cx/adapters/table", () => {
 			layout: "layout.composite.componentTextField",
 		});
 		expect(componentWrapper?.children?.map((child) => child.type)).toEqual(["TextField", "Button"]);
+		expect(componentWrapper?.children?.[1]?.props).toEqual({
+			label: "확인",
+			variant: "secondary",
+		});
+	});
+
+	it("materializes child variant into props when props does not already define variant", () => {
+		const result = materializeRenderScreenFromRows({
+			rows: {
+				...renderRowsFixture,
+				areaChildren: [{ area_id: "field-area", component_id: "badge", order_index: 0 }],
+				componentChildren: [
+					{
+						catalog_component_type: "Badge",
+						component_id: "badge",
+						order_index: 0,
+						props: { children: "가입가능" },
+						variant: "blue",
+					},
+				],
+				components: [
+					{
+						id: "badge",
+						layout_id: "layout.composite.componentBadge",
+						name: "Badge",
+						type: "Badge",
+						version: "1.0.0",
+					},
+				],
+			},
+			screenId: "screen-1",
+		});
+
+		expect(result.node?.children[1].children[0]?.children?.[0]?.props).toEqual({
+			children: "가입가능",
+			variant: "blue",
+		});
 	});
 
 	it("reports missing references instead of silently dropping children", () => {
@@ -80,6 +117,7 @@ const renderRowsFixture = {
 			component_id: "name-field",
 			order_index: 1,
 			props: { label: "확인" },
+			variant: "secondary",
 		},
 	],
 	components: [

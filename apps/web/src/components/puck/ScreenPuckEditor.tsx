@@ -91,8 +91,12 @@ function normalizePuckItem(item: Data["content"][number]): PuckScreenItem {
 		type: item.type,
 		props: {
 			id: props.id ?? nodeId,
+			itemKind: props.itemKind ?? "screen-region-child",
 			nodeId,
 			nodePropsJson: props.nodePropsJson,
+			orderIndex: props.orderIndex,
+			parentId: props.parentId,
+			relationId: props.relationId,
 			title: props.title,
 			variant: props.variant,
 		},

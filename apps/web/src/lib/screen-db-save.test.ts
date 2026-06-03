@@ -31,11 +31,13 @@ describe("screen-db-save", () => {
 		expect(result.screenRegionChildren).toEqual([
 			{
 				area_id: "area-b",
+				id: "region-child-b",
 				order_index: 0,
 				screen_region_id: "screen-1.contents",
 			},
 			{
 				area_id: "area-a",
+				id: "region-child-a",
 				order_index: 1,
 				screen_region_id: "screen-1.contents",
 			},
@@ -44,16 +46,19 @@ describe("screen-db-save", () => {
 			{
 				area_id: "area-b",
 				component_id: "component-c",
+				id: "area-child-c",
 				order_index: 0,
 			},
 			{
 				area_id: "area-a",
 				component_id: "component-b",
+				id: "area-child-b",
 				order_index: 0,
 			},
 			{
 				area_id: "area-a",
 				component_id: "component-a",
+				id: "area-child-a",
 				order_index: 1,
 			},
 		]);
@@ -61,6 +66,7 @@ describe("screen-db-save", () => {
 			{
 				catalog_component_type: "ListCell",
 				component_id: "component-c",
+				id: "component-child-c",
 				order_index: 0,
 				props: null,
 				variant: "default",
@@ -68,6 +74,7 @@ describe("screen-db-save", () => {
 			{
 				catalog_component_type: "Button",
 				component_id: "component-b",
+				id: "component-child-b",
 				order_index: 0,
 				props: { label: "수정된 버튼" },
 				variant: "primary",
@@ -75,6 +82,7 @@ describe("screen-db-save", () => {
 			{
 				catalog_component_type: "TextField",
 				component_id: "component-a",
+				id: "component-child-a",
 				order_index: 0,
 				props: null,
 				variant: null,
@@ -179,9 +187,24 @@ const screenNode = {
 
 const rows = {
 	areaChildren: [
-		{ area_id: "area-a", component_id: "component-a", order_index: 0 },
-		{ area_id: "area-a", component_id: "component-b", order_index: 1 },
-		{ area_id: "area-b", component_id: "component-c", order_index: 0 },
+		{
+			area_id: "area-a",
+			component_id: "component-a",
+			id: "area-child-a",
+			order_index: 0,
+		},
+		{
+			area_id: "area-a",
+			component_id: "component-b",
+			id: "area-child-b",
+			order_index: 1,
+		},
+		{
+			area_id: "area-b",
+			component_id: "component-c",
+			id: "area-child-c",
+			order_index: 0,
+		},
 	],
 	areas: [
 		{
@@ -201,12 +224,14 @@ const rows = {
 		{
 			catalog_component_type: "TextField",
 			component_id: "component-a",
+			id: "component-child-a",
 			order_index: 0,
 			props: { label: "이름" },
 		},
 		{
 			catalog_component_type: "Button",
 			component_id: "component-b",
+			id: "component-child-b",
 			order_index: 0,
 			props: { label: "확인" },
 			variant: "primary",
@@ -214,6 +239,7 @@ const rows = {
 		{
 			catalog_component_type: "ListCell",
 			component_id: "component-c",
+			id: "component-child-c",
 			order_index: 0,
 			variant: "default",
 		},
@@ -239,8 +265,18 @@ const rows = {
 		},
 	],
 	screenRegionChildren: [
-		{ area_id: "area-a", order_index: 0, screen_region_id: "screen-1.contents" },
-		{ area_id: "area-b", order_index: 1, screen_region_id: "screen-1.contents" },
+		{
+			area_id: "area-a",
+			id: "region-child-a",
+			order_index: 0,
+			screen_region_id: "screen-1.contents",
+		},
+		{
+			area_id: "area-b",
+			id: "region-child-b",
+			order_index: 1,
+			screen_region_id: "screen-1.contents",
+		},
 	],
 	screenRegions: [
 		{

@@ -46,6 +46,7 @@ export type RenderScreenRegionRow = {
 
 export type RenderScreenRegionChildRow = {
 	area_id: string;
+	id?: string;
 	order_index: number;
 	screen_region_id: string;
 };
@@ -64,6 +65,7 @@ export type RenderAreaRow = {
 export type RenderAreaChildRow = {
 	area_id: string;
 	component_id: string;
+	id?: string;
 	order_index: number;
 };
 
@@ -82,6 +84,7 @@ export type RenderComponentRow = {
 export type RenderComponentChildRow = {
 	catalog_component_type: string;
 	component_id: string;
+	id?: string;
 	order_index: number;
 	props?: Record<string, SchemaPropValue> | null;
 	variant?: string | null;

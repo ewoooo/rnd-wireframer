@@ -273,7 +273,7 @@ function materializeComponent(
 	if (childRows.length <= 1) {
 		return {
 			...common,
-			props: firstChild?.props ?? undefined,
+			props: firstChild ? materializeComponentChildProps(firstChild) : undefined,
 		};
 	}
 
@@ -286,8 +286,18 @@ function materializeComponent(
 				id: `${component.id}.${index}`,
 				title: child.catalog_component_type,
 			},
-			props: child.props ?? undefined,
+			props: materializeComponentChildProps(child),
 		})),
+	};
+}
+
+function materializeComponentChildProps(
+	child: RenderComponentChildRow,
+): MaterializedRenderTreeNode["props"] {
+	if (!child.variant) return child.props ?? undefined;
+	return {
+		variant: child.variant,
+		...(child.props ?? {}),
 	};
 }
 

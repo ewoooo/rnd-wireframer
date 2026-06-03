@@ -1,9 +1,12 @@
 import {
 	applyPuckAreaData,
+	applyPuckComponentData,
 	applyPuckScreenData,
 	puckAreaDataToRenderTree,
+	puckComponentDataToRenderTree,
 	puckScreenDataToRenderTree,
 	renderTreeToPuckAreaData,
+	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
 } from "@cx/adapters/puck";
 import type { RenderTreeNodeContract, RenderTreeScreenNodeContract } from "@cx/schema";
@@ -19,8 +22,11 @@ describe("@cx/adapters/puck", () => {
 					type: "area-a",
 					props: {
 						id: "area-a",
+						itemKind: "screen-region-child",
 						nodeId: "area-a",
 						nodePropsJson: "{}",
+						orderIndex: 0,
+						parentId: "screen-1.contents",
 						title: "Area A",
 					},
 				},
@@ -28,8 +34,11 @@ describe("@cx/adapters/puck", () => {
 					type: "area-b",
 					props: {
 						id: "area-b",
+						itemKind: "screen-region-child",
 						nodeId: "area-b",
 						nodePropsJson: "{}",
+						orderIndex: 1,
+						parentId: "screen-1.contents",
 						title: "Area B",
 					},
 				},
@@ -45,8 +54,14 @@ describe("@cx/adapters/puck", () => {
 			data: {
 				...renderTreeToPuckScreenData(screenFixture),
 				content: [
-					{ type: "area-b", props: { id: "area-b", nodeId: "area-b" } },
-					{ type: "area-a", props: { id: "area-a", nodeId: "area-a" } },
+					{
+						type: "area-b",
+						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+					},
+					{
+						type: "area-a",
+						props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+					},
 				],
 			},
 		});
@@ -69,9 +84,22 @@ describe("@cx/adapters/puck", () => {
 				root: { props: {} },
 				zones: {},
 				content: [
-					{ type: "missing", props: { id: "missing", nodeId: "missing" } },
-					{ type: "area-b", props: { id: "area-b", nodeId: "area-b" } },
-					{ type: "area-b", props: { id: "area-b-duplicate", nodeId: "area-b" } },
+					{
+						type: "missing",
+						props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
+					},
+					{
+						type: "area-b",
+						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+					},
+					{
+						type: "area-b",
+						props: {
+							id: "area-b-duplicate",
+							itemKind: "screen-region-child",
+							nodeId: "area-b",
+						},
+					},
 				],
 			},
 		});
@@ -97,8 +125,14 @@ describe("@cx/adapters/puck", () => {
 			data: {
 				...data,
 				content: [
-					{ type: "component-b", props: { id: "component-b", nodeId: "component-b" } },
-					{ type: "component-a", props: { id: "component-a", nodeId: "component-a" } },
+					{
+						type: "component-b",
+						props: { id: "component-b", itemKind: "area-child", nodeId: "component-b" },
+					},
+					{
+						type: "component-a",
+						props: { id: "component-a", itemKind: "area-child", nodeId: "component-a" },
+					},
 				],
 			},
 		});
@@ -125,6 +159,7 @@ describe("@cx/adapters/puck", () => {
 						type: "component-a",
 						props: {
 							id: "component-a",
+							itemKind: "area-child",
 							nodeId: "component-a",
 							nodePropsJson: JSON.stringify({ label: "고객명" }),
 							title: "Edited Component A",
@@ -134,6 +169,7 @@ describe("@cx/adapters/puck", () => {
 						type: "component-b",
 						props: {
 							id: "component-b",
+							itemKind: "area-child",
 							nodeId: "component-b",
 							nodePropsJson: "{}",
 						},
@@ -160,6 +196,7 @@ describe("@cx/adapters/puck", () => {
 						type: "component-a",
 						props: {
 							id: "component-a",
+							itemKind: "area-child",
 							nodeId: "component-a",
 							nodePropsJson: "{",
 						},
@@ -189,6 +226,63 @@ describe("@cx/adapters/puck", () => {
 				data: renderTreeToPuckAreaData(screenFixture.children[1].children[0]),
 			}).type,
 		).toBe("area.static");
+		expect(
+			puckComponentDataToRenderTree({
+				component: componentWrapperFixture,
+				data: renderTreeToPuckComponentData({ component: componentWrapperFixture }),
+			}).type,
+		).toBe("ComponentWrapper");
+	});
+
+	it("converts component child rows into Puck items and reorders component children", () => {
+		const data = renderTreeToPuckComponentData({
+			component: componentWrapperFixture,
+			componentChildren: [
+				{
+					catalog_component_type: "TextField",
+					component_id: "component-wrapper",
+					id: "component-child-a",
+					order_index: 0,
+					props: { label: "이름" },
+				},
+				{
+					catalog_component_type: "Button",
+					component_id: "component-wrapper",
+					id: "component-child-b",
+					order_index: 1,
+					props: { label: "확인" },
+				},
+			],
+		});
+
+		expect(data.content.map((item) => item.props)).toMatchObject([
+			{
+				itemKind: "component-child",
+				nodeId: "component-wrapper.0",
+				parentId: "component-wrapper",
+				relationId: "component-child-a",
+			},
+			{
+				itemKind: "component-child",
+				nodeId: "component-wrapper.1",
+				parentId: "component-wrapper",
+				relationId: "component-child-b",
+			},
+		]);
+
+		const result = applyPuckComponentData({
+			component: componentWrapperFixture,
+			data: {
+				...data,
+				content: [data.content[1], data.content[0]],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.map((child) => child.metadata.id)).toEqual([
+			"component-wrapper.1",
+			"component-wrapper.0",
+		]);
 	});
 });
 
@@ -202,6 +296,26 @@ const componentB = createNode({
 	id: "component-b",
 	title: "Component B",
 	type: "Button",
+});
+
+const componentWrapperFixture = createNode({
+	children: [
+		createNode({
+			id: "component-wrapper.0",
+			props: { label: "이름" },
+			title: "TextField",
+			type: "TextField",
+		}),
+		createNode({
+			id: "component-wrapper.1",
+			props: { label: "확인" },
+			title: "Button",
+			type: "Button",
+		}),
+	],
+	id: "component-wrapper",
+	title: "Component wrapper",
+	type: "ComponentWrapper",
 });
 
 const areaA = createNode({
@@ -262,6 +376,7 @@ function createNode(input: {
 	children?: RenderTreeNodeContract[];
 	id: string;
 	layout?: string;
+	props?: RenderTreeNodeContract["props"];
 	title: string;
 	type: string;
 }): RenderTreeNodeContract {
@@ -273,6 +388,7 @@ function createNode(input: {
 			id: input.id,
 			title: input.title,
 		},
+		props: input.props,
 		children: input.children,
 	};
 }
