@@ -8,44 +8,78 @@ import {
 	renderTreeToPuckAreaData,
 	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
+	screenRegionSlotNames,
+	screenRegionZoneIds,
 } from "@cx/adapters/puck";
 import type { RenderTreeNodeContract, RenderTreeScreenNodeContract } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
 describe("@cx/adapters/puck", () => {
-	it("converts Screen.Contents area children into stable Puck items", () => {
+	it("converts screen regions into stable Puck slot items", () => {
 		const data = renderTreeToPuckScreenData(screenFixture);
 
 		expect(data).toEqual({
-			content: [
-				{
-					type: "area-a",
-					props: {
-						id: "area-a",
-						itemKind: "screen-region-child",
-						nodeId: "area-a",
-						nodePropsJson: "{}",
-						orderIndex: 0,
-						parentId: "screen-1.contents",
-						title: "Area A",
-					},
+			content: [],
+			root: {
+				props: {
+					[screenRegionSlotNames.header]: [],
+					[screenRegionSlotNames.contents]: [
+						{
+							type: "area-a",
+							props: {
+								id: "area-a",
+								itemKind: "screen-region-child",
+								nodeId: "area-a",
+								nodePropsJson: "{}",
+								title: "Area A",
+							},
+						},
+						{
+							type: "area-b",
+							props: {
+								id: "area-b",
+								itemKind: "screen-region-child",
+								nodeId: "area-b",
+								nodePropsJson: "{}",
+								title: "Area B",
+							},
+						},
+					],
+					[screenRegionSlotNames.bottom]: [],
 				},
-				{
-					type: "area-b",
-					props: {
-						id: "area-b",
-						itemKind: "screen-region-child",
-						nodeId: "area-b",
-						nodePropsJson: "{}",
-						orderIndex: 1,
-						parentId: "screen-1.contents",
-						title: "Area B",
-					},
-				},
-			],
-			root: { props: {} },
+			},
 			zones: {},
 		});
+	});
+
+	it("keeps reading legacy screen region zones while applying Puck data", () => {
+		const result = applyPuckScreenData({
+			screen: screenFixture,
+			data: {
+				content: [],
+				root: { props: {} },
+				zones: {
+					[screenRegionZoneIds.header]: [],
+					[screenRegionZoneIds.contents]: [
+						{
+							type: "area-a",
+							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+						},
+						{
+							type: "area-b",
+							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+						},
+					],
+					[screenRegionZoneIds.bottom]: [],
+				},
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([
+			"area-a",
+			"area-b",
+		]);
 	});
 
 	it("applies Puck screen order as a full RenderTree candidate without mutating the source", () => {
@@ -53,16 +87,22 @@ describe("@cx/adapters/puck", () => {
 			screen: screenFixture,
 			data: {
 				...renderTreeToPuckScreenData(screenFixture),
-				content: [
-					{
-						type: "area-b",
-						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [],
+						[screenRegionSlotNames.contents]: [
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+							{
+								type: "area-a",
+								props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+							},
+						],
+						[screenRegionSlotNames.bottom]: [],
 					},
-					{
-						type: "area-a",
-						props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
-					},
-				],
+				},
 			},
 		});
 
@@ -77,30 +117,36 @@ describe("@cx/adapters/puck", () => {
 		]);
 	});
 
-	it("keeps unmentioned screen children and reports unknown or duplicate Puck items", () => {
+	it("excludes unmentioned screen children and reports unknown or duplicate Puck items", () => {
 		const result = applyPuckScreenData({
 			screen: screenFixture,
 			data: {
-				root: { props: {} },
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [],
+						[screenRegionSlotNames.contents]: [
+							{
+								type: "missing",
+								props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
+							},
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+							{
+								type: "area-b",
+								props: {
+									id: "area-b-duplicate",
+									itemKind: "screen-region-child",
+									nodeId: "area-b",
+								},
+							},
+						],
+						[screenRegionSlotNames.bottom]: [],
+					},
+				},
 				zones: {},
-				content: [
-					{
-						type: "missing",
-						props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
-					},
-					{
-						type: "area-b",
-						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-					},
-					{
-						type: "area-b",
-						props: {
-							id: "area-b-duplicate",
-							itemKind: "screen-region-child",
-							nodeId: "area-b",
-						},
-					},
-				],
+				content: [],
 			},
 		});
 
@@ -108,10 +154,38 @@ describe("@cx/adapters/puck", () => {
 			{ code: "unknown_node", id: "missing", severity: "warning" },
 			{ code: "duplicate_node", id: "area-b", severity: "warning" },
 		]);
-		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([
-			"area-b",
-			"area-a",
-		]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual(["area-b"]);
+	});
+
+	it("moves screen children across header, contents, and bottom zones", () => {
+		const result = applyPuckScreenData({
+			screen: screenFixture,
+			data: {
+				...renderTreeToPuckScreenData(screenFixture),
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [
+							{
+								type: "area-a",
+								props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+							},
+						],
+						[screenRegionSlotNames.contents]: [],
+						[screenRegionSlotNames.bottom]: [
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+						],
+					},
+				},
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children[0].children?.map((child) => child.metadata.id)).toEqual(["area-a"]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([]);
+		expect(result.node.children[2].children?.map((child) => child.metadata.id)).toEqual(["area-b"]);
 	});
 
 	it("converts and reorders area component children", () => {
@@ -148,6 +222,51 @@ describe("@cx/adapters/puck", () => {
 		]);
 	});
 
+	it("mounts inserted catalog items as temporary RenderTree nodes", () => {
+		const area = screenFixture.children[1].children[0];
+		const result = applyPuckAreaData({
+			area,
+			catalogItems: [
+				{
+					defaultProps: { label: "추가 버튼", variant: "primary" },
+					nodeType: "Button",
+					puckType: "catalog:Button",
+					title: "Button",
+				},
+			],
+			data: {
+				...renderTreeToPuckAreaData(area),
+				content: [
+					{
+						type: "component-a",
+						props: { id: "component-a", itemKind: "area-child", nodeId: "component-a" },
+					},
+					{
+						type: "catalog:Button",
+						props: {
+							id: "inserted-button",
+							itemKind: "area-child",
+							nodeId: "inserted-button",
+							nodePropsJson: JSON.stringify({ label: "수정된 버튼" }),
+							title: "Mounted Button",
+						},
+					},
+				],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.map((child) => child.metadata.id)).toEqual([
+			"component-a",
+			"tmp:inserted-button",
+		]);
+		expect(result.node.children?.[1]).toMatchObject({
+			metadata: { title: "Mounted Button" },
+			props: { label: "수정된 버튼" },
+			type: "Button",
+		});
+	});
+
 	it("applies edited title and props JSON from Puck data", () => {
 		const area = screenFixture.children[1].children[0];
 		const result = applyPuckAreaData({
@@ -182,6 +301,36 @@ describe("@cx/adapters/puck", () => {
 		expect(result.node.children?.[0]).toMatchObject({
 			metadata: { title: "Edited Component A" },
 			props: { label: "고객명" },
+		});
+	});
+
+	it("merges typed Puck field props into RenderTree props", () => {
+		const area = screenFixture.children[1].children[0];
+		const result = applyPuckAreaData({
+			area,
+			data: {
+				...renderTreeToPuckAreaData(area),
+				content: [
+					{
+						type: "component-b",
+						props: {
+							id: "component-b",
+							itemKind: "area-child",
+							label: "typed label",
+							nodeId: "component-b",
+							nodePropsJson: JSON.stringify({ label: "json label", size: "medium" }),
+							variant: "primary",
+						},
+					},
+				],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.[0]?.props).toEqual({
+			label: "typed label",
+			size: "medium",
+			variant: "primary",
 		});
 	});
 
@@ -259,14 +408,10 @@ describe("@cx/adapters/puck", () => {
 			{
 				itemKind: "component-child",
 				nodeId: "component-wrapper.0",
-				parentId: "component-wrapper",
-				relationId: "component-child-a",
 			},
 			{
 				itemKind: "component-child",
 				nodeId: "component-wrapper.1",
-				parentId: "component-wrapper",
-				relationId: "component-child-b",
 			},
 		]);
 

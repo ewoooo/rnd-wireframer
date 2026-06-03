@@ -125,6 +125,52 @@ describe("screen-db-save", () => {
 			severity: "error",
 		});
 	});
+
+	it("does not project temporary Puck ids into DB child rows", () => {
+		const result = projectScreenTreeOrder({
+			node: {
+				...screenNode,
+				children: [
+					screenNode.children[0],
+					{
+						...screenNode.children[1],
+						children: [
+							{
+								...areaA,
+								children: [
+									componentA,
+									{
+										componentVersion: "1.0.0",
+										metadata: { id: "tmp:inserted-button", title: "Inserted Button" },
+										props: { label: "임시 버튼" },
+										type: "Button",
+									},
+								],
+							},
+						],
+					},
+					screenNode.children[2],
+				],
+			},
+			rows,
+			screenId: "screen-1",
+		});
+
+		expect(result.diagnostics).toContainEqual({
+			code: "missing_component",
+			id: "tmp:inserted-button",
+			parentId: "area-a",
+			severity: "error",
+		});
+		expect(result.areaChildren).toEqual([
+			{
+				area_id: "area-a",
+				component_id: "component-a",
+				id: "area-child-a",
+				order_index: 0,
+			},
+		]);
+	});
 });
 
 const componentA = {

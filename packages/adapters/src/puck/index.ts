@@ -10,28 +10,48 @@ import type {
 } from "../table/types";
 
 export type ItemKind = "screen-region-child" | "area-child" | "component-child";
+export type ScreenRegionType = "header" | "contents" | "bottom";
+
+export const screenRegionZoneIds = {
+	bottom: "root:screen.bottom",
+	contents: "root:screen.contents",
+	header: "root:screen.header",
+} satisfies Record<ScreenRegionType, string>;
+
+export const screenRegionSlotNames = {
+	bottom: "bottom",
+	contents: "contents",
+	header: "header",
+} as const satisfies Record<ScreenRegionType, ScreenRegionType>;
 
 export type PuckScreenItem = {
 	props: {
+		[propName: string]: unknown;
 		id: string;
 		itemKind: ItemKind;
 		nodeId: string;
 		nodePropsJson?: string;
-		orderIndex?: number;
-		parentId?: string;
-		relationId?: string;
 		title?: string;
 		variant?: string;
 	};
 	type: string;
 };
 
+export type PuckCatalogItem = {
+	componentVersion?: string;
+	defaultChildren?: RenderTreeNodeContract[];
+	defaultProps?: RenderTreeNodeContract["props"];
+	nodeType: string;
+	puckType: string;
+	title: string;
+};
+
 export type PuckScreenData = {
 	content: PuckScreenItem[];
 	root: {
-		props: Record<string, never>;
+		props: Partial<Record<ScreenRegionType, PuckScreenItem[]>>;
 	};
-	zones: Record<string, never>;
+	zones: Record<string, PuckScreenItem[]>;
 };
 
 export type PuckAdapterDiagnostic = {
@@ -40,6 +60,7 @@ export type PuckAdapterDiagnostic = {
 		| "invalid_node_props_json"
 		| "missing_contents_region"
 		| "missing_node_id"
+		| "unknown_catalog_item"
 		| "unknown_node";
 	id?: string;
 	severity: "error" | "warning";
@@ -59,15 +80,30 @@ export function renderTreeToPuckScreenData(
 		  },
 ): PuckScreenData {
 	const screen = "screen" in input ? input.screen : input;
-	const contents = findScreenContents(screen);
+	const header = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenHeader);
+	const contents = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenContents);
+	const bottom = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenBottom);
 
-	return createPuckData({
-		bindings: input && "screenRegionChildren" in input ? input.screenRegionChildren : undefined,
-		children: contents?.children ?? [],
-		itemKind: "screen-region-child",
-		parentId: contents?.metadata.id,
-		readBindingChildId: (binding) => binding.area_id,
-	});
+	return {
+		content: [],
+		root: {
+			props: {
+				[screenRegionSlotNames.header]: createPuckItems(
+					header?.children ?? [],
+					"screen-region-child",
+				),
+				[screenRegionSlotNames.contents]: createPuckItems(
+					contents?.children ?? [],
+					"screen-region-child",
+				),
+				[screenRegionSlotNames.bottom]: createPuckItems(
+					bottom?.children ?? [],
+					"screen-region-child",
+				),
+			},
+		},
+		zones: {},
+	};
 }
 
 export function renderTreeToPuckAreaData(
@@ -80,11 +116,8 @@ export function renderTreeToPuckAreaData(
 ): PuckScreenData {
 	const area = "area" in input ? input.area : input;
 	return createPuckData({
-		bindings: input && "areaChildren" in input ? input.areaChildren : undefined,
 		children: area.children ?? [],
 		itemKind: "area-child",
-		parentId: area.metadata.id,
-		readBindingChildId: (binding) => binding.component_id,
 	});
 }
 
@@ -94,20 +127,20 @@ export function renderTreeToPuckComponentData(input: {
 }): PuckScreenData {
 	const componentChildren = input.component.children ?? [input.component];
 	return createPuckData({
-		bindings: input.componentChildren,
 		children: componentChildren,
 		itemKind: "component-child",
-		parentId: input.component.metadata.id,
-		readBindingChildId: (_binding, index) => componentChildren[index]?.metadata.id,
 	});
 }
 
 export function applyPuckScreenData(input: {
+	catalogItems?: PuckCatalogItem[];
 	data: PuckScreenData;
 	screen: RenderTreeScreenNodeContract;
 }): ApplyPuckDataResult<RenderTreeScreenNodeContract> {
 	const screen = cloneScreenNode(input.screen);
-	const contents = findScreenContents(screen);
+	const header = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenHeader);
+	const contents = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenContents);
+	const bottom = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenBottom);
 
 	if (!contents) {
 		return {
@@ -116,24 +149,61 @@ export function applyPuckScreenData(input: {
 		};
 	}
 
-	const result = reorderChildren({
-		children: contents.children,
-		items: input.data.content,
-	});
-	contents.children = result.children;
+	const diagnostics: PuckAdapterDiagnostic[] = [];
+	const consumedIds = new Set<string>();
+	const sourceChildren = screen.children.flatMap((region) => region.children ?? []);
+	if (header) {
+		header.children = reorderChildren({
+			consumedIds,
+			catalogItems: input.catalogItems,
+			diagnostics,
+			sourceChildren,
+			items: readScreenRegionItems(input.data, "header"),
+		}).children;
+	}
+	contents.children = reorderChildren({
+		consumedIds,
+		catalogItems: input.catalogItems,
+		diagnostics,
+		sourceChildren,
+		items: readScreenRegionItems(input.data, "contents", input.data.content),
+	}).children;
+	if (bottom) {
+		bottom.children = reorderChildren({
+			consumedIds,
+			catalogItems: input.catalogItems,
+			diagnostics,
+			sourceChildren,
+			items: readScreenRegionItems(input.data, "bottom"),
+		}).children;
+	}
 
 	return {
-		diagnostics: result.diagnostics,
+		diagnostics,
 		node: screen,
 	};
 }
 
+function readScreenRegionItems(
+	data: PuckScreenData,
+	region: ScreenRegionType,
+	fallback: PuckScreenItem[] = [],
+) {
+	return (
+		data.root.props[screenRegionSlotNames[region]] ??
+		data.zones[screenRegionZoneIds[region]] ??
+		fallback
+	);
+}
+
 export function applyPuckAreaData(input: {
 	area: RenderTreeNodeContract;
+	catalogItems?: PuckCatalogItem[];
 	data: PuckScreenData;
 }): ApplyPuckDataResult<RenderTreeNodeContract> {
 	const area = cloneNode(input.area);
 	const result = reorderChildren({
+		catalogItems: input.catalogItems,
 		children: area.children ?? [],
 		items: input.data.content,
 	});
@@ -146,12 +216,14 @@ export function applyPuckAreaData(input: {
 }
 
 export function applyPuckComponentData(input: {
+	catalogItems?: PuckCatalogItem[];
 	component: RenderTreeNodeContract;
 	data: PuckScreenData;
 }): ApplyPuckDataResult<RenderTreeNodeContract> {
 	const component = cloneNode(input.component);
 	if (!component.children?.length) {
 		const result = reorderChildren({
+			catalogItems: input.catalogItems,
 			children: [component],
 			items: input.data.content,
 		});
@@ -162,6 +234,7 @@ export function applyPuckComponentData(input: {
 	}
 
 	const result = reorderChildren({
+		catalogItems: input.catalogItems,
 		children: component.children,
 		items: input.data.content,
 	});
@@ -194,53 +267,57 @@ export function puckComponentDataToRenderTree(input: {
 	return applyPuckComponentData(input).node;
 }
 
-function createPuckData<Binding extends { id?: string; order_index: number }>(input: {
-	bindings?: Binding[];
+function createPuckData(input: {
 	children: RenderTreeNodeContract[];
 	itemKind: ItemKind;
-	parentId?: string;
-	readBindingChildId: (binding: Binding, index: number) => string | undefined;
 }): PuckScreenData {
-	const bindingsByChildId = new Map<string, Binding>();
-	for (const [index, binding] of (input.bindings ?? []).entries()) {
-		const childId = input.readBindingChildId(binding, index);
-		if (childId) bindingsByChildId.set(childId, binding);
-	}
-
 	return {
-		content: input.children.map((child, index) => {
-			const binding = bindingsByChildId.get(child.metadata.id);
-			const props: PuckScreenItem["props"] = {
-				id: child.metadata.id,
-				itemKind: input.itemKind,
-				nodeId: child.metadata.id,
-				nodePropsJson: stringifyNodeProps(child.props),
-				orderIndex: binding?.order_index ?? index,
-				title: child.metadata.title,
-			};
-			if (input.parentId) props.parentId = input.parentId;
-			if (binding?.id) props.relationId = binding.id;
-			return {
-				type: child.metadata.id,
-				props,
-			};
-		}),
+		content: createPuckItems(input.children, input.itemKind),
 		root: { props: {} },
 		zones: {},
 	};
 }
 
-function findScreenContents(screen: RenderTreeScreenNodeContract) {
-	return screen.children.find((child) => child.type === RENDER_TREE_NODE_TYPE.screenContents);
+function createPuckItems(children: RenderTreeNodeContract[], itemKind: ItemKind): PuckScreenItem[] {
+	return children.map((child) => {
+		const props: PuckScreenItem["props"] = {
+			...readEditableNodeProps(child.props),
+			id: child.metadata.id,
+			itemKind,
+			nodeId: child.metadata.id,
+			nodePropsJson: stringifyNodeProps(child.props),
+			title: child.metadata.title,
+		};
+		return {
+			type: child.metadata.id,
+			props,
+		};
+	});
 }
 
-function reorderChildren(input: { children: RenderTreeNodeContract[]; items: PuckScreenItem[] }): {
+function findScreenRegion(screen: RenderTreeScreenNodeContract, type: string) {
+	return screen.children.find((child) => child.type === type);
+}
+
+function reorderChildren(input: {
+	children?: RenderTreeNodeContract[];
+	catalogItems?: PuckCatalogItem[];
+	consumedIds?: Set<string>;
+	diagnostics?: PuckAdapterDiagnostic[];
+	items: PuckScreenItem[];
+	sourceChildren?: RenderTreeNodeContract[];
+}): {
 	children: RenderTreeNodeContract[];
 	diagnostics: PuckAdapterDiagnostic[];
 } {
-	const diagnostics: PuckAdapterDiagnostic[] = [];
-	const childById = new Map(input.children.map((child) => [child.metadata.id, child]));
-	const consumedIds = new Set<string>();
+	const diagnostics = input.diagnostics ?? [];
+	const childById = new Map(
+		(input.sourceChildren ?? input.children ?? []).map((child) => [child.metadata.id, child]),
+	);
+	const catalogByPuckType = new Map(
+		(input.catalogItems ?? []).map((item) => [item.puckType, item]),
+	);
+	const consumedIds = input.consumedIds ?? new Set<string>();
 	const nextChildren: RenderTreeNodeContract[] = [];
 
 	for (const item of input.items) {
@@ -256,7 +333,18 @@ function reorderChildren(input: { children: RenderTreeNodeContract[]; items: Puc
 
 		const child = childById.get(nodeId);
 		if (!child) {
-			diagnostics.push({ code: "unknown_node", id: nodeId, severity: "warning" });
+			const catalogItem = catalogByPuckType.get(item.type);
+			if (!catalogItem) {
+				diagnostics.push({ code: "unknown_node", id: nodeId, severity: "warning" });
+				continue;
+			}
+			const nextChild = applyPuckItemToNode(
+				createMountedNode(catalogItem, item),
+				item,
+				diagnostics,
+			);
+			consumedIds.add(nextChild.metadata.id);
+			nextChildren.push(nextChild);
 			continue;
 		}
 
@@ -265,15 +353,26 @@ function reorderChildren(input: { children: RenderTreeNodeContract[]; items: Puc
 		nextChildren.push(nextChild);
 	}
 
-	for (const child of input.children) {
-		if (!consumedIds.has(child.metadata.id)) {
-			nextChildren.push(child);
-		}
-	}
-
 	return {
 		children: nextChildren,
 		diagnostics,
+	};
+}
+
+function createMountedNode(
+	catalogItem: PuckCatalogItem,
+	item: PuckScreenItem,
+): RenderTreeNodeContract {
+	const idSource = item.props.id || item.props.nodeId || catalogItem.puckType;
+	return {
+		children: catalogItem.defaultChildren?.map(cloneNode),
+		componentVersion: catalogItem.componentVersion ?? "1.0.0",
+		metadata: {
+			id: idSource.startsWith("tmp:") ? idSource : `tmp:${idSource}`,
+			title: item.props.title ?? catalogItem.title,
+		},
+		props: catalogItem.defaultProps ? cloneJsonValue(catalogItem.defaultProps) : undefined,
+		type: catalogItem.nodeType,
 	};
 }
 
@@ -299,6 +398,13 @@ function applyPuckItemToNode(
 				severity: "error",
 			});
 		}
+	}
+	const typedProps = readTypedFieldProps(item.props);
+	if (typedProps) {
+		nextNode.props = {
+			...(nextNode.props ?? {}),
+			...typedProps,
+		};
 	}
 
 	return nextNode;
@@ -345,3 +451,26 @@ function parseNodeProps(value: string):
 		return { ok: false };
 	}
 }
+
+function readEditableNodeProps(props: RenderTreeNodeContract["props"]): Record<string, unknown> {
+	if (!props) return {};
+	const editableProps = { ...props };
+	for (const key of puckReservedPropNames) {
+		delete editableProps[key];
+	}
+	return editableProps;
+}
+
+function readTypedFieldProps(
+	props: PuckScreenItem["props"],
+): RenderTreeNodeContract["props"] | undefined {
+	const typedProps: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(props)) {
+		if (puckReservedPropNames.has(key) || value === undefined) continue;
+		typedProps[key] = value;
+	}
+	if (Object.keys(typedProps).length === 0) return undefined;
+	return typedProps as RenderTreeNodeContract["props"];
+}
+
+const puckReservedPropNames = new Set(["id", "itemKind", "nodeId", "nodePropsJson", "title"]);

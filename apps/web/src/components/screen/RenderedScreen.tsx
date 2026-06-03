@@ -9,7 +9,7 @@ interface RenderedScreenProps {
 
 export function RenderedScreen({ data, node }: RenderedScreenProps) {
 	return (
-		<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-3xl border bg-background shadow-xl">
+		<div className="flex h-211 w-98 max-w-full shrink-0 overflow-hidden rounded-3xl border bg-background shadow-xl">
 			{node ? <RenderTreeView data={data} node={node} /> : <EmptyRenderedScreen />}
 		</div>
 	);

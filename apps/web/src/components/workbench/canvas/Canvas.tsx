@@ -1,10 +1,8 @@
-import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
+import { Puck } from "@puckeditor/core";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import type { NavigatorTab } from "@/model/workbench-view-model";
-import { AreaPuckEditor } from "../puck/AreaPuckEditor";
-import { ScreenPuckEditor } from "../puck/ScreenPuckEditor";
-import { RenderedScreen } from "../screen/RenderedScreen";
+import { RenderedScreen } from "../../screen/RenderedScreen";
 import { CanvasToolbar, type SaveState } from "./CanvasToolbar";
 import { ExportToolbar } from "./ExportToolbar";
 
@@ -14,14 +12,10 @@ type CanvasProps = {
 		message?: string;
 		status: "error" | "loading" | "ready";
 	};
-	onAreaCandidateChange?: (screenId: string, node: RenderTreeNode) => void;
-	onAreaCandidatePublish?: (screenId: string, node: RenderTreeNode) => void | Promise<void>;
-	onScreenCandidateChange?: (screenId: string, node: RenderTreeScreenNode) => void;
-	onScreenCandidatePublish?: (screenId: string, node: RenderTreeScreenNode) => void | Promise<void>;
 	onSaveSelectedScreen?: () => void | Promise<void>;
 	onToggleStatusBar?: () => void;
+	renderPuckPreview?: boolean;
 	saveState?: SaveState;
-	selectedArea?: RenderTreeNode;
 	selectedScreen?: ScreenSummary;
 	showStatusBar?: boolean;
 };
@@ -29,14 +23,10 @@ type CanvasProps = {
 export function Canvas({
 	activeTab,
 	loadState = { status: "ready" },
-	onAreaCandidateChange,
-	onAreaCandidatePublish,
-	onScreenCandidateChange,
-	onScreenCandidatePublish,
 	onSaveSelectedScreen,
 	onToggleStatusBar,
+	renderPuckPreview = false,
 	saveState = { status: "idle" },
-	selectedArea,
 	selectedScreen,
 	showStatusBar = true,
 }: CanvasProps) {
@@ -55,7 +45,7 @@ export function Canvas({
 						</h1>
 						{showStatusBar ? (
 							<p className="truncate text-xs text-muted-foreground">
-								{readCanvasContextLabel(activeTab, selectedScreen)}
+								{readCanvasContextLabel(activeTab, selectedScreen, renderPuckPreview)}
 							</p>
 						) : null}
 					</div>
@@ -79,25 +69,17 @@ export function Canvas({
 			</SidebarHeader>
 			<SidebarContent
 				className={
-					isEditorTab
+					isEditorTab && !renderPuckPreview
 						? "overflow-hidden bg-background p-0"
 						: "items-center justify-center overflow-hidden bg-secondary/50 p-6"
 				}
 			>
 				{loadState.status !== "ready" ? (
 					<CanvasLoadState message={loadState.message} status={loadState.status} />
-				) : isPuckTab && selectedScreen?.renderTree ? (
-					<ScreenPuckEditor
-						screen={selectedScreen.renderTree}
-						onCandidateChange={(node) => onScreenCandidateChange?.(selectedScreen.id, node)}
-						onPublishCandidate={(node) => onScreenCandidatePublish?.(selectedScreen.id, node)}
-					/>
-				) : isAreaTab && selectedScreen && selectedArea ? (
-					<AreaPuckEditor
-						area={selectedArea}
-						onCandidateChange={(node) => onAreaCandidateChange?.(selectedScreen.id, node)}
-						onPublishCandidate={(node) => onAreaCandidatePublish?.(selectedScreen.id, node)}
-					/>
+				) : renderPuckPreview ? (
+					<div className="flex h-211 w-98 max-w-full shrink-0 overflow-hidden rounded-3xl border bg-background shadow-xl [&_[class*='PuckPreview']]:h-full [&_[class*='PuckPreview']]:w-full">
+						<Puck.Preview />
+					</div>
 				) : (
 					<RenderedScreen node={selectedScreen?.renderTree} />
 				)}
@@ -117,9 +99,19 @@ function CanvasLoadState({ message, status }: { message?: string; status: "error
 	);
 }
 
-function readCanvasContextLabel(activeTab: NavigatorTab, selectedScreen?: ScreenSummary) {
+function readCanvasContextLabel(
+	activeTab: NavigatorTab,
+	selectedScreen?: ScreenSummary,
+	renderPuckPreview = false,
+) {
 	const tabLabel =
-		activeTab === "puck" ? "Puck Editor" : activeTab === "ogn" ? "Area Editor" : "Preview";
+		activeTab === "scn" && renderPuckPreview
+			? "Screen Editor"
+			: activeTab === "puck"
+				? "Puck Editor"
+				: activeTab === "ogn"
+					? "Area Editor"
+					: "Preview";
 	const routeLabel = selectedScreen?.route ?? selectedScreen?.screenRouteId ?? "No route";
 	const statusLabel = selectedScreen?.status ?? "draft";
 	return `${tabLabel} · ${routeLabel} · ${statusLabel}`;

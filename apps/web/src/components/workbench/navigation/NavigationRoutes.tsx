@@ -10,7 +10,7 @@ import type {
 	ScreenRouteGroup,
 } from "@/model/workbench-view-model";
 
-type NavigationPanelProps = {
+type NavigationRoutesProps = {
 	activeRouteId?: string;
 	activeTab: NavigatorTab;
 	onSelectRoute: (routeId: string) => void;
@@ -20,7 +20,7 @@ type NavigationPanelProps = {
 	selectedScreenId?: string;
 };
 
-export function NavigationPanel({
+export function NavigationRoutes({
 	activeRouteId,
 	activeTab,
 	onSelectRoute,
@@ -28,7 +28,7 @@ export function NavigationPanel({
 	screenModules,
 	screenRoute,
 	selectedScreenId,
-}: NavigationPanelProps) {
+}: NavigationRoutesProps) {
 	return (
 		<Sidebar side="left">
 			{activeTab === "scn" ? (

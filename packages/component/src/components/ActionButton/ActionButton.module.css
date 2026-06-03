@@ -1,10 +1,6 @@
-/* Figma: ActionButton - full-bleed bottom CTA rail, 393x102 contract */
+/* Figma: ActionButton - button wrapper. Bottom rail spacing is owned by BottomActionArea. */
 .root {
 	box-sizing: border-box;
 	display: flex;
 	width: 100%;
-	min-height: 102px;
-	align-items: flex-start;
-	padding: 22px 20px 24px;
-	background: #ffffff;
 }

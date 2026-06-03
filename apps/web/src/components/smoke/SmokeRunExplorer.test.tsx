@@ -6,14 +6,12 @@ import type { SmokeRunSummary } from "@/lib/smoke-runs";
 afterEach(cleanup);
 
 describe("SmokeRunExplorer navigation", () => {
-	it("shows the global navigation rail before the smoke run browser", () => {
+	it("shows the smoke run browser", () => {
 		render(<SmokeRunExplorer runs={[]} />);
 
-		expect(screen.getByRole("navigation", { name: "Workbench navigation" })).toBeInTheDocument();
-		expect(screen.getByRole("link", { name: "SCN" })).toHaveAttribute("href", "/");
-		expect(screen.getByRole("link", { name: "SMK" })).toHaveAttribute("href", "/smoke");
-		expect(screen.getByRole("link", { name: "SMK" })).toHaveAttribute("aria-current", "page");
 		expect(screen.getByRole("heading", { level: 1, name: "Smoke Runs" })).toBeInTheDocument();
+		expect(screen.getByRole("region", { name: "Left runs" })).toBeInTheDocument();
+		expect(screen.getByRole("region", { name: "Right runs" })).toBeInTheDocument();
 	});
 
 	it("selects runs from separate left and right lists", () => {

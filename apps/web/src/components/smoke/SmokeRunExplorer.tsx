@@ -3,7 +3,6 @@
 import type { RenderTree, RenderTreeScreenNode } from "@cx/renderer";
 import { GitCompare, Layers3, ListChecks } from "lucide-react";
 import { useState } from "react";
-import { NavigationRail } from "@/components/layout/NavigationRail";
 import { RenderedScreen } from "@/components/screen/RenderedScreen";
 import { diffRenderTrees } from "@/lib/render-tree-diff";
 import type { SmokeRunManifestLayer, SmokeRunSummary } from "@/lib/smoke-runs";
@@ -21,7 +20,6 @@ export function SmokeRunExplorer({ runs }: SmokeRunExplorerProps) {
 
 	return (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar text-foreground">
-			<NavigationRail activeHref="/smoke" />
 			<div className="grid min-w-0 flex-1 grid-cols-[clamp(220px,32vw,320px)_minmax(0,1fr)] overflow-hidden">
 				<aside className="flex min-h-0 min-w-0 flex-col  overflow-hidden border-r border-sidebar-border bg-background">
 					<div className="border-b px-3 py-2">

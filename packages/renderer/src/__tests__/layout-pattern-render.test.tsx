@@ -349,6 +349,46 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(regionLayoutRoot).toHaveAttribute("data-node-type", "Layout.Flex");
 	});
 
+	it("allows screen region content to be overridden while preserving screen chrome", () => {
+		render(
+			<RenderTreeView
+				node={{
+					type: "Screen",
+					componentVersion: "1.0.0",
+					metadata: { id: "screen", title: "Screen" },
+					children: [
+						{
+							type: "Screen.Header",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.header", title: "Header" },
+							children: [],
+						},
+						{
+							type: "Screen.Contents",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.contents", title: "Contents" },
+							children: [],
+						},
+						{
+							type: "Screen.Bottom",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.bottom", title: "Bottom" },
+							children: [],
+						},
+					],
+				}}
+				renderRegion={({ region }) => <div>{`override:${region}`}</div>}
+			/>,
+		);
+
+		expect(screen.getByText("override:header")).toBeInTheDocument();
+		expect(screen.getByText("override:contents")).toBeInTheDocument();
+		expect(screen.getByText("override:bottom")).toBeInTheDocument();
+		expect(
+			screen.getByText("override:bottom").closest("[data-region='Screen.Bottom']"),
+		).toHaveAttribute("data-node-id", "screen.bottom");
+	});
+
 	it("uses the fixed bottom primitive for bottom action area patterns", () => {
 		render(
 			<RenderNodeView
@@ -374,6 +414,37 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(layoutRoot).toBeInTheDocument();
 		expect(layoutRoot).toHaveStyle({ bottom: "0px", position: "sticky" });
+	});
+
+	it("lets bottom action area own CTA rail spacing", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.action",
+					componentVersion: "0.1.0",
+					layout: "layout.area.bottomActionArea",
+					metadata: { id: "bottom-action", title: "Bottom action" },
+					props: {},
+					children: [
+						{
+							type: "ActionButton",
+							componentVersion: "0.1.0",
+							layout: "layout.composite.componentActionButton",
+							metadata: { id: "confirm-action", title: "Confirm action" },
+							props: { label: "인증 확인", size: "xlarge", variant: "primary" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const button = screen.getByRole("button", { name: "인증 확인" });
+		const actionArea = button.closest("[data-node-id='bottom-action']");
+		const actionWrapper = button.closest("[data-node-id='confirm-action']");
+
+		expect(actionArea).toHaveStyle({ paddingTop: "22px" });
+		expect(actionArea?.getAttribute("style")).toContain("padding-bottom: calc(24px");
+		expect(actionWrapper).not.toHaveStyle({ height: "56px", paddingTop: "22px" });
 	});
 
 	it("renders option collection patterns as grids", () => {

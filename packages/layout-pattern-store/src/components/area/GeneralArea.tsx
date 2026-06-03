@@ -9,7 +9,13 @@ import type { LayoutPatternComponentProps } from "../types";
 
 // 비-PageStack area만 이 파일이 소유한다. PageStack 기반 area는 PageStackArea.tsx.
 export const AreaVerticalArea = createPlainStack({ gap: 0 });
-export const BottomActionArea = createBottomActionArea({ gap: 12, paddingY: 0 });
+export const BottomActionArea = createBottomActionArea({
+	gap: 12,
+	paddingBottom: 24,
+	paddingTop: 22,
+	paddingX: 20,
+	safeArea: true,
+});
 export const ProductHeroSummaryArea = createHeroArea({
 	gap: 12,
 	infoPaddingBottom: 16,
@@ -25,7 +31,14 @@ export const ProductFooterLegalArea = createPlainStack({
 });
 export const AreaAppBarArea = createAppBarArea({ gap: 0 });
 
-function createBottomActionArea(defaults: { gap: number; paddingY?: number }) {
+function createBottomActionArea(defaults: {
+	gap: number;
+	paddingBottom?: number;
+	paddingTop?: number;
+	paddingX?: number;
+	paddingY?: number;
+	safeArea?: boolean;
+}) {
 	return function BottomActionArea({
 		children,
 		className,
@@ -37,7 +50,11 @@ function createBottomActionArea(defaults: { gap: number; paddingY?: number }) {
 				className={className}
 				gap={toNumber(props.gap) ?? toNumber(props.componentGap) ?? defaults.gap}
 				node={flexNode(metadata, "bottom-action-area", "column")}
+				paddingBottom={toNumber(props.paddingBottom) ?? defaults.paddingBottom}
+				paddingTop={toNumber(props.paddingTop) ?? defaults.paddingTop}
+				paddingX={toNumber(props.paddingX) ?? defaults.paddingX}
 				paddingY={toNumber(props.paddingY) ?? defaults.paddingY}
+				safeArea={toBoolean(props.safeArea) ?? defaults.safeArea}
 			>
 				{children}
 			</BottomFixedArea>
@@ -146,4 +163,8 @@ function flexNode(
 
 function toNumber(value: unknown): number | undefined {
 	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function toBoolean(value: unknown): boolean | undefined {
+	return typeof value === "boolean" ? value : undefined;
 }
