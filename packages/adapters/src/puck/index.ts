@@ -17,9 +17,6 @@ export type PuckScreenItem = {
 		itemKind: ItemKind;
 		nodeId: string;
 		nodePropsJson?: string;
-		orderIndex?: number;
-		parentId?: string;
-		relationId?: string;
 		title?: string;
 		variant?: string;
 	};
@@ -62,11 +59,8 @@ export function renderTreeToPuckScreenData(
 	const contents = findScreenContents(screen);
 
 	return createPuckData({
-		bindings: input && "screenRegionChildren" in input ? input.screenRegionChildren : undefined,
 		children: contents?.children ?? [],
 		itemKind: "screen-region-child",
-		parentId: contents?.metadata.id,
-		readBindingChildId: (binding) => binding.area_id,
 	});
 }
 
@@ -80,11 +74,8 @@ export function renderTreeToPuckAreaData(
 ): PuckScreenData {
 	const area = "area" in input ? input.area : input;
 	return createPuckData({
-		bindings: input && "areaChildren" in input ? input.areaChildren : undefined,
 		children: area.children ?? [],
 		itemKind: "area-child",
-		parentId: area.metadata.id,
-		readBindingChildId: (binding) => binding.component_id,
 	});
 }
 
@@ -94,11 +85,8 @@ export function renderTreeToPuckComponentData(input: {
 }): PuckScreenData {
 	const componentChildren = input.component.children ?? [input.component];
 	return createPuckData({
-		bindings: input.componentChildren,
 		children: componentChildren,
 		itemKind: "component-child",
-		parentId: input.component.metadata.id,
-		readBindingChildId: (_binding, index) => componentChildren[index]?.metadata.id,
 	});
 }
 
@@ -194,32 +182,19 @@ export function puckComponentDataToRenderTree(input: {
 	return applyPuckComponentData(input).node;
 }
 
-function createPuckData<Binding extends { id?: string; order_index: number }>(input: {
-	bindings?: Binding[];
+function createPuckData(input: {
 	children: RenderTreeNodeContract[];
 	itemKind: ItemKind;
-	parentId?: string;
-	readBindingChildId: (binding: Binding, index: number) => string | undefined;
 }): PuckScreenData {
-	const bindingsByChildId = new Map<string, Binding>();
-	for (const [index, binding] of (input.bindings ?? []).entries()) {
-		const childId = input.readBindingChildId(binding, index);
-		if (childId) bindingsByChildId.set(childId, binding);
-	}
-
 	return {
-		content: input.children.map((child, index) => {
-			const binding = bindingsByChildId.get(child.metadata.id);
+		content: input.children.map((child) => {
 			const props: PuckScreenItem["props"] = {
 				id: child.metadata.id,
 				itemKind: input.itemKind,
 				nodeId: child.metadata.id,
 				nodePropsJson: stringifyNodeProps(child.props),
-				orderIndex: binding?.order_index ?? index,
 				title: child.metadata.title,
 			};
-			if (input.parentId) props.parentId = input.parentId;
-			if (binding?.id) props.relationId = binding.id;
 			return {
 				type: child.metadata.id,
 				props,
@@ -263,12 +238,6 @@ function reorderChildren(input: { children: RenderTreeNodeContract[]; items: Puc
 		consumedIds.add(nodeId);
 		const nextChild = applyPuckItemToNode(child, item, diagnostics);
 		nextChildren.push(nextChild);
-	}
-
-	for (const child of input.children) {
-		if (!consumedIds.has(child.metadata.id)) {
-			nextChildren.push(child);
-		}
 	}
 
 	return {

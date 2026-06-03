@@ -1,12 +1,21 @@
 "use client";
 
-import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
+import type { RenderTreeScreenNode } from "@cx/renderer";
+import { type Data, Puck } from "@puckeditor/core";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { isPuckEditTab, resolveEditScope } from "@/components/puck/workbench/edit-scope";
+import {
+	applyPuckChangeToScope,
+	buildPuckConfigForScope,
+	buildPuckDataForScope,
+	normalizePuckData,
+	readItemKindForScope,
+} from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import type { SaveState } from "@/components/workbench/canvas/CanvasToolbar";
-import { InspectionPanel } from "@/components/workbench/inspector/InspectionPanel";
+import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
@@ -43,7 +52,9 @@ export function AppShell() {
 	});
 	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
-	const [screenCandidates, setScreenCandidates] = useState<Record<string, RenderTreeScreenNode>>({});
+	const [screenCandidates, setScreenCandidates] = useState<Record<string, RenderTreeScreenNode>>(
+		{},
+	);
 	const [showStatusBar, setShowStatusBar] = useState(true);
 	const initialScreen = getInitialScreen(screens);
 	const [selectedScreenId, setSelectedScreenId] = useState(initialScreen?.id ?? "");
@@ -56,6 +67,15 @@ export function AppShell() {
 			: selectedScreen;
 	const visibleAreas = collectScreenAreas(visibleScreen);
 	const selectedArea = visibleAreas[0];
+	const visibleComponents = collectScreenComponents(visibleScreen);
+	const selectedComponent = visibleComponents[0];
+	const editScope = resolveEditScope({
+		activeTab,
+		selectedArea,
+		selectedComponent,
+		selectedScreen: visibleScreen?.renderTree,
+	});
+	const isEditingWithPuck = isPuckEditTab(activeTab) && !!editScope;
 	const [activeRouteId, setActiveRouteId] = useState(
 		initialScreen?.screenRouteId ?? screenRoutes[0]?.id ?? "",
 	);
@@ -130,31 +150,12 @@ export function AppShell() {
 		setSaveState({ message: "저장됨", status: "saved" });
 	}
 
-	function handleAreaCandidateChange(screenId: string, node: RenderTreeNode) {
-		const currentScreen = readVisibleRenderTree(screenId);
-		if (!currentScreen) return;
-		handleScreenCandidateChange(screenId, replaceRenderTreeNode(currentScreen, node));
-	}
-
-	async function handleAreaCandidatePublish(screenId: string, node: RenderTreeNode) {
-		const currentScreen = readVisibleRenderTree(screenId);
-		if (!currentScreen) return;
-		await handleScreenCandidatePublish(screenId, replaceRenderTreeNode(currentScreen, node));
-	}
-
-	function readVisibleRenderTree(screenId: string) {
-		return (
-			screenCandidates[screenId] ??
-			screens.find((screen) => screen.id === screenId)?.renderTree
-		);
-	}
-
 	async function handleSaveSelectedScreen() {
 		if (!visibleScreen?.renderTree) return;
 		await handleScreenCandidatePublish(visibleScreen.id, visibleScreen.renderTree);
 	}
 
-	return (
+	const workbenchLayout = (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
 			<SidebarProvider
 				className="min-h-0 flex-1 overflow-hidden"
@@ -173,25 +174,45 @@ export function AppShell() {
 				<Canvas
 					activeTab={activeTab}
 					loadState={loadState}
-					onAreaCandidateChange={handleAreaCandidateChange}
-					onAreaCandidatePublish={handleAreaCandidatePublish}
 					onSaveSelectedScreen={handleSaveSelectedScreen}
-					onScreenCandidateChange={handleScreenCandidateChange}
-					onScreenCandidatePublish={handleScreenCandidatePublish}
 					onToggleStatusBar={() => setShowStatusBar((current) => !current)}
+					renderPuckPreview={isEditingWithPuck}
 					saveState={saveState}
-					selectedArea={selectedArea}
 					selectedScreen={visibleScreen}
 					showStatusBar={showStatusBar}
 				/>
-				<InspectionPanel
-					activeTab={activeTab}
-					areas={visibleAreas}
-					components={collectScreenComponents(visibleScreen)}
-					screen={visibleScreen}
-				/>
+				<EditSidebar scope={editScope} />
 			</SidebarProvider>
 		</main>
+	);
+
+	if (!isEditingWithPuck || !editScope || !visibleScreen) return workbenchLayout;
+
+	function handlePuckChange(nextData: Data) {
+		if (!editScope || !visibleScreen) return;
+		const puckData = normalizePuckData(nextData, readItemKindForScope(editScope));
+		const nextScreen = applyPuckChangeToScope({ data: puckData, scope: editScope });
+		handleScreenCandidateChange(visibleScreen.id, nextScreen);
+	}
+
+	return (
+		<Puck
+			key={`${visibleScreen.id}:${activeTab}:${editScope.kind}:${readEditScopeKey(editScope)}`}
+			config={buildPuckConfigForScope(editScope)}
+			data={buildPuckDataForScope(editScope) as Data}
+			headerTitle={visibleScreen.title}
+			iframe={{ enabled: false }}
+			onChange={handlePuckChange}
+			permissions={{
+				delete: false,
+				drag: true,
+				duplicate: false,
+				edit: true,
+				insert: false,
+			}}
+		>
+			{workbenchLayout}
+		</Puck>
 	);
 }
 
@@ -224,17 +245,9 @@ function readErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : "화면 데이터를 불러오지 못했습니다.";
 }
 
-function replaceRenderTreeNode(
-	screen: RenderTreeScreenNode,
-	replacement: RenderTreeNode,
-): RenderTreeScreenNode {
-	return replaceNode(screen, replacement) as RenderTreeScreenNode;
-}
-
-function replaceNode(node: RenderTreeNode, replacement: RenderTreeNode): RenderTreeNode {
-	if (node.metadata.id === replacement.metadata.id) return replacement;
-	return {
-		...node,
-		children: node.children?.map((child) => replaceNode(child, replacement)),
-	};
+function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {
+	if (!scope) return "none";
+	if (scope.kind === "screen-region") return scope.regionType;
+	if (scope.kind === "area") return scope.area.metadata.id;
+	return scope.component.metadata.id;
 }

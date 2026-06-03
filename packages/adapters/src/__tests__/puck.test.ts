@@ -25,8 +25,6 @@ describe("@cx/adapters/puck", () => {
 						itemKind: "screen-region-child",
 						nodeId: "area-a",
 						nodePropsJson: "{}",
-						orderIndex: 0,
-						parentId: "screen-1.contents",
 						title: "Area A",
 					},
 				},
@@ -37,8 +35,6 @@ describe("@cx/adapters/puck", () => {
 						itemKind: "screen-region-child",
 						nodeId: "area-b",
 						nodePropsJson: "{}",
-						orderIndex: 1,
-						parentId: "screen-1.contents",
 						title: "Area B",
 					},
 				},
@@ -77,7 +73,7 @@ describe("@cx/adapters/puck", () => {
 		]);
 	});
 
-	it("keeps unmentioned screen children and reports unknown or duplicate Puck items", () => {
+	it("excludes unmentioned screen children and reports unknown or duplicate Puck items", () => {
 		const result = applyPuckScreenData({
 			screen: screenFixture,
 			data: {
@@ -108,10 +104,7 @@ describe("@cx/adapters/puck", () => {
 			{ code: "unknown_node", id: "missing", severity: "warning" },
 			{ code: "duplicate_node", id: "area-b", severity: "warning" },
 		]);
-		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([
-			"area-b",
-			"area-a",
-		]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual(["area-b"]);
 	});
 
 	it("converts and reorders area component children", () => {
@@ -259,14 +252,10 @@ describe("@cx/adapters/puck", () => {
 			{
 				itemKind: "component-child",
 				nodeId: "component-wrapper.0",
-				parentId: "component-wrapper",
-				relationId: "component-child-a",
 			},
 			{
 				itemKind: "component-child",
 				nodeId: "component-wrapper.1",
-				parentId: "component-wrapper",
-				relationId: "component-child-b",
 			},
 		]);
 

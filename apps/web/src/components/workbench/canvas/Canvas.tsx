@@ -1,9 +1,7 @@
-import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
+import { Puck } from "@puckeditor/core";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import type { NavigatorTab } from "@/model/workbench-view-model";
-import { AreaPuckEditor } from "../../puck/AreaPuckEditor";
-import { ScreenPuckEditor } from "../../puck/ScreenPuckEditor";
 import { RenderedScreen } from "../../screen/RenderedScreen";
 import { CanvasToolbar, type SaveState } from "./CanvasToolbar";
 import { ExportToolbar } from "./ExportToolbar";
@@ -14,14 +12,10 @@ type CanvasProps = {
 		message?: string;
 		status: "error" | "loading" | "ready";
 	};
-	onAreaCandidateChange?: (screenId: string, node: RenderTreeNode) => void;
-	onAreaCandidatePublish?: (screenId: string, node: RenderTreeNode) => void | Promise<void>;
-	onScreenCandidateChange?: (screenId: string, node: RenderTreeScreenNode) => void;
-	onScreenCandidatePublish?: (screenId: string, node: RenderTreeScreenNode) => void | Promise<void>;
 	onSaveSelectedScreen?: () => void | Promise<void>;
 	onToggleStatusBar?: () => void;
+	renderPuckPreview?: boolean;
 	saveState?: SaveState;
-	selectedArea?: RenderTreeNode;
 	selectedScreen?: ScreenSummary;
 	showStatusBar?: boolean;
 };
@@ -29,14 +23,10 @@ type CanvasProps = {
 export function Canvas({
 	activeTab,
 	loadState = { status: "ready" },
-	onAreaCandidateChange,
-	onAreaCandidatePublish,
-	onScreenCandidateChange,
-	onScreenCandidatePublish,
 	onSaveSelectedScreen,
 	onToggleStatusBar,
+	renderPuckPreview = false,
 	saveState = { status: "idle" },
-	selectedArea,
 	selectedScreen,
 	showStatusBar = true,
 }: CanvasProps) {
@@ -86,18 +76,10 @@ export function Canvas({
 			>
 				{loadState.status !== "ready" ? (
 					<CanvasLoadState message={loadState.message} status={loadState.status} />
-				) : isPuckTab && selectedScreen?.renderTree ? (
-					<ScreenPuckEditor
-						screen={selectedScreen.renderTree}
-						onCandidateChange={(node) => onScreenCandidateChange?.(selectedScreen.id, node)}
-						onPublishCandidate={(node) => onScreenCandidatePublish?.(selectedScreen.id, node)}
-					/>
-				) : isAreaTab && selectedScreen && selectedArea ? (
-					<AreaPuckEditor
-						area={selectedArea}
-						onCandidateChange={(node) => onAreaCandidateChange?.(selectedScreen.id, node)}
-						onPublishCandidate={(node) => onAreaCandidatePublish?.(selectedScreen.id, node)}
-					/>
+				) : renderPuckPreview ? (
+					<div className="h-full min-h-0 w-full overflow-auto bg-background">
+						<Puck.Preview />
+					</div>
 				) : (
 					<RenderedScreen node={selectedScreen?.renderTree} />
 				)}

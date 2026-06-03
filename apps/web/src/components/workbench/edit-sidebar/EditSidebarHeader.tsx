@@ -1,0 +1,19 @@
+import { Blocks } from "lucide-react";
+import type { EditScope } from "@/components/puck/workbench/edit-scope";
+import { readEditScopeTitle } from "@/components/puck/workbench/edit-scope";
+import { SidebarHeader } from "@/components/ui/sidebar";
+
+type EditSidebarHeaderProps = {
+	scope?: EditScope;
+};
+
+export function EditSidebarHeader({ scope }: EditSidebarHeaderProps) {
+	return (
+		<SidebarHeader className="h-14 shrink-0 justify-center border-b border-sidebar-border px-3 py-0">
+			<h2 className="flex min-w-0 items-center gap-2 text-base font-semibold leading-none tracking-normal">
+				<Blocks className="size-4 shrink-0" data-icon="inline-start" />
+				<span className="truncate">{readEditScopeTitle(scope)}</span>
+			</h2>
+		</SidebarHeader>
+	);
+}
