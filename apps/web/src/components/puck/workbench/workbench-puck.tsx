@@ -13,6 +13,7 @@ import {
 	renderTreeToPuckScreenData,
 	screenRegionZoneIds,
 } from "@cx/adapters/puck";
+import { getComponentCatalogEntry } from "@cx/components/catalog";
 import { getPrimitivePuckCatalogItems } from "@cx/components/puck";
 import { RenderNodeView, type RenderTreeNode, type RenderTreeScreenNode } from "@cx/renderer";
 import type { Config, Data } from "@puckeditor/core";
@@ -104,7 +105,7 @@ function buildPuckComponentsForScope(
 	const components: Config["components"] = {};
 	for (const node of readEditableNodes(scope)) {
 		components[node.metadata.id] = {
-			fields: editableNodeFields,
+			fields: buildFieldsForNodeType(node.type),
 			label: node.metadata.title,
 			render: (props) => {
 				const renderNode = applyPreviewProps(node, props);
@@ -119,11 +120,12 @@ function buildPuckComponentsForScope(
 	for (const catalogItem of catalogItems) {
 		components[catalogItem.puckType] = {
 			defaultProps: {
+				...catalogItem.defaultProps,
 				itemKind: readItemKindForScope(scope),
 				nodePropsJson: stringifyNodeProps(catalogItem.defaultProps),
 				title: catalogItem.title,
 			},
-			fields: editableNodeFields,
+			fields: buildFieldsForNodeType(catalogItem.nodeType),
 			label: catalogItem.title,
 			render: (props) => {
 				const renderNode = applyPreviewProps(createPreviewCatalogNode(catalogItem), props);
@@ -210,17 +212,34 @@ function applyPreviewProps(node: RenderTreeNode, props: Record<string, unknown>)
 		},
 	};
 	const nodePropsJson = props.nodePropsJson;
-	if (typeof nodePropsJson !== "string") return nextNode;
+	if (typeof nodePropsJson !== "string") {
+		return {
+			...nextNode,
+			props: {
+				...(nextNode.props ?? {}),
+				...readTypedPreviewProps(props),
+			},
+		};
+	}
 
 	try {
 		const parsed = JSON.parse(nodePropsJson) as unknown;
 		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return nextNode;
 		return {
 			...nextNode,
-			props: parsed as RenderTreeNode["props"],
+			props: {
+				...(parsed as RenderTreeNode["props"]),
+				...readTypedPreviewProps(props),
+			},
 		};
 	} catch {
-		return nextNode;
+		return {
+			...nextNode,
+			props: {
+				...(nextNode.props ?? {}),
+				...readTypedPreviewProps(props),
+			},
+		};
 	}
 }
 
@@ -267,17 +286,79 @@ function replaceNode(node: RenderTreeNode, replacement: RenderTreeNode): RenderT
 	};
 }
 
-const editableNodeFields: Config["components"][string]["fields"] = {
-	nodePropsJson: {
+function buildFieldsForNodeType(nodeType: string): Config["components"][string]["fields"] {
+	const fields: Config["components"][string]["fields"] = {
+		title: {
+			label: "Title",
+			type: "text",
+		},
+	};
+	const entry = getComponentCatalogEntry(nodeType);
+
+	for (const [propName, contract] of Object.entries(entry?.props ?? {})) {
+		fields[propName] = buildFieldForPropContract(propName, contract);
+	}
+
+	if (!fields.variant) {
+		fields.variant = {
+			label: "Variant",
+			type: "text",
+		};
+	}
+	fields.nodePropsJson = {
 		label: "Props JSON",
 		type: "textarea",
-	},
-	title: {
-		label: "Title",
-		type: "text",
-	},
-	variant: {
-		label: "Variant",
-		type: "text",
-	},
-};
+	};
+	return fields;
+}
+
+function buildFieldForPropContract(
+	propName: string,
+	contract: NonNullable<ReturnType<typeof getComponentCatalogEntry>>["props"][string],
+) {
+	const label = propName;
+	if (contract.type === "enum" && contract.values?.length) {
+		return {
+			label,
+			options: contract.values.map((value) => ({ label: value, value })),
+			type: "select" as const,
+		};
+	}
+	if (contract.type === "boolean") {
+		return {
+			label,
+			options: [
+				{ label: "true", value: true },
+				{ label: "false", value: false },
+			],
+			type: "radio" as const,
+		};
+	}
+	if (contract.type === "number") {
+		return {
+			label,
+			type: "number" as const,
+		};
+	}
+	if (contract.type === "array" || contract.type === "node") {
+		return {
+			label,
+			type: "textarea" as const,
+		};
+	}
+	return {
+		label,
+		type: "text" as const,
+	};
+}
+
+function readTypedPreviewProps(props: Record<string, unknown>): RenderTreeNode["props"] {
+	const typedProps: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(props)) {
+		if (puckReservedPropNames.has(key) || value === undefined) continue;
+		typedProps[key] = value;
+	}
+	return typedProps as RenderTreeNode["props"];
+}
+
+const puckReservedPropNames = new Set(["id", "itemKind", "nodeId", "nodePropsJson", "title"]);

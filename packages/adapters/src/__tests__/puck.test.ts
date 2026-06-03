@@ -265,6 +265,36 @@ describe("@cx/adapters/puck", () => {
 		});
 	});
 
+	it("merges typed Puck field props into RenderTree props", () => {
+		const area = screenFixture.children[1].children[0];
+		const result = applyPuckAreaData({
+			area,
+			data: {
+				...renderTreeToPuckAreaData(area),
+				content: [
+					{
+						type: "component-b",
+						props: {
+							id: "component-b",
+							itemKind: "area-child",
+							label: "typed label",
+							nodeId: "component-b",
+							nodePropsJson: JSON.stringify({ label: "json label", size: "medium" }),
+							variant: "primary",
+						},
+					},
+				],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.[0]?.props).toEqual({
+			label: "typed label",
+			size: "medium",
+			variant: "primary",
+		});
+	});
+
 	it("reports invalid props JSON without mutating the node props", () => {
 		const area = screenFixture.children[1].children[0];
 		const result = applyPuckAreaData({

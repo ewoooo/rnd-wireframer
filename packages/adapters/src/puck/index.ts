@@ -20,6 +20,7 @@ export const screenRegionZoneIds = {
 
 export type PuckScreenItem = {
 	props: {
+		[propName: string]: unknown;
 		id: string;
 		itemKind: ItemKind;
 		nodeId: string;
@@ -254,6 +255,7 @@ function createPuckData(input: {
 function createPuckItems(children: RenderTreeNodeContract[], itemKind: ItemKind): PuckScreenItem[] {
 	return children.map((child) => {
 		const props: PuckScreenItem["props"] = {
+			...readEditableNodeProps(child.props),
 			id: child.metadata.id,
 			itemKind,
 			nodeId: child.metadata.id,
@@ -371,6 +373,13 @@ function applyPuckItemToNode(
 			});
 		}
 	}
+	const typedProps = readTypedFieldProps(item.props);
+	if (typedProps) {
+		nextNode.props = {
+			...(nextNode.props ?? {}),
+			...typedProps,
+		};
+	}
 
 	return nextNode;
 }
@@ -416,3 +425,26 @@ function parseNodeProps(value: string):
 		return { ok: false };
 	}
 }
+
+function readEditableNodeProps(props: RenderTreeNodeContract["props"]): Record<string, unknown> {
+	if (!props) return {};
+	const editableProps = { ...props };
+	for (const key of puckReservedPropNames) {
+		delete editableProps[key];
+	}
+	return editableProps;
+}
+
+function readTypedFieldProps(
+	props: PuckScreenItem["props"],
+): RenderTreeNodeContract["props"] | undefined {
+	const typedProps: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(props)) {
+		if (puckReservedPropNames.has(key) || value === undefined) continue;
+		typedProps[key] = value;
+	}
+	if (Object.keys(typedProps).length === 0) return undefined;
+	return typedProps as RenderTreeNodeContract["props"];
+}
+
+const puckReservedPropNames = new Set(["id", "itemKind", "nodeId", "nodePropsJson", "title"]);
