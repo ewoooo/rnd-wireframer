@@ -10,6 +10,13 @@ import type {
 } from "../table/types";
 
 export type ItemKind = "screen-region-child" | "area-child" | "component-child";
+export type ScreenRegionType = "header" | "contents" | "bottom";
+
+export const screenRegionZoneIds = {
+	bottom: "screen.bottom",
+	contents: "screen.contents",
+	header: "screen.header",
+} satisfies Record<ScreenRegionType, string>;
 
 export type PuckScreenItem = {
 	props: {
@@ -28,7 +35,7 @@ export type PuckScreenData = {
 	root: {
 		props: Record<string, never>;
 	};
-	zones: Record<string, never>;
+	zones: Record<string, PuckScreenItem[]>;
 };
 
 export type PuckAdapterDiagnostic = {
@@ -56,12 +63,22 @@ export function renderTreeToPuckScreenData(
 		  },
 ): PuckScreenData {
 	const screen = "screen" in input ? input.screen : input;
-	const contents = findScreenContents(screen);
+	const header = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenHeader);
+	const contents = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenContents);
+	const bottom = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenBottom);
 
-	return createPuckData({
-		children: contents?.children ?? [],
-		itemKind: "screen-region-child",
-	});
+	return {
+		content: [],
+		root: { props: {} },
+		zones: {
+			[screenRegionZoneIds.header]: createPuckItems(header?.children ?? [], "screen-region-child"),
+			[screenRegionZoneIds.contents]: createPuckItems(
+				contents?.children ?? [],
+				"screen-region-child",
+			),
+			[screenRegionZoneIds.bottom]: createPuckItems(bottom?.children ?? [], "screen-region-child"),
+		},
+	};
 }
 
 export function renderTreeToPuckAreaData(
@@ -95,7 +112,9 @@ export function applyPuckScreenData(input: {
 	screen: RenderTreeScreenNodeContract;
 }): ApplyPuckDataResult<RenderTreeScreenNodeContract> {
 	const screen = cloneScreenNode(input.screen);
-	const contents = findScreenContents(screen);
+	const header = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenHeader);
+	const contents = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenContents);
+	const bottom = findScreenRegion(screen, RENDER_TREE_NODE_TYPE.screenBottom);
 
 	if (!contents) {
 		return {
@@ -104,14 +123,34 @@ export function applyPuckScreenData(input: {
 		};
 	}
 
-	const result = reorderChildren({
-		children: contents.children,
-		items: input.data.content,
-	});
-	contents.children = result.children;
+	const diagnostics: PuckAdapterDiagnostic[] = [];
+	const consumedIds = new Set<string>();
+	const sourceChildren = screen.children.flatMap((region) => region.children ?? []);
+	if (header) {
+		header.children = reorderChildren({
+			consumedIds,
+			diagnostics,
+			sourceChildren,
+			items: input.data.zones[screenRegionZoneIds.header] ?? [],
+		}).children;
+	}
+	contents.children = reorderChildren({
+		consumedIds,
+		diagnostics,
+		sourceChildren,
+		items: input.data.zones[screenRegionZoneIds.contents] ?? input.data.content,
+	}).children;
+	if (bottom) {
+		bottom.children = reorderChildren({
+			consumedIds,
+			diagnostics,
+			sourceChildren,
+			items: input.data.zones[screenRegionZoneIds.bottom] ?? [],
+		}).children;
+	}
 
 	return {
-		diagnostics: result.diagnostics,
+		diagnostics,
 		node: screen,
 	};
 }
@@ -187,35 +226,47 @@ function createPuckData(input: {
 	itemKind: ItemKind;
 }): PuckScreenData {
 	return {
-		content: input.children.map((child) => {
-			const props: PuckScreenItem["props"] = {
-				id: child.metadata.id,
-				itemKind: input.itemKind,
-				nodeId: child.metadata.id,
-				nodePropsJson: stringifyNodeProps(child.props),
-				title: child.metadata.title,
-			};
-			return {
-				type: child.metadata.id,
-				props,
-			};
-		}),
+		content: createPuckItems(input.children, input.itemKind),
 		root: { props: {} },
 		zones: {},
 	};
 }
 
-function findScreenContents(screen: RenderTreeScreenNodeContract) {
-	return screen.children.find((child) => child.type === RENDER_TREE_NODE_TYPE.screenContents);
+function createPuckItems(children: RenderTreeNodeContract[], itemKind: ItemKind): PuckScreenItem[] {
+	return children.map((child) => {
+		const props: PuckScreenItem["props"] = {
+			id: child.metadata.id,
+			itemKind,
+			nodeId: child.metadata.id,
+			nodePropsJson: stringifyNodeProps(child.props),
+			title: child.metadata.title,
+		};
+		return {
+			type: child.metadata.id,
+			props,
+		};
+	});
 }
 
-function reorderChildren(input: { children: RenderTreeNodeContract[]; items: PuckScreenItem[] }): {
+function findScreenRegion(screen: RenderTreeScreenNodeContract, type: string) {
+	return screen.children.find((child) => child.type === type);
+}
+
+function reorderChildren(input: {
+	children?: RenderTreeNodeContract[];
+	consumedIds?: Set<string>;
+	diagnostics?: PuckAdapterDiagnostic[];
+	items: PuckScreenItem[];
+	sourceChildren?: RenderTreeNodeContract[];
+}): {
 	children: RenderTreeNodeContract[];
 	diagnostics: PuckAdapterDiagnostic[];
 } {
-	const diagnostics: PuckAdapterDiagnostic[] = [];
-	const childById = new Map(input.children.map((child) => [child.metadata.id, child]));
-	const consumedIds = new Set<string>();
+	const diagnostics = input.diagnostics ?? [];
+	const childById = new Map(
+		(input.sourceChildren ?? input.children ?? []).map((child) => [child.metadata.id, child]),
+	);
+	const consumedIds = input.consumedIds ?? new Set<string>();
 	const nextChildren: RenderTreeNodeContract[] = [];
 
 	for (const item of input.items) {

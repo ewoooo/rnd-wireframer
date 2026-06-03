@@ -8,39 +8,44 @@ import {
 	renderTreeToPuckAreaData,
 	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
+	screenRegionZoneIds,
 } from "@cx/adapters/puck";
 import type { RenderTreeNodeContract, RenderTreeScreenNodeContract } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
 describe("@cx/adapters/puck", () => {
-	it("converts Screen.Contents area children into stable Puck items", () => {
+	it("converts screen regions into stable Puck zone items", () => {
 		const data = renderTreeToPuckScreenData(screenFixture);
 
 		expect(data).toEqual({
-			content: [
-				{
-					type: "area-a",
-					props: {
-						id: "area-a",
-						itemKind: "screen-region-child",
-						nodeId: "area-a",
-						nodePropsJson: "{}",
-						title: "Area A",
-					},
-				},
-				{
-					type: "area-b",
-					props: {
-						id: "area-b",
-						itemKind: "screen-region-child",
-						nodeId: "area-b",
-						nodePropsJson: "{}",
-						title: "Area B",
-					},
-				},
-			],
+			content: [],
 			root: { props: {} },
-			zones: {},
+			zones: {
+				[screenRegionZoneIds.header]: [],
+				[screenRegionZoneIds.contents]: [
+					{
+						type: "area-a",
+						props: {
+							id: "area-a",
+							itemKind: "screen-region-child",
+							nodeId: "area-a",
+							nodePropsJson: "{}",
+							title: "Area A",
+						},
+					},
+					{
+						type: "area-b",
+						props: {
+							id: "area-b",
+							itemKind: "screen-region-child",
+							nodeId: "area-b",
+							nodePropsJson: "{}",
+							title: "Area B",
+						},
+					},
+				],
+				[screenRegionZoneIds.bottom]: [],
+			},
 		});
 	});
 
@@ -49,16 +54,20 @@ describe("@cx/adapters/puck", () => {
 			screen: screenFixture,
 			data: {
 				...renderTreeToPuckScreenData(screenFixture),
-				content: [
-					{
-						type: "area-b",
-						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-					},
-					{
-						type: "area-a",
-						props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
-					},
-				],
+				zones: {
+					[screenRegionZoneIds.header]: [],
+					[screenRegionZoneIds.contents]: [
+						{
+							type: "area-b",
+							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+						},
+						{
+							type: "area-a",
+							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+						},
+					],
+					[screenRegionZoneIds.bottom]: [],
+				},
 			},
 		});
 
@@ -78,25 +87,29 @@ describe("@cx/adapters/puck", () => {
 			screen: screenFixture,
 			data: {
 				root: { props: {} },
-				zones: {},
-				content: [
-					{
-						type: "missing",
-						props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
-					},
-					{
-						type: "area-b",
-						props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-					},
-					{
-						type: "area-b",
-						props: {
-							id: "area-b-duplicate",
-							itemKind: "screen-region-child",
-							nodeId: "area-b",
+				zones: {
+					[screenRegionZoneIds.header]: [],
+					[screenRegionZoneIds.contents]: [
+						{
+							type: "missing",
+							props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
 						},
-					},
-				],
+						{
+							type: "area-b",
+							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+						},
+						{
+							type: "area-b",
+							props: {
+								id: "area-b-duplicate",
+								itemKind: "screen-region-child",
+								nodeId: "area-b",
+							},
+						},
+					],
+					[screenRegionZoneIds.bottom]: [],
+				},
+				content: [],
 			},
 		});
 
@@ -105,6 +118,35 @@ describe("@cx/adapters/puck", () => {
 			{ code: "duplicate_node", id: "area-b", severity: "warning" },
 		]);
 		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual(["area-b"]);
+	});
+
+	it("moves screen children across header, contents, and bottom zones", () => {
+		const result = applyPuckScreenData({
+			screen: screenFixture,
+			data: {
+				...renderTreeToPuckScreenData(screenFixture),
+				zones: {
+					[screenRegionZoneIds.header]: [
+						{
+							type: "area-a",
+							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+						},
+					],
+					[screenRegionZoneIds.contents]: [],
+					[screenRegionZoneIds.bottom]: [
+						{
+							type: "area-b",
+							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+						},
+					],
+				},
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children[0].children?.map((child) => child.metadata.id)).toEqual(["area-a"]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([]);
+		expect(result.node.children[2].children?.map((child) => child.metadata.id)).toEqual(["area-b"]);
 	});
 
 	it("converts and reorders area component children", () => {

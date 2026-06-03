@@ -10,9 +10,11 @@ import {
 	renderTreeToPuckAreaData,
 	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
+	screenRegionZoneIds,
 } from "@cx/adapters/puck";
 import { RenderNodeView, type RenderTreeNode, type RenderTreeScreenNode } from "@cx/renderer";
 import type { Config, Data } from "@puckeditor/core";
+import { DropZone } from "@puckeditor/core";
 import type { EditScope } from "./edit-scope";
 
 export function buildPuckDataForScope(scope: EditScope): PuckScreenData {
@@ -24,7 +26,7 @@ export function buildPuckDataForScope(scope: EditScope): PuckScreenData {
 export function buildPuckConfigForScope(scope: EditScope): Config {
 	return {
 		components: buildPuckComponentsForScope(scope),
-		root: { fields: {} },
+		root: buildPuckRootForScope(scope),
 	};
 }
 
@@ -32,7 +34,7 @@ export function normalizePuckData(data: Data, itemKind: ItemKind): PuckScreenDat
 	return {
 		content: data.content.map((item) => normalizePuckItem(item, itemKind)),
 		root: { props: {} },
-		zones: {},
+		zones: normalizePuckZones(data.zones, itemKind),
 	};
 }
 
@@ -87,13 +89,38 @@ function buildPuckComponentsForScope(scope: EditScope): Config["components"] {
 	return components;
 }
 
+function buildPuckRootForScope(scope: EditScope): Config["root"] {
+	if (scope.kind !== "screen-region") return { fields: {} };
+
+	return {
+		fields: {},
+		render: () => (
+			<div className="mx-auto flex min-h-full w-full max-w-[390px] flex-col bg-background">
+				<ScreenRegionDropZone label="Header" zone={screenRegionZoneIds.header} />
+				<ScreenRegionDropZone label="Contents" zone={screenRegionZoneIds.contents} />
+				<ScreenRegionDropZone label="Bottom" zone={screenRegionZoneIds.bottom} />
+			</div>
+		),
+	};
+}
+
 function readEditableNodes(scope: EditScope): RenderTreeNode[] {
 	if (scope.kind === "screen-region") {
-		const contents = scope.screen.children.find((child) => child.type === "Screen.Contents");
-		return contents?.children ?? [];
+		return scope.screen.children.flatMap((region) => region.children ?? []);
 	}
 	if (scope.kind === "area") return scope.area.children ?? [];
 	return scope.component.children?.length ? scope.component.children : [scope.component];
+}
+
+function ScreenRegionDropZone({ label, zone }: { label: string; zone: string }) {
+	return (
+		<section className="min-h-16 border-b border-dashed border-border last:border-b-0">
+			<div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
+				{label}
+			</div>
+			<DropZone className="min-h-12 px-3 pb-3" minEmptyHeight={48} zone={zone} />
+		</section>
+	);
 }
 
 function applyPreviewProps(node: RenderTreeNode, props: Record<string, unknown>): RenderTreeNode {
@@ -134,6 +161,17 @@ function normalizePuckItem(item: Data["content"][number], itemKind: ItemKind): P
 		},
 		type: item.type,
 	};
+}
+
+function normalizePuckZones(
+	zones: Data["zones"] | undefined,
+	itemKind: ItemKind,
+): PuckScreenData["zones"] {
+	const nextZones: PuckScreenData["zones"] = {};
+	for (const [zoneId, items] of Object.entries(zones ?? {})) {
+		nextZones[zoneId] = items.map((item) => normalizePuckItem(item, itemKind));
+	}
+	return nextZones;
 }
 
 function replaceRenderTreeNode(
