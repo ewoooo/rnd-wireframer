@@ -8,45 +8,78 @@ import {
 	renderTreeToPuckAreaData,
 	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
+	screenRegionSlotNames,
 	screenRegionZoneIds,
 } from "@cx/adapters/puck";
 import type { RenderTreeNodeContract, RenderTreeScreenNodeContract } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
 describe("@cx/adapters/puck", () => {
-	it("converts screen regions into stable Puck zone items", () => {
+	it("converts screen regions into stable Puck slot items", () => {
 		const data = renderTreeToPuckScreenData(screenFixture);
 
 		expect(data).toEqual({
 			content: [],
-			root: { props: {} },
-			zones: {
-				[screenRegionZoneIds.header]: [],
-				[screenRegionZoneIds.contents]: [
-					{
-						type: "area-a",
-						props: {
-							id: "area-a",
-							itemKind: "screen-region-child",
-							nodeId: "area-a",
-							nodePropsJson: "{}",
-							title: "Area A",
+			root: {
+				props: {
+					[screenRegionSlotNames.header]: [],
+					[screenRegionSlotNames.contents]: [
+						{
+							type: "area-a",
+							props: {
+								id: "area-a",
+								itemKind: "screen-region-child",
+								nodeId: "area-a",
+								nodePropsJson: "{}",
+								title: "Area A",
+							},
 						},
-					},
-					{
-						type: "area-b",
-						props: {
-							id: "area-b",
-							itemKind: "screen-region-child",
-							nodeId: "area-b",
-							nodePropsJson: "{}",
-							title: "Area B",
+						{
+							type: "area-b",
+							props: {
+								id: "area-b",
+								itemKind: "screen-region-child",
+								nodeId: "area-b",
+								nodePropsJson: "{}",
+								title: "Area B",
+							},
 						},
-					},
-				],
-				[screenRegionZoneIds.bottom]: [],
+					],
+					[screenRegionSlotNames.bottom]: [],
+				},
+			},
+			zones: {},
+		});
+	});
+
+	it("keeps reading legacy screen region zones while applying Puck data", () => {
+		const result = applyPuckScreenData({
+			screen: screenFixture,
+			data: {
+				content: [],
+				root: { props: {} },
+				zones: {
+					[screenRegionZoneIds.header]: [],
+					[screenRegionZoneIds.contents]: [
+						{
+							type: "area-a",
+							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+						},
+						{
+							type: "area-b",
+							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+						},
+					],
+					[screenRegionZoneIds.bottom]: [],
+				},
 			},
 		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children[1].children.map((child) => child.metadata.id)).toEqual([
+			"area-a",
+			"area-b",
+		]);
 	});
 
 	it("applies Puck screen order as a full RenderTree candidate without mutating the source", () => {
@@ -54,19 +87,21 @@ describe("@cx/adapters/puck", () => {
 			screen: screenFixture,
 			data: {
 				...renderTreeToPuckScreenData(screenFixture),
-				zones: {
-					[screenRegionZoneIds.header]: [],
-					[screenRegionZoneIds.contents]: [
-						{
-							type: "area-b",
-							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-						},
-						{
-							type: "area-a",
-							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
-						},
-					],
-					[screenRegionZoneIds.bottom]: [],
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [],
+						[screenRegionSlotNames.contents]: [
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+							{
+								type: "area-a",
+								props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+							},
+						],
+						[screenRegionSlotNames.bottom]: [],
+					},
 				},
 			},
 		});
@@ -86,29 +121,31 @@ describe("@cx/adapters/puck", () => {
 		const result = applyPuckScreenData({
 			screen: screenFixture,
 			data: {
-				root: { props: {} },
-				zones: {
-					[screenRegionZoneIds.header]: [],
-					[screenRegionZoneIds.contents]: [
-						{
-							type: "missing",
-							props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
-						},
-						{
-							type: "area-b",
-							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-						},
-						{
-							type: "area-b",
-							props: {
-								id: "area-b-duplicate",
-								itemKind: "screen-region-child",
-								nodeId: "area-b",
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [],
+						[screenRegionSlotNames.contents]: [
+							{
+								type: "missing",
+								props: { id: "missing", itemKind: "screen-region-child", nodeId: "missing" },
 							},
-						},
-					],
-					[screenRegionZoneIds.bottom]: [],
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+							{
+								type: "area-b",
+								props: {
+									id: "area-b-duplicate",
+									itemKind: "screen-region-child",
+									nodeId: "area-b",
+								},
+							},
+						],
+						[screenRegionSlotNames.bottom]: [],
+					},
 				},
+				zones: {},
 				content: [],
 			},
 		});
@@ -125,20 +162,22 @@ describe("@cx/adapters/puck", () => {
 			screen: screenFixture,
 			data: {
 				...renderTreeToPuckScreenData(screenFixture),
-				zones: {
-					[screenRegionZoneIds.header]: [
-						{
-							type: "area-a",
-							props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
-						},
-					],
-					[screenRegionZoneIds.contents]: [],
-					[screenRegionZoneIds.bottom]: [
-						{
-							type: "area-b",
-							props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
-						},
-					],
+				root: {
+					props: {
+						[screenRegionSlotNames.header]: [
+							{
+								type: "area-a",
+								props: { id: "area-a", itemKind: "screen-region-child", nodeId: "area-a" },
+							},
+						],
+						[screenRegionSlotNames.contents]: [],
+						[screenRegionSlotNames.bottom]: [
+							{
+								type: "area-b",
+								props: { id: "area-b", itemKind: "screen-region-child", nodeId: "area-b" },
+							},
+						],
+					},
 				},
 			},
 		});

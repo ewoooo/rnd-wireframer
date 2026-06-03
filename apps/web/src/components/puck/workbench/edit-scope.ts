@@ -31,7 +31,7 @@ export type EditScopeInput = {
 export function resolveEditScope(input: EditScopeInput): EditScope | undefined {
 	if (!input.selectedScreen) return undefined;
 
-	if (input.activeTab === "puck") {
+	if (input.activeTab === "scn" || input.activeTab === "puck") {
 		return {
 			kind: "screen-region",
 			regionType: "contents",
@@ -66,7 +66,7 @@ export function readEditScopeTitle(scope?: EditScope) {
 }
 
 export function isPuckEditTab(activeTab: NavigatorTab) {
-	return activeTab === "puck" || activeTab === "ogn" || activeTab === "comp";
+	return activeTab === "scn" || activeTab === "puck" || activeTab === "ogn" || activeTab === "comp";
 }
 
 export function readScreenRegion(

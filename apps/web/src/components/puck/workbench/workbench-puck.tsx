@@ -11,13 +11,18 @@ import {
 	renderTreeToPuckAreaData,
 	renderTreeToPuckComponentData,
 	renderTreeToPuckScreenData,
-	screenRegionZoneIds,
+	screenRegionSlotNames,
 } from "@cx/adapters/puck";
 import { getComponentCatalogEntry } from "@cx/components/catalog";
 import { getPrimitivePuckCatalogItems } from "@cx/components/puck";
-import { RenderNodeView, type RenderTreeNode, type RenderTreeScreenNode } from "@cx/renderer";
+import {
+	RenderNodeView,
+	type RenderTreeNode,
+	type RenderTreeScreenNode,
+	RenderTreeView,
+} from "@cx/renderer";
 import type { Config, Data } from "@puckeditor/core";
-import { DropZone } from "@puckeditor/core";
+import type { ReactNode } from "react";
 import type { EditScope } from "./edit-scope";
 
 export function buildPuckDataForScope(scope: EditScope): PuckScreenData {
@@ -37,7 +42,7 @@ export function buildPuckConfigForScope(scope: EditScope): Config {
 export function normalizePuckData(data: Data, itemKind: ItemKind): PuckScreenData {
 	return {
 		content: data.content.map((item) => normalizePuckItem(item, itemKind)),
-		root: { props: {} },
+		root: { props: normalizePuckSlotProps(data.root?.props ?? {}, itemKind) },
 		zones: normalizePuckZones(data.zones, itemKind),
 	};
 }
@@ -110,7 +115,7 @@ function buildPuckComponentsForScope(
 			render: (props) => {
 				const renderNode = applyPreviewProps(node, props);
 				return (
-					<div className="min-h-8 bg-background">
+					<div className="pointer-events-none min-h-8 bg-background">
 						<RenderNodeView node={renderNode} />
 					</div>
 				);
@@ -130,7 +135,7 @@ function buildPuckComponentsForScope(
 			render: (props) => {
 				const renderNode = applyPreviewProps(createPreviewCatalogNode(catalogItem), props);
 				return (
-					<div className="min-h-8 bg-background">
+					<div className="pointer-events-none min-h-8 bg-background">
 						<RenderNodeView node={renderNode} />
 					</div>
 				);
@@ -144,13 +149,19 @@ function buildPuckRootForScope(scope: EditScope): Config["root"] {
 	if (scope.kind !== "screen-region") return { fields: {} };
 
 	return {
-		fields: {},
-		render: () => (
-			<div className="mx-auto flex min-h-full w-full max-w-[390px] flex-col bg-background">
-				<ScreenRegionDropZone label="Header" zone={screenRegionZoneIds.header} />
-				<ScreenRegionDropZone label="Contents" zone={screenRegionZoneIds.contents} />
-				<ScreenRegionDropZone label="Bottom" zone={screenRegionZoneIds.bottom} />
-			</div>
+		fields: {
+			[screenRegionSlotNames.header]: { type: "slot" },
+			[screenRegionSlotNames.contents]: { type: "slot" },
+			[screenRegionSlotNames.bottom]: { type: "slot" },
+		},
+		render: (props) => (
+			<RenderTreeView
+				node={scope.screen}
+				renderRegion={({ region }) => {
+					const Slot = props[screenRegionSlotNames[region]] as PuckSlotRenderer | undefined;
+					return Slot ? <Slot minEmptyHeight={0} /> : null;
+				}}
+			/>
 		),
 	};
 }
@@ -163,15 +174,22 @@ function readEditableNodes(scope: EditScope): RenderTreeNode[] {
 	return scope.component.children?.length ? scope.component.children : [scope.component];
 }
 
-function ScreenRegionDropZone({ label, zone }: { label: string; zone: string }) {
-	return (
-		<section className="min-h-16 border-b border-dashed border-border last:border-b-0">
-			<div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-normal text-muted-foreground">
-				{label}
-			</div>
-			<DropZone className="min-h-12 px-3 pb-3" minEmptyHeight={48} zone={zone} />
-		</section>
-	);
+type PuckSlotRenderer = (props?: { className?: string; minEmptyHeight?: number }) => ReactNode;
+
+function normalizePuckSlotProps(
+	props: Record<string, unknown>,
+	itemKind: ItemKind,
+): PuckScreenData["root"]["props"] {
+	const slots: PuckScreenData["root"]["props"] = {};
+	for (const region of Object.values(screenRegionSlotNames)) {
+		const value = props[region];
+		if (Array.isArray(value)) {
+			slots[region] = value.map((item) =>
+				normalizePuckItem(item as Data["content"][number], itemKind),
+			);
+		}
+	}
+	return slots;
 }
 
 function renderTreeNodeToCatalogItem(node: RenderTreeNode, prefix: string): PuckCatalogItem {
@@ -249,6 +267,7 @@ function normalizePuckItem(item: Data["content"][number], itemKind: ItemKind): P
 
 	return {
 		props: {
+			...readTypedPreviewProps(item.props as Record<string, unknown>),
 			id: props.id ?? nodeId,
 			itemKind: props.itemKind ?? itemKind,
 			nodeId,

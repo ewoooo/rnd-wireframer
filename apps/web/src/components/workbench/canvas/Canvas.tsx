@@ -45,7 +45,7 @@ export function Canvas({
 						</h1>
 						{showStatusBar ? (
 							<p className="truncate text-xs text-muted-foreground">
-								{readCanvasContextLabel(activeTab, selectedScreen)}
+								{readCanvasContextLabel(activeTab, selectedScreen, renderPuckPreview)}
 							</p>
 						) : null}
 					</div>
@@ -69,7 +69,7 @@ export function Canvas({
 			</SidebarHeader>
 			<SidebarContent
 				className={
-					isEditorTab
+					isEditorTab && !renderPuckPreview
 						? "overflow-hidden bg-background p-0"
 						: "items-center justify-center overflow-hidden bg-secondary/50 p-6"
 				}
@@ -77,7 +77,7 @@ export function Canvas({
 				{loadState.status !== "ready" ? (
 					<CanvasLoadState message={loadState.message} status={loadState.status} />
 				) : renderPuckPreview ? (
-					<div className="h-full min-h-0 w-full overflow-auto bg-background">
+					<div className="flex h-211 w-98 max-w-full shrink-0 overflow-hidden rounded-3xl border bg-background shadow-xl [&_[class*='PuckPreview']]:h-full [&_[class*='PuckPreview']]:w-full">
 						<Puck.Preview />
 					</div>
 				) : (
@@ -99,9 +99,19 @@ function CanvasLoadState({ message, status }: { message?: string; status: "error
 	);
 }
 
-function readCanvasContextLabel(activeTab: NavigatorTab, selectedScreen?: ScreenSummary) {
+function readCanvasContextLabel(
+	activeTab: NavigatorTab,
+	selectedScreen?: ScreenSummary,
+	renderPuckPreview = false,
+) {
 	const tabLabel =
-		activeTab === "puck" ? "Puck Editor" : activeTab === "ogn" ? "Area Editor" : "Preview";
+		activeTab === "scn" && renderPuckPreview
+			? "Screen Editor"
+			: activeTab === "puck"
+				? "Puck Editor"
+				: activeTab === "ogn"
+					? "Area Editor"
+					: "Preview";
 	const routeLabel = selectedScreen?.route ?? selectedScreen?.screenRouteId ?? "No route";
 	const statusLabel = selectedScreen?.status ?? "draft";
 	return `${tabLabel} · ${routeLabel} · ${statusLabel}`;

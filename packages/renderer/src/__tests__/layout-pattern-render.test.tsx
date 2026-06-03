@@ -349,6 +349,46 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(regionLayoutRoot).toHaveAttribute("data-node-type", "Layout.Flex");
 	});
 
+	it("allows screen region content to be overridden while preserving screen chrome", () => {
+		render(
+			<RenderTreeView
+				node={{
+					type: "Screen",
+					componentVersion: "1.0.0",
+					metadata: { id: "screen", title: "Screen" },
+					children: [
+						{
+							type: "Screen.Header",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.header", title: "Header" },
+							children: [],
+						},
+						{
+							type: "Screen.Contents",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.contents", title: "Contents" },
+							children: [],
+						},
+						{
+							type: "Screen.Bottom",
+							componentVersion: "0.1.0",
+							metadata: { id: "screen.bottom", title: "Bottom" },
+							children: [],
+						},
+					],
+				}}
+				renderRegion={({ region }) => <div>{`override:${region}`}</div>}
+			/>,
+		);
+
+		expect(screen.getByText("override:header")).toBeInTheDocument();
+		expect(screen.getByText("override:contents")).toBeInTheDocument();
+		expect(screen.getByText("override:bottom")).toBeInTheDocument();
+		expect(
+			screen.getByText("override:bottom").closest("[data-region='Screen.Bottom']"),
+		).toHaveAttribute("data-node-id", "screen.bottom");
+	});
+
 	it("uses the fixed bottom primitive for bottom action area patterns", () => {
 		render(
 			<RenderNodeView

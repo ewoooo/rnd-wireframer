@@ -13,9 +13,15 @@ export type ItemKind = "screen-region-child" | "area-child" | "component-child";
 export type ScreenRegionType = "header" | "contents" | "bottom";
 
 export const screenRegionZoneIds = {
-	bottom: "screen.bottom",
-	contents: "screen.contents",
-	header: "screen.header",
+	bottom: "root:screen.bottom",
+	contents: "root:screen.contents",
+	header: "root:screen.header",
+} satisfies Record<ScreenRegionType, string>;
+
+export const screenRegionSlotNames = {
+	bottom: "bottom",
+	contents: "contents",
+	header: "header",
 } satisfies Record<ScreenRegionType, string>;
 
 export type PuckScreenItem = {
@@ -43,7 +49,7 @@ export type PuckCatalogItem = {
 export type PuckScreenData = {
 	content: PuckScreenItem[];
 	root: {
-		props: Record<string, never>;
+		props: Partial<Record<ScreenRegionType, PuckScreenItem[]>>;
 	};
 	zones: Record<string, PuckScreenItem[]>;
 };
@@ -80,15 +86,23 @@ export function renderTreeToPuckScreenData(
 
 	return {
 		content: [],
-		root: { props: {} },
-		zones: {
-			[screenRegionZoneIds.header]: createPuckItems(header?.children ?? [], "screen-region-child"),
-			[screenRegionZoneIds.contents]: createPuckItems(
-				contents?.children ?? [],
-				"screen-region-child",
-			),
-			[screenRegionZoneIds.bottom]: createPuckItems(bottom?.children ?? [], "screen-region-child"),
+		root: {
+			props: {
+				[screenRegionSlotNames.header]: createPuckItems(
+					header?.children ?? [],
+					"screen-region-child",
+				),
+				[screenRegionSlotNames.contents]: createPuckItems(
+					contents?.children ?? [],
+					"screen-region-child",
+				),
+				[screenRegionSlotNames.bottom]: createPuckItems(
+					bottom?.children ?? [],
+					"screen-region-child",
+				),
+			},
 		},
+		zones: {},
 	};
 }
 
@@ -144,7 +158,7 @@ export function applyPuckScreenData(input: {
 			catalogItems: input.catalogItems,
 			diagnostics,
 			sourceChildren,
-			items: input.data.zones[screenRegionZoneIds.header] ?? [],
+			items: readScreenRegionItems(input.data, "header"),
 		}).children;
 	}
 	contents.children = reorderChildren({
@@ -152,7 +166,7 @@ export function applyPuckScreenData(input: {
 		catalogItems: input.catalogItems,
 		diagnostics,
 		sourceChildren,
-		items: input.data.zones[screenRegionZoneIds.contents] ?? input.data.content,
+		items: readScreenRegionItems(input.data, "contents", input.data.content),
 	}).children;
 	if (bottom) {
 		bottom.children = reorderChildren({
@@ -160,7 +174,7 @@ export function applyPuckScreenData(input: {
 			catalogItems: input.catalogItems,
 			diagnostics,
 			sourceChildren,
-			items: input.data.zones[screenRegionZoneIds.bottom] ?? [],
+			items: readScreenRegionItems(input.data, "bottom"),
 		}).children;
 	}
 
@@ -168,6 +182,18 @@ export function applyPuckScreenData(input: {
 		diagnostics,
 		node: screen,
 	};
+}
+
+function readScreenRegionItems(
+	data: PuckScreenData,
+	region: ScreenRegionType,
+	fallback: PuckScreenItem[] = [],
+) {
+	return (
+		data.root.props[screenRegionSlotNames[region]] ??
+		data.zones[screenRegionZoneIds[region]] ??
+		fallback
+	);
 }
 
 export function applyPuckAreaData(input: {
