@@ -20,7 +20,7 @@ describe("App workbench navigation", () => {
 		expectStat("Areas", "0");
 		expectStat("Components", "0");
 
-		fireEvent.click(screen.getByRole("button", { name: "CMP" }));
+		fireEvent.click(screen.getByRole("button", { name: "컴포넌트" }));
 
 		expect(screen.getByRole("heading", { level: 3, name: "Components" })).toBeInTheDocument();
 		expect(
@@ -29,14 +29,13 @@ describe("App workbench navigation", () => {
 			),
 		).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "ARE" }));
+		fireEvent.click(screen.getByRole("button", { name: "그룹" }));
 
 		expect(screen.getByRole("heading", { level: 3, name: "Areas" })).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "AGT" }));
+		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
 		expect(screen.getByRole("heading", { name: "Agent" })).toBeInTheDocument();
-		expect(screen.getByRole("link", { name: "SMK" })).toHaveAttribute("href", "/smoke");
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {

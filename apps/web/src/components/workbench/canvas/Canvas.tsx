@@ -2,9 +2,9 @@ import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import type { NavigatorTab } from "@/model/workbench-view-model";
-import { AreaPuckEditor } from "../puck/AreaPuckEditor";
-import { ScreenPuckEditor } from "../puck/ScreenPuckEditor";
-import { RenderedScreen } from "../screen/RenderedScreen";
+import { AreaPuckEditor } from "../../puck/AreaPuckEditor";
+import { ScreenPuckEditor } from "../../puck/ScreenPuckEditor";
+import { RenderedScreen } from "../../screen/RenderedScreen";
 import { CanvasToolbar, type SaveState } from "./CanvasToolbar";
 import { ExportToolbar } from "./ExportToolbar";
 
