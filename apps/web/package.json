@@ -15,6 +15,6 @@
 		"@cx/pipeline": "0.1.0",
 		"@cx/renderer": "0.1.0",
 		"@cx/schema": "0.1.0",
-		"@measured/puck": "^0.20.2"
+		"@puckeditor/core": "^0.21.2"
 	}
 }

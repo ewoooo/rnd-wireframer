@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "@measured/puck/dist/index.css";
+import "@puckeditor/core/puck.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

@@ -7,7 +7,7 @@ import {
 	renderTreeToPuckScreenData,
 } from "@cx/adapters/puck";
 import { RenderNodeView, type RenderTreeScreenNode } from "@cx/renderer";
-import { type Config, type Data, Puck } from "@measured/puck";
+import { type Config, type Data, Puck } from "@puckeditor/core";
 
 type ScreenPuckEditorProps = {
 	onCandidateChange?: (node: RenderTreeScreenNode) => void;

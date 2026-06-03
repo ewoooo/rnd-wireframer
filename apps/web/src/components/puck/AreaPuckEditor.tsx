@@ -7,7 +7,7 @@ import {
 	renderTreeToPuckAreaData,
 } from "@cx/adapters/puck";
 import { RenderNodeView, type RenderTreeNode } from "@cx/renderer";
-import { type Config, type Data, Puck } from "@measured/puck";
+import { type Config, type Data, Puck } from "@puckeditor/core";
 
 type AreaPuckEditorProps = {
 	area: RenderTreeNode;
