@@ -22,7 +22,7 @@ export const screenRegionSlotNames = {
 	bottom: "bottom",
 	contents: "contents",
 	header: "header",
-} satisfies Record<ScreenRegionType, string>;
+} as const satisfies Record<ScreenRegionType, ScreenRegionType>;
 
 export type PuckScreenItem = {
 	props: {

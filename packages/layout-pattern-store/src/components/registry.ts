@@ -74,9 +74,9 @@ const compositePropContractByKey = {
 	indicator: { type: "boolean" },
 	itemHeight: { type: "number" },
 	minHeight: { type: "number" },
+	paddingX: { type: "number" },
 	paddingBottom: { type: "number" },
 	paddingTop: { type: "number" },
-	paddingX: { type: "number" },
 	paddingY: { type: "number" },
 	priceGap: { type: "number" },
 	radius: { type: "number" },
@@ -173,10 +173,13 @@ const generalAreaPropContractByKey = {
 		values: ["card-0", "default-20", "plain"],
 	},
 	listPresentation: { type: "string" },
+	paddingBottom: { type: "number" },
+	paddingTop: { type: "number" },
 	paddingX: { type: "number" },
 	paddingY: { type: "number" },
 	primaryActionPlacement: { type: "string" },
 	rowCount: { type: "number" },
+	safeArea: { type: "boolean" },
 	secondaryActionPlacement: { type: "string" },
 	sectionGap: { type: "number" },
 	sectionModel: { type: "string" },
@@ -475,17 +478,17 @@ const compositeLayouts: Array<{
 	},
 	{
 		componentID: "ComponentActionButtonComposite",
-		defaults: { gap: 0, height: 56, paddingX: 20, paddingTop: 22, paddingBottom: 24 },
+		defaults: { gap: 0 },
 		layoutId: "layout.composite.componentActionButton",
 		name: "하단 액션 버튼",
-		props: compositeProps(["buttonHeight", "gap", "paddingBottom", "paddingTop", "paddingX"]),
+		props: compositeProps(["gap"]),
 	},
 	{
 		componentID: "ComponentActionButtonWithTooltipComposite",
-		defaults: { gap: 10, height: 56, paddingX: 12, paddingTop: 10, paddingBottom: 36 },
+		defaults: { gap: 10 },
 		layoutId: "layout.composite.componentActionButtonWithTooltip",
 		name: "툴팁 포함 하단 액션 버튼",
-		props: compositeProps(["buttonHeight", "gap", "paddingBottom", "paddingTop", "paddingX"]),
+		props: compositeProps(["gap"]),
 	},
 	{
 		componentID: "CompositePriceAccordionSelectedListComposite",
@@ -779,7 +782,16 @@ const areaGeneralLayouts: Array<{
 		componentID: "BottomActionArea",
 		layoutId: "layout.area.bottomActionArea",
 		name: "Bottom Action Area",
-		props: generalAreaProps(["componentGap", "gap", "paddingY", "titleGap"]),
+		props: generalAreaProps([
+			"componentGap",
+			"gap",
+			"paddingBottom",
+			"paddingTop",
+			"paddingX",
+			"paddingY",
+			"safeArea",
+			"titleGap",
+		]),
 	},
 	{
 		component: ProductHeroSummaryArea,
@@ -1222,10 +1234,13 @@ function generalAreaProps(
 		| "itemPaddingY"
 		| "itemTemplate"
 		| "listPresentation"
+		| "paddingBottom"
+		| "paddingTop"
 		| "paddingX"
 		| "paddingY"
 		| "primaryActionPlacement"
 		| "rowCount"
+		| "safeArea"
 		| "secondaryActionPlacement"
 		| "sectionDivider"
 		| "sectionGap"

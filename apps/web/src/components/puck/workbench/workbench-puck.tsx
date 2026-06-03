@@ -154,7 +154,7 @@ function buildPuckRootForScope(scope: EditScope): Config["root"] {
 			[screenRegionSlotNames.contents]: { type: "slot" },
 			[screenRegionSlotNames.bottom]: { type: "slot" },
 		},
-		render: (props) => (
+		render: (props: Record<string, unknown>) => (
 			<RenderTreeView
 				node={scope.screen}
 				renderRegion={({ region }) => {
