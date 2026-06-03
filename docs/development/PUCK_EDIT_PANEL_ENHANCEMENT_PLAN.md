@@ -1705,7 +1705,8 @@ Important:
 ## AppShell Puck Responsibilities
 
 `AppShell` is the bridge between workbench selection and Puck. Do not introduce a separate
-`PuckEditShell` wrapper unless `AppShell` becomes unmaintainably large.
+`PuckEditShell` wrapper. If the implementation grows, extract pure helpers or small child
+components, but keep Puck provider ownership in `AppShell`.
 
 Responsibilities:
 
@@ -2158,101 +2159,69 @@ Validation:
 - Insert updates the RenderTree candidate by including the node.
 - Existing rows are not churned unnecessarily.
 
-## Rollout 1: Puck Workbench Shell And JSON Props
+## Rollout Documents
 
-The first code slice should prove the current workbench can host Puck without introducing custom
-drag-and-drop or DB-specific Puck state.
+Detailed implementation contracts are split into separate rollout documents to keep the central
+architecture document small and reusable. Load only the rollout document needed for the current work.
 
-Scope:
+| Rollout | Document | Implementation Focus |
+|---|---|---|
+| Rollout 1 | [rollout-1-workbench-shell.md](./puck-edit/rollout-1-workbench-shell.md) | AppShell-owned Puck provider, `EditSidebar`, JSON props textarea, `InspectionPanel` deletion |
+| Rollout 2 | [rollout-2-reorder-scopes.md](./puck-edit/rollout-2-reorder-scopes.md) | Built-in Puck DnD reorder for screen-region, area, and component scopes |
+| Rollout 3 | [rollout-3-mount-unmount.md](./puck-edit/rollout-3-mount-unmount.md) | Mount/unmount as RenderTree children[] inclusion/exclusion, catalog materialization, save/reload |
+| Rollout 4 | [rollout-4-fields-persistence.md](./puck-edit/rollout-4-fields-persistence.md) | Typed fields, variant-aware props, JSON fallback, projection hardening |
 
-```text
-InspectionPanel removal
-EditSidebar shell
-AppShell-owned Puck provider for valid screen / area / component edit scopes
-ScreenCanvas Puck.Preview for edit scopes
-EditSidebar top PropertyPanel using Puck.Fields
-PropertyPanel props editing through JSON textarea stored as nodePropsJson
-EditSidebar bottom BlockCatalogPanel using the active block catalog surface
-existing save button persists reorder candidates
-```
-
-Rollout 1 constraints:
-
-- Custom DnD is forbidden.
-- Button/menu reorder controls are forbidden.
-- Puck data does not carry DB table names, parent ids, relation table names, or `order_index`.
-- The provider resolver must recognize component view, even if component-level operations are
-  enabled progressively.
-- Screen-region config/data must not assume `Screen.Contents` only. It may default the selected
-  region for smoke testing, but the model must include `Header / Contents / Bottom`.
-
-## Rollout 2: Reorder Across All Edit Scopes
-
-Scope:
+Rollout document index:
 
 ```text
-screen-region reorder across Header / Contents / Bottom zones
-area-level reorder for component blocks
-component-level reorder for primitive children
-Puck.Preview as the built-in reorder/drop surface
-onChange -> Puck data -> RenderTree candidate for every scope
+docs/development/puck-edit/README.md
 ```
 
-Validation:
+Shared implementation contract summary:
 
-- Screen-region reorder updates the correct region children[].
-- Cross-zone screen-region movement uses Puck's built-in zone-aware DnD.
-- Area reorder updates `area.children`.
-- Component reorder updates `component.children`.
-- Save projection computes `order_index` from RenderTree child order.
-- Existing `metadata.instanceId` values are preserved for reordered nodes.
+```ts
+type AppShellEditState = {
+  activeView: "screen" | "area" | "component" | "preview" | string;
+  selectedScreen?: RenderTreeScreenNodeContract;
+  selectedArea?: RenderTreeNodeContract;
+  selectedComponent?: RenderTreeNodeContract;
+  selectedRegionType?: ScreenRegionType;
+};
 
-## Rollout 3: Mount And Unmount As Children[] Inclusion
+type ScreenRegionType = "header" | "contents" | "bottom";
 
-Scope:
+type EditScope =
+  | { kind: "screen-region"; screen: RenderTreeScreenNodeContract; regionType: ScreenRegionType }
+  | { kind: "area"; screen: RenderTreeScreenNodeContract; area: RenderTreeNodeContract }
+  | { kind: "component"; screen: RenderTreeScreenNodeContract; component: RenderTreeNodeContract };
+```
+
+Shared AppShell flow:
 
 ```text
-screen-region mount/unmount of area blocks
-area-level mount/unmount of component blocks
-component-level mount/unmount of primitive catalog components
-catalog item -> RenderTree node creation
-temporary metadata.instanceId for newly mounted nodes
-save -> reload to replace temporary ids with persisted relation ids
+AppShell state
+-> resolveEditScope
+-> no edit scope: render normal ScreenCanvas + non-edit right sidebar state
+-> edit scope exists:
+   -> resolveCatalogSource
+   -> load/build catalog items
+   -> buildPuckConfigForScope
+   -> buildPuckDataForScope
+   -> <Puck config data onChange>
+      -> ScreenCanvas renders Puck.Preview
+      -> EditSidebar renders PropertyPanel + BlockCatalogPanel
+   -> onChange data
+   -> applyPuckChangeToScope
+   -> set whole-screen RenderTree candidate
 ```
 
-Rules:
+Forbidden shared shortcuts:
 
-- Mount means adding a node to the active scope children[].
-- Unmount means excluding a node from the active scope children[].
-- DB row deletion is not part of Puck mount/unmount.
-- DB projection consumes the next RenderTree candidate and decides persistence writes.
-
-Validation:
-
-- Inserted catalog items become renderable RenderTree nodes immediately.
-- Removed items disappear from the active scope candidate.
-- Persisted child ids remain stable for unchanged nodes.
-- New temporary ids disappear after save/reload.
-
-## Rollout 4: Field Controls And Persistence Hardening
-
-Scope:
-
-```text
-replace JSON textarea with catalog/schema-aware fields where contracts exist
-variant-aware primitive component prop controls
-better invalid JSON diagnostics while textarea remains available as fallback
-projection tests for all relation tables
-optional explicit DB removal behavior outside the Puck adapter
-```
-
-Rollout 4 keeps the core lifecycle unchanged:
-
-```text
-Puck edits arrays/props
--> RenderTree candidate
--> DB projection from RenderTree
-```
+- Do not implement a separate `PuckEditShell`.
+- Do not let Puck data contain DB table names, parent ids, relation table names, or `order_index`.
+- Do not implement local drag-and-drop or button/menu reorder controls.
+- Do not mutate old Zustand/store JSON structures from Puck `onChange`.
+- Do not use flat node arrays as the write model.
 
 ## Verification Checklist
 
@@ -2283,6 +2252,33 @@ Data checks:
 - DB `order_index` changes only within the edited parent scope.
 - No unrelated screen/area/component rows are changed.
 
-## Open Questions
+## Catalog Source Decision
 
-- Should block libraries come from current loaded DB rows, dedicated block APIs, or both?
+Block libraries should use current loaded data first, then move to dedicated APIs only when the
+library needs items that are not already present in the loaded screen context.
+
+Rollout source rule:
+
+```text
+Rollout 1
+-> use currently loaded screen/area/component context for smoke catalog sections
+
+Rollout 2
+-> keep catalog reads local because reorder does not require inserting new source items
+
+Rollout 3
+-> use loaded DB area blocks for screen-region mount
+-> use loaded DB component blocks for area mount
+-> use @cx/components/catalog for primitive component mount
+
+Rollout 4
+-> add dedicated block-library APIs only if the editor needs global reusable blocks outside the
+   loaded screen tree
+```
+
+Dedicated API rule:
+
+- Dedicated catalog APIs may improve discovery later.
+- They must return `MountableCatalogItem[]` or a directly mappable equivalent.
+- They must not change the Puck -> RenderTree -> DB projection lifecycle.
+- They must not make Puck aware of DB table names, parent ids, relation table names, or `order_index`.
