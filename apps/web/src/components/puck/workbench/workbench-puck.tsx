@@ -5,6 +5,7 @@ import {
 	applyPuckComponentData,
 	applyPuckScreenData,
 	type ItemKind,
+	type PuckCatalogItem,
 	type PuckScreenData,
 	type PuckScreenItem,
 	renderTreeToPuckAreaData,
@@ -12,6 +13,7 @@ import {
 	renderTreeToPuckScreenData,
 	screenRegionZoneIds,
 } from "@cx/adapters/puck";
+import { getPrimitivePuckCatalogItems } from "@cx/components/puck";
 import { RenderNodeView, type RenderTreeNode, type RenderTreeScreenNode } from "@cx/renderer";
 import type { Config, Data } from "@puckeditor/core";
 import { DropZone } from "@puckeditor/core";
@@ -24,8 +26,9 @@ export function buildPuckDataForScope(scope: EditScope): PuckScreenData {
 }
 
 export function buildPuckConfigForScope(scope: EditScope): Config {
+	const catalogItems = resolveCatalogItemsForScope(scope);
 	return {
-		components: buildPuckComponentsForScope(scope),
+		components: buildPuckComponentsForScope(scope, catalogItems),
 		root: buildPuckRootForScope(scope),
 	};
 }
@@ -39,11 +42,13 @@ export function normalizePuckData(data: Data, itemKind: ItemKind): PuckScreenDat
 }
 
 export function applyPuckChangeToScope(input: {
+	catalogItems?: PuckCatalogItem[];
 	data: PuckScreenData;
 	scope: EditScope;
 }): RenderTreeScreenNode {
 	if (input.scope.kind === "screen-region") {
 		return applyPuckScreenData({
+			catalogItems: input.catalogItems,
 			data: input.data,
 			screen: input.scope.screen,
 		}).node as RenderTreeScreenNode;
@@ -52,12 +57,14 @@ export function applyPuckChangeToScope(input: {
 	if (input.scope.kind === "area") {
 		const areaResult = applyPuckAreaData({
 			area: input.scope.area,
+			catalogItems: input.catalogItems,
 			data: input.data,
 		});
 		return replaceRenderTreeNode(input.scope.screen, areaResult.node as RenderTreeNode);
 	}
 
 	const componentResult = applyPuckComponentData({
+		catalogItems: input.catalogItems,
 		component: input.scope.component,
 		data: input.data,
 	});
@@ -70,7 +77,30 @@ export function readItemKindForScope(scope: EditScope): ItemKind {
 	return "component-child";
 }
 
-function buildPuckComponentsForScope(scope: EditScope): Config["components"] {
+export function resolveCatalogItemsForScope(scope: EditScope): PuckCatalogItem[] {
+	if (scope.kind === "screen-region") {
+		return scope.screen.children
+			.flatMap((region) => region.children ?? [])
+			.map((node) => renderTreeNodeToCatalogItem(node, "area"));
+	}
+
+	if (scope.kind === "area") {
+		return scope.screen.children
+			.flatMap((region) => region.children ?? [])
+			.flatMap((area) => area.children ?? [])
+			.map((node) => renderTreeNodeToCatalogItem(node, "component"));
+	}
+
+	return getPrimitivePuckCatalogItems().map((item) => ({
+		...item,
+		defaultProps: item.defaultProps as PuckCatalogItem["defaultProps"],
+	}));
+}
+
+function buildPuckComponentsForScope(
+	scope: EditScope,
+	catalogItems: PuckCatalogItem[],
+): Config["components"] {
 	const components: Config["components"] = {};
 	for (const node of readEditableNodes(scope)) {
 		components[node.metadata.id] = {
@@ -78,6 +108,25 @@ function buildPuckComponentsForScope(scope: EditScope): Config["components"] {
 			label: node.metadata.title,
 			render: (props) => {
 				const renderNode = applyPreviewProps(node, props);
+				return (
+					<div className="min-h-8 bg-background">
+						<RenderNodeView node={renderNode} />
+					</div>
+				);
+			},
+		};
+	}
+	for (const catalogItem of catalogItems) {
+		components[catalogItem.puckType] = {
+			defaultProps: {
+				itemKind: readItemKindForScope(scope),
+				nodePropsJson: stringifyNodeProps(catalogItem.defaultProps),
+				title: catalogItem.title,
+			},
+			fields: editableNodeFields,
+			label: catalogItem.title,
+			render: (props) => {
+				const renderNode = applyPreviewProps(createPreviewCatalogNode(catalogItem), props);
 				return (
 					<div className="min-h-8 bg-background">
 						<RenderNodeView node={renderNode} />
@@ -121,6 +170,35 @@ function ScreenRegionDropZone({ label, zone }: { label: string; zone: string }) 
 			<DropZone className="min-h-12 px-3 pb-3" minEmptyHeight={48} zone={zone} />
 		</section>
 	);
+}
+
+function renderTreeNodeToCatalogItem(node: RenderTreeNode, prefix: string): PuckCatalogItem {
+	return {
+		componentVersion: node.componentVersion,
+		defaultChildren: node.children,
+		defaultProps: node.props,
+		nodeType: node.type,
+		puckType: `catalog:${prefix}:${node.metadata.id}`,
+		title: node.metadata.title,
+	};
+}
+
+function createPreviewCatalogNode(catalogItem: PuckCatalogItem): RenderTreeNode {
+	return {
+		children: catalogItem.defaultChildren,
+		componentVersion: catalogItem.componentVersion ?? "1.0.0",
+		metadata: {
+			id: catalogItem.puckType,
+			title: catalogItem.title,
+		},
+		props: catalogItem.defaultProps,
+		type: catalogItem.nodeType,
+	};
+}
+
+function stringifyNodeProps(props: RenderTreeNode["props"]): string {
+	if (!props) return "{}";
+	return JSON.stringify(props, null, 2);
 }
 
 function applyPreviewProps(node: RenderTreeNode, props: Record<string, unknown>): RenderTreeNode {

@@ -30,6 +30,15 @@ export type PuckScreenItem = {
 	type: string;
 };
 
+export type PuckCatalogItem = {
+	componentVersion?: string;
+	defaultChildren?: RenderTreeNodeContract[];
+	defaultProps?: RenderTreeNodeContract["props"];
+	nodeType: string;
+	puckType: string;
+	title: string;
+};
+
 export type PuckScreenData = {
 	content: PuckScreenItem[];
 	root: {
@@ -44,6 +53,7 @@ export type PuckAdapterDiagnostic = {
 		| "invalid_node_props_json"
 		| "missing_contents_region"
 		| "missing_node_id"
+		| "unknown_catalog_item"
 		| "unknown_node";
 	id?: string;
 	severity: "error" | "warning";
@@ -108,6 +118,7 @@ export function renderTreeToPuckComponentData(input: {
 }
 
 export function applyPuckScreenData(input: {
+	catalogItems?: PuckCatalogItem[];
 	data: PuckScreenData;
 	screen: RenderTreeScreenNodeContract;
 }): ApplyPuckDataResult<RenderTreeScreenNodeContract> {
@@ -129,6 +140,7 @@ export function applyPuckScreenData(input: {
 	if (header) {
 		header.children = reorderChildren({
 			consumedIds,
+			catalogItems: input.catalogItems,
 			diagnostics,
 			sourceChildren,
 			items: input.data.zones[screenRegionZoneIds.header] ?? [],
@@ -136,6 +148,7 @@ export function applyPuckScreenData(input: {
 	}
 	contents.children = reorderChildren({
 		consumedIds,
+		catalogItems: input.catalogItems,
 		diagnostics,
 		sourceChildren,
 		items: input.data.zones[screenRegionZoneIds.contents] ?? input.data.content,
@@ -143,6 +156,7 @@ export function applyPuckScreenData(input: {
 	if (bottom) {
 		bottom.children = reorderChildren({
 			consumedIds,
+			catalogItems: input.catalogItems,
 			diagnostics,
 			sourceChildren,
 			items: input.data.zones[screenRegionZoneIds.bottom] ?? [],
@@ -157,10 +171,12 @@ export function applyPuckScreenData(input: {
 
 export function applyPuckAreaData(input: {
 	area: RenderTreeNodeContract;
+	catalogItems?: PuckCatalogItem[];
 	data: PuckScreenData;
 }): ApplyPuckDataResult<RenderTreeNodeContract> {
 	const area = cloneNode(input.area);
 	const result = reorderChildren({
+		catalogItems: input.catalogItems,
 		children: area.children ?? [],
 		items: input.data.content,
 	});
@@ -173,12 +189,14 @@ export function applyPuckAreaData(input: {
 }
 
 export function applyPuckComponentData(input: {
+	catalogItems?: PuckCatalogItem[];
 	component: RenderTreeNodeContract;
 	data: PuckScreenData;
 }): ApplyPuckDataResult<RenderTreeNodeContract> {
 	const component = cloneNode(input.component);
 	if (!component.children?.length) {
 		const result = reorderChildren({
+			catalogItems: input.catalogItems,
 			children: [component],
 			items: input.data.content,
 		});
@@ -189,6 +207,7 @@ export function applyPuckComponentData(input: {
 	}
 
 	const result = reorderChildren({
+		catalogItems: input.catalogItems,
 		children: component.children,
 		items: input.data.content,
 	});
@@ -254,6 +273,7 @@ function findScreenRegion(screen: RenderTreeScreenNodeContract, type: string) {
 
 function reorderChildren(input: {
 	children?: RenderTreeNodeContract[];
+	catalogItems?: PuckCatalogItem[];
 	consumedIds?: Set<string>;
 	diagnostics?: PuckAdapterDiagnostic[];
 	items: PuckScreenItem[];
@@ -265,6 +285,9 @@ function reorderChildren(input: {
 	const diagnostics = input.diagnostics ?? [];
 	const childById = new Map(
 		(input.sourceChildren ?? input.children ?? []).map((child) => [child.metadata.id, child]),
+	);
+	const catalogByPuckType = new Map(
+		(input.catalogItems ?? []).map((item) => [item.puckType, item]),
 	);
 	const consumedIds = input.consumedIds ?? new Set<string>();
 	const nextChildren: RenderTreeNodeContract[] = [];
@@ -282,7 +305,18 @@ function reorderChildren(input: {
 
 		const child = childById.get(nodeId);
 		if (!child) {
-			diagnostics.push({ code: "unknown_node", id: nodeId, severity: "warning" });
+			const catalogItem = catalogByPuckType.get(item.type);
+			if (!catalogItem) {
+				diagnostics.push({ code: "unknown_node", id: nodeId, severity: "warning" });
+				continue;
+			}
+			const nextChild = applyPuckItemToNode(
+				createMountedNode(catalogItem, item),
+				item,
+				diagnostics,
+			);
+			consumedIds.add(nextChild.metadata.id);
+			nextChildren.push(nextChild);
 			continue;
 		}
 
@@ -294,6 +328,23 @@ function reorderChildren(input: {
 	return {
 		children: nextChildren,
 		diagnostics,
+	};
+}
+
+function createMountedNode(
+	catalogItem: PuckCatalogItem,
+	item: PuckScreenItem,
+): RenderTreeNodeContract {
+	const idSource = item.props.id || item.props.nodeId || catalogItem.puckType;
+	return {
+		children: catalogItem.defaultChildren?.map(cloneNode),
+		componentVersion: catalogItem.componentVersion ?? "1.0.0",
+		metadata: {
+			id: idSource.startsWith("tmp:") ? idSource : `tmp:${idSource}`,
+			title: item.props.title ?? catalogItem.title,
+		},
+		props: catalogItem.defaultProps ? cloneJsonValue(catalogItem.defaultProps) : undefined,
+		type: catalogItem.nodeType,
 	};
 }
 

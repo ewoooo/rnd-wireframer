@@ -183,6 +183,51 @@ describe("@cx/adapters/puck", () => {
 		]);
 	});
 
+	it("mounts inserted catalog items as temporary RenderTree nodes", () => {
+		const area = screenFixture.children[1].children[0];
+		const result = applyPuckAreaData({
+			area,
+			catalogItems: [
+				{
+					defaultProps: { label: "추가 버튼", variant: "primary" },
+					nodeType: "Button",
+					puckType: "catalog:Button",
+					title: "Button",
+				},
+			],
+			data: {
+				...renderTreeToPuckAreaData(area),
+				content: [
+					{
+						type: "component-a",
+						props: { id: "component-a", itemKind: "area-child", nodeId: "component-a" },
+					},
+					{
+						type: "catalog:Button",
+						props: {
+							id: "inserted-button",
+							itemKind: "area-child",
+							nodeId: "inserted-button",
+							nodePropsJson: JSON.stringify({ label: "수정된 버튼" }),
+							title: "Mounted Button",
+						},
+					},
+				],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.map((child) => child.metadata.id)).toEqual([
+			"component-a",
+			"tmp:inserted-button",
+		]);
+		expect(result.node.children?.[1]).toMatchObject({
+			metadata: { title: "Mounted Button" },
+			props: { label: "수정된 버튼" },
+			type: "Button",
+		});
+	});
+
 	it("applies edited title and props JSON from Puck data", () => {
 		const area = screenFixture.children[1].children[0];
 		const result = applyPuckAreaData({

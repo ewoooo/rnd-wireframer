@@ -11,6 +11,7 @@ import {
 	buildPuckDataForScope,
 	normalizePuckData,
 	readItemKindForScope,
+	resolveCatalogItemsForScope,
 } from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
@@ -76,6 +77,7 @@ export function AppShell() {
 		selectedScreen: visibleScreen?.renderTree,
 	});
 	const isEditingWithPuck = isPuckEditTab(activeTab) && !!editScope;
+	const catalogItems = editScope ? resolveCatalogItemsForScope(editScope) : [];
 	const [activeRouteId, setActiveRouteId] = useState(
 		initialScreen?.screenRouteId ?? screenRoutes[0]?.id ?? "",
 	);
@@ -191,7 +193,11 @@ export function AppShell() {
 	function handlePuckChange(nextData: Data) {
 		if (!editScope || !visibleScreen) return;
 		const puckData = normalizePuckData(nextData, readItemKindForScope(editScope));
-		const nextScreen = applyPuckChangeToScope({ data: puckData, scope: editScope });
+		const nextScreen = applyPuckChangeToScope({
+			catalogItems,
+			data: puckData,
+			scope: editScope,
+		});
 		handleScreenCandidateChange(visibleScreen.id, nextScreen);
 	}
 
@@ -204,11 +210,11 @@ export function AppShell() {
 			iframe={{ enabled: false }}
 			onChange={handlePuckChange}
 			permissions={{
-				delete: false,
+				delete: true,
 				drag: true,
 				duplicate: false,
 				edit: true,
-				insert: false,
+				insert: true,
 			}}
 		>
 			{workbenchLayout}
