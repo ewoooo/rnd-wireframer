@@ -5,16 +5,14 @@ export const RENDER_TREE_NODE_TYPE = {
 	areaStatic: "area.static",
 	layoutFlex: "Layout.Flex",
 	layoutGrid: "Layout.Grid",
+	pageStack: "PageStack",
 	screen: "Screen",
 	screenBottom: "Screen.Bottom",
 	screenContents: "Screen.Contents",
 	screenHeader: "Screen.Header",
 } as const;
 
-export const RENDER_TREE_AREA_NODE_TYPES = [
-	RENDER_TREE_NODE_TYPE.areaStatic,
-	RENDER_TREE_NODE_TYPE.areaDynamic,
-] as const;
+export const RENDER_TREE_SCREEN_ROOT_NODE_TYPES = [RENDER_TREE_NODE_TYPE.screen] as const;
 
 export const RENDER_TREE_SCREEN_REGION_NODE_TYPES = [
 	RENDER_TREE_NODE_TYPE.screenHeader,
@@ -22,9 +20,32 @@ export const RENDER_TREE_SCREEN_REGION_NODE_TYPES = [
 	RENDER_TREE_NODE_TYPE.screenBottom,
 ] as const;
 
+export const RENDER_TREE_LAYOUT_NODE_TYPES = [
+	RENDER_TREE_NODE_TYPE.layoutFlex,
+	RENDER_TREE_NODE_TYPE.layoutGrid,
+] as const;
+
+export const RENDER_TREE_WRAPPER_NODE_TYPES = [RENDER_TREE_NODE_TYPE.pageStack] as const;
+
+export const RENDER_TREE_AREA_NODE_TYPES = [
+	RENDER_TREE_NODE_TYPE.areaStatic,
+	RENDER_TREE_NODE_TYPE.areaDynamic,
+] as const;
+
+/**
+ * 노드 type을 구조 역할(screenRoot/screenRegion/layout/wrapper/area)별로 묶은 그룹이다.
+ * renderer/layout이 각자 평행하게 정의하던 노드 type 어휘를 이 한 곳에서만 파생하도록 한다.
+ */
+export const RENDER_TREE_NODE_TYPE_GROUPS = {
+	area: RENDER_TREE_AREA_NODE_TYPES,
+	layout: RENDER_TREE_LAYOUT_NODE_TYPES,
+	screenRegion: RENDER_TREE_SCREEN_REGION_NODE_TYPES,
+	screenRoot: RENDER_TREE_SCREEN_ROOT_NODE_TYPES,
+	wrapper: RENDER_TREE_WRAPPER_NODE_TYPES,
+} as const;
+
 export type RenderTreeAreaNodeType = (typeof RENDER_TREE_AREA_NODE_TYPES)[number];
-export type RenderTreeScreenRegionNodeType =
-	(typeof RENDER_TREE_SCREEN_REGION_NODE_TYPES)[number];
+export type RenderTreeScreenRegionNodeType = (typeof RENDER_TREE_SCREEN_REGION_NODE_TYPES)[number];
 
 export const SCREEN_REGION_TYPE_BY_NODE_TYPE = {
 	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",

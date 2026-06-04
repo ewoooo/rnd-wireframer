@@ -5,10 +5,10 @@ import type {
 	ComponentPropContract,
 	ComponentPropType,
 } from "@cx/components/types";
-import { LAYOUT_NODE_TYPES } from "@cx/layout/types";
+import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
 import { findPattern } from "@cx/layout-pattern-store";
 import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
-import { getJsonSchema } from "@cx/schema";
+import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type {
@@ -41,62 +41,12 @@ type IssueInput = Omit<ValidationIssue, "severity"> & {
 };
 
 const STRUCTURAL_NODE_TYPES = new Set<string>([
-	...LAYOUT_NODE_TYPES.screenRoot,
-	...LAYOUT_NODE_TYPES.screenRegion,
-	...LAYOUT_NODE_TYPES.layout,
-	"PageStack",
-	"area.static",
-	"area.dynamic",
+	...RENDER_TREE_NODE_TYPE_GROUPS.screenRoot,
+	...RENDER_TREE_NODE_TYPE_GROUPS.screenRegion,
+	...RENDER_TREE_NODE_TYPE_GROUPS.layout,
+	...RENDER_TREE_NODE_TYPE_GROUPS.wrapper,
+	...RENDER_TREE_NODE_TYPE_GROUPS.area,
 ]);
-
-const LAYOUT_PROP_CONTRACTS = {
-	"Layout.Flex": {
-		enumProps: {
-			direction: ["row", "column"],
-			align: ["start", "center", "end", "stretch"],
-			justify: ["start", "center", "end", "between"],
-		},
-		numberProps: ["gap", "paddingX", "paddingY"],
-		stringProps: [],
-		booleanProps: [],
-		requiredProps: ["direction"],
-	},
-	"Layout.Grid": {
-		enumProps: {
-			align: ["start", "center", "end", "stretch"],
-			justify: ["start", "center", "end", "stretch"],
-		},
-		numberProps: ["gap", "paddingX", "paddingY"],
-		stringProps: ["columns", "rows"],
-		booleanProps: [],
-		requiredProps: [],
-	},
-	"Screen.Header": {
-		enumProps: {
-			position: ["fixed", "sticky", "static"],
-		},
-		numberProps: ["height", "zIndex"],
-		stringProps: [],
-		booleanProps: [],
-		requiredProps: [],
-	},
-	"Screen.Contents": {
-		enumProps: {},
-		numberProps: [],
-		stringProps: [],
-		booleanProps: ["scroll"],
-		requiredProps: [],
-	},
-	"Screen.Bottom": {
-		enumProps: {
-			position: ["fixed", "sticky", "static"],
-		},
-		numberProps: ["height", "zIndex"],
-		stringProps: [],
-		booleanProps: ["safeArea"],
-		requiredProps: [],
-	},
-} as const;
 
 const COMPONENT_PROP_TYPE_CHECKS = {
 	array: Array.isArray,
@@ -234,7 +184,7 @@ export function validateRenderTree(
 		validateNode(node, ["children", index], options, issues, ids);
 	});
 
-	if (!children.some((node) => isRecord(node) && node.type === "Screen")) {
+	if (!children.some((node) => isRecord(node) && node.type === RENDER_TREE_NODE_TYPE.screen)) {
 		addIssue(issues, {
 			code: "invalid-render-node",
 			message: "RenderTree must include a Screen root node.",
@@ -778,7 +728,7 @@ function validateNode(
 		validateListTextVisibleTextProps(input.type, props, [...path, "props"], issues);
 	}
 
-	if (input.type === "Screen") {
+	if (input.type === RENDER_TREE_NODE_TYPE.screen) {
 		validateScreenStructure(input, path, issues);
 	}
 
@@ -865,10 +815,12 @@ function validateRequiredLayoutPatternForNode(
 function getExpectedLayoutTargetForNodeType(
 	nodeType: string,
 ): "area" | "composite" | "region" | "screen" | undefined {
-	if (nodeType === "Screen") return "screen";
-	if (LAYOUT_NODE_TYPES.screenRegion.some((regionType) => regionType === nodeType)) return "region";
+	if (nodeType === RENDER_TREE_NODE_TYPE.screen) return "screen";
+	if (RENDER_TREE_NODE_TYPE_GROUPS.screenRegion.some((regionType) => regionType === nodeType))
+		return "region";
 	if (nodeType.startsWith("area.")) return "area";
-	if (LAYOUT_NODE_TYPES.layout.some((layoutType) => layoutType === nodeType)) return undefined;
+	if (RENDER_TREE_NODE_TYPE_GROUPS.layout.some((layoutType) => layoutType === nodeType))
+		return undefined;
 	return "composite";
 }
 
@@ -878,7 +830,7 @@ function validateScreenStructure(
 	issues: ValidationIssue[],
 ) {
 	const children = node.children;
-	const expectedTypes = LAYOUT_NODE_TYPES.screenRegion;
+	const expectedTypes = RENDER_TREE_NODE_TYPE_GROUPS.screenRegion;
 
 	if (!Array.isArray(children) || children.length !== expectedTypes.length) {
 		addIssue(issues, {
@@ -1100,7 +1052,7 @@ function validateLayoutPropsForType(
 
 	if ("layout" in props) {
 		validateLayoutPropsForType(
-			"Layout.Flex",
+			RENDER_TREE_NODE_TYPE.layoutFlex,
 			props.layout as Record<string, unknown>,
 			[...path, "layout"],
 			issues,

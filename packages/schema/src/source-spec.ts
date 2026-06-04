@@ -1,3 +1,4 @@
+import type { RenderTreeAreaNodeType } from "./render-tree";
 import type { SCHEMA_VERSION } from "./versions";
 
 export type SourceFileKind = "area" | "component" | "screen" | "unknown";
@@ -43,7 +44,7 @@ export type SourceSpecAreaNode = {
 	layout?: string;
 	maxCount?: string;
 	minCount?: string;
-	renderNodeType?: "area.dynamic" | "area.static";
+	renderNodeType?: RenderTreeAreaNodeType;
 	sourceAreaId: string;
 	sourceAreaName?: string;
 	visibility?: string;

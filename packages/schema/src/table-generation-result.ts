@@ -1,3 +1,4 @@
+import type { RenderTreeAreaNodeType } from "./render-tree";
 import type { SCHEMA_VERSION } from "./versions";
 
 export type TableChildRef = {
@@ -43,7 +44,7 @@ export type TableGenerationArea = {
 	layout: string;
 	metadata: TableGenerationMetadata;
 	props?: Record<string, unknown>;
-	type: "area.dynamic" | "area.static";
+	type: RenderTreeAreaNodeType;
 	version: string;
 };
 

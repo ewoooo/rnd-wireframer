@@ -14,14 +14,12 @@ import type {
 	RenderTreeFlexLayoutProps as SchemaRenderTreeFlexLayoutProps,
 	RenderTreeGridLayoutProps as SchemaRenderTreeGridLayoutProps,
 } from "@cx/schema";
+import { RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
 
-export const NODE_TYPES = {
-	screenRoot: ["Screen"],
-	screenRegion: ["Screen.Header", "Screen.Contents", "Screen.Bottom"],
-	layout: ["Layout.Flex", "Layout.Grid"],
-	wrapper: ["PageStack"],
-	area: ["area.static", "area.dynamic"],
-} as const;
+/**
+ * 노드 type 어휘의 정본은 @cx/schema다. renderer는 그 그룹을 그대로 재노출만 한다.
+ */
+export const NODE_TYPES = RENDER_TREE_NODE_TYPE_GROUPS;
 
 export type PropBinding = SchemaPropBinding;
 export type PropValue = SchemaPropValue;

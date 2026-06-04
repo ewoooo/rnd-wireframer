@@ -11,6 +11,9 @@
 		"./style": "./src/public/style.ts",
 		"./types": "./src/public/types.ts"
 	},
+	"dependencies": {
+		"@cx/schema": "0.1.0"
+	},
 	"peerDependencies": {
 		"react": "^19.2.0"
 	}

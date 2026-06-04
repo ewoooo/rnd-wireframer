@@ -197,7 +197,11 @@ function readLayout(node: RenderTreeNodeContract, fallback: string, warnings: st
 }
 
 function isGeneratedWrapper(node: RenderTreeNodeContract) {
-	return node.type === "Layout.Flex" || node.type === "Layout.Grid" || node.type === "PageStack";
+	return (
+		node.type === RENDER_TREE_NODE_TYPE.layoutFlex ||
+		node.type === RENDER_TREE_NODE_TYPE.layoutGrid ||
+		node.type === RENDER_TREE_NODE_TYPE.pageStack
+	);
 }
 
 function isGeneratedDivider(node: RenderTreeNodeContract) {

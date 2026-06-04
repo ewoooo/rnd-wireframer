@@ -1,5 +1,6 @@
 import type { GenerationArtifactKind } from "./artifact-kind";
 import { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
+import { RENDER_TREE_AREA_NODE_TYPES } from "./render-tree";
 import { SCHEMA_VERSION } from "./versions";
 
 export type JsonSchemaDocument = Record<string, unknown> & {
@@ -647,7 +648,7 @@ function createTableGenerationResultJsonSchema(): JsonSchemaDocument {
 					version: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/metadata" },
 					layout: layoutIdSchema("area"),
-					type: { enum: ["area.static", "area.dynamic"] },
+					type: { enum: [...RENDER_TREE_AREA_NODE_TYPES] },
 					props: { type: "object" },
 					children: { type: "array", items: childRef },
 				},
