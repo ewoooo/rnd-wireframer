@@ -4,6 +4,10 @@ import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
+import {
+	type NewScreenSourceItem,
+	NewScreenSourcePanel,
+} from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import type {
 	NavigationNodeItem,
 	NavigatorTab,
@@ -20,12 +24,19 @@ type NavigationRoutesProps = {
 	onSelectScreen: (screenId: string) => void;
 	onSelectArea: (areaId: string) => void;
 	onSelectComponent: (componentId: string) => void;
+	onSelectNewScreenSource?: (path: string) => void;
 	screenModules: ScreenModuleGroup[];
 	screenRoute?: ScreenRouteGroup;
+	newScreenSourceError?: string;
+	newScreenSources?: NewScreenSourceItem[];
+	onRunSelectedNewScreenSource?: () => void;
+	onUploadNewScreenSource?: (file: File) => void | Promise<void>;
 	selectedAreaId?: string;
 	selectedComponentId?: string;
+	selectedNewScreenSourcePath?: string;
 	selectedScreenId?: string;
 	selectedScreenTitle?: string;
+	isUploadingNewScreenSource?: boolean;
 };
 
 export function NavigationRoutes({
@@ -37,16 +48,33 @@ export function NavigationRoutes({
 	onSelectScreen,
 	onSelectArea,
 	onSelectComponent,
+	onSelectNewScreenSource,
 	screenModules,
 	screenRoute,
+	newScreenSourceError,
+	newScreenSources = [],
+	onRunSelectedNewScreenSource,
+	onUploadNewScreenSource,
 	selectedAreaId,
 	selectedComponentId,
+	selectedNewScreenSourcePath,
 	selectedScreenId,
 	selectedScreenTitle,
+	isUploadingNewScreenSource = false,
 }: NavigationRoutesProps) {
 	return (
 		<Sidebar side="left">
-			{activeTab === "scn" ? (
+			{activeTab === "agent" ? (
+				<NewScreenSourcePanel
+					errorMessage={newScreenSourceError}
+					isUploading={isUploadingNewScreenSource}
+					onRunSelectedSource={onRunSelectedNewScreenSource}
+					onSelectSource={onSelectNewScreenSource ?? (() => {})}
+					onUploadSource={onUploadNewScreenSource ?? (() => {})}
+					selectedSourcePath={selectedNewScreenSourcePath}
+					sources={newScreenSources}
+				/>
+			) : activeTab === "scn" ? (
 				<ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1 overflow-hidden">
 					<ResizablePanel defaultSize={35} minSize={15}>
 						<div className="flex h-full min-h-0 flex-col overflow-hidden">
@@ -197,15 +225,7 @@ function NavigationNodeListItem({
 	);
 }
 
-function PanelTitle({
-	count,
-	icon,
-	title,
-}: {
-	count: number;
-	icon: ReactNode;
-	title: string;
-}) {
+function PanelTitle({ count, icon, title }: { count: number; icon: ReactNode; title: string }) {
 	return (
 		<div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
 			<div className="flex min-w-0 items-center gap-1.5">

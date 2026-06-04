@@ -34,6 +34,21 @@ describe("App workbench navigation", () => {
 		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
 		expect(screen.getByRole("button", { name: "새 화면" })).toHaveAttribute("aria-pressed", "true");
+		expect(screen.getByText("Markdown 드롭")).toBeInTheDocument();
+		expect(screen.getByText("업로드된 screenId가 없습니다.")).toBeInTheDocument();
+
+		const fileInput = document.querySelector<HTMLInputElement>("input[type='file']");
+		expect(fileInput).not.toBeNull();
+		fireEvent.change(fileInput as HTMLInputElement, {
+			target: {
+				files: [new File(["---\n화면 ID: NOVA-UPLOAD-PG-001-0\n---"], "NOVA-UPLOAD-PG-001-0.md")],
+			},
+		});
+
+		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect(
+			screen.getByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
+		).toBeInTheDocument();
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
@@ -178,6 +193,17 @@ function stubScreenFetch() {
 			const url = new URL(String(input), "http://localhost");
 			if (url.pathname === "/api/screens") {
 				return Response.json({ screens });
+			}
+			if (url.pathname === "/api/screen-inference/sources") {
+				return Response.json({
+					source: {
+						batchId: "20260604",
+						importId: "web-upload",
+						path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+						screenId: "NOVA-UPLOAD-PG-001-0",
+						type: "file",
+					},
+				});
 			}
 			const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
 			if (treeMatch) {

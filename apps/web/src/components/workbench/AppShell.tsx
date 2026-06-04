@@ -19,6 +19,7 @@ import type { SaveState } from "@/components/workbench/canvas/CanvasToolbar";
 import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
+import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import {
 	collectScreenAreas,
@@ -46,6 +47,11 @@ type ScreenTreeApiResponse = {
 	node?: RenderTreeScreenNode;
 };
 
+type ScreenInferenceSourceUploadResponse = {
+	error?: string;
+	source?: NewScreenSourceItem;
+};
+
 export function AppShell() {
 	const [screens, setScreens] = useState<ScreenSummary[]>([]);
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -54,8 +60,12 @@ export function AppShell() {
 	});
 	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
+	const [newScreenSourceError, setNewScreenSourceError] = useState("");
+	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>([]);
+	const [isUploadingNewScreenSource, setIsUploadingNewScreenSource] = useState(false);
 	const [selectedAreaId, setSelectedAreaId] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState("");
+	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState("");
 	const [screenCandidates, setScreenCandidates] = useState<Record<string, RenderTreeScreenNode>>(
 		{},
 	);
@@ -141,6 +151,27 @@ export function AppShell() {
 		setSelectedComponentId(componentId);
 	}
 
+	function handleSelectNewScreenSource(path: string) {
+		setSelectedNewScreenSourcePath(path);
+	}
+
+	async function handleUploadNewScreenSource(file: File) {
+		setIsUploadingNewScreenSource(true);
+		setNewScreenSourceError("");
+		try {
+			const source = await uploadScreenInferenceSource(file);
+			setNewScreenSources((current) => {
+				const withoutDuplicate = current.filter((item) => item.path !== source.path);
+				return [source, ...withoutDuplicate];
+			});
+			setSelectedNewScreenSourcePath(source.path);
+		} catch (error) {
+			setNewScreenSourceError(readErrorMessage(error));
+		} finally {
+			setIsUploadingNewScreenSource(false);
+		}
+	}
+
 	function handleScreenCandidateChange(screenId: string, node: RenderTreeScreenNode) {
 		setScreenCandidates((current) => ({
 			...current,
@@ -187,14 +218,20 @@ export function AppShell() {
 					components={visibleComponentItems}
 					onSelectArea={handleSelectArea}
 					onSelectComponent={handleSelectComponent}
+					onSelectNewScreenSource={handleSelectNewScreenSource}
 					onSelectRoute={handleSelectRoute}
 					onSelectScreen={handleSelectScreen}
 					screenModules={screenModules}
 					screenRoute={activeRoute}
+					newScreenSourceError={newScreenSourceError}
+					newScreenSources={newScreenSources}
+					onUploadNewScreenSource={handleUploadNewScreenSource}
 					selectedAreaId={selectedArea?.metadata.id}
 					selectedComponentId={selectedComponent?.metadata.id}
+					selectedNewScreenSourcePath={selectedNewScreenSourcePath}
 					selectedScreenId={visibleScreen?.id}
 					selectedScreenTitle={visibleScreen?.title}
+					isUploadingNewScreenSource={isUploadingNewScreenSource}
 				/>
 				<Canvas
 					activeTab={activeTab}
@@ -268,6 +305,24 @@ async function fetchScreensFromApi(): Promise<ScreenSummary[]> {
 			};
 		}),
 	);
+}
+
+async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
+	const formData = new FormData();
+	formData.set("file", file);
+	formData.set("importId", "web-upload");
+
+	const response = await fetch("/api/screen-inference/sources", {
+		body: formData,
+		method: "POST",
+	});
+	const body = (await response.json()) as ScreenInferenceSourceUploadResponse;
+
+	if (!response.ok || body.error || !body.source) {
+		throw new Error(body.error ?? `새 화면 source 업로드 실패 ${response.status}`);
+	}
+
+	return body.source;
 }
 
 function readErrorMessage(error: unknown): string {
