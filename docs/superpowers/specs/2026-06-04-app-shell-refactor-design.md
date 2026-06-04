@@ -34,6 +34,7 @@
 2. **리팩터 성격**: 순수 구조 이동 + 명백한 개선만. 동작은 100% 보존하고, 훅화 과정에서 자연스럽게 생기는 `useMemo` 정도만 적용한다. 동작을 바꾸는 정리는 범위 밖.
 3. **훅 입도**: A안 — 3개 도메인 훅 + 얇은 컨테이너. (6~8개 잘게 쪼개기는 과분해, 단일 마스터 훅은 god 모듈이 그대로 이동할 뿐이라 둘 다 기각.)
 4. **`saveState`**: 도메인 A가 소유하고 도메인 B에 setter를 주입. (별도 `useSaveState` 분리는 YAGNI.)
+   - ⚠️ 정정: 본 설계 초안의 "파생상태 useMemo 적용" 제안은 무효다. 프로젝트가 `useMemo`/`useCallback`을 lint 정책으로 금지하므로 파생상태는 plain const로 둔다.
 5. **`activeTab`**: AppShell이 직접 소유(useState 하나). 세 훅 모두의 입력이라 어느 한 훅에 넣으면 순환이 생긴다.
 6. **훅 위치**: `model/workbench/`. 기존 `model/workbench-view-model.ts`, `model/puck-edit-scope.ts`와 같은 계층(도메인 로직)이며 훅은 그것들을 소비하는 상위 계층이다.
 
