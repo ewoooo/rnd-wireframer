@@ -5,14 +5,8 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./chrome": "./src/public/chrome.ts",
-		"./contract": "./src/public/contract.ts",
-		"./primitives": "./src/public/primitives.ts",
-		"./style": "./src/public/style.ts",
-		"./types": "./src/public/types.ts"
-	},
-	"dependencies": {
-		"@cx/schema": "0.1.0"
+		"./chrome": "./src/chrome/index.ts",
+		"./primitives": "./src/primitives/index.ts"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

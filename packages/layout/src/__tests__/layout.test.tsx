@@ -1,7 +1,7 @@
-import { AppScreen, BottomFixedArea, Flex, HStack, PageStack, VStack } from "@cx/layout";
-import type { ScreenNode } from "@cx/layout/types";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { AppScreen, Flex } from "../index";
+import type { ScreenNode } from "../types";
 
 const metadata = (id: string, title: string) => ({
 	id,
@@ -107,35 +107,5 @@ describe("@cx/layout", () => {
 
 		const layout = screen.getByText("left").parentElement;
 		expect(layout).toHaveClass("flex", "flex-row", "gap-cx-8", "justify-between", "items-center");
-	});
-
-	it("renders stack primitives as Flex syntax sugar", () => {
-		render(
-			<>
-				<VStack gap={8}>
-					<span>vertical</span>
-				</VStack>
-				<HStack gap={12}>
-					<span>horizontal</span>
-				</HStack>
-				<PageStack>
-					<span>page</span>
-				</PageStack>
-				<BottomFixedArea>
-					<span>bottom</span>
-				</BottomFixedArea>
-			</>,
-		);
-
-		expect(screen.getByText("vertical").parentElement).toHaveClass("flex", "flex-col", "gap-cx-8");
-		expect(screen.getByText("horizontal").parentElement).toHaveClass(
-			"flex",
-			"flex-row",
-			"gap-cx-12",
-		);
-		const pageStack = screen.getByText("page").closest("[data-node-type='PageStack']");
-		expect(pageStack?.tagName).toBe("SECTION");
-		expect(pageStack).toHaveStyle({ paddingBlock: "28px", paddingInline: "12px" });
-		expect(screen.getByText("bottom").parentElement).toHaveStyle({ position: "sticky" });
 	});
 });

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "@cx/components/tailwind.css";
 @import "@cx/components/styles.css";
 
 @theme {
@@ -38,6 +37,7 @@
 	border-color: var(--color-border);
 }
 
+
 html,
 body {
 	min-height: 100%;
@@ -56,4 +56,19 @@ input,
 textarea,
 select {
 	font: inherit;
+}
+
+/* Area List(Puck Components drawer) 항목을 도메인/루트 패널의 루트명 스타일에 맞춤 */
+.area-list-drawer [class*="_DrawerItem-draggable_"] {
+	background: transparent !important;
+	border: none !important;
+	border-radius: var(--radius-md) !important;
+	padding: 0.5rem 0.75rem !important;
+	font-size: 0.875rem !important;
+	font-weight: 400 !important;
+	color: var(--color-foreground) !important;
+}
+.area-list-drawer [class*="_DrawerItem-draggable_"]:hover {
+	background: var(--color-accent) !important;
+	color: var(--color-foreground) !important;
 }

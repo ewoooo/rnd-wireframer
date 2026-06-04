@@ -1,330 +1,114 @@
-# Project Structure
+# 프로젝트 구조 규칙
 
 ## 1. 문서 책임
 
-이 문서는 저장소 디렉토리와 현재 패키지 책임 경계를 정의한다.
+이 문서는 저장소가 커질 때 디렉토리와 파일 배치를 결정하는 기준만 정의한다.
 
-패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
-`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
+제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 기술 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md), 데이터 계약은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
-현재 생성 과정은 재설계된 패키지 경계 기준으로 운영한다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog와 layout component registry 패키지로 운영한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
-
-## 2. 패키지 기준
-
-| 패키지 | 책임 |
-|---|---|
-| `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
-| `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 |
-| `@cx/renderer` | RenderTree JSON -> React render |
-| `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
-| `@cx/components` | leaf component 구현과 catalog 값/계약 |
-| `@cx/layout` | 화면 chrome과 layout primitive |
-| `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
-| `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
-| `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
-| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
-
-개발자용 앱:
-
-| 앱 | 책임 |
-|---|---|
-| `@cx/smoke` | generation smoke flow를 반복 실행하는 통합 앱 |
-
-제거된 패키지:
-
-- `@cx/importer`
-- `@cx/parser`
-- `@cx/types`
-- `@cx/workflow`
-
-## 3. `packages/renderer`
-
-`@cx/renderer`은 json-to-render만 담당한다.
+## 2. 최상위 구조
 
 ```text
-packages/renderer/src/
-  index.ts       public renderer API
-  render/        public renderer compatibility entrypoint
-  interpreter/   RenderTree 순회, screen slot, layout wrapping, component render 실행
-  adapters/      layout/component resolve, prop coercion, primitive render, area policy, missing policy
-  runtime/       interpreter value helper
-  tree/          RenderTree JSON 타입, path, binding helper
-  nodes/area/    area.static / area.dynamic 내부 표시 정책
+apps/        제품 앱
+packages/    재사용 가능한 TypeScript 패키지
+services/    독립 실행 백엔드/worker
+database/    AI import 산출물, table dump, reference store
+docs/        개발/데이터/디자인 문서와 분석 산출물
+e2e/         제품 흐름 기준 end-to-end 테스트
+scripts/     저장소 공통 검사와 자동화 스크립트
 ```
 
-두지 않는 책임:
+루트에는 전역 운영 문서와 workspace 설정만 둔다. `AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 루트에 유지하고, 세부 문서는 `docs/` 아래 책임 문서로 분리한다.
 
-- table 후보 생성
-- `database/tables` -> RenderTree projection
-- schema/runtime validation
-- PRDD parser/register/materializer
-- AI runner/session adapter
-- component catalog CRUD
-- layout pattern CRUD/selection
-- fallback UI로 unknown node/component/layout을 성공 렌더처럼 숨기는 책임
+## 3. 패키지 구조 규칙
 
-## 3-1. `packages/adapters`
-
-`@cx/adapters`는 외부 표현과 내부 계약 사이의 순수 변환 패키지다.
+패키지는 package name의 책임을 기준으로 나누고, 한 패키지 안에서는 기능 단계별 디렉토리를 둔다.
 
 ```text
-packages/adapters/src/
-  index.ts       public adapter package metadata
-  markdown/      Markdown/client input -> SourceSpec
-  table/         DB/read-model row bundle -> RenderTree, RenderTree -> table projection
-  puck/          RenderTree <-> Puck editable data
+packages/{name}/
+  AGENTS.md
+  README.md
+  package.json
+  src/
+    __tests__/
+    index.ts
+    types.ts        # 패키지 내부 타입. 공유 계약은 @cx/types 우선
+    {responsibility}/
+      *.ts
 ```
 
-공개 API는 subpath를 기준으로 사용한다.
+새 파일을 추가할 때의 기본 판단:
 
-```ts
-import { materializeRenderScreenFromRows } from "@cx/adapters/table";
-import { parseMarkdownSourceBundle } from "@cx/adapters/markdown";
-import { renderTreeToTableGenerationResult } from "@cx/adapters/table";
-import { renderTreeToPuckScreenData } from "@cx/adapters/puck";
-```
+- 외부 패키지에서 공유해야 하는 계약 타입은 `packages/types`의 `@cx/types`에 둔다. 한 패키지 내부에서만 쓰는 타입만 해당 패키지 `src/types.ts`에 둔다.
+- 공개 import 표면은 `src/index.ts`와 `package.json` `exports`
+- 특정 단계의 구현은 해당 책임 폴더
+- Node.js 전용 adapter는 루트 export에 섞지 않고 subpath export
+- reference catalog나 fixture를 직접 소유하지 않는 패키지는 `database/` 또는 `docs/`의 계약을 읽는다
 
-책임:
+## 4. `packages/agent` 구조
 
-- 이미 로드된 plain object 입력을 받는다.
-- Markdown/source bundle을 SourceSpec으로 정규화한다.
-- table/read-model row 관계를 따라 `RenderTreeScreenNode`를 만든다.
-- RenderTree를 table generation result로 투영한다.
-- RenderTree와 Puck editable data를 상호 변환한다.
-- missing reference, child order, unknown/duplicate Puck item, invalid props JSON 문제를 diagnostics로 반환한다.
-- 파일 IO 없이 순수 함수로 동작한다.
-
-두지 않는 책임:
-
-- React render
-- Puck React UI
-- layout 선택
-- pattern 추천
-- spacing/default 보정
-- validation rule 판정
-- DB/REST 호출
-- table 파일 읽기/쓰기
-
-## 4. `packages/component`
-
-`@cx/components`는 외부에 하나의 component vocabulary만 공개한다. 정본 component와 candidate component의 status는 패키지 내부에서만 관리하고, 외부 catalog shape에는 노출하지 않는다.
+`@cx/agent`는 AI 실행 전후 deterministic pipeline이므로 단계 이름이 디렉토리 이름이 된다.
 
 ```text
-packages/component/src/
-  index.ts       public React component barrel
-  public/        catalog read API, resolver API, CRUD mutation API, public types
-  internal/      registry assembly, audit, mutation implementation
-  components/    stable component implementations
-  candidates/    candidate component implementations
-  tokens/        component token aliases
+packages/agent/src/
+  register/    원천 입력을 GeneratedNodeTree/RegisteredNodeTree 계약으로 등록
+  compose/     raw content를 ComposedNodeTree의 props/hooks 후보로 합성
+  decorate/    pattern-store 기반 layout 결정 메타 부착
+  design-review/  docs/design 근거 기반 디자인 품질 patch 생성/적용
+  pattern/     @cx/types schema 호환 re-export, @cx/pattern-store store re-export, resolver
+  database/    database/tables row shape materialize
+  runtime/     Agent SDK 실행 adapter
+  types.ts
+  index.ts
 ```
 
-공개 TypeScript export는 `@cx/components`, `@cx/components/catalog`, `@cx/components/mutations`, `@cx/components/resolver`, `@cx/components/types`를 기준으로 사용한다. `src/internal/*`, `src/components/*`, `src/candidates/*` 직접 import는 패키지 내부 구현으로 본다. Catalog CRUD 함수는 순수 함수로 registry를 입력받아 새 registry와 public catalog를 반환하며, 파일 쓰기와 승인 workflow는 이 패키지 밖에서 처리한다.
+`GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 흐름을 기본 계약으로 유지한다. `pattern`은 decorate와 renderer 사이에 끼는 별도 제품 계층이 아니라, children layout preset을 고르는 reference/resolver 영역이다. Design Review는 `docs/design/` 근거 문서가 붙은 제한 operation patch만 적용한다.
 
-## 5. `packages/layout`
+## 4.1 `packages/types` 구조
 
-`@cx/layout`은 화면 chrome과 layout primitive를 제공한다. 외부에는 component, type, contract guard, style helper 계약만 공개하고 구현 디렉토리는 직접 import하지 않는다.
+`@cx/types`는 런타임 구현을 갖지 않는 공유 계약 패키지다. `database/tables` row shape, pattern-store 계약처럼 `@cx/agent`, `@cx/renderer`, `apps/web`이 동시에 참조하는 타입은 여기에서 먼저 정의한다. 특정 패키지 구현 세부 타입은 이 패키지로 올리지 않는다.
 
-```text
-packages/layout/src/
-  index.ts       public barrel
-  public/        chrome, primitives, style, types, contract public API
-  chrome/        screen chrome component implementations
-  primitives/    Flex/Grid component implementations
-  internal/      className, spacing, fallback style implementation
-```
+## 4.2 `packages/component-pattern-store` 구조
 
-공개 TypeScript export는 `@cx/layout`, `@cx/layout/chrome`, `@cx/layout/primitives`, `@cx/layout/style`, `@cx/layout/types`, `@cx/layout/contract`를 기준으로 사용한다. `src/internal/*`, `src/chrome/*`, `src/primitives/*` 직접 import는 패키지 내부 구현으로 본다.
+`@cx/component-pattern-store`는 Compose가 재사용하거나 제안할 semantic UI block registry다. registered/proposed componentPattern catalog를 소유하고, `@cx/pattern-store`의 screen/region/area/composite layout recipe와 섞지 않는다.
 
-## 6. 앱 구조 규칙
+## 5. 앱 구조 규칙
 
-`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, smoke explorer, workbench shell의 책임은 파일 위치와 import 방향으로 구분한다.
+`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다.
 
 ```text
 apps/web/src/
-  app/             Next.js route와 API route
-    api/screens/   screen DB facade
-  components/      RenderTree 소비 UI
-    layout/        workbench shell
-    puck/          Puck editor UI only
-    screen/        RenderTree preview UI
-    smoke/         smoke artifact explorer UI
-  lib/
-    screen-db-*    Supabase REST row read/write facade
-    smoke-*        smoke artifact read helper
-  model/           workbench view model
+  app/          Next.js route와 API route
+  components/   화면/패널/프리뷰 UI
+  adapters/     workbench용 source validation/read helper
+  data/         local loader와 앱 소비 read model adapter
+  model/        클라이언트 상태와 선택 모델
+  agent/        브라우저에서 쓰는 agent pipeline 호출 wrapper
+  server/       route handler가 호출하는 서버 전용 IO/orchestration
 ```
 
-재설계 기간에 앱은 product feature namespace를 깊게 만들지 않는다. 대신 `lib/*` helper의 책임 이름을 명확히 하고, 다음 import 방향을 지킨다.
+렌더링 primitive는 `@cx/layout`, leaf component는 `@cx/components`, render tree projection과 node 해석은 `@cx/renderer`, 공유 row/pattern 계약은 `@cx/types`, AI pipeline은 `@cx/agent`로 올린다. 앱 내부에는 제품 작업면과 API route glue만 남긴다.
 
-- Puck UI는 `@cx/adapters/puck`만 알고 DB row나 Supabase를 모른다.
-- screen DB loader/save는 Puck 타입을 모르고 RenderTree candidate와 DB row만 다룬다.
-- smoke explorer는 artifact 비교만 하고 DB apply를 수행하지 않는다.
-- workbench shell은 screen summary, candidate state, tab routing만 조립한다.
+`src/app/api/**/route.ts`는 HTTP status와 response shape만 관리한다. 파일 시스템, 업로드 저장, local Claude 실행, AI import artifact write처럼 Node.js 전용 side effect는 `src/server/**`로 격리한다. `src/data/**`에는 앱이 소비하는 read model loader만 두고, 파일 쓰기나 `node:*` 의존 helper는 두지 않는다.
 
-생성, 검수, Claude 실행, stage orchestration은 앱 책임이 아니며 `@cx/pipeline`/`@cx/agent`/`@cx/validation` 경계를 따른다.
-
-`apps/smoke`는 사용자-facing 앱이 아니라 개발자-facing 통합 실행 앱이다.
+## 6. 데이터와 패턴 위치
 
 ```text
-apps/smoke/src/
-  index.ts       public app API
-  cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke wrapper and public smoke types
+database/
+  client-imports/  사용자가 올린 원천 import
+  ai-imports/      AI import NodeTree와 table 후보 산출물
+  tables/          workbench가 소비하는 승인된 table dump 계약
 ```
 
-외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다. generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
+`database/client-imports`는 원천 import 보관소다. parser나 AI 보정 단계가 원본을 덮어쓰지 않는다.
+`database/ai-imports`는 생성 후보 산출물 보관소다. `agent-assets.materialized.json` 같은 table 후보는 소비 데이터가 아니며, workbench가 직접 읽지 않는다.
+`database/tables`는 승인된 소비 데이터만 둔다. agent pipeline과 parser는 이 디렉토리를 직접 덮어쓰지 않고 `@cx/agent/promote-database-tables` 또는 `/api/agent/promote-ai-import` 경계에서만 반영한다.
+`@cx/pattern-store`는 소비 데이터가 아니라 reference catalog다. 패턴은 `screen`, `region`, `area`, `composite` children을 어떻게 배치할지 정의하는 layout preset이다. 단, `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 pattern-store가 아니라 deterministic code와 `database/tables` 계약이 담당한다. `composite`는 2개 이상의 `@cx/components`를 결합한 wrapper에만 사용한다.
+`database/ai-imports`의 Claude/AI 보정 산출물은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json` 이름을 사용한다.
 
-## 7. `packages/token`
+## 7. 변경 기준
 
-`@cx/tokens`는 foundation/semantic token의 공개 소비 계약과 내부 생성 산출물을 분리한다.
-
-```text
-packages/token/src/
-  index.ts       public TypeScript token entrypoint
-  variables.css  public CSS variable entrypoint
-  tailwind.css   public Tailwind v4 @theme entrypoint
-  generated/     generated artifacts, direct import 금지
-  internal/      import/normalize/validate/generate 로직, export 금지
-```
-
-공개 export는 `@cx/tokens`, `@cx/tokens/variables.css`, `@cx/tokens/tailwind.css`만 사용한다. `src/generated/*`와 `src/internal/*`는 패키지 내부 구현이다.
-
-`@cx/components`의 token 파일은 `--skt-component-*` alias만 소유하고, palette/semantic/spacing/radius/typography 값은 `@cx/tokens`를 참조한다.
-
-## 8. `packages/schema`
-
-`@cx/schema`는 generation pipeline 전반의 DTO와 JSON artifact 계약을 정의하는 SSOT 패키지다. 디렉토리는 flat 구조를 유지하고, `generation-v2/` 같은 flow 이름은 경로와 schemaVersion에 넣지 않는다.
-
-```text
-packages/schema/src/
-  index.ts
-  versions.ts
-  artifact-kind.ts
-  source-spec.ts
-  generation-context.ts
-  agent-request.ts
-  agent-result.ts
-  render-tree.ts
-  validation-report.ts
-  preview.ts
-  apply-result.ts
-  json-schema-registry.ts
-```
-
-외부 패키지는 root export만 사용한다. schema 계약의 원천은 `@cx/schema` 하나로 유지하고, 파일별 subpath나 `src/*` 직접 import는 공개 소비 표면으로 보지 않는다.
-
-```ts
-import { SCHEMA_VERSION, getJsonSchema } from "@cx/schema";
-import type { SourceSpec } from "@cx/schema";
-```
-
-`@cx/schema/src/*`, `@cx/schema/*` 직접 import는 금지한다. 필요한 계약은 `@cx/schema` root export에 먼저 추가한다. JSON Schema의 정본은 정적 JSON 파일이 아니라 `getJsonSchema()`와 `json-schema-registry.ts`다.
-
-RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `metadata.title`만 허용한다. JSON Schema 구조 검증은 `@cx/schema`가 제공하고, 컴포넌트별 prop 검증은 `@cx/validation`이 `@cx/components/catalog`를 주입받아 수행한다.
-
-두지 않는 책임:
-
-- 파일 읽기/쓰기
-- Claude 실행
-- validation rule 판정
-- orchestration decision
-- React render
-- catalog 값 소유
-
-## 9. Result And Apply Contract
-
-screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 이 RenderTree는 top-level `version`, `minRendererVersion`, `metadata`, `theme`, `children`를 갖고, `children` 아래에 `Screen` root와 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` region을 둔다.
-
-테이블 반영은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다. table apply 단계는 새 화면을 생성하거나 RenderTree 의미를 재해석하지 않는다. schemaVersion의 정본은 `@cx/schema`의 `SCHEMA_VERSION`을 따른다.
-
-## 10. `packages/agent` 문서 자산
-
-`@cx/agent`가 참조하는 생성/검수 문장형 자산은 패키지 내부 문서 디렉토리에서 관리한다.
-
-```text
-packages/agent/docs/
-  README.md
-  session-policy.md
-  screen-generation/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
-  quality-review/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
-```
-
-이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
-smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
-
-## 11. `packages/orchestration`
-
-`@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
-
-```text
-packages/orchestration/src/
-  index.ts       public barrel
-  public/        pure orchestration boundary contract, generation helper, public types
-```
-
-두지 않는 책임:
-
-- 파일 읽기/쓰기
-- Claude Agent SDK 실행
-- 검증 rule 판정
-- pipeline 실행
-- stage 순서 소유
-- RenderTree React render
-- component/layout/pattern catalog 값 소유
-- 승인 데이터 직접 반영
-
-## 12. `packages/validation`
-
-`@cx/validation`은 생성 과정의 순수 검증을 담당한다. 현재는 생성물이 계약상 렌더 가능한지와 component catalog/layout props 계약을 지키는지 기계적으로 검증하는 public API를 제공한다.
-
-```text
-packages/validation/src/
-  index.ts       public barrel
-  public/        validation boundary contract, validators, report/issue public types
-```
-
-두지 않는 책임:
-
-- 파일 읽기/쓰기
-- Claude Agent SDK 실행
-- retry/fallback 정책
-- stage transition 결정
-- RenderTree React render
-- catalog 값 생성 또는 수정
-
-## 13. `packages/pipeline`
-
-`@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
-
-```text
-packages/pipeline/src/
-  index.ts       public barrel
-  public/        side effect boundary contract, parser adapter, public types
-  runtime/       buildPipeline/runPipeline
-  pipelines/     screen-generation pipeline definition and stages
-  commands/      approved side effect command contracts and command helpers
-  runner/        command sequence execution, executor registry, result envelope
-  executors/     source artifact read, versioned artifact write, run log write, approved artifact apply
-  adapters/      fs/clock/id environment adapters
-  errors/        pipeline error types
-  testing/       memory adapters and test fixtures
-```
-
-두지 않는 책임:
-
-- 순수 stage input/output 조립
-- Markdown parsing rule 소유
-- 검증 rule 판정
-- Claude adapter 구현
-- RenderTree React render
-- component/layout/pattern catalog 값 소유
-- final RenderTree 의미 재해석
-- 생성/검수 계약의 SSOT
+- 새 책임이 생기면 먼저 기존 패키지의 하위 책임인지, 별도 패키지인지 결정한다.
+- 파일 수가 늘어나는 것보다 import 경계가 흐려지는 것을 더 경계한다.
+- 공개 subpath는 한 번 열면 외부 계약으로 보고, 내부 파일 이동은 `package.json` `exports`로 흡수한다.
+- 구현 변경으로 책임이나 사용법이 바뀌면 해당 패키지 `README.md`, `AGENTS.md`, `AGENTS_HISTORY.md`를 함께 갱신한다.

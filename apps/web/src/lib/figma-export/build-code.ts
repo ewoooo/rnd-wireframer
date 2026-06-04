@@ -198,18 +198,16 @@ function convert(node: RenderTreeNode, isRoot: boolean, seq: { n: number }): Spe
 	return { kind: "ref", id, component: type, props: {}, ...(text ? { text } : {}) };
 }
 
-type ExportableRenderTree = RenderTree | RenderTreeNode;
-
-export function renderTreeToComponentSpec(rt: ExportableRenderTree) {
+export function renderTreeToComponentSpec(rt: RenderTree) {
 	const seq = { n: 0 };
-	const screenNode = readScreenNode(rt);
+	const screenNode = (rt.children?.[0] ?? rt) as RenderTreeNode;
 	const root = convert(screenNode, true, seq) as Extract<SpecNode, { kind: "group" }>;
 	const id = String(rt.metadata?.id ?? "screen");
 	return {
 		$schema: "component-spec-v1",
 		name: `page/${id.toLowerCase()}`,
 		category: "page",
-		description: screenNode.metadata?.title ?? "RenderTree export",
+		description: rt.metadata?.title ?? "RenderTree export",
 		base: { layout: root.layout, visual: root.visual, children: root.children },
 	};
 }
@@ -218,7 +216,7 @@ const DS_TOKENS = {
 	foundation: { dimension: { size: { "screen-content-width": { value: 375 } } } },
 };
 
-export function renderTreeToBuildCode(rt: ExportableRenderTree): string {
+export function renderTreeToBuildCode(rt: RenderTree): string {
 	const spec = renderTreeToComponentSpec(rt);
 	const id = String(rt.metadata?.id ?? "?");
 	return [
@@ -241,17 +239,6 @@ export function renderTreeToBuildCode(rt: ExportableRenderTree): string {
 	].join("\n");
 }
 
-export function renderTreeToJson(rt: ExportableRenderTree): string {
+export function renderTreeToJson(rt: RenderTree): string {
 	return JSON.stringify(rt, null, 2);
-}
-
-function readScreenNode(rt: ExportableRenderTree): RenderTreeNode {
-	if (isRenderTreeNode(rt) && rt.type === "Screen") return rt;
-	return (rt.children?.find((node) => node.type === "Screen") ??
-		rt.children?.[0] ??
-		rt) as RenderTreeNode;
-}
-
-function isRenderTreeNode(rt: ExportableRenderTree): rt is RenderTreeNode {
-	return "type" in rt;
 }

@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+pydantic-settings
+python-dotenv
+sqlalchemy
+asyncpg
+alembic
+httpx
+anthropic
+openai-agents
+pytest
+pytest-asyncio
+ruff
+mypy
+tenacity
+

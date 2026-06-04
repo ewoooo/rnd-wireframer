@@ -5,21 +5,11 @@
 			"**",
 			"!node_modules",
 			"!.venv",
-			"!.claude",
 			"!.next",
 			"!**/.next",
-			"!tmp",
-			"!**/tmp",
-			"!data/runs",
-			"!**/data/runs",
-			"!supabase/.temp",
-			"!**/supabase/.temp",
-			"!*.tsbuildinfo",
 			"!dist",
 			"!build",
-			"!coverage",
-			"!packages/figma-screen-sync",
-			"!scripts/*.generated.js"
+			"!coverage"
 		]
 	},
 	"formatter": {

@@ -7,32 +7,17 @@ import areaSampleSet from "../database/tables/areas.json";
 import screenMockDataSet from "../database/tables/screen_mock_data.json";
 import screenSampleSet from "../database/tables/screens.json";
 
-type JsonRecord = Record<string, unknown>;
-type FixtureSet = Record<string, JsonRecord[] | undefined>;
-type ScreenMockDataEntry = {
-	data?: unknown;
-	scenario?: string;
-	screenId?: string;
-};
-type ScreenRow = JsonRecord & {
-	data?: unknown;
-	id?: string;
-};
-
-const areas = (areaSampleSet as FixtureSet).areas ?? [];
-const composites = (compositeSampleSet as FixtureSet).components ?? [];
-const screens = ((screenSampleSet as FixtureSet).screens ?? []) as ScreenRow[];
+const areas = (areaSampleSet as any).areas;
+const composites = (compositeSampleSet as any).components;
+const screens = (screenSampleSet as any).screens;
 const mockData = new Map(
-	(((screenMockDataSet as FixtureSet).screenMockData ?? []) as ScreenMockDataEntry[])
-		.filter((entry) => entry.scenario === "default" && entry.screenId)
-		.map((entry) => [entry.screenId, entry.data]),
+	((screenMockDataSet as any).screenMockData ?? [])
+		.filter((e: any) => e.scenario === "default")
+		.map((e: any) => [e.screenId, e.data]),
 );
 
 const trees = tablesToRenderTrees({
-	screens: screens.map((screen) => ({
-		...screen,
-		data: screen.id ? mockData.get(screen.id) : undefined,
-	})),
+	screens: screens.map((s: any) => ({ ...s, data: s.id ? mockData.get(s.id) : undefined })),
 	areas,
 	composites,
 	patternStore: loadPatternStore(),

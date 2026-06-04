@@ -1,10 +1,9 @@
 import { writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { NextResponse } from "next/server";
 
 // Dev-only sink: the Figma introspection probe POSTs its result here so we can
 // read it from disk instead of copy-pasting from the Figma console.
-const DEST = join(process.cwd(), "../../scripts/figma-introspect-result.json");
+const DEST = "/Users/plusx/Documents/GitHub/rnd-wireframer/scripts/figma-introspect-result.json";
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
 
