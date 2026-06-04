@@ -9,9 +9,9 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
-		"@cx/components": "0.1.0",
-		"@cx/layout": "0.1.0",
-		"@cx/types": "0.1.0",
+		"@cx/components": "workspace:*",
+		"@cx/layout": "workspace:*",
+		"@cx/types": "workspace:*",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {

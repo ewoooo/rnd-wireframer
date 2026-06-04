@@ -15,7 +15,7 @@
 		"./types": "./src/types.ts"
 	},
 	"dependencies": {
-		"@cx/components": "0.1.0",
-		"@cx/types": "0.1.0"
+		"@cx/components": "workspace:*",
+		"@cx/types": "workspace:*"
 	}
 }

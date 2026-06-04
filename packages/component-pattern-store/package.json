@@ -10,6 +10,6 @@
 		"./store": "./src/store.ts"
 	},
 	"dependencies": {
-		"@cx/types": "0.1.0"
+		"@cx/types": "workspace:*"
 	}
 }
