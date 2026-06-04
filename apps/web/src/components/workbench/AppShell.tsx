@@ -14,12 +14,21 @@ import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
-import type {
-	ScreenInferenceRunCreateResponse,
-	ScreenInferenceRunResponse,
-	ScreenInferenceRunStatus,
-} from "@/lib/screen-inference-run";
+import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
+import {
+	applyScreenInferenceRun,
+	createScreenInferenceRunFromSource,
+	fetchScreenInferenceArtifact,
+	fetchScreenInferenceRunStatus,
+	fetchScreenInferenceSources,
+	uploadScreenInferenceSource,
+} from "@/lib/screen-inference-client";
 import type { ScreenSummary } from "@/lib/screen-sources";
+import {
+	fetchPuckCatalogItemsFromApi,
+	fetchScreensFromApi,
+	type PuckCatalogScope,
+} from "@/lib/screens-client";
 import {
 	applyPuckChangeToScope,
 	buildPuckDataForScope,
@@ -44,33 +53,6 @@ const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
 type LoadState = {
 	message?: string;
 	status: "error" | "loading" | "ready";
-};
-
-type ScreensApiResponse = {
-	error?: string;
-	screens?: ScreenSummary[];
-};
-
-type ScreenTreeApiResponse = {
-	error?: string;
-	node?: RenderTreeScreenNode;
-};
-
-type PuckCatalogScope = "area" | "screen-region";
-
-type PuckCatalogApiResponse = {
-	catalogItems?: PuckCatalogItem[];
-	error?: string;
-};
-
-type ScreenInferenceSourceUploadResponse = {
-	error?: string;
-	source?: NewScreenSourceItem;
-};
-
-type ScreenInferenceSourceListResponse = {
-	error?: string;
-	sources?: NewScreenSourceItem[];
 };
 
 const TERMINAL_SCREEN_INFERENCE_STATUSES = new Set(["failed", "waiting-review", "applied"]);
@@ -553,132 +535,6 @@ export function AppShell() {
 			{workbenchLayout}
 		</Puck>
 	);
-}
-
-async function fetchPuckCatalogItemsFromApi(scope: PuckCatalogScope): Promise<PuckCatalogItem[]> {
-	const response = await fetch(`/api/screens/puck-catalog?scope=${encodeURIComponent(scope)}`);
-	if (!response.ok) {
-		throw new Error(`Puck catalog 요청 실패 ${scope}: ${response.status}`);
-	}
-	const body = (await response.json()) as PuckCatalogApiResponse;
-	if (body.error) throw new Error(body.error);
-	return body.catalogItems ?? [];
-}
-
-async function fetchScreensFromApi(): Promise<ScreenSummary[]> {
-	const summariesResponse = await fetch("/api/screens");
-	if (!summariesResponse.ok) {
-		throw new Error(`화면 목록 요청 실패 ${summariesResponse.status}`);
-	}
-	const summariesBody = (await summariesResponse.json()) as ScreensApiResponse;
-	if (summariesBody.error) throw new Error(summariesBody.error);
-	const summaries = summariesBody.screens ?? [];
-
-	return Promise.all(
-		summaries.map(async (summary) => {
-			const treeResponse = await fetch(`/api/screens/${encodeURIComponent(summary.id)}/tree`);
-			if (!treeResponse.ok) {
-				throw new Error(`화면 트리 요청 실패 ${summary.id}: ${treeResponse.status}`);
-			}
-			const treeBody = (await treeResponse.json()) as ScreenTreeApiResponse;
-			if (treeBody.error) throw new Error(treeBody.error);
-			return {
-				...summary,
-				renderTree: treeBody.node,
-			};
-		}),
-	);
-}
-
-async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
-	const formData = new FormData();
-	formData.set("file", file);
-	formData.set("importId", "web-upload");
-
-	const response = await fetch("/api/screen-inference/sources", {
-		body: formData,
-		method: "POST",
-	});
-	const body = (await response.json()) as ScreenInferenceSourceUploadResponse;
-
-	if (!response.ok || body.error || !body.source) {
-		throw new Error(body.error ?? `새 화면 source 업로드 실패 ${response.status}`);
-	}
-
-	return body.source;
-}
-
-async function fetchScreenInferenceSources(): Promise<NewScreenSourceItem[]> {
-	const response = await fetch("/api/screen-inference/sources");
-	const body = (await response.json()) as ScreenInferenceSourceListResponse;
-
-	if (!response.ok || body.error) {
-		throw new Error(body.error ?? `새 화면 source 목록 요청 실패 ${response.status}`);
-	}
-
-	return body.sources ?? [];
-}
-
-async function createScreenInferenceRunFromSource(
-	source: NewScreenSourceItem,
-	previousRunId?: string,
-): Promise<ScreenInferenceRunCreateResponse> {
-	const response = await fetch("/api/screen-inference/runs", {
-		body: JSON.stringify({
-			previousRunId,
-			screenId: source.screenId,
-			source: {
-				path: source.path,
-			},
-			useAI: true,
-		}),
-		headers: { "Content-Type": "application/json" },
-		method: "POST",
-	});
-	const body = (await response.json()) as ScreenInferenceRunCreateResponse & { error?: string };
-
-	if (!response.ok || body.error) {
-		throw new Error(body.error ?? `새 화면 inference 시작 실패 ${response.status}`);
-	}
-
-	return body;
-}
-
-async function fetchScreenInferenceRunStatus(runId: string): Promise<ScreenInferenceRunStatus> {
-	const response = await fetch(`/api/screen-inference/runs/${encodeURIComponent(runId)}`);
-	const body = (await response.json()) as ScreenInferenceRunResponse & { error?: string };
-
-	if (!response.ok || body.error) {
-		throw new Error(body.error ?? `새 화면 inference 상태 요청 실패 ${response.status}`);
-	}
-
-	return body.status;
-}
-
-async function fetchScreenInferenceArtifact<T>(runId: string, artifactName: string): Promise<T> {
-	const response = await fetch(
-		`/api/screen-inference/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(
-			artifactName,
-		)}`,
-	);
-	const body = (await response.json()) as T & { error?: string };
-
-	if (!response.ok || body.error) {
-		throw new Error(body.error ?? `새 화면 artifact 요청 실패 ${response.status}`);
-	}
-
-	return body;
-}
-
-async function applyScreenInferenceRun(runId: string): Promise<void> {
-	const response = await fetch(`/api/screen-inference/runs/${encodeURIComponent(runId)}/apply`, {
-		method: "POST",
-	});
-	const body = (await response.json()) as { error?: string; ok?: boolean };
-
-	if (!response.ok || body.error || !body.ok) {
-		throw new Error(body.error ?? `새 화면 DB 등록 실패 ${response.status}`);
-	}
 }
 
 function readErrorMessage(error: unknown): string {
