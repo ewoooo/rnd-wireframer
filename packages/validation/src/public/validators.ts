@@ -1267,8 +1267,11 @@ function addIssue(issues: ValidationIssue[], issue: IssueInput) {
 }
 
 function buildReport(target: ValidationTarget, issues: ValidationIssue[]): ValidationReport {
-	const errorCount = issues.filter((issue) => issue.severity === "error").length;
-	const warningCount = issues.filter((issue) => issue.severity === "warning").length;
+	const errorCount = issues.reduce(
+		(count, issue) => (issue.severity === "error" ? count + 1 : count),
+		0,
+	);
+	const warningCount = issues.length - errorCount;
 	return {
 		issues,
 		ok: errorCount === 0,

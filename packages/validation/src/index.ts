@@ -1,4 +1,5 @@
 export { validationBoundary } from "./public/contract";
+export { errorsOf, warningsOf } from "./public/report";
 export type {
 	ValidationBoundary,
 	ValidationBoundaryName,
