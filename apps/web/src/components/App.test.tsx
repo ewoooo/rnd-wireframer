@@ -10,35 +10,34 @@ afterEach(() => {
 
 describe("App workbench navigation", () => {
 	it("loads screens through the screen API, switches tabs, and keeps safe placeholders", async () => {
+		stubBrowserApis();
 		stubScreenFetch();
 		render(<App />);
 
 		expect(
 			await screen.findByRole("heading", { level: 1, name: "Preview Default" }),
 		).toBeInTheDocument();
-		expect(screen.getByText("Selected screen")).toBeInTheDocument();
-		expectStat("Areas", "0");
-		expectStat("Components", "0");
+		expect(screen.getAllByText("Preview Route").length).toBeGreaterThan(0);
 
 		fireEvent.click(screen.getByRole("button", { name: "컴포넌트" }));
 
-		expect(screen.getByRole("heading", { level: 3, name: "Components" })).toBeInTheDocument();
-		expect(
-			screen.getByText(
-				"이 탭은 예전 사이드바 UI만 복구된 상태입니다. 데이터 연결은 Screen 탭부터 사용합니다.",
-			),
-		).toBeInTheDocument();
+		expect(screen.getByText("Components")).toBeInTheDocument();
+		expect(screen.getAllByText("Preview CTA").length).toBeGreaterThan(0);
+		expect(screen.getByText("preview-cta")).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "그룹" }));
 
-		expect(screen.getByRole("heading", { level: 3, name: "Areas" })).toBeInTheDocument();
+		expect(screen.getByText("Areas")).toBeInTheDocument();
+		expect(screen.getAllByText("Preview Area").length).toBeGreaterThan(0);
+		expect(screen.getByText("preview-area")).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
-		expect(screen.getByRole("heading", { name: "Agent" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "새 화면" })).toHaveAttribute("aria-pressed", "true");
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
+		stubBrowserApis();
 		stubScreenFetch();
 		render(<App />);
 
@@ -51,7 +50,7 @@ describe("App workbench navigation", () => {
 		fireEvent.click(screen.getByRole("button", { name: "E1" }));
 
 		expect(screen.getByRole("heading", { level: 1, name: "Member Base-E1" })).toBeInTheDocument();
-		expect(screen.getByText("member-edge")).toBeInTheDocument();
+		expect(screen.getAllByText("Member Route").length).toBeGreaterThan(0);
 	});
 });
 
@@ -69,6 +68,7 @@ function createScreens(): ScreenSummary[] {
 			status: "table",
 			title: "Preview Default",
 			type: "PG",
+			renderTree: createRenderTree("preview"),
 		},
 		{
 			id: "member-base",
@@ -83,6 +83,7 @@ function createScreens(): ScreenSummary[] {
 			status: "table",
 			title: "Member Base",
 			type: "FP",
+			renderTree: createRenderTree("member-base"),
 		},
 		{
 			id: "member-edge",
@@ -97,8 +98,76 @@ function createScreens(): ScreenSummary[] {
 			status: "table",
 			title: "Member Base-E1",
 			type: "FP",
+			renderTree: createRenderTree("member-edge"),
 		},
 	];
+}
+
+function createRenderTree(idPrefix: string) {
+	return {
+		children: [
+			{
+				children: [],
+				componentVersion: "0.1.0",
+				metadata: { id: `${idPrefix}-header`, title: "Header" },
+				type: "Screen.Header",
+			},
+			{
+				children: [
+					{
+						children: [
+							{
+								children: [],
+								componentVersion: "1.0.0",
+								layout: "layout.composite.componentActionButton",
+								metadata: { id: `${idPrefix}-cta`, title: readCtaTitle(idPrefix) },
+								props: { label: "Next" },
+								type: "ActionButton",
+							},
+						],
+						componentVersion: "1.0.0",
+						layout: "layout.area.listStack",
+						metadata: { id: `${idPrefix}-area`, title: readAreaTitle(idPrefix) },
+						type: "area.static",
+					},
+				],
+				componentVersion: "0.1.0",
+				metadata: { id: `${idPrefix}-contents`, title: "Contents" },
+				type: "Screen.Contents",
+			},
+			{
+				children: [],
+				componentVersion: "0.1.0",
+				metadata: { id: `${idPrefix}-bottom`, title: "Bottom" },
+				type: "Screen.Bottom",
+			},
+		],
+		componentVersion: "0.1.0",
+		layout: "layout.screen.screenShell",
+		metadata: { id: `${idPrefix}-screen`, title: `${idPrefix} screen` },
+		type: "Screen",
+	} as ScreenSummary["renderTree"];
+}
+
+function readAreaTitle(idPrefix: string) {
+	return idPrefix === "preview" ? "Preview Area" : "Member Area";
+}
+
+function readCtaTitle(idPrefix: string) {
+	return idPrefix === "preview" ? "Preview CTA" : "Member CTA";
+}
+
+function stubBrowserApis() {
+	vi.stubGlobal("matchMedia", (query: string) => ({
+		addEventListener: vi.fn(),
+		addListener: vi.fn(),
+		dispatchEvent: vi.fn(),
+		matches: false,
+		media: query,
+		onchange: null,
+		removeEventListener: vi.fn(),
+		removeListener: vi.fn(),
+	}));
 }
 
 function stubScreenFetch() {
@@ -121,13 +190,4 @@ function stubScreenFetch() {
 			return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
 		}),
 	);
-}
-
-function expectStat(label: string, value: string) {
-	const statLabel = screen
-		.getAllByText(label)
-		.find((candidate) => candidate.parentElement?.textContent === `${label}${value}`);
-	expect(statLabel).toBeDefined();
-	if (!statLabel) throw new Error(`Missing ${label} stat`);
-	expect(statLabel.parentElement).toHaveTextContent(value);
 }

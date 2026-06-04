@@ -1,4 +1,5 @@
 import type { RenderTreeNode } from "@cx/renderer";
+import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "puck" | "scn";
@@ -34,6 +35,14 @@ export type WorkbenchViewModel = {
 	screenRoutes: ScreenRouteGroup[];
 };
 
+export type NavigationNodeItem = {
+	childCount: number;
+	id: string;
+	layout?: string;
+	title: string;
+	type: string;
+};
+
 const moduleNamesById: Record<string, string> = {
 	mbr: "MBR",
 	preview: "Preview",
@@ -63,6 +72,16 @@ export function collectScreenAreas(screen?: ScreenSummary): RenderTreeNode[] {
 
 export function collectScreenComponents(screen?: ScreenSummary): RenderTreeNode[] {
 	return screen?.renderTree ? collectLeafComponents(screen.renderTree) : [];
+}
+
+export function toNavigationNodeItems(nodes: RenderTreeNode[]): NavigationNodeItem[] {
+	return nodes.map((node) => ({
+		childCount: node.children?.length ?? 0,
+		id: node.metadata.id,
+		layout: node.layout,
+		title: node.metadata.title,
+		type: node.type,
+	}));
 }
 
 export function getScreenOptionLabel(screen: ScreenSummary) {
@@ -167,8 +186,17 @@ function collectNodesByTypePrefix(node: RenderTreeNode, prefix: string): RenderT
 }
 
 function collectLeafComponents(node: RenderTreeNode): RenderTreeNode[] {
-	if (!node.children?.length && !node.type.startsWith("Screen.") && node.type !== "Screen") {
+	if (!node.children?.length && isComponentNavigationNode(node)) {
 		return [node];
 	}
 	return node.children?.flatMap((child) => collectLeafComponents(child)) ?? [];
+}
+
+function isComponentNavigationNode(node: RenderTreeNode) {
+	return (
+		node.type !== RENDER_TREE_NODE_TYPE.screen &&
+		!node.type.startsWith("Screen.") &&
+		!node.type.startsWith("area.") &&
+		!node.type.startsWith("Layout.")
+	);
 }

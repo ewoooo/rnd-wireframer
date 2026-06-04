@@ -1,10 +1,11 @@
-import { Layers3, Route } from "lucide-react";
+import { Box, Boxes, Layers3, Route } from "lucide-react";
 import type { ReactNode } from "react";
 import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import type {
+	NavigationNodeItem,
 	NavigatorTab,
 	ScreenModuleGroup,
 	ScreenRouteGroup,
@@ -13,21 +14,35 @@ import type {
 type NavigationRoutesProps = {
 	activeRouteId?: string;
 	activeTab: NavigatorTab;
+	areas: NavigationNodeItem[];
+	components: NavigationNodeItem[];
 	onSelectRoute: (routeId: string) => void;
 	onSelectScreen: (screenId: string) => void;
+	onSelectArea: (areaId: string) => void;
+	onSelectComponent: (componentId: string) => void;
 	screenModules: ScreenModuleGroup[];
 	screenRoute?: ScreenRouteGroup;
+	selectedAreaId?: string;
+	selectedComponentId?: string;
 	selectedScreenId?: string;
+	selectedScreenTitle?: string;
 };
 
 export function NavigationRoutes({
 	activeRouteId,
 	activeTab,
+	areas,
+	components,
 	onSelectRoute,
 	onSelectScreen,
+	onSelectArea,
+	onSelectComponent,
 	screenModules,
 	screenRoute,
+	selectedAreaId,
+	selectedComponentId,
 	selectedScreenId,
+	selectedScreenTitle,
 }: NavigationRoutesProps) {
 	return (
 		<Sidebar side="left">
@@ -73,12 +88,112 @@ export function NavigationRoutes({
 						</div>
 					</ResizablePanel>
 				</ResizablePanelGroup>
+			) : activeTab === "ogn" ? (
+				<NavigationNodeList
+					emptyMessage="선택된 화면에 Area가 없습니다."
+					icon={<Boxes className="size-3.5" data-icon="inline-start" />}
+					items={areas}
+					onSelect={onSelectArea}
+					selectedId={selectedAreaId}
+					subtitle={selectedScreenTitle}
+					title="Areas"
+				/>
+			) : activeTab === "comp" ? (
+				<NavigationNodeList
+					emptyMessage="선택된 화면에 Component가 없습니다."
+					icon={<Box className="size-3.5" data-icon="inline-start" />}
+					items={components}
+					onSelect={onSelectComponent}
+					selectedId={selectedComponentId}
+					subtitle={selectedScreenTitle}
+					title="Components"
+				/>
 			) : (
 				<SidebarContent className="p-2 text-sm text-muted-foreground">
 					이 탭은 예전 사이드바 UI만 복구된 상태입니다. 데이터 연결은 Screen 탭부터 사용합니다.
 				</SidebarContent>
 			)}
 		</Sidebar>
+	);
+}
+
+function NavigationNodeList({
+	emptyMessage,
+	icon,
+	items,
+	onSelect,
+	selectedId,
+	subtitle,
+	title,
+}: {
+	emptyMessage: string;
+	icon: ReactNode;
+	items: NavigationNodeItem[];
+	onSelect: (id: string) => void;
+	selectedId?: string;
+	subtitle?: string;
+	title: string;
+}) {
+	return (
+		<div className="flex h-full min-h-0 flex-col overflow-hidden">
+			<PanelTitle count={items.length} icon={icon} title={title} />
+			{subtitle ? (
+				<div className="border-b border-sidebar-border px-3 py-2">
+					<p className="truncate text-[11px] font-medium text-muted-foreground">{subtitle}</p>
+				</div>
+			) : null}
+			<div className="min-h-0 flex-1 overflow-y-auto py-1">
+				{items.length ? (
+					<div className="flex flex-col">
+						{items.map((item) => (
+							<NavigationNodeListItem
+								isSelected={item.id === selectedId}
+								item={item}
+								key={item.id}
+								onSelect={onSelect}
+							/>
+						))}
+					</div>
+				) : (
+					<div className="px-3 py-4 text-sm text-muted-foreground">{emptyMessage}</div>
+				)}
+			</div>
+		</div>
+	);
+}
+
+function NavigationNodeListItem({
+	isSelected,
+	item,
+	onSelect,
+}: {
+	isSelected: boolean;
+	item: NavigationNodeItem;
+	onSelect: (id: string) => void;
+}) {
+	return (
+		<button
+			type="button"
+			className={cn(
+				"flex min-h-14 min-w-0 cursor-pointer flex-col gap-1 border-t border-sidebar-border px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-sidebar-accent",
+				isSelected && "bg-primary/[0.08] text-primary hover:bg-primary/[0.08]",
+			)}
+			onClick={() => onSelect(item.id)}
+			title={`${item.title} · ${item.type}`}
+		>
+			<div className="flex min-w-0 items-center justify-between gap-2">
+				<span className={cn("truncate text-[13px]", isSelected ? "font-semibold" : "font-medium")}>
+					{item.title}
+				</span>
+				<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+					{item.childCount}
+				</span>
+			</div>
+			<div className="flex min-w-0 flex-col gap-0.5 text-[10px] leading-3 text-muted-foreground">
+				<span className="truncate">{item.id}</span>
+				<span className="truncate">{item.layout ?? item.type}</span>
+			</div>
+		</button>
 	);
 }
 

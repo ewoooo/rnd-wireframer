@@ -1535,6 +1535,15 @@
 - 이유: pattern selection과 RenderTree generation이 섹션 목록뿐 아니라 화면 위계, CTA, 밀도, 패턴 선택/배제 이유를 근거 있는 중간 산출물로 재사용하게 하기 위함
 - 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx biome check packages/schema/src/composition-plan.ts packages/schema/src/index.ts packages/schema/src/json-schema-registry.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/validation/src/__tests__/validators.test.ts packages/agent/docs/design-context/layout-composition.md docs/SCREEN_GENERATION_PIPELINE.md`
 
+## 2026-06-04 - Workbench Navigation Area Component Lists
+
+- 변경: web workbench 왼쪽 2차 네비게이션에서 `그룹` 탭은 현재 화면의 Area 목록, `컴포넌트` 탭은 현재 화면의 Component 목록을 표시하도록 연결함
+- 변경: Area/Component 선택 상태를 `AppShell`에서 관리해 첫 번째 항목 고정 대신 사용자가 선택한 항목을 Puck edit scope로 전달하도록 수정함
+- 변경: component navigation 수집 기준에서 `Screen.*`, `area.*`, `Layout.*` wrapper를 제외하고 leaf component만 리스트 후보로 사용하도록 보정함
+- 변경: App 테스트 mock에 RenderTree를 추가하고 Area/Component 탭 전환 및 리스트 표시를 검증하도록 업데이트함
+- 이유: 왼쪽 사이드바가 스크린 탐색만 담당하던 상태에서 벗어나, 선택된 화면의 Area와 Component 구조를 바로 확인하고 편집 범위로 진입할 수 있게 하기 위함
+- 검증: `pnpm lint`, `pnpm test`, `pnpm build`, `curl -I http://127.0.0.1:3000`. 인앱 브라우저는 로컬 URL 접근이 `net::ERR_BLOCKED_BY_CLIENT`로 차단되어 시각 확인은 수행하지 못함
+
 ## 2026-06-01 - Understand Compose Revise Artifact Docs
 
 - 변경: `SCREEN_GENERATION_PIPELINE.md`, `SCREEN_DESIGN_STAGE_PLAN.md`, `packages/pipeline/README.md`, `apps/smoke/README.md`에 `Understand -> Compose -> Revise` 논리 레이어와 flat artifact + `trace.json` 통합 저장 기준을 반영함

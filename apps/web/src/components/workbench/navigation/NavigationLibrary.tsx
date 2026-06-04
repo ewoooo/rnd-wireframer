@@ -1,7 +1,6 @@
-import { Box, Boxes, MousePointer2, Plus, Smartphone, Table2 } from "lucide-react";
+import { Box, Boxes, Smartphone } from "lucide-react";
 import {
 	SidebarGroup,
-	SidebarGroupAction,
 	SidebarGroupContent,
 	SidebarGroupLabel,
 	SidebarMenu,

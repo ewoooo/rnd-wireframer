@@ -25,6 +25,7 @@ import {
 	collectScreenComponents,
 	createWorkbenchViewModel,
 	getInitialScreen,
+	toNavigationNodeItems,
 	type NavigatorTab,
 } from "@/model/workbench-view-model";
 
@@ -53,6 +54,8 @@ export function AppShell() {
 	});
 	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
+	const [selectedAreaId, setSelectedAreaId] = useState("");
+	const [selectedComponentId, setSelectedComponentId] = useState("");
 	const [screenCandidates, setScreenCandidates] = useState<Record<string, RenderTreeScreenNode>>(
 		{},
 	);
@@ -67,9 +70,14 @@ export function AppShell() {
 			? { ...selectedScreen, renderTree: selectedScreenCandidate }
 			: selectedScreen;
 	const visibleAreas = collectScreenAreas(visibleScreen);
-	const selectedArea = visibleAreas[0];
+	const selectedArea =
+		visibleAreas.find((area) => area.metadata.id === selectedAreaId) ?? visibleAreas[0];
+	const visibleAreaItems = toNavigationNodeItems(visibleAreas);
 	const visibleComponents = collectScreenComponents(visibleScreen);
-	const selectedComponent = visibleComponents[0];
+	const selectedComponent =
+		visibleComponents.find((component) => component.metadata.id === selectedComponentId) ??
+		visibleComponents[0];
+	const visibleComponentItems = toNavigationNodeItems(visibleComponents);
 	const editScope = resolveEditScope({
 		activeTab,
 		selectedArea,
@@ -125,6 +133,14 @@ export function AppShell() {
 		setSelectedScreenId(screenId);
 	}
 
+	function handleSelectArea(areaId: string) {
+		setSelectedAreaId(areaId);
+	}
+
+	function handleSelectComponent(componentId: string) {
+		setSelectedComponentId(componentId);
+	}
+
 	function handleScreenCandidateChange(screenId: string, node: RenderTreeScreenNode) {
 		setScreenCandidates((current) => ({
 			...current,
@@ -167,11 +183,18 @@ export function AppShell() {
 				<NavigationRoutes
 					activeTab={activeTab}
 					activeRouteId={activeRoute?.id}
+					areas={visibleAreaItems}
+					components={visibleComponentItems}
+					onSelectArea={handleSelectArea}
+					onSelectComponent={handleSelectComponent}
 					onSelectRoute={handleSelectRoute}
 					onSelectScreen={handleSelectScreen}
 					screenModules={screenModules}
 					screenRoute={activeRoute}
+					selectedAreaId={selectedArea?.metadata.id}
+					selectedComponentId={selectedComponent?.metadata.id}
 					selectedScreenId={visibleScreen?.id}
+					selectedScreenTitle={visibleScreen?.title}
 				/>
 				<Canvas
 					activeTab={activeTab}
