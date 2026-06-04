@@ -1,0 +1,147 @@
+{
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.screen.screenShell.",
+      "path": [
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentAppBar.",
+      "path": [
+        "children",
+        0,
+        "children",
+        0,
+        "children",
+        0,
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.area.accordionList.",
+      "path": [
+        "children",
+        0,
+        "children",
+        1,
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentListCell.",
+      "path": [
+        "children",
+        0,
+        "children",
+        1,
+        "children",
+        0,
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.area.productHeroSummary.",
+      "path": [
+        "children",
+        0,
+        "children",
+        2,
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentActionButton.",
+      "path": [
+        "children",
+        0,
+        "children",
+        2,
+        "children",
+        0,
+        "children",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.area.accordionList.",
+      "path": [
+        "areas",
+        1,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.area.productHeroSummary.",
+      "path": [
+        "areas",
+        2,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentAppBar.",
+      "path": [
+        "components",
+        0,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentListCell.",
+      "path": [
+        "components",
+        1,
+        "layout"
+      ]
+    },
+    {
+      "severity": "warning",
+      "code": "layout-ref-outside-candidates",
+      "message": "Layout ref is outside selected pattern candidates: layout.composite.componentActionButton.",
+      "path": [
+        "components",
+        2,
+        "layout"
+      ]
+    }
+  ],
+  "ok": true,
+  "schemaVersion": "validation-report.v0.1",
+  "summary": {
+    "errorCount": 0,
+    "warningCount": 11
+  },
+  "target": "render-tree"
+}

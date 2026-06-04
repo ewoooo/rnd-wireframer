@@ -1,0 +1,72 @@
+{
+  "areas": [
+    {
+      "componentRefs": [
+        "AppBarHeader"
+      ],
+      "displayTitle": "고객 상태 기반 적합성 파악",
+      "id": "decor.area.0.0",
+      "layoutIntent": {
+        "areaPatternRole": "app-bar"
+      },
+      "role": "navigation",
+      "sourceAreaId": "0",
+      "targetRegion": "header"
+    },
+    {
+      "componentRefs": [
+        "ListTextEligibility",
+        "CalloutRestrictionReason",
+        "ButtonAlternativePath"
+      ],
+      "displayTitle": "{가입 조건 항목} (예: 가입 가능 요금제)",
+      "id": "decor.area.1.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "가입 가능 요금제",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "가입 가능 요금제"
+          },
+          "required": false,
+          "sourceComponentRef": "ListTextEligibility"
+        },
+        {
+          "label": "선택 불가 사유",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "선택 불가 사유"
+          },
+          "required": false,
+          "sourceComponentRef": "ListTextEligibility"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "1",
+      "targetRegion": "contents"
+    },
+    {
+      "componentRefs": [
+        "ActionButton"
+      ],
+      "displayTitle": "화면 하단 액션 영역",
+      "id": "decor.area.999.0",
+      "layoutIntent": {
+        "areaPatternRole": "bottom-action"
+      },
+      "role": "bottom-action",
+      "sourceAreaId": "999",
+      "targetRegion": "bottom"
+    }
+  ],
+  "diagnostics": [],
+  "displayRules": {
+    "hideInternalSourceNames": true
+  },
+  "schemaVersion": "decoration-plan.v0.1",
+  "screenId": "NOVA-PRDD-PG-004-0",
+  "sourceScreenRef": "NOVA-PRDD-PG-004-0"
+}

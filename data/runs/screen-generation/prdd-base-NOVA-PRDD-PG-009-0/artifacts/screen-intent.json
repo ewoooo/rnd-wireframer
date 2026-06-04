@@ -1,0 +1,39 @@
+{
+  "payload": {
+    "contentPriority": [
+      "0",
+      "AppBarHeader",
+      "1",
+      "TitleSectionEstimate",
+      "CardSummaryMonthlyEstimate",
+      "ListTextExcludedBenefit",
+      "2",
+      "ProductInfoHorizontalListPrice"
+    ],
+    "primaryUserAction": "complete-primary-flow",
+    "rationale": "Fake pipeline intent keeps the design decision artifact visible before composition planning.",
+    "schemaVersion": "screen-intent.v0.1",
+    "screenPurpose": "예상 비용·혜택 요약 화면에서 핵심 정보를 이해하고 다음 행동으로 이어지게 한다.",
+    "sourceInterpretation": {
+      "defer": [],
+      "preserve": [
+        "NOVA-PRDD-PG-009-0",
+        "/nova/prdd/pg/009/0"
+      ],
+      "summarize": [
+        "0",
+        "AppBarHeader",
+        "1",
+        "TitleSectionEstimate",
+        "CardSummaryMonthlyEstimate",
+        "ListTextExcludedBenefit",
+        "2",
+        "ProductInfoHorizontalListPrice"
+      ]
+    }
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "screen-intent"
+}

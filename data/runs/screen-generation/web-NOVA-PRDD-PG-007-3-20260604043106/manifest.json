@@ -1,0 +1,117 @@
+{
+  "agentMode": "claude-local-first",
+  "agentResult": "artifacts/agent-result.json",
+  "artifactRoot": "artifacts",
+  "componentProposal": "artifacts/component-proposal.json",
+  "compositionPlan": "artifacts/composition-plan.json",
+  "createdAt": "2026-06-04T04:35:38.252Z",
+  "decorationPlan": "artifacts/decoration-plan.json",
+  "finalResult": "artifacts/final-result.json",
+  "patternSelection": "artifacts/pattern-selection.json",
+  "pipelineId": "screen-generation",
+  "pipelineResult": "artifacts/pipeline-result.json",
+  "qualityReview": "artifacts/quality-review.json",
+  "runId": "web-NOVA-PRDD-PG-007-3-20260604043106",
+  "schemaVersion": "smoke-run-manifest.v0.1",
+  "screenIntent": "artifacts/screen-intent.json",
+  "sourcePath": "data/client-imports/web-upload/20260604/NOVA-PRDD-PG-007-3.md",
+  "sourceSpec": "artifacts/source-spec.json",
+  "stageLayers": [
+    {
+      "artifacts": [
+        "artifacts/source-spec.json",
+        "artifacts/screen-intent.json"
+      ],
+      "layer": "understand",
+      "stages": [
+        "read-source",
+        "parse-source",
+        "derive-screen-intent"
+      ],
+      "traceKeys": [
+        "parseResult",
+        "screenIntent"
+      ]
+    },
+    {
+      "artifacts": [
+        "artifacts/composition-plan.json",
+        "artifacts/decoration-plan.json",
+        "artifacts/pattern-selection.json",
+        "artifacts/agent-result.json",
+        "artifacts/component-proposal.json"
+      ],
+      "layer": "compose",
+      "stages": [
+        "plan-composition",
+        "derive-decoration-plan",
+        "select-pattern",
+        "generate-render-tree",
+        "propose-components"
+      ],
+      "traceKeys": [
+        "composition",
+        "designSkillSelection",
+        "patternLayerCandidates",
+        "patternSelection",
+        "designContextBundleSelection",
+        "generation",
+        "generationSkillCatalog",
+        "renderTreeGenerationSkill",
+        "componentProposal"
+      ]
+    },
+    {
+      "artifacts": [
+        "artifacts/validation-report.json",
+        "artifacts/quality-review.json",
+        "artifacts/final-result.json",
+        "artifacts/pipeline-result.json"
+      ],
+      "layer": "revise",
+      "stages": [
+        "validate-render-tree",
+        "review-quality",
+        "revise-render-tree-if-invalid",
+        "validate-render-tree-after-revision",
+        "write-artifacts"
+      ],
+      "traceKeys": [
+        "initialValidationReport",
+        "qualityReview",
+        "revisionDecision",
+        "revision"
+      ]
+    }
+  ],
+  "stageOrder": [
+    "read-source",
+    "parse-source",
+    "derive-screen-intent",
+    "plan-composition",
+    "derive-decoration-plan",
+    "select-pattern",
+    "generate-render-tree",
+    "validate-render-tree",
+    "propose-components",
+    "review-quality",
+    "revise-render-tree-if-invalid",
+    "validate-render-tree-after-revision",
+    "write-artifacts"
+  ],
+  "summary": {
+    "errorCount": 0,
+    "ok": true,
+    "validationOk": true,
+    "warningCount": 0
+  },
+  "tableGenerationResult": {
+    "source": "agentResult.payload.tableGenerationResult",
+    "usage": "validation-and-comparison-only"
+  },
+  "tags": [
+    "web-new-screen"
+  ],
+  "trace": "artifacts/trace.json",
+  "validationReport": "artifacts/validation-report.json"
+}

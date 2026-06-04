@@ -1,0 +1,49 @@
+{
+  "agentMode": "fake",
+  "agentResult": "artifacts/agent-result.json",
+  "artifactRoot": "artifacts",
+  "componentProposal": "artifacts/component-proposal.json",
+  "compositionPlan": "artifacts/composition-plan.json",
+  "createdAt": "2026-06-01T02:59:44.732Z",
+  "decorationPlan": "artifacts/decoration-plan.json",
+  "finalResult": "artifacts/final-result.json",
+  "patternSelection": "artifacts/pattern-selection.json",
+  "pipelineId": "screen-generation",
+  "pipelineResult": "artifacts/pipeline-result.json",
+  "qualityReview": "artifacts/quality-review.json",
+  "runId": "prdd-base-NOVA-PRDD-PG-006-0",
+  "schemaVersion": "smoke-run-manifest.v0.1",
+  "screenIntent": "artifacts/screen-intent.json",
+  "sourcePath": "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-006-0.md",
+  "sourceSpec": "artifacts/source-spec.json",
+  "stageOrder": [
+    "read-source",
+    "parse-source",
+    "derive-screen-intent",
+    "plan-composition",
+    "derive-decoration-plan",
+    "select-pattern",
+    "generate-render-tree",
+    "validate-render-tree",
+    "propose-components",
+    "review-quality",
+    "revise-render-tree-if-invalid",
+    "validate-render-tree-after-revision",
+    "write-artifacts"
+  ],
+  "summary": {
+    "errorCount": 0,
+    "ok": true,
+    "validationOk": true,
+    "warningCount": 14
+  },
+  "tableGenerationResult": {
+    "source": "agentResult.payload.tableGenerationResult",
+    "usage": "validation-and-comparison-only"
+  },
+  "tags": [
+    "prdd-base"
+  ],
+  "trace": "artifacts/trace.json",
+  "validationReport": "artifacts/validation-report.json"
+}

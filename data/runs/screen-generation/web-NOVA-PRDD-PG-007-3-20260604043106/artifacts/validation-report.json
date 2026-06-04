@@ -1,0 +1,10 @@
+{
+  "issues": [],
+  "ok": true,
+  "schemaVersion": "validation-report.v0.1",
+  "summary": {
+    "errorCount": 0,
+    "warningCount": 0
+  },
+  "target": "render-tree"
+}

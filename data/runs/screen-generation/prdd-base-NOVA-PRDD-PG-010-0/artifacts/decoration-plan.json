@@ -1,0 +1,72 @@
+{
+  "areas": [
+    {
+      "componentRefs": [
+        "AppBarHeader"
+      ],
+      "displayTitle": "공유·딥링크·문의 맥락 유지",
+      "id": "decor.area.0.0",
+      "layoutIntent": {
+        "areaPatternRole": "app-bar"
+      },
+      "role": "navigation",
+      "sourceAreaId": "0",
+      "targetRegion": "header"
+    },
+    {
+      "componentRefs": [
+        "CalloutDeeplinkInstall"
+      ],
+      "displayTitle": "앱에서 이어보기",
+      "id": "decor.area.1.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "앱에서 이어보기",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "앱에서 이어보기"
+          },
+          "required": false,
+          "sourceComponentRef": "CalloutDeeplinkInstall"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "1",
+      "targetRegion": "contents"
+    },
+    {
+      "componentRefs": [
+        "TitleSectionCounsel",
+        "ListTextCounselConnect"
+      ],
+      "displayTitle": "상품 문맥 상담 전달",
+      "id": "decor.area.2.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "상담 연결하기",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "상담 연결하기"
+          },
+          "sourceComponentRef": "TitleSectionCounsel"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "2",
+      "targetRegion": "contents"
+    }
+  ],
+  "diagnostics": [],
+  "displayRules": {
+    "hideInternalSourceNames": true
+  },
+  "schemaVersion": "decoration-plan.v0.1",
+  "screenId": "NOVA-PRDD-PG-010-0",
+  "sourceScreenRef": "NOVA-PRDD-PG-010-0"
+}

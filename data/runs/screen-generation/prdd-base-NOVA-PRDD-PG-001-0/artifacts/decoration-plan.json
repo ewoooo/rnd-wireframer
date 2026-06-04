@@ -1,0 +1,51 @@
+{
+  "areas": [
+    {
+      "componentRefs": [
+        "AppBarHeader"
+      ],
+      "displayTitle": "상품 상세 핵심 요약 탐색",
+      "id": "decor.area.0.0",
+      "layoutIntent": {
+        "areaPatternRole": "app-bar"
+      },
+      "role": "navigation",
+      "sourceAreaId": "0",
+      "targetRegion": "header"
+    },
+    {
+      "componentRefs": [
+        "CardSummaryProductSummary",
+        "BadgeProductStatus",
+        "ButtonTextUnderlineProductOriginNav",
+        "ListTextProductInfo"
+      ],
+      "displayTitle": "{상품명}",
+      "id": "decor.area.1.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "상품 유형",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "상품 유형"
+          },
+          "required": true,
+          "sourceComponentRef": "CardSummaryProductSummary"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "1",
+      "targetRegion": "contents"
+    }
+  ],
+  "diagnostics": [],
+  "displayRules": {
+    "hideInternalSourceNames": true
+  },
+  "schemaVersion": "decoration-plan.v0.1",
+  "screenId": "NOVA-PRDD-PG-001-0",
+  "sourceScreenRef": "NOVA-PRDD-PG-001-0"
+}

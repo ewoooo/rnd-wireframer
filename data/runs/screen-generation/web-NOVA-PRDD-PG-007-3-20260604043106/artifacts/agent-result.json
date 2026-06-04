@@ -1,0 +1,507 @@
+{
+  "payload": {
+    "tableGenerationResult": {
+      "schemaVersion": "table-generation-result.v0.1",
+      "screen": {
+        "id": "NOVA-PRDD-PG-007-3",
+        "version": "0.1.0",
+        "metadata": {
+          "title": "옵션·구성 선택-로그인·인증 후 복귀 시 선택 구성 소실",
+          "description": "로그인·인증 후 복귀 시 옵션·구성 재선택 화면"
+        },
+        "screenVariantId": "NOVA-PRDD-PG-007-3@default",
+        "minRendererVersion": "0.1.0",
+        "layout": "layout.screen.commerceDetailScreen",
+        "screen": {
+          "type": "screen.page",
+          "regions": {
+            "header": {
+              "type": "Screen.Header",
+              "layout": "layout.region.header",
+              "metadata": {
+                "title": "Header"
+              },
+              "children": [
+                {
+                  "kind": "area",
+                  "id": "area.0"
+                }
+              ]
+            },
+            "contents": {
+              "type": "Screen.Contents",
+              "layout": "layout.region.contents",
+              "metadata": {
+                "title": "Contents"
+              },
+              "children": [
+                {
+                  "kind": "area",
+                  "id": "area.1"
+                },
+                {
+                  "kind": "area",
+                  "id": "area.2"
+                }
+              ]
+            },
+            "bottom": {
+              "type": "Screen.Bottom",
+              "layout": "layout.region.bottom",
+              "metadata": {
+                "title": "Bottom"
+              },
+              "children": [
+                {
+                  "kind": "area",
+                  "id": "area.999"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "areas": [
+        {
+          "id": "area.0",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "옵션·구성 선택"
+          },
+          "layout": "layout.area.areaAppBar",
+          "type": "area.static",
+          "children": [
+            {
+              "kind": "component",
+              "id": "component.0.AppBarHeader"
+            }
+          ]
+        },
+        {
+          "id": "area.1",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "색상·용량·약정 선택"
+          },
+          "layout": "layout.area.listStack",
+          "type": "area.dynamic",
+          "props": {
+            "divider": true,
+            "sectionDivider": true
+          },
+          "children": [
+            {
+              "kind": "component",
+              "id": "component.1.TitleSectionOption"
+            },
+            {
+              "kind": "component",
+              "id": "component.1.OptionListColorVolume"
+            },
+            {
+              "kind": "component",
+              "id": "component.1.ListSelectedBenefitOption"
+            }
+          ]
+        },
+        {
+          "id": "area.2",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "담기 조건 확인"
+          },
+          "layout": "layout.area.listStack",
+          "type": "area.dynamic",
+          "props": {
+            "divider": true
+          },
+          "children": [
+            {
+              "kind": "component",
+              "id": "component.2.CalloutComboValidation"
+            },
+            {
+              "kind": "component",
+              "id": "component.2.ListSelectedGroupProduct"
+            }
+          ]
+        },
+        {
+          "id": "area.999",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "화면 하단 액션 영역"
+          },
+          "layout": "layout.area.bottomActionArea",
+          "type": "area.dynamic",
+          "children": [
+            {
+              "kind": "component",
+              "id": "component.999.ActionButtonNext"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "id": "component.0.AppBarHeader",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "AppBarHeader"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "AppBar",
+          "children": [
+            {
+              "component": {
+                "type": "AppBar",
+                "variant": "WithBack"
+              },
+              "props": {
+                "title": "옵션·구성 선택",
+                "showBack": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.1.TitleSectionOption",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "TitleSectionOption"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "TitleSection",
+          "children": [
+            {
+              "component": {
+                "type": "TitleSection",
+                "variant": "Default"
+              },
+              "props": {
+                "title": "색상·용량·약정 선택",
+                "subtitle": "구성 선택"
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.1.OptionListColorVolume",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "OptionListColorVolume"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "OptionList",
+          "children": [
+            {
+              "component": {
+                "type": "OptionList",
+                "variant": "Selected"
+              },
+              "props": {
+                "title": "색상·용량 약정 선택",
+                "columns": "1"
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.1.ListSelectedBenefitOption",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "ListSelectedBenefitOption"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "ListSelected",
+          "children": [
+            {
+              "component": {
+                "type": "ListSelected",
+                "variant": "checkbox"
+              },
+              "props": {
+                "type": "checkbox",
+                "label": "데이터 더블 혜택"
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.2.CalloutComboValidation",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "CalloutComboValidation"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "Callout",
+          "children": [
+            {
+              "component": {
+                "type": "Callout",
+                "variant": "WithTitle"
+              },
+              "props": {
+                "title": "담기 조건 확인",
+                "children": "동시 주문 불가 조합 등 제한 사유를 확인하세요."
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.2.ListSelectedGroupProduct",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "ListSelectedGroupProduct"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "ListSelected",
+          "children": [
+            {
+              "component": {
+                "type": "ListSelected",
+                "variant": "checkbox"
+              },
+              "props": {
+                "type": "checkbox",
+                "label": "결합 부가서비스"
+              }
+            }
+          ]
+        },
+        {
+          "id": "component.999.ActionButtonNext",
+          "version": "0.1.0",
+          "metadata": {
+            "title": "ActionButtonNext"
+          },
+          "layout": "layout.composite.componentSectionMessage",
+          "type": "ActionButton",
+          "children": [
+            {
+              "component": {
+                "type": "ActionButton",
+                "variant": "primary"
+              },
+              "props": {
+                "label": "다음 단계로",
+                "variant": "primary",
+                "fullWidth": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "renderTree": {
+      "version": "render-tree.v0.1",
+      "minRendererVersion": "0.1.0",
+      "metadata": {
+        "id": "NOVA-PRDD-PG-007-3",
+        "description": "옵션·구성 선택-로그인·인증 후 복귀 시 선택 구성 소실"
+      },
+      "theme": {
+        "mode": "light"
+      },
+      "children": [
+        {
+          "type": "Screen",
+          "componentVersion": "0.1.0",
+          "metadata": {
+            "id": "screen.NOVA-PRDD-PG-007-3",
+            "title": "옵션·구성 선택"
+          },
+          "layout": "layout.screen.commerceDetailScreen",
+          "children": [
+            {
+              "type": "Screen.Header",
+              "componentVersion": "0.1.0",
+              "metadata": {
+                "id": "region.header",
+                "title": "Header"
+              },
+              "layout": "layout.region.header",
+              "children": [
+                {
+                  "type": "area.static",
+                  "componentVersion": "0.1.0",
+                  "metadata": {
+                    "id": "area.0",
+                    "title": "옵션·구성 선택"
+                  },
+                  "layout": "layout.area.areaAppBar",
+                  "children": [
+                    {
+                      "type": "AppBar",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.AppBarHeader",
+                        "title": "AppBarHeader"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "title": "옵션·구성 선택",
+                        "showBack": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Screen.Contents",
+              "componentVersion": "0.1.0",
+              "metadata": {
+                "id": "region.contents",
+                "title": "Contents"
+              },
+              "layout": "layout.region.contents",
+              "children": [
+                {
+                  "type": "area.dynamic",
+                  "componentVersion": "0.1.0",
+                  "metadata": {
+                    "id": "area.1",
+                    "title": "색상·용량·약정 선택"
+                  },
+                  "layout": "layout.area.listStack",
+                  "props": {
+                    "divider": true,
+                    "sectionDivider": true
+                  },
+                  "children": [
+                    {
+                      "type": "TitleSection",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.TitleSectionOption",
+                        "title": "TitleSectionOption"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "title": "색상·용량·약정 선택",
+                        "subtitle": "구성 선택"
+                      }
+                    },
+                    {
+                      "type": "OptionList",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.OptionListColorVolume",
+                        "title": "OptionListColorVolume"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "title": "색상·용량 약정 선택",
+                        "columns": "1"
+                      },
+                      "display": {
+                        "stateRole": "empty"
+                      }
+                    },
+                    {
+                      "type": "ListSelected",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.ListSelectedBenefitOption",
+                        "title": "ListSelectedBenefitOption"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "type": "checkbox",
+                        "label": "데이터 더블 혜택"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "area.dynamic",
+                  "componentVersion": "0.1.0",
+                  "metadata": {
+                    "id": "area.2",
+                    "title": "담기 조건 확인"
+                  },
+                  "layout": "layout.area.listStack",
+                  "props": {
+                    "divider": true
+                  },
+                  "display": {
+                    "stateRole": "error"
+                  },
+                  "children": [
+                    {
+                      "type": "Callout",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.CalloutComboValidation",
+                        "title": "CalloutComboValidation"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "title": "담기 조건 확인",
+                        "children": "동시 주문 불가 조합 등 제한 사유를 확인하세요."
+                      }
+                    },
+                    {
+                      "type": "ListSelected",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.ListSelectedGroupProduct",
+                        "title": "ListSelectedGroupProduct"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "type": "checkbox",
+                        "label": "결합 부가서비스"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Screen.Bottom",
+              "componentVersion": "0.1.0",
+              "metadata": {
+                "id": "region.bottom",
+                "title": "Bottom"
+              },
+              "layout": "layout.region.bottom",
+              "children": [
+                {
+                  "type": "area.dynamic",
+                  "componentVersion": "0.1.0",
+                  "metadata": {
+                    "id": "area.999",
+                    "title": "화면 하단 액션 영역"
+                  },
+                  "layout": "layout.area.bottomActionArea",
+                  "children": [
+                    {
+                      "type": "ActionButton",
+                      "componentVersion": "0.1.0",
+                      "metadata": {
+                        "id": "node.ActionButtonNext",
+                        "title": "ActionButtonNext"
+                      },
+                      "layout": "layout.composite.componentSectionMessage",
+                      "props": {
+                        "label": "다음 단계로",
+                        "variant": "primary",
+                        "fullWidth": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "screen-generation"
+}

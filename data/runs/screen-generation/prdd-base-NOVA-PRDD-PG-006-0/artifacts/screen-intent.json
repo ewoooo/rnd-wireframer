@@ -1,0 +1,39 @@
+{
+  "payload": {
+    "contentPriority": [
+      "0",
+      "AppBarHeader",
+      "1",
+      "TitleSectionAiSummary",
+      "CalloutAiSummary",
+      "InfoTextListRecommendBasis",
+      "CardTextReviewSummary",
+      "ListProductRowSimilarCompare"
+    ],
+    "primaryUserAction": "complete-primary-flow",
+    "rationale": "Fake pipeline intent keeps the design decision artifact visible before composition planning.",
+    "schemaVersion": "screen-intent.v0.1",
+    "screenPurpose": "추천·AI 요약 근거 검토 화면에서 핵심 정보를 이해하고 다음 행동으로 이어지게 한다.",
+    "sourceInterpretation": {
+      "defer": [],
+      "preserve": [
+        "NOVA-PRDD-PG-006-0",
+        "/nova/prdd/pg/006/0"
+      ],
+      "summarize": [
+        "0",
+        "AppBarHeader",
+        "1",
+        "TitleSectionAiSummary",
+        "CalloutAiSummary",
+        "InfoTextListRecommendBasis",
+        "CardTextReviewSummary",
+        "ListProductRowSimilarCompare"
+      ]
+    }
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "screen-intent"
+}

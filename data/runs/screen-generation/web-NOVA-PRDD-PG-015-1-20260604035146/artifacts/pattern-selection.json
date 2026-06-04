@@ -1,0 +1,109 @@
+{
+  "payload": {
+    "schemaVersion": "pattern-selection.v0.1",
+    "selectedCandidates": [
+      {
+        "id": "layer.screen.composition",
+        "level": "screen",
+        "targetRef": "NOVA-PRDD-PG-015-1",
+        "layout": "layout.screen.commerceDetailScreen"
+      },
+      {
+        "id": "layer.region.header",
+        "level": "region",
+        "targetRef": "header",
+        "layout": "layout.region.header"
+      },
+      {
+        "id": "layer.region.contents",
+        "level": "region",
+        "targetRef": "contents",
+        "layout": "layout.region.contents"
+      },
+      {
+        "id": "layer.region.bottom",
+        "level": "region",
+        "targetRef": "bottom",
+        "layout": "layout.region.bottom"
+      },
+      {
+        "id": "layer.area.decor.area.0.0",
+        "level": "area",
+        "targetRef": "decor.area.0.0",
+        "layout": "layout.area.areaAppBar"
+      },
+      {
+        "id": "layer.area.decor.area.1.0",
+        "level": "area",
+        "targetRef": "decor.area.1.0",
+        "layout": "layout.area.listStack"
+      },
+      {
+        "id": "layer.area.decor.area.2.0",
+        "level": "area",
+        "targetRef": "decor.area.2.0",
+        "layout": "layout.area.listStack"
+      },
+      {
+        "id": "layer.area.decor.area.999.0",
+        "level": "area",
+        "targetRef": "decor.area.999.0",
+        "layout": "layout.area.bottomActionArea"
+      },
+      {
+        "id": "layer.component.0.AppBarHeader",
+        "level": "component",
+        "targetRef": "AppBarHeader",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.TitleSectionFailReason",
+        "level": "component",
+        "targetRef": "TitleSectionFailReason",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.CalloutFailReason",
+        "level": "component",
+        "targetRef": "CalloutFailReason",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.TextButtonViewLater",
+        "level": "component",
+        "targetRef": "TextButtonViewLater",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.2.TitleSectionComboResult",
+        "level": "component",
+        "targetRef": "TitleSectionComboResult",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.2.ListTextDuplicateCheck",
+        "level": "component",
+        "targetRef": "ListTextDuplicateCheck",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.2.ListSelectedGroupProduct",
+        "level": "component",
+        "targetRef": "ListSelectedGroupProduct",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.999.ActionButtonRecover",
+        "level": "component",
+        "targetRef": "ActionButtonRecover",
+        "layout": "layout.composite.componentSectionMessage"
+      }
+    ],
+    "confidence": 0.92,
+    "reason": "Selected the full screen→region→area→component layer stack from layerCandidates to materialize commerceDetailScreen with header(areaAppBar), contents(listStack ×2 for feedback + form), and bottom(bottomActionArea), aligning with compositionPlan sections, decorationPlan area roles/layoutIntent, and the list-selection-screen design skill. All targetRefs are drawn from sourceReferenceCatalog.allowedRefs and decoration area ids; no layout ids were invented."
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "pattern-selection"
+}
