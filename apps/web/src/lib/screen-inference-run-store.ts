@@ -69,6 +69,27 @@ export async function readScreenInferenceRun(runId: string) {
 	return undefined;
 }
 
+export async function updateScreenInferenceRunStatus(
+	runId: string,
+	status: ScreenInferenceRunStatus["status"],
+) {
+	const current = await readRunStatus(runId);
+	if (!current) throw new Error("Run not found.");
+	await writeRunStatus({
+		...(status === "applied"
+			? createWaitingReviewStatus({
+					createdAt: current.createdAt,
+					now: new Date().toISOString(),
+					runId,
+				})
+			: current),
+		currentLayer: undefined,
+		runId,
+		status,
+		updatedAt: new Date().toISOString(),
+	});
+}
+
 async function runScreenInferencePipeline(input: {
 	createdAt: string;
 	previousRunId?: string;

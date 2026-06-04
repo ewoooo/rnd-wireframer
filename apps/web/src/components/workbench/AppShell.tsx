@@ -310,6 +310,21 @@ export function AppShell() {
 		}
 	}
 
+	async function handleApplyNewScreenRun() {
+		if (!newScreenRunStatus?.runId || newScreenRunStatus.status !== "waiting-review") return;
+		setSaveState({ message: "등록 중", status: "saving" });
+		setNewScreenSourceError("");
+		try {
+			await applyScreenInferenceRun(newScreenRunStatus.runId);
+			const status = await fetchScreenInferenceRunStatus(newScreenRunStatus.runId);
+			setNewScreenRunStatus(status);
+			setSaveState({ message: "등록됨", status: "saved" });
+		} catch (error) {
+			setNewScreenSourceError(readErrorMessage(error));
+			setSaveState({ message: "등록 실패", status: "error" });
+		}
+	}
+
 	function handleScreenCandidateChange(screenId: string, node: RenderTreeScreenNode) {
 		setScreenCandidates((current) => ({
 			...current,
@@ -376,6 +391,7 @@ export function AppShell() {
 				<Canvas
 					activeTab={activeTab}
 					loadState={loadState}
+					onApplyNewScreenRun={handleApplyNewScreenRun}
 					onSaveSelectedScreen={handleSaveSelectedScreen}
 					onToggleStatusBar={() => setShowStatusBar((current) => !current)}
 					renderPuckPreview={isEditingWithPuck}
@@ -526,6 +542,17 @@ async function fetchScreenInferenceArtifact<T>(runId: string, artifactName: stri
 	}
 
 	return body;
+}
+
+async function applyScreenInferenceRun(runId: string): Promise<void> {
+	const response = await fetch(`/api/screen-inference/runs/${encodeURIComponent(runId)}/apply`, {
+		method: "POST",
+	});
+	const body = (await response.json()) as { error?: string; ok?: boolean };
+
+	if (!response.ok || body.error || !body.ok) {
+		throw new Error(body.error ?? `새 화면 DB 등록 실패 ${response.status}`);
+	}
 }
 
 function readErrorMessage(error: unknown): string {

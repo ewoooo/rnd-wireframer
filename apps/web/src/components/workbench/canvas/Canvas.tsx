@@ -16,6 +16,7 @@ type CanvasProps = {
 	};
 	newScreenPreviewNode?: ScreenSummary["renderTree"];
 	newScreenRunStatus?: ScreenInferenceRunStatus;
+	onApplyNewScreenRun?: () => void | Promise<void>;
 	onSaveSelectedScreen?: () => void | Promise<void>;
 	onToggleStatusBar?: () => void;
 	renderPuckPreview?: boolean;
@@ -29,6 +30,7 @@ export function Canvas({
 	loadState = { status: "ready" },
 	newScreenPreviewNode,
 	newScreenRunStatus,
+	onApplyNewScreenRun,
 	onSaveSelectedScreen,
 	onToggleStatusBar,
 	renderPuckPreview = false,
@@ -41,6 +43,7 @@ export function Canvas({
 	const isNewScreenTab = activeTab === "agent";
 	const isEditorTab = isPuckTab || isAreaTab;
 	const canExport = activeTab === "scn" && !!selectedScreen?.renderTree;
+	const canApplyNewScreen = isNewScreenTab && newScreenRunStatus?.status === "waiting-review";
 
 	return (
 		<SidebarInset className="overflow-hidden">
@@ -59,9 +62,15 @@ export function Canvas({
 					</div>
 					<div className="flex shrink-0 items-center gap-2">
 						<CanvasToolbar
-							canSave={!isNewScreenTab && !!selectedScreen?.renderTree && !!onSaveSelectedScreen}
+							canSave={
+								canApplyNewScreen
+									? !!onApplyNewScreenRun
+									: !isNewScreenTab && !!selectedScreen?.renderTree && !!onSaveSelectedScreen
+							}
 							isStatusBarVisible={showStatusBar}
-							onSave={() => onSaveSelectedScreen?.()}
+							onSave={() =>
+								canApplyNewScreen ? onApplyNewScreenRun?.() : onSaveSelectedScreen?.()
+							}
 							onToggleStatusBar={() => onToggleStatusBar?.()}
 							saveState={saveState}
 						/>
