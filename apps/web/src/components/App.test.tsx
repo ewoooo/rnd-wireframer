@@ -70,6 +70,30 @@ describe("App workbench navigation", () => {
 		expect(screen.getByRole("heading", { level: 1, name: "Member Base-E1" })).toBeInTheDocument();
 		expect(screen.getAllByText("Member Route").length).toBeGreaterThan(0);
 	});
+
+	it("renders new screen inference review artifacts without requiring quality summary", async () => {
+		stubBrowserApis();
+		stubScreenFetch({ inferenceStatus: "waiting-review", qualityHasSummary: false });
+		render(<App />);
+
+		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+
+		const fileInput = document.querySelector<HTMLInputElement>("input[type='file']");
+		expect(fileInput).not.toBeNull();
+		fireEvent.change(fileInput as HTMLInputElement, {
+			target: {
+				files: [new File(["---\n화면 ID: NOVA-UPLOAD-PG-001-0\n---"], "NOVA-UPLOAD-PG-001-0.md")],
+			},
+		});
+
+		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+
+		expect(await screen.findByText("Generated Area")).toBeInTheDocument();
+		expect(screen.getAllByText("waiting-review").length).toBeGreaterThan(0);
+		expect(screen.getAllByText("0 errors · 0 warnings").length).toBeGreaterThanOrEqual(2);
+	});
 });
 
 function createScreens(): ScreenSummary[] {
@@ -168,6 +192,7 @@ function createRenderTree(idPrefix: string) {
 }
 
 function readAreaTitle(idPrefix: string) {
+	if (idPrefix === "generated") return "Generated Area";
 	return idPrefix === "preview" ? "Preview Area" : "Member Area";
 }
 
@@ -188,7 +213,11 @@ function stubBrowserApis() {
 	}));
 }
 
-function stubScreenFetch() {
+function stubScreenFetch(
+	options: { inferenceStatus?: RunStatus; qualityHasSummary?: boolean } = {},
+) {
+	const inferenceStatus = options.inferenceStatus ?? "running";
+	const qualityHasSummary = options.qualityHasSummary ?? true;
 	const screens = createScreens();
 	vi.stubGlobal(
 		"fetch",
@@ -233,7 +262,31 @@ function stubScreenFetch() {
 			}
 			if (url.pathname === "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
 				return Response.json({
-					status: createRunStatus("running"),
+					status: createRunStatus(inferenceStatus),
+				});
+			}
+			if (
+				url.pathname ===
+				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/final-result.json"
+			) {
+				return Response.json(createRenderTree("generated"));
+			}
+			if (
+				url.pathname ===
+				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/validation-report.json"
+			) {
+				return Response.json({
+					ok: true,
+					summary: { errorCount: 0, warningCount: 0 },
+				});
+			}
+			if (
+				url.pathname ===
+				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/quality-review.json"
+			) {
+				return Response.json({
+					findings: [],
+					...(qualityHasSummary ? { summary: { errorCount: 0, warningCount: 0 } } : {}),
 				});
 			}
 			const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
@@ -249,7 +302,9 @@ function stubScreenFetch() {
 	);
 }
 
-function createRunStatus(status: "queued" | "running") {
+type RunStatus = "queued" | "running" | "waiting-review";
+
+function createRunStatus(status: RunStatus) {
 	return {
 		createdAt: "2026-06-04T12:00:00.000Z",
 		currentLayer: status === "running" ? "understand" : undefined,
@@ -259,21 +314,21 @@ function createRunStatus(status: "queued" | "running") {
 				label: "Understand",
 				layer: "understand",
 				stages: ["read-source"],
-				status: status === "running" ? "running" : "pending",
+				status: readLayerStatus(status, "understand"),
 			},
 			{
 				artifacts: [],
 				label: "Compose",
 				layer: "compose",
 				stages: ["generate-render-tree"],
-				status: "pending",
+				status: readLayerStatus(status, "compose"),
 			},
 			{
 				artifacts: [],
 				label: "Revise",
 				layer: "revise",
 				stages: ["write-artifacts"],
-				status: "pending",
+				status: readLayerStatus(status, "revise"),
 			},
 		],
 		runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
@@ -281,4 +336,13 @@ function createRunStatus(status: "queued" | "running") {
 		status,
 		updatedAt: "2026-06-04T12:00:00.000Z",
 	};
+}
+
+function readLayerStatus(
+	status: RunStatus,
+	layer: "compose" | "revise" | "understand",
+): "completed" | "pending" | "running" {
+	if (status === "waiting-review") return "completed";
+	if (status === "running" && layer === "understand") return "running";
+	return "pending";
 }

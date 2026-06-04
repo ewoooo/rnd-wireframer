@@ -76,14 +76,23 @@ function ReviewBlock({
 
 function readValidationDescription(validation?: ValidationReportContract): string {
 	if (!validation) return "final-result 검증 대기 중";
-	return `${validation.summary.errorCount} errors · ${validation.summary.warningCount} warnings`;
+	const summary = readReviewSummary(validation.summary);
+	return `${summary.errorCount} errors · ${summary.warningCount} warnings`;
 }
 
 function readQualityDescription(quality?: QualityInspectionContract): string {
 	if (!quality) return "quality-review 대기 중";
-	return `${quality.summary.errorCount} errors · ${quality.summary.warningCount} warnings`;
+	const summary = readReviewSummary(quality.summary);
+	return `${summary.errorCount} errors · ${summary.warningCount} warnings`;
 }
 
 function readQualityState(quality: QualityInspectionContract): "issue" | "ok" {
-	return quality.summary.errorCount > 0 ? "issue" : "ok";
+	return readReviewSummary(quality.summary).errorCount > 0 ? "issue" : "ok";
+}
+
+function readReviewSummary(summary: { errorCount?: number; warningCount?: number } | undefined) {
+	return {
+		errorCount: summary?.errorCount ?? 0,
+		warningCount: summary?.warningCount ?? 0,
+	};
 }
