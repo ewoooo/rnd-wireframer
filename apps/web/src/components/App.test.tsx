@@ -5,6 +5,7 @@ import type { ScreenSummary } from "@/lib/screen-sources";
 
 afterEach(() => {
 	cleanup();
+	window.localStorage.clear();
 	vi.unstubAllGlobals();
 });
 
@@ -105,6 +106,37 @@ describe("App workbench navigation", () => {
 				useAI: true,
 			}),
 		);
+	});
+
+	it("restores uploaded new screen sources and polling after refresh", async () => {
+		window.localStorage.setItem(
+			"cx.new-screen.workbench.v0.1",
+			JSON.stringify({
+				selectedSourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+				sources: [
+					{
+						batchId: "20260604",
+						importId: "web-upload",
+						latestRunId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+						path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+						screenId: "NOVA-UPLOAD-PG-001-0",
+						type: "file",
+					},
+				],
+			}),
+		);
+		stubBrowserApis();
+		stubScreenFetch();
+		render(<App />);
+
+		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+
+		expect(screen.getByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect(
+			screen.getByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
+		).toBeInTheDocument();
+		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
 });
 

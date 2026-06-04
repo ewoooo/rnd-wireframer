@@ -38,6 +38,7 @@ import {
 } from "@/model/workbench-view-model";
 
 const ASIDE_WIDTH = "320px";
+const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
 
 type LoadState = {
 	message?: string;
@@ -69,6 +70,7 @@ type ScreenInferenceSourceUploadResponse = {
 const TERMINAL_SCREEN_INFERENCE_STATUSES = new Set(["failed", "waiting-review", "applied"]);
 
 export function AppShell() {
+	const initialNewScreenWorkbenchState = readNewScreenWorkbenchState();
 	const [screens, setScreens] = useState<ScreenSummary[]>([]);
 	const [loadState, setLoadState] = useState<LoadState>({
 		message: "화면 불러오는 중",
@@ -77,7 +79,9 @@ export function AppShell() {
 	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
 	const [newScreenSourceError, setNewScreenSourceError] = useState("");
-	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>([]);
+	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>(
+		initialNewScreenWorkbenchState.sources,
+	);
 	const [newScreenPreviewNode, setNewScreenPreviewNode] = useState<RenderTreeScreenNode>();
 	const [newScreenQuality, setNewScreenQuality] = useState<QualityInspectionContract>();
 	const [newScreenRunStatus, setNewScreenRunStatus] = useState<ScreenInferenceRunStatus>();
@@ -86,7 +90,9 @@ export function AppShell() {
 	const [isStartingNewScreenRun, setIsStartingNewScreenRun] = useState(false);
 	const [selectedAreaId, setSelectedAreaId] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState("");
-	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState("");
+	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState(
+		initialNewScreenWorkbenchState.selectedSourcePath,
+	);
 	const [puckCatalogItemsByScope, setPuckCatalogItemsByScope] = useState<
 		Partial<Record<PuckCatalogScope, PuckCatalogItem[]>>
 	>({});
@@ -188,6 +194,13 @@ export function AppShell() {
 			isActive = false;
 		};
 	}, [puckCatalogScope, puckCatalogItemsByScope]);
+
+	useEffect(() => {
+		writeNewScreenWorkbenchState({
+			selectedSourcePath: selectedNewScreenSourcePath,
+			sources: newScreenSources,
+		});
+	}, [newScreenSources, selectedNewScreenSourcePath]);
 
 	useEffect(() => {
 		if (!selectedNewScreenRunId || activeTab !== "agent") return;
@@ -610,6 +623,51 @@ async function applyScreenInferenceRun(runId: string): Promise<void> {
 
 function readErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : "화면 데이터를 불러오지 못했습니다.";
+}
+
+function readNewScreenWorkbenchState(): {
+	selectedSourcePath: string;
+	sources: NewScreenSourceItem[];
+} {
+	if (typeof window === "undefined") return { selectedSourcePath: "", sources: [] };
+	try {
+		const rawValue = window.localStorage.getItem(NEW_SCREEN_WORKBENCH_STORAGE_KEY);
+		if (!rawValue) return { selectedSourcePath: "", sources: [] };
+		const value = JSON.parse(rawValue) as {
+			selectedSourcePath?: unknown;
+			sources?: unknown;
+		};
+		const sources = Array.isArray(value.sources) ? value.sources.filter(isNewScreenSourceItem) : [];
+		const selectedSourcePath =
+			typeof value.selectedSourcePath === "string" &&
+			sources.some((source) => source.path === value.selectedSourcePath)
+				? value.selectedSourcePath
+				: (sources[0]?.path ?? "");
+
+		return { selectedSourcePath, sources };
+	} catch {
+		return { selectedSourcePath: "", sources: [] };
+	}
+}
+
+function writeNewScreenWorkbenchState(input: {
+	selectedSourcePath: string;
+	sources: NewScreenSourceItem[];
+}) {
+	if (typeof window === "undefined") return;
+	window.localStorage.setItem(NEW_SCREEN_WORKBENCH_STORAGE_KEY, JSON.stringify(input));
+}
+
+function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
+	if (!value || typeof value !== "object") return false;
+	const item = value as Partial<Record<keyof NewScreenSourceItem, unknown>>;
+	return (
+		typeof item.batchId === "string" &&
+		typeof item.importId === "string" &&
+		typeof item.path === "string" &&
+		typeof item.screenId === "string" &&
+		(typeof item.latestRunId === "string" || item.latestRunId === undefined)
+	);
 }
 
 function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {
