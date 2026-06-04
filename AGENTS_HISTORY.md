@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - New Screen Inference MVP Rollouts
+
+- 변경: `codex/new-screen-inference-rollouts` 브랜치에서 새 화면 MVP를 rollout 단위로 구현하고 각 rollout 완료 후 리뷰/검증/커밋함
+- 변경: DnD source intake, run/status polling, final review/rerun, approved DB apply 흐름을 Web API와 workbench 새 화면 탭에 연결함
+- 변경: `docs/development/NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md`에 사용자 입력 라이프사이클, 화면 구성 다이어그램, endpoint-to-UI mapping, rollout 구분을 기록함
+- 변경: apply 단계는 `final-result.json` RenderTree를 `render_*` DB read model row로 projection/upsert하는 Web facade를 추가함
+- 이유: 사용자가 업로드한 client-import source가 추론 결과 UI preview, 검수, 승인, DB 등록으로 이어지는 MVP lifecycle을 빠르게 닫기 위함
+- 검증: `pnpm exec vitest run apps/web/src/lib/screen-inference-source.test.ts apps/web/src/components/App.test.tsx apps/web/src/lib/screen-db-save.test.ts`, `pnpm exec biome check ...`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `git diff --cached --check`
+
 ## 2026-06-02 - Origin Main Figma Export Merge Prep
 
 - 변경: `origin/main`의 Figma export 기능을 현재 로컬 workbench 경계에 맞춰 병합 준비함
