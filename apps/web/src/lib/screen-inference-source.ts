@@ -62,9 +62,11 @@ export function sanitizePathPart(value: string): string {
 
 export async function listUploadedScreenSources(input: {
 	clientImportRoot: string;
+	importIds?: string[];
 	repoRoot: string;
 	runRoot: string;
 }): Promise<UploadedScreenSource[]> {
+	const allowedImportIds = input.importIds ? new Set(input.importIds) : undefined;
 	const [sourceFiles, latestRunIdBySourcePath] = await Promise.all([
 		listMarkdownSourceFiles(input.clientImportRoot),
 		readLatestRunIdBySourcePath({
@@ -90,6 +92,7 @@ export async function listUploadedScreenSources(input: {
 				type: "file" as const,
 			};
 		})
+		.filter((source) => !allowedImportIds || allowedImportIds.has(source.importId))
 		.sort((first, second) => second.path.localeCompare(first.path));
 }
 

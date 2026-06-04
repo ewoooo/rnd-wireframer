@@ -1,9 +1,12 @@
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
 	createBatchId,
 	createScreenSourceTarget,
 	isMarkdownSourceFileName,
+	listUploadedScreenSources,
 	readScreenIdFromFileName,
 	sanitizePathPart,
 } from "./screen-inference-source";
@@ -50,5 +53,37 @@ describe("screen inference source helpers", () => {
 				"data/client-imports/web-upload/20260604_new_screen/NOVA-MBR-PG-001-0.md",
 			),
 		);
+	});
+
+	it("filters listed sources by import id", async () => {
+		const repoRoot = await mkdtemp(path.join(os.tmpdir(), "screen-source-"));
+		const clientImportRoot = path.join(repoRoot, "data/client-imports");
+		const runRoot = path.join(repoRoot, "data/runs/screen-generation");
+		await mkdir(path.join(clientImportRoot, "web-upload", "20260604"), { recursive: true });
+		await mkdir(path.join(clientImportRoot, "{id}", "260528_mbr"), { recursive: true });
+		await writeFile(
+			path.join(clientImportRoot, "web-upload", "20260604", "NOVA-UPLOAD-PG-001-0.md"),
+			"# upload",
+			"utf8",
+		);
+		await writeFile(
+			path.join(clientImportRoot, "{id}", "260528_mbr", "NOVA-MBR-PG-001-0.md"),
+			"# fixture",
+			"utf8",
+		);
+
+		const sources = await listUploadedScreenSources({
+			clientImportRoot,
+			importIds: ["web-upload"],
+			repoRoot,
+			runRoot,
+		});
+
+		expect(sources).toEqual([
+			expect.objectContaining({
+				importId: "web-upload",
+				screenId: "NOVA-UPLOAD-PG-001-0",
+			}),
+		]);
 	});
 });

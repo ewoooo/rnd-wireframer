@@ -17,6 +17,7 @@ export async function GET() {
 		return NextResponse.json({
 			sources: await listUploadedScreenSources({
 				clientImportRoot: CLIENT_IMPORT_ROOT,
+				importIds: ["web-upload"],
 				repoRoot: process.cwd(),
 				runRoot: RUN_ROOT,
 			}),
