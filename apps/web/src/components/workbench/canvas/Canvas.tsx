@@ -116,9 +116,8 @@ function NewScreenEmptyPreview() {
 				<FileUp className="size-5 text-muted-foreground" data-icon="inline-start" />
 			</div>
 			<div className="grid gap-1">
-				<p className="text-sm font-semibold">Markdown source를 업로드하세요.</p>
 				<p className="max-w-80 text-xs leading-5 text-muted-foreground">
-					업로드된 파일은 data/client-imports 형식으로 저장되고, 다음 롤아웃에서 Run을 시작합니다.
+					Markdown source를 업로드하세요.
 				</p>
 			</div>
 		</div>
@@ -176,7 +175,6 @@ function readCanvasContextLabel(
 	selectedScreen?: ScreenSummary,
 	renderPuckPreview = false,
 ) {
-	if (activeTab === "agent") return "New Screen Intake · data/client-imports";
 
 	const tabLabel =
 		activeTab === "scn" && renderPuckPreview
