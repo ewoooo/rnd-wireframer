@@ -85,6 +85,7 @@ Revise
 At minimum, the UI must show:
 
 - current layer
+- current stage text such as `Reading source…`, `Decorating sections…`, `Generating UI draft…`, or `Reviewing quality…`
 - completed layers
 - failed layer and error summary
 - final rendered preview when available
@@ -132,6 +133,8 @@ type ScreenInferenceRunStatus = {
   runId: string;
   status: "queued" | "running" | "waiting-review" | "approved" | "applying" | "applied" | "failed";
   currentLayer?: "understand" | "compose" | "revise";
+  currentStage?: PipelineStageId;
+  currentMessage?: string;
   createdAt: string;
   updatedAt: string;
   layers: Array<{
@@ -157,7 +160,7 @@ type ScreenInferenceRunStatus = {
 };
 ```
 
-The DTO should live in `@cx/schema`. `@cx/pipeline` should write or emit it because pipeline owns stage execution and artifact write.
+The DTO should live in `@cx/schema`. `@cx/pipeline` should write or emit it because pipeline owns stage execution and artifact write. In the Web MVP, `@cx/pipeline` emits a progress callback per stage and the Web run store writes `status.json` for polling.
 
 ## 7. Package Responsibilities
 
@@ -222,7 +225,7 @@ Endpoint-to-UI mapping:
 | Left rail run/rerun action | `POST /api/screen-inference/runs` | returns `runId`, `statusUrl` |
 | Left rail uploaded screenId | local state first, later `GET /api/screen-inference/sources` if persisted browsing is needed | `screenId`, `source.path`, latest `runId` |
 | Center top stepper | `GET /api/screen-inference/runs/:runId` | `status.currentLayer`, `status.layers[]` |
-| Center top status text | `GET /api/screen-inference/runs/:runId` | `status.status`, `status.error`, `manifest.summary` |
+| Center top status text | `GET /api/screen-inference/runs/:runId` | `status.currentMessage`, `status.currentStage`, `status.status`, `status.error`, `manifest.summary` |
 | Center preview | `GET /api/screen-inference/runs/:runId/artifacts/final-result.json` | `RenderTreeContract` rendered through `@cx/renderer` |
 | Right validation summary | `GET /api/screen-inference/runs/:runId/artifacts/validation-report.json` | validation `ok`, `summary`, `issues[]` |
 | Right quality summary | `GET /api/screen-inference/runs/:runId/artifacts/quality-review.json` | quality scores, findings, summary |

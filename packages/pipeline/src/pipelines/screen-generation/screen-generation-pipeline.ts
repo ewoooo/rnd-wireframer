@@ -154,6 +154,7 @@ type ScreenGenerationPipelineState = {
 type NormalizedScreenGenerationPipelineOptions = {
 	agentMode: "claude-local-first" | "fake";
 	disableDesignContext: boolean;
+	onProgress: NonNullable<ScreenGenerationPipelineOptions["onProgress"]>;
 	outDir: string;
 	runDir: string;
 	runId: string;
@@ -196,7 +197,19 @@ export async function runScreenGenerationPipeline(
 		) {
 			continue;
 		}
+		await state.options.onProgress({
+			pipelineId: "screen-generation",
+			runId: state.options.runId,
+			stage,
+			status: "started",
+		});
 		await screenGenerationStageExecutors[stage](state);
+		await state.options.onProgress({
+			pipelineId: "screen-generation",
+			runId: state.options.runId,
+			stage,
+			status: "completed",
+		});
 	}
 
 	if (!state.pipelineResult || !state.pipelineResultWrite || !state.parseCommandResult) {
@@ -746,6 +759,7 @@ function normalizeScreenGenerationPipelineOptions(
 	return {
 		agentMode: options.agentMode ?? (options.useAI ? "claude-local-first" : "fake"),
 		disableDesignContext: options.disableDesignContext ?? false,
+		onProgress: options.onProgress ?? (() => undefined),
 		...resolveRunOutputPaths(options, runId),
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),

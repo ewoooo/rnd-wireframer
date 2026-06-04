@@ -14,6 +14,7 @@ export type {
 	PipelineId,
 	PipelineIdAdapter,
 	PipelineMarkdownSourceFile,
+	PipelineProgressEvent,
 	PipelineRunMode,
 	PipelineRunResult,
 	PipelineStageId,

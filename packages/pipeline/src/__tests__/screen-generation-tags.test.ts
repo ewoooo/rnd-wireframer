@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runPipeline } from "@cx/pipeline";
+import type { PipelineProgressEvent } from "@cx/pipeline/types";
 import { afterAll, describe, expect, it } from "vitest";
 
 const SOURCE = "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md";
@@ -14,9 +15,13 @@ afterAll(async () => {
 async function runFake(runId: string, tags?: string[]) {
 	const rootDir = await mkdtemp(path.join(tmpdir(), "cx-tags-"));
 	tempRoots.push(rootDir);
+	const progressEvents: PipelineProgressEvent[] = [];
 	await runPipeline("screen-generation", {
 		agentMode: "fake",
 		artifactStore: { rootDir },
+		onProgress: (event) => {
+			progressEvents.push(event);
+		},
 		runId,
 		source: { path: SOURCE, type: "file" },
 		tags,
@@ -27,7 +32,7 @@ async function runFake(runId: string, tags?: string[]) {
 	const trace = JSON.parse(
 		await readFile(path.join(rootDir, runId, "artifacts/trace.json"), "utf8"),
 	);
-	return { manifest, trace };
+	return { manifest, progressEvents, trace };
 }
 
 describe("screen-generation manifest tags", () => {
@@ -54,5 +59,32 @@ describe("screen-generation manifest tags", () => {
 		);
 		expect(trace.layers.compose.traceKeys).toContain("designSkillSelection");
 		expect(trace.designSkillSelection.selectedSkill.id).toBeTruthy();
+	});
+
+	it("emits stage progress events while running the pipeline", async () => {
+		const { progressEvents } = await runFake("progress-events");
+
+		expect(
+			progressEvents.filter((event) => event.status === "started").map((event) => event.stage),
+		).toEqual([
+			"read-source",
+			"parse-source",
+			"derive-screen-intent",
+			"plan-composition",
+			"derive-decoration-plan",
+			"select-pattern",
+			"generate-render-tree",
+			"validate-render-tree",
+			"propose-components",
+			"review-quality",
+			"revise-render-tree-if-invalid",
+			"validate-render-tree-after-revision",
+			"write-artifacts",
+		]);
+		expect(progressEvents.at(-1)).toMatchObject({
+			runId: "progress-events",
+			stage: "write-artifacts",
+			status: "completed",
+		});
 	});
 });

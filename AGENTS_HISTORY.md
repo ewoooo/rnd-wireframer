@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - New Screen Stage Progress UX
+
+- 변경: `@cx/pipeline`에 stage progress callback을 추가하고, Web 새 화면 run store가 stage 시작마다 `status.json`을 갱신하도록 연결함
+- 변경: 새 화면 status DTO에 `currentStage`와 `currentMessage`를 추가해 `Understand -> Compose -> Revise` badge와 `Decorating sections…` 같은 진행 문구를 함께 표시함
+- 변경: `NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md`에 3단계 badge와 pipeline stage text 계약을 반영함
+- 이유: inference 실행 중 `Understand`만 켜져 있다가 완료되는 UX를 개선하고, 사용자가 현재 pipeline이 무엇을 하고 있는지 polling UI에서 확인하게 하기 위함
+- 검증: `pnpm exec vitest run apps/web/src/lib/screen-inference-run.test.ts apps/web/src/components/App.test.tsx packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `pnpm exec biome check apps/web/src/lib/screen-inference-run.ts apps/web/src/lib/screen-inference-run-store.ts apps/web/src/lib/screen-inference-run.test.ts apps/web/src/components/workbench/canvas/Canvas.tsx packages/pipeline/src/public/types.ts packages/pipeline/src/index.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`
+
 ## 2026-06-04 - Workbench Global Area Component Navigation
 
 - 변경: Workbench의 Areas/Components 탭이 선택된 화면의 자식만 보여주지 않고 로드된 전체 screen의 area/component 목록을 보여주도록 변경함

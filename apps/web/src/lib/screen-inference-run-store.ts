@@ -3,6 +3,7 @@ import path from "node:path";
 import { runPipeline } from "@cx/pipeline";
 import { readErrorMessage } from "@/lib/api-error";
 import {
+	createScreenInferenceProgressStatus,
 	createScreenInferenceRunId,
 	createScreenInferenceStatus,
 	createWaitingReviewStatus,
@@ -119,6 +120,17 @@ async function runScreenInferencePipeline(input: {
 				...(input.previousRunId ? [`previous:${input.previousRunId}`] : []),
 				...(input.tags ?? []),
 			],
+			onProgress: async (event) => {
+				if (event.status !== "started") return;
+				await writeRunStatus(
+					createScreenInferenceProgressStatus({
+						createdAt: input.createdAt,
+						now: new Date().toISOString(),
+						runId: input.runId,
+						stage: event.stage,
+					}),
+				);
+			},
 			useAI,
 		});
 

@@ -32,6 +32,12 @@ export type PipelineDefinition = {
 
 export type PipelineAgentMode = "claude-local-first" | "fake";
 export type ArtifactStorePreset = "data-run" | "local-transient" | "web-fixture";
+export type PipelineProgressEvent = {
+	pipelineId: PipelineId;
+	runId: string;
+	stage: PipelineStageId;
+	status: "completed" | "started";
+};
 
 export type ScreenGenerationPipelineOptions = {
 	agentMode?: PipelineAgentMode;
@@ -43,6 +49,7 @@ export type ScreenGenerationPipelineOptions = {
 	/** Evaluation 전용: design-context bundle 본문 주입을 끈다(A/B 비교). */
 	disableDesignContext?: boolean;
 	outDir?: string;
+	onProgress?: (event: PipelineProgressEvent) => Promise<void> | void;
 	runId?: string;
 	source:
 		| {

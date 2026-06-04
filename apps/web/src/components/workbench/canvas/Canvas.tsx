@@ -130,7 +130,8 @@ function NewScreenStatusStepper({ status }: { status?: ScreenInferenceRunStatus 
 		{ label: "Compose", layer: "compose", status: "pending" },
 		{ label: "Revise", layer: "revise", status: "pending" },
 	];
-	const statusLabel = status?.error?.message ?? status?.status ?? "source-ready";
+	const statusLabel =
+		status?.error?.message ?? status?.currentMessage ?? status?.status ?? "source-ready";
 
 	return (
 		<div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
@@ -138,7 +139,7 @@ function NewScreenStatusStepper({ status }: { status?: ScreenInferenceRunStatus 
 				<span
 					className={readLayerClassName(layer.status)}
 					key={layer.layer}
-					title={`${layer.label}: ${layer.status}`}
+					title={`${layer.label}: ${layer.status}${readLayerDescription(layer) ? ` · ${readLayerDescription(layer)}` : ""}`}
 				>
 					{layer.label}
 				</span>
@@ -146,6 +147,21 @@ function NewScreenStatusStepper({ status }: { status?: ScreenInferenceRunStatus 
 			<span className="truncate text-[10px] font-medium text-muted-foreground">{statusLabel}</span>
 		</div>
 	);
+}
+
+function readLayerDescription(layer: unknown): string {
+	if (
+		typeof layer === "object" &&
+		layer !== null &&
+		"summary" in layer &&
+		typeof layer.summary === "object" &&
+		layer.summary !== null &&
+		"description" in layer.summary &&
+		typeof layer.summary.description === "string"
+	) {
+		return layer.summary.description;
+	}
+	return "";
 }
 
 function readLayerClassName(status: string) {
@@ -175,7 +191,6 @@ function readCanvasContextLabel(
 	selectedScreen?: ScreenSummary,
 	renderPuckPreview = false,
 ) {
-
 	const tabLabel =
 		activeTab === "scn" && renderPuckPreview
 			? "Screen Editor"
