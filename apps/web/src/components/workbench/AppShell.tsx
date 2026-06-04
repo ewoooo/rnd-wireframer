@@ -1,30 +1,18 @@
 "use client";
 
-import type { PuckCatalogItem } from "@cx/adapters/puck";
-import type { RenderTreeScreenNode } from "@cx/renderer";
 import { type Data, Puck } from "@puckeditor/core";
 import type { CSSProperties } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { buildPuckConfigForScope } from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
-import {
-	fetchPuckCatalogItemsFromApi,
-	type PuckCatalogScope,
-} from "@/lib/screens-client";
-import {
-	applyPuckChangeToScope,
-	buildPuckDataForScope,
-	normalizePuckData,
-	readItemKindForScope,
-	resolveCatalogItemsForScope,
-} from "@/lib/workbench-puck/puck-scope";
-import { isPuckEditTab, resolveEditScope } from "@/model/puck-edit-scope";
+import { buildPuckDataForScope } from "@/lib/workbench-puck/puck-scope";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 import { useNewScreenInference } from "@/model/workbench/use-new-screen-inference";
+import { usePuckEditing } from "@/model/workbench/use-puck-editing";
 import { useScreenWorkbench } from "@/model/workbench/use-screen-workbench";
 
 const ASIDE_WIDTH = "320px";
@@ -33,51 +21,14 @@ export function AppShell() {
 	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
 	const screen = useScreenWorkbench();
 	const newScreen = useNewScreenInference(activeTab, screen.setSaveState);
-
-	const [puckCatalogItemsByScope, setPuckCatalogItemsByScope] = useState<
-		Partial<Record<PuckCatalogScope, PuckCatalogItem[]>>
-	>({});
-	const [showStatusBar, setShowStatusBar] = useState(true);
-
-	const editScope = resolveEditScope({
+	const puck = usePuckEditing({
 		activeTab,
+		visibleScreen: screen.visibleScreen,
 		selectedArea: screen.selectedArea,
 		selectedComponent: screen.selectedComponent,
-		selectedScreen: screen.visibleScreen?.renderTree,
+		onScreenCandidateChange: screen.onScreenCandidateChange,
 	});
-	const isEditingWithPuck = isPuckEditTab(activeTab) && !!editScope;
-	const puckCatalogScope = readPuckCatalogScope(editScope);
-	const catalogItems =
-		editScope && puckCatalogScope
-			? (puckCatalogItemsByScope[puckCatalogScope] ?? resolveCatalogItemsForScope(editScope))
-			: editScope
-				? resolveCatalogItemsForScope(editScope)
-				: [];
-
-	useEffect(() => {
-		if (!puckCatalogScope || puckCatalogItemsByScope[puckCatalogScope]) return;
-		const scope = puckCatalogScope;
-		let isActive = true;
-
-		async function loadPuckCatalogItems() {
-			try {
-				const catalogItems = await fetchPuckCatalogItemsFromApi(scope);
-				if (!isActive) return;
-				setPuckCatalogItemsByScope((current) => ({
-					...current,
-					[scope]: catalogItems,
-				}));
-			} catch (error) {
-				console.error(`Failed to load Puck catalog '${scope}':`, error);
-			}
-		}
-
-		void loadPuckCatalogItems();
-
-		return () => {
-			isActive = false;
-		};
-	}, [puckCatalogScope, puckCatalogItemsByScope]);
+	const [showStatusBar, setShowStatusBar] = useState(true);
 
 	const workbenchLayout = (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
@@ -115,7 +66,7 @@ export function AppShell() {
 					onApplyNewScreenRun={newScreen.onApply}
 					onSaveSelectedScreen={screen.onSaveSelectedScreen}
 					onToggleStatusBar={() => setShowStatusBar((current) => !current)}
-					renderPuckPreview={isEditingWithPuck}
+					renderPuckPreview={puck.isEditingWithPuck}
 					saveState={screen.saveState}
 					selectedScreen={screen.visibleScreen}
 					newScreenPreviewNode={newScreen.previewNode}
@@ -123,7 +74,7 @@ export function AppShell() {
 					showStatusBar={showStatusBar}
 				/>
 				<EditSidebar
-					scope={editScope}
+					scope={puck.editScope}
 					newScreenReview={
 						activeTab === "agent"
 							? {
@@ -138,27 +89,16 @@ export function AppShell() {
 		</main>
 	);
 
-	if (!isEditingWithPuck || !editScope || !screen.visibleScreen) return workbenchLayout;
-
-	function handlePuckChange(nextData: Data) {
-		if (!editScope || !screen.visibleScreen) return;
-		const puckData = normalizePuckData(nextData, readItemKindForScope(editScope));
-		const nextScreen = applyPuckChangeToScope({
-			catalogItems,
-			data: puckData,
-			scope: editScope,
-		});
-		screen.onScreenCandidateChange(screen.visibleScreen.id, nextScreen as RenderTreeScreenNode);
-	}
+	if (!puck.isEditingWithPuck || !puck.editScope || !screen.visibleScreen) return workbenchLayout;
 
 	return (
 		<Puck
-			key={`${screen.visibleScreen.id}:${activeTab}:${editScope.kind}:${readEditScopeKey(editScope)}`}
-			config={buildPuckConfigForScope(editScope, catalogItems)}
-			data={buildPuckDataForScope(editScope) as Data}
+			key={`${screen.visibleScreen.id}:${activeTab}:${puck.editScope.kind}:${puck.editScopeKey}`}
+			config={buildPuckConfigForScope(puck.editScope, puck.catalogItems)}
+			data={buildPuckDataForScope(puck.editScope) as Data}
 			headerTitle={screen.visibleScreen.title}
 			iframe={{ enabled: false }}
-			onChange={handlePuckChange}
+			onChange={puck.handlePuckChange}
 			permissions={{
 				delete: true,
 				drag: true,
@@ -170,18 +110,4 @@ export function AppShell() {
 			{workbenchLayout}
 		</Puck>
 	);
-}
-
-function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {
-	if (!scope) return "none";
-	if (scope.kind === "screen-region") return scope.regionType;
-	if (scope.kind === "area") return scope.area.metadata.id;
-	return scope.component.metadata.id;
-}
-
-function readPuckCatalogScope(
-	scope: ReturnType<typeof resolveEditScope>,
-): PuckCatalogScope | undefined {
-	if (!scope || scope.kind === "component") return undefined;
-	return scope.kind;
 }
