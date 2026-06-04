@@ -16,6 +16,7 @@ export type NewScreenSourceItem = {
 type NewScreenSourcePanelProps = {
 	errorMessage?: string;
 	isUploading?: boolean;
+	onRerunSelectedSource?: () => void;
 	onRunSelectedSource?: () => void;
 	onSelectSource: (path: string) => void;
 	onUploadSource: (file: File) => void | Promise<void>;
@@ -26,6 +27,7 @@ type NewScreenSourcePanelProps = {
 export function NewScreenSourcePanel({
 	errorMessage,
 	isUploading = false,
+	onRerunSelectedSource,
 	onRunSelectedSource,
 	onSelectSource,
 	onUploadSource,
@@ -106,7 +108,8 @@ export function NewScreenSourcePanel({
 					</Button>
 					<Button
 						className="h-8 justify-center gap-1 text-xs"
-						disabled
+						disabled={!selectedSource?.latestRunId || isUploading || !onRerunSelectedSource}
+						onClick={() => onRerunSelectedSource?.()}
 						size="sm"
 						type="button"
 						variant="outline"

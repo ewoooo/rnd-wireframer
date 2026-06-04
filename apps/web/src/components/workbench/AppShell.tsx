@@ -1,6 +1,7 @@
 "use client";
 
 import type { RenderTreeScreenNode } from "@cx/renderer";
+import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
 import { type Data, Puck } from "@puckeditor/core";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
@@ -69,7 +70,10 @@ export function AppShell() {
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
 	const [newScreenSourceError, setNewScreenSourceError] = useState("");
 	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>([]);
+	const [newScreenPreviewNode, setNewScreenPreviewNode] = useState<RenderTreeScreenNode>();
+	const [newScreenQuality, setNewScreenQuality] = useState<QualityInspectionContract>();
 	const [newScreenRunStatus, setNewScreenRunStatus] = useState<ScreenInferenceRunStatus>();
+	const [newScreenValidation, setNewScreenValidation] = useState<ValidationReportContract>();
 	const [isUploadingNewScreenSource, setIsUploadingNewScreenSource] = useState(false);
 	const [isStartingNewScreenRun, setIsStartingNewScreenRun] = useState(false);
 	const [selectedAreaId, setSelectedAreaId] = useState("");
@@ -174,6 +178,35 @@ export function AppShell() {
 		};
 	}, [activeTab, selectedNewScreenRunId]);
 
+	useEffect(() => {
+		if (!newScreenRunStatus?.runId || newScreenRunStatus.status !== "waiting-review") return;
+		const runId = newScreenRunStatus.runId;
+		let isActive = true;
+
+		async function loadReviewArtifacts() {
+			try {
+				const [finalResult, validation, quality] = await Promise.all([
+					fetchScreenInferenceArtifact<RenderTreeScreenNode>(runId, "final-result.json"),
+					fetchScreenInferenceArtifact<ValidationReportContract>(runId, "validation-report.json"),
+					fetchScreenInferenceArtifact<QualityInspectionContract>(runId, "quality-review.json"),
+				]);
+				if (!isActive) return;
+				setNewScreenPreviewNode(finalResult);
+				setNewScreenValidation(validation);
+				setNewScreenQuality(quality);
+			} catch (error) {
+				if (!isActive) return;
+				setNewScreenSourceError(readErrorMessage(error));
+			}
+		}
+
+		void loadReviewArtifacts();
+
+		return () => {
+			isActive = false;
+		};
+	}, [newScreenRunStatus?.runId, newScreenRunStatus?.status]);
+
 	function handleSelectRoute(routeId: string) {
 		setActiveRouteId(routeId);
 		const nextRoute = screenRoutes.find((route) => route.id === routeId);
@@ -198,6 +231,9 @@ export function AppShell() {
 	function handleSelectNewScreenSource(path: string) {
 		setSelectedNewScreenSourcePath(path);
 		const nextSource = newScreenSources.find((source) => source.path === path);
+		setNewScreenPreviewNode(undefined);
+		setNewScreenValidation(undefined);
+		setNewScreenQuality(undefined);
 		setNewScreenRunStatus(undefined);
 		if (nextSource?.latestRunId) {
 			void fetchScreenInferenceRunStatus(nextSource.latestRunId)
@@ -227,8 +263,38 @@ export function AppShell() {
 		if (!selectedNewScreenSource) return;
 		setIsStartingNewScreenRun(true);
 		setNewScreenSourceError("");
+		setNewScreenPreviewNode(undefined);
+		setNewScreenValidation(undefined);
+		setNewScreenQuality(undefined);
 		try {
 			const run = await createScreenInferenceRunFromSource(selectedNewScreenSource);
+			setNewScreenRunStatus(run.status);
+			setNewScreenSources((current) =>
+				current.map((source) =>
+					source.path === selectedNewScreenSource.path
+						? { ...source, latestRunId: run.runId }
+						: source,
+				),
+			);
+		} catch (error) {
+			setNewScreenSourceError(readErrorMessage(error));
+		} finally {
+			setIsStartingNewScreenRun(false);
+		}
+	}
+
+	async function handleRerunSelectedNewScreenSource() {
+		if (!selectedNewScreenSource?.latestRunId) return;
+		setIsStartingNewScreenRun(true);
+		setNewScreenSourceError("");
+		setNewScreenPreviewNode(undefined);
+		setNewScreenValidation(undefined);
+		setNewScreenQuality(undefined);
+		try {
+			const run = await createScreenInferenceRunFromSource(
+				selectedNewScreenSource,
+				selectedNewScreenSource.latestRunId,
+			);
 			setNewScreenRunStatus(run.status);
 			setNewScreenSources((current) =>
 				current.map((source) =>
@@ -297,6 +363,7 @@ export function AppShell() {
 					screenRoute={activeRoute}
 					newScreenSourceError={newScreenSourceError}
 					newScreenSources={newScreenSources}
+					onRerunSelectedNewScreenSource={handleRerunSelectedNewScreenSource}
 					onRunSelectedNewScreenSource={handleRunSelectedNewScreenSource}
 					onUploadNewScreenSource={handleUploadNewScreenSource}
 					selectedAreaId={selectedArea?.metadata.id}
@@ -314,10 +381,22 @@ export function AppShell() {
 					renderPuckPreview={isEditingWithPuck}
 					saveState={saveState}
 					selectedScreen={visibleScreen}
+					newScreenPreviewNode={newScreenPreviewNode}
 					newScreenRunStatus={newScreenRunStatus}
 					showStatusBar={showStatusBar}
 				/>
-				<EditSidebar scope={editScope} />
+				<EditSidebar
+					scope={editScope}
+					newScreenReview={
+						activeTab === "agent"
+							? {
+									quality: newScreenQuality,
+									status: newScreenRunStatus,
+									validation: newScreenValidation,
+								}
+							: undefined
+					}
+				/>
 			</SidebarProvider>
 		</main>
 	);
@@ -401,9 +480,11 @@ async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceI
 
 async function createScreenInferenceRunFromSource(
 	source: NewScreenSourceItem,
+	previousRunId?: string,
 ): Promise<ScreenInferenceRunCreateResponse> {
 	const response = await fetch("/api/screen-inference/runs", {
 		body: JSON.stringify({
+			previousRunId,
 			screenId: source.screenId,
 			source: {
 				path: source.path,
@@ -430,6 +511,21 @@ async function fetchScreenInferenceRunStatus(runId: string): Promise<ScreenInfer
 	}
 
 	return body.status;
+}
+
+async function fetchScreenInferenceArtifact<T>(runId: string, artifactName: string): Promise<T> {
+	const response = await fetch(
+		`/api/screen-inference/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(
+			artifactName,
+		)}`,
+	);
+	const body = (await response.json()) as T & { error?: string };
+
+	if (!response.ok || body.error) {
+		throw new Error(body.error ?? `새 화면 artifact 요청 실패 ${response.status}`);
+	}
+
+	return body;
 }
 
 function readErrorMessage(error: unknown): string {

@@ -14,6 +14,7 @@ type CanvasProps = {
 		message?: string;
 		status: "error" | "loading" | "ready";
 	};
+	newScreenPreviewNode?: ScreenSummary["renderTree"];
 	newScreenRunStatus?: ScreenInferenceRunStatus;
 	onSaveSelectedScreen?: () => void | Promise<void>;
 	onToggleStatusBar?: () => void;
@@ -26,6 +27,7 @@ type CanvasProps = {
 export function Canvas({
 	activeTab,
 	loadState = { status: "ready" },
+	newScreenPreviewNode,
 	newScreenRunStatus,
 	onSaveSelectedScreen,
 	onToggleStatusBar,
@@ -82,6 +84,8 @@ export function Canvas({
 			>
 				{loadState.status !== "ready" ? (
 					<CanvasLoadState message={loadState.message} status={loadState.status} />
+				) : isNewScreenTab && newScreenPreviewNode ? (
+					<RenderedScreen node={newScreenPreviewNode} />
 				) : isNewScreenTab ? (
 					<NewScreenEmptyPreview />
 				) : renderPuckPreview ? (

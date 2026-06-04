@@ -29,6 +29,7 @@ type NavigationRoutesProps = {
 	screenRoute?: ScreenRouteGroup;
 	newScreenSourceError?: string;
 	newScreenSources?: NewScreenSourceItem[];
+	onRerunSelectedNewScreenSource?: () => void;
 	onRunSelectedNewScreenSource?: () => void;
 	onUploadNewScreenSource?: (file: File) => void | Promise<void>;
 	selectedAreaId?: string;
@@ -53,6 +54,7 @@ export function NavigationRoutes({
 	screenRoute,
 	newScreenSourceError,
 	newScreenSources = [],
+	onRerunSelectedNewScreenSource,
 	onRunSelectedNewScreenSource,
 	onUploadNewScreenSource,
 	selectedAreaId,
@@ -68,6 +70,7 @@ export function NavigationRoutes({
 				<NewScreenSourcePanel
 					errorMessage={newScreenSourceError}
 					isUploading={isUploadingNewScreenSource}
+					onRerunSelectedSource={onRerunSelectedNewScreenSource}
 					onRunSelectedSource={onRunSelectedNewScreenSource}
 					onSelectSource={onSelectNewScreenSource ?? (() => {})}
 					onUploadSource={onUploadNewScreenSource ?? (() => {})}

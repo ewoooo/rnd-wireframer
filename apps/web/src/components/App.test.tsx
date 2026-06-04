@@ -51,7 +51,7 @@ describe("App workbench navigation", () => {
 		).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "Run" }));
-		expect(await screen.findByText("running")).toBeInTheDocument();
+		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
