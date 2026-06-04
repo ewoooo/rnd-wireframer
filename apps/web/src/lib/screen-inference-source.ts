@@ -152,7 +152,13 @@ async function readLatestRunIdBySourcePath(input: {
 	}
 
 	entries.sort((first, second) => second.createdAt.localeCompare(first.createdAt));
-	return new Map(entries.map((entry) => [entry.sourcePath, entry.runId]));
+	const latestRunIdBySourcePath = new Map<string, string>();
+	for (const entry of entries) {
+		if (!latestRunIdBySourcePath.has(entry.sourcePath)) {
+			latestRunIdBySourcePath.set(entry.sourcePath, entry.runId);
+		}
+	}
+	return latestRunIdBySourcePath;
 }
 
 async function readJsonFileSafe<T>(filePath: string): Promise<T | undefined> {

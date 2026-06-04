@@ -86,4 +86,63 @@ describe("screen inference source helpers", () => {
 			}),
 		]);
 	});
+
+	it("keeps the newest latestRunId for a source with repeated runs", async () => {
+		const repoRoot = await mkdtemp(path.join(os.tmpdir(), "screen-source-"));
+		const clientImportRoot = path.join(repoRoot, "data/client-imports");
+		const runRoot = path.join(repoRoot, "data/runs/screen-generation");
+		const sourcePath = "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md";
+		await mkdir(path.join(clientImportRoot, "web-upload", "20260604"), { recursive: true });
+		await writeFile(path.join(repoRoot, sourcePath), "# upload", "utf8");
+		await writeRunManifest({
+			createdAt: "2026-06-04T03:11:55.000Z",
+			repoRoot,
+			runId: "web-NOVA-UPLOAD-PG-001-0-20260604031155",
+			runRoot,
+			sourcePath,
+		});
+		await writeRunManifest({
+			createdAt: "2026-06-04T03:51:46.000Z",
+			repoRoot,
+			runId: "web-NOVA-UPLOAD-PG-001-0-20260604035146",
+			runRoot,
+			sourcePath,
+		});
+
+		const sources = await listUploadedScreenSources({
+			clientImportRoot,
+			importIds: ["web-upload"],
+			repoRoot,
+			runRoot,
+		});
+
+		expect(sources[0]).toMatchObject({
+			latestRunId: "web-NOVA-UPLOAD-PG-001-0-20260604035146",
+			screenId: "NOVA-UPLOAD-PG-001-0",
+		});
+	});
 });
+
+async function writeRunManifest(input: {
+	createdAt: string;
+	repoRoot: string;
+	runId: string;
+	runRoot: string;
+	sourcePath: string;
+}) {
+	const runDir = path.join(input.runRoot, input.runId);
+	await mkdir(runDir, { recursive: true });
+	await writeFile(
+		path.join(runDir, "manifest.json"),
+		JSON.stringify(
+			{
+				createdAt: input.createdAt,
+				runId: input.runId,
+				sourcePath: path.join(input.repoRoot, input.sourcePath),
+			},
+			null,
+			2,
+		),
+		"utf8",
+	);
+}

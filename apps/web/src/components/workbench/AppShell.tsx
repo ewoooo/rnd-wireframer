@@ -1,7 +1,7 @@
 "use client";
 
 import type { PuckCatalogItem } from "@cx/adapters/puck";
-import type { RenderTreeScreenNode } from "@cx/renderer";
+import type { RenderTree, RenderTreeScreenNode } from "@cx/renderer";
 import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
 import { type Data, Puck } from "@puckeditor/core";
 import type { CSSProperties } from "react";
@@ -269,12 +269,15 @@ export function AppShell() {
 		async function loadReviewArtifacts() {
 			try {
 				const [finalResult, validation, quality] = await Promise.all([
-					fetchScreenInferenceArtifact<RenderTreeScreenNode>(runId, "final-result.json"),
+					fetchScreenInferenceArtifact<RenderTree | RenderTreeScreenNode>(
+						runId,
+						"final-result.json",
+					),
 					fetchScreenInferenceArtifact<ValidationReportContract>(runId, "validation-report.json"),
 					fetchScreenInferenceArtifact<QualityInspectionContract>(runId, "quality-review.json"),
 				]);
 				if (!isActive) return;
-				setNewScreenPreviewNode(finalResult);
+				setNewScreenPreviewNode(readScreenNodeFromRenderTreeArtifact(finalResult));
 				setNewScreenValidation(validation);
 				setNewScreenQuality(quality);
 			} catch (error) {
@@ -738,6 +741,19 @@ function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
 
 function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
 	return source.importId === NEW_SCREEN_SOURCE_IMPORT_ID;
+}
+
+function readScreenNodeFromRenderTreeArtifact(
+	artifact: RenderTree | RenderTreeScreenNode,
+): RenderTreeScreenNode {
+	if (isRenderTreeScreenNode(artifact)) return artifact;
+	const screenNode = artifact.children?.find(isRenderTreeScreenNode);
+	if (!screenNode) throw new Error("final-result.json에 Screen 노드가 없습니다.");
+	return screenNode;
+}
+
+function isRenderTreeScreenNode(value: unknown): value is RenderTreeScreenNode {
+	return typeof value === "object" && value !== null && "type" in value && value.type === "Screen";
 }
 
 function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {

@@ -295,6 +295,16 @@ function createRenderTree(idPrefix: string) {
 	} as ScreenSummary["renderTree"];
 }
 
+function createRenderTreeArtifact(idPrefix: string) {
+	return {
+		children: [createRenderTree(idPrefix)],
+		metadata: { id: `${idPrefix}-artifact` },
+		minRendererVersion: "0.1.0",
+		theme: { mode: "light" },
+		version: "render-tree.v0.1",
+	};
+}
+
 function readAreaTitle(idPrefix: string) {
 	if (idPrefix === "generated") return "Generated Area";
 	return idPrefix === "preview" ? "Preview Area" : "Member Area";
@@ -381,7 +391,7 @@ function stubScreenFetch(
 			url.pathname ===
 			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/final-result.json"
 		) {
-			return Response.json(createRenderTree("generated"));
+			return Response.json(createRenderTreeArtifact("generated"));
 		}
 		if (
 			url.pathname ===
