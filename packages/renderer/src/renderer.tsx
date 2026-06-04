@@ -1,7 +1,7 @@
 "use client";
 
 import { AppScreen } from "@cx/layout/chrome";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 
 import { defaultRendererDefinitions } from "./default-renderers";
 import { RendererRegistry, type RenderTreeRenderer } from "./registry";
@@ -24,12 +24,25 @@ export function RenderTreeScreenRenderer({
 	return (
 		<AppScreen
 			node={node}
-			header={headerNode.children?.map((child) => renderNode(child, renderData))}
-			bottom={bottomNode.children?.map((child) => renderNode(child, renderData))}
+			header={renderChildList(headerNode.children, renderData)}
+			bottom={renderChildList(bottomNode.children, renderData)}
 		>
-			{contentsNode.children?.map((child) => renderNode(child, renderData))}
+			{renderChildList(contentsNode.children, renderData)}
 		</AppScreen>
 	);
+}
+
+// Render a sibling list with keys that stay unique even when nodes share metadata.id
+// (the DB→RenderTree projection can repeat a component code as the node id). The index
+// suffix only affects React's list key, not the node identity.
+function renderChildList(
+	children: RenderTreeNode[] | undefined,
+	data: Record<string, unknown>,
+): ReactNode {
+	return children?.map((child, index) => (
+		// biome-ignore lint/suspicious/noArrayIndexKey: id can repeat (projection reuses component code as id); index is the tiebreaker
+		<Fragment key={`${child.metadata.id}::${index}`}>{renderNode(child, data)}</Fragment>
+	));
 }
 
 export function RenderTreeNodeRenderer({
@@ -52,7 +65,7 @@ export function renderNode(node: RenderTreeNode, data: Record<string, unknown>):
 		data,
 		node,
 		renderable: renderableNode,
-		renderChildren: () => node.children?.map((child) => renderNode(child, data)),
+		renderChildren: () => renderChildList(node.children, data),
 	});
 }
 

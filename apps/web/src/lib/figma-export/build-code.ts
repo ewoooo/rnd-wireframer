@@ -38,6 +38,8 @@ const cap = (s: unknown) => {
 type Props = Record<string, unknown>;
 type TextOp = { name?: string; index?: number; value: string };
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
+// section-message body text — RenderTree uses `description` (catalog calls it `children`).
+const sectionBody = (p: Props): string => str(p.description) || str(p.children) || str(p.body);
 
 // Explicit DS mapping registry (authored, not inferred). Each entry: which RenderTree types
 // map to which Figma component (figmaName), how app props → Figma component-properties (props),
@@ -46,18 +48,20 @@ const str = (v: unknown): string => (typeof v === "string" ? v : "");
 type RegistryEntry = {
 	aliases: string[];
 	figmaName: string;
+	variant?: (p: Props) => Record<string, string>;
 	props?: (p: Props) => Props;
 	texts?: (p: Props) => TextOp[];
 };
 const REGISTRY: RegistryEntry[] = [
 	{
-		// app `section-message` = Callout (DS alias). title/children → Callout text nodes.
+		// app `section-message` → DS `SectionMessage` (component set, variant hasBody True/False).
+		// Rule: 2 text contents (title + body) → hasBody=True; 1 → False. text nodes order [title(0), body(1)].
 		aliases: ["section-message", "SectionMessage"],
-		figmaName: "Callout",
-		props: (p) => ({ "Title#9720:11": str(p.title).length > 0 }),
+		figmaName: "SectionMessage",
+		variant: (p) => ({ hasBody: str(p.title) && sectionBody(p) ? "True" : "False" }),
 		texts: (p) => {
 			const title = str(p.title);
-			const body = str(p.children);
+			const body = sectionBody(p);
 			if (title)
 				return body
 					? [
@@ -69,8 +73,9 @@ const REGISTRY: RegistryEntry[] = [
 		},
 	},
 	{
-		// main action button. variant ignored (text-only differences).
-		aliases: ["ActionButton", "action", "action-button"],
+		// main action button. RenderTree type is "button" → must resolve to the full-width
+		// ActionButton (NOT the small inner "Button" component). variant ignored (text-only).
+		aliases: ["ActionButton", "action", "action-button", "button"],
 		figmaName: "ActionButton",
 		texts: (p) => (str(p.label) ? [{ index: 0, value: str(p.label) }] : []),
 	},
@@ -117,6 +122,7 @@ type SpecNode =
 			id: string;
 			component: string;
 			props: Props;
+			variant?: Record<string, string>;
 			text?: string;
 			setTexts?: TextOp[];
 	  };
@@ -185,11 +191,13 @@ function convert(node: RenderTreeNode, isRoot: boolean, seq: { n: number }): Spe
 	const entry = registryFor(type);
 	if (entry) {
 		const setTexts = entry.texts ? entry.texts(rawProps).filter((t) => t.value) : [];
+		const variant = entry.variant ? entry.variant(rawProps) : undefined;
 		return {
 			kind: "ref",
 			id,
 			component: entry.figmaName,
 			props: entry.props ? entry.props(rawProps) : {},
+			...(variant ? { variant } : {}),
 			...(setTexts.length ? { setTexts } : {}),
 		};
 	}

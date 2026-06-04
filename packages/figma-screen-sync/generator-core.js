@@ -547,6 +547,13 @@ function buildFrame(spec, variantName, tokens, loadedFonts) {
     }
     if (!node) continue;
     f.appendChild(node);
+    // Rule: a component INSTANCE whose master width is 393 is meant to be full-width →
+    // force FILL once it's inside this (auto-layout) parent. Masters are often declared
+    // with fixed 393 width; this stretches them to the container. (393-only for now.)
+    if (node.type === "INSTANCE" && Math.round(node.width) === 393 && isAutoLayout) {
+      try { node.layoutSizingHorizontal = "FILL"; }
+      catch (e) { console.warn("instance width=393 → FILL 실패:", child.id, e.message); }
+    }
     // visible: false → 노드 보이지만 hidden (auto-layout 에서 0px 차지 → 시각·공간 모두 사라짐)
     if (child.visible === false) {
       try { node.visible = false; }
