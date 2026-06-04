@@ -138,6 +138,29 @@ describe("App workbench navigation", () => {
 		).toBeInTheDocument();
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
+
+	it("loads uploaded new screen sources from the server when browser state is empty", async () => {
+		stubBrowserApis();
+		stubScreenFetch({
+			serverSources: [
+				{
+					batchId: "20260604",
+					importId: "web-upload",
+					latestRunId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					screenId: "NOVA-UPLOAD-PG-001-0",
+					type: "file",
+				},
+			],
+		});
+		render(<App />);
+
+		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+
+		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
+	});
 });
 
 function createScreens(): ScreenSummary[] {
@@ -258,10 +281,15 @@ function stubBrowserApis() {
 }
 
 function stubScreenFetch(
-	options: { inferenceStatus?: RunStatus; qualityHasSummary?: boolean } = {},
+	options: {
+		inferenceStatus?: RunStatus;
+		qualityHasSummary?: boolean;
+		serverSources?: unknown[];
+	} = {},
 ) {
 	const inferenceStatus = options.inferenceStatus ?? "running";
 	const qualityHasSummary = options.qualityHasSummary ?? true;
+	const serverSources = options.serverSources ?? [];
 	const runRequests: unknown[] = [];
 	const screens = createScreens();
 	const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
@@ -282,7 +310,10 @@ function stubScreenFetch(
 				],
 			});
 		}
-		if (url.pathname === "/api/screen-inference/sources") {
+		if (url.pathname === "/api/screen-inference/sources" && init?.method !== "POST") {
+			return Response.json({ sources: serverSources });
+		}
+		if (url.pathname === "/api/screen-inference/sources" && init?.method === "POST") {
 			return Response.json({
 				source: {
 					batchId: "20260604",

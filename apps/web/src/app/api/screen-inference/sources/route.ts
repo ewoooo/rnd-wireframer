@@ -1,12 +1,33 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
-import { createScreenSourceTarget, isMarkdownSourceFileName } from "@/lib/screen-inference-source";
+import { readErrorMessage } from "@/lib/api-error";
+import {
+	createScreenSourceTarget,
+	isMarkdownSourceFileName,
+	listUploadedScreenSources,
+} from "@/lib/screen-inference-source";
+import { CLIENT_IMPORT_ROOT, RUN_ROOT } from "@/lib/server-paths";
 
 export const runtime = "nodejs";
 
-const CLIENT_IMPORT_ROOT = path.join(process.cwd(), "data/client-imports");
 const MAX_SOURCE_BYTES = 1024 * 1024;
+
+export async function GET() {
+	try {
+		return NextResponse.json({
+			sources: await listUploadedScreenSources({
+				clientImportRoot: CLIENT_IMPORT_ROOT,
+				repoRoot: process.cwd(),
+				runRoot: RUN_ROOT,
+			}),
+		});
+	} catch (error) {
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to list screen sources.") },
+			{ status: 500 },
+		);
+	}
+}
 
 export async function POST(request: Request) {
 	try {
@@ -47,15 +68,14 @@ export async function POST(request: Request) {
 			},
 		});
 	} catch (error) {
-		return NextResponse.json({ error: readErrorMessage(error) }, { status: 500 });
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to upload screen source.") },
+			{ status: 500 },
+		);
 	}
 }
 
 function readOptionalFormValue(formData: FormData, key: string): string | undefined {
 	const value = formData.get(key);
 	return typeof value === "string" && value ? value : undefined;
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to upload screen source.";
 }

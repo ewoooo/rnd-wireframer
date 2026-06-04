@@ -67,6 +67,11 @@ type ScreenInferenceSourceUploadResponse = {
 	source?: NewScreenSourceItem;
 };
 
+type ScreenInferenceSourceListResponse = {
+	error?: string;
+	sources?: NewScreenSourceItem[];
+};
+
 const TERMINAL_SCREEN_INFERENCE_STATUSES = new Set(["failed", "waiting-review", "applied"]);
 
 export function AppShell() {
@@ -164,6 +169,28 @@ export function AppShell() {
 		}
 
 		void loadScreens();
+
+		return () => {
+			isActive = false;
+		};
+	}, []);
+
+	useEffect(() => {
+		let isActive = true;
+
+		async function loadUploadedSources() {
+			try {
+				const sources = await fetchScreenInferenceSources();
+				if (!isActive) return;
+				setNewScreenSources((current) => mergeNewScreenSources(current, sources));
+				setSelectedNewScreenSourcePath((current) => current || sources[0]?.path || "");
+			} catch (error) {
+				if (!isActive) return;
+				setNewScreenSourceError(readErrorMessage(error));
+			}
+		}
+
+		void loadUploadedSources();
 
 		return () => {
 			isActive = false;
@@ -559,6 +586,17 @@ async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceI
 	return body.source;
 }
 
+async function fetchScreenInferenceSources(): Promise<NewScreenSourceItem[]> {
+	const response = await fetch("/api/screen-inference/sources");
+	const body = (await response.json()) as ScreenInferenceSourceListResponse;
+
+	if (!response.ok || body.error) {
+		throw new Error(body.error ?? `새 화면 source 목록 요청 실패 ${response.status}`);
+	}
+
+	return body.sources ?? [];
+}
+
 async function createScreenInferenceRunFromSource(
 	source: NewScreenSourceItem,
 	previousRunId?: string,
@@ -623,6 +661,24 @@ async function applyScreenInferenceRun(runId: string): Promise<void> {
 
 function readErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : "화면 데이터를 불러오지 못했습니다.";
+}
+
+function mergeNewScreenSources(
+	currentSources: NewScreenSourceItem[],
+	serverSources: NewScreenSourceItem[],
+): NewScreenSourceItem[] {
+	const mergedByPath = new Map<string, NewScreenSourceItem>();
+	for (const source of currentSources) {
+		mergedByPath.set(source.path, source);
+	}
+	for (const source of serverSources) {
+		const current = mergedByPath.get(source.path);
+		mergedByPath.set(source.path, {
+			...source,
+			latestRunId: source.latestRunId ?? current?.latestRunId,
+		});
+	}
+	return Array.from(mergedByPath.values());
 }
 
 function readNewScreenWorkbenchState(): {

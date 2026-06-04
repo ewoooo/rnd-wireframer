@@ -1,8 +1,10 @@
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 export type UploadedScreenSource = {
 	batchId: string;
 	importId: string;
+	latestRunId?: string;
 	path: string;
 	screenId: string;
 	type: "file";
@@ -58,6 +60,107 @@ export function sanitizePathPart(value: string): string {
 	return value.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, MAX_PATH_PART_LENGTH);
 }
 
+export async function listUploadedScreenSources(input: {
+	clientImportRoot: string;
+	repoRoot: string;
+	runRoot: string;
+}): Promise<UploadedScreenSource[]> {
+	const [sourceFiles, latestRunIdBySourcePath] = await Promise.all([
+		listMarkdownSourceFiles(input.clientImportRoot),
+		readLatestRunIdBySourcePath({
+			repoRoot: input.repoRoot,
+			runRoot: input.runRoot,
+		}),
+	]);
+
+	return sourceFiles
+		.map((filePath) => {
+			const relativePath = normalizePath(path.relative(input.repoRoot, filePath));
+			const relativeParts = normalizePath(path.relative(input.clientImportRoot, filePath)).split(
+				"/",
+			);
+			const [importId = "", batchId = ""] = relativeParts;
+
+			return {
+				batchId,
+				importId,
+				latestRunId: latestRunIdBySourcePath.get(relativePath),
+				path: relativePath,
+				screenId: readScreenIdFromFileName(path.basename(filePath)),
+				type: "file" as const,
+			};
+		})
+		.sort((first, second) => second.path.localeCompare(first.path));
+}
+
 function normalizePath(value: string): string {
 	return value.replaceAll(path.sep, "/");
+}
+
+async function listMarkdownSourceFiles(rootDir: string): Promise<string[]> {
+	const entries = await readDirectorySafe(rootDir);
+	const results: string[] = [];
+
+	for (const entry of entries) {
+		const entryPath = path.join(rootDir, entry.name);
+		if (entry.isDirectory()) {
+			results.push(...(await listMarkdownSourceFiles(entryPath)));
+			continue;
+		}
+		if (entry.isFile() && isMarkdownSourceFileName(entry.name)) {
+			results.push(entryPath);
+		}
+	}
+
+	return results;
+}
+
+async function readDirectorySafe(dirPath: string) {
+	try {
+		return await readdir(dirPath, { withFileTypes: true });
+	} catch (error) {
+		if (isNodeError(error) && error.code === "ENOENT") return [];
+		throw error;
+	}
+}
+
+async function readLatestRunIdBySourcePath(input: {
+	repoRoot: string;
+	runRoot: string;
+}): Promise<Map<string, string>> {
+	const runDirs = await readDirectorySafe(input.runRoot);
+	const entries: Array<{ createdAt: string; runId: string; sourcePath: string }> = [];
+
+	for (const entry of runDirs) {
+		if (!entry.isDirectory()) continue;
+		const manifest = await readJsonFileSafe<{
+			createdAt?: unknown;
+			runId?: unknown;
+			sourcePath?: unknown;
+		}>(path.join(input.runRoot, entry.name, "manifest.json"));
+		if (typeof manifest?.sourcePath !== "string") continue;
+		entries.push({
+			createdAt: typeof manifest.createdAt === "string" ? manifest.createdAt : "",
+			runId: typeof manifest.runId === "string" ? manifest.runId : entry.name,
+			sourcePath: normalizePath(
+				path.relative(input.repoRoot, path.resolve(input.repoRoot, manifest.sourcePath)),
+			),
+		});
+	}
+
+	entries.sort((first, second) => second.createdAt.localeCompare(first.createdAt));
+	return new Map(entries.map((entry) => [entry.sourcePath, entry.runId]));
+}
+
+async function readJsonFileSafe<T>(filePath: string): Promise<T | undefined> {
+	try {
+		return JSON.parse(await readFile(filePath, "utf8")) as T;
+	} catch (error) {
+		if (isNodeError(error) && error.code === "ENOENT") return undefined;
+		throw error;
+	}
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+	return error instanceof Error && "code" in error;
 }
