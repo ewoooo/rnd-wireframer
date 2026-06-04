@@ -24,7 +24,7 @@ export type PatternLayoutProps = Record<string, PropValue>;
 export type ChildWrapPreset = {
 	kind: "page-stack";
 	appliesTo?: Array<"component" | "area">;
-	divider?: { type: "contents" | "section" };
+	divider?: "contents" | "none" | "section";
 	itemPaddingX?: number;
 	itemTemplate?: "card-0" | "default-20" | "plain";
 	paddingY?: number;

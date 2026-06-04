@@ -37,7 +37,7 @@ Source docs: `docs/design/COMPOSITION_LAYERS.md`, `docs/design/SECTION_PATTERNS.
 - `Default 20/PagestackItem`: 텍스트/폼 콘텐츠 슬롯. `Card 0/PagestackItem`: 카드형 콘텐츠 슬롯.
 - 상세/폼 화면 기본 구조는 `Pagestack + Divider(393×4px)` 반복(섹션 구분).
 - 섹션 그룹핑·list rail·divider-separated section이 필요하면 PageStack/layout wrapper를 쓴다.
-- 섹션(area) **사이** 4px 구분: 앞 area 노드에 `props.sectionDivider: true`. 마지막 섹션·카드 그룹 화면에선 생략. (행 **내부** 구분은 `props.divider`로 — 둘은 직교.)
+- 섹션(area) **사이** 4px 구분: 앞 area 노드에 `props.divider: "section"`. 마지막 섹션·카드 그룹 화면에선 생략. 행 **내부** 반복 row 구분은 `props.divider: "contents"`로만 표현한다.
 
 ## 화면 유형별 구성 (8패턴 요약)
 

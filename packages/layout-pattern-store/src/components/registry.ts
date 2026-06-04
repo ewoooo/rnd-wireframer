@@ -148,13 +148,10 @@ const generalAreaPropContractByKey = {
 	bottomPadding: { type: "number" },
 	componentGap: { type: "number" },
 	divider: {
-		type: "boolean",
-		description: "When true, render trailing contents dividers between stack children.",
-	},
-	sectionDivider: {
-		type: "boolean",
+		type: "enum",
+		values: ["contents", "none", "section"],
 		description:
-			"When true, render a trailing 4px section divider after the area stack to separate it from the next area.",
+			'Divider policy for area stacks: "contents" renders 1px row dividers between children, "section" renders a trailing 4px area break, "none" disables dividers.',
 	},
 	filterGap: { type: "number" },
 	gap: { type: "number" },
@@ -198,8 +195,10 @@ const pageStackPropContractByKey = {
 		description: "Legacy layoutProps.componentGap preserved as the PageStack contents gap.",
 	},
 	divider: {
-		type: "boolean",
-		description: "When true, render trailing contents dividers between stack children.",
+		type: "enum",
+		values: ["contents", "none", "section"],
+		description:
+			'Divider policy for PageStack areas: "contents" renders 1px row dividers between children, "section" renders a trailing 4px area break, "none" disables dividers.',
 	},
 	gap: {
 		type: "number",
@@ -209,7 +208,6 @@ const pageStackPropContractByKey = {
 	itemTemplate: generalAreaPropContractByKey.itemTemplate,
 	paddingX: generalAreaPropContractByKey.paddingX,
 	paddingY: generalAreaPropContractByKey.paddingY,
-	sectionDivider: generalAreaPropContractByKey.sectionDivider,
 	sectionGap: generalAreaPropContractByKey.sectionGap,
 	sectionPaddingX: generalAreaPropContractByKey.sectionPaddingX,
 	slotInsetX: { type: "number" },
@@ -1171,7 +1169,6 @@ function pageStackProps(
 		"itemTemplate",
 		"paddingX",
 		"paddingY",
-		"sectionDivider",
 		"sectionGap",
 		"sectionPaddingX",
 		"slotInsetX",
@@ -1237,7 +1234,6 @@ function generalAreaProps(
 		| "rowCount"
 		| "safeArea"
 		| "secondaryActionPlacement"
-		| "sectionDivider"
 		| "sectionGap"
 		| "sectionModel"
 		| "sectionPaddingX"

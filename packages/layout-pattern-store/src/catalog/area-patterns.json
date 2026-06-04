@@ -53,8 +53,9 @@
 					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -86,8 +87,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				},
 				"listPresentation": {
 					"type": "string"
@@ -129,8 +131,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -201,8 +204,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -241,8 +245,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -281,8 +286,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -447,8 +453,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -554,8 +561,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				},
 				"titleGap": {
 					"type": "number"
@@ -581,8 +589,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -773,8 +782,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -824,8 +834,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -884,8 +895,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -911,8 +923,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {
@@ -958,8 +971,9 @@
 					"type": "number"
 				},
 				"divider": {
-					"type": "boolean",
-					"description": "When true, render trailing contents dividers between stack children."
+					"type": "enum",
+					"values": ["contents", "none", "section"],
+					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
 				}
 			},
 			"children": {

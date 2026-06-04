@@ -45,6 +45,8 @@ export function AreaPageStackFrame({
 	props = {},
 }: AreaPageStackFrameProps) {
 	const divider = resolveDivider(props.divider, defaults.divider);
+	const trailingDivider =
+		divider === "section" || props.sectionDivider === true ? "section" : "none";
 	const framedChildren =
 		content === "nested-stack" ? children : renderChildrenWithDividers(children, divider);
 
@@ -62,7 +64,7 @@ export function AreaPageStackFrame({
 		>
 			{framedChildren}
 		</PageStack>,
-		props.sectionDivider,
+		trailingDivider,
 	);
 }
 

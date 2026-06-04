@@ -718,7 +718,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					componentVersion: "0.1.0",
 					layout: "layout.area.priceAccordionStackArea",
 					metadata: { id: "price-accordion", title: "Price accordion" },
-					props: { divider: false },
+					props: { divider: "none" },
 					children: [
 						{
 							type: "SectionHeader",
@@ -772,7 +772,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					componentVersion: "0.1.0",
 					layout: "layout.area.priceAccordionStackArea",
 					metadata: { id: "price-accordion", title: "Price accordion" },
-					props: { divider: true },
+					props: { divider: "contents" },
 					children: [
 						{
 							type: "SectionHeader",
@@ -789,12 +789,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 			/>,
 		);
 
-		const trailingDividers = screen.getAllByRole("separator");
-		expect(trailingDividers).toHaveLength(2);
-		expect(getPageStackItems(screen.getByText("Price row 1")).children).toHaveLength(4);
+		const contentsDividers = screen.getAllByRole("separator");
+		expect(contentsDividers).toHaveLength(1);
+		expect(contentsDividers[0].className).toContain("contents");
+		expect(getPageStackItems(screen.getByText("Price row 1")).children).toHaveLength(3);
 	});
 
-	it("renders a trailing section divider after the area stack when sectionDivider is true", () => {
+	it('renders a trailing section divider after the area stack when divider is "section"', () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -802,7 +803,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					componentVersion: "0.1.0",
 					layout: "layout.area.listStack",
 					metadata: { id: "terms-list", title: "약관 목록" },
-					props: { sectionDivider: true },
+					props: { divider: "section" },
 					children: [
 						{
 							type: "ListText",
@@ -819,7 +820,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(dividers[0].className).toContain("section");
 	});
 
-	it("does not render a trailing section divider when sectionDivider is absent", () => {
+	it("does not render a trailing section divider when divider is absent", () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -869,7 +870,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(getPageStackItems(screen.getByText("List row 1")).children).toHaveLength(2);
 	});
 
-	it("renders explicit trailing dividers for page stack area patterns", () => {
+	it("renders explicit contents dividers between page stack area children", () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -877,7 +878,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					componentVersion: "0.1.0",
 					layout: "layout.area.accordionList",
 					metadata: { id: "accordion-list", title: "Accordion list" },
-					props: { divider: true },
+					props: { divider: "contents" },
 					children: [
 						{
 							type: "SectionHeader",
@@ -894,8 +895,8 @@ describe("@cx/renderer layout pattern rendering", () => {
 			/>,
 		);
 
-		expect(screen.getAllByRole("separator")).toHaveLength(2);
-		expect(getPageStackItems(screen.getByText("Accordion row 1")).children).toHaveLength(4);
+		expect(screen.getAllByRole("separator")).toHaveLength(1);
+		expect(getPageStackItems(screen.getByText("Accordion row 1")).children).toHaveLength(3);
 	});
 
 	it("maps commerce detail padding aliases onto primitive layout props", () => {

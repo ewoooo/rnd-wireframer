@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - Divider Prop Contract Cleanup
+
+- 변경: PageStack area divider 계약을 `divider: "contents" | "section" | "none"` 단일 prop으로 정리하고 `divider:true`의 trailing 의미와 공개 `sectionDivider` prop을 제거함
+- 변경: `"contents"`는 반복 row 사이 1px divider, `"section"`은 area 뒤 4px section break, `"none"`은 구분 없음으로 렌더 의미를 고정함
+- 변경: layout-pattern-store registry/catalog/schema, renderer tests, orchestration prompt, agent design-context 문서를 새 divider 계약으로 갱신함
+- 이유: heterogeneous stack에 `divider:true`가 붙으며 제목/콜아웃/마지막 row 뒤에 divider가 과다 렌더되는 문제를 막기 위함
+- 검증: `pnpm exec vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/schema.test.ts`, `pnpm exec biome check ...`, `pnpm exec tsc --noEmit --pretty false --incremental false`
+
 ## 2026-06-04 - New Screen Stage Progress UX
 
 - 변경: `@cx/pipeline`에 stage progress callback을 추가하고, Web 새 화면 run store가 stage 시작마다 `status.json`을 갱신하도록 연결함

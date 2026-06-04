@@ -12,7 +12,7 @@ export const areaPageStackPresets = {
 	accordionNoticeListArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-accordion-rows",
+			divider: "contents",
 			gap: 0,
 			titleMode: "none",
 		},
@@ -38,7 +38,7 @@ export const areaPageStackPresets = {
 	deliveryInfoAccordionArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-accordion-rows",
+			divider: "contents",
 			gap: 0,
 			titleGap: 0,
 			titleMode: "none",
@@ -56,7 +56,7 @@ export const areaPageStackPresets = {
 	noticeAccordionStackArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-accordion-rows",
+			divider: "contents",
 			gap: 0,
 			titleMode: "none",
 		},
@@ -64,7 +64,7 @@ export const areaPageStackPresets = {
 	pagestackInfoTextSection: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-info-text-rows",
+			divider: "contents",
 			gap: 0,
 			titleGap: 12,
 		},
@@ -72,7 +72,7 @@ export const areaPageStackPresets = {
 	plainInfoTextListArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-info-text-rows",
+			divider: "contents",
 			gap: 0,
 			titleMode: "hidden",
 		},
@@ -80,7 +80,7 @@ export const areaPageStackPresets = {
 	priceAccordionStackArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-accordion-rows",
+			divider: "contents",
 			gap: 0,
 			titleGap: 0,
 		},
@@ -103,7 +103,7 @@ export const areaPageStackPresets = {
 	textListGroupArea: {
 		defaults: {
 			...pageStackBaseDefaults,
-			divider: "between-info-text-rows",
+			divider: "contents",
 			gap: 0,
 			titleGap: 12,
 		},

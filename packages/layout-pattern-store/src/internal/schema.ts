@@ -128,7 +128,7 @@ export const layoutPatternCatalogEntrySchema = z
 const childWrapSchema = z.object({
 	kind: z.literal("page-stack"),
 	appliesTo: z.array(z.enum(["component", "area"])).optional(),
-	divider: z.object({ type: z.enum(["contents", "section"]) }).optional(),
+	divider: z.enum(["contents", "none", "section"]).optional(),
 	itemPaddingX: z.number().optional(),
 	itemTemplate: z.enum(["card-0", "default-20", "plain"]).optional(),
 	paddingY: z.number().optional(),

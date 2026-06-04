@@ -38,7 +38,9 @@ describe("@cx/layout-pattern-store public API", () => {
 		for (const layoutId of pageStackAreaLayoutIds) {
 			const props = entriesByLayoutId.get(layoutId)?.pattern.props;
 			expect(props?.divider, layoutId).toBeDefined();
-			expect(props?.sectionDivider, layoutId).toBeDefined();
+			expect(props?.divider?.type, layoutId).toBe("enum");
+			expect(props?.divider?.values, layoutId).toEqual(["contents", "none", "section"]);
+			expect(props?.sectionDivider, layoutId).toBeUndefined();
 		}
 	});
 });

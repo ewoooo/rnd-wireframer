@@ -31,7 +31,7 @@ Phase 1에서는 design-context bundle을 최종 schema 계약으로 고정하�
 4. Map source regions to `Screen.Header`, `Screen.Contents`, and `Screen.Bottom`.
 5. Keep source areas grouped unless the validation contract requires a structural wrapper.
 6. Put source component values into node `props`.
-7. Render row separation via the area stack node `props.divider` (true/"contents" for 1px between rows, "section" for 4px between sections), per `context.designContextBundles` rules. Omit when card/group containers already separate content. Do not insert standalone Divider leaf nodes for stack-row separation.
+7. Render separation via the area stack node `props.divider` only. Use `"contents"` for 1px dividers between repeated row children, `"section"` for a trailing 4px area break, and `"none"` or omission when no divider is needed. Do not use `divider: true`, `sectionDivider`, or standalone Divider leaf nodes for stack-row separation.
 8. Apply visual hierarchy through component choice and props within the catalog. Do not invent colors, gradients, or icons for emphasis.
 9. Use `output-contract.md` for output shape rules.
 10. Use `checklist.md` before returning the final JSON object.
