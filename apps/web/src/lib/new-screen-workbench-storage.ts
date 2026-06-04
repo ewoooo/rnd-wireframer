@@ -1,7 +1,7 @@
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 
-export const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
-export const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
+const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
+const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
 
 export function mergeNewScreenSources(
 	currentSources: NewScreenSourceItem[],
@@ -63,7 +63,7 @@ export function writeNewScreenWorkbenchState(input: {
 	);
 }
 
-export function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
+function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
 	if (!value || typeof value !== "object") return false;
 	const item = value as Partial<Record<keyof NewScreenSourceItem, unknown>>;
 	return (
@@ -75,6 +75,6 @@ export function isNewScreenSourceItem(value: unknown): value is NewScreenSourceI
 	);
 }
 
-export function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
+function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
 	return source.importId === NEW_SCREEN_SOURCE_IMPORT_ID;
 }

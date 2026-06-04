@@ -170,14 +170,9 @@ export function useScreenWorkbench() {
 
 	return {
 		loadState,
-		screens,
-		screenRoutes,
 		screenModules,
-		selectedScreenId,
-		activeRouteId,
 		activeRoute,
 		visibleScreen,
-		navigationScreens,
 		visibleAreaItems,
 		selectedArea,
 		visibleComponentItems,
@@ -189,7 +184,6 @@ export function useScreenWorkbench() {
 		onSelectArea: handleSelectArea,
 		onSelectComponent: handleSelectComponent,
 		onScreenCandidateChange: handleScreenCandidateChange,
-		onScreenCandidatePublish: handleScreenCandidatePublish,
 		onSaveSelectedScreen: handleSaveSelectedScreen,
 	};
 }

@@ -2,7 +2,7 @@
 
 import type { PuckCatalogItem } from "@cx/adapters/puck";
 import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
-import { type Data } from "@puckeditor/core";
+import type { Data } from "@puckeditor/core";
 import { useEffect, useState } from "react";
 import { fetchPuckCatalogItemsFromApi, type PuckCatalogScope } from "@/lib/screens-client";
 import type { ScreenSummary } from "@/lib/screen-sources";
@@ -90,7 +90,6 @@ export function usePuckEditing(input: {
 }
 
 function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {
-	if (!scope) return "none";
 	if (scope.kind === "screen-region") return scope.regionType;
 	if (scope.kind === "area") return scope.area.metadata.id;
 	return scope.component.metadata.id;
