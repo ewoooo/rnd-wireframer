@@ -131,7 +131,7 @@ claude --print --output-format json --no-session-persistence \
 
 ### 4.5 `derive-decoration-plan` — 순수
 - **입력**: `compositionPlan`, `sourceSpec`.
-- **동작**: `buildDecorationPlan` — 디바이더/패턴/area 분할/displayTitle/repeatedItems 등 **결정적 장식 배치**. 그 결과로 `layerCandidates` 재생성.
+- **동작**: `buildDecorationPlan` — 디바이더/패턴/area 분할/displayTitle/repeatedItems 등 **결정적 장식 배치**. `displayTitle`은 visible heading 컴포넌트(`TitleSection` 등)의 입력 후보이며, area metadata/name 자체를 화면에 렌더하지 않는다. 그 결과로 `layerCandidates` 재생성.
 - **출력**: `decorationPlan`. 아티팩트 `decoration-plan.json`(결과), `patternLayerCandidates`→`trace.json`.
 - **참조**: pattern-store(`@cx/layout-pattern-store` catalog).
 
@@ -147,7 +147,7 @@ claude --print --output-format json --no-session-persistence \
 - **AI 추론**: 위 모든 판단(intent·composition·decoration·pattern)과 design-context 규칙 본문을 **종합해 실제 RenderTree를 합성**한다. catalog/allowedRefs/candidates 제약 안에서 — 어떤 component를 어떤 props로 놓을지, source 텍스트를 어떤 가시 label로 옮길지, 행 사이 `props.divider`/섹션 사이 `props.sectionDivider`를 켤지 말지를 **화면 맥락으로 자율 결정**하고, 상태 증거가 있으면 `display.stateRole`/`display.when` 게이팅으로 상태 coverage를 짠다. 시각 위계는 색·아이콘 발명 없이 component 선택·props로만 표현. 동시에 table-shaped 결과(`tableGenerationResult`)도 만든다. 이 단계가 "판단을 실제 화면으로 굳히는" 핵심 추론이다.
 - **프롬프트 핵심**(`buildScreenGenerationAgentInput`, 가장 김): SourceSpec 진실원 + upstream(intent/composition/decoration/pattern) 가이드로 **RenderTree 생성**. 주요 규칙:
   - 스켈레톤 보존: `Screen > Screen.Header/Contents/Bottom > area.static/area.dynamic > (PageStack/layout wrapper) > components`. `type:"Area"` 노드 금지.
-  - 가시 area 제목은 `decorationPlan.areas[].displayTitle` 우선. area 분할 시 분할 area를 RenderTree·table에 반영.
+  - area `metadata.title`/`props.name`은 구조적 메타데이터로만 사용한다. 섹션 제목이 화면에 보여야 하면 `decorationPlan.areas[].displayTitle`을 `TitleSection` 같은 명시 컴포넌트의 copy로 사용한다. area 분할 시 분할 area를 RenderTree·table에 반영.
   - **디바이더는 area stack prop**: stack 행 구분은 `props.divider`(true=1px, `"section"`=4px), 섹션 간 구분은 leading area의 `props.sectionDivider:true`. Divider leaf 노드/raw border 금지. `designContextBundles` 규칙과 화면 맥락으로 결정.
   - **state coverage**: errorPolicy/필수 동의/disabled/loading/validation 증거가 있으면 bounded `display.stateRole`. 한 슬롯 상태 변형(특히 Bottom CTA)은 `display.when`으로 상호배타 게이팅 또는 단일 노드. 게이팅 없는 primary CTA 2개 금지.
   - **시각 위계**: catalog 안 component 선택·props로만. 색/그라데이션/아이콘 발명 금지.

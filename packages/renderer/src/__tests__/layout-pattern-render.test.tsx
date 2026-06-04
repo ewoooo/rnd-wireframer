@@ -3,6 +3,31 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 describe("@cx/renderer layout pattern rendering", () => {
+	it("keeps area metadata title and name structural while rendering child headings", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.dynamic",
+					componentVersion: "0.1.0",
+					metadata: { id: "area-structural", title: "Structural Area Title" },
+					props: { name: "Structural Area Name" },
+					children: [
+						{
+							type: "TitleSection",
+							componentVersion: "0.1.0",
+							metadata: { id: "title-section", title: "Visible Section Title" },
+							props: { title: "Visible Section Title" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("Visible Section Title")).toBeInTheDocument();
+		expect(screen.queryByText("Structural Area Title")).not.toBeInTheDocument();
+		expect(screen.queryByText("Structural Area Name")).not.toBeInTheDocument();
+	});
+
 	it("renders layout pattern components from the node layout key", () => {
 		render(
 			<RenderNodeView

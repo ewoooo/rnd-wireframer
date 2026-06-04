@@ -1,7 +1,6 @@
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/style";
 import type { ReactNode } from "react";
 import { toNumber } from "../../tree/coerce";
-import { toText } from "../../tree/runtime";
 import type { RenderTreeNode } from "../../tree/types";
 import { NODE_TYPES } from "../../tree/types";
 import { renderErrorPolicyFallback } from "./error-policy";
@@ -29,13 +28,10 @@ export function renderDynamicAreaNode({
 }) {
 	const areaProps = props as AreaRenderableProps;
 	const titleGap = toNumber(areaProps.titleGap, 8);
-	const areaName = areaProps.name === undefined ? undefined : toText(areaProps.name, "");
-	const hideTitle = Boolean(areaProps.hideTitle) || !areaName;
 
 	if (!resolveHasData(data, node.metadata.id)) {
 		const fallback = renderErrorPolicyFallback(areaProps.errorPolicy, {
 			areaId: node.metadata.id,
-			areaName,
 			titleGap,
 		});
 		if (fallback !== undefined) return fallback;
@@ -48,11 +44,6 @@ export function renderDynamicAreaNode({
 			style={{ gap: spacingFallbackStyleValue(titleGap) }}
 			data-area-kind={NODE_TYPES.area[1]}
 		>
-			{hideTitle ? null : (
-				<div className="flex w-full min-w-0 flex-col">
-					<p className="text-base font-semibold">{areaName}</p>
-				</div>
-			)}
 			{renderAreaChildren(renderChildren(), areaProps)}
 		</section>
 	);

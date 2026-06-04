@@ -13,14 +13,14 @@ import { ERROR_POLICY } from "./types";
  */
 export function renderErrorPolicyFallback(
 	policy: string | undefined,
-	context: { areaId: string; areaName?: string; titleGap: number },
+	context: { areaId: string; titleGap: number },
 ): ReactNode | null | undefined {
 	if (!policy) return undefined;
 
 	return ERROR_POLICY_FALLBACK_RENDERERS[policy]?.(context);
 }
 
-type ErrorPolicyFallbackContext = { areaId: string; areaName?: string; titleGap: number };
+type ErrorPolicyFallbackContext = { areaId: string; titleGap: number };
 
 const ERROR_POLICY_FALLBACK_RENDERERS: Record<
 	string,
@@ -33,11 +33,7 @@ const ERROR_POLICY_FALLBACK_RENDERERS: Record<
 			className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", context.titleGap))}
 			style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
 			data-area-empty="hide-item"
-		>
-			{context.areaName ? (
-				<p className="text-base font-semibold text-muted-foreground">{context.areaName}</p>
-			) : null}
-		</section>
+		/>
 	),
 	[ERROR_POLICY.SHOW_DEFAULT]: (context) => (
 		<section
@@ -49,7 +45,6 @@ const ERROR_POLICY_FALLBACK_RENDERERS: Record<
 			style={{ gap: spacingFallbackStyleValue(context.titleGap) }}
 			data-area-empty="show-default"
 		>
-			{context.areaName ? <p className="text-base font-semibold">{context.areaName}</p> : null}
 			<p className="text-xs text-muted-foreground">기본값 표시 — 데이터 미수신</p>
 		</section>
 	),

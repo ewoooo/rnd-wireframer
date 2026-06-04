@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - Area Metadata Rendering Contract
+
+- 변경: `area.metadata.title`과 `area.props.name`은 구조적 메타데이터로만 사용하고 화면에 직접 렌더하지 않는 계약으로 정함
+- 변경: `@cx/renderer`의 `area.static`/`area.dynamic` 자동 title 렌더를 제거하고, dynamic area error fallback에서도 area name을 노출하지 않도록 맞춤
+- 변경: visible section heading은 `TitleSection` 같은 명시 컴포넌트가 담당하도록 screen generation prompt와 `SCREEN_GENERATION_PIPELINE.md`를 갱신함
+- 이유: area wrapper와 TitleSection이 같은 섹션 제목을 중복 렌더하는 문제를 없애고, area는 layout/provenance/DB 분해 단위로만 유지하기 위함
+- 검증: `pnpm exec vitest run packages/renderer/src/__tests__/layout-pattern-render.test.tsx`, `pnpm exec biome check packages/renderer/src/nodes/area/dynamic.tsx packages/renderer/src/nodes/area/static.tsx packages/renderer/src/nodes/area/error-policy.tsx packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/orchestration/src/public/agent-inputs.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`
+
 ## 2026-06-04 - New Screen Inference MVP Rollouts
 
 - 변경: `codex/new-screen-inference-rollouts` 브랜치에서 새 화면 MVP를 rollout 단위로 구현하고 각 rollout 완료 후 리뷰/검증/커밋함
