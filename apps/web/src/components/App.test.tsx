@@ -49,6 +49,9 @@ describe("App workbench navigation", () => {
 		expect(
 			screen.getByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
 		).toBeInTheDocument();
+
+		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		expect(await screen.findByText("running")).toBeInTheDocument();
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
@@ -205,6 +208,21 @@ function stubScreenFetch() {
 					},
 				});
 			}
+			if (url.pathname === "/api/screen-inference/runs") {
+				return Response.json(
+					{
+						runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+						status: createRunStatus("queued"),
+						statusUrl: "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					},
+					{ status: 202 },
+				);
+			}
+			if (url.pathname === "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
+				return Response.json({
+					status: createRunStatus("running"),
+				});
+			}
 			const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
 			if (treeMatch) {
 				const screenId = decodeURIComponent(treeMatch[1] ?? "");
@@ -216,4 +234,38 @@ function stubScreenFetch() {
 			return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
 		}),
 	);
+}
+
+function createRunStatus(status: "queued" | "running") {
+	return {
+		createdAt: "2026-06-04T12:00:00.000Z",
+		currentLayer: status === "running" ? "understand" : undefined,
+		layers: [
+			{
+				artifacts: [],
+				label: "Understand",
+				layer: "understand",
+				stages: ["read-source"],
+				status: status === "running" ? "running" : "pending",
+			},
+			{
+				artifacts: [],
+				label: "Compose",
+				layer: "compose",
+				stages: ["generate-render-tree"],
+				status: "pending",
+			},
+			{
+				artifacts: [],
+				label: "Revise",
+				layer: "revise",
+				stages: ["write-artifacts"],
+				status: "pending",
+			},
+		],
+		runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+		schemaVersion: "screen-inference-run-status.v0.1",
+		status,
+		updatedAt: "2026-06-04T12:00:00.000Z",
+	};
 }

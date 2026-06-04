@@ -20,6 +20,11 @@ import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type {
+	ScreenInferenceRunCreateResponse,
+	ScreenInferenceRunResponse,
+	ScreenInferenceRunStatus,
+} from "@/lib/screen-inference-run";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import {
 	collectScreenAreas,
@@ -52,6 +57,8 @@ type ScreenInferenceSourceUploadResponse = {
 	source?: NewScreenSourceItem;
 };
 
+const TERMINAL_SCREEN_INFERENCE_STATUSES = new Set(["failed", "waiting-review", "applied"]);
+
 export function AppShell() {
 	const [screens, setScreens] = useState<ScreenSummary[]>([]);
 	const [loadState, setLoadState] = useState<LoadState>({
@@ -62,7 +69,9 @@ export function AppShell() {
 	const [saveState, setSaveState] = useState<SaveState>({ status: "idle" });
 	const [newScreenSourceError, setNewScreenSourceError] = useState("");
 	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>([]);
+	const [newScreenRunStatus, setNewScreenRunStatus] = useState<ScreenInferenceRunStatus>();
 	const [isUploadingNewScreenSource, setIsUploadingNewScreenSource] = useState(false);
+	const [isStartingNewScreenRun, setIsStartingNewScreenRun] = useState(false);
 	const [selectedAreaId, setSelectedAreaId] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState("");
 	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState("");
@@ -103,6 +112,10 @@ export function AppShell() {
 		screenRoutes.find((route) => route.id === activeRouteId) ??
 		screenRoutes.find((route) => route.id === selectedScreen?.screenRouteId) ??
 		screenRoutes[0];
+	const selectedNewScreenSource = newScreenSources.find(
+		(source) => source.path === selectedNewScreenSourcePath,
+	);
+	const selectedNewScreenRunId = selectedNewScreenSource?.latestRunId;
 
 	useEffect(() => {
 		let isActive = true;
@@ -130,6 +143,37 @@ export function AppShell() {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!selectedNewScreenRunId || activeTab !== "agent") return;
+		const runId = selectedNewScreenRunId;
+		let isActive = true;
+		let intervalId: ReturnType<typeof setInterval> | undefined;
+
+		async function pollRunStatus() {
+			try {
+				const status = await fetchScreenInferenceRunStatus(runId);
+				if (!isActive) return;
+				setNewScreenRunStatus(status);
+				if (TERMINAL_SCREEN_INFERENCE_STATUSES.has(status.status)) {
+					if (intervalId) clearInterval(intervalId);
+				}
+			} catch (error) {
+				if (!isActive) return;
+				setNewScreenSourceError(readErrorMessage(error));
+			}
+		}
+
+		void pollRunStatus();
+		intervalId = setInterval(() => {
+			void pollRunStatus();
+		}, 1500);
+
+		return () => {
+			isActive = false;
+			if (intervalId) clearInterval(intervalId);
+		};
+	}, [activeTab, selectedNewScreenRunId]);
+
 	function handleSelectRoute(routeId: string) {
 		setActiveRouteId(routeId);
 		const nextRoute = screenRoutes.find((route) => route.id === routeId);
@@ -153,6 +197,13 @@ export function AppShell() {
 
 	function handleSelectNewScreenSource(path: string) {
 		setSelectedNewScreenSourcePath(path);
+		const nextSource = newScreenSources.find((source) => source.path === path);
+		setNewScreenRunStatus(undefined);
+		if (nextSource?.latestRunId) {
+			void fetchScreenInferenceRunStatus(nextSource.latestRunId)
+				.then(setNewScreenRunStatus)
+				.catch((error) => setNewScreenSourceError(readErrorMessage(error)));
+		}
 	}
 
 	async function handleUploadNewScreenSource(file: File) {
@@ -169,6 +220,27 @@ export function AppShell() {
 			setNewScreenSourceError(readErrorMessage(error));
 		} finally {
 			setIsUploadingNewScreenSource(false);
+		}
+	}
+
+	async function handleRunSelectedNewScreenSource() {
+		if (!selectedNewScreenSource) return;
+		setIsStartingNewScreenRun(true);
+		setNewScreenSourceError("");
+		try {
+			const run = await createScreenInferenceRunFromSource(selectedNewScreenSource);
+			setNewScreenRunStatus(run.status);
+			setNewScreenSources((current) =>
+				current.map((source) =>
+					source.path === selectedNewScreenSource.path
+						? { ...source, latestRunId: run.runId }
+						: source,
+				),
+			);
+		} catch (error) {
+			setNewScreenSourceError(readErrorMessage(error));
+		} finally {
+			setIsStartingNewScreenRun(false);
 		}
 	}
 
@@ -225,13 +297,14 @@ export function AppShell() {
 					screenRoute={activeRoute}
 					newScreenSourceError={newScreenSourceError}
 					newScreenSources={newScreenSources}
+					onRunSelectedNewScreenSource={handleRunSelectedNewScreenSource}
 					onUploadNewScreenSource={handleUploadNewScreenSource}
 					selectedAreaId={selectedArea?.metadata.id}
 					selectedComponentId={selectedComponent?.metadata.id}
 					selectedNewScreenSourcePath={selectedNewScreenSourcePath}
 					selectedScreenId={visibleScreen?.id}
 					selectedScreenTitle={visibleScreen?.title}
-					isUploadingNewScreenSource={isUploadingNewScreenSource}
+					isUploadingNewScreenSource={isUploadingNewScreenSource || isStartingNewScreenRun}
 				/>
 				<Canvas
 					activeTab={activeTab}
@@ -241,6 +314,7 @@ export function AppShell() {
 					renderPuckPreview={isEditingWithPuck}
 					saveState={saveState}
 					selectedScreen={visibleScreen}
+					newScreenRunStatus={newScreenRunStatus}
 					showStatusBar={showStatusBar}
 				/>
 				<EditSidebar scope={editScope} />
@@ -323,6 +397,39 @@ async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceI
 	}
 
 	return body.source;
+}
+
+async function createScreenInferenceRunFromSource(
+	source: NewScreenSourceItem,
+): Promise<ScreenInferenceRunCreateResponse> {
+	const response = await fetch("/api/screen-inference/runs", {
+		body: JSON.stringify({
+			screenId: source.screenId,
+			source: {
+				path: source.path,
+			},
+		}),
+		headers: { "Content-Type": "application/json" },
+		method: "POST",
+	});
+	const body = (await response.json()) as ScreenInferenceRunCreateResponse & { error?: string };
+
+	if (!response.ok || body.error) {
+		throw new Error(body.error ?? `새 화면 inference 시작 실패 ${response.status}`);
+	}
+
+	return body;
+}
+
+async function fetchScreenInferenceRunStatus(runId: string): Promise<ScreenInferenceRunStatus> {
+	const response = await fetch(`/api/screen-inference/runs/${encodeURIComponent(runId)}`);
+	const body = (await response.json()) as ScreenInferenceRunResponse & { error?: string };
+
+	if (!response.ok || body.error) {
+		throw new Error(body.error ?? `새 화면 inference 상태 요청 실패 ${response.status}`);
+	}
+
+	return body.status;
 }
 
 function readErrorMessage(error: unknown): string {

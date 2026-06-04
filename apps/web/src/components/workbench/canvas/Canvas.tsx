@@ -1,6 +1,7 @@
 import { Puck } from "@puckeditor/core";
 import { FileUp } from "lucide-react";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
+import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 import { RenderedScreen } from "../../screen/RenderedScreen";
@@ -13,6 +14,7 @@ type CanvasProps = {
 		message?: string;
 		status: "error" | "loading" | "ready";
 	};
+	newScreenRunStatus?: ScreenInferenceRunStatus;
 	onSaveSelectedScreen?: () => void | Promise<void>;
 	onToggleStatusBar?: () => void;
 	renderPuckPreview?: boolean;
@@ -24,6 +26,7 @@ type CanvasProps = {
 export function Canvas({
 	activeTab,
 	loadState = { status: "ready" },
+	newScreenRunStatus,
 	onSaveSelectedScreen,
 	onToggleStatusBar,
 	renderPuckPreview = false,
@@ -50,6 +53,7 @@ export function Canvas({
 								{readCanvasContextLabel(activeTab, selectedScreen, renderPuckPreview)}
 							</p>
 						) : null}
+						{isNewScreenTab ? <NewScreenStatusStepper status={newScreenRunStatus} /> : null}
 					</div>
 					<div className="flex shrink-0 items-center gap-2">
 						<CanvasToolbar
@@ -106,6 +110,41 @@ function NewScreenEmptyPreview() {
 			</div>
 		</div>
 	);
+}
+
+function NewScreenStatusStepper({ status }: { status?: ScreenInferenceRunStatus }) {
+	const layers = status?.layers ?? [
+		{ label: "Understand", layer: "understand", status: "pending" },
+		{ label: "Compose", layer: "compose", status: "pending" },
+		{ label: "Revise", layer: "revise", status: "pending" },
+	];
+	const statusLabel = status?.error?.message ?? status?.status ?? "source-ready";
+
+	return (
+		<div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+			{layers.map((layer) => (
+				<span
+					className={readLayerClassName(layer.status)}
+					key={layer.layer}
+					title={`${layer.label}: ${layer.status}`}
+				>
+					{layer.label}
+				</span>
+			))}
+			<span className="truncate text-[10px] font-medium text-muted-foreground">{statusLabel}</span>
+		</div>
+	);
+}
+
+function readLayerClassName(status: string) {
+	const baseClassName =
+		"rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-4 transition-colors";
+	if (status === "completed") return `${baseClassName} border-emerald-500/40 text-emerald-700`;
+	if (status === "running")
+		return `${baseClassName} border-primary/50 bg-primary/[0.08] text-primary`;
+	if (status === "failed") return `${baseClassName} border-destructive/50 text-destructive`;
+	if (status === "skipped") return `${baseClassName} border-muted text-muted-foreground/60`;
+	return `${baseClassName} border-sidebar-border text-muted-foreground`;
 }
 
 function CanvasLoadState({ message, status }: { message?: string; status: "error" | "loading" }) {
