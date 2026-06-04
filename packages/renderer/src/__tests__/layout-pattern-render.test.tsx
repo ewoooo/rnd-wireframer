@@ -28,6 +28,34 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.queryByText("Structural Area Name")).not.toBeInTheDocument();
 	});
 
+	it("does not render PageStack area layout metadata titles", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.dynamic",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "area-layout-structural", title: "Structural Layout Area Title" },
+					props: { titleMode: "visible" },
+					children: [
+						{
+							type: "TitleSection",
+							componentVersion: "0.1.0",
+							metadata: { id: "layout-title-section", title: "Visible Layout Section Title" },
+							props: { title: "Visible Layout Section Title" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		expect(screen.getByText("Visible Layout Section Title")).toBeInTheDocument();
+		expect(screen.queryByText("Structural Layout Area Title")).not.toBeInTheDocument();
+		expect(
+			screen.getByText("Visible Layout Section Title").closest("[data-node-type='PageStack']"),
+		).toHaveAttribute("data-page-stack-title", "none");
+	});
+
 	it("renders layout pattern components from the node layout key", () => {
 		render(
 			<RenderNodeView

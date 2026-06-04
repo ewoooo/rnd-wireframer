@@ -5,12 +5,7 @@ import {
 	resolveDivider,
 	withTrailingSectionDivider,
 } from "../../shared/divider";
-import {
-	toNumber,
-	toPageStackItemTemplate,
-	toPageStackTitleMode,
-	toTitleModeFromLegacyProps,
-} from "../../shared/props";
+import { toNumber, toPageStackItemTemplate } from "../../shared/props";
 import type { LayoutPatternComponentProps } from "../../types";
 
 export type AreaPageStackDefaults = {
@@ -37,7 +32,7 @@ export const pageStackBaseDefaults = {
 	paddingY: 28,
 	sectionPaddingX: 12,
 	titleGap: 8,
-	titleMode: "visible",
+	titleMode: "none",
 } as const satisfies Omit<AreaPageStackDefaults, "gap">;
 
 export function AreaPageStackFrame({
@@ -90,9 +85,6 @@ export function resolveAreaPageStackProps(
 		sectionGap: toNumber(props.sectionGap) ?? toNumber(props.titleGap) ?? defaults.titleGap,
 		sectionPaddingX: toNumber(props.sectionPaddingX) ?? defaults.sectionPaddingX,
 		slotInsetX: toNumber(props.slotInsetX) ?? defaults.slotInsetX,
-		titleMode:
-			toPageStackTitleMode(props.titleMode) ??
-			toTitleModeFromLegacyProps(props) ??
-			defaults.titleMode,
+		titleMode: "none",
 	};
 }

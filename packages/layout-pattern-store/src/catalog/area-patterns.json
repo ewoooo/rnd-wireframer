@@ -52,10 +52,6 @@
 					"type": "number",
 					"description": "Legacy layoutProps.titleGap preserved from the pre-component catalog."
 				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
-				},
 				"divider": {
 					"type": "boolean",
 					"description": "When true, render trailing contents dividers between stack children."
@@ -132,10 +128,6 @@
 				"titleGap": {
 					"type": "number"
 				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
-				},
 				"divider": {
 					"type": "boolean",
 					"description": "When true, render trailing contents dividers between stack children."
@@ -208,10 +200,6 @@
 				"titleGap": {
 					"type": "number"
 				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
-				},
 				"divider": {
 					"type": "boolean",
 					"description": "When true, render trailing contents dividers between stack children."
@@ -252,10 +240,6 @@
 				"titleGap": {
 					"type": "number"
 				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
-				},
 				"divider": {
 					"type": "boolean",
 					"description": "When true, render trailing contents dividers between stack children."
@@ -295,10 +279,6 @@
 				},
 				"titleGap": {
 					"type": "number"
-				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
 				},
 				"divider": {
 					"type": "boolean",
@@ -372,9 +352,6 @@
 				},
 				"gap": {
 					"type": "number"
-				},
-				"hideTitle": {
-					"type": "boolean"
 				},
 				"surface": {
 					"type": "string"
@@ -822,10 +799,6 @@
 				},
 				"gap": {
 					"type": "number"
-				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": {
@@ -933,9 +906,6 @@
 				},
 				"gap": {
 					"type": "number"
-				},
-				"hideTitle": {
-					"type": "boolean"
 				},
 				"rowCount": {
 					"type": "number"
@@ -1162,10 +1132,6 @@
 				"itemTemplate": {
 					"type": "enum",
 					"values": ["card-0", "default-20", "plain"]
-				},
-				"titleMode": {
-					"type": "enum",
-					"values": ["hidden", "none", "visible"]
 				}
 			},
 			"children": {
@@ -1186,9 +1152,6 @@
 				},
 				"gap": {
 					"type": "number"
-				},
-				"hideTitle": {
-					"type": "boolean"
 				}
 			},
 			"children": {

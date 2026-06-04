@@ -205,7 +205,6 @@ const pageStackPropContractByKey = {
 		type: "number",
 		description: "Gap between children inside the PageStack contents slot.",
 	},
-	hideTitle: generalAreaPropContractByKey.hideTitle,
 	itemPaddingX: generalAreaPropContractByKey.itemPaddingX,
 	itemTemplate: generalAreaPropContractByKey.itemTemplate,
 	paddingX: generalAreaPropContractByKey.paddingX,
@@ -216,9 +215,9 @@ const pageStackPropContractByKey = {
 	slotInsetX: { type: "number" },
 	titleGap: {
 		type: "number",
-		description: "Legacy layoutProps.titleGap preserved as the title-to-contents gap.",
+		description:
+			"Legacy layoutProps.titleGap preserved as outer PageStack section gap. Area titles are structural metadata and are not rendered by PageStack area layouts.",
 	},
-	titleMode: generalAreaPropContractByKey.titleMode,
 } as const satisfies Record<
 	string,
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
@@ -1168,7 +1167,6 @@ function pageStackProps(
 		"componentGap",
 		"divider",
 		"gap",
-		"hideTitle",
 		"itemPaddingX",
 		"itemTemplate",
 		"paddingX",
@@ -1178,7 +1176,6 @@ function pageStackProps(
 		"sectionPaddingX",
 		"slotInsetX",
 		"titleGap",
-		"titleMode",
 	] as const;
 	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
 	for (const key of baseKeys) {
