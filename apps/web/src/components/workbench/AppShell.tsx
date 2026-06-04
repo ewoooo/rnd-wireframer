@@ -39,6 +39,7 @@ import {
 
 const ASIDE_WIDTH = "320px";
 const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
+const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
 
 type LoadState = {
 	message?: string;
@@ -668,10 +669,10 @@ function mergeNewScreenSources(
 	serverSources: NewScreenSourceItem[],
 ): NewScreenSourceItem[] {
 	const mergedByPath = new Map<string, NewScreenSourceItem>();
-	for (const source of currentSources) {
+	for (const source of currentSources.filter(isWebUploadedNewScreenSource)) {
 		mergedByPath.set(source.path, source);
 	}
-	for (const source of serverSources) {
+	for (const source of serverSources.filter(isWebUploadedNewScreenSource)) {
 		const current = mergedByPath.get(source.path);
 		mergedByPath.set(source.path, {
 			...source,
@@ -693,7 +694,9 @@ function readNewScreenWorkbenchState(): {
 			selectedSourcePath?: unknown;
 			sources?: unknown;
 		};
-		const sources = Array.isArray(value.sources) ? value.sources.filter(isNewScreenSourceItem) : [];
+		const sources = Array.isArray(value.sources)
+			? value.sources.filter(isNewScreenSourceItem).filter(isWebUploadedNewScreenSource)
+			: [];
 		const selectedSourcePath =
 			typeof value.selectedSourcePath === "string" &&
 			sources.some((source) => source.path === value.selectedSourcePath)
@@ -711,7 +714,14 @@ function writeNewScreenWorkbenchState(input: {
 	sources: NewScreenSourceItem[];
 }) {
 	if (typeof window === "undefined") return;
-	window.localStorage.setItem(NEW_SCREEN_WORKBENCH_STORAGE_KEY, JSON.stringify(input));
+	const sources = input.sources.filter(isWebUploadedNewScreenSource);
+	const selectedSourcePath = sources.some((source) => source.path === input.selectedSourcePath)
+		? input.selectedSourcePath
+		: (sources[0]?.path ?? "");
+	window.localStorage.setItem(
+		NEW_SCREEN_WORKBENCH_STORAGE_KEY,
+		JSON.stringify({ selectedSourcePath, sources }),
+	);
 }
 
 function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
@@ -724,6 +734,10 @@ function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
 		typeof item.screenId === "string" &&
 		(typeof item.latestRunId === "string" || item.latestRunId === undefined)
 	);
+}
+
+function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
+	return source.importId === NEW_SCREEN_SOURCE_IMPORT_ID;
 }
 
 function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>>) {

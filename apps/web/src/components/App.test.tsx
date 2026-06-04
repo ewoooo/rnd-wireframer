@@ -161,6 +161,43 @@ describe("App workbench navigation", () => {
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
+
+	it("drops non web-upload sources restored from browser state", async () => {
+		window.localStorage.setItem(
+			"cx.new-screen.workbench.v0.1",
+			JSON.stringify({
+				selectedSourcePath: "data/client-imports/{id}/260528_mbr/NOVA-MBR-PU-003-E3.md",
+				sources: [
+					{
+						batchId: "260528_mbr",
+						importId: "{id}",
+						path: "data/client-imports/{id}/260528_mbr/NOVA-MBR-PU-003-E3.md",
+						screenId: "NOVA-MBR-PU-003-E3",
+						type: "file",
+					},
+				],
+			}),
+		);
+		stubBrowserApis();
+		stubScreenFetch({
+			serverSources: [
+				{
+					batchId: "20260604",
+					importId: "web-upload",
+					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					screenId: "NOVA-UPLOAD-PG-001-0",
+					type: "file",
+				},
+			],
+		});
+		render(<App />);
+
+		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+
+		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect(screen.queryByText("NOVA-MBR-PU-003-E3")).not.toBeInTheDocument();
+	});
 });
 
 function createScreens(): ScreenSummary[] {
