@@ -5,7 +5,7 @@ import {
 	VStack,
 	type VStackProps,
 } from "@cx/layout/primitives";
-import type { LayoutPatternComponentProps } from "../types";
+import type { LayoutPatternComponentProps } from "../../types";
 
 // 비-PageStack area만 이 파일이 소유한다. PageStack 기반 area는 PageStackArea.tsx.
 export const AreaVerticalArea = createPlainStack({ gap: 0 });

@@ -41,6 +41,7 @@ export type PuckCatalogItem = {
 	componentVersion?: string;
 	defaultChildren?: RenderTreeNodeContract[];
 	defaultProps?: RenderTreeNodeContract["props"];
+	nodeId?: string;
 	nodeType: string;
 	puckType: string;
 	title: string;
@@ -206,6 +207,7 @@ export function applyPuckAreaData(input: {
 		catalogItems: input.catalogItems,
 		children: area.children ?? [],
 		items: input.data.content,
+		nodeIdPolicy: "allow-duplicates",
 	});
 	area.children = result.children;
 
@@ -226,6 +228,7 @@ export function applyPuckComponentData(input: {
 			catalogItems: input.catalogItems,
 			children: [component],
 			items: input.data.content,
+			nodeIdPolicy: "allow-duplicates",
 		});
 		return {
 			diagnostics: result.diagnostics,
@@ -237,6 +240,7 @@ export function applyPuckComponentData(input: {
 		catalogItems: input.catalogItems,
 		children: component.children,
 		items: input.data.content,
+		nodeIdPolicy: "allow-duplicates",
 	});
 	component.children = result.children;
 
@@ -305,6 +309,7 @@ function reorderChildren(input: {
 	consumedIds?: Set<string>;
 	diagnostics?: PuckAdapterDiagnostic[];
 	items: PuckScreenItem[];
+	nodeIdPolicy?: "allow-duplicates" | "reject-duplicates";
 	sourceChildren?: RenderTreeNodeContract[];
 }): {
 	children: RenderTreeNodeContract[];
@@ -318,6 +323,7 @@ function reorderChildren(input: {
 		(input.catalogItems ?? []).map((item) => [item.puckType, item]),
 	);
 	const consumedIds = input.consumedIds ?? new Set<string>();
+	const nodeIdPolicy = input.nodeIdPolicy ?? "reject-duplicates";
 	const nextChildren: RenderTreeNodeContract[] = [];
 
 	for (const item of input.items) {
@@ -326,7 +332,7 @@ function reorderChildren(input: {
 			diagnostics.push({ code: "missing_node_id", severity: "error" });
 			continue;
 		}
-		if (consumedIds.has(nodeId)) {
+		if (nodeIdPolicy === "reject-duplicates" && consumedIds.has(nodeId)) {
 			diagnostics.push({ code: "duplicate_node", id: nodeId, severity: "warning" });
 			continue;
 		}
@@ -363,7 +369,7 @@ function createMountedNode(
 	catalogItem: PuckCatalogItem,
 	item: PuckScreenItem,
 ): RenderTreeNodeContract {
-	const idSource = item.props.id || item.props.nodeId || catalogItem.puckType;
+	const idSource = item.props.nodeId || catalogItem.nodeId || item.props.id || catalogItem.puckType;
 	return {
 		children: catalogItem.defaultChildren?.map(cloneNode),
 		componentVersion: catalogItem.componentVersion ?? "1.0.0",

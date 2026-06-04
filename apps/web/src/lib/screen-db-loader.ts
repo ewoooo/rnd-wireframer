@@ -1,4 +1,6 @@
 import {
+	materializeRenderAreaFromRows,
+	materializeRenderComponentFromRows,
 	type MaterializeRenderScreenResult,
 	materializeRenderScreenFromRows,
 	type RenderAreaChildRow,
@@ -10,6 +12,7 @@ import {
 	type RenderScreenRegionRow,
 	type RenderScreenRow,
 } from "@cx/adapters/table";
+import type { PuckCatalogItem } from "@cx/adapters/puck";
 
 export type ScreenRouteSummary = {
 	id: string;
@@ -35,6 +38,8 @@ export type ScreenSummaryRow = {
 	type?: string;
 	variantType?: string;
 };
+
+export type PuckCatalogScope = "area" | "screen-region";
 
 type RenderScreenRouteRow = {
 	id: string;
@@ -64,6 +69,11 @@ const TABLES = {
 	screenVariants: "render_screen_variants",
 	screens: "render_screens",
 } as const;
+
+const PUCK_CATALOG_ITEM_PREFIX_BY_SCOPE = {
+	area: "component",
+	"screen-region": "area",
+} as const satisfies Record<PuckCatalogScope, string>;
 
 export async function listScreenRoutes(): Promise<ScreenRouteSummary[]> {
 	const routes = await readRestRows<RenderScreenRouteRow>(TABLES.screenRoutes, {
@@ -190,6 +200,120 @@ export async function loadScreenTree(screenId: string): Promise<MaterializeRende
 		rows: await loadScreenRows(screenId),
 		screenId,
 	});
+}
+
+export async function listPuckCatalogItems(
+	scope: PuckCatalogScope,
+): Promise<PuckCatalogItem[]> {
+	const loaders = {
+		area: listPuckComponentCatalogItems,
+		"screen-region": listPuckAreaCatalogItems,
+	} as const satisfies Record<PuckCatalogScope, () => Promise<PuckCatalogItem[]>>;
+
+	return loaders[scope]();
+}
+
+async function listPuckAreaCatalogItems(): Promise<PuckCatalogItem[]> {
+	const areas = await readRestRows<RenderAreaRow>(TABLES.areas, {
+		order: "name.asc,id.asc",
+		select: "id,type,version,layout_id,name,description,author,props",
+	});
+	const areaIds = areas.map((area) => area.id);
+	const areaChildren =
+		areaIds.length > 0
+			? await readRestRows<RenderAreaChildRow>(TABLES.areaChildren, {
+					area_id: inFilter(areaIds),
+					order: "area_id.asc,order_index.asc",
+					select: "id,area_id,component_id,order_index",
+				})
+			: [];
+	const componentIds = unique(areaChildren.map((child) => child.component_id));
+	const [components, componentChildren] = await readComponentsWithChildren(componentIds);
+	const rows = createRenderRows({
+		areaChildren,
+		areas,
+		componentChildren,
+		components,
+	});
+
+	return areas.flatMap((area) => {
+		const result = materializeRenderAreaFromRows({ areaId: area.id, rows });
+		return result.node ? [renderTreeNodeToPuckCatalogItem(result.node, "screen-region")] : [];
+	});
+}
+
+async function listPuckComponentCatalogItems(): Promise<PuckCatalogItem[]> {
+	const components = await readRestRows<RenderComponentRow>(TABLES.components, {
+		order: "name.asc,id.asc",
+		select: "id,type,version,layout_id,name,description,author,display,hooks",
+	});
+	const componentIds = components.map((component) => component.id);
+	const componentChildren =
+		componentIds.length > 0
+			? await readRestRows<RenderComponentChildRow>(TABLES.componentChildren, {
+					component_id: inFilter(componentIds),
+					order: "component_id.asc,order_index.asc",
+					select: "id,component_id,order_index,catalog_component_type,variant,props",
+				})
+			: [];
+	const rows = createRenderRows({ componentChildren, components });
+
+	return components.flatMap((component) => {
+		const result = materializeRenderComponentFromRows({ componentId: component.id, rows });
+		return result.node ? [renderTreeNodeToPuckCatalogItem(result.node, "area")] : [];
+	});
+}
+
+async function readComponentsWithChildren(
+	componentIds: string[],
+): Promise<[RenderComponentRow[], RenderComponentChildRow[]]> {
+	if (componentIds.length === 0) return [[], []];
+
+	return Promise.all([
+		readRestRows<RenderComponentRow>(TABLES.components, {
+			id: inFilter(componentIds),
+			order: "name.asc,id.asc",
+			select: "id,type,version,layout_id,name,description,author,display,hooks",
+		}),
+		readRestRows<RenderComponentChildRow>(TABLES.componentChildren, {
+			component_id: inFilter(componentIds),
+			order: "component_id.asc,order_index.asc",
+			select: "id,component_id,order_index,catalog_component_type,variant,props",
+		}),
+	]);
+}
+
+function createRenderRows(input: {
+	areaChildren?: RenderAreaChildRow[];
+	areas?: RenderAreaRow[];
+	componentChildren?: RenderComponentChildRow[];
+	components?: RenderComponentRow[];
+}): RenderReadModelRows {
+	return {
+		areaChildren: input.areaChildren ?? [],
+		areas: input.areas ?? [],
+		componentChildren: input.componentChildren ?? [],
+		components: input.components ?? [],
+		screenRegionChildren: [],
+		screenRegions: [],
+		screens: [],
+	};
+}
+
+function renderTreeNodeToPuckCatalogItem(
+	node: NonNullable<ReturnType<typeof materializeRenderAreaFromRows>["node"]>,
+	scope: PuckCatalogScope,
+): PuckCatalogItem {
+	const prefix = PUCK_CATALOG_ITEM_PREFIX_BY_SCOPE[scope];
+	return {
+		componentVersion: node.componentVersion,
+		defaultChildren: node.children,
+		defaultProps: node.props,
+		nodeId: node.metadata.id,
+		nodeType: node.type,
+		puckType: `catalog:${prefix}:${node.metadata.id}`,
+		title: node.metadata.title,
+	};
 }
 
 async function readRestRows<Row>(

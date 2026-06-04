@@ -222,6 +222,32 @@ describe("@cx/adapters/puck", () => {
 		]);
 	});
 
+	it("allows the same component row to appear more than once inside an area", () => {
+		const area = screenFixture.children[1].children[0];
+		const result = applyPuckAreaData({
+			area,
+			data: {
+				...renderTreeToPuckAreaData(area),
+				content: [
+					{
+						type: "component-a",
+						props: { id: "component-a", itemKind: "area-child", nodeId: "component-a" },
+					},
+					{
+						type: "component-a",
+						props: { id: "component-a-repeat", itemKind: "area-child", nodeId: "component-a" },
+					},
+				],
+			},
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.node.children?.map((child) => child.metadata.id)).toEqual([
+			"component-a",
+			"component-a",
+		]);
+	});
+
 	it("mounts inserted catalog items as temporary RenderTree nodes", () => {
 		const area = screenFixture.children[1].children[0];
 		const result = applyPuckAreaData({

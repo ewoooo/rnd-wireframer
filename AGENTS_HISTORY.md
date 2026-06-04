@@ -45,6 +45,52 @@
 - 이유: 사용자가 업로드한 client-import source가 추론 결과 UI preview, 검수, 승인, DB 등록으로 이어지는 MVP lifecycle을 빠르게 닫기 위함
 - 검증: `pnpm exec vitest run apps/web/src/lib/screen-inference-source.test.ts apps/web/src/components/App.test.tsx apps/web/src/lib/screen-db-save.test.ts`, `pnpm exec biome check ...`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `git diff --cached --check`
 
+## 2026-06-04 - Workbench Puck Logic Split
+
+- 변경: `apps/web/src/components/puck/workbench/workbench-puck.tsx`에서 RenderTree apply, Puck data normalize, catalog candidate resolve, field generation, preview prop parsing 로직을 분리함
+- 변경: edit scope 계약을 `apps/web/src/model/puck-edit-scope.ts`로 이동하고, Puck 변환 helper를 `apps/web/src/lib/workbench-puck/`의 `puck-scope`, `puck-fields`, `puck-props`로 분리함
+- 변경: Puck 컴포넌트 파일은 Puck `Config`의 React preview/root render bridge만 담당하도록 축소하고, `AppShell`/edit sidebar import를 새 경계로 갱신함
+- 이유: React component 폴더에 탭-편집범위 계약, RenderTree mutation, catalog/field 변환 정책이 섞여 있던 코드 냄새를 줄이고 workbench model/lib 책임으로 분리하기 위함
+- 검증: `pnpm exec vitest run apps/web/src/components/App.test.tsx packages/adapters/src/__tests__/puck.test.ts`, `pnpm test`, `pnpm lint`, `pnpm build`
+
+## 2026-06-04 - New Screen Inference Lifecycle Plan
+
+- 변경: `docs/development/NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md`를 추가해 DnD 기반 새 화면 추론, `Understand -> Compose -> Revise` 진행 표시, 단계별 검수 snapshot, 승인 후 `final-result.json -> render_*` DB 등록 방향을 문서화함
+- 변경: MVP 우선순위에 맞춰 `data/client-imports/{importId}/{batchId}/{screenId}.md` 저장 형식, DnD source upload route, run creation/status polling route, final artifact review route, rerun request, apply route 예시 코드를 추가함
+- 변경: 새 화면 탭은 기존 Web 탭 구조를 재활용하고, 좌측 rail/중앙 status+preview/우측 validation-quality summary가 어떤 endpoint를 소비하는지 `New Screen Tab MVP Data Contract`로 정리함
+- 변경: 새 화면 탭 예상 구성을 ASCII 다이어그램으로 추가하고, DnD source intake, run/status polling, final review/rerun, approved DB apply, layer snapshot으로 rollout을 분리함
+- 변경: `docs/development/README.md`에 새 개발 문서 링크와 책임을 추가함
+- 이유: 새 화면 기능을 구현하기 전에 smoke/pipeline/orchestration/agent/Web 경계에 맞는 사용자 입력 데이터 라이프사이클과 진행 UI 계약을 먼저 고정하기 위함
+- 검증: 문서 변경만 수행함
+
+## 2026-06-04 - Render DB Canonical Rollout 1
+
+- 변경: `apps/smoke/src/render-db-canonical.ts`에 component/area signature canonicalization 공통 helper를 추가하고, duplicate audit report와 relation remap 결과를 산출하도록 구현함
+- 변경: canonical id 규칙을 `docs/development/RENDER_DB_CANONICALIZATION.md`에 고정함: duplicate component는 `component.{slug(type)}.{hash}`, duplicate area는 `area.{slug(layout)}.{hash}`를 사용함
+- 변경: `render-db:canonicalize` CLI를 추가해 remote Supabase render DB audit/dry-run SQL/report 생성과 `--write` apply를 지원함
+- 변경: `render-db:push-tables`가 기본으로 signature canonical projection을 적용하도록 변경하고, `--report-file`, `--no-canonicalize` 옵션을 추가함
+- 변경: remote render DB canonical migration을 적용해 중복 group을 component 10개/area 10개에서 0개로 줄였고, Puck catalog API가 canonical row 수(`screen-region=32`, `area=77`)를 반환하도록 확인함
+- 이유: 화면별로 복제된 AppBar/상단 앱바 영역 row를 DB 모델의 reusable row 정책에 맞게 정리하고, 이후 import/push에서도 같은 중복이 재발하지 않게 하기 위함
+- 검증: `pnpm run render-db:push-tables -- --report-file tmp/render-db-push-canonical-report.json --out-file tmp/render-db-push-canonical.sql`, `pnpm run render-db:canonicalize -- --report-file tmp/render-db-remote-canonical-report.json --out-file tmp/render-db-remote-canonical.sql`, `pnpm run render-db:canonicalize -- --write --report-file tmp/render-db-remote-canonical-applied-report.json --out-file tmp/render-db-remote-canonical-applied.sql`, postcheck `pnpm run render-db:canonicalize -- --report-file tmp/render-db-remote-canonical-postcheck-report.json`, Puck catalog API count check, `pnpm exec vitest run apps/smoke/src/render-db-canonical.test.ts apps/web/src/components/App.test.tsx apps/web/src/lib/screen-db-loader.test.ts apps/web/src/lib/screen-db-save.test.ts packages/adapters/src/__tests__/puck.test.ts packages/adapters/src/__tests__/table-to-render-tree.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm run lint`, `pnpm run build`, `git diff --check`
+
+## 2026-06-04 - PageStack Area Frame Consolidation
+
+- 변경: `packages/layout-pattern-store/src/components/area/page-stack/`에 `AreaPageStackFrame`과 PageStack area preset 테이블을 추가하고, 기존 `PageStackArea.tsx`는 새 구조를 re-export하도록 정리함
+- 변경: `CollectionArea`와 `GeneralArea`를 각각 `area/collection/`, `area/general/` 하위로 이동하고 `area/index.ts` barrel에서 통합 export하도록 정리함
+- 변경: PageStack 기반 area layout을 `areaPageStackLayouts`로 재분류하고, `pageStackProps()` 공통 contract 생성기를 통해 `divider`와 `sectionDivider`를 일관 노출하도록 통합함
+- 이유: PageStack primitive는 그대로 두고 area에서 PageStack을 소비하는 정책, defaults, divider/sectionDivider 계약을 한 곳에서 관리하기 위함
+- 검증: `npm test -- --run packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/layout-pattern-store/src/__tests__/public-api.test.ts packages/layout-pattern-store/src/__tests__/pattern-store.test.ts`, `npx tsc --noEmit --pretty false --incremental false -p tsconfig.json`, `npx biome check packages/layout-pattern-store/src/components/area packages/layout-pattern-store/src/components/shared/props.ts packages/layout-pattern-store/src/components/registry.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`
+
+## 2026-06-04 - Puck Shared Reference Policy
+
+- 변경: Puck area/component apply에서 같은 component row를 한 area 안에 반복 배치할 수 있도록 node id 중복 허용 정책을 분리함
+- 변경: screen-region 저장 projection은 같은 area row가 한 region 안에 반복 배치되면 `duplicate_area_in_region` error diagnostic으로 차단함
+- 변경: 공유 component row가 여러 번 배치돼도 `render_area_children` relation만 반복 투영하고 `render_component_children`는 component id 기준 1회만 투영하도록 보강함
+- 변경: 기존 `/api/screens/*` DB 조회 패턴에 맞춰 `listPuckCatalogItems()`와 `GET /api/screens/puck-catalog?scope=...`를 추가하고, `@cx/adapters/table`의 area/component 단위 materializer를 재사용하도록 정리함
+- 변경: Workbench Puck 편집 진입 시 `screen-region`/`area` scope는 DB Puck catalog API를 lazy load해 Blocks 후보로 사용하고, `component` scope는 기존 component catalog를 유지하도록 연결함
+- 이유: area/component row 공유 편집은 의도된 동작으로 유지하되, region 안 area 중복은 금지하고 component 반복 배치는 저장 가능한 관계 모델로 맞추기 위함
+- 검증: `pnpm exec vitest run apps/web/src/components/App.test.tsx apps/web/src/lib/screen-db-loader.test.ts packages/adapters/src/__tests__/table-to-render-tree.test.ts packages/adapters/src/__tests__/puck.test.ts apps/web/src/lib/screen-db-save.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`
+
 ## 2026-06-02 - Origin Main Figma Export Merge Prep
 
 - 변경: `origin/main`의 Figma export 기능을 현재 로컬 workbench 경계에 맞춰 병합 준비함

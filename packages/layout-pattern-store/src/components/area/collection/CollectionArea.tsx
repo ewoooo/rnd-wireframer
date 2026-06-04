@@ -3,27 +3,20 @@ import {
 	type GridProps,
 	HStack,
 	type HStackProps,
-	PageStack,
-	type PageStackProps,
 	VStack,
 	type VStackProps,
 } from "@cx/layout/primitives";
 import { Children, type ReactNode } from "react";
-import type { LayoutPatternComponentProps } from "../types";
+import { toNumber } from "../../shared/props";
+import type { LayoutPatternComponentProps } from "../../types";
+import { type AreaPageStackDefaults, AreaPageStackFrame } from "../page-stack/frame";
 
 type CollectionFlow = "grid" | "horizontal" | "stack";
 
-type CollectionAreaDefaults = {
+type CollectionAreaDefaults = AreaPageStackDefaults & {
 	columns?: number;
 	flow: CollectionFlow;
-	gap: number;
-	itemPaddingX?: number;
-	itemTemplate?: PageStackProps["itemTemplate"];
 	mapHeight?: number;
-	paddingY?: number;
-	sectionPaddingX?: number;
-	titleGap?: number;
-	titleMode?: PageStackProps["titleMode"];
 };
 
 const sectionDefaults = {
@@ -188,19 +181,19 @@ function createCollectionArea(defaults: CollectionAreaDefaults) {
 			);
 		}
 
-		const node = {
-			type: "PageStack",
-			metadata: {
-				id: metadata?.id ?? "collection-area",
-				title: metadata?.title,
-			},
-		};
 		const content = renderCollectionContent({ children, defaults, metadata, props });
 
 		return (
-			<PageStack {...toPageStackProps(props, defaults)} className={className} node={node}>
+			<AreaPageStackFrame
+				className={className}
+				content="nested-stack"
+				defaults={defaults}
+				fallbackId="collection-area"
+				metadata={metadata}
+				props={props}
+			>
 				{content}
-			</PageStack>
+			</AreaPageStackFrame>
 		);
 	};
 }
@@ -221,22 +214,6 @@ function renderCollectionContent({
 			{applyMapHeight(children, props, defaults)}
 		</VStack>
 	);
-}
-
-function toPageStackProps(
-	props: Record<string, unknown>,
-	defaults: CollectionAreaDefaults,
-): Partial<PageStackProps> {
-	return {
-		gap: 0,
-		itemPaddingX: toNumber(props.itemPaddingX) ?? defaults.itemPaddingX,
-		itemTemplate: toPageStackItemTemplate(props.itemTemplate) ?? defaults.itemTemplate,
-		paddingY: toNumber(props.paddingY) ?? defaults.paddingY,
-		sectionGap: toNumber(props.sectionGap) ?? toNumber(props.titleGap) ?? defaults.titleGap ?? 0,
-		sectionPaddingX: toNumber(props.sectionPaddingX) ?? defaults.sectionPaddingX,
-		slotInsetX: toNumber(props.slotInsetX),
-		titleMode: toPageStackTitleMode(props.titleMode) ?? defaults.titleMode,
-	};
 }
 
 function toGridLayoutProps(
@@ -331,18 +308,6 @@ function applyMapHeight(
 	];
 }
 
-function toNumber(value: unknown): number | undefined {
-	return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
 function toCollectionFlow(value: unknown): CollectionFlow | undefined {
 	return value === "grid" || value === "horizontal" || value === "stack" ? value : undefined;
-}
-
-function toPageStackItemTemplate(value: unknown): PageStackProps["itemTemplate"] | undefined {
-	return value === "card-0" || value === "default-20" || value === "plain" ? value : undefined;
-}
-
-function toPageStackTitleMode(value: unknown): PageStackProps["titleMode"] | undefined {
-	return value === "hidden" || value === "none" || value === "visible" ? value : undefined;
 }

@@ -25,6 +25,11 @@ export type MaterializeRenderScreenResult = {
 	node?: MaterializedRenderTreeScreenNode;
 };
 
+export type MaterializeRenderNodeResult = {
+	diagnostics: MaterializeDiagnostic[];
+	node?: MaterializedRenderTreeNode;
+};
+
 export type RenderScreenRow = {
 	author?: string | null;
 	description?: string | null;

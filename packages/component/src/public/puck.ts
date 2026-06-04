@@ -4,6 +4,7 @@ import type { ComponentCatalogEntry } from "./types";
 export type ComponentPuckCatalogItem = {
 	componentVersion?: string;
 	defaultProps?: Record<string, unknown>;
+	nodeId?: string;
 	nodeType: string;
 	puckType: string;
 	title: string;

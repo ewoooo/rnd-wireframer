@@ -1,7 +1,6 @@
 import { Blocks } from "lucide-react";
-import type { EditScope } from "@/components/puck/workbench/edit-scope";
-import { readEditScopeTitle } from "@/components/puck/workbench/edit-scope";
 import { SidebarHeader } from "@/components/ui/sidebar";
+import { type EditScope, readEditScopeTitle } from "@/model/puck-edit-scope";
 
 type EditSidebarHeaderProps = {
 	scope?: EditScope;

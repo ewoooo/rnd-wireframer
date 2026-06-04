@@ -28,29 +28,50 @@ export type EditScopeInput = {
 	selectedScreen?: RenderTreeScreenNode;
 };
 
+type EditScopeKind = EditScope["kind"];
+
+const editScopeKindByTab: Partial<Record<NavigatorTab, EditScopeKind>> = {
+	comp: "component",
+	ogn: "area",
+	puck: "screen-region",
+	scn: "screen-region",
+};
+
+const defaultRegionByTab: Partial<Record<NavigatorTab, ScreenRegionType>> = {
+	puck: "contents",
+	scn: "contents",
+};
+
+const screenRegionNodeTypeByRegion = {
+	bottom: RENDER_TREE_NODE_TYPE.screenBottom,
+	contents: RENDER_TREE_NODE_TYPE.screenContents,
+	header: RENDER_TREE_NODE_TYPE.screenHeader,
+} satisfies Record<ScreenRegionType, string>;
+
 export function resolveEditScope(input: EditScopeInput): EditScope | undefined {
 	if (!input.selectedScreen) return undefined;
 
-	if (input.activeTab === "scn" || input.activeTab === "puck") {
+	const scopeKind = editScopeKindByTab[input.activeTab];
+	if (scopeKind === "screen-region") {
 		return {
-			kind: "screen-region",
-			regionType: "contents",
+			kind: scopeKind,
+			regionType: defaultRegionByTab[input.activeTab] ?? "contents",
 			screen: input.selectedScreen,
 		};
 	}
 
-	if (input.activeTab === "ogn" && input.selectedArea) {
+	if (scopeKind === "area" && input.selectedArea) {
 		return {
 			area: input.selectedArea,
-			kind: "area",
+			kind: scopeKind,
 			screen: input.selectedScreen,
 		};
 	}
 
-	if (input.activeTab === "comp" && input.selectedComponent) {
+	if (scopeKind === "component" && input.selectedComponent) {
 		return {
 			component: input.selectedComponent,
-			kind: "component",
+			kind: scopeKind,
 			screen: input.selectedScreen,
 		};
 	}
@@ -66,18 +87,12 @@ export function readEditScopeTitle(scope?: EditScope) {
 }
 
 export function isPuckEditTab(activeTab: NavigatorTab) {
-	return activeTab === "scn" || activeTab === "puck" || activeTab === "ogn" || activeTab === "comp";
+	return activeTab in editScopeKindByTab;
 }
 
 export function readScreenRegion(
 	screen: RenderTreeScreenNode,
 	regionType: ScreenRegionType,
 ): RenderTreeNode | undefined {
-	const typeByRegion = {
-		bottom: RENDER_TREE_NODE_TYPE.screenBottom,
-		contents: RENDER_TREE_NODE_TYPE.screenContents,
-		header: RENDER_TREE_NODE_TYPE.screenHeader,
-	} satisfies Record<ScreenRegionType, string>;
-
-	return screen.children.find((child) => child.type === typeByRegion[regionType]);
+	return screen.children.find((child) => child.type === screenRegionNodeTypeByRegion[regionType]);
 }

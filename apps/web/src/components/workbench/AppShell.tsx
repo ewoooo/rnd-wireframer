@@ -1,19 +1,12 @@
 "use client";
 
+import type { PuckCatalogItem } from "@cx/adapters/puck";
 import type { RenderTreeScreenNode } from "@cx/renderer";
 import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
 import { type Data, Puck } from "@puckeditor/core";
 import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
-import { isPuckEditTab, resolveEditScope } from "@/components/puck/workbench/edit-scope";
-import {
-	applyPuckChangeToScope,
-	buildPuckConfigForScope,
-	buildPuckDataForScope,
-	normalizePuckData,
-	readItemKindForScope,
-	resolveCatalogItemsForScope,
-} from "@/components/puck/workbench/workbench-puck";
+import { buildPuckConfigForScope } from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import type { SaveState } from "@/components/workbench/canvas/CanvasToolbar";
@@ -28,12 +21,20 @@ import type {
 } from "@/lib/screen-inference-run";
 import type { ScreenSummary } from "@/lib/screen-sources";
 import {
+	applyPuckChangeToScope,
+	buildPuckDataForScope,
+	normalizePuckData,
+	readItemKindForScope,
+	resolveCatalogItemsForScope,
+} from "@/lib/workbench-puck/puck-scope";
+import { isPuckEditTab, resolveEditScope } from "@/model/puck-edit-scope";
+import {
 	collectScreenAreas,
 	collectScreenComponents,
 	createWorkbenchViewModel,
 	getInitialScreen,
-	toNavigationNodeItems,
 	type NavigatorTab,
+	toNavigationNodeItems,
 } from "@/model/workbench-view-model";
 
 const ASIDE_WIDTH = "320px";
@@ -51,6 +52,13 @@ type ScreensApiResponse = {
 type ScreenTreeApiResponse = {
 	error?: string;
 	node?: RenderTreeScreenNode;
+};
+
+type PuckCatalogScope = "area" | "screen-region";
+
+type PuckCatalogApiResponse = {
+	catalogItems?: PuckCatalogItem[];
+	error?: string;
 };
 
 type ScreenInferenceSourceUploadResponse = {
@@ -79,6 +87,9 @@ export function AppShell() {
 	const [selectedAreaId, setSelectedAreaId] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState("");
 	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState("");
+	const [puckCatalogItemsByScope, setPuckCatalogItemsByScope] = useState<
+		Partial<Record<PuckCatalogScope, PuckCatalogItem[]>>
+	>({});
 	const [screenCandidates, setScreenCandidates] = useState<Record<string, RenderTreeScreenNode>>(
 		{},
 	);
@@ -108,7 +119,13 @@ export function AppShell() {
 		selectedScreen: visibleScreen?.renderTree,
 	});
 	const isEditingWithPuck = isPuckEditTab(activeTab) && !!editScope;
-	const catalogItems = editScope ? resolveCatalogItemsForScope(editScope) : [];
+	const puckCatalogScope = readPuckCatalogScope(editScope);
+	const catalogItems =
+		editScope && puckCatalogScope
+			? (puckCatalogItemsByScope[puckCatalogScope] ?? resolveCatalogItemsForScope(editScope))
+			: editScope
+				? resolveCatalogItemsForScope(editScope)
+				: [];
 	const [activeRouteId, setActiveRouteId] = useState(
 		initialScreen?.screenRouteId ?? screenRoutes[0]?.id ?? "",
 	);
@@ -146,6 +163,31 @@ export function AppShell() {
 			isActive = false;
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!puckCatalogScope || puckCatalogItemsByScope[puckCatalogScope]) return;
+		const scope = puckCatalogScope;
+		let isActive = true;
+
+		async function loadPuckCatalogItems() {
+			try {
+				const catalogItems = await fetchPuckCatalogItemsFromApi(scope);
+				if (!isActive) return;
+				setPuckCatalogItemsByScope((current) => ({
+					...current,
+					[scope]: catalogItems,
+				}));
+			} catch (error) {
+				console.error(`Failed to load Puck catalog '${scope}':`, error);
+			}
+		}
+
+		void loadPuckCatalogItems();
+
+		return () => {
+			isActive = false;
+		};
+	}, [puckCatalogScope, puckCatalogItemsByScope]);
 
 	useEffect(() => {
 		if (!selectedNewScreenRunId || activeTab !== "agent") return;
@@ -433,7 +475,7 @@ export function AppShell() {
 	return (
 		<Puck
 			key={`${visibleScreen.id}:${activeTab}:${editScope.kind}:${readEditScopeKey(editScope)}`}
-			config={buildPuckConfigForScope(editScope)}
+			config={buildPuckConfigForScope(editScope, catalogItems)}
 			data={buildPuckDataForScope(editScope) as Data}
 			headerTitle={visibleScreen.title}
 			iframe={{ enabled: false }}
@@ -449,6 +491,16 @@ export function AppShell() {
 			{workbenchLayout}
 		</Puck>
 	);
+}
+
+async function fetchPuckCatalogItemsFromApi(scope: PuckCatalogScope): Promise<PuckCatalogItem[]> {
+	const response = await fetch(`/api/screens/puck-catalog?scope=${encodeURIComponent(scope)}`);
+	if (!response.ok) {
+		throw new Error(`Puck catalog 요청 실패 ${scope}: ${response.status}`);
+	}
+	const body = (await response.json()) as PuckCatalogApiResponse;
+	if (body.error) throw new Error(body.error);
+	return body.catalogItems ?? [];
 }
 
 async function fetchScreensFromApi(): Promise<ScreenSummary[]> {
@@ -564,4 +616,11 @@ function readEditScopeKey(scope: NonNullable<ReturnType<typeof resolveEditScope>
 	if (scope.kind === "screen-region") return scope.regionType;
 	if (scope.kind === "area") return scope.area.metadata.id;
 	return scope.component.metadata.id;
+}
+
+function readPuckCatalogScope(
+	scope: ReturnType<typeof resolveEditScope>,
+): PuckCatalogScope | undefined {
+	if (!scope || scope.kind === "component") return undefined;
+	return scope.kind;
 }

@@ -12,6 +12,7 @@
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
+		"render-db:canonicalize": "tsx apps/smoke/src/canonicalize-render-db-cli.ts",
 		"render-db:push-tables": "tsx apps/smoke/src/push-render-db-cli.ts",
 		"smoke:pipeline": "tsx apps/smoke/src/cli.ts",
 		"smoke:proposals": "tsx apps/smoke/src/aggregate-proposals-cli.ts",

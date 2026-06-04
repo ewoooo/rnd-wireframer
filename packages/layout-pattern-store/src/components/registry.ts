@@ -1,14 +1,35 @@
 import {
+	AccordionListArea,
+	AccordionNoticeListArea,
+	ActionStackArea,
+	AreaAppBarArea,
+	AreaVerticalArea,
+	AuthCodeEntryArea,
+	AuthMethodListArea,
 	BenefitBrandListArea,
+	BottomActionArea,
 	CardInfoBrandListArea,
+	CheckboxStackArea,
 	CouponBenefitArea,
+	DeliveryInfoAccordionArea,
+	FieldStackArea,
 	FilterChipTextListArea,
 	HiddenTitlePagestackCardListArea,
 	HorizontalCardListArea,
+	ListStackArea,
 	ListSummaryCardArea,
 	MapCardInfoListArea,
+	MessageStackArea,
 	NearbyStoreListArea,
+	NoticeAccordionStackArea,
 	OptionListSectionArea,
+	PagestackInfoTextSectionArea,
+	PlainInfoTextListArea,
+	PriceAccordionStackArea,
+	ProductDisclosureAccordionArea,
+	ProductFooterLegalArea,
+	ProductHeroSummaryArea,
+	ProductInfoSectionArea,
 	ProductListChipSortArea,
 	ProductListGroupArea,
 	ProductListSortOnlyArea,
@@ -16,34 +37,9 @@ import {
 	ProductOptionGridArea,
 	RichImageTabArea,
 	RowCardListArea,
-} from "./area/CollectionArea";
-import {
-	AreaAppBarArea,
-	AreaVerticalArea,
-	BottomActionArea,
-	ProductFooterLegalArea,
-	ProductHeroSummaryArea,
-} from "./area/GeneralArea";
-import {
-	AccordionListArea,
-	AccordionNoticeListArea,
-	ActionStackArea,
-	AuthCodeEntryArea,
-	AuthMethodListArea,
-	CheckboxStackArea,
-	DeliveryInfoAccordionArea,
-	FieldStackArea,
-	ListStackArea,
-	MessageStackArea,
-	NoticeAccordionStackArea,
-	PagestackInfoTextSectionArea,
-	PlainInfoTextListArea,
-	PriceAccordionStackArea,
-	ProductDisclosureAccordionArea,
-	ProductInfoSectionArea,
 	TabChipSearchAccordionArea,
 	TextListGroupArea,
-} from "./area/PageStackArea";
+} from "./area";
 import {
 	type CompositeWrapperDefaults,
 	createCompositeWrapper,
@@ -191,6 +187,38 @@ const generalAreaPropContractByKey = {
 		type: "enum",
 		values: ["hidden", "none", "visible"],
 	},
+} as const satisfies Record<
+	string,
+	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
+>;
+
+const pageStackPropContractByKey = {
+	componentGap: {
+		type: "number",
+		description: "Legacy layoutProps.componentGap preserved as the PageStack contents gap.",
+	},
+	divider: {
+		type: "boolean",
+		description: "When true, render trailing contents dividers between stack children.",
+	},
+	gap: {
+		type: "number",
+		description: "Gap between children inside the PageStack contents slot.",
+	},
+	hideTitle: generalAreaPropContractByKey.hideTitle,
+	itemPaddingX: generalAreaPropContractByKey.itemPaddingX,
+	itemTemplate: generalAreaPropContractByKey.itemTemplate,
+	paddingX: generalAreaPropContractByKey.paddingX,
+	paddingY: generalAreaPropContractByKey.paddingY,
+	sectionDivider: generalAreaPropContractByKey.sectionDivider,
+	sectionGap: generalAreaPropContractByKey.sectionGap,
+	sectionPaddingX: generalAreaPropContractByKey.sectionPaddingX,
+	slotInsetX: { type: "number" },
+	titleGap: {
+		type: "number",
+		description: "Legacy layoutProps.titleGap preserved as the title-to-contents gap.",
+	},
+	titleMode: generalAreaPropContractByKey.titleMode,
 } as const satisfies Record<
 	string,
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
@@ -563,10 +591,45 @@ const areaPageStackLayouts: Array<{
 		props: pageStackProps(),
 	},
 	{
+		component: AccordionNoticeListArea,
+		componentID: "AccordionNoticeListArea",
+		layoutId: "layout.area.accordionNoticeListArea",
+		name: "Accordion Notice List Area",
+		props: pageStackProps(),
+	},
+	{
+		component: ActionStackArea,
+		componentID: "ActionStackArea",
+		layoutId: "layout.area.actionStack",
+		name: "Action Stack Area",
+		props: pageStackProps(),
+	},
+	{
+		component: AuthCodeEntryArea,
+		componentID: "AuthCodeEntryArea",
+		layoutId: "layout.area.authCodeEntry",
+		name: "Auth Code Entry Area",
+		props: pageStackProps(["primaryActionPlacement", "secondaryActionPlacement", "sectionModel"]),
+	},
+	{
+		component: AuthMethodListArea,
+		componentID: "AuthMethodListArea",
+		layoutId: "layout.area.authMethodList",
+		name: "Auth Method List Area",
+		props: pageStackProps(["itemPaddingY", "listPresentation"]),
+	},
+	{
 		component: CheckboxStackArea,
 		componentID: "CheckboxStackArea",
 		layoutId: "layout.area.checkboxStack",
 		name: "Checkbox Stack Area",
+		props: pageStackProps(),
+	},
+	{
+		component: DeliveryInfoAccordionArea,
+		componentID: "DeliveryInfoAccordionArea",
+		layoutId: "layout.area.deliveryInfoAccordionArea",
+		name: "Delivery Info Accordion Area",
 		props: pageStackProps(),
 	},
 	{
@@ -589,6 +652,62 @@ const areaPageStackLayouts: Array<{
 		layoutId: "layout.area.messageStack",
 		name: "Message Stack Area",
 		props: pageStackProps(),
+	},
+	{
+		component: NoticeAccordionStackArea,
+		componentID: "NoticeAccordionStackArea",
+		layoutId: "layout.area.noticeAccordionStackArea",
+		name: "Notice Accordion Stack Area",
+		props: pageStackProps(),
+	},
+	{
+		component: PagestackInfoTextSectionArea,
+		componentID: "PagestackInfoTextSectionArea",
+		layoutId: "layout.area.pagestackInfoTextSection",
+		name: "Pagestack Info Text Section Area",
+		props: pageStackProps(["rowCount"]),
+	},
+	{
+		component: PlainInfoTextListArea,
+		componentID: "PlainInfoTextListArea",
+		layoutId: "layout.area.plainInfoTextListArea",
+		name: "Plain Info Text List Area",
+		props: pageStackProps(["rowCount"]),
+	},
+	{
+		component: PriceAccordionStackArea,
+		componentID: "PriceAccordionStackArea",
+		layoutId: "layout.area.priceAccordionStackArea",
+		name: "Price Accordion Stack Area",
+		props: pageStackProps(),
+	},
+	{
+		component: ProductDisclosureAccordionArea,
+		componentID: "ProductDisclosureAccordionArea",
+		layoutId: "layout.area.productDisclosureAccordion",
+		name: "Product Disclosure Accordion Area",
+		props: pageStackProps(),
+	},
+	{
+		component: ProductInfoSectionArea,
+		componentID: "ProductInfoSectionArea",
+		layoutId: "layout.area.productInfoSection",
+		name: "Product Info Section Area",
+		props: pageStackProps(),
+	},
+	{
+		component: TabChipSearchAccordionArea,
+		componentID: "TabChipSearchAccordionArea",
+		layoutId: "layout.area.tabChipSearchAccordionArea",
+		name: "Tab Chip Search Accordion Area",
+		props: pageStackProps(["filterGap"]),
+	},
+	{
+		component: TextListGroupArea,
+		componentID: "TextListGroupArea",
+		layoutId: "layout.area.textListGroupArea",
+		name: "Text List Group Area",
+		props: pageStackProps(["rowCount"]),
 	},
 ];
 
@@ -742,42 +861,6 @@ const areaGeneralLayouts: Array<{
 		props: generalAreaProps(["componentGap", "gap"]),
 	},
 	{
-		component: AuthMethodListArea,
-		componentID: "AuthMethodListArea",
-		layoutId: "layout.area.authMethodList",
-		name: "Auth Method List Area",
-		props: generalAreaProps([
-			"componentGap",
-			"divider",
-			"gap",
-			"itemPaddingX",
-			"itemPaddingY",
-			"listPresentation",
-			"titleGap",
-		]),
-	},
-	{
-		component: AuthCodeEntryArea,
-		componentID: "AuthCodeEntryArea",
-		layoutId: "layout.area.authCodeEntry",
-		name: "Auth Code Entry Area",
-		props: generalAreaProps([
-			"componentGap",
-			"gap",
-			"primaryActionPlacement",
-			"secondaryActionPlacement",
-			"sectionModel",
-			"titleGap",
-		]),
-	},
-	{
-		component: ActionStackArea,
-		componentID: "ActionStackArea",
-		layoutId: "layout.area.actionStack",
-		name: "Action Stack Area",
-		props: generalAreaProps(["componentGap", "gap", "titleGap"]),
-	},
-	{
 		component: BottomActionArea,
 		componentID: "BottomActionArea",
 		layoutId: "layout.area.bottomActionArea",
@@ -810,95 +893,11 @@ const areaGeneralLayouts: Array<{
 		]),
 	},
 	{
-		component: ProductInfoSectionArea,
-		componentID: "ProductInfoSectionArea",
-		layoutId: "layout.area.productInfoSection",
-		name: "Product Info Section Area",
-		props: generalAreaProps(["componentGap", "gap", "titleGap"]),
-	},
-	{
-		component: ProductDisclosureAccordionArea,
-		componentID: "ProductDisclosureAccordionArea",
-		layoutId: "layout.area.productDisclosureAccordion",
-		name: "Product Disclosure Accordion Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
-	},
-	{
 		component: ProductFooterLegalArea,
 		componentID: "ProductFooterLegalArea",
 		layoutId: "layout.area.productFooterLegal",
 		name: "Product Footer Legal Area",
 		props: generalAreaProps(["bottomPadding", "gap", "paddingX", "paddingY"]),
-	},
-	{
-		component: PriceAccordionStackArea,
-		componentID: "PriceAccordionStackArea",
-		layoutId: "layout.area.priceAccordionStackArea",
-		name: "Price Accordion Stack Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
-	},
-	{
-		component: DeliveryInfoAccordionArea,
-		componentID: "DeliveryInfoAccordionArea",
-		layoutId: "layout.area.deliveryInfoAccordionArea",
-		name: "Delivery Info Accordion Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
-	},
-	{
-		component: NoticeAccordionStackArea,
-		componentID: "NoticeAccordionStackArea",
-		layoutId: "layout.area.noticeAccordionStackArea",
-		name: "Notice Accordion Stack Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
-	},
-	{
-		component: PagestackInfoTextSectionArea,
-		componentID: "PagestackInfoTextSectionArea",
-		layoutId: "layout.area.pagestackInfoTextSection",
-		name: "Pagestack Info Text Section Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap", "titleGap"]),
-	},
-	{
-		component: TextListGroupArea,
-		componentID: "TextListGroupArea",
-		layoutId: "layout.area.textListGroupArea",
-		name: "Text List Group Area",
-		props: generalAreaProps([
-			"componentGap",
-			"divider",
-			"sectionDivider",
-			"gap",
-			"rowCount",
-			"titleGap",
-		]),
-	},
-	{
-		component: PlainInfoTextListArea,
-		componentID: "PlainInfoTextListArea",
-		layoutId: "layout.area.plainInfoTextListArea",
-		name: "Plain Info Text List Area",
-		props: generalAreaProps([
-			"componentGap",
-			"divider",
-			"sectionDivider",
-			"gap",
-			"hideTitle",
-			"rowCount",
-		]),
-	},
-	{
-		component: TabChipSearchAccordionArea,
-		componentID: "TabChipSearchAccordionArea",
-		layoutId: "layout.area.tabChipSearchAccordionArea",
-		name: "Tab Chip Search Accordion Area",
-		props: generalAreaProps(["componentGap", "filterGap", "gap"]),
-	},
-	{
-		component: AccordionNoticeListArea,
-		componentID: "AccordionNoticeListArea",
-		layoutId: "layout.area.accordionNoticeListArea",
-		name: "Accordion Notice List Area",
-		props: generalAreaProps(["componentGap", "divider", "sectionDivider", "gap"]),
 	},
 	{
 		component: AreaAppBarArea,
@@ -1154,42 +1153,41 @@ function compositeProps(
 	return contracts;
 }
 
-function pageStackProps(): LayoutPatternComponentEntry["pattern"]["props"] {
-	return {
-		componentGap: {
-			type: "number",
-			description: "Legacy layoutProps.componentGap preserved as the PageStack contents gap.",
-		},
-		divider: {
-			type: "boolean",
-			description: "When true, render trailing contents dividers between stack children.",
-		},
-		gap: {
-			type: "number",
-			description: "Gap between children inside the PageStack contents slot.",
-		},
-		itemPaddingX: {
-			type: "number",
-		},
-		itemTemplate: {
-			type: "enum",
-			values: ["card-0", "default-20", "plain"],
-		},
-		paddingY: {
-			type: "number",
-		},
-		sectionPaddingX: {
-			type: "number",
-		},
-		titleGap: {
-			type: "number",
-			description: "Legacy layoutProps.titleGap preserved as the title-to-contents gap.",
-		},
-		titleMode: {
-			type: "enum",
-			values: ["hidden", "none", "visible"],
-		},
-	};
+function pageStackProps(
+	extraKeys: Array<
+		| "filterGap"
+		| "itemPaddingY"
+		| "listPresentation"
+		| "primaryActionPlacement"
+		| "rowCount"
+		| "secondaryActionPlacement"
+		| "sectionModel"
+	> = [],
+): LayoutPatternComponentEntry["pattern"]["props"] {
+	const baseKeys = [
+		"componentGap",
+		"divider",
+		"gap",
+		"hideTitle",
+		"itemPaddingX",
+		"itemTemplate",
+		"paddingX",
+		"paddingY",
+		"sectionDivider",
+		"sectionGap",
+		"sectionPaddingX",
+		"slotInsetX",
+		"titleGap",
+		"titleMode",
+	] as const;
+	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
+	for (const key of baseKeys) {
+		contracts[key] = pageStackPropContractByKey[key];
+	}
+	for (const key of extraKeys) {
+		contracts[key] = generalAreaPropContractByKey[key];
+	}
+	return contracts;
 }
 
 function collectionProps(

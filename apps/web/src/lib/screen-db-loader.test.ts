@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listScreenRoutes, listScreens, loadScreenRows, loadScreenTree } from "./screen-db-loader";
+import {
+	listPuckCatalogItems,
+	listScreenRoutes,
+	listScreens,
+	loadScreenRows,
+	loadScreenTree,
+} from "./screen-db-loader";
 
 const originalEnv = process.env;
 
@@ -99,6 +105,41 @@ describe("screen-db-loader", () => {
 		expect(requests.map((request) => new URL(request).pathname)).toEqual([
 			"/rest/v1/render_screens",
 			"/rest/v1/render_screen_regions",
+		]);
+	});
+
+	it("lists Puck catalog items from DB area and component rows", async () => {
+		stubFetch(screenDbResponses);
+
+		await expect(listPuckCatalogItems("screen-region")).resolves.toEqual([
+			{
+				componentVersion: "1.0.0",
+				defaultChildren: [
+					{
+						componentVersion: "1.0.0",
+						layout: "layout.composite.componentTextField",
+						metadata: { id: "component-1", title: "이름 입력" },
+						props: { label: "이름" },
+						type: "TextField",
+					},
+				],
+				defaultProps: { divider: true },
+				nodeId: "area-1",
+				nodeType: "area.static",
+				puckType: "catalog:area:area-1",
+				title: "입력 영역",
+			},
+		]);
+
+		await expect(listPuckCatalogItems("area")).resolves.toEqual([
+			{
+				componentVersion: "1.0.0",
+				defaultProps: { label: "이름" },
+				nodeId: "component-1",
+				nodeType: "TextField",
+				puckType: "catalog:component:component-1",
+				title: "이름 입력",
+			},
 		]);
 	});
 });

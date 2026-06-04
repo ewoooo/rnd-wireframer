@@ -1,5 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import {
+	canonicalizeRenderProjection,
+	type CanonicalizationReport,
+	type RenderProjection,
+} from "./render-db-canonical";
 
 type TableEnvelope<T> = {
 	areas?: T[];
@@ -83,8 +88,10 @@ type LocalComponentChild = {
 };
 
 type CliOptions = {
+	canonicalize: boolean;
 	envFile: string;
 	outFile?: string;
+	reportFile?: string;
 	tablesDir: string;
 	write: boolean;
 };
@@ -108,11 +115,22 @@ async function main() {
 	const options = parseArgs(process.argv.slice(2));
 	const tablesDir = path.resolve(process.cwd(), options.tablesDir);
 	const tables = await readLocalTables(tablesDir);
-	const projection = projectRenderRows(tables);
+	const rawProjection = projectRenderRows(tables);
+	const canonicalization = options.canonicalize
+		? canonicalizeRenderProjection(rawProjection)
+		: { projection: rawProjection, report: emptyCanonicalizationReport(rawProjection) };
+	const projection = canonicalization.projection;
 	const sql = buildSql(projection);
 
 	if (options.outFile) {
 		await writeFile(path.resolve(process.cwd(), options.outFile), sql, "utf8");
+	}
+	if (options.reportFile) {
+		await writeFile(
+			path.resolve(process.cwd(), options.reportFile),
+			JSON.stringify(canonicalization.report, null, 2),
+			"utf8",
+		);
 	}
 
 	if (options.write) {
@@ -124,7 +142,16 @@ async function main() {
 		JSON.stringify(
 			{
 				mode: options.write ? "write" : "dry-run",
+				canonicalize: options.canonicalize,
+				canonicalization: {
+					areaDuplicateGroups: canonicalization.report.areaDuplicateGroups.length,
+					componentDuplicateGroups: canonicalization.report.componentDuplicateGroups.length,
+					rowCounts: canonicalization.report.rowCounts,
+				},
 				outFile: options.outFile ? path.resolve(process.cwd(), options.outFile) : undefined,
+				reportFile: options.reportFile
+					? path.resolve(process.cwd(), options.reportFile)
+					: undefined,
 				rowCounts: projection.rowCounts,
 				tablesDir,
 			},
@@ -133,19 +160,6 @@ async function main() {
 		),
 	);
 }
-
-type RenderProjection = {
-	areaChildren: Array<Record<string, unknown>>;
-	areas: Array<Record<string, unknown>>;
-	componentChildren: Array<Record<string, unknown>>;
-	components: Array<Record<string, unknown>>;
-	rowCounts: Record<string, number>;
-	screenRegionChildren: Array<Record<string, unknown>>;
-	screenRegions: Array<Record<string, unknown>>;
-	screenRoutes: Array<Record<string, unknown>>;
-	screenVariants: Array<Record<string, unknown>>;
-	screens: Array<Record<string, unknown>>;
-};
 
 function projectRenderRows(tables: {
 	areas: LocalArea[];
@@ -512,6 +526,7 @@ function parseArgs(args: string[]): CliOptions {
 	for (let index = 0; index < args.length; index += 1) {
 		const arg = args[index];
 		if (!arg) continue;
+		if (arg === "--") continue;
 		if (arg === "--tables-dir") {
 			options.tablesDir = readRequiredArg(args, index, arg);
 			index += 1;
@@ -522,9 +537,18 @@ function parseArgs(args: string[]): CliOptions {
 			index += 1;
 			continue;
 		}
+		if (arg === "--report-file") {
+			options.reportFile = readRequiredArg(args, index, arg);
+			index += 1;
+			continue;
+		}
 		if (arg === "--env-file") {
 			options.envFile = readRequiredArg(args, index, arg);
 			index += 1;
+			continue;
+		}
+		if (arg === "--no-canonicalize") {
+			options.canonicalize = false;
 			continue;
 		}
 		if (arg === "--write") {
@@ -538,8 +562,10 @@ function parseArgs(args: string[]): CliOptions {
 		throw new Error(`Unknown option: ${arg}`);
 	}
 	return {
+		canonicalize: options.canonicalize ?? true,
 		envFile: options.envFile ?? DEFAULT_ENV_FILE,
 		outFile: options.outFile,
+		reportFile: options.reportFile,
 		tablesDir: options.tablesDir ?? DEFAULT_TABLES_DIR,
 		write: options.write ?? false,
 	};
@@ -555,14 +581,40 @@ function printUsage() {
 	console.log(`Usage:
   npm run render-db:push-tables
   npm run render-db:push-tables -- --out-file tmp/render-db.sql
+  npm run render-db:push-tables -- --report-file tmp/render-db-canonical-report.json
   npm run render-db:push-tables -- --write
 
 Options:
   --env-file <path>    Env file with Supabase URL and service role key. Default: env.shared.
   --tables-dir <path>  Local table directory. Default: data/tables.
   --out-file <path>   Write generated SQL for inspection.
+  --report-file <path> Write canonicalization audit/dry-run report.
+  --no-canonicalize    Disable canonical signature upsert projection.
   --write             Push rows to Supabase render_* tables using PostgREST.
 `);
+}
+
+function emptyCanonicalizationReport(projection: RenderProjection): CanonicalizationReport {
+	return {
+		areaDuplicateGroups: [],
+		areaIdMap: Object.fromEntries(projection.areas.map((row) => [String(row.id), String(row.id)])),
+		componentDuplicateGroups: [],
+		componentIdMap: Object.fromEntries(
+			projection.components.map((row) => [String(row.id), String(row.id)]),
+		),
+		rowCounts: {
+			after_render_area_children: projection.areaChildren.length,
+			after_render_areas: projection.areas.length,
+			after_render_component_children: projection.componentChildren.length,
+			after_render_components: projection.components.length,
+			after_render_screen_region_children: projection.screenRegionChildren.length,
+			before_render_area_children: projection.areaChildren.length,
+			before_render_areas: projection.areas.length,
+			before_render_component_children: projection.componentChildren.length,
+			before_render_components: projection.components.length,
+			before_render_screen_region_children: projection.screenRegionChildren.length,
+		},
+	};
 }
 
 main().catch((error) => {

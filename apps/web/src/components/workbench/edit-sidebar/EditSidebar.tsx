@@ -1,12 +1,12 @@
 "use client";
 
 import { Puck } from "@puckeditor/core";
-import type { EditScope } from "@/components/puck/workbench/edit-scope";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import {
 	type NewScreenReviewData,
 	NewScreenReviewSummary,
 } from "@/components/workbench/new-screen/NewScreenReviewSummary";
+import type { EditScope } from "@/model/puck-edit-scope";
 import { EditSidebarHeader } from "./EditSidebarHeader";
 import { EditSidebarPane } from "./EditSidebarPane";
 

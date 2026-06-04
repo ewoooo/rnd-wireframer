@@ -171,6 +171,93 @@ describe("screen-db-save", () => {
 			},
 		]);
 	});
+
+	it("allows repeated component references inside one area without duplicating component child rows", () => {
+		const result = projectScreenTreeOrder({
+			node: {
+				...screenNode,
+				children: [
+					screenNode.children[0],
+					{
+						...screenNode.children[1],
+						children: [
+							{
+								...areaA,
+								children: [componentA, componentA, componentB],
+							},
+						],
+					},
+					screenNode.children[2],
+				],
+			},
+			rows,
+			screenId: "screen-1",
+		});
+
+		expect(result.diagnostics).toEqual([]);
+		expect(result.areaChildren).toEqual([
+			{
+				area_id: "area-a",
+				component_id: "component-a",
+				id: "area-child-a",
+				order_index: 0,
+			},
+			{
+				area_id: "area-a",
+				component_id: "component-a",
+				order_index: 1,
+			},
+			{
+				area_id: "area-a",
+				component_id: "component-b",
+				id: "area-child-b",
+				order_index: 2,
+			},
+		]);
+		expect(result.componentChildren.filter((row) => row.component_id === "component-a")).toEqual([
+			{
+				catalog_component_type: "TextField",
+				component_id: "component-a",
+				id: "component-child-a",
+				order_index: 0,
+				props: null,
+				variant: null,
+			},
+		]);
+	});
+
+	it("rejects repeated area references inside one screen region", () => {
+		const result = projectScreenTreeOrder({
+			node: {
+				...screenNode,
+				children: [
+					screenNode.children[0],
+					{
+						...screenNode.children[1],
+						children: [areaA, areaA],
+					},
+					screenNode.children[2],
+				],
+			},
+			rows,
+			screenId: "screen-1",
+		});
+
+		expect(result.diagnostics).toContainEqual({
+			code: "duplicate_area_in_region",
+			id: "area-a",
+			parentId: "screen-1.contents",
+			severity: "error",
+		});
+		expect(result.screenRegionChildren).toEqual([
+			{
+				area_id: "area-a",
+				id: "region-child-a",
+				order_index: 0,
+				screen_region_id: "screen-1.contents",
+			},
+		]);
+	});
 });
 
 const componentA = {

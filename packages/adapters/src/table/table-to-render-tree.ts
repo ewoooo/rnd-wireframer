@@ -5,6 +5,7 @@ import {
 } from "@cx/schema";
 import type {
 	MaterializeDiagnostic,
+	MaterializeRenderNodeResult,
 	MaterializedRenderTreeNode,
 	MaterializedRenderTreeScreenBottomNode,
 	MaterializedRenderTreeScreenContentsNode,
@@ -23,6 +24,16 @@ import type {
 export type MaterializeRenderScreenFromRowsInput = {
 	rows: RenderReadModelRows;
 	screenId: string;
+};
+
+export type MaterializeRenderAreaFromRowsInput = {
+	areaId: string;
+	rows: RenderReadModelRows;
+};
+
+export type MaterializeRenderComponentFromRowsInput = {
+	componentId: string;
+	rows: RenderReadModelRows;
 };
 
 type ScreenRegionRowType = "bottom" | "contents" | "header";
@@ -77,6 +88,46 @@ export function materializeRenderScreenFromRows({
 			},
 			children: [header, contents, bottom],
 		},
+	};
+}
+
+export function materializeRenderAreaFromRows({
+	areaId,
+	rows,
+}: MaterializeRenderAreaFromRowsInput): MaterializeRenderNodeResult {
+	const diagnostics: MaterializeDiagnostic[] = [];
+	const indexes = buildRowIndexes(rows, diagnostics);
+	const area = indexes.areasById.get(areaId);
+
+	if (!area) {
+		return {
+			diagnostics: [{ code: "missing_area", id: areaId, severity: "error" }],
+		};
+	}
+
+	return {
+		diagnostics,
+		node: materializeArea(area, indexes, diagnostics),
+	};
+}
+
+export function materializeRenderComponentFromRows({
+	componentId,
+	rows,
+}: MaterializeRenderComponentFromRowsInput): MaterializeRenderNodeResult {
+	const diagnostics: MaterializeDiagnostic[] = [];
+	const indexes = buildRowIndexes(rows, diagnostics);
+	const component = indexes.componentsById.get(componentId);
+
+	if (!component) {
+		return {
+			diagnostics: [{ code: "missing_component", id: componentId, severity: "error" }],
+		};
+	}
+
+	return {
+		diagnostics,
+		node: materializeComponent(component, indexes),
 	};
 }
 

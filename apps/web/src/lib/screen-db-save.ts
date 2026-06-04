@@ -16,6 +16,7 @@ import { loadScreenRows } from "./screen-db-loader";
 
 export type SaveScreenTreeOrderDiagnostic = {
 	code:
+		| "duplicate_area_in_region"
 		| "missing_area"
 		| "missing_component"
 		| "missing_region"
@@ -119,6 +120,7 @@ export function projectScreenTreeOrder(input: {
 		input.rows.areaChildren,
 		(child) => `${child.area_id}\u0000${child.component_id}`,
 	);
+	const projectedComponentIds = new Set<string>();
 
 	for (const regionNode of input.node.children as readonly RenderTreeNodeContract[]) {
 		if (!isRenderTreeScreenRegionNode(regionNode)) {
@@ -143,6 +145,7 @@ export function projectScreenTreeOrder(input: {
 			continue;
 		}
 
+		const consumedAreaIds = new Set<string>();
 		for (const [index, child] of (regionNode.children ?? []).entries()) {
 			if (!isRenderTreeAreaNode(child)) {
 				diagnostics.push({
@@ -153,6 +156,16 @@ export function projectScreenTreeOrder(input: {
 				});
 				continue;
 			}
+			if (consumedAreaIds.has(child.metadata.id)) {
+				diagnostics.push({
+					code: "duplicate_area_in_region",
+					id: child.metadata.id,
+					parentId: region.id,
+					severity: "error",
+				});
+				continue;
+			}
+			consumedAreaIds.add(child.metadata.id);
 			if (!areaIds.has(child.metadata.id)) {
 				diagnostics.push({
 					code: "missing_area",
@@ -179,6 +192,7 @@ export function projectScreenTreeOrder(input: {
 				componentChildrenByComponentId,
 				componentIds,
 				diagnostics,
+				projectedComponentIds,
 			});
 			areaChildren.push(...projectedArea.areaChildren);
 			componentChildren.push(...projectedArea.componentChildren);
@@ -199,6 +213,7 @@ function projectAreaChildren(input: {
 	componentChildrenByComponentId: Map<string, RenderComponentChildRow[]>;
 	componentIds: Set<string>;
 	diagnostics: SaveScreenTreeOrderDiagnostic[];
+	projectedComponentIds: Set<string>;
 }): {
 	areaChildren: RenderAreaChildRow[];
 	componentChildren: RenderComponentChildRow[];
@@ -236,9 +251,12 @@ function projectAreaChildren(input: {
 			...withRowId(areaChildId),
 			order_index: index,
 		});
-		componentChildren.push(
-			...projectComponentChildren(child, input.componentChildrenByComponentId),
-		);
+		if (!input.projectedComponentIds.has(child.metadata.id)) {
+			input.projectedComponentIds.add(child.metadata.id);
+			componentChildren.push(
+				...projectComponentChildren(child, input.componentChildrenByComponentId),
+			);
+		}
 	}
 
 	return { areaChildren, componentChildren };
@@ -282,10 +300,7 @@ function projectComponentChildren(
 	});
 }
 
-function groupRowsByKey<Row>(
-	rows: Row[],
-	readKey: (row: Row) => string,
-): Map<string, Row[]> {
+function groupRowsByKey<Row>(rows: Row[], readKey: (row: Row) => string): Map<string, Row[]> {
 	const grouped = new Map<string, Row[]>();
 	for (const row of rows) {
 		const key = readKey(row);

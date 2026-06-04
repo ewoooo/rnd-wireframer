@@ -197,6 +197,19 @@ function stubScreenFetch() {
 			if (url.pathname === "/api/screens") {
 				return Response.json({ screens });
 			}
+			if (url.pathname === "/api/screens/puck-catalog") {
+				return Response.json({
+					catalogItems: [
+						{
+							componentVersion: "1.0.0",
+							nodeId: "db-area",
+							nodeType: "area.static",
+							puckType: "catalog:area:db-area",
+							title: "DB Area",
+						},
+					],
+				});
+			}
 			if (url.pathname === "/api/screen-inference/sources") {
 				return Response.json({
 					source: {
