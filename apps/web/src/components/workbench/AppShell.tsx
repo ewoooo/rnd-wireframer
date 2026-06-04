@@ -557,6 +557,7 @@ async function createScreenInferenceRunFromSource(
 			source: {
 				path: source.path,
 			},
+			useAI: true,
 		}),
 		headers: { "Content-Type": "application/json" },
 		method: "POST",

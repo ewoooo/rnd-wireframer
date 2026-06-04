@@ -107,7 +107,9 @@ async function runScreenInferencePipeline(input: {
 	);
 
 	try {
+		const useAI = input.useAI ?? true;
 		await runPipeline("screen-generation", {
+			agentMode: useAI ? "claude-local-first" : "fake",
 			runId: input.runId,
 			source: {
 				path: input.sourcePath,
@@ -118,7 +120,7 @@ async function runScreenInferencePipeline(input: {
 				...(input.previousRunId ? [`previous:${input.previousRunId}`] : []),
 				...(input.tags ?? []),
 			],
-			useAI: input.useAI ?? false,
+			useAI,
 		});
 
 		const manifest = await readOptionalJson<ScreenInferenceRunManifest>(

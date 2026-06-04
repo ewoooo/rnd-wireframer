@@ -52,6 +52,12 @@ describe("App workbench navigation", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "Run" }));
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
+		expect(readRunRequests()).toContainEqual(
+			expect.objectContaining({
+				screenId: "NOVA-UPLOAD-PG-001-0",
+				useAI: true,
+			}),
+		);
 	});
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
@@ -93,6 +99,12 @@ describe("App workbench navigation", () => {
 		expect(await screen.findByText("Generated Area")).toBeInTheDocument();
 		expect(screen.getAllByText("waiting-review").length).toBeGreaterThan(0);
 		expect(screen.getAllByText("0 errors · 0 warnings").length).toBeGreaterThanOrEqual(2);
+		expect(readRunRequests()).toContainEqual(
+			expect.objectContaining({
+				screenId: "NOVA-UPLOAD-PG-001-0",
+				useAI: true,
+			}),
+		);
 	});
 });
 
@@ -218,88 +230,88 @@ function stubScreenFetch(
 ) {
 	const inferenceStatus = options.inferenceStatus ?? "running";
 	const qualityHasSummary = options.qualityHasSummary ?? true;
+	const runRequests: unknown[] = [];
 	const screens = createScreens();
-	vi.stubGlobal(
-		"fetch",
-		vi.fn(async (input: string | URL) => {
-			const url = new URL(String(input), "http://localhost");
-			if (url.pathname === "/api/screens") {
-				return Response.json({ screens });
-			}
-			if (url.pathname === "/api/screens/puck-catalog") {
-				return Response.json({
-					catalogItems: [
-						{
-							componentVersion: "1.0.0",
-							nodeId: "db-area",
-							nodeType: "area.static",
-							puckType: "catalog:area:db-area",
-							title: "DB Area",
-						},
-					],
-				});
-			}
-			if (url.pathname === "/api/screen-inference/sources") {
-				return Response.json({
-					source: {
-						batchId: "20260604",
-						importId: "web-upload",
-						path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
-						screenId: "NOVA-UPLOAD-PG-001-0",
-						type: "file",
-					},
-				});
-			}
-			if (url.pathname === "/api/screen-inference/runs") {
-				return Response.json(
+	const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
+		const url = new URL(String(input), "http://localhost");
+		if (url.pathname === "/api/screens") {
+			return Response.json({ screens });
+		}
+		if (url.pathname === "/api/screens/puck-catalog") {
+			return Response.json({
+				catalogItems: [
 					{
-						runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-						status: createRunStatus("queued"),
-						statusUrl: "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000",
+						componentVersion: "1.0.0",
+						nodeId: "db-area",
+						nodeType: "area.static",
+						puckType: "catalog:area:db-area",
+						title: "DB Area",
 					},
-					{ status: 202 },
-				);
-			}
-			if (url.pathname === "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
-				return Response.json({
-					status: createRunStatus(inferenceStatus),
-				});
-			}
-			if (
-				url.pathname ===
-				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/final-result.json"
-			) {
-				return Response.json(createRenderTree("generated"));
-			}
-			if (
-				url.pathname ===
-				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/validation-report.json"
-			) {
-				return Response.json({
-					ok: true,
-					summary: { errorCount: 0, warningCount: 0 },
-				});
-			}
-			if (
-				url.pathname ===
-				"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/quality-review.json"
-			) {
-				return Response.json({
-					findings: [],
-					...(qualityHasSummary ? { summary: { errorCount: 0, warningCount: 0 } } : {}),
-				});
-			}
-			const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
-			if (treeMatch) {
-				const screenId = decodeURIComponent(treeMatch[1] ?? "");
-				return Response.json({
-					diagnostics: [],
-					node: screens.find((screen) => screen.id === screenId)?.renderTree,
-				});
-			}
-			return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
-		}),
-	);
+				],
+			});
+		}
+		if (url.pathname === "/api/screen-inference/sources") {
+			return Response.json({
+				source: {
+					batchId: "20260604",
+					importId: "web-upload",
+					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					screenId: "NOVA-UPLOAD-PG-001-0",
+					type: "file",
+				},
+			});
+		}
+		if (url.pathname === "/api/screen-inference/runs") {
+			runRequests.push(JSON.parse(String(init?.body ?? "{}")));
+			return Response.json(
+				{
+					runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					status: createRunStatus("queued"),
+					statusUrl: "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000",
+				},
+				{ status: 202 },
+			);
+		}
+		if (url.pathname === "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
+			return Response.json({
+				status: createRunStatus(inferenceStatus),
+			});
+		}
+		if (
+			url.pathname ===
+			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/final-result.json"
+		) {
+			return Response.json(createRenderTree("generated"));
+		}
+		if (
+			url.pathname ===
+			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/validation-report.json"
+		) {
+			return Response.json({
+				ok: true,
+				summary: { errorCount: 0, warningCount: 0 },
+			});
+		}
+		if (
+			url.pathname ===
+			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/quality-review.json"
+		) {
+			return Response.json({
+				findings: [],
+				...(qualityHasSummary ? { summary: { errorCount: 0, warningCount: 0 } } : {}),
+			});
+		}
+		const treeMatch = url.pathname.match(/^\/api\/screens\/([^/]+)\/tree$/);
+		if (treeMatch) {
+			const screenId = decodeURIComponent(treeMatch[1] ?? "");
+			return Response.json({
+				diagnostics: [],
+				node: screens.find((screen) => screen.id === screenId)?.renderTree,
+			});
+		}
+		return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
+	});
+	vi.stubGlobal("fetch", Object.assign(fetchMock, { runRequests }));
 }
 
 type RunStatus = "queued" | "running" | "waiting-review";
@@ -345,4 +357,8 @@ function readLayerStatus(
 	if (status === "waiting-review") return "completed";
 	if (status === "running" && layer === "understand") return "running";
 	return "pending";
+}
+
+function readRunRequests(): unknown[] {
+	return ((fetch as typeof fetch & { runRequests?: unknown[] }).runRequests ?? []) as unknown[];
 }
