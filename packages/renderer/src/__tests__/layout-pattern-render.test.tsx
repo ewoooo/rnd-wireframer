@@ -1,4 +1,4 @@
-import { RenderNodeView, RenderTreeView } from "@cx/renderer";
+import { RenderNodeView, type RenderTreeScreenNode, RenderTreeView } from "@cx/renderer";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -347,6 +347,39 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(regionLayoutRoot).toBeInTheDocument();
 		expect(regionLayoutRoot).toHaveAttribute("data-node-type", "Layout.Flex");
+	});
+
+	it("renders screen trees with missing or unordered regions", () => {
+		render(
+			<RenderTreeView
+				node={
+					{
+						type: "Screen",
+						componentVersion: "1.0.0",
+						metadata: { id: "screen", title: "Screen" },
+						children: [
+							{
+								type: "Screen.Contents",
+								componentVersion: "0.1.0",
+								metadata: { id: "screen.contents", title: "Contents" },
+								children: [
+									{
+										type: "SectionHeader",
+										componentVersion: "0.1.0",
+										metadata: { id: "contents-child", title: "Contents child" },
+									},
+								],
+							},
+						],
+					} as unknown as RenderTreeScreenNode
+				}
+			/>,
+		);
+
+		expect(screen.getByText("Contents child")).toBeInTheDocument();
+		expect(
+			screen.getByText("Contents child").closest("[data-region='Screen.Contents']"),
+		).toHaveAttribute("data-node-id", "screen.contents");
 	});
 
 	it("allows screen region content to be overridden while preserving screen chrome", () => {

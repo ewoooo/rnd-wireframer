@@ -28,10 +28,14 @@ export function renderScreen({
 	runtime: RendererRuntime;
 }) {
 	const { bottomNode, contentsNode, headerNode } = getScreenRegions(node);
+	const screenNode = {
+		...node,
+		children: [headerNode, contentsNode, bottomNode],
+	} as RenderTreeScreenNode;
 
 	return (
 		<AppScreen
-			node={node}
+			node={screenNode}
 			header={renderScreenRegion("header", headerNode, data, runtime, renderRegion)}
 			bottom={renderScreenRegion("bottom", bottomNode, data, runtime, renderRegion)}
 		>
