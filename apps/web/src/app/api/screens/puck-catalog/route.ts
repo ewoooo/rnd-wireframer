@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { readErrorMessage } from "@/lib/api-error";
-import { listPuckCatalogItems, type PuckCatalogScope } from "@/lib/screen-db-loader";
+import { listPuckCatalogItems, type PuckCatalogScope } from "@/lib/puck-catalog-loader";
 
 const PUCK_CATALOG_SCOPES = new Set<PuckCatalogScope>(["area", "screen-region"]);
 

@@ -15,7 +15,12 @@ import {
 	type RenderTreeScreenNodeContract,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "@cx/schema";
-import { readRequiredEnv } from "./server-env";
+import {
+	deleteScreenDbRows,
+	inFilter,
+	SCREEN_DB_TABLES,
+	writeScreenDbRows,
+} from "./screen-db-rest";
 
 export type ApplyScreenInferenceDiagnostic = {
 	code: "missing_region" | "unsupported_area_child" | "unsupported_region_child";
@@ -30,18 +35,6 @@ export type ApplyScreenInferenceResult = {
 	screenId: string;
 	written: boolean;
 };
-
-const TABLES = {
-	areaChildren: "render_area_children",
-	areas: "render_areas",
-	componentChildren: "render_component_children",
-	components: "render_components",
-	screenRegionChildren: "render_screen_region_children",
-	screenRegions: "render_screen_regions",
-	screenRoutes: "render_screen_routes",
-	screenVariants: "render_screen_variants",
-	screens: "render_screens",
-} as const;
 
 export async function applyScreenInferenceFinalResult(input: {
 	node: RenderTreeScreenNodeContract;
@@ -248,77 +241,37 @@ async function replaceGeneratedScreenRows(projection: ScreenInferenceProjection)
 
 	await Promise.all([
 		screenRegionIds.length > 0
-			? deleteRestRows(TABLES.screenRegionChildren, { screen_region_id: inFilter(screenRegionIds) })
+			? deleteScreenDbRows(SCREEN_DB_TABLES.screenRegionChildren, {
+					screen_region_id: inFilter(screenRegionIds),
+				})
 			: Promise.resolve(),
 		areaIds.length > 0
-			? deleteRestRows(TABLES.areaChildren, { area_id: inFilter(areaIds) })
+			? deleteScreenDbRows(SCREEN_DB_TABLES.areaChildren, { area_id: inFilter(areaIds) })
 			: Promise.resolve(),
 		componentIds.length > 0
-			? deleteRestRows(TABLES.componentChildren, { component_id: inFilter(componentIds) })
+			? deleteScreenDbRows(SCREEN_DB_TABLES.componentChildren, {
+					component_id: inFilter(componentIds),
+				})
 			: Promise.resolve(),
 	]);
 
-	await upsertRestRows(TABLES.screenRoutes, projection.screenRoutes);
-	await upsertRestRows(TABLES.screenVariants, projection.screenVariants);
-	await upsertRestRows(TABLES.screens, projection.screens);
-	await upsertRestRows(TABLES.screenRegions, projection.screenRegions);
-	await upsertRestRows(TABLES.areas, projection.areas);
-	await upsertRestRows(TABLES.components, projection.components);
-	await upsertRestRows(TABLES.screenRegionChildren, projection.screenRegionChildren);
-	await upsertRestRows(TABLES.areaChildren, projection.areaChildren);
-	await upsertRestRows(TABLES.componentChildren, projection.componentChildren);
-}
-
-async function deleteRestRows(
-	tableName: string,
-	query: Record<string, string | undefined>,
-): Promise<void> {
-	const response = await fetch(buildRestUrl(tableName, query), {
-		headers: restHeaders(),
-		method: "DELETE",
+	await writeScreenDbRows(SCREEN_DB_TABLES.screenRoutes, projection.screenRoutes, { upsert: true });
+	await writeScreenDbRows(SCREEN_DB_TABLES.screenVariants, projection.screenVariants, {
+		upsert: true,
 	});
-	if (!response.ok) {
-		const message = await response.text();
-		throw new Error(`Screen DB delete failed for ${tableName}: ${response.status} ${message}`);
-	}
-}
-
-async function upsertRestRows(tableName: string, rows: unknown[]): Promise<void> {
-	if (rows.length === 0) return;
-
-	const response = await fetch(buildRestUrl(tableName, { on_conflict: "id" }), {
-		body: JSON.stringify(rows),
-		headers: {
-			...restHeaders(),
-			Prefer: "resolution=merge-duplicates,return=minimal",
-		},
-		method: "POST",
+	await writeScreenDbRows(SCREEN_DB_TABLES.screens, projection.screens, { upsert: true });
+	await writeScreenDbRows(SCREEN_DB_TABLES.screenRegions, projection.screenRegions, {
+		upsert: true,
 	});
-	if (!response.ok) {
-		const message = await response.text();
-		throw new Error(`Screen DB upsert failed for ${tableName}: ${response.status} ${message}`);
-	}
-}
-
-function buildRestUrl(tableName: string, query: Record<string, string | undefined>): URL {
-	const url = new URL(`/rest/v1/${tableName}`, readSupabaseUrl());
-	for (const [key, value] of Object.entries(query)) {
-		if (value !== undefined) url.searchParams.set(key, value);
-	}
-	return url;
-}
-
-function restHeaders(): HeadersInit {
-	return {
-		apikey: readSupabaseServiceRoleKey(),
-		Authorization: `Bearer ${readSupabaseServiceRoleKey()}`,
-		"Content-Type": "application/json",
-		Prefer: "return=minimal",
-	};
-}
-
-function inFilter(values: string[]): string {
-	return `in.(${values.join(",")})`;
+	await writeScreenDbRows(SCREEN_DB_TABLES.areas, projection.areas, { upsert: true });
+	await writeScreenDbRows(SCREEN_DB_TABLES.components, projection.components, { upsert: true });
+	await writeScreenDbRows(SCREEN_DB_TABLES.screenRegionChildren, projection.screenRegionChildren, {
+		upsert: true,
+	});
+	await writeScreenDbRows(SCREEN_DB_TABLES.areaChildren, projection.areaChildren, { upsert: true });
+	await writeScreenDbRows(SCREEN_DB_TABLES.componentChildren, projection.componentChildren, {
+		upsert: true,
+	});
 }
 
 function readLayoutId(node: RenderTreeNodeContract | RenderTreeScreenNodeContract): string | null {
@@ -333,22 +286,14 @@ function normalizeAreaType(type: string): string {
 
 function readProjectionRowCounts(projection: ScreenInferenceProjection): Record<string, number> {
 	return {
-		render_area_children: projection.areaChildren.length,
-		render_areas: projection.areas.length,
-		render_component_children: projection.componentChildren.length,
-		render_components: projection.components.length,
-		render_screen_region_children: projection.screenRegionChildren.length,
-		render_screen_regions: projection.screenRegions.length,
-		render_screen_routes: projection.screenRoutes.length,
-		render_screen_variants: projection.screenVariants.length,
-		render_screens: projection.screens.length,
+		[SCREEN_DB_TABLES.areaChildren]: projection.areaChildren.length,
+		[SCREEN_DB_TABLES.areas]: projection.areas.length,
+		[SCREEN_DB_TABLES.componentChildren]: projection.componentChildren.length,
+		[SCREEN_DB_TABLES.components]: projection.components.length,
+		[SCREEN_DB_TABLES.screenRegionChildren]: projection.screenRegionChildren.length,
+		[SCREEN_DB_TABLES.screenRegions]: projection.screenRegions.length,
+		[SCREEN_DB_TABLES.screenRoutes]: projection.screenRoutes.length,
+		[SCREEN_DB_TABLES.screenVariants]: projection.screenVariants.length,
+		[SCREEN_DB_TABLES.screens]: projection.screens.length,
 	};
-}
-
-function readSupabaseUrl(): string {
-	return readRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
-}
-
-function readSupabaseServiceRoleKey(): string {
-	return readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
 }

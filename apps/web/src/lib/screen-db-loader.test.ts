@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { listPuckCatalogItems } from "./puck-catalog-loader";
 import {
-	listPuckCatalogItems,
 	listScreenRoutes,
 	listScreens,
 	loadScreenRows,
