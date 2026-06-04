@@ -10,9 +10,14 @@
 
 **검증 도구 (모든 태스크 공통):**
 - 통합 회귀 테스트: `bunx vitest run apps/web/src/components/App.test.tsx`
-- 단위 테스트 전체: `bun test`
+- 단위 테스트 전체: `bunx vitest run`
+  - ⚠️ **`bun test`를 쓰지 말 것.** bun 내장 러너는 jsdom 환경이 없어 React 컴포넌트 테스트가 `document is not defined`로 실패한다. 이 프로젝트의 러너는 vitest다(`package.json`의 `"test": "vitest run"`).
 - 타입체크: `bunx tsc --noEmit -p apps/web/tsconfig.json`
+  - ⚠️ **판정 기준은 "비-테스트 파일 에러 0"이다.** 베이스라인에 테스트 파일(`*.test.tsx`)의 jest-dom matcher(`toBeInTheDocument`) 타입 에러 30개가 이미 존재한다(tsconfig가 `@testing-library/jest-dom` 타입을 포함하지 않는 기존 문제, 리팩터 범위 밖). 따라서 tsc는 exit 1이 정상이다. 회귀 판정은 다음으로 한다:
+  - `bunx tsc --noEmit -p apps/web/tsconfig.json 2>&1 | grep "error TS" | grep -v "\.test\."` → **빈 출력이어야 한다.**
 - 훅 정책 린트: `node scripts/check-react-hooks-policy.mjs apps packages`
+
+**베이스라인 (Task 0 실행 완료, 2026-06-04):** `bunx vitest run` → 37 파일 236 테스트 전부 통과. 소스 파일 타입 에러 0.
 
 **리팩터 성격:** 순수 구조 이동. 새 동작·새 기능 없음. 각 태스크는 "기존 그린 확인 → 코드 이동 → 그린 재확인 → 커밋" 패턴이다. 새 테스트는 추출된 순수 함수(localStorage)에만 추가한다.
 
@@ -247,9 +252,9 @@ import {
 
 - [ ] **Step 5: 타입체크 + 전체 테스트**
 
-Run: `bunx tsc --noEmit -p apps/web/tsconfig.json`
-Expected: 에러 0
-Run: `bun test`
+Run: `bunx tsc --noEmit -p apps/web/tsconfig.json 2>&1 | grep "error TS" | grep -v "\.test\."`
+Expected: 빈 출력 (비-테스트 파일 에러 0)
+Run: `bunx vitest run`
 Expected: PASS (신규 storage 테스트 포함)
 
 - [ ] **Step 6: 커밋**
@@ -585,12 +590,12 @@ Expected: 약 120–150줄 (789줄에서 대폭 감소)
 
 - [ ] **Step 3: 전체 검증 스위트**
 
-Run: `bunx tsc --noEmit -p apps/web/tsconfig.json`
-Expected: 에러 0
+Run: `bunx tsc --noEmit -p apps/web/tsconfig.json 2>&1 | grep "error TS" | grep -v "\.test\."`
+Expected: 빈 출력 (비-테스트 파일 에러 0)
 Run: `node scripts/check-react-hooks-policy.mjs apps packages`
 Expected: 위반 0
-Run: `bun test`
-Expected: PASS (전체)
+Run: `bunx vitest run`
+Expected: PASS (전체 236+)
 Run: `bunx biome lint apps/web/src/components/workbench apps/web/src/model/workbench apps/web/src/lib`
 Expected: 에러 0
 
