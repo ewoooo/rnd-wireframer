@@ -14,6 +14,11 @@ import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
 import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import {
+	mergeNewScreenSources,
+	readNewScreenWorkbenchState,
+	writeNewScreenWorkbenchState,
+} from "@/lib/new-screen-workbench-storage";
 import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
 import {
 	applyScreenInferenceRun,
@@ -47,8 +52,6 @@ import {
 } from "@/model/workbench-view-model";
 
 const ASIDE_WIDTH = "320px";
-const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
-const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
 
 type LoadState = {
 	message?: string;
@@ -539,82 +542,6 @@ export function AppShell() {
 
 function readErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : "화면 데이터를 불러오지 못했습니다.";
-}
-
-function mergeNewScreenSources(
-	currentSources: NewScreenSourceItem[],
-	serverSources: NewScreenSourceItem[],
-): NewScreenSourceItem[] {
-	const mergedByPath = new Map<string, NewScreenSourceItem>();
-	for (const source of currentSources.filter(isWebUploadedNewScreenSource)) {
-		mergedByPath.set(source.path, source);
-	}
-	for (const source of serverSources.filter(isWebUploadedNewScreenSource)) {
-		const current = mergedByPath.get(source.path);
-		mergedByPath.set(source.path, {
-			...source,
-			latestRunId: source.latestRunId ?? current?.latestRunId,
-		});
-	}
-	return Array.from(mergedByPath.values());
-}
-
-function readNewScreenWorkbenchState(): {
-	selectedSourcePath: string;
-	sources: NewScreenSourceItem[];
-} {
-	if (typeof window === "undefined") return { selectedSourcePath: "", sources: [] };
-	try {
-		const rawValue = window.localStorage.getItem(NEW_SCREEN_WORKBENCH_STORAGE_KEY);
-		if (!rawValue) return { selectedSourcePath: "", sources: [] };
-		const value = JSON.parse(rawValue) as {
-			selectedSourcePath?: unknown;
-			sources?: unknown;
-		};
-		const sources = Array.isArray(value.sources)
-			? value.sources.filter(isNewScreenSourceItem).filter(isWebUploadedNewScreenSource)
-			: [];
-		const selectedSourcePath =
-			typeof value.selectedSourcePath === "string" &&
-			sources.some((source) => source.path === value.selectedSourcePath)
-				? value.selectedSourcePath
-				: (sources[0]?.path ?? "");
-
-		return { selectedSourcePath, sources };
-	} catch {
-		return { selectedSourcePath: "", sources: [] };
-	}
-}
-
-function writeNewScreenWorkbenchState(input: {
-	selectedSourcePath: string;
-	sources: NewScreenSourceItem[];
-}) {
-	if (typeof window === "undefined") return;
-	const sources = input.sources.filter(isWebUploadedNewScreenSource);
-	const selectedSourcePath = sources.some((source) => source.path === input.selectedSourcePath)
-		? input.selectedSourcePath
-		: (sources[0]?.path ?? "");
-	window.localStorage.setItem(
-		NEW_SCREEN_WORKBENCH_STORAGE_KEY,
-		JSON.stringify({ selectedSourcePath, sources }),
-	);
-}
-
-function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
-	if (!value || typeof value !== "object") return false;
-	const item = value as Partial<Record<keyof NewScreenSourceItem, unknown>>;
-	return (
-		typeof item.batchId === "string" &&
-		typeof item.importId === "string" &&
-		typeof item.path === "string" &&
-		typeof item.screenId === "string" &&
-		(typeof item.latestRunId === "string" || item.latestRunId === undefined)
-	);
-}
-
-function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
-	return source.importId === NEW_SCREEN_SOURCE_IMPORT_ID;
 }
 
 function readScreenNodeFromRenderTreeArtifact(
