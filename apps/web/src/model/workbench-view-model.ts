@@ -40,8 +40,15 @@ export type NavigationNodeItem = {
 	childCount: number;
 	id: string;
 	layout?: string;
+	screenId: string;
+	screenTitle: string;
 	title: string;
 	type: string;
+};
+
+export type NavigationNodeEntry = {
+	node: RenderTreeNode;
+	screen: ScreenSummary;
 };
 
 export function createWorkbenchViewModel(screens: ScreenSummary[]): WorkbenchViewModel {
@@ -65,11 +72,31 @@ export function collectScreenComponents(screen?: ScreenSummary): RenderTreeNode[
 	return screen?.renderTree ? collectLeafComponents(screen.renderTree) : [];
 }
 
-export function toNavigationNodeItems(nodes: RenderTreeNode[]): NavigationNodeItem[] {
-	return nodes.map((node) => ({
+export function collectWorkbenchAreas(screens: ScreenSummary[]): NavigationNodeEntry[] {
+	return screens.flatMap((screen) =>
+		collectScreenAreas(screen).map((node) => ({
+			node,
+			screen,
+		})),
+	);
+}
+
+export function collectWorkbenchComponents(screens: ScreenSummary[]): NavigationNodeEntry[] {
+	return screens.flatMap((screen) =>
+		collectScreenComponents(screen).map((node) => ({
+			node,
+			screen,
+		})),
+	);
+}
+
+export function toNavigationNodeItems(entries: NavigationNodeEntry[]): NavigationNodeItem[] {
+	return entries.map(({ node, screen }) => ({
 		childCount: node.children?.length ?? 0,
 		id: node.metadata.id,
 		layout: node.layout,
+		screenId: screen.id,
+		screenTitle: screen.title,
 		title: node.metadata.title,
 		type: node.type,
 	}));

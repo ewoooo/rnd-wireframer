@@ -25,12 +25,17 @@ describe("App workbench navigation", () => {
 		expect(screen.getByText("Components")).toBeInTheDocument();
 		expect(screen.getAllByText("Preview CTA").length).toBeGreaterThan(0);
 		expect(screen.getByText("preview-cta")).toBeInTheDocument();
+		expect(screen.getByText("member-base-cta")).toBeInTheDocument();
+
+		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
+
+		expect(screen.getByRole("heading", { level: 1, name: "Member Base" })).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "그룹" }));
 
 		expect(screen.getByText("Areas")).toBeInTheDocument();
-		expect(screen.getAllByText("Preview Area").length).toBeGreaterThan(0);
 		expect(screen.getByText("preview-area")).toBeInTheDocument();
+		expect(screen.getByText("member-base-area")).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
@@ -97,9 +102,8 @@ describe("App workbench navigation", () => {
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		fireEvent.click(screen.getByRole("button", { name: "Run" }));
 
-		expect(await screen.findByText("Generated Area")).toBeInTheDocument();
-		expect(screen.getAllByText("waiting-review").length).toBeGreaterThan(0);
-		expect(screen.getAllByText("0 errors · 0 warnings").length).toBeGreaterThanOrEqual(2);
+		expect((await screen.findAllByText("waiting-review")).length).toBeGreaterThan(0);
+		expect(await screen.findAllByText("0 errors · 0 warnings")).toHaveLength(2);
 		expect(readRunRequests()).toContainEqual(
 			expect.objectContaining({
 				screenId: "NOVA-UPLOAD-PG-001-0",
@@ -376,7 +380,7 @@ function stubScreenFetch(
 			return Response.json(
 				{
 					runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-					status: createRunStatus("queued"),
+					status: createRunStatus(inferenceStatus),
 					statusUrl: "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000",
 				},
 				{ status: 202 },

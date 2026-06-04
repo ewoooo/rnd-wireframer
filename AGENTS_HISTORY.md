@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - Workbench Global Area Component Navigation
+
+- 변경: Workbench의 Areas/Components 탭이 선택된 화면의 자식만 보여주지 않고 로드된 전체 screen의 area/component 목록을 보여주도록 변경함
+- 변경: 전체 목록 항목에 원본 screen 제목을 표시하고, 다른 screen의 area/component를 선택하면 preview/edit 대상 screen도 해당 원본 screen으로 이동하도록 연결함
+- 이유: 그룹/컴포넌트 탐색 탭에서 현재 선택 화면 기준 필터 대신 전체 후보를 한 번에 살펴볼 수 있게 하기 위함
+- 검증: `pnpm exec vitest run apps/web/src/components/App.test.tsx`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec biome check apps/web/src/components/workbench/AppShell.tsx apps/web/src/components/workbench/navigation/NavigationRoutes.tsx apps/web/src/model/workbench-view-model.ts apps/web/src/components/App.test.tsx`
+
 ## 2026-06-04 - Area Metadata Rendering Contract
 
 - 변경: `area.metadata.title`과 `area.props.name`은 구조적 메타데이터로만 사용하고 화면에 직접 렌더하지 않는 계약으로 정함

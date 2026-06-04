@@ -36,7 +36,6 @@ type NavigationRoutesProps = {
 	selectedComponentId?: string;
 	selectedNewScreenSourcePath?: string;
 	selectedScreenId?: string;
-	selectedScreenTitle?: string;
 	isUploadingNewScreenSource?: boolean;
 };
 
@@ -61,7 +60,6 @@ export function NavigationRoutes({
 	selectedComponentId,
 	selectedNewScreenSourcePath,
 	selectedScreenId,
-	selectedScreenTitle,
 	isUploadingNewScreenSource = false,
 }: NavigationRoutesProps) {
 	return (
@@ -121,22 +119,20 @@ export function NavigationRoutes({
 				</ResizablePanelGroup>
 			) : activeTab === "ogn" ? (
 				<NavigationNodeList
-					emptyMessage="선택된 화면에 Area가 없습니다."
+					emptyMessage="등록된 Area가 없습니다."
 					icon={<Boxes className="size-3.5" data-icon="inline-start" />}
 					items={areas}
 					onSelect={onSelectArea}
 					selectedId={selectedAreaId}
-					subtitle={selectedScreenTitle}
 					title="Areas"
 				/>
 			) : activeTab === "comp" ? (
 				<NavigationNodeList
-					emptyMessage="선택된 화면에 Component가 없습니다."
+					emptyMessage="등록된 Component가 없습니다."
 					icon={<Box className="size-3.5" data-icon="inline-start" />}
 					items={components}
 					onSelect={onSelectComponent}
 					selectedId={selectedComponentId}
-					subtitle={selectedScreenTitle}
 					title="Components"
 				/>
 			) : (
@@ -154,7 +150,6 @@ function NavigationNodeList({
 	items,
 	onSelect,
 	selectedId,
-	subtitle,
 	title,
 }: {
 	emptyMessage: string;
@@ -162,17 +157,11 @@ function NavigationNodeList({
 	items: NavigationNodeItem[];
 	onSelect: (id: string) => void;
 	selectedId?: string;
-	subtitle?: string;
 	title: string;
 }) {
 	return (
 		<div className="flex h-full min-h-0 flex-col overflow-hidden">
 			<PanelTitle count={items.length} icon={icon} title={title} />
-			{subtitle ? (
-				<div className="border-b border-sidebar-border px-3 py-2">
-					<p className="truncate text-[11px] font-medium text-muted-foreground">{subtitle}</p>
-				</div>
-			) : null}
 			<div className="min-h-0 flex-1 overflow-y-auto py-1">
 				{items.length ? (
 					<div className="flex flex-col">
@@ -222,6 +211,7 @@ function NavigationNodeListItem({
 			</div>
 			<div className="flex min-w-0 flex-col gap-0.5 text-[10px] leading-3 text-muted-foreground">
 				<span className="truncate">{item.id}</span>
+				<span className="truncate">{item.screenTitle}</span>
 				<span className="truncate">{item.layout ?? item.type}</span>
 			</div>
 		</button>

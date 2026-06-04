@@ -29,8 +29,8 @@ import {
 } from "@/lib/workbench-puck/puck-scope";
 import { isPuckEditTab, resolveEditScope } from "@/model/puck-edit-scope";
 import {
-	collectScreenAreas,
-	collectScreenComponents,
+	collectWorkbenchAreas,
+	collectWorkbenchComponents,
 	createWorkbenchViewModel,
 	getInitialScreen,
 	type NavigatorTab,
@@ -115,14 +115,27 @@ export function AppShell() {
 		selectedScreen && selectedScreenCandidate
 			? { ...selectedScreen, renderTree: selectedScreenCandidate }
 			: selectedScreen;
-	const visibleAreas = collectScreenAreas(visibleScreen);
-	const selectedArea =
-		visibleAreas.find((area) => area.metadata.id === selectedAreaId) ?? visibleAreas[0];
+	const navigationScreens = screens.map((screen) =>
+		screenCandidates[screen.id] ? { ...screen, renderTree: screenCandidates[screen.id] } : screen,
+	);
+	const visibleAreas = collectWorkbenchAreas(navigationScreens);
+	const selectedAreaEntry =
+		visibleAreas.find(
+			(entry) => entry.node.metadata.id === selectedAreaId && entry.screen.id === visibleScreen?.id,
+		) ??
+		visibleAreas.find((entry) => entry.screen.id === visibleScreen?.id) ??
+		visibleAreas[0];
+	const selectedArea = selectedAreaEntry?.node;
 	const visibleAreaItems = toNavigationNodeItems(visibleAreas);
-	const visibleComponents = collectScreenComponents(visibleScreen);
-	const selectedComponent =
-		visibleComponents.find((component) => component.metadata.id === selectedComponentId) ??
+	const visibleComponents = collectWorkbenchComponents(navigationScreens);
+	const selectedComponentEntry =
+		visibleComponents.find(
+			(entry) =>
+				entry.node.metadata.id === selectedComponentId && entry.screen.id === visibleScreen?.id,
+		) ??
+		visibleComponents.find((entry) => entry.screen.id === visibleScreen?.id) ??
 		visibleComponents[0];
+	const selectedComponent = selectedComponentEntry?.node;
 	const visibleComponentItems = toNavigationNodeItems(visibleComponents);
 	const editScope = resolveEditScope({
 		activeTab,
@@ -307,10 +320,16 @@ export function AppShell() {
 	}
 
 	function handleSelectArea(areaId: string) {
+		const nextArea = visibleAreas.find((entry) => entry.node.metadata.id === areaId);
+		if (nextArea?.screen.screenRouteId) setActiveRouteId(nextArea.screen.screenRouteId);
+		if (nextArea?.screen.id) setSelectedScreenId(nextArea.screen.id);
 		setSelectedAreaId(areaId);
 	}
 
 	function handleSelectComponent(componentId: string) {
+		const nextComponent = visibleComponents.find((entry) => entry.node.metadata.id === componentId);
+		if (nextComponent?.screen.screenRouteId) setActiveRouteId(nextComponent.screen.screenRouteId);
+		if (nextComponent?.screen.id) setSelectedScreenId(nextComponent.screen.id);
 		setSelectedComponentId(componentId);
 	}
 
@@ -471,7 +490,6 @@ export function AppShell() {
 					selectedComponentId={selectedComponent?.metadata.id}
 					selectedNewScreenSourcePath={selectedNewScreenSourcePath}
 					selectedScreenId={visibleScreen?.id}
-					selectedScreenTitle={visibleScreen?.title}
 					isUploadingNewScreenSource={isUploadingNewScreenSource || isStartingNewScreenRun}
 				/>
 				<Canvas
