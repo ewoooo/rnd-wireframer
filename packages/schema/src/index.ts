@@ -69,6 +69,7 @@ export {
 	RENDER_TREE_AREA_NODE_TYPES,
 	RENDER_TREE_NODE_TYPE,
 	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
+	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "./render-tree";
 export type { ScreenIntentContract } from "./screen-intent";
 export type {

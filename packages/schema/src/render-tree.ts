@@ -26,6 +26,12 @@ export type RenderTreeAreaNodeType = (typeof RENDER_TREE_AREA_NODE_TYPES)[number
 export type RenderTreeScreenRegionNodeType =
 	(typeof RENDER_TREE_SCREEN_REGION_NODE_TYPES)[number];
 
+export const SCREEN_REGION_TYPE_BY_NODE_TYPE = {
+	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
+	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
+	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
+} as const satisfies Record<RenderTreeScreenRegionNodeType, "bottom" | "contents" | "header">;
+
 export type SchemaPropBinding = {
 	bind: string;
 	default?: string | number | boolean | null;

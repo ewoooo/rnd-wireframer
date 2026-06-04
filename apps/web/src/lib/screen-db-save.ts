@@ -7,12 +7,12 @@ import type {
 import {
 	isRenderTreeAreaNode,
 	isRenderTreeScreenRegionNode,
-	RENDER_TREE_NODE_TYPE,
 	type RenderTreeNodeContract,
 	type RenderTreeScreenNodeContract,
-	type RenderTreeScreenRegionNodeType,
+	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "@cx/schema";
 import { loadScreenRows } from "./screen-db-loader";
+import { readRequiredEnv } from "./server-env";
 
 export type SaveScreenTreeOrderDiagnostic = {
 	code:
@@ -45,12 +45,6 @@ const TABLES = {
 	componentChildren: "render_component_children",
 	screenRegionChildren: "render_screen_region_children",
 } as const;
-
-const REGION_TYPE_BY_NODE_TYPE = {
-	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
-	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
-	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
-} as const satisfies Record<RenderTreeScreenRegionNodeType, "bottom" | "contents" | "header">;
 
 export async function saveScreenTreeOrder(input: {
 	node: RenderTreeScreenNodeContract;
@@ -133,7 +127,7 @@ export function projectScreenTreeOrder(input: {
 			continue;
 		}
 
-		const regionType = REGION_TYPE_BY_NODE_TYPE[regionNode.type];
+		const regionType = SCREEN_REGION_TYPE_BY_NODE_TYPE[regionNode.type];
 		const region = regionByType.get(regionType);
 		if (!region) {
 			diagnostics.push({
@@ -434,10 +428,4 @@ function readSupabaseUrl(): string {
 
 function readSupabaseServiceRoleKey(): string {
 	return readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
-}
-
-function readRequiredEnv(key: string): string {
-	const value = process.env[key];
-	if (!value) throw new Error(`Missing required server env: ${key}`);
-	return value;
 }

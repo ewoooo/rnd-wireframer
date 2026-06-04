@@ -13,6 +13,8 @@ import {
 	type RenderScreenRow,
 } from "@cx/adapters/table";
 import type { PuckCatalogItem } from "@cx/adapters/puck";
+import { getScreenModuleSortOrder } from "./screen-module";
+import { readRequiredEnv } from "./server-env";
 
 export type ScreenRouteSummary = {
 	id: string;
@@ -360,24 +362,12 @@ function readSupabaseServiceRoleKey(): string {
 	return readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
 }
 
-function readRequiredEnv(key: string): string {
-	const value = process.env[key];
-	if (!value) throw new Error(`Missing required server env: ${key}`);
-	return value;
-}
-
 function compareScreenSummaryRows(left: ScreenSummaryRow, right: ScreenSummaryRow) {
 	return (
-		readModuleSortOrder(left.moduleId) - readModuleSortOrder(right.moduleId) ||
+		getScreenModuleSortOrder(left.moduleId) - getScreenModuleSortOrder(right.moduleId) ||
 		(left.screenVariantOrder ?? Number.MAX_SAFE_INTEGER) -
 			(right.screenVariantOrder ?? Number.MAX_SAFE_INTEGER) ||
 		left.order - right.order ||
 		left.id.localeCompare(right.id)
 	);
-}
-
-function readModuleSortOrder(moduleId?: string) {
-	if (moduleId === "preview") return 0;
-	if (moduleId === "mbr") return 1;
-	return Number.MAX_SAFE_INTEGER;
 }

@@ -2,12 +2,12 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { type RenderTreeScreenNodeContract, SCHEMA_VERSION } from "@cx/schema";
 import { NextResponse } from "next/server";
+import { readErrorMessage } from "@/lib/api-error";
 import { applyScreenInferenceFinalResult } from "@/lib/screen-inference-apply";
 import { updateScreenInferenceRunStatus } from "@/lib/screen-inference-run-store";
+import { RUN_ROOT } from "@/lib/server-paths";
 
 export const runtime = "nodejs";
-
-const RUN_ROOT = path.join(process.cwd(), "data/runs/screen-generation");
 
 type ScreenInferenceApplyRouteContext = {
 	params: Promise<{
@@ -51,7 +51,7 @@ export async function POST(_request: Request, context: ScreenInferenceApplyRoute
 		});
 	} catch (error) {
 		return NextResponse.json(
-			{ error: readErrorMessage(error) },
+			{ error: readErrorMessage(error, "Failed to apply screen inference run.") },
 			{ status: readErrorStatus(error) },
 		);
 	}
@@ -70,8 +70,4 @@ function readErrorStatus(error: unknown): number {
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
 	return error instanceof Error && "code" in error;
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to apply screen inference run.";
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readErrorMessage } from "@/lib/api-error";
 import { readScreenInferenceRun } from "@/lib/screen-inference-run-store";
 
 export const runtime = "nodejs";
@@ -18,10 +19,9 @@ export async function GET(_request: Request, context: ScreenInferenceRunRouteCon
 		}
 		return NextResponse.json(run);
 	} catch (error) {
-		return NextResponse.json({ error: readErrorMessage(error) }, { status: 500 });
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to read screen inference run.") },
+			{ status: 500 },
+		);
 	}
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to read screen inference run.";
 }

@@ -1,5 +1,6 @@
 import type { RenderTreeNode } from "@cx/renderer";
 import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
+import { getScreenModuleName, getScreenModuleSortOrder } from "@/lib/screen-module";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "puck" | "scn";
@@ -41,16 +42,6 @@ export type NavigationNodeItem = {
 	layout?: string;
 	title: string;
 	type: string;
-};
-
-const moduleNamesById: Record<string, string> = {
-	mbr: "MBR",
-	preview: "Preview",
-};
-
-const moduleSortOrderById: Record<string, number> = {
-	preview: 0,
-	mbr: 1,
 };
 
 export function createWorkbenchViewModel(screens: ScreenSummary[]): WorkbenchViewModel {
@@ -144,7 +135,7 @@ function buildScreenModuleGroups(routes: ScreenRouteGroup[]): ScreenModuleGroup[
 		const moduleId = route.moduleId ?? "local";
 		const module: ScreenModuleGroup = modules.get(moduleId) ?? {
 			id: moduleId,
-			name: getModuleName(moduleId),
+			name: getScreenModuleName(moduleId),
 			routes: [],
 		};
 		module.routes.push(route);
@@ -158,17 +149,9 @@ function buildScreenModuleGroups(routes: ScreenRouteGroup[]): ScreenModuleGroup[
 		}))
 		.sort(
 			(left, right) =>
-				getModuleSortOrder(left.id) - getModuleSortOrder(right.id) ||
+				getScreenModuleSortOrder(left.id) - getScreenModuleSortOrder(right.id) ||
 				left.name.localeCompare(right.name),
 		);
-}
-
-function getModuleName(moduleId: string) {
-	return moduleNamesById[moduleId] ?? moduleId;
-}
-
-function getModuleSortOrder(moduleId?: string) {
-	return moduleSortOrderById[moduleId ?? ""] ?? Number.MAX_SAFE_INTEGER;
 }
 
 function compareScreenOptions(left: ScreenVariantOption, right: ScreenVariantOption) {

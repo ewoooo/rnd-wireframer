@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { readErrorMessage } from "@/lib/api-error";
 import { loadScreenRows } from "@/lib/screen-db-loader";
 
 type RouteContext = {
@@ -13,10 +14,9 @@ export async function GET(_request: Request, context: RouteContext) {
 		const { screenId } = await context.params;
 		return NextResponse.json({ rows: await loadScreenRows(screenId) });
 	} catch (error) {
-		return NextResponse.json({ error: readErrorMessage(error) }, { status: 500 });
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to load screen rows.") },
+			{ status: 500 },
+		);
 	}
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to load screen rows.";
 }

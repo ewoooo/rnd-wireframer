@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { runPipeline } from "@cx/pipeline";
+import { readErrorMessage } from "@/lib/api-error";
 import {
 	createScreenInferenceRunId,
 	createScreenInferenceStatus,
@@ -8,9 +9,7 @@ import {
 	type ScreenInferenceRunManifest,
 	type ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
-
-const CLIENT_IMPORT_ROOT = path.join(process.cwd(), "data/client-imports");
-const RUN_ROOT = path.join(process.cwd(), "data/runs/screen-generation");
+import { CLIENT_IMPORT_ROOT, RUN_ROOT } from "@/lib/server-paths";
 
 export type ScreenInferenceRunCreateInput = {
 	previousRunId?: string;
@@ -139,7 +138,7 @@ async function runScreenInferencePipeline(input: {
 			createScreenInferenceStatus({
 				error: {
 					code: "screen_inference_run_failed",
-					message: readErrorMessage(error),
+					message: readErrorMessage(error, "Screen inference run failed."),
 				},
 				now: new Date().toISOString(),
 				runId: input.runId,
@@ -190,8 +189,4 @@ function readRunDir(runId: string): string {
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
 	return error instanceof Error && "code" in error;
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Screen inference run failed.";
 }

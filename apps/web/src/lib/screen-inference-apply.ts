@@ -13,8 +13,9 @@ import {
 	RENDER_TREE_NODE_TYPE,
 	type RenderTreeNodeContract,
 	type RenderTreeScreenNodeContract,
-	type RenderTreeScreenRegionNodeType,
+	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "@cx/schema";
+import { readRequiredEnv } from "./server-env";
 
 export type ApplyScreenInferenceDiagnostic = {
 	code: "missing_region" | "unsupported_area_child" | "unsupported_region_child";
@@ -41,12 +42,6 @@ const TABLES = {
 	screenVariants: "render_screen_variants",
 	screens: "render_screens",
 } as const;
-
-const REGION_TYPE_BY_NODE_TYPE = {
-	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
-	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
-	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
-} as const satisfies Record<RenderTreeScreenRegionNodeType, "bottom" | "contents" | "header">;
 
 export async function applyScreenInferenceFinalResult(input: {
 	node: RenderTreeScreenNodeContract;
@@ -110,7 +105,7 @@ function projectScreenInferenceFinalResult(
 			continue;
 		}
 
-		const regionType = REGION_TYPE_BY_NODE_TYPE[regionNode.type];
+		const regionType = SCREEN_REGION_TYPE_BY_NODE_TYPE[regionNode.type];
 		const screenRegionId = `${screenId}.${regionType}`;
 		screenRegions.push({
 			id: screenRegionId,
@@ -356,10 +351,4 @@ function readSupabaseUrl(): string {
 
 function readSupabaseServiceRoleKey(): string {
 	return readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
-}
-
-function readRequiredEnv(key: string): string {
-	const value = process.env[key];
-	if (!value) throw new Error(`Missing required server env: ${key}`);
-	return value;
 }

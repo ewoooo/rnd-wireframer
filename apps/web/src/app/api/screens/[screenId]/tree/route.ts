@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { readErrorMessage } from "@/lib/api-error";
 import { loadScreenTree } from "@/lib/screen-db-loader";
 import { saveScreenTreeOrder } from "@/lib/screen-db-save";
 
@@ -18,7 +19,10 @@ export async function GET(_request: Request, context: RouteContext) {
 			: 200;
 		return NextResponse.json(result, { status });
 	} catch (error) {
-		return NextResponse.json({ error: readErrorMessage(error) }, { status: 500 });
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to load screen tree.") },
+			{ status: 500 },
+		);
 	}
 }
 
@@ -39,10 +43,9 @@ export async function PUT(request: Request, context: RouteContext) {
 			: 200;
 		return NextResponse.json(result, { status });
 	} catch (error) {
-		return NextResponse.json({ error: readErrorMessage(error) }, { status: 500 });
+		return NextResponse.json(
+			{ error: readErrorMessage(error, "Failed to load screen tree.") },
+			{ status: 500 },
+		);
 	}
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to load screen tree.";
 }

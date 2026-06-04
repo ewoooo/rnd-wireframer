@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readErrorMessage } from "@/lib/api-error";
 import { createScreenInferenceRun } from "@/lib/screen-inference-run-store";
 
 export const runtime = "nodejs";
@@ -33,14 +34,10 @@ export async function POST(request: Request) {
 		return NextResponse.json(run, { status: 202 });
 	} catch (error) {
 		return NextResponse.json(
-			{ error: readErrorMessage(error) },
+			{ error: readErrorMessage(error, "Failed to create screen inference run.") },
 			{ status: readErrorStatus(error) },
 		);
 	}
-}
-
-function readErrorMessage(error: unknown): string {
-	return error instanceof Error ? error.message : "Failed to create screen inference run.";
 }
 
 function readErrorStatus(error: unknown): number {
