@@ -186,26 +186,18 @@ function resolveAreaLayout(input: {
 		);
 	}
 
-	if (input.slot === "header") return toLayoutId("area", "area-app-bar");
-	if (input.slot === "bottom") return toLayoutId("area", "bottom-action-area");
+	const slotLayout = AREA_LAYOUT_ID_BY_SLOT[input.slot];
+	if (slotLayout) return toLayoutId("area", slotLayout);
 
 	const areaName = input.sourceAreaName?.toLowerCase() ?? "";
 	const componentTypes = input.componentTypes.map((type) => type.toLowerCase());
+	const matched = AREA_LAYOUT_MATCHERS.find(
+		(matcher) =>
+			(matcher.areaNameTerms?.some((term) => areaName.includes(term)) ?? false) ||
+			matcher.componentTerms.some((term) => componentTypes.some((type) => type.includes(term))),
+	);
 
-	if (areaName.includes("term") || componentTypes.some((type) => type.includes("list"))) {
-		return toLayoutId("area", "list-stack");
-	}
-	if (componentTypes.some((type) => type.includes("checkbox"))) {
-		return toLayoutId("area", "checkbox-stack");
-	}
-	if (componentTypes.some((type) => type.includes("textfield") || type.includes("text-field"))) {
-		return toLayoutId("area", "field-stack");
-	}
-	if (componentTypes.some((type) => type.includes("message"))) {
-		return toLayoutId("area", "message-stack");
-	}
-
-	return toLayoutId("area", "list-stack");
+	return toLayoutId("area", matched?.layout ?? AREA_LAYOUT_FALLBACK);
 }
 
 function findDecorationAreas(
@@ -265,3 +257,28 @@ const AREA_LAYOUT_ID_BY_PATTERN_ROLE = {
 	"list-stack": "list-stack",
 	"message-stack": "message-stack",
 } as const satisfies Record<DecorationAreaPatternRole, string>;
+
+/** Region slots that pin a fixed area layout regardless of contents. */
+const AREA_LAYOUT_ID_BY_SLOT: Partial<Record<SourceSpecRegionSlot, string>> = {
+	bottom: "bottom-action-area",
+	header: "area-app-bar",
+};
+
+/**
+ * Ordered keyword→layout matchers for contents/unknown areas without a decoration intent.
+ * First match wins; mirrors the DESIGN_SKILL_MATCHERS table pattern instead of an if-chain.
+ * A matcher hits when the area name contains an areaNameTerm OR any component type contains
+ * a componentTerm.
+ */
+const AREA_LAYOUT_MATCHERS: ReadonlyArray<{
+	areaNameTerms?: readonly string[];
+	componentTerms: readonly string[];
+	layout: string;
+}> = [
+	{ areaNameTerms: ["term"], componentTerms: ["list"], layout: "list-stack" },
+	{ componentTerms: ["checkbox"], layout: "checkbox-stack" },
+	{ componentTerms: ["textfield", "text-field"], layout: "field-stack" },
+	{ componentTerms: ["message"], layout: "message-stack" },
+];
+
+const AREA_LAYOUT_FALLBACK = "list-stack";
