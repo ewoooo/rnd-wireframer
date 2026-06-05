@@ -36,6 +36,24 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-04 - Inference Pipeline Step Runner Plan
+
+- 변경: `docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md`를 graph/node 중심 설명에서 `PipelineDefinition`, `PipelineStep`, `StepInputRef`, `OutputContract`, `feedback`, `persistence` 중심 설명으로 재정리함
+- 변경: 공개 input reference API를 `artifactFrom(...)` 대신 `from(ref)`, `value(value)` 중심으로 단순화함
+- 변경: `PipelineStep`을 `AiPipelineStep | ExecutablePipelineStep` union으로 정리하고, AI Step은 `prompt`와 `output` contract 필수, non-AI Step은 `execute` 필수와 `output` 선택으로 기록함
+- 변경: 1차 migration 목표를 3-call 축소가 아니라 현재 smoke-proven inference flow를 `defineStep` 구조로 감싸는 것으로 조정함
+- 변경: 현재 screen inference 과정을 `definePipeline`/`defineStep` 신규 API 예시로 문서화하고, `feedback`과 `artifacts` 선언 예시를 추가함
+- 변경: feedback rule에서 `then`은 optional revision Step 이후 재진입 위치, `maxRetries`는 무한 revise loop 방지 상한으로 역할을 명시함
+- 변경: Step runtime cursor 실행 예시, `resolveStepInputs`/feedback 평가 코드 예시, SSE route/Web `EventSource` 통신 예시를 계획 문서에 추가함
+- 변경: input API를 1차 `from(ref)`, `value(value)` 체계로 정규화하고, ref namespace를 `input.*`, `step.*`, `ref.*`로 단순화함
+- 변경: Web client endpoint 기준으로 run 생성/조회/artifact/apply/events, run directory File I/O, `status.json`과 `pipeline-status.json` 책임 차이를 문서화함
+- 변경: 외부 reference 명칭을 `skillBundles`, `designContextBundles`, `layoutCatalogs`, `componentCatalogs`로 정리하고 모두 `ref.*` 아래에서 참조하도록 계획 문서를 갱신함
+- 변경: `componentCatalogs`와 `layoutCatalogs` 예시를 실제 `@cx/components/catalog`, `@cx/layout-pattern-store`, `@cx/layout-pattern-store/resolver` public API 기준으로 보정함
+- 변경: Step API 예시를 현재 `screenGenerationPipelineDefinition.stages` 순서와 참조 흐름 기준으로 보정하고, `derive-decoration-plan`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts`를 1차 migration 예시에 포함함
+- 변경: 현재 코드 근거 파일, 품질 parity gate, fake-mode/Claude local-first baseline, Step migration rollout 0~9를 계획 문서에 추가함
+- 이유: 현재 요구사항이 범용 graph engine보다 단계 순서, 단계별 참고 자료, 출력 계약, AI 사용 유무, feedback loop, UI 상태 persistence를 빠르게 실험하는 것에 가깝기 때문
+- 검증: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`, `artifact-commands.ts`, `public/types.ts`, `screen-generation-tags.test.ts`, `public-api.test.ts` 확인 후 문서 변경, `git diff --check`
+
 ## 2026-06-04 - Divider Prop Contract Cleanup
 
 - 변경: PageStack area divider 계약을 `divider: "contents" | "section" | "none"` 단일 prop으로 정리하고 `divider:true`의 trailing 의미와 공개 `sectionDivider` prop을 제거함
@@ -1630,6 +1648,14 @@
 - 변경: App 테스트 mock에 RenderTree를 추가하고 Area/Component 탭 전환 및 리스트 표시를 검증하도록 업데이트함
 - 이유: 왼쪽 사이드바가 스크린 탐색만 담당하던 상태에서 벗어나, 선택된 화면의 Area와 Component 구조를 바로 확인하고 편집 범위로 진입할 수 있게 하기 위함
 - 검증: `pnpm lint`, `pnpm test`, `pnpm build`, `curl -I http://127.0.0.1:3000`. 인앱 브라우저는 로컬 URL 접근이 `net::ERR_BLOCKED_BY_CLIENT`로 차단되어 시각 확인은 수행하지 못함
+
+## 2026-06-04 - Pipeline Persistence API
+
+- 변경: `@cx/pipeline`에 `PipelineRunStatus`, `PipelineRunEvent`, `PipelinePersistenceAdapter` 계약과 파일 기반 persistence adapter를 추가함
+- 변경: `screen-generation` 실행 중 `pipeline-status.json`과 `pipeline-events.ndjson`를 run root에 기본 기록하고, `persistence.enabled: false` 또는 custom adapter로 제어할 수 있게 함
+- 변경: `PipelineProgressEvent`에 `failed` 상태와 `timestamp`를 추가하고, Node/memory file system adapter에 append I/O를 확장함
+- 이유: web/app shell 외부에서도 파이프라인 실행 중 stage 상태를 조회하고, 향후 SSE/WebSocket/queue UI가 pipeline persistence를 직접 소비할 수 있게 하기 위함
+- 검증: `pnpm -s exec tsc --noEmit`, `pnpm test -- --run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/lib/screen-inference-run.test.ts`
 
 ## 2026-06-01 - Understand Compose Revise Artifact Docs
 

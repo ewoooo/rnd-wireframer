@@ -61,11 +61,22 @@ import {
 
 import { createNodePipelineAdapters } from "../../adapters";
 import { runParseMarkdownSourceCommand } from "../../commands";
+import {
+	completePipelineRunStatus,
+	createFilePipelinePersistenceAdapter,
+	createPipelineRunEvent,
+	createPipelineRunStatus,
+	persistPipelineRunEvent,
+	updatePipelineRunStatus,
+} from "../../persistence";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
+	PipelinePersistenceAdapter,
 	PipelineDefinition,
 	PipelineMarkdownSourceFile,
+	PipelineProgressEvent,
 	PipelineRunResult,
+	PipelineRunStatus,
 	PipelineStageId,
 	ScreenGenerationPipelineOptions,
 	SideEffectCommandResult,
@@ -153,9 +164,13 @@ type ScreenGenerationPipelineState = {
 
 type NormalizedScreenGenerationPipelineOptions = {
 	agentMode: "claude-local-first" | "fake";
+	clockNow: () => string;
+	createdAt: string;
+	createEventId: () => string;
 	disableDesignContext: boolean;
 	onProgress: NonNullable<ScreenGenerationPipelineOptions["onProgress"]>;
 	outDir: string;
+	persistence?: PipelinePersistenceAdapter;
 	runDir: string;
 	runId: string;
 	sourceKind: PipelineMarkdownSourceFile["kind"];
@@ -188,6 +203,16 @@ export async function runScreenGenerationPipeline(
 	const state: ScreenGenerationPipelineState = {
 		options: normalizeScreenGenerationPipelineOptions(options),
 	};
+	let runStatus = createPipelineRunStatus({
+		createdAt: state.options.createdAt,
+		definition,
+		outDir: state.options.outDir,
+		pipelineId: "screen-generation",
+		runDir: state.options.runDir,
+		runId: state.options.runId,
+		sourcePath: state.options.sourcePath,
+	});
+	await state.options.persistence?.writeStatus(runStatus);
 
 	for (const stage of definition.stages) {
 		if (
@@ -197,20 +222,29 @@ export async function runScreenGenerationPipeline(
 		) {
 			continue;
 		}
-		await state.options.onProgress({
-			pipelineId: "screen-generation",
-			runId: state.options.runId,
-			stage,
-			status: "started",
-		});
-		await screenGenerationStageExecutors[stage](state);
-		await state.options.onProgress({
-			pipelineId: "screen-generation",
-			runId: state.options.runId,
-			stage,
-			status: "completed",
-		});
+		const startedEvent = createProgressEvent(state, stage, "started");
+		runStatus = await recordPipelineProgress(state, runStatus, startedEvent);
+		await state.options.onProgress(startedEvent);
+
+		try {
+			await screenGenerationStageExecutors[stage](state);
+		} catch (error) {
+			const failedEvent = createProgressEvent(state, stage, "failed");
+			runStatus = await recordPipelineProgress(state, runStatus, failedEvent, {
+				code: "pipeline_stage_failed",
+				message: readErrorMessage(error),
+			});
+			await state.options.onProgress(failedEvent);
+			throw error;
+		}
+
+		const completedEvent = createProgressEvent(state, stage, "completed");
+		runStatus = await recordPipelineProgress(state, runStatus, completedEvent);
+		await state.options.onProgress(completedEvent);
 	}
+
+	runStatus = completePipelineRunStatus(runStatus, state.options.clockNow());
+	await state.options.persistence?.writeStatus(runStatus);
 
 	if (!state.pipelineResult || !state.pipelineResultWrite || !state.parseCommandResult) {
 		throw new Error("Screen generation pipeline finished without artifact write results.");
@@ -254,6 +288,50 @@ export async function runScreenGenerationPipeline(
 		summary: createScreenGenerationPipelineSummary(state),
 		validationReport: state.validationReport,
 	};
+}
+
+function createProgressEvent(
+	state: ScreenGenerationPipelineState,
+	stage: PipelineStageId,
+	status: PipelineProgressEvent["status"],
+): PipelineProgressEvent {
+	return {
+		pipelineId: "screen-generation",
+		runId: state.options.runId,
+		stage,
+		status,
+		timestamp: state.options.clockNow(),
+	};
+}
+
+async function recordPipelineProgress(
+	state: ScreenGenerationPipelineState,
+	status: PipelineRunStatus,
+	event: PipelineProgressEvent,
+	error?: PipelineRunStatus["error"],
+): Promise<PipelineRunStatus> {
+	const timestamp = event.timestamp ?? state.options.clockNow();
+	const nextStatus = updatePipelineRunStatus({
+		error,
+		event,
+		status,
+		timestamp,
+	});
+	await persistPipelineRunEvent({
+		adapter: state.options.persistence,
+		event: createPipelineRunEvent({
+			event,
+			eventId: state.options.createEventId(),
+			timestamp,
+		}),
+		status: nextStatus,
+	});
+	return nextStatus;
+}
+
+function readErrorMessage(error: unknown): string {
+	if (error instanceof Error) return error.message;
+	return String(error);
 }
 
 async function runReadSourceStage(state: ScreenGenerationPipelineState): Promise<void> {
@@ -755,12 +833,30 @@ function normalizeScreenGenerationPipelineOptions(
 			: options.source;
 	const sourcePath = normalizeTargetPath(source.path);
 	const runId = options.runId ?? createRunId(sourcePath);
+	const paths = resolveRunOutputPaths(options, runId);
+	const adapters = createNodePipelineAdapters();
+	const createdAt = adapters.clock.now();
+	let eventSequence = 0;
+	const persistence =
+		options.persistence?.enabled === false
+			? undefined
+			: (options.persistence?.adapter ??
+				createFilePipelinePersistenceAdapter({
+					adapters,
+					eventsFileName: options.persistence?.eventsFileName,
+					runDir: paths.runDir,
+					statusFileName: options.persistence?.statusFileName,
+				}));
 
 	return {
 		agentMode: options.agentMode ?? (options.useAI ? "claude-local-first" : "fake"),
+		clockNow: adapters.clock.now,
+		createdAt,
+		createEventId: () => `${runId}:event:${String((eventSequence += 1)).padStart(4, "0")}`,
 		disableDesignContext: options.disableDesignContext ?? false,
 		onProgress: options.onProgress ?? (() => undefined),
-		...resolveRunOutputPaths(options, runId),
+		...paths,
+		persistence,
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
 		sourcePath,

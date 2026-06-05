@@ -1,9 +1,14 @@
-import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { appendFile, copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import path from "node:path";
 
 import type { PipelineFileSystemAdapter } from "../public/types";
 
 export function createNodeFileSystemAdapter(): PipelineFileSystemAdapter {
 	return {
+		async appendText(targetPath, content) {
+			await mkdir(path.dirname(targetPath), { recursive: true });
+			await appendFile(targetPath, content, "utf8");
+		},
 		async copyFile(from, to) {
 			await copyFile(from, to);
 		},

@@ -1,6 +1,19 @@
 export { createNodePipelineAdapters } from "./adapters";
 export type { ParseMarkdownSourceCommand, ParseMarkdownSourceCommandResult } from "./commands";
 export { runParseMarkdownSourceCommand } from "./commands";
+export {
+	completePipelineRunStatus,
+	createFilePipelinePersistenceAdapter,
+	createPipelineRunEvent,
+	createPipelineRunStatus,
+	persistPipelineRunEvent,
+	updatePipelineRunStatus,
+} from "./persistence";
+export type {
+	CreateFilePipelinePersistenceAdapterInput,
+	CreatePipelineRunStatusInput,
+	UpdatePipelineRunStatusInput,
+} from "./persistence";
 export { sideEffectBoundary } from "./public/contract";
 export type { SmokeRunManifest } from "./public/smoke-run-manifest";
 export type {
@@ -14,9 +27,14 @@ export type {
 	PipelineId,
 	PipelineIdAdapter,
 	PipelineMarkdownSourceFile,
+	PipelinePersistenceAdapter,
 	PipelineProgressEvent,
+	PipelineRunEvent,
+	PipelineRunLifecycleStatus,
 	PipelineRunMode,
 	PipelineRunResult,
+	PipelineRunStatus,
+	PipelineStageRunStatus,
 	PipelineStageId,
 	PipelineSummary,
 	RunSideEffectsInput,

@@ -1,5 +1,6 @@
 import {
 	buildPipeline,
+	createFilePipelinePersistenceAdapter,
 	createNodePipelineAdapters,
 	runPipeline,
 	runSideEffects,
@@ -147,6 +148,10 @@ describe("@cx/pipeline public API", () => {
 			stages: ["read-source", "parse-source", "write-artifacts"],
 		});
 		expect(typeof runPipeline).toBe("function");
+	});
+
+	it("exposes pipeline persistence helpers", () => {
+		expect(typeof createFilePipelinePersistenceAdapter).toBe("function");
 	});
 
 	it("writes the final result as a standalone RenderTree artifact", () => {

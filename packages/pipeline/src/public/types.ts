@@ -36,7 +36,55 @@ export type PipelineProgressEvent = {
 	pipelineId: PipelineId;
 	runId: string;
 	stage: PipelineStageId;
-	status: "completed" | "started";
+	status: "completed" | "failed" | "started";
+	timestamp?: string;
+};
+
+export type PipelineStageRunStatus = "completed" | "failed" | "pending" | "running" | "skipped";
+
+export type PipelineRunLifecycleStatus = "completed" | "failed" | "queued" | "running";
+
+export type PipelineRunStatus = {
+	completedAt?: string;
+	createdAt: string;
+	currentStage?: PipelineStageId;
+	error?: {
+		code: string;
+		message: string;
+	};
+	outDir?: string;
+	pipelineId: PipelineId;
+	runDir?: string;
+	runId: string;
+	schemaVersion: "pipeline-run-status.v0.1";
+	sourcePath?: string;
+	stageOrder: PipelineStageId[];
+	stages: Record<
+		PipelineStageId,
+		{
+			completedAt?: string;
+			startedAt?: string;
+			status: PipelineStageRunStatus;
+		}
+	>;
+	status: PipelineRunLifecycleStatus;
+	updatedAt: string;
+};
+
+export type PipelineRunEvent = {
+	eventId: string;
+	pipelineId: PipelineId;
+	runId: string;
+	stage?: PipelineStageId;
+	status: "completed" | "failed" | "started";
+	timestamp: string;
+	type: "pipeline" | "stage";
+};
+
+export type PipelinePersistenceAdapter = {
+	appendEvent(event: PipelineRunEvent): Promise<void>;
+	readStatus(runId: string): Promise<PipelineRunStatus | undefined>;
+	writeStatus(status: PipelineRunStatus): Promise<void>;
 };
 
 export type ScreenGenerationPipelineOptions = {
@@ -50,6 +98,12 @@ export type ScreenGenerationPipelineOptions = {
 	disableDesignContext?: boolean;
 	outDir?: string;
 	onProgress?: (event: PipelineProgressEvent) => Promise<void> | void;
+	persistence?: {
+		adapter?: PipelinePersistenceAdapter;
+		enabled?: boolean;
+		eventsFileName?: string;
+		statusFileName?: string;
+	};
 	runId?: string;
 	source:
 		| {
@@ -159,6 +213,7 @@ export type SideEffectExecutionResult = {
 };
 
 export type PipelineFileSystemAdapter = {
+	appendText?(path: string, content: string): Promise<void>;
 	copyFile(from: string, to: string): Promise<void>;
 	ensureDir(path: string): Promise<void>;
 	exists(path: string): Promise<boolean>;

@@ -12,6 +12,7 @@
 | [RENDER_DB_REST_LOADER_TRANSITION_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/RENDER_DB_REST_LOADER_TRANSITION_PLAN.md) | `render_*` DB read model을 materializer, REST loader, Web/Puck 경로에 연결하는 전환 계획 |
 | [SCREEN_DESIGN_STAGE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_DESIGN_STAGE_PLAN.md) | 현재 screen generation inference layer 확장 계획 |
 | [NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md) | DnD 기반 새 화면 추론, 진행 상태, 단계별 검수, 승인 후 DB 등록 라이프사이클 계획 |
+| [INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md) | 현재 screen inference 품질 보존 기준 Step migration rollout, inference node graph, pipeline executor, prompt node, validation/decision feedback route, SSE 전환 계획 |
 | [FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN.md) | Figma SOT 기반 reference md/domain skill/orchestration 구조 개선 계획 |
 | [DOCKER.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DOCKER.md) | Docker 개발 환경 참고 |
 

@@ -29,10 +29,22 @@ async function runFake(runId: string, tags?: string[]) {
 	const manifest = JSON.parse(
 		await readFile(path.join(rootDir, runId, "manifest.json"), "utf8"),
 	) as { stageLayers: Array<{ layer: string; traceKeys: string[] }>; tags: string[] };
+	const pipelineStatus = JSON.parse(
+		await readFile(path.join(rootDir, runId, "pipeline-status.json"), "utf8"),
+	) as {
+		currentStage?: string;
+		runId: string;
+		status: string;
+		stages: Record<string, { status: string }>;
+	};
+	const pipelineEvents = await readFile(
+		path.join(rootDir, runId, "pipeline-events.ndjson"),
+		"utf8",
+	);
 	const trace = JSON.parse(
 		await readFile(path.join(rootDir, runId, "artifacts/trace.json"), "utf8"),
 	);
-	return { manifest, progressEvents, trace };
+	return { manifest, pipelineEvents, pipelineStatus, progressEvents, trace };
 }
 
 describe("screen-generation manifest tags", () => {
@@ -86,5 +98,21 @@ describe("screen-generation manifest tags", () => {
 			stage: "write-artifacts",
 			status: "completed",
 		});
+	});
+
+	it("persists pipeline status and event log while running the pipeline", async () => {
+		const { pipelineEvents, pipelineStatus } = await runFake("persisted-status");
+
+		expect(pipelineStatus).toMatchObject({
+			runId: "persisted-status",
+			schemaVersion: "pipeline-run-status.v0.1",
+			status: "completed",
+		});
+		expect(pipelineStatus.currentStage).toBeUndefined();
+		expect(pipelineStatus.stages["read-source"]?.status).toBe("completed");
+		expect(pipelineStatus.stages["write-artifacts"]?.status).toBe("completed");
+		expect(pipelineEvents.trim().split("\n")).toHaveLength(26);
+		expect(pipelineEvents).toContain('"stage":"read-source"');
+		expect(pipelineEvents).toContain('"status":"completed"');
 	});
 });

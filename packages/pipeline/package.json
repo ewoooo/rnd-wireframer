@@ -13,6 +13,7 @@
 		"./runner": "./src/runner/index.ts",
 		"./runtime": "./src/runtime/index.ts",
 		"./parser": "./src/public/parser.ts",
+		"./persistence": "./src/persistence/index.ts",
 		"./testing": "./src/testing/index.ts",
 		"./types": "./src/public/types.ts"
 	},
