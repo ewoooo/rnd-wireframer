@@ -5,7 +5,7 @@ import {
 	type SourceSpec,
 	type ValidationReportContract,
 } from "@cx/schema";
-import type { PatternLayerCandidate } from "./planning/types";
+import type { PatternLayerCandidate } from "../planning/types";
 
 export function createFakeCompositionPlan(
 	sourceSpec: SourceSpec,

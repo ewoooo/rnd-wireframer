@@ -26,10 +26,11 @@ export {
 export {
 	createFakeComponentProposal,
 	createFakeCompositionPlan,
+	createFakeGenerationAgentRunner,
 	createFakePatternSelection,
 	createFakeQualityInspection,
-} from "./fake-artifacts";
-export { createFakeGenerationAgentRunner } from "./fake-generation-agent-runner";
+	createFakeScreenIntent,
+} from "./fakes";
 export type {
 	ComponentContractCatalog,
 	ComponentProposalAgentInput,
@@ -47,5 +48,5 @@ export type {
 	RunScreenIntentNodeInput,
 	RunScreenIntentNodeResult,
 } from "./screen-intent-node";
-export { createFakeScreenIntent, runScreenIntentNode } from "./screen-intent-node";
+export { runScreenIntentNode } from "./screen-intent-node";
 export { createRenderTreeValidationReport } from "./validation-node";

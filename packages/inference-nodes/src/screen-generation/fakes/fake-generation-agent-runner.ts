@@ -1,6 +1,6 @@
 import type { AgentRunner, AgentRunnerRequest } from "@cx/agent/contract";
-import type { ScreenGenerationAgentInput } from "./planning/types";
-import { toLayoutId } from "./shared/layout-id";
+import type { ScreenGenerationAgentInput } from "../planning/types";
+import { toLayoutId } from "../shared/layout-id";
 
 export function createFakeGenerationAgentRunner(input: {
 	onRequest: (request: AgentRunnerRequest) => void;
