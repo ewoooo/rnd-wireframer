@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Inference Pipeline Rollout 3
+
+- 변경: `runStepPipeline(...)` generic Step runner를 추가해 작은 `StepPipelineDefinition`을 순차 실행할 수 있게 함
+- 변경: executable Step, AI Step adapter, `from(...)`/`value(...)` input resolution, artifact rule, status/event persistence를 runner fixture에서 검증함
+- 변경: generic Step runner를 위해 `PipelineRunStatus`와 `PipelineRunEvent`의 `pipelineId`/`stage` 타입을 string-compatible하게 확장함
+- 변경: Web screen inference progress handler에는 screen-generation stage guard를 추가해 generic step event와 기존 UI stage 타입 경계를 분리함
+- 이유: Rollout 3 범위에서 기존 `runPipeline("screen-generation")` hardcoded stage loop는 유지하면서, Step runner를 side-by-side로 성숙시키기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/lib/screen-inference-run.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `git diff --check`
+
 ## 2026-06-05 - Inference Pipeline Rollout 0-2
 
 - 변경: `npm run test:smoke:pipeline`을 추가해 fake-mode CLI smoke를 rollout static/fake-mode gate에 포함함

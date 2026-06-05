@@ -132,12 +132,39 @@ export type PipelineExecutionState = {
 
 export type ResolvedStepInputs = Record<string, unknown>;
 
+export type StepAgentAdapterInput = {
+	context: StepRunContext;
+	inputs: ResolvedStepInputs;
+	step: AiPipelineStep;
+};
+
+export type StepAgentAdapter = (input: StepAgentAdapterInput) => Promise<unknown> | unknown;
+
+export type RunStepPipelineOptions = {
+	agent?: StepAgentAdapter;
+	createEventId?: () => string;
+	input?: Record<string, unknown>;
+	now?: () => string;
+	onEvent?: (event: PipelineRunEvent) => Promise<void> | void;
+	persistence?: PipelinePersistenceAdapter;
+	refs?: Record<string, unknown>;
+	runId: string;
+};
+
+export type StepPipelineRunResult = {
+	artifacts: Record<string, unknown>;
+	events: PipelineRunEvent[];
+	runId: string;
+	state: PipelineExecutionState;
+	status: PipelineRunStatus;
+};
+
 export type PipelineAgentMode = "claude-local-first" | "fake";
 export type ArtifactStorePreset = "data-run" | "local-transient" | "web-fixture";
 export type PipelineProgressEvent = {
-	pipelineId: PipelineId;
+	pipelineId: PipelineId | string;
 	runId: string;
-	stage: PipelineStageId;
+	stage: PipelineStageId | string;
 	status: "completed" | "failed" | "started";
 	timestamp?: string;
 };
@@ -149,20 +176,20 @@ export type PipelineRunLifecycleStatus = "completed" | "failed" | "queued" | "ru
 export type PipelineRunStatus = {
 	completedAt?: string;
 	createdAt: string;
-	currentStage?: PipelineStageId;
+	currentStage?: string;
 	error?: {
 		code: string;
 		message: string;
 	};
 	outDir?: string;
-	pipelineId: PipelineId;
+	pipelineId: PipelineId | string;
 	runDir?: string;
 	runId: string;
 	schemaVersion: "pipeline-run-status.v0.1";
 	sourcePath?: string;
-	stageOrder: PipelineStageId[];
+	stageOrder: string[];
 	stages: Record<
-		PipelineStageId,
+		string,
 		{
 			completedAt?: string;
 			startedAt?: string;
@@ -175,9 +202,9 @@ export type PipelineRunStatus = {
 
 export type PipelineRunEvent = {
 	eventId: string;
-	pipelineId: PipelineId;
+	pipelineId: PipelineId | string;
 	runId: string;
-	stage?: PipelineStageId;
+	stage?: string;
 	status: "completed" | "failed" | "started";
 	timestamp: string;
 	type: "pipeline" | "stage";

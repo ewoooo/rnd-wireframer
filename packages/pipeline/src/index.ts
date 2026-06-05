@@ -57,6 +57,7 @@ export type {
 	PipelineSummary,
 	ResolvedStepInputs,
 	RunSideEffectsInput,
+	RunStepPipelineOptions,
 	ScreenGenerationPipelineOptions,
 	SideEffectArtifactRef,
 	SideEffectBoundary,
@@ -72,13 +73,16 @@ export type {
 	SideEffectOperation,
 	SideEffectPackageName,
 	SourceArtifactReadCommand,
+	StepAgentAdapter,
+	StepAgentAdapterInput,
 	StepCollectionRef,
 	StepExecutor,
 	StepInputRef,
 	StepPipelineDefinition,
+	StepPipelineRunResult,
 	StepRunContext,
 	WriteRunLogCommand,
 	WriteVersionedArtifactCommand,
 } from "./public/types";
 export { runSideEffects } from "./runner";
-export { buildPipeline, runPipeline } from "./runtime";
+export { buildPipeline, runPipeline, runStepPipeline } from "./runtime";

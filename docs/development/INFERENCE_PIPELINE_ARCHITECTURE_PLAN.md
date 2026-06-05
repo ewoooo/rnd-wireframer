@@ -2219,6 +2219,7 @@ Current implementation status:
 - Rollout 0 Claude local-first baseline has been run successfully with `smoke:pipeline -- --use-ai` on `NOVA-PRDD-PG-001-0.md`.
 - Rollout 1 Step Definition types/helpers are implemented in `@cx/pipeline/definition`.
 - Rollout 2 Step input resolver/state helpers are implemented in `@cx/pipeline/definition`.
+- Rollout 3 generic Step runner is implemented as `runStepPipeline(...)` for small Step pipeline fixtures.
 - Screen generation runtime still uses the current hardcoded stage loop; no behavior migration has started yet.
 ```
 

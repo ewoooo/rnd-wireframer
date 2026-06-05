@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { runPipeline } from "@cx/pipeline";
+import type { PipelineStageId } from "@cx/pipeline/types";
 import { readErrorMessage } from "@/lib/api-error";
 import {
 	createScreenInferenceProgressStatus,
@@ -11,6 +12,22 @@ import {
 	type ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
 import { CLIENT_IMPORT_ROOT, RUN_ROOT } from "@/lib/server-paths";
+
+const SCREEN_GENERATION_STAGES = new Set<string>([
+	"read-source",
+	"parse-source",
+	"derive-screen-intent",
+	"plan-composition",
+	"derive-decoration-plan",
+	"select-pattern",
+	"generate-render-tree",
+	"validate-render-tree",
+	"propose-components",
+	"review-quality",
+	"revise-render-tree-if-invalid",
+	"validate-render-tree-after-revision",
+	"write-artifacts",
+]);
 
 export type ScreenInferenceRunCreateInput = {
 	previousRunId?: string;
@@ -122,6 +139,7 @@ async function runScreenInferencePipeline(input: {
 			],
 			onProgress: async (event) => {
 				if (event.status !== "started") return;
+				if (!isScreenGenerationStage(event.stage)) return;
 				await writeRunStatus(
 					createScreenInferenceProgressStatus({
 						createdAt: input.createdAt,
@@ -197,6 +215,10 @@ function readRunDir(runId: string): string {
 	const safeRunId = runId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 120);
 	if (!safeRunId) throw new Error("runId is required.");
 	return path.join(RUN_ROOT, safeRunId);
+}
+
+function isScreenGenerationStage(stage: string): stage is PipelineStageId {
+	return SCREEN_GENERATION_STAGES.has(stage);
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
