@@ -63,6 +63,8 @@ import type {
 	PipelineStageId,
 	ReferenceResolver,
 	ResolvedStepInputs,
+	ScreenGenerationComponentCatalogRefs,
+	ScreenGenerationLayoutCatalogRefs,
 	ScreenGenerationPipelineOptions,
 	ScreenGenerationReferences,
 	ScreenGenerationSkillBundleRef,
@@ -423,7 +425,7 @@ function createFakeAgentRunner(
 			const sourceSpec = requireSourceSpec(state);
 			const layerCandidates =
 				state.patternLayerCandidates ??
-				buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
+				buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
 			const designSkillSelection =
 				state.designSkillSelection ??
 				runDesignSkillSelectionNode({
@@ -468,7 +470,7 @@ function createFakeAgentRunner(
 			const sourceSpec = requireSourceSpec(state);
 			const layerCandidates =
 				state.patternLayerCandidates ??
-				buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
+				buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
 			return {
 				payload: createFakePatternSelection(layerCandidates),
 				session: {
@@ -628,7 +630,7 @@ async function runPlanCompositionAiStep(
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
 	const screenIntent = inputs.intent ?? state.screenIntent.agentResult?.payload;
-	const layerCandidates = buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
+	const layerCandidates = buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
 	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
 		screenIntent,
@@ -671,7 +673,7 @@ function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): {
 		sourceSpec,
 	});
 	state.patternLayerCandidates = buildScreenGenerationPatternLayerCandidates(
-		state,
+		state.options.references.layoutCatalogs,
 		sourceSpec,
 		state.decorationPlan,
 	);
@@ -690,7 +692,7 @@ async function runSelectPatternAiStep(
 	const composition = readRecordInput(inputs.composition);
 	const decoration = readRecordInput(inputs.decoration);
 	const layerCandidates =
-		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
+		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
 	const nodeResult = await runPatternSelectionNode({
 		compositionPlan: composition?.compositionPlan ?? state.compositionPlan.agentResult?.payload,
 		decorationPlan:
@@ -725,7 +727,7 @@ async function runGenerateRenderTreeAiStep(
 	);
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
-		state,
+		state.options.references.componentCatalogs,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -796,7 +798,7 @@ async function runProposeComponentsAiStep(
 ): Promise<unknown> {
 	const sourceSpec = requireSourceSpec(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
-		state,
+		state.options.references.componentCatalogs,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -841,7 +843,7 @@ async function runReviewQualityAiStep(
 	const nodeResult = await runQualityReviewNode({
 		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
-			state,
+			state.options.references.componentCatalogs,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
@@ -887,7 +889,7 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const nodeResult = await runScreenRevisionNode({
 		componentContractCatalog: buildSourceComponentContractCatalog(
-			state,
+			state.options.references.componentCatalogs,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
@@ -1114,26 +1116,25 @@ function readRecordInput(input: unknown): Record<string, unknown> | undefined {
 }
 
 function buildScreenGenerationPatternLayerCandidates(
-	state: ScreenGenerationPipelineState,
+	layoutCatalogs: ScreenGenerationLayoutCatalogRefs,
 	sourceSpec: SourceSpec,
 	decorationPlan?: DecorationPlanContract,
 ): PatternLayerCandidate[] {
 	return runPatternLayerCandidatesNode({
 		decorationPlan,
 		resolver: {
-			resolveComponentLayout: state.options.references.layoutCatalogs.resolveComponentLayout,
-			resolveRegionLayout: state.options.references.layoutCatalogs.resolveRegionLayout,
+			resolveComponentLayout: layoutCatalogs.resolveComponentLayout,
+			resolveRegionLayout: layoutCatalogs.resolveRegionLayout,
 		},
 		sourceSpec,
 	});
 }
 
 function buildSourceComponentContractCatalog(
-	state: ScreenGenerationPipelineState,
+	componentCatalogs: ScreenGenerationComponentCatalogRefs,
 	sourceSpec: SourceSpec,
 	layerCandidates: PatternLayerCandidate[],
 ): ComponentContractCatalog {
-	const componentCatalogs = state.options.references.componentCatalogs;
 	const entries = sourceSpec.sourceShape.screen.regions.flatMap((region) =>
 		region.children.flatMap((area) =>
 			area.children.map((component) => {
