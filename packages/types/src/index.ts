@@ -1,4 +1,3 @@
-export * from "./ai-deck";
 export * from "./component-catalog";
 export * from "./component-pattern";
 export * from "./composition-output";

@@ -7,7 +7,6 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./ai-deck": "./src/ai-deck.ts",
 		"./component-catalog": "./src/component-catalog.ts",
 		"./component-pattern": "./src/component-pattern.ts",
 		"./composition-output": "./src/composition-output.ts",
