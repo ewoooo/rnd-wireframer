@@ -114,6 +114,41 @@ describe("runStepPipeline", () => {
 		});
 	});
 
+	it("skips steps before emitting started events when skipWhen matches", async () => {
+		const persistence = createMemoryPersistence();
+		const pipeline = definePipeline({
+			id: "skip-fixture",
+			steps: [
+				defineStep({
+					execute: () => ({ read: true }),
+					id: "read-source",
+					usesAI: false,
+				}),
+				defineStep({
+					execute: () => ({ unreachable: true }),
+					id: "compose",
+					skipWhen: () => true,
+					usesAI: false,
+				}),
+			],
+		});
+
+		const result = await runStepPipeline(pipeline, {
+			createEventId: createEventIds(),
+			now: createClock(),
+			persistence,
+			runId: "skip-run",
+		});
+
+		expect(result.events.map((event) => `${event.stage}:${event.status}`)).toEqual([
+			"read-source:started",
+			"read-source:completed",
+		]);
+		expect(result.status.stages.compose?.status).toBe("skipped");
+		expect(result.state.steps.compose?.status).toBe("skipped");
+		expect(persistence.events.map((event) => event.stage)).toEqual(["read-source", "read-source"]);
+	});
+
 	it("persists failed status for missing input references", async () => {
 		const persistence = createMemoryPersistence();
 		const pipeline = definePipeline({

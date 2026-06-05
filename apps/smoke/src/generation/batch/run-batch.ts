@@ -26,6 +26,7 @@ export type RunGenerationBatchOptions = {
 	artifactStore?: GenerationSmokeOptions["artifactStore"];
 	batchId?: string;
 	disableDesignContext?: boolean;
+	executionMode?: GenerationSmokeOptions["executionMode"];
 	glob?: string;
 	targetDir: string;
 	useAI?: boolean;
@@ -52,6 +53,7 @@ export async function runGenerationBatch(options: RunGenerationBatchOptions): Pr
 		artifactRoot: options.artifactRoot,
 		artifactStore: options.artifactStore,
 		disableDesignContext: options.disableDesignContext,
+		executionMode: options.executionMode,
 		tags: [batchId],
 		useAI: options.useAI,
 	};

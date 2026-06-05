@@ -1,8 +1,8 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runPipeline } from "@cx/pipeline";
-import type { PipelineProgressEvent } from "@cx/pipeline/types";
+import type { PipelineProgressEvent, ScreenGenerationPipelineOptions } from "@cx/pipeline/types";
 import { afterAll, describe, expect, it } from "vitest";
 
 const SOURCE = "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md";
@@ -12,7 +12,11 @@ afterAll(async () => {
 	await Promise.all(tempRoots.map((dir) => rm(dir, { force: true, recursive: true })));
 });
 
-async function runFake(runId: string, tags?: string[]) {
+async function runFake(
+	runId: string,
+	tags?: string[],
+	executionMode?: ScreenGenerationPipelineOptions["executionMode"],
+) {
 	const rootDir = await mkdtemp(path.join(tmpdir(), "cx-tags-"));
 	tempRoots.push(rootDir);
 	const progressEvents: PipelineProgressEvent[] = [];
@@ -22,10 +26,12 @@ async function runFake(runId: string, tags?: string[]) {
 		onProgress: (event) => {
 			progressEvents.push(event);
 		},
+		executionMode,
 		runId,
 		source: { path: SOURCE, type: "file" },
 		tags,
 	});
+	const artifactFiles = await readdir(path.join(rootDir, runId, "artifacts"));
 	const manifest = JSON.parse(
 		await readFile(path.join(rootDir, runId, "manifest.json"), "utf8"),
 	) as { stageLayers: Array<{ layer: string; traceKeys: string[] }>; tags: string[] };
@@ -44,7 +50,7 @@ async function runFake(runId: string, tags?: string[]) {
 	const trace = JSON.parse(
 		await readFile(path.join(rootDir, runId, "artifacts/trace.json"), "utf8"),
 	);
-	return { manifest, pipelineEvents, pipelineStatus, progressEvents, trace };
+	return { artifactFiles, manifest, pipelineEvents, pipelineStatus, progressEvents, trace };
 }
 
 describe("screen-generation manifest tags", () => {
@@ -114,5 +120,30 @@ describe("screen-generation manifest tags", () => {
 		expect(pipelineEvents.trim().split("\n")).toHaveLength(26);
 		expect(pipelineEvents).toContain('"stage":"read-source"');
 		expect(pipelineEvents).toContain('"status":"completed"');
+	});
+
+	it("can run the current screen-generation stages through the Step runner path", async () => {
+		const oldPath = await runFake("old-path");
+		const stepPath = await runFake("step-path", undefined, "step-runner");
+
+		expect(stepPath.artifactFiles.sort()).toEqual(oldPath.artifactFiles.sort());
+		expect(stepPath.pipelineEvents.trim().split("\n")).toHaveLength(26);
+		expect(stepPath.pipelineStatus).toMatchObject({
+			runId: "step-path",
+			schemaVersion: "pipeline-run-status.v0.1",
+			status: "completed",
+		});
+		expect(stepPath.pipelineStatus.currentStage).toBeUndefined();
+		expect(
+			stepPath.progressEvents
+				.filter((event) => event.status === "started")
+				.map((event) => event.stage),
+		).toEqual(
+			oldPath.progressEvents
+				.filter((event) => event.status === "started")
+				.map((event) => event.stage),
+		);
+		expect(stepPath.manifest.stageLayers).toEqual(oldPath.manifest.stageLayers);
+		expect(stepPath.trace.layers).toEqual(oldPath.trace.layers);
 	});
 });

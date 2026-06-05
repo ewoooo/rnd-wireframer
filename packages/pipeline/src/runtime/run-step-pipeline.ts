@@ -33,12 +33,27 @@ export async function runStepPipeline(
 	let status = createInitialStepPipelineStatus({
 		createdAt,
 		definition,
+		outDir: options.status?.outDir,
+		runDir: options.status?.runDir,
 		runId: options.runId,
+		sourcePath: options.status?.sourcePath,
 	});
 
 	await options.persistence?.writeStatus(status);
 
 	for (const step of definition.steps) {
+		if (step.skipWhen && (await step.skipWhen(state))) {
+			const skippedAt = now();
+			state.steps[step.id] = {
+				...state.steps[step.id],
+				completedAt: skippedAt,
+				status: "skipped",
+			};
+			status = updateSkippedStepStatus(status, step.id, skippedAt);
+			await options.persistence?.writeStatus(status);
+			continue;
+		}
+
 		const startedAt = now();
 		state.steps[step.id] = {
 			...state.steps[step.id],
@@ -163,13 +178,19 @@ async function resolveArtifacts(
 function createInitialStepPipelineStatus(input: {
 	createdAt: string;
 	definition: StepPipelineDefinition;
+	outDir?: string;
+	runDir?: string;
 	runId: string;
+	sourcePath?: string;
 }): PipelineRunStatus {
 	return {
 		createdAt: input.createdAt,
+		outDir: input.outDir,
 		pipelineId: input.definition.id,
+		runDir: input.runDir,
 		runId: input.runId,
 		schemaVersion: "pipeline-run-status.v0.1",
+		sourcePath: input.sourcePath,
 		stageOrder: input.definition.steps.map((step) => step.id),
 		stages: Object.fromEntries(
 			input.definition.steps.map((step) => [step.id, { status: "pending" as const }]),
@@ -208,6 +229,29 @@ function updateStepStatus(
 			},
 		},
 		status: eventStatus === "failed" ? "failed" : "running",
+		updatedAt: timestamp,
+	};
+}
+
+function updateSkippedStepStatus(
+	status: PipelineRunStatus,
+	stage: string,
+	timestamp: string,
+): PipelineRunStatus {
+	const previous = status.stages[stage] ?? { status: "pending" as const };
+
+	return {
+		...status,
+		currentStage: stage,
+		stages: {
+			...status.stages,
+			[stage]: {
+				...previous,
+				completedAt: timestamp,
+				status: "skipped",
+			},
+		},
+		status: "running",
 		updatedAt: timestamp,
 	};
 }

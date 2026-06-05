@@ -84,6 +84,10 @@ npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/sc
 
 Use `--use-ai` to call the real local Claude runner.
 
+Use `--execution-mode step-runner` to run screen generation through the Step runner
+wrapper path. The default is `stage-loop`, which keeps the legacy stage loop as
+the fallback path during the Step migration.
+
 ## Push Local Tables To Supabase Render DB
 
 Project the existing migration snapshot in `data/tables/*.json` into the

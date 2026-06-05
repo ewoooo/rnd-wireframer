@@ -18,6 +18,7 @@ Markdown source
 -> @cx/adapters/markdown
 -> SourceSpec
 -> @cx/orchestration deterministic stage helpers
+-> @cx/inference-nodes executable generation nodes
 -> @cx/agent generation/review tasks
 -> @cx/validation contract validation
 -> @cx/pipeline artifact write
@@ -42,6 +43,7 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
 | `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 | `@cx/adapters/markdown` Markdown -> SourceSpec, `@cx/adapters/table` DB row bundle -> RenderTree와 RenderTree -> table projection, `@cx/adapters/puck` RenderTree <-> Puck editable data | 파일 IO, Supabase/REST 호출, DB write, AI 실행, validation policy, React/Puck UI render |
 | `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern layer candidates, pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
+| `@cx/inference-nodes` | pipeline에서 실행하는 inference 작업 단위 | screen-generation agent node wrapper, pipeline-provided runner 실행, node별 input -> output 결과 반환 | stage 순서 소유, persistence, 파일 IO, Claude runner 구현, artifact write, React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery`, 패키지 내부 참조 자산 관리 | 출력 타입 SSOT, workflow 소유, 저장, render |
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, markdown parse command facade | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
@@ -59,6 +61,7 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 | `@cx/schema` | `.` |
 | `@cx/adapters` | `.`, `./markdown`, `./table`, `./puck` |
 | `@cx/orchestration` | `.`, `./contract`, `./generation`, `./types` |
+| `@cx/inference-nodes` | `.`, `./agent`, `./screen-generation` |
 | `@cx/agent` | `.`, `./adapters`, `./claude`, `./contract`, `./tasks` |
 | `@cx/validation` | `.`, `./contract`, `./types` |
 | `@cx/pipeline` | `.`, `./adapters`, `./commands`, `./contract`, `./parser`, `./runner`, `./runtime`, `./testing`, `./types` |

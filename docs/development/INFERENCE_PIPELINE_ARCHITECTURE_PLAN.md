@@ -308,6 +308,7 @@ Step API로 옮길 때도 `sourceSpec`을 Step output으로 두고, source refs�
 - step.output
 - step.usesAI
 - step.prompt
+- step.skipWhen
 - feedback rule
 - artifact rule
 ```
@@ -323,6 +324,7 @@ type PipelineStep = AiPipelineStep | ExecutablePipelineStep;
 type BasePipelineStep = {
   id: string;
   inputs: Record<string, StepInputRef>;
+  skipWhen?: (state: PipelineExecutionState) => boolean | Promise<boolean>;
 };
 
 type AiPipelineStep = BasePipelineStep & {
@@ -2220,7 +2222,10 @@ Current implementation status:
 - Rollout 1 Step Definition types/helpers are implemented in `@cx/pipeline/definition`.
 - Rollout 2 Step input resolver/state helpers are implemented in `@cx/pipeline/definition`.
 - Rollout 3 generic Step runner is implemented as `runStepPipeline(...)` for small Step pipeline fixtures.
-- Screen generation runtime still uses the current hardcoded stage loop; no behavior migration has started yet.
+- Rollout 4 screen-generation Step runner wrapper path is implemented behind `executionMode: "step-runner"`.
+- Screen generation still defaults to the current hardcoded `stage-loop` path while Rollout 4 parity is verified.
+- Smoke CLI can select the migration path with `--execution-mode step-runner`.
+- Rollout 5A created `@cx/inference-nodes` and moved the first agent node, `screen-intent`, out of `@cx/pipeline`.
 ```
 
 ### 11.3 Rollout 0. Baseline Capture
@@ -2332,6 +2337,16 @@ Done when:
 - `manifest.stageLayers` and `trace.layers` are unchanged.
 - Static, fake-mode parity, and Claude local-first quality gates pass.
 
+Current implementation note:
+
+```text
+2026-06-05
+- `ScreenGenerationPipelineOptions.executionMode` selects `stage-loop` or `step-runner`.
+- The default remains `stage-loop` as the safe fallback.
+- `apps/smoke` accepts `--execution-mode step-runner` so rollout gates can compare both runtime paths through the same CLI harness.
+- The Step runner wrapper delegates each current stage id to the existing `screenGenerationStageExecutors` entry and preserves artifact writing through the current `write-artifacts` stage.
+```
+
 ### 11.8 Rollout 5. Extract Inference Nodes
 
 Goal:
@@ -2361,6 +2376,17 @@ Done when:
 - `@cx/pipeline` no longer owns pure stage assembly logic for migrated nodes.
 - The node package does not perform persistence or direct file writes.
 - Static, fake-mode parity, and Claude local-first quality gates pass.
+
+Rollout 5A implementation note:
+
+```text
+2026-06-05
+- `@cx/inference-nodes` exists as a package with root, `./agent`, and `./screen-generation` public surfaces.
+- The first migrated node is `runScreenIntentNode(...)`.
+- `runScreenIntentNode(...)` owns ScreenIntent agent input assembly and agent task execution.
+- `@cx/pipeline` still owns stage order, status persistence, file IO, artifact writes, and Claude/fake runner selection.
+- The `derive-screen-intent` stage is now a wrapper that provides a runner to `runScreenIntentNode(...)` and stores the returned agent input/result/request in pipeline state.
+```
 
 ### 11.9 Rollout 6. External References Injection
 

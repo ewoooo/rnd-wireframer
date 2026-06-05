@@ -22,6 +22,7 @@
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
 | `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
+| `@cx/inference-nodes` | pipeline에서 실행하는 inference node wrapper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
 
@@ -281,7 +282,29 @@ packages/orchestration/src/
 - component/layout/pattern catalog 값 소유
 - 승인 데이터 직접 반영
 
-## 12. `packages/validation`
+## 12. `packages/inference-nodes`
+
+`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. Rollout 5A에서는 첫 slice로 `screen-intent` agent node만 소유한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner는 pipeline이 제공한다.
+
+```text
+packages/inference-nodes/src/
+  index.ts              public barrel
+  agent/                agent runner-facing shared node types
+  screen-generation/    screen generation node wrappers
+```
+
+두지 않는 책임:
+
+- 파일 읽기/쓰기
+- persistence/status 기록
+- pipeline/stage 순서 소유
+- Claude runner 구현 또는 local/API fallback 정책
+- artifact write
+- validation retry/fallback 정책
+- RenderTree React render
+- component/layout/pattern catalog 값 소유
+
+## 13. `packages/validation`
 
 `@cx/validation`은 생성 과정의 순수 검증을 담당한다. 현재는 생성물이 계약상 렌더 가능한지와 component catalog/layout props 계약을 지키는지 기계적으로 검증하는 public API를 제공한다.
 
@@ -300,7 +323,7 @@ packages/validation/src/
 - RenderTree React render
 - catalog 값 생성 또는 수정
 
-## 13. `packages/pipeline`
+## 14. `packages/pipeline`
 
 `@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
 

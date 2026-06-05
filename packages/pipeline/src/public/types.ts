@@ -63,6 +63,7 @@ export type PipelineStep = AiPipelineStep | ExecutablePipelineStep;
 export type BasePipelineStep = {
 	id: string;
 	inputs?: Record<string, StepInputRef>;
+	skipWhen?: (state: PipelineExecutionState) => boolean | Promise<boolean>;
 };
 
 export type AiPipelineStep = BasePipelineStep & {
@@ -149,6 +150,11 @@ export type RunStepPipelineOptions = {
 	persistence?: PipelinePersistenceAdapter;
 	refs?: Record<string, unknown>;
 	runId: string;
+	status?: {
+		outDir?: string;
+		runDir?: string;
+		sourcePath?: string;
+	};
 };
 
 export type StepPipelineRunResult = {
@@ -225,6 +231,7 @@ export type ScreenGenerationPipelineOptions = {
 	};
 	/** Evaluation 전용: design-context bundle 본문 주입을 끈다(A/B 비교). */
 	disableDesignContext?: boolean;
+	executionMode?: "stage-loop" | "step-runner";
 	outDir?: string;
 	onProgress?: (event: PipelineProgressEvent) => Promise<void> | void;
 	persistence?: {

@@ -36,6 +36,26 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Inference Pipeline Rollout 5A
+
+- 변경: `@cx/inference-nodes` 패키지를 추가하고 root, `./agent`, `./screen-generation` public surface를 만듦
+- 변경: 첫 agent node로 `runScreenIntentNode(...)`를 추가해 ScreenIntent agent input 조립과 agent task 실행을 pipeline 밖으로 분리함
+- 변경: fake smoke용 `createFakeScreenIntent(...)`도 `@cx/inference-nodes/screen-generation`으로 이동해 pipeline 내부 pure helper 소유를 줄임
+- 변경: `derive-screen-intent` stage는 Claude/fake runner 선택과 pipeline state 반영만 담당하고, 실제 node 실행은 `runScreenIntentNode(...)`에 위임하도록 바꿈
+- 이유: Rollout 5A 범위에서 `@cx/pipeline`은 stage order/status/artifact/IO를 유지하고, agent 관련 작업 단위는 `@cx/inference-nodes`로 옮기는 경계를 코드로 확정하기 위함
+- 검증: `pnpm exec biome check ...`, `pnpm exec vitest run packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout5a-step-runner-fake-check`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout5a-stage-loop-ai-check --use-ai`
+- 후속: real AI smoke는 `validationOk: true`이나 `divider` unknown-prop과 `layout.region.bottom` candidate warning이 남아 있어 후속 node 추출/contract 정리 때 계속 추적한다.
+
+## 2026-06-05 - Inference Pipeline Rollout 4
+
+- 변경: `ScreenGenerationPipelineOptions.executionMode`를 추가해 기존 `stage-loop`와 신규 `step-runner` 경로를 선택할 수 있게 함
+- 변경: screen-generation 13개 기존 stage executor를 `defineStep(...)` wrapper로 감싸 `runStepPipeline(...)`에서 순차 실행하는 경로를 추가함
+- 변경: Step runner status에 `outDir`, `runDir`, `sourcePath` 메타데이터를 전달하고, smoke CLI에 `--execution-mode stage-loop|step-runner` 옵션을 추가함
+- 변경: `PipelineStep.skipWhen`을 추가해 parse 실패 후 불필요한 step이 completed output처럼 기록되지 않고 `skipped` status로 남도록 함
+- 이유: Rollout 4 범위에서 stage 내부 구현, artifact write, revision/validation 로직은 유지하면서 Step runner path가 current runtime을 side-by-side로 실행할 수 있음을 검증하기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec biome check ...`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout4-step-runner-fake-check-2`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout4-step-runner-ai-check --use-ai`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout4-stage-loop-ai-check --use-ai`, `git diff --check`
+- 후속: real AI smoke에서 `Badge.divider` 또는 `ListText.divider` unknown-prop warning이 1건씩 남아 있어 Rollout 5 이후 node/contract extraction 때 component catalog 계약과 prompt 출력 surface를 함께 정리한다.
+
 ## 2026-06-05 - Inference Pipeline Rollout 3
 
 - 변경: `runStepPipeline(...)` generic Step runner를 추가해 작은 `StepPipelineDefinition`을 순차 실행할 수 있게 함

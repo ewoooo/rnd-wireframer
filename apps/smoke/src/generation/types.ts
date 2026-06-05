@@ -9,6 +9,7 @@ export type GenerationSmokeOptions = {
 	artifactRoot?: string;
 	artifactStore?: "data-run" | "local-transient" | "web-fixture";
 	disableDesignContext?: boolean;
+	executionMode?: ScreenGenerationPipelineOptions["executionMode"];
 	outDir?: string;
 	runId?: string;
 	tags?: string[];
