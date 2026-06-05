@@ -1,6 +1,6 @@
 "use client";
 
-import { FileUp, Play, RotateCcw } from "lucide-react";
+import { Play, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
@@ -45,15 +45,6 @@ export function NewScreenSourcePanel({
 
 	return (
 		<div className="flex h-full min-h-0 flex-col overflow-hidden">
-			<div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
-				<div className="flex min-w-0 items-center gap-1.5">
-					<FileUp className="size-3.5 text-muted-foreground" data-icon="inline-start" />
-					<p className="truncate text-xs font-semibold text-sidebar-foreground">새 화면</p>
-				</div>
-				<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-					{sources.length}
-				</span>
-			</div>
 			<div className="grid gap-3 border-b border-sidebar-border p-3">
 				<label
 					className={cn(

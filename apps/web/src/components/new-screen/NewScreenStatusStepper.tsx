@@ -12,7 +12,7 @@ export function NewScreenStatusStepper({ status }: { status?: ScreenInferenceRun
 		status?.error?.message ?? status?.currentMessage ?? status?.status ?? "source-ready";
 
 	return (
-		<div className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5">
+		<div className="flex min-w-0 shrink-0 items-center gap-1.5">
 			{layers.map((layer) => (
 				<span
 					className={readLayerClassName(layer.status)}

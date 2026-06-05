@@ -43,40 +43,45 @@ export function Canvas() {
 
 	return (
 		<SidebarInset>
+			{/*
+			 * 레이아웃 규칙(전 페이지 공통): Canvas Header 는 항상 고정 높이(h-8)의 단일 행이다.
+			 * 좌측 = 컨텍스트(kind 아이콘 · label · title), 우측 = 페이지별 보조 컨트롤(run 탭의 stepper 등)을
+			 * justify-between 으로 양끝 정렬한다. 보조 컨트롤은 한 줄을 넘기지 않으며 헤더 높이를 늘리지 않는다.
+			 */}
 			<SidebarHeader className="border-b border-sidebar-border">
-				{(() => {
-					const { kind, title } = getCanvasHeader({
-						activeTab,
-						isComponentView,
-						isAreaView,
-						selectedAgentAsset,
-						selectedComponent,
-						selectedArea,
-						selectedScreen,
-					});
-					const { label, Icon } = CANVAS_KIND[kind];
-					return (
-						<div className="flex h-8 items-center gap-2 tracking-normal">
-							<Icon className="size-4 shrink-0 text-muted-foreground" />
-							<span className="font-medium text-muted-foreground text-sm">{label}</span>
-							{title ? (
-								<span className="truncate font-semibold text-base leading-none">{title}</span>
-							) : null}
-						</div>
-					);
-				})()}
+				<div className="flex h-8 items-center justify-between gap-3 tracking-normal">
+					{(() => {
+						const { kind, title } = getCanvasHeader({
+							activeTab,
+							isComponentView,
+							isAreaView,
+							selectedAgentAsset,
+							selectedComponent,
+							selectedArea,
+							selectedScreen,
+						});
+						const { label, Icon } = CANVAS_KIND[kind];
+						return (
+							<div className="flex min-w-0 items-center gap-2">
+								<Icon className="size-4 shrink-0 text-muted-foreground" />
+								<span className="font-medium text-muted-foreground text-sm">{label}</span>
+								{title ? (
+									<span className="truncate font-semibold text-base leading-none">{title}</span>
+								) : null}
+							</div>
+						);
+					})()}
+					{isRunView ? <NewScreenStatusStepper /> : null}
+				</div>
 			</SidebarHeader>
 			<SidebarContent className="items-center justify-center bg-muted p-6">
 				<div className="flex flex-col items-center gap-6">
 					<CanvasToolbar />
 					{isRunView ? (
-						<div className="flex flex-col items-center gap-3">
-							<NewScreenStatusStepper />
-							<div className="flex h-211 w-98 max-w-full items-center justify-center overflow-hidden rounded-[28px] border bg-background p-8 text-center shadow-xl">
-								<p className="text-sm text-muted-foreground">
-									소스를 선택하고 Run하면 생성 미리보기가 표시됩니다.
-								</p>
-							</div>
+						<div className="flex h-211 w-98 max-w-full items-center justify-center overflow-hidden rounded-[28px] border bg-background p-8 text-center shadow-xl">
+							<p className="text-sm text-muted-foreground">
+								소스를 선택하고 Run하면 생성 미리보기가 표시됩니다.
+							</p>
 						</div>
 					) : activeTab === "agent" ? (
 						<AgentRegistryPreview

@@ -122,7 +122,7 @@ export function LeftAside() {
 	return (
 		<Aside side="left">
 			{activeTab === "run" ? (
-				<Panel bodyClassName="p-0">
+				<Panel title="새 화면" bodyClassName="p-0">
 					<RunSourcePanel />
 				</Panel>
 			) : activeTab === "scn" ? (
