@@ -5,6 +5,7 @@ export * from "./composition-output";
 export * from "./database-tables";
 export * from "./decorated-output";
 export * from "./gap-report";
+export * from "./guards";
 export * from "./node-types";
 export * from "./pattern-store";
 export * from "./pattern-store-schema";

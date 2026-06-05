@@ -49,3 +49,4 @@ next-env.d.ts
 
 # generated screen-generation run artifacts (non-DB, runtime)
 data/runs/
+tmp/

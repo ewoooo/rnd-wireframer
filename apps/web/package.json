@@ -9,15 +9,15 @@
 		"start": "next start"
 	},
 	"dependencies": {
-		"@cx/agent": "workspace:*",
+		"@cx/adapters": "workspace:*",
 		"@cx/components": "workspace:*",
 		"@cx/layout": "workspace:*",
-		"@cx/pattern-store": "workspace:*",
+		"@cx/pipeline": "workspace:*",
 		"@cx/renderer": "workspace:*",
+		"@cx/schema": "workspace:*",
 		"@cx/types": "workspace:*",
-		"@measured/puck": "^0.20.2",
-		"@radix-ui/react-tooltip": "^1.2.8",
-		"@supabase/supabase-js": "^2.49.4",
+		"@puckeditor/core": "^0.21.2",
+		"radix-ui": "^1.4.3",
 		"react-resizable-panels": "^4.11.2"
 	}
 }

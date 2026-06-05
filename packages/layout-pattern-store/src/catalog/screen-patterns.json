@@ -1,0 +1,86 @@
+{
+	"patterns": [
+		{
+			"id": "layout.screen.screenShell",
+			"target": "screen",
+			"name": "화면 셸",
+			"description": "Screen 아래 Header, Contents, Bottom region을 갖는 기본 page shell 패턴",
+			"componentID": "ScreenShell",
+			"props": {
+				"gap": {
+					"type": "number"
+				}
+			},
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
+		},
+		{
+			"id": "layout.screen.commerceDetailScreen",
+			"target": "screen",
+			"name": "상품 상세 화면",
+			"description": "상품/구독/단말기 상세 화면 shell 패턴. Figma `SKT GenUI Test 0514` 상세-상품 page의 reference처럼 Header, scrollable Contents, optional sticky Bottom action을 분리한다.",
+			"componentID": "CommerceDetailScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"safeArea": {
+					"type": "string"
+				}
+			},
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
+		},
+		{
+			"id": "layout.screen.textListScreen",
+			"target": "screen",
+			"name": "텍스트 리스트 화면",
+			"description": "Figma `SKT GenUI Test 0514` node `10042:46203` Page (리스트-텍스트) 계열 화면 shell 패턴. 공통 Header chrome은 AppBar 중심으로 유지하고 Contents에는 이용내역, T플러스포인트내역, 할인내역, 공지사항, 이용안내 list-text variant별 region 패턴을 배치한다.",
+			"componentID": "TextListScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				},
+				"height": {
+					"type": "number"
+				},
+				"headerHeight": {
+					"type": "number"
+				}
+			},
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
+		},
+		{
+			"id": "layout.screen.cardListScreen",
+			"target": "screen",
+			"name": "카드 리스트 화면",
+			"description": "Figma node `9896:91122` Page (리스트-카드) 계열 화면 shell 패턴. Header chrome은 AppBar만 표현하고 Contents에는 상품군별 chip, filter/sort, card list region 패턴을 variant에 따라 배치한다.",
+			"componentID": "CardListScreen",
+			"props": {
+				"contentWidth": {
+					"type": "number"
+				},
+				"gap": {
+					"type": "number"
+				}
+			},
+			"children": {
+				"accepts": "region"
+			},
+			"status": "draft"
+		}
+	]
+}

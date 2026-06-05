@@ -1,8 +1,6 @@
-import { NODE_TYPES } from "@cx/types/node-types";
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import type { GridLayoutProps, LayoutGridNode } from "../types";
-
-import { cx, gridLayoutClassName, gridLayoutFallbackStyle } from "./style";
+import { cx, gridLayoutClassName, gridLayoutFallbackStyle } from "../internal/style";
+import { type GridLayoutProps, LAYOUT_NODE_TYPES, type LayoutGridNode } from "../types";
 
 export type GridProps = {
 	as?: ElementType;
@@ -18,7 +16,7 @@ export function Grid({ as: Element = "div", children, className, layout, node, s
 		<Element
 			className={cx(gridLayoutClassName(layout), className)}
 			data-node-id={node?.metadata.id}
-			data-node-type={node?.type ?? NODE_TYPES.layout[1]}
+			data-node-type={node?.type ?? LAYOUT_NODE_TYPES.layout[1]}
 			style={{
 				...gridLayoutFallbackStyle(layout),
 				...style,

@@ -1,0 +1,25 @@
+export const sideEffectBoundary = {
+	name: "side-effect-conveyor-belt",
+	packageName: "@cx/pipeline",
+	owns: [
+		"side-effect-command-conveying",
+		"markdown-source-parse-command",
+		"source-artifact-read",
+		"versioned-artifact-write",
+		"run-log-write",
+		"approved-catalog-apply",
+		"cli-side-effect-run",
+		"external-store-sync",
+	],
+	rejects: [
+		"claude-agent-run",
+		"pure-stage-orchestration",
+		"markdown-parsing-rule-ownership",
+		"validation-rule-ownership",
+		"business-workflow-ownership",
+		"render-tree-react-render",
+		"catalog-value-ownership",
+		"mock-source-mutation",
+		"generation-contract-ssot",
+	],
+} as const;

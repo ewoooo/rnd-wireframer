@@ -7,38 +7,9 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./agent-sdk-runtime": "./src/runtime/agent-sdk-runtime.ts",
-		"./claude-asset-generator": "./src/register/claude-asset-generator.ts",
-		"./compose-assets": "./src/compose/compose-assets.ts",
-		"./compose-assets-ai": "./src/compose/compose-assets-ai.ts",
-		"./compose-synthesize-ai": "./src/compose/compose-synthesize-ai.ts",
-		"./ai-pattern-selector": "./src/decorate/ai-pattern-selector.ts",
-		"./decorate-assets": "./src/decorate/decorate-assets.ts",
-		"./design-review": "./src/design-review/index.ts",
-		"./design-review-schema": "./src/design-review/design-review-schema.ts",
-		"./promote-database-tables": "./src/database/promote-database-tables.ts",
-		"./materialize-composition": "./src/database/materialize-composition.ts",
-		"./pattern-schema": "./src/pattern/pattern-schema.ts",
-		"./pattern-store": "./src/pattern/pattern-store.ts",
-		"./register-assets": "./src/register/register-assets.ts",
-		"./register-assets-to-database-tables": "./src/database/register-assets-to-database-tables.ts",
-		"./resolvers/pattern-resolver": "./src/pattern/pattern-resolver.ts",
-		"./resolvers": "./src/pattern/pattern-resolver.ts",
-		"./types": "./src/types.ts",
-		"./validate": "./src/validate/index.ts",
-		"./deck": "./src/deck/index.ts",
-		"./compose-screen": "./src/compose-screen/index.ts",
-		"./decorate-screen": "./src/decorate-screen/index.ts",
-		"./pipeline": "./src/pipeline/index.ts"
-	},
-	"dependencies": {
-		"@anthropic-ai/claude-agent-sdk": "^0.3.146",
-		"@cx/component-pattern-store": "workspace:*",
-		"@cx/components": "workspace:*",
-		"@cx/pattern-store": "workspace:*",
-		"@cx/renderer": "workspace:*",
-		"@cx/types": "workspace:*",
-		"@openai/agents": "^0.11.4",
-		"zod": "^4.4.3"
+		"./adapters": "./src/adapters/index.ts",
+		"./claude": "./src/claude/index.ts",
+		"./contract": "./src/contract/index.ts",
+		"./tasks": "./src/tasks/index.ts"
 	}
 }

@@ -14,6 +14,7 @@
 		"./database-tables": "./src/database-tables.ts",
 		"./decorated-output": "./src/decorated-output.ts",
 		"./gap-report": "./src/gap-report.ts",
+		"./guards": "./src/guards.ts",
 		"./node-types": "./src/node-types.ts",
 		"./pattern-store": "./src/pattern-store.ts",
 		"./pattern-store-schema": "./src/pattern-store-schema.ts",

@@ -1,7 +1,13 @@
 import { getComponentCatalogEntry } from "@cx/components/catalog";
 import type { DatabasePatternRef } from "@cx/types/database-tables";
+import { isRecord } from "@cx/types/guards";
 import type { ScreenRegionType } from "@cx/types/node-types";
-import type { ChildrenLayoutPreset, PatternResolutionSignals, PatternStorePattern, PatternStoreTarget } from "@cx/types/pattern-store";
+import type {
+	ChildrenLayoutPreset,
+	PatternResolutionSignals,
+	PatternStorePattern,
+	PatternStoreTarget,
+} from "@cx/types/pattern-store";
 import { findPattern, listPatterns } from "./store";
 
 export function getPatternPreset<TTarget extends PatternStoreTarget>(
@@ -131,11 +137,6 @@ function arrayOfRecords(value: unknown): Array<Record<string, unknown>> {
 		? value.filter((entry): entry is Record<string, unknown> => isRecord(entry))
 		: [];
 }
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function toKebabCase(value: string): string {
 	return value
 		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")

@@ -6,17 +6,20 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./catalog": "./src/catalog.ts",
+		"./mutations": "./src/public/mutations.ts",
+		"./puck": "./src/public/puck.ts",
+		"./resolver": "./src/public/resolver.ts",
 		"./styles.css": {
 			"style": "./src/styles.css",
 			"default": "./src/styles.css"
 		},
 		"./tokens": "./src/tokens/index.ts",
 		"./tokens.css": "./src/tokens/variables.css",
-		"./tailwind.css": "./src/tailwind/theme.css"
+		"./tailwind.css": "./src/tailwind/theme.css",
+		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/tokens": "workspace:*",
-		"@cx/types": "workspace:*"
+		"@cx/tokens": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

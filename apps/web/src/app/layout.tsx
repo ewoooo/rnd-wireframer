@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "@puckeditor/core/puck.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-	title: "Wireframe Generator",
+	title: "Render Tree Generator",
 	description: "Render Tree Renderer",
 };
 

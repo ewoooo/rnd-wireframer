@@ -1,5 +1,6 @@
 import { componentCatalog } from "@cx/components/catalog";
 import type { ComponentCatalogEntry } from "@cx/types/component-catalog";
+import { isRecord } from "@cx/types/guards";
 import { patternSchema, patternStoreSchema } from "@cx/types/pattern-store-schema";
 import { describe, expect, it } from "vitest";
 import { listPatternSummaries, listPatterns, loadPatternStore } from "../store";
@@ -135,11 +136,6 @@ describe("@cx/pattern-store", () => {
 		expect(missing).toEqual([]);
 	});
 });
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function readString(value: Record<string, unknown>, key: string): string | undefined {
 	const field = value[key];
 	return typeof field === "string" ? field : undefined;
