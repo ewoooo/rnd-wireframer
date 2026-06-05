@@ -744,6 +744,12 @@ type DecorationStepResult = {
 	patternLayerCandidates?: PatternLayerCandidate[];
 };
 
+/** Rich output of the validate steps: the report plus the (re-derived) bundle selection. */
+type ValidationStepResult = {
+	designContextBundleSelection?: DesignContextBundleSelection;
+	validationReport: ValidationReportContract;
+};
+
 async function runGenerateRenderTreeAiStep(
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
@@ -790,36 +796,42 @@ async function runGenerateRenderTreeAiStep(
 }
 
 function runValidateRenderTreeStage(
-	_inputs: ResolvedStepInputs,
+	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
-): ValidationReportContract {
-	const validationReport = createRenderTreeValidationReport(state.generation.agentResult?.payload, {
-		allowedLayoutIds: state.patternLayerCandidates?.map((candidate) => candidate.layout),
-		componentCatalog: state.options.references.componentCatalogs.validationCatalog,
-		compositionPlan: state.compositionPlan.agentResult?.payload,
-		decorationPlan: state.decorationPlan,
-		screenIntent: state.screenIntent.agentResult?.payload,
-		sourceSpec: state.sourceSpec,
+): ValidationStepResult {
+	const sourceSpec = inputs.source as SourceSpec | undefined;
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
+	const validationReport = createRenderTreeValidationReport(inputs.target, {
+		allowedLayoutIds: decoration?.patternLayerCandidates?.map((candidate) => candidate.layout),
+		componentCatalog: (inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs)
+			.validationCatalog,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		screenIntent: inputs.intent,
+		sourceSpec,
 	});
 	state.validationReport = validationReport;
 	state.initialValidationReport ??= state.validationReport;
-	if (state.sourceSpec) {
-		state.designContextBundleSelection = runDesignContextBundleRefsNode({
-			compositionPlan: state.compositionPlan.agentResult?.payload,
-			layerCandidates: state.patternLayerCandidates,
-			screenIntent: state.screenIntent.agentResult?.payload,
-			sourceSpec: state.sourceSpec,
-			validationReport: state.validationReport,
+	let designContextBundleSelection = composition?.designContextBundleSelection;
+	if (sourceSpec) {
+		designContextBundleSelection = runDesignContextBundleRefsNode({
+			compositionPlan: composition?.compositionPlan,
+			layerCandidates: decoration?.patternLayerCandidates,
+			screenIntent: inputs.intent,
+			sourceSpec,
+			validationReport,
 		});
+		state.designContextBundleSelection = designContextBundleSelection;
 	}
-	return validationReport;
+	return { designContextBundleSelection, validationReport };
 }
 
 function runValidateRenderTreeAfterRevisionStage(
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): ValidationReportContract {
-	const validationReport = runValidateRenderTreeStage(inputs, state);
+	const { validationReport } = runValidateRenderTreeStage(inputs, state);
 	if (!state.preRevisionAgentResult || !state.preRevisionValidationReport) return validationReport;
 	if (!isValidationWorse(state.validationReport, state.preRevisionValidationReport)) {
 		return validationReport;
@@ -835,29 +847,32 @@ async function runProposeComponentsAiStep(
 	state: ScreenGenerationPipelineState,
 	runner: AgentRunner,
 ): Promise<unknown> {
-	const sourceSpec = requireSourceSpec(state);
+	const sourceSpec = readSourceSpecInput(inputs, state);
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
+	const validation = inputs.validation as ValidationStepResult | undefined;
 	const componentContractCatalog = buildSourceComponentContractCatalog(
 		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 		sourceSpec,
-		state.patternLayerCandidates ?? [],
+		decoration?.patternLayerCandidates ?? [],
 	);
 	state.designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		state.designContextBundleSelection?.bundleRefs,
+		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
 	);
 	const nodeResult = await runComponentProposalNode({
-		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
+		candidate: inputs.candidate,
 		componentContractCatalog,
-		compositionPlan: state.compositionPlan.agentResult?.payload,
-		decorationPlan: state.decorationPlan,
-		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
-		designSkillSelection: state.designSkillSelection,
-		layerCandidates: state.patternLayerCandidates,
-		patternSelection: state.patternSelection.agentResult?.payload,
+		designSkillSelection: composition?.designSkillSelection,
+		layerCandidates: decoration?.patternLayerCandidates,
+		patternSelection: inputs.pattern,
 		runner,
-		screenIntent: state.screenIntent.agentResult?.payload,
+		screenIntent: inputs.intent,
 		sourceSpec,
 	});
 
@@ -881,31 +896,33 @@ async function runReviewQualityAiStep(
 	state: ScreenGenerationPipelineState,
 	runner: AgentRunner,
 ): Promise<unknown> {
-	const sourceSpec = requireSourceSpec(state);
+	const sourceSpec = readSourceSpecInput(inputs, state);
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
+	const validation = inputs.validation as ValidationStepResult | undefined;
 	state.designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		state.designContextBundleSelection?.bundleRefs,
+		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
 	);
 	const nodeResult = await runQualityReviewNode({
-		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
+		candidate: inputs.candidate,
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 			sourceSpec,
-			state.patternLayerCandidates ?? [],
+			decoration?.patternLayerCandidates ?? [],
 		),
-		compositionPlan: state.compositionPlan.agentResult?.payload,
-		decorationPlan: state.decorationPlan,
-		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
-		designSkillSelection: state.designSkillSelection,
-		layerCandidates: state.patternLayerCandidates,
-		patternSelection: state.patternSelection.agentResult?.payload,
+		designSkillSelection: composition?.designSkillSelection,
+		layerCandidates: decoration?.patternLayerCandidates,
+		patternSelection: inputs.pattern,
 		runner,
-		screenIntent: state.screenIntent.agentResult?.payload,
+		screenIntent: inputs.intent,
 		sourceSpec,
-		validationReport:
-			(inputs.validation as ValidationReportContract | undefined) ?? state.validationReport,
+		validationReport: validation?.validationReport,
 	});
 
 	state.qualityReview.agentInput = nodeResult.agentInput;
@@ -929,35 +946,37 @@ async function runReviseRenderTreeIfInvalidAiStep(
 		return state.generation.agentResult?.payload;
 	}
 
-	const sourceSpec = requireSourceSpec(state);
-	const previousCandidate = inputs.generation ?? state.generation.agentResult?.payload;
+	const sourceSpec = readSourceSpecInput(inputs, state);
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
+	const validation = inputs.validation as ValidationStepResult | undefined;
+	const previousCandidate = inputs.generation;
 	state.preRevisionAgentResult = state.generation.agentResult;
 	state.preRevisionValidationReport = state.validationReport;
 	state.designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		state.designContextBundleSelection?.bundleRefs,
+		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
 	);
 	const nodeResult = await runScreenRevisionNode({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 			sourceSpec,
-			state.patternLayerCandidates ?? [],
+			decoration?.patternLayerCandidates ?? [],
 		),
-		compositionPlan: state.compositionPlan.agentResult?.payload,
-		decorationPlan: state.decorationPlan,
-		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
-		designSkillSelection: state.designSkillSelection,
-		layerCandidates: state.patternLayerCandidates,
-		patternSelection: state.patternSelection.agentResult?.payload,
+		designSkillSelection: composition?.designSkillSelection,
+		layerCandidates: decoration?.patternLayerCandidates,
+		patternSelection: inputs.pattern,
 		previousCandidate,
-		qualityInspection: inputs.quality ?? state.qualityReview.agentResult?.payload,
+		qualityInspection: inputs.quality,
 		runner,
-		screenIntent: state.screenIntent.agentResult?.payload,
+		screenIntent: inputs.intent,
 		sourceSpec,
-		validationReport:
-			(inputs.validation as ValidationReportContract | undefined) ?? state.validationReport,
+		validationReport: validation?.validationReport,
 	});
 
 	state.revision.agentInput = nodeResult.agentInput;
