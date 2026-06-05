@@ -30,6 +30,108 @@ export type PipelineDefinition = {
 	stages: PipelineStageId[];
 };
 
+export type StepInputRef = RefStepInputRef | ValueStepInputRef;
+
+export type RefStepInputRef = {
+	kind: "ref";
+	ref: string;
+};
+
+export type ValueStepInputRef = {
+	kind: "value";
+	value: unknown;
+};
+
+export type OutputContract = {
+	artifactKind?: string;
+	jsonSchema?: unknown;
+	schemaVersion?: string;
+};
+
+export type StepRunContext = {
+	pipelineId: string;
+	runId: string;
+};
+
+export type StepExecutor = (
+	inputs: ResolvedStepInputs,
+	context: StepRunContext,
+) => Promise<unknown> | unknown;
+
+export type PipelineStep = AiPipelineStep | ExecutablePipelineStep;
+
+export type BasePipelineStep = {
+	id: string;
+	inputs?: Record<string, StepInputRef>;
+};
+
+export type AiPipelineStep = BasePipelineStep & {
+	output: OutputContract;
+	prompt: unknown;
+	usesAI: true;
+};
+
+export type ExecutablePipelineStep = BasePipelineStep & {
+	execute: StepExecutor;
+	output?: OutputContract;
+	usesAI: false;
+};
+
+export type FeedbackCondition = (
+	output: unknown,
+	state: PipelineExecutionState,
+) => boolean | Promise<boolean>;
+
+export type PipelineFeedbackRule = {
+	fromStep: string;
+	goTo: string;
+	id: string;
+	maxRetries: number;
+	then?: string;
+	when: FeedbackCondition;
+};
+
+export type StepCollectionRef = {
+	kind: "step-collection";
+	stepIds: string[];
+};
+
+export type ArtifactCondition = (state: PipelineExecutionState) => boolean | Promise<boolean>;
+
+export type PipelineArtifactRule = {
+	from: StepInputRef | StepCollectionRef;
+	id: string;
+	kind: string;
+	when?: ArtifactCondition;
+};
+
+export type StepPipelineDefinition = {
+	artifacts?: PipelineArtifactRule[];
+	feedback?: PipelineFeedbackRule[];
+	id: string;
+	steps: PipelineStep[];
+};
+
+export type PipelineExecutionStepState = {
+	completedAt?: string;
+	error?: {
+		code: string;
+		message: string;
+	};
+	output?: unknown;
+	startedAt?: string;
+	status: PipelineStageRunStatus;
+};
+
+export type PipelineExecutionState = {
+	input: Record<string, unknown>;
+	refs: Record<string, unknown>;
+	retryCounts: Record<string, number>;
+	steps: Record<string, PipelineExecutionStepState>;
+};
+
+export type ResolvedStepInputs = Record<string, unknown>;
+
 export type PipelineAgentMode = "claude-local-first" | "fake";
 export type ArtifactStorePreset = "data-run" | "local-transient" | "web-fixture";
 export type PipelineProgressEvent = {

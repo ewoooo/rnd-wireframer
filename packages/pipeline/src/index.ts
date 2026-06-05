@@ -2,6 +2,21 @@ export { createNodePipelineAdapters } from "./adapters";
 export type { ParseMarkdownSourceCommand, ParseMarkdownSourceCommandResult } from "./commands";
 export { runParseMarkdownSourceCommand } from "./commands";
 export {
+	createPipelineExecutionState,
+	definePipeline,
+	defineStep,
+	from,
+	resolveStepInput,
+	resolveStepInputs,
+	StepInputResolutionError,
+	value,
+} from "./definition";
+export type {
+	CreateFilePipelinePersistenceAdapterInput,
+	CreatePipelineRunStatusInput,
+	UpdatePipelineRunStatusInput,
+} from "./persistence";
+export {
 	completePipelineRunStatus,
 	createFilePipelinePersistenceAdapter,
 	createPipelineRunEvent,
@@ -9,20 +24,22 @@ export {
 	persistPipelineRunEvent,
 	updatePipelineRunStatus,
 } from "./persistence";
-export type {
-	CreateFilePipelinePersistenceAdapterInput,
-	CreatePipelineRunStatusInput,
-	UpdatePipelineRunStatusInput,
-} from "./persistence";
 export { sideEffectBoundary } from "./public/contract";
 export type { SmokeRunManifest } from "./public/smoke-run-manifest";
 export type {
+	AiPipelineStep,
 	ApplyApprovedArtifactCommand,
+	ArtifactCondition,
 	ArtifactStorePreset,
+	OutputContract,
 	PipelineAdapters,
 	PipelineAgentMode,
+	PipelineArtifactRule,
 	PipelineClockAdapter,
 	PipelineDefinition,
+	PipelineExecutionState,
+	PipelineExecutionStepState,
+	PipelineFeedbackRule,
 	PipelineFileSystemAdapter,
 	PipelineId,
 	PipelineIdAdapter,
@@ -34,9 +51,11 @@ export type {
 	PipelineRunMode,
 	PipelineRunResult,
 	PipelineRunStatus,
-	PipelineStageRunStatus,
 	PipelineStageId,
+	PipelineStageRunStatus,
+	PipelineStep,
 	PipelineSummary,
+	ResolvedStepInputs,
 	RunSideEffectsInput,
 	ScreenGenerationPipelineOptions,
 	SideEffectArtifactRef,
@@ -53,6 +72,11 @@ export type {
 	SideEffectOperation,
 	SideEffectPackageName,
 	SourceArtifactReadCommand,
+	StepCollectionRef,
+	StepExecutor,
+	StepInputRef,
+	StepPipelineDefinition,
+	StepRunContext,
 	WriteRunLogCommand,
 	WriteVersionedArtifactCommand,
 } from "./public/types";

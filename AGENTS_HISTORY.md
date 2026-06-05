@@ -36,6 +36,16 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Inference Pipeline Rollout 0-2
+
+- 변경: `npm run test:smoke:pipeline`을 추가해 fake-mode CLI smoke를 rollout static/fake-mode gate에 포함함
+- 변경: `@cx/pipeline/definition`에 `definePipeline`, `defineStep`, `from`, `value` Step Definition helper를 추가함
+- 변경: `PipelineStep`, `StepInputRef`, `OutputContract`, `StepPipelineDefinition`, `PipelineExecutionState` 등 Step migration 타입을 public type으로 추가함
+- 변경: `resolveStepInputs`, `resolveStepInput`, `createPipelineExecutionState`, `StepInputResolutionError`를 추가해 `input.*`, `step.*`, `ref.*`, `value(...)` resolver를 구현함
+- 변경: 현재 screen inference 13단계가 Step 정의 데이터로 표현되는지와 nested input ref resolver가 동작하는지 테스트를 추가함
+- 이유: Rollout 0~2 범위에서 기존 screen-generation 런타임은 변경하지 않고, Step migration의 선언/입력 해석 기반만 먼저 세우기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --use-ai`, `git diff --check`
+
 ## 2026-06-04 - Inference Pipeline Step Runner Plan
 
 - 변경: `docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md`를 graph/node 중심 설명에서 `PipelineDefinition`, `PipelineStep`, `StepInputRef`, `OutputContract`, `feedback`, `persistence` 중심 설명으로 재정리함
@@ -51,8 +61,9 @@
 - 변경: `componentCatalogs`와 `layoutCatalogs` 예시를 실제 `@cx/components/catalog`, `@cx/layout-pattern-store`, `@cx/layout-pattern-store/resolver` public API 기준으로 보정함
 - 변경: Step API 예시를 현재 `screenGenerationPipelineDefinition.stages` 순서와 참조 흐름 기준으로 보정하고, `derive-decoration-plan`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts`를 1차 migration 예시에 포함함
 - 변경: 현재 코드 근거 파일, 품질 parity gate, fake-mode/Claude local-first baseline, Step migration rollout 0~9를 계획 문서에 추가함
+- 변경: fake-mode CLI smoke를 `npm run test:smoke:pipeline`으로 추가하고 migration static/fake-mode gate에 포함함
 - 이유: 현재 요구사항이 범용 graph engine보다 단계 순서, 단계별 참고 자료, 출력 계약, AI 사용 유무, feedback loop, UI 상태 persistence를 빠르게 실험하는 것에 가깝기 때문
-- 검증: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`, `artifact-commands.ts`, `public/types.ts`, `screen-generation-tags.test.ts`, `public-api.test.ts` 확인 후 문서 변경, `git diff --check`
+- 검증: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`, `artifact-commands.ts`, `public/types.ts`, `screen-generation-tags.test.ts`, `public-api.test.ts` 확인 후 문서 변경, `npm run test:smoke:pipeline`, `git diff --check`
 
 ## 2026-06-04 - Divider Prop Contract Cleanup
 

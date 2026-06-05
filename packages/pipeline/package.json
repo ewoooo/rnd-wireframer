@@ -10,6 +10,7 @@
 		"./adapters": "./src/adapters/index.ts",
 		"./commands": "./src/commands/index.ts",
 		"./contract": "./src/public/contract.ts",
+		"./definition": "./src/definition/index.ts",
 		"./runner": "./src/runner/index.ts",
 		"./runtime": "./src/runtime/index.ts",
 		"./parser": "./src/public/parser.ts",

@@ -19,6 +19,7 @@
 		"smoke:promote-component": "tsx apps/smoke/src/promote-component-cli.ts",
 		"smoke:promote-fixture": "tsx apps/smoke/src/promote-fixture-cli.ts",
 		"test": "vitest run",
+		"test:smoke:pipeline": "tsx apps/smoke/src/cli.ts --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient",
 		"test:watch": "vitest"
 	},
 	"devDependencies": {

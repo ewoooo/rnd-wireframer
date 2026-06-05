@@ -2165,18 +2165,14 @@ Static gates:
 ```text
 pnpm exec tsc --noEmit --pretty false --incremental false
 pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts
+npm run test:smoke:pipeline
 git diff --check
 ```
 
 Fake-mode parity gate:
 
 ```text
-runPipeline("screen-generation", {
-  agentMode: "fake",
-  artifactStore: { rootDir },
-  runId,
-  source: { path: "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md", type: "file" },
-});
+npm run test:smoke:pipeline
 ```
 
 Must preserve:
@@ -2214,6 +2210,17 @@ Must compare against a baseline run from the current implementation:
 
 Because Claude output is nondeterministic, exact JSON equality is not the quality criterion.
 The quality criterion is contract validity, source faithfulness, comparable review outcome, and no lost context input.
+
+Current implementation status:
+
+```text
+2026-06-05
+- Rollout 0 fake-mode baseline gate is available as `npm run test:smoke:pipeline` and has been run successfully.
+- Rollout 0 Claude local-first baseline has been run successfully with `smoke:pipeline -- --use-ai` on `NOVA-PRDD-PG-001-0.md`.
+- Rollout 1 Step Definition types/helpers are implemented in `@cx/pipeline/definition`.
+- Rollout 2 Step input resolver/state helpers are implemented in `@cx/pipeline/definition`.
+- Screen generation runtime still uses the current hardcoded stage loop; no behavior migration has started yet.
+```
 
 ### 11.3 Rollout 0. Baseline Capture
 
