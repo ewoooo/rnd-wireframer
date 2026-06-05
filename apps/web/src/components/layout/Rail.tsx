@@ -51,16 +51,6 @@ const primaryItems: NavItem[] = [
 	},
 ];
 
-const secondaryItems: NavItem[] = [
-	{
-		icon: Table2,
-		label: "AGT",
-		name: "Agent",
-		description: "AI 에이전트 노드 레지스트리 및 생성 현황",
-		value: "agent",
-	},
-];
-
 function NavButton({ item, isActive, onSelectTab }: { item: NavItem; isActive: boolean; onSelectTab: (tab: NavigatorTab) => void }) {
 	const Icon = item.icon;
 	return (
@@ -103,12 +93,6 @@ export function Rail({ activeTab, onSelectTab }: RailProps) {
 				<div className="my-1 w-6 border-t border-sidebar-border" />
 
 				{primaryItems.map((item) => (
-					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
-				))}
-
-				<div className="my-1 w-6 border-t border-sidebar-border" />
-
-				{secondaryItems.map((item) => (
 					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
 				))}
 			</nav>
