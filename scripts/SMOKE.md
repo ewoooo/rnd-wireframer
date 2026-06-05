@@ -1,8 +1,8 @@
-# @cx/smoke
+# Smoke Scripts
 
-`@cx/smoke` is a developer-facing CLI wrapper for running workspace pipelines.
+The smoke scripts are developer-facing CLI wrappers for running workspace pipelines.
 
-It is not a production runtime package. It calls `@cx/pipeline` and records pipeline artifacts for inspection.
+They are not production runtime packages. They call `@cx/pipeline` and record pipeline artifacts for inspection.
 
 ## Responsibility
 
@@ -18,24 +18,13 @@ It is not a production runtime package. It calls `@cx/pipeline` and records pipe
 - Claude runner implementation
 - renderer implementation
 - catalog or token ownership
-- orchestration stage execution
+- inference node execution
 - artifact command construction
 
-## Public Usage
+## Programmatic Usage
 
-```ts
-import { runGenerationSmoke } from "@cx/smoke/generation";
-
-const result = await runGenerationSmoke(
-  "data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md",
-  {
-    useAI: false,
-    runId: "stable-smoke-run",
-  },
-);
-
-console.log(result.summary);
-```
+Internal scripts can import `runGenerationSmoke` from `scripts/generation`.
+Application and package code should not import smoke helpers.
 
 `useAI: false` uses the fake pipeline runner. `useAI: true` asks `@cx/pipeline` to call the local Claude runner through `@cx/agent`.
 
@@ -74,12 +63,6 @@ Use the root script for the common path:
 
 ```bash
 npm run smoke:pipeline -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md
-```
-
-Or call the app workspace directly:
-
-```bash
-npm --workspace @cx/smoke run generation -- --target data/client-imports/{id}/screen/NOVA-PRDD-PG-001-0.md
 ```
 
 Use `--use-ai` to call the real local Claude runner.
@@ -138,14 +121,14 @@ Keep the flow order in pipeline definitions and keep smoke as a thin CLI/harness
 The moving parts are:
 
 ```text
-apps/smoke
+scripts/smoke-pipeline.ts
   parses CLI options and calls @cx/pipeline
 
 @cx/pipeline
   owns pipeline definitions, stage execution, agent/validation/IO wiring
 
-@cx/orchestration
-  provides deterministic stage helpers used by pipeline stages
+@cx/inference-nodes
+  provides executable generation nodes and deterministic stage helpers
 ```
 
 Current flow:
@@ -214,7 +197,7 @@ To add a new generation stage:
 1. Add the stage id to the pipeline stage contract in `@cx/pipeline`.
 2. Add the stage to the `screen-generation` pipeline definition.
 3. Add a matching pipeline stage implementation.
-4. Put deterministic agent-input or next-action helper logic in `@cx/orchestration`.
+4. Put deterministic agent-input or next-action helper logic in `@cx/inference-nodes`.
 5. Keep agent execution, validation calls, and IO inside `@cx/pipeline`.
 6. Add or update pipeline tests and run the smoke command.
 
@@ -233,8 +216,8 @@ select-pattern
 Keep these boundaries:
 
 - `@cx/pipeline` decides the stage order and executes pipeline stages.
-- `@cx/orchestration` builds deterministic stage inputs and next-action data.
-- `apps/smoke` calls `runPipeline("screen-generation", options)`.
+- `@cx/inference-nodes` builds deterministic stage inputs and next-action data.
+- `scripts/smoke-pipeline.ts` calls `runPipeline("screen-generation", options)`.
 - `packages/agent/docs` stores prompt/checklist/output reference assets.
 - `@cx/agent` runs Claude tasks.
 - `@cx/validation` owns RenderTree and table-shaped generation validation rules.
@@ -244,7 +227,7 @@ Avoid adding flow decisions directly inside the smoke harness. When a new AI or 
 
 ## Harness Boundary
 
-`apps/smoke` executes registered pipelines for developer smoke runs.
+Smoke scripts execute registered pipelines for developer smoke runs.
 
 It may:
 
@@ -255,7 +238,7 @@ It may:
 It must not:
 
 - invent workflow order outside `@cx/pipeline`
-- call `@cx/orchestration`, `@cx/agent`, or `@cx/validation` directly
+- call `@cx/inference-nodes`, `@cx/agent`, or `@cx/validation` directly
 - read or write files directly
 - own parser, validation, renderer, or Claude adapter rules
 

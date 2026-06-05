@@ -61,7 +61,7 @@ npm run render-db:push-tables -- --write
 | Puck props editing | Implemented for JSON props MVP | Puck item `nodePropsJson` updates RenderTree node `props` with invalid JSON diagnostics |
 | Puck save/apply path | Implemented for reorder and props MVP | `PUT /api/screens/:screenId/tree` replaces region/area child order and component child props from a RenderTree candidate |
 | Web local-table retirement | Implemented | Web `SCREEN_SOURCE` fallback and `/api/smoke-runs/apply` local table writer removed |
-| Smoke local-table apply retirement | Implemented | `smoke:apply-tables`, `apps/smoke/src/apply-tables-cli.ts`, and `@cx/pipeline/apply` removed |
+| Smoke local-table apply retirement | Implemented | `smoke:apply-tables`, the legacy smoke apply CLI, and `@cx/pipeline/apply` removed |
 | Old remote table consumer removal | Implemented | Runtime search shows no app/package consumer of `screen_routes`, `screen_variants`, `organisms`, or `component_renderer_kinds` |
 | Direct smoke RenderTree DB apply | Pending | Needed to promote accepted `final-result.json` without local table JSON |
 | Old Supabase table retirement | Pending | Table drop remains a separate migration/commit after schema retention is approved |
@@ -468,12 +468,12 @@ plan old table drop migration separately
 Old remote consumer retirement checklist:
 
 ```bash
-rg -n "(^|[^A-Za-z0-9_])(screen_routes|screen_variants|organisms|component_renderer_kinds)([^A-Za-z0-9_]|$)" apps packages --glob '!**/*.test.ts' --glob '!**/*.test.tsx' --glob '!apps/smoke/src/push-render-db-cli.ts'
-rg -n "from\\(\\s*['\\\"](screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)['\\\"]|/rest/v1/(screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)" apps packages
+rg -n "(^|[^A-Za-z0-9_])(screen_routes|screen_variants|organisms|component_renderer_kinds)([^A-Za-z0-9_]|$)" apps packages scripts --glob '!**/*.test.ts' --glob '!**/*.test.tsx' --glob '!scripts/push-render-db.ts'
+rg -n "from\\(\\s*['\\\"](screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)['\\\"]|/rest/v1/(screen_routes|screen_variants|screens|organisms|components|component_renderer_kinds)" apps packages scripts
 ```
 
 The expected runtime result is no matches for old table consumers. Matches for `render_screen_routes`, `render_screen_variants`, `render_screens`, and `render_components` are allowed because they are part of the new relational read model.
-`apps/smoke/src/push-render-db-cli.ts` may still mention `screen_routes.json` and `screen_variants.json` as local source filenames for the temporary migration snapshot; that is not an old remote Supabase table consumer.
+`scripts/push-render-db.ts` may still mention `screen_routes.json` and `screen_variants.json` as local source filenames for the temporary migration snapshot; that is not an old remote Supabase table consumer.
 
 Old remote Supabase table drop should be a separate migration and a separate commit after this checklist passes and the team confirms the old schema no longer needs historical retention.
 
@@ -617,7 +617,7 @@ Use this order to keep the migration small and reversible.
    - Avoid partial child-table writes from the editor.
 
 8. **Promote DB path to only Web path**
-   - Keep `apps/smoke` CLI utilities for generation and DB push.
+   - Keep `scripts/*` CLI utilities for generation and DB push.
    - Remove Web runtime imports that read or write `data/tables`.
 
 9. **Retire old remote path**

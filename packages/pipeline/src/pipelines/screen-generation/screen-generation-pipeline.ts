@@ -3,6 +3,19 @@ import { fileURLToPath } from "node:url";
 
 import { createClaudeRunner } from "@cx/agent/claude";
 import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
+import type {
+	ComponentContractCatalog,
+	ComponentProposalAgentInput,
+	CompositionPlanAgentInput,
+	DesignContextBundleSelection,
+	GenerationNextAction,
+	PatternLayerCandidate,
+	PatternSelectionAgentInput,
+	QualityReviewAgentInput,
+	ScreenGenerationAgentInput,
+	ScreenIntentAgentInput,
+	ScreenRevisionAgentInput,
+} from "@cx/inference-nodes/screen-generation";
 import {
 	createFakeComponentProposal,
 	createFakeCompositionPlan,
@@ -25,19 +38,6 @@ import {
 	runScreenIntentNode,
 	runScreenRevisionNode,
 } from "@cx/inference-nodes/screen-generation";
-import type {
-	ComponentContractCatalog,
-	ComponentProposalAgentInput,
-	CompositionPlanAgentInput,
-	DesignContextBundleSelection,
-	GenerationNextAction,
-	PatternLayerCandidate,
-	PatternSelectionAgentInput,
-	QualityReviewAgentInput,
-	ScreenGenerationAgentInput,
-	ScreenIntentAgentInput,
-	ScreenRevisionAgentInput,
-} from "@cx/orchestration/types";
 import type {
 	DecorationPlanContract,
 	DesignContextBundleContent,

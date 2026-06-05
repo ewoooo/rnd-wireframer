@@ -27,7 +27,7 @@ docker compose up --build
 ## 구조
 
 - `apps/web` — Next.js 앱
-- `apps/smoke` — generation smoke flow 실행 앱
+- `scripts/` — generation smoke, render-db migration 같은 개발/검증 도구
 - `packages/{schema,adapters,orchestration,agent,validation,pipeline,renderer,component,layout,layout-pattern-store,token}` — 생성, 변환, 검증, 렌더, 디자인 시스템 경계별 패키지
 - `data/` — 현재 preview와 adapter가 소비하는 read model/sample data
 - `docs/` — 디자인, 개발, 실행 계약 문서

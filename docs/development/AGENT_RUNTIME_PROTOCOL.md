@@ -29,7 +29,7 @@ caller
 
 경계 규칙:
 
-- `@cx/orchestration`은 stage 입력을 조립하지만 Claude를 실행하지 않는다.
+- `@cx/inference-nodes`은 stage 입력을 조립하지만 Claude를 실행하지 않는다.
 - `@cx/pipeline`은 stage 순서와 실행을 소유하지만 prompt 원문과 세션 정책은 소유하지 않는다.
 - `@cx/schema`는 DTO/schema 계약 SSOT이고, agent 런타임 정책은 소유하지 않는다.
 - `@cx/validation`은 결과 정합성 검증을 수행할 수 있지만 agent 실행 자체는 소유하지 않는다.

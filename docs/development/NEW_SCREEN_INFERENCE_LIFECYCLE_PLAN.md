@@ -167,10 +167,10 @@ The DTO should live in `@cx/schema`. `@cx/pipeline` should write or emit it beca
 | Package or app | Responsibility for this feature | Must not own |
 |---|---|---|
 | `apps/web` | DnD input UI, run creation API, progress UI, layer review UI, rendered preview, approval action | Pipeline stage order, Claude execution, validation rules |
-| `apps/smoke` | Developer harness for running the same pipeline flow | Product workflow decisions, direct orchestration/agent/validation calls |
+| `scripts/smoke-pipeline.ts` | Developer harness for running the same pipeline flow | Product workflow decisions, direct inference-node/agent/validation calls |
 | `@cx/schema` | Status, snapshot, approval, and apply result DTO contracts | Runtime execution, file IO, DB write |
 | `@cx/pipeline` | Run status updates, layer snapshot artifact writes, stage execution, final artifact write | Web UI, DB schema interpretation, source meaning rules |
-| `@cx/orchestration` | Deterministic input builders and next-action helpers used by stages | Progress storage, file IO, stage order |
+| `@cx/inference-nodes` | Deterministic input builders and next-action helpers used by stages | Progress storage, file IO, stage order |
 | `@cx/agent` | Claude task execution for intent, composition, generation, review, revision | Product lifecycle, approval, DB write |
 | `@cx/validation` | RenderTree/schema/catalog validation reports | Human approval decision, retry policy |
 | `@cx/adapters/table` | Pure RenderTree/table-row projection or materialization helpers when needed | Supabase calls, file IO |

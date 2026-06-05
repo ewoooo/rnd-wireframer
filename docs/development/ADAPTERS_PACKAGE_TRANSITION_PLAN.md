@@ -87,9 +87,9 @@ Names may change during implementation, but the responsibility split should not 
 | `@cx/pipeline` | Calls `@cx/adapters/markdown`; no longer owns parser/materializer/projection implementation. |
 | `@cx/renderer` | No behavior change. Continue to accept RenderTree JSON only. |
 | `@cx/validation` | No ownership change. May validate adapter output but does not live inside adapters. |
-| `@cx/orchestration` | No ownership change. Continue to provide pure planning helpers. |
+| `@cx/inference-nodes` | No ownership change. Continue to provide pure planning helpers. |
 | `apps/web` | Move Puck adapter logic out of `apps/web/src/lib`; keep UI and REST/DB facade in the app. |
-| `apps/smoke` | Use adapter subpaths for Markdown parsing and future `final-result.json -> DB rows` projection. |
+| `scripts/smoke-pipeline.ts` | Use adapter subpaths for Markdown parsing and future `final-result.json -> DB rows` projection. |
 
 ## Source Move Map
 

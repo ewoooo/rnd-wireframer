@@ -1,8 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
-	canonicalizeRenderProjection,
 	type CanonicalizationReport,
+	canonicalizeRenderProjection,
 	type RenderProjection,
 } from "./render-db-canonical";
 

@@ -1,21 +1,21 @@
-import {
-	buildDecorationPlan,
-	buildDesignContextBundleRefs,
-	buildDesignSkillSelection,
-	buildGenerationNextAction,
-	buildPatternLayerCandidates,
-} from "@cx/orchestration";
-import type {
-	DesignContextBundleSelection,
-	GenerationNextAction,
-	PatternLayerCandidate,
-} from "@cx/orchestration/types";
 import type {
 	DecorationPlanContract,
 	DesignSkillSelectionContract,
 	SourceSpec,
 	ValidationReportContract,
 } from "@cx/schema";
+import {
+	buildDecorationPlan,
+	buildDesignContextBundleRefs,
+	buildDesignSkillSelection,
+	buildGenerationNextAction,
+	buildPatternLayerCandidates,
+} from "./planning/generation";
+import type {
+	DesignContextBundleSelection,
+	GenerationNextAction,
+	PatternLayerCandidate,
+} from "./planning/types";
 
 export type ScreenGenerationLayoutResolver = Parameters<
 	typeof buildPatternLayerCandidates

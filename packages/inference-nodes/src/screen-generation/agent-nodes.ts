@@ -1,4 +1,13 @@
 import type { AgentRunner } from "@cx/agent/contract";
+import type {
+	DecorationPlanContract,
+	DesignContextBundleContent,
+	DesignContextBundleRef,
+	SourceSpec,
+	ValidationReportContract,
+} from "@cx/schema";
+import type { AgentPromptNodeResult } from "../agent";
+import { runAgentPromptNode } from "../agent";
 import {
 	buildComponentProposalAgentInput,
 	buildCompositionPlanAgentInput,
@@ -6,7 +15,7 @@ import {
 	buildQualityReviewAgentInput,
 	buildScreenGenerationAgentInput,
 	buildScreenRevisionAgentInput,
-} from "@cx/orchestration";
+} from "./planning/generation";
 import type {
 	ComponentContractCatalog,
 	ComponentProposalAgentInput,
@@ -17,16 +26,7 @@ import type {
 	QualityReviewAgentInput,
 	ScreenGenerationAgentInput,
 	ScreenRevisionAgentInput,
-} from "@cx/orchestration/types";
-import type {
-	DecorationPlanContract,
-	DesignContextBundleContent,
-	DesignContextBundleRef,
-	SourceSpec,
-	ValidationReportContract,
-} from "@cx/schema";
-import type { AgentPromptNodeResult } from "../agent";
-import { runAgentPromptNode } from "../agent";
+} from "./planning/types";
 
 export type RunCompositionPlanNodeInput = {
 	designSkillSelection?: DesignSkillSelectionContract;

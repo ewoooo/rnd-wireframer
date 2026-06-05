@@ -75,10 +75,7 @@ async function readRemoteProjection(): Promise<RenderProjection> {
 		screens,
 	] = await Promise.all([
 		readRestRows("render_area_children", "select=id,area_id,component_id,order_index"),
-		readRestRows(
-			"render_areas",
-			"select=id,type,version,layout_id,name,description,author,props",
-		),
+		readRestRows("render_areas", "select=id,type,version,layout_id,name,description,author,props"),
 		readRestRows(
 			"render_component_children",
 			"select=id,component_id,order_index,catalog_component_type,variant,props",
@@ -303,9 +300,9 @@ function readRequiredArg(args: string[], index: number, optionName: string): str
 
 function printUsage() {
 	console.log(`Usage:
-  tsx apps/smoke/src/canonicalize-render-db-cli.ts --report-file tmp/render-db-canonical-report.json
-  tsx apps/smoke/src/canonicalize-render-db-cli.ts --out-file tmp/render-db-canonical-migration.sql
-  tsx apps/smoke/src/canonicalize-render-db-cli.ts --write
+  tsx scripts/canonicalize-render-db.ts --report-file tmp/render-db-canonical-report.json
+  tsx scripts/canonicalize-render-db.ts --out-file tmp/render-db-canonical-migration.sql
+  tsx scripts/canonicalize-render-db.ts --write
 
 Options:
   --env-file <path>    Env file with Supabase URL and service role key. Default: env.shared.

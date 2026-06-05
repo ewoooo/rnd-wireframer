@@ -22,11 +22,11 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 - Markdown/source 입력은 `@cx/parser`에서 SourceSpec으로 정규화한 뒤 생성 흐름에 전달한다.
 - 하위 패키지는 가능하면 입력값을 받아 결과값을 반환하는 순수 함수형 API를 우선한다.
 - 파일 저장, 승인 반영, CLI 실행, 외부 저장소 동기화 같은 side effect와 pipeline runtime은 `@cx/pipeline` 경계에 둔다.
-- 생성/검수/미리보기/반영 stage의 순수 입력 조립과 next action helper는 `@cx/orchestration`에서 다룬다.
+- 생성/검수/미리보기/반영 stage의 실행 node와 순수 입력 조립, next action helper는 `@cx/inference-nodes`에서 다룬다.
 - DTO, component reference, layout pattern reference, token reference 검증은 `@cx/validation`에서 결과 리포트로만 반환한다.
 - Claude 실행은 `@cx/agent`가 담당하며, 생성과 검수 모두 Claude 기반으로 운영한다.
 - 생성/검수용 참조 자산의 정본은 `@cx/agent` 내부 문서 자산으로 관리한다. design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/design-context/`이며, `docs/design/`을 린트한 결과다.
-- design-context bundle은 `@cx/orchestration`이 ref만 선택하고 `@cx/pipeline`이 본문을 로드해 prompt context에 주입한다. AI에 파일시스템 도구를 주지 않고 결정론을 유지한다.
+- design-context bundle은 `@cx/inference-nodes`가 ref만 선택하고 `@cx/pipeline`이 본문을 로드해 prompt context에 주입한다. AI에 파일시스템 도구를 주지 않고 결정론을 유지한다.
 - React render는 `@cx/renderer`가 RenderTree JSON을 렌더링하는 책임만 가진다.
 - component, layout, token, layout pattern 값은 각 소유 패키지의 public API와 README를 기준으로 소비한다.
 - 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고 런타임 데이터와 섞지 않는다.
@@ -38,12 +38,12 @@ RND Screen Generator는 수급 명세와 디자인 시스템 근거를 바탕으
 Markdown Source
 -> @cx/parser SourceSpec
 -> @cx/pipeline runtime
--> @cx/orchestration stage input helper
+-> @cx/inference-nodes stage node/input helper
 -> ScreenIntent / CompositionPlan
 -> @cx/agent Claude generation
 -> Draft Candidate
 -> @cx/validation validation report
--> @cx/orchestration next action helper
+-> @cx/inference-nodes next action helper
 -> final-result.json RenderTree JSON
 -> @cx/renderer preview render
 -> @cx/pipeline versioned artifact
@@ -58,7 +58,7 @@ Markdown Source
 |---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT |
 | `@cx/parser` | Markdown/source 입력 -> SourceSpec 정규화 |
-| `@cx/orchestration` | stage 입력/출력 조립과 next action helper |
+| `@cx/inference-nodes` | stage 실행 node, 입력/출력 조립과 next action helper |
 | `@cx/validation` | 순수 검증과 validation report 반환 |
 | `@cx/pipeline` | pipeline runtime, side effect 실행과 산출물 반영 |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
@@ -86,8 +86,8 @@ Markdown Source
 | 2 | parser MVP | Markdown source에서 SourceSpec을 순수 함수로 생성 |
 | 3 | 순수 데이터 계약 정리 | `@cx/schema` 계약과 stage input/output 타입의 책임이 분리됨 |
 | 4 | validation rule 초안 | 생성 후보가 component/pattern/token reference 검증 결과를 반환 |
-| 5 | orchestration stage builder 초안 | SourceSpec에서 generation/review/preview 입력을 순수 함수로 조립 |
-| 6 | pipeline runner 초안 | orchestration/validation/agent 결과를 받아 versioned artifact로 남김 |
+| 5 | inference node builder 초안 | SourceSpec에서 generation/review/preview 입력을 순수 함수로 조립 |
+| 6 | pipeline runner 초안 | inference node/validation/agent 결과를 받아 versioned artifact로 남김 |
 | 7 | renderer dependency injection | renderer가 catalog/pattern dependency를 명시적으로 받을 수 있음 |
 | 8 | web preview 연결 | 앱은 완성된 RenderTree JSON 또는 preview DTO만 소비 |
 

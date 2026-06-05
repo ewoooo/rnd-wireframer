@@ -24,7 +24,6 @@
 		"@cx/components": "0.1.0",
 		"@cx/inference-nodes": "0.1.0",
 		"@cx/layout-pattern-store": "0.1.0",
-		"@cx/orchestration": "0.1.0",
 		"@cx/schema": "0.1.0",
 		"@cx/validation": "0.1.0"
 	}

@@ -1,4 +1,3 @@
-import type { PatternLayerCandidate } from "@cx/orchestration/types";
 import {
 	type CompositionPlanContract,
 	type DesignSkillSelectionContract,
@@ -6,6 +5,7 @@ import {
 	type SourceSpec,
 	type ValidationReportContract,
 } from "@cx/schema";
+import type { PatternLayerCandidate } from "./planning/types";
 
 export function createFakeCompositionPlan(
 	sourceSpec: SourceSpec,

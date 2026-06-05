@@ -41,9 +41,7 @@ type RowGroup = {
 	signature: string;
 };
 
-export function canonicalizeRenderProjection(
-	projection: RenderProjection,
-): CanonicalizationResult {
+export function canonicalizeRenderProjection(projection: RenderProjection): CanonicalizationResult {
 	const componentChildrenByComponentId = groupRowsByStringKey(
 		projection.componentChildren,
 		"component_id",
@@ -254,7 +252,10 @@ function toDuplicateGroups(groups: RowGroup[]): CanonicalDuplicateGroup[] {
 			ids: group.rows.map(readRequiredId),
 			signature: group.signature,
 		}))
-		.sort((left, right) => right.count - left.count || left.canonicalId.localeCompare(right.canonicalId));
+		.sort(
+			(left, right) =>
+				right.count - left.count || left.canonicalId.localeCompare(right.canonicalId),
+		);
 }
 
 function readRepresentative(rows: RenderDbRow[]): RenderDbRow {
@@ -301,7 +302,10 @@ function compareRowsById(left: RenderDbRow, right: RenderDbRow): number {
 }
 
 function compareOrderThenJson(left: { order_index: number }, right: { order_index: number }) {
-	return left.order_index - right.order_index || stableStringify(left).localeCompare(stableStringify(right));
+	return (
+		left.order_index - right.order_index ||
+		stableStringify(left).localeCompare(stableStringify(right))
+	);
 }
 
 function normalizeValue(value: unknown): unknown {

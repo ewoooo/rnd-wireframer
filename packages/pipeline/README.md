@@ -6,7 +6,7 @@ stage/runtime 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Docu
 
 현재 MVP에서는 `buildPipeline()`/`runPipeline()`으로 screen generation pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다. 외부 저장소 sync, queue/worker, 병렬 실행, 복잡한 retry 정책은 후속으로 미룬다.
 
-`@cx/orchestration`은 각 stage에서 필요한 deterministic helper를 제공하고, `@cx/validation`은 순수 검증 결과를 반환한다. `@cx/pipeline`은 stage 순서, runtime context, agent 실행, validation 호출, IO/effect 실행을 조립한다.
+`@cx/inference-nodes`는 각 stage에서 실행할 node wrapper와 deterministic helper를 제공하고, `@cx/validation`은 순수 검증 결과를 반환한다. `@cx/pipeline`은 stage 순서, runtime context, agent 실행 연결, validation 호출, IO/effect 실행을 조립한다.
 
 생성/검수 prompt, checklist, output 규약 같은 문장형 자산의 정본은 `@cx/pipeline`이 아니라 [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)에서 관리한다.
 
@@ -28,7 +28,7 @@ screen generation의 최종 산출물은 `final-result.json`으로 저장한다.
 - source artifact를 파일 시스템이나 외부 저장소에서 읽는다.
 - 등록된 pipeline definition을 실행한다.
 - pipeline stage context와 stage artifact bag을 관리한다.
-- pipeline stage 내부에서 `@cx/agent`, `@cx/validation`, `@cx/orchestration` helper를 연결한다.
+- pipeline stage 내부에서 `@cx/inference-nodes`, `@cx/agent`, `@cx/validation`을 연결한다.
 - catalog CRUD 결과나 agent 실행 결과를 승인된 side effect 명령으로 연결한다.
 - 이미 읽힌 Markdown source를 `@cx/adapters/markdown`에 전달해 MVP SourceSpec 산출물을 회수한다.
 - 승인된 side effect 명령의 실행 순서와 실행 결과 envelope를 관리한다.
@@ -51,7 +51,7 @@ packages/pipeline/src/
   testing/       memory fs와 test adapter fixture
 ```
 
-`@cx/pipeline`은 실행 흐름을 관리하지만 stage별 업무 입력 조립 자체는 `@cx/orchestration` helper에 위임한다. IO는 기존 `runSideEffects()` command runner를 통해 실행한다.
+`@cx/pipeline`은 실행 흐름을 관리하지만 stage별 업무 입력 조립 자체는 `@cx/inference-nodes` node/helper에 위임한다. IO는 기존 `runSideEffects()` command runner를 통해 실행한다.
 
 ## Public API
 
@@ -82,7 +82,7 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 - file system adapter를 통한 파일 write/copy/read
 - side effect 실행 결과 반환
 - screen-generation pipeline 실행
-- agent/validation/orchestration helper 호출 조립
+- agent/validation/inference node 호출 조립
 
 하지 않는 일:
 
@@ -92,7 +92,7 @@ Side effect command만 직접 실행해야 하는 내부/테스트 경로에서�
 - retry 정책 결정
 - SourceSpec 또는 RenderTree의 업무 의미 해석
 
-즉 pipeline은 runtime을 실행하지만, 각 stage의 순수 판단과 입력 조립 규칙은 `@cx/orchestration`에 둔다.
+즉 pipeline은 runtime을 실행하지만, 각 stage의 순수 판단과 입력 조립 규칙은 `@cx/inference-nodes`에 둔다.
 
 ## 두지 않는 책임
 

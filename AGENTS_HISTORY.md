@@ -36,6 +36,22 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Smoke App To Scripts
+
+- 변경: `apps/smoke/src/*`의 smoke/generation/render-db/proposal CLI와 helper를 `scripts/*`로 이동하고 `apps/smoke` 앱 패키지와 `@cx/smoke` public package export를 제거함
+- 변경: root `package.json`의 `smoke:pipeline`, `test:smoke:pipeline`, `smoke:proposals`, `smoke:promote-*`, `render-db:*` scripts가 새 `scripts/*` entrypoint를 호출하도록 수정함
+- 변경: smoke helper 테스트 위치가 `scripts/**`로 이동함에 따라 `vitest.config.ts` include에 `scripts/**/*.{test,spec}.{ts,tsx}`를 추가함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `scripts/SMOKE.md`, 관련 development 문서를 `@cx/smoke` 앱/패키지 기준이 아니라 개발자용 scripts 기준으로 갱신함
+- 이유: smoke는 제품 앱이나 reusable package가 아니라 `@cx/pipeline`을 반복 실행하는 개발/검증 도구이므로 `apps`에서 제거하고 scripts로 낮추기 위함
+
+## 2026-06-05 - Orchestration Package Absorption
+
+- 변경: `packages/orchestration` 패키지를 제거하고 기존 deterministic planning helper와 agent input/context builder를 `packages/inference-nodes/src/screen-generation/planning/`으로 흡수함
+- 변경: `@cx/pipeline`과 `@cx/inference-nodes`의 `@cx/orchestration` dependency를 제거하고, pipeline은 screen-generation planning 타입도 `@cx/inference-nodes/screen-generation` public surface에서 import하도록 정리함
+- 변경: `@cx/inference-nodes/screen-generation`이 screen-generation agent input 타입, pattern layer candidate, design-context bundle selection, generation next action 타입을 공개하도록 export를 보강함
+- 변경: `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, 주요 development/design/README 문서에서 현재 책임 기준을 `@cx/pipeline` runtime과 `@cx/inference-nodes` node/planning helper로 갱신함
+- 이유: `orchestration`이라는 패키지명이 pipeline 순서와 실행 책임을 소유한다는 오해를 만들었고, 실제 역할은 inference node 내부 planning helper였으므로 node 패키지 안으로 흡수해 경계를 단순화하기 위함
+
 ## 2026-06-05 - Inference Pipeline Rollout 9
 
 - 변경: `runScreenGenerationPipeline(...)`에서 legacy `stage-loop` 분기를 제거하고 `screen-generation` 실행을 항상 `runStepPipeline(...)` 경로로 고정함

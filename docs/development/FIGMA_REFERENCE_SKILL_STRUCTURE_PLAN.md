@@ -41,7 +41,7 @@ Understand -> Compose -> Revise
 결정:
 
 - 우선 Figma SOT를 화면 묶음별로 조회하고, scenario/domain/atomic skill 후보를 최대한 빠짐없이 모은다.
-- 수집 단계에서는 `@cx/schema`, `@cx/orchestration`, `@cx/pipeline`을 변경하지 않는다.
+- 수집 단계에서는 `@cx/schema`, `@cx/inference-nodes`, `@cx/pipeline`을 변경하지 않는다.
 - 수집된 skill 후보는 곧바로 RenderTree node type으로 만들지 않는다.
 - 각 후보에는 반드시 SOT file/node/frame, 화면 의도, 적용될 node-tree level, 작성 예정 규칙을 함께 기록한다.
 - 실제 skill 문서를 만들기 직전에는 기록된 SOT node를 한 번 더 조회해 최신 frame 구조와 component state를 확인한다.
@@ -65,7 +65,7 @@ Figma SOT 등록
 
 - Figma 원본을 런타임 중 직접 읽는 시스템을 만든다.
 - Open Design처럼 scenario skill, atom skill, domain skill을 모두 분리한 범용 skill runtime을 만든다.
-- `docs/design/reference/*`가 `@cx/schema`, `@cx/orchestration`, `@cx/pipeline`의 구현 세부사항을 소유한다.
+- `docs/design/reference/*`가 `@cx/schema`, `@cx/inference-nodes`, `@cx/pipeline`의 구현 세부사항을 소유한다.
 - component promotion을 자동 확정한다. promotion은 proposal/근거 산출까지이며 catalog mutation은 별도 승인 흐름이다.
 - golden RenderTree 하나를 화면 정답으로 고정한다.
 
@@ -382,7 +382,7 @@ buildDesignReferenceSelection({
 
 경계:
 
-- `@cx/orchestration`은 reference id/path/reason만 선택한다.
+- `@cx/inference-nodes`은 reference id/path/reason만 선택한다.
 - 파일을 읽지 않는다.
 - Figma 링크를 조회하지 않는다.
 - quality score나 validation 결과를 판정하지 않는다.

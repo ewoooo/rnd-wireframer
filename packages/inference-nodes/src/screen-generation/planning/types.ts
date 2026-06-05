@@ -8,24 +8,17 @@ import type {
 	SchemaVersion,
 	SourceSpec,
 } from "@cx/schema";
-import type { orchestrationBoundary } from "./contract";
 
 export type { DesignSkillSelectionContract } from "@cx/schema";
 
-export type OrchestrationBoundary = typeof orchestrationBoundary;
-export type OrchestrationBoundaryName = OrchestrationBoundary["name"];
-export type OrchestrationPackageName = OrchestrationBoundary["packageName"];
-
-export type OrchestrationOperation = OrchestrationBoundary["owns"][number];
-
-export type OrchestrationStageKind =
+export type InferencePlanningStageKind =
 	| "source-ingest"
 	| "generation"
 	| "quality-review"
 	| "preview"
 	| "apply";
 
-export type OrchestrationNextAction =
+export type InferencePlanningNextAction =
 	| "request-generation"
 	| "request-review"
 	| "request-preview"
@@ -33,19 +26,19 @@ export type OrchestrationNextAction =
 	| "request-retry"
 	| "stop";
 
-export type OrchestrationIssue = {
+export type InferencePlanningIssue = {
 	code: string;
 	message: string;
 	severity: "error" | "warning";
 };
 
-export type OrchestrationDecision = {
-	action: OrchestrationNextAction;
-	issues: OrchestrationIssue[];
-	stage: OrchestrationStageKind;
+export type InferencePlanningDecision = {
+	action: InferencePlanningNextAction;
+	issues: InferencePlanningIssue[];
+	stage: InferencePlanningStageKind;
 };
 
-export type OrchestrationAgentTaskInput = {
+export type InferenceAgentTaskInput = {
 	context?: unknown;
 	previousResult?: unknown;
 	query: string;
@@ -136,7 +129,7 @@ export type PatternSelectionAgentContext = {
 	};
 };
 
-export type PatternSelectionAgentInput = OrchestrationAgentTaskInput & {
+export type PatternSelectionAgentInput = InferenceAgentTaskInput & {
 	context: PatternSelectionAgentContext;
 };
 
@@ -151,7 +144,7 @@ export type ScreenIntentAgentContext = {
 	};
 };
 
-export type ScreenIntentAgentInput = OrchestrationAgentTaskInput & {
+export type ScreenIntentAgentInput = InferenceAgentTaskInput & {
 	context: ScreenIntentAgentContext;
 };
 
@@ -164,7 +157,7 @@ export type CompositionPlanAgentContext = PatternSelectionAgentContext & {
 	};
 };
 
-export type CompositionPlanAgentInput = OrchestrationAgentTaskInput & {
+export type CompositionPlanAgentInput = InferenceAgentTaskInput & {
 	context: CompositionPlanAgentContext;
 };
 
@@ -186,7 +179,7 @@ export type ScreenGenerationAgentContext = PatternSelectionAgentContext & {
 	};
 };
 
-export type ScreenGenerationAgentInput = OrchestrationAgentTaskInput & {
+export type ScreenGenerationAgentInput = InferenceAgentTaskInput & {
 	context: ScreenGenerationAgentContext;
 };
 
@@ -196,7 +189,7 @@ export type ScreenRevisionAgentContext = ScreenGenerationAgentContext & {
 	validationReport: unknown;
 };
 
-export type ScreenRevisionAgentInput = OrchestrationAgentTaskInput & {
+export type ScreenRevisionAgentInput = InferenceAgentTaskInput & {
 	context: ScreenRevisionAgentContext;
 	previousResult: unknown;
 };
@@ -206,7 +199,7 @@ export type QualityReviewAgentContext = ScreenGenerationAgentContext & {
 	validationReport?: unknown;
 };
 
-export type QualityReviewAgentInput = OrchestrationAgentTaskInput & {
+export type QualityReviewAgentInput = InferenceAgentTaskInput & {
 	context: QualityReviewAgentContext;
 };
 
@@ -214,7 +207,7 @@ export type ComponentProposalAgentContext = ScreenGenerationAgentContext & {
 	candidate?: unknown;
 };
 
-export type ComponentProposalAgentInput = OrchestrationAgentTaskInput & {
+export type ComponentProposalAgentInput = InferenceAgentTaskInput & {
 	context: ComponentProposalAgentContext;
 };
 

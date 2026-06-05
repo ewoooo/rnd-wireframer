@@ -8,7 +8,7 @@ import { getComponentCatalogStatus, listCandidateComponentEntries } from "@cx/co
 function main() {
 	const type = process.argv[2];
 	if (!type) {
-		console.error("Usage: tsx apps/smoke/src/promote-component-cli.ts <ComponentType>");
+		console.error("Usage: tsx scripts/promote-component.ts <ComponentType>");
 		process.exitCode = 1;
 		return;
 	}

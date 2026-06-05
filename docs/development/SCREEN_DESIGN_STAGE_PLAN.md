@@ -42,7 +42,7 @@ The early design-stage artifacts are now explicit:
 - `pattern-selection`: selected layout candidates from the allowed pattern vocabulary.
 - `component-proposal`: non-destructive catalog gap proposal.
 
-`apps/smoke` still consumes only `@cx/pipeline`. Stage helper construction stays inside `@cx/orchestration`, and executable stage order stays inside `@cx/pipeline`.
+`scripts/smoke-pipeline.ts` still consumes only `@cx/pipeline`. Stage helper construction stays inside `@cx/inference-nodes`, and executable stage order stays inside `@cx/pipeline`.
 
 Artifact storage baseline:
 
@@ -116,7 +116,7 @@ Status as of 2026-05-28: first pass implemented.
 Status as of 2026-05-28: first pass implemented.
 
 - Add `review-quality` after RenderTree validation.
-- Add `buildQualityReviewAgentInput()` in `@cx/orchestration`.
+- Add `buildQualityReviewAgentInput()` in `@cx/inference-nodes`.
 - Keep review output as bounded findings and suggested operations, not direct file mutation.
 - Use design docs under `docs/design/` as required review references.
 
@@ -168,7 +168,7 @@ Later follow-up skills:
 Implementation boundary:
 
 - `@cx/schema` owns the design skill reference and selection result contracts.
-- `@cx/orchestration` owns pure skill selection helpers and injects selected skill refs into agent inputs.
+- `@cx/inference-nodes` owns pure skill selection helpers and injects selected skill refs into agent inputs.
 - `@cx/agent` owns skill body, checklist, and output contract docs under `packages/agent/docs/`.
 - `@cx/pipeline` records selected skill ids and rationale in `trace.json`.
 - `@cx/validation` may later consume skill refs only as validation input; it does not choose skills.
@@ -176,7 +176,7 @@ Implementation boundary:
 Completion criteria:
 
 - `@cx/schema` exposes a design skill selection contract with selected skill id, selection reason, applicable screen family, required design docs, and quality gates.
-- `@cx/orchestration` selects a design skill from `SourceSpec`, `ScreenIntent`, and `PatternLayerCandidate[]` without file IO or runtime side effects.
+- `@cx/inference-nodes` selects a design skill from `SourceSpec`, `ScreenIntent`, and `PatternLayerCandidate[]` without file IO or runtime side effects.
 - `buildCompositionPlanAgentInput()` receives selected skill refs and makes the skill rules visible to the composition prompt.
 - `packages/agent/docs/` contains the initial three skill documents, each with applies-to rules, required design docs, composition rules, component/layout proposal rules, good and bad `CompositionPlan` examples, quality gates, and revision hints.
 - `@cx/pipeline` records the selection result in `trace.json` and keeps result artifacts flat under `artifacts/`.
@@ -185,7 +185,7 @@ Completion criteria:
 
 Verification criteria:
 
-- Contract tests pass for `@cx/schema`, `@cx/orchestration`, and `@cx/pipeline`.
+- Contract tests pass for `@cx/schema`, `@cx/inference-nodes`, and `@cx/pipeline`.
 - Type checking passes with `npx tsc --noEmit --pretty false`.
 - Biome passes for changed source and test files. Markdown-only edits may be verified by targeted text search when Markdown is ignored by the formatter/linter config.
 - A smoke run using fake mode writes `trace.json.designSkillSelection`, `composition-plan.json`, `quality-review.json`, and `final-result.json`.
@@ -197,7 +197,7 @@ Verification criteria:
 Minimum verification command set after implementation:
 
 ```bash
-npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts
+npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/inference-nodes/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts
 npx biome check <changed-source-and-test-files>
 npx tsc --noEmit --pretty false
 npm run smoke:pipeline -- --target '<sample-md>' --run-id '<skill-selection-check>' --artifact-store local-transient
@@ -205,8 +205,8 @@ npm run smoke:pipeline -- --target '<sample-md>' --run-id '<skill-selection-chec
 
 ## 5. Done Criteria
 
-- `apps/smoke` still imports only `@cx/pipeline`.
-- `@cx/orchestration` has no IO, Claude, validation, or executable stage-order ownership.
+- smoke scripts still import only `@cx/pipeline`.
+- `@cx/inference-nodes` has no IO, Claude, validation, or executable stage-order ownership.
 - `@cx/pipeline` writes all intermediate artifacts needed to inspect design decisions.
 - RenderTree generation receives upstream design artifacts instead of inferring design directly from Markdown.
 - Artifact consumers use manifest pointers and trace keys instead of numeric filename prefixes.

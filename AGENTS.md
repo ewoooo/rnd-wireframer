@@ -33,7 +33,7 @@ Claude 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-s
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `packages/adapters`의 `@cx/adapters/markdown` subpath는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 함수만 관리한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
 - `packages/adapters`의 `@cx/adapters/table` subpath는 table/read model을 screen 단위 `RenderTreeScreenNode`로 조립하는 순수 함수만 관리한다. 파일 IO, React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정 책임을 두지 않는다.
-- `packages/orchestration`의 `@cx/orchestration` 패키지는 pipeline stage에서 사용하는 순수 입력 조립과 next action helper를 담당한다. pipeline 실행, stage 순서 소유, 파일 쓰기, Claude 실행, 검증 rule 판정, React render 책임을 두지 않는다.
+- `packages/inference-nodes`의 `@cx/inference-nodes` 패키지는 pipeline stage에서 실행할 node wrapper와 screen-generation 순수 입력 조립/next action helper를 담당한다. pipeline 실행, stage 순서 소유, 파일 쓰기, Claude runner 구현, 검증 rule 판정, React render 책임을 두지 않는다.
 - `packages/validation`의 `@cx/validation` 패키지는 `@cx/schema` JSON Schema, DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
 - `packages/pipeline`의 `@cx/pipeline` 패키지는 pipeline runtime과 승인된 side effect/IO 유틸리티로 운영한다. stage별 순수 helper rule 소유, 검증 rule 판정, Claude adapter 구현, RenderTree render, catalog 값 소유, mock 원본 수정 책임을 두지 않는다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.

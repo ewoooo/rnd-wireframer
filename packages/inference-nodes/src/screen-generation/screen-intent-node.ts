@@ -1,8 +1,8 @@
 import type { AgentRunner, AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
-import { buildScreenIntentAgentInput } from "@cx/orchestration";
-import type { ScreenIntentAgentInput } from "@cx/orchestration/types";
 import { SCHEMA_VERSION, type ScreenIntentContract, type SourceSpec } from "@cx/schema";
 import { runAgentPromptNode } from "../agent";
+import { buildScreenIntentAgentInput } from "./planning/generation";
+import type { ScreenIntentAgentInput } from "./planning/types";
 
 export type RunScreenIntentNodeInput = {
 	onRunnerRequest?: (request: AgentRunnerRequest) => void;

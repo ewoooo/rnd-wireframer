@@ -21,16 +21,16 @@
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | inference node 내부의 순수 입력 조립과 next action helper |
-| `@cx/inference-nodes` | pipeline에서 실행하는 agent/deterministic/validation inference node wrapper |
+| `@cx/inference-nodes` | pipeline에서 실행하는 agent/deterministic/validation inference node wrapper와 내부 planning helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
 
-개발자용 앱:
+개발자용 스크립트:
 
-| 앱 | 책임 |
+| 위치 | 책임 |
 |---|---|
-| `@cx/smoke` | generation smoke flow를 반복 실행하는 통합 앱 |
+| `scripts/smoke-pipeline.ts`, `scripts/generation/*` | generation smoke flow를 반복 실행하는 CLI와 helper |
+| `scripts/push-render-db.ts`, `scripts/canonicalize-render-db.ts` | render DB migration/audit helper |
 
 제거된 패키지:
 
@@ -166,16 +166,15 @@ apps/web/src/
 
 생성, 검수, Claude 실행, stage orchestration은 앱 책임이 아니며 `@cx/pipeline`/`@cx/agent`/`@cx/validation` 경계를 따른다.
 
-`apps/smoke`는 사용자-facing 앱이 아니라 개발자-facing 통합 실행 앱이다.
+Smoke 실행은 사용자-facing 앱이 아니라 개발자-facing 스크립트다.
 
 ```text
-apps/smoke/src/
-  index.ts       public app API
-  cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke wrapper and public smoke types
+scripts/
+  smoke-pipeline.ts    smoke CLI entrypoint
+  generation/          runGenerationSmoke wrapper and smoke helper types
 ```
 
-외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다. generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
+외부 package/app code는 smoke helper를 import하지 않는다. root script는 `scripts/smoke-pipeline.ts`를 호출하고, generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
 
 ## 7. `packages/token`
 
@@ -261,36 +260,16 @@ packages/agent/docs/
 이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
 smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
 
-## 11. `packages/orchestration`
+## 11. `packages/inference-nodes`
 
-`@cx/orchestration`은 inference node 내부에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision agent input builder와 generation next action helper를 제공한다. pipeline 실행, stage 순서, 파일 IO는 소유하지 않는다.
-
-```text
-packages/orchestration/src/
-  index.ts       public barrel
-  public/        pure orchestration boundary contract, generation helper, public types
-```
-
-두지 않는 책임:
-
-- 파일 읽기/쓰기
-- Claude Agent SDK 실행
-- 검증 rule 판정
-- pipeline 실행
-- stage 순서 소유
-- RenderTree React render
-- component/layout/pattern catalog 값 소유
-- 승인 데이터 직접 반영
-
-## 12. `packages/inference-nodes`
-
-`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner와 외부 catalog/reference 값은 pipeline이 제공한다. 현재는 screen-generation agent node wrapper, deterministic helper node wrapper, RenderTree validation node wrapper를 소유한다.
+`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper와 screen-generation 내부 planning helper를 담당한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner와 외부 catalog/reference 값은 pipeline이 제공한다. 현재는 screen-generation agent node wrapper, deterministic helper node wrapper, agent input/context builder, next action helper, RenderTree validation node wrapper를 소유한다.
 
 ```text
 packages/inference-nodes/src/
   index.ts              public barrel
   agent/                agent runner-facing shared node types
-  screen-generation/    screen generation node wrappers
+  screen-generation/    screen generation node wrappers and planning helpers
+    planning/           pure agent input/context, pattern candidate, next-action helpers
 ```
 
 두지 않는 책임:
@@ -304,7 +283,7 @@ packages/inference-nodes/src/
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
 
-## 13. `packages/validation`
+## 12. `packages/validation`
 
 `@cx/validation`은 생성 과정의 순수 검증을 담당한다. 현재는 생성물이 계약상 렌더 가능한지와 component catalog/layout props 계약을 지키는지 기계적으로 검증하는 public API를 제공한다.
 
@@ -323,7 +302,7 @@ packages/validation/src/
 - RenderTree React render
 - catalog 값 생성 또는 수정
 
-## 14. `packages/pipeline`
+## 13. `packages/pipeline`
 
 `@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
 

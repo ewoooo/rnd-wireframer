@@ -9,7 +9,7 @@
 ```text
 docs/design/*.md              (사람용 관찰 SSOT, 산문)
   └─ 린트/요약 ─▶ packages/agent/docs/design-context/*.md   (에이전트용 압축 규칙)
-        └─ @cx/orchestration이 ref 선택 ─▶ @cx/pipeline이 본문 로드/주입 ─▶ AI prompt context
+        └─ @cx/inference-nodes가 ref 선택 ─▶ @cx/pipeline이 본문 로드/주입 ─▶ AI prompt context
 ```
 
 Figma SOT를 screen inference가 직접 참조할 수 있게 분해한 reference contract는 [reference/](/Users/plusx/Documents/rnd-screen-generator/docs/design/reference/README.md)에 둔다. 원본 Figma node provenance는 [reference/figma-source.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/reference/figma-source.md)를 기준으로 한다.
@@ -25,4 +25,4 @@ Figma SOT를 screen inference가 직접 참조할 수 있게 분해한 reference
 
 - 이 문서의 관찰을 바꾸면, 영향 받는 `packages/agent/docs/design-context/` 번들도 함께 갱신한다.
 - 번들은 산문 복붙이 아니라 에이전트가 바로 적용 가능한 규칙 목록으로 유지한다(번들당 권장 ≤ 120줄).
-- ref→파일 매핑은 `packages/pipeline/.../design-context-catalog.ts`와 `packages/orchestration/.../design-context.ts`가 소유한다.
+- ref→파일 매핑은 `packages/pipeline/.../design-context-catalog.ts`와 `packages/inference-nodes/.../planning/design-context.ts`가 소유한다.

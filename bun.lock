@@ -33,14 +33,6 @@
         "vitest": "^4.1.6",
       },
     },
-    "apps/smoke": {
-      "name": "@cx/smoke",
-      "version": "0.1.0",
-      "dependencies": {
-        "@cx/pipeline": "0.1.0",
-        "@cx/schema": "0.1.0",
-      },
-    },
     "apps/web": {
       "name": "@rnd-screen-generator/web",
       "version": "0.1.0",
@@ -95,11 +87,14 @@
         "react": "^19.2.0",
       },
     },
-    "packages/orchestration": {
-      "name": "@cx/orchestration",
+    "packages/inference-nodes": {
+      "name": "@cx/inference-nodes",
       "version": "0.1.0",
       "dependencies": {
+        "@cx/agent": "0.1.0",
+        "@cx/components": "0.1.0",
         "@cx/schema": "0.1.0",
+        "@cx/validation": "0.1.0",
       },
     },
     "packages/pipeline": {
@@ -109,8 +104,8 @@
         "@cx/adapters": "0.1.0",
         "@cx/agent": "0.1.0",
         "@cx/components": "0.1.0",
+        "@cx/inference-nodes": "0.1.0",
         "@cx/layout-pattern-store": "0.1.0",
-        "@cx/orchestration": "0.1.0",
         "@cx/schema": "0.1.0",
         "@cx/validation": "0.1.0",
       },
@@ -211,15 +206,13 @@
 
     "@cx/layout-pattern-store": ["@cx/layout-pattern-store@workspace:packages/layout-pattern-store"],
 
-    "@cx/orchestration": ["@cx/orchestration@workspace:packages/orchestration"],
+    "@cx/inference-nodes": ["@cx/inference-nodes@workspace:packages/inference-nodes"],
 
     "@cx/pipeline": ["@cx/pipeline@workspace:packages/pipeline"],
 
     "@cx/renderer": ["@cx/renderer@workspace:packages/renderer"],
 
     "@cx/schema": ["@cx/schema@workspace:packages/schema"],
-
-    "@cx/smoke": ["@cx/smoke@workspace:apps/smoke"],
 
     "@cx/tokens": ["@cx/tokens@workspace:packages/token"],
 

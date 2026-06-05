@@ -31,6 +31,19 @@ export {
 } from "./fake-artifacts";
 export { createFakeGenerationAgentRunner } from "./fake-generation-agent-runner";
 export type {
+	ComponentContractCatalog,
+	ComponentProposalAgentInput,
+	CompositionPlanAgentInput,
+	DesignContextBundleSelection,
+	GenerationNextAction,
+	PatternLayerCandidate,
+	PatternSelectionAgentInput,
+	QualityReviewAgentInput,
+	ScreenGenerationAgentInput,
+	ScreenIntentAgentInput,
+	ScreenRevisionAgentInput,
+} from "./planning/types";
+export type {
 	RunScreenIntentNodeInput,
 	RunScreenIntentNodeResult,
 } from "./screen-intent-node";

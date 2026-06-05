@@ -535,7 +535,7 @@ defineStep({
 agent docs / inference reference package
 = skillBundles와 designContextBundles 값을 소유한다.
 
-@cx/orchestration 또는 @cx/inference-steps
+@cx/inference-nodes 또는 @cx/inference-steps
 = 어떤 Step이 어떤 reference를 받을지 선언한다.
 
 @cx/pipeline
@@ -643,7 +643,7 @@ type PipelineExecutionState = {
 
 ### 2.2 `@cx/inference-nodes`
 
-`@cx/orchestration`을 `@cx/inference-nodes`로 rename하는 방향을 검토한다.
+`@cx/inference-nodes`을 `@cx/inference-nodes`로 rename하는 방향을 검토한다.
 
 `@cx/inference-nodes`는 pipeline에서 실행할 Step 구현과 preset helper를 제공한다.
 공개 사용자는 node라는 용어보다 Step으로 소비한다.
@@ -1238,7 +1238,7 @@ await runPipeline(definition, runOptions);
 
 ## 6. Target Step Catalog APIs
 
-기존 `@cx/orchestration` API를 기반으로 한다.
+기존 `@cx/inference-nodes` API를 기반으로 한다.
 
 ### 6.1 Current Builder APIs
 
@@ -2172,7 +2172,7 @@ Current implementation status:
 - Rollout 7 moved revision routing into pipeline feedback rules.
 - Rollout 8 added SSE delivery for persisted pipeline events.
 - Rollout 9 removed the legacy stage-loop runtime path. Screen generation now always runs through `runStepPipeline(...)`.
-- Rollout 9 moved pipeline's direct orchestration builder calls behind `@cx/inference-nodes/screen-generation` deterministic node wrappers.
+- Rollout 9 moved pipeline's direct planning helper calls behind `@cx/inference-nodes/screen-generation` deterministic node wrappers.
 ```
 
 ### 11.3 Rollout 0. Baseline Capture
@@ -2325,7 +2325,7 @@ Tasks:
   - artifact write node
 - Keep actual file access through pipeline-provided I/O.
 - Keep actual Claude execution through pipeline-provided agent adapter.
-- Keep `@cx/orchestration` exports as compatibility until imports are migrated.
+- Keep `@cx/inference-nodes` exports as compatibility until imports are migrated.
 
 Done when:
 
@@ -2381,7 +2381,7 @@ Rollout 6 implementation note:
 - Default references are assembled in `screen-generation/references.ts` from the existing public APIs.
 - `screen-generation-pipeline.ts` uses only `state.options.references` for component contract catalog assembly, pattern layer candidate layout resolution, skill catalog loading, and design-context bundle loading.
 - `createRenderTreeValidationReport(...)` receives the component catalog from the caller instead of importing the default catalog.
-- Source refs remain derived from `SourceSpec` inside orchestration/agent input assembly.
+- Source refs remain derived from `SourceSpec` inside inference node agent input assembly.
 - `screen-generation-tags.test.ts` includes an injected refs smoke fixture proving component/layout refs are called from run options.
 ```
 
@@ -2475,7 +2475,7 @@ Tasks:
 
 Done when:
 
-- Pipeline no longer imports individual orchestration builder functions directly.
+- Pipeline no longer imports individual planning helper functions directly.
 - Public API still runs `screen-generation`.
 - All parity gates pass.
 - Migration notes document any intentionally changed artifact or trace shape.
@@ -2486,14 +2486,14 @@ Rollout 9 implementation note:
 2026-06-05
 - Removed the legacy stage-loop branch from `runScreenGenerationPipeline(...)`.
 - `runPipeline("screen-generation")` now always uses the Step runner; the old execution-mode option and smoke CLI flag were removed.
-- Moved deterministic orchestration calls behind `@cx/inference-nodes/screen-generation` wrappers:
+- Moved deterministic planning helper calls behind `@cx/inference-nodes/screen-generation` wrappers:
   - `runPatternLayerCandidatesNode(...)`
   - `runDesignSkillSelectionNode(...)`
   - `runDesignContextBundleRefsNode(...)`
   - `runDecorationPlanNode(...)`
   - `runGenerationNextActionNode(...)`
 - Added `runRequiredRegionLayoutRepairNode(...)` so AI output cannot fail solely by omitting required `layout.region.*` refs on `Screen.Header`, `Screen.Contents`, or `Screen.Bottom`.
-- `@cx/pipeline` still imports orchestration types for state shape compatibility, but no longer imports individual orchestration builder functions.
+- `@cx/pipeline` imports screen-generation planning types from `@cx/inference-nodes/screen-generation` and no longer imports individual planning helper functions.
 - Artifact shape is intentionally unchanged. Event shape remains `PipelineRunEvent`; happy-path optional revision stages are persisted as `skipped`, so fake happy path keeps 22 persisted stage events.
 ```
 

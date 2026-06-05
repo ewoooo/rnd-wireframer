@@ -3,8 +3,8 @@
 이 문서는 `screen-generation` 파이프라인의 13단계를 각 단계의 **입력 구성·프롬프트(query)·출력(schema)·참조 문서** 기준으로 설명한다. 정본 소스는 아래와 같다.
 
 - 오케스트레이션: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`
-- 입력/프롬프트 구성: `packages/orchestration/src/public/agent-inputs.ts`
-- 번들 선택: `packages/orchestration/src/public/design-context.ts`
+- 입력/프롬프트 구성: `packages/inference-nodes/src/screen-generation/planning/agent-inputs.ts`
+- 번들 선택: `packages/inference-nodes/src/screen-generation/planning/design-context.ts`
 - agent task(시스템 프롬프트): `packages/agent/src/tasks/<task>/prompt.ts`
 - agent runner: `packages/agent/src/claude/claude-agent-sdk-runner.ts`
 - design-context 규칙 본문: `packages/agent/docs/design-context/*.md`
@@ -94,7 +94,7 @@ claude --print --output-format json --no-session-persistence \
 - 번들 **본문 로드**는 IO(`loadBundleContentsForState` → `BUNDLE_FILE_BY_ID`로 `.md` 읽기, `disableDesignContext`면 생략).
 - `--no-design-context` 플래그로 본문 주입을 꺼서 A/B 비교 가능.
 
-번들 정본 책임: `docs/design/`(원문) → `packages/agent/docs/design-context/`(압축 규칙) → `@cx/schema`(ref DTO) → `@cx/orchestration`(선택) → `@cx/pipeline`(기록).
+번들 정본 책임: `docs/design/`(원문) → `packages/agent/docs/design-context/`(압축 규칙) → `@cx/schema`(ref DTO) → `@cx/inference-nodes`(선택) → `@cx/pipeline`(기록).
 
 ---
 

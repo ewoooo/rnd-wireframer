@@ -22,7 +22,7 @@
 ```text
 source artifact read
 -> @cx/adapters/markdown
--> @cx/orchestration
+-> @cx/inference-nodes
 -> @cx/agent
 -> @cx/validation
 -> @cx/pipeline side effects
@@ -31,14 +31,14 @@ source artifact read
 경계 규칙:
 
 - `@cx/pipeline`: stage 순서, runtime context, command 실행, artifact write
-- `@cx/orchestration`: 각 stage의 순수 입력 조립
+- `@cx/inference-nodes`: 각 stage의 순수 입력 조립
 - `@cx/agent`: Claude 실행과 세션 정책
 - `@cx/validation`: schema/catalog/layout 검증 리포트 반환
 - `@cx/renderer`: 완료된 RenderTree preview 소비만 담당
 
 design skill/context 경계:
 
-- `@cx/orchestration`: `DesignSkillSelection`과 design-context bundle ref를 결정론적으로 선택한다.
+- `@cx/inference-nodes`: `DesignSkillSelection`과 design-context bundle ref를 결정론적으로 선택한다.
 - `@cx/pipeline`: 선택된 bundle ref의 agent-facing 본문을 로드해 필요한 agent stage context에 주입하고, 선택 결과를 artifact trace에 기록한다.
 - `@cx/agent`: 주입된 skill/context를 prompt 입력으로 소비한다. 파일 도구로 디자인 문서를 직접 읽지 않는다.
 - `packages/agent/docs/`: design skill 본문, design-context bundle 본문, prompt/checklist/output contract의 agent-facing 정본을 소유한다.
@@ -69,7 +69,7 @@ read-source
 -> write-artifacts
 ```
 
-stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순서를 결정하지 않는다.
+stage 순서는 `@cx/pipeline`이 소유한다. `@cx/inference-nodes`은 이 순서를 결정하지 않는다.
 
 ## 6. 논리 레이어
 
@@ -101,14 +101,14 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `derive-screen-intent`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 출력: `screen-intent` agent result
 - side effect: 없음
 
 ### `plan-composition`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 입력: SourceSpec, screen-intent result, pattern layer candidates, design skill selection
 - 출력: `composition-plan` agent result, selected design skill trace
@@ -117,15 +117,15 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `derive-decoration-plan`
 
-- 입력 조립 소유: `@cx/orchestration`
-- 실행 소유: `@cx/pipeline` -> `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
+- 실행 소유: `@cx/pipeline` -> `@cx/inference-nodes`
 - 출력: deterministic `DecorationPlan`
 - 책임: SourceSpec 내부 이름과 사용자 노출 구조를 분리하고, 약관 목록/동의 controls처럼 source section 안에서 역할이 갈리는 area를 contract에 따라 split한다.
 - side effect: 없음
 
 ### `select-pattern`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 입력: SourceSpec, screen-intent result, composition-plan result, DecorationPlan, pattern layer candidates, design skill selection, design-context bundle refs
 - 출력: pattern-selection agent result
@@ -134,7 +134,7 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `generate-render-tree`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 출력: 최소 `tableGenerationResult` + `renderTree`를 포함하는 생성 결과
 - 참조 자산: `@cx/agent` 내부 생성 자산 문서, selected design skill, design-context bundle body
@@ -151,7 +151,7 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `propose-components`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 검증 소유: `@cx/validation`
 - 입력: SourceSpec, generated candidate, component contract catalog, upstream design artifacts, selected design skill, design-context bundle body
@@ -161,7 +161,7 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ### `review-quality`
 
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 입력: SourceSpec, generated candidate, validation report, upstream design artifacts, selected design skill quality gates, design-context bundle body
 - 출력: `quality-review` / `quality-inspection` agent result
@@ -171,7 +171,7 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 ### `revise-render-tree-if-invalid`
 
 - 조건: validation report 또는 quality review 결과가 revision을 요구할 때만 실행
-- 입력 조립 소유: `@cx/orchestration`
+- 입력 조립 소유: `@cx/inference-nodes`
 - AI 실행 소유: `@cx/agent`
 - 입력: previous candidate, validation report, quality review, upstream design artifacts, selected design skill, design-context bundle body
 - 출력: revised generation result
@@ -194,8 +194,8 @@ stage 순서는 `@cx/pipeline`이 소유한다. `@cx/orchestration`은 이 순�
 
 ## 8. Stage별 금지 사항
 
-- `@cx/orchestration`은 파일 IO를 하지 않는다.
-- `@cx/orchestration`은 stage 순서와 retry 정책을 소유하지 않는다.
+- `@cx/inference-nodes`은 파일 IO를 하지 않는다.
+- `@cx/inference-nodes`은 stage 순서와 retry 정책을 소유하지 않는다.
 - `@cx/agent`는 artifact write를 하지 않는다.
 - `@cx/validation`은 다음 액션을 결정하지 않는다.
 - `@cx/pipeline`은 prompt 원문, design skill 본문, design-context bundle 본문, validator 세부 규칙을 소유하지 않는다.
@@ -249,7 +249,7 @@ agent input, runner request, 후보, bundle 선택, skill 선택, initial valida
 
 ## 11. 관련 참조 자산
 
-- stage 순수 입력 조립: `@cx/orchestration`
+- stage 순수 입력 조립: `@cx/inference-nodes`
 - agent prompt/checklist/output 규약: [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)
 - design skill 본문: [`packages/agent/docs/design-skills/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-skills)
 - design-context bundle 본문: [`packages/agent/docs/design-context/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-context)
@@ -259,6 +259,6 @@ agent input, runner request, 후보, bundle 선택, skill 선택, initial valida
 
 - `PipelineStageId`와 문서의 stage 목록이 일치한다.
 - stage 순서 소유자가 `@cx/pipeline`으로 유지된다.
-- stage 입력 조립 소유자가 `@cx/orchestration`으로 유지된다.
+- stage 입력 조립 소유자가 `@cx/inference-nodes`으로 유지된다.
 - `write-artifacts`만 side effect stage라는 기준이 유지된다.
 - `PACKAGE_MAP.md`와 `packages/pipeline/README.md`가 stage 순서 상세를 중복하지 않고 이 문서를 참조한다.
