@@ -15,8 +15,6 @@
 		"./gap-report": "./src/gap-report.ts",
 		"./guards": "./src/guards.ts",
 		"./node-types": "./src/node-types.ts",
-		"./pattern-store": "./src/pattern-store.ts",
-		"./pattern-store-schema": "./src/pattern-store-schema.ts",
 		"./prdd-screen-record": "./src/prdd-screen-record.ts",
 		"./tokens": "./src/tokens.ts",
 		"./validation": "./src/validation.ts"
