@@ -17,6 +17,16 @@ type NavItem = {
 	value: NavigatorTab;
 };
 
+const runItems: NavItem[] = [
+	{
+		icon: Table2,
+		label: "RUN",
+		name: "Run",
+		description: "스크린 생성 실행 및 결과 탐색",
+		value: "run",
+	},
+];
+
 const primaryItems: NavItem[] = [
 	{
 		icon: Smartphone,
@@ -86,6 +96,12 @@ export function Rail({ activeTab, onSelectTab }: RailProps) {
 				aria-label="Workbench navigation"
 				className="flex w-14 shrink-0 flex-col items-center gap-1 bg-sidebar p-2"
 			>
+				{runItems.map((item) => (
+					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
+				))}
+
+				<div className="my-1 w-6 border-t border-sidebar-border" />
+
 				{primaryItems.map((item) => (
 					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
 				))}

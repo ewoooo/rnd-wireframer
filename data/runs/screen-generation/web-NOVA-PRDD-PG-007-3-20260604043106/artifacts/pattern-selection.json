@@ -1,0 +1,103 @@
+{
+  "payload": {
+    "schemaVersion": "pattern-selection.v0.1",
+    "selectedCandidates": [
+      {
+        "id": "layer.screen.composition",
+        "level": "screen",
+        "targetRef": "NOVA-PRDD-PG-007-3",
+        "layout": "layout.screen.commerceDetailScreen"
+      },
+      {
+        "id": "layer.region.header",
+        "level": "region",
+        "targetRef": "header",
+        "layout": "layout.region.header"
+      },
+      {
+        "id": "layer.region.contents",
+        "level": "region",
+        "targetRef": "contents",
+        "layout": "layout.region.contents"
+      },
+      {
+        "id": "layer.region.bottom",
+        "level": "region",
+        "targetRef": "bottom",
+        "layout": "layout.region.bottom"
+      },
+      {
+        "id": "layer.area.decor.area.0.0",
+        "level": "area",
+        "targetRef": "decor.area.0.0",
+        "layout": "layout.area.areaAppBar"
+      },
+      {
+        "id": "layer.area.decor.area.1.0",
+        "level": "area",
+        "targetRef": "decor.area.1.0",
+        "layout": "layout.area.listStack"
+      },
+      {
+        "id": "layer.area.decor.area.2.0",
+        "level": "area",
+        "targetRef": "decor.area.2.0",
+        "layout": "layout.area.listStack"
+      },
+      {
+        "id": "layer.area.decor.area.999.0",
+        "level": "area",
+        "targetRef": "decor.area.999.0",
+        "layout": "layout.area.bottomActionArea"
+      },
+      {
+        "id": "layer.component.0.AppBarHeader",
+        "level": "component",
+        "targetRef": "AppBarHeader",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.TitleSectionOption",
+        "level": "component",
+        "targetRef": "TitleSectionOption",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.OptionListColorVolume",
+        "level": "component",
+        "targetRef": "OptionListColorVolume",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.1.ListSelectedBenefitOption",
+        "level": "component",
+        "targetRef": "ListSelectedBenefitOption",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.2.CalloutComboValidation",
+        "level": "component",
+        "targetRef": "CalloutComboValidation",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.2.ListSelectedGroupProduct",
+        "level": "component",
+        "targetRef": "ListSelectedGroupProduct",
+        "layout": "layout.composite.componentSectionMessage"
+      },
+      {
+        "id": "layer.component.999.ActionButtonNext",
+        "level": "component",
+        "targetRef": "ActionButtonNext",
+        "layout": "layout.composite.componentSectionMessage"
+      }
+    ],
+    "confidence": 0.92,
+    "reason": "Selected the full screen→region→area→component layer stack from layerCandidates to align with the list-selection-screen skill and the commerceDetailScreen composition plan. Screen root uses layout.screen.commerceDetailScreen; three regions (header/contents/bottom) preserve source region order. Areas map deterministically to decorationPlan layoutIntent: decor.area.0.0 → areaAppBar (app-bar), decor.area.1.0 and decor.area.2.0 → listStack (list-stack, form + feedback), decor.area.999.0 → bottomActionArea (bottom-action). All seven components are selected as componentSectionMessage composites to retain provenance for the later table-shaped generation, with contentPriority (AppBar → TitleSection → OptionList → BenefitOption → Callout → GroupProduct → ActionButtonNext) honored. All targetRefs are within sourceReferenceCatalog.allowedRefs and no layout id was invented beyond the provided candidates."
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "pattern-selection"
+}

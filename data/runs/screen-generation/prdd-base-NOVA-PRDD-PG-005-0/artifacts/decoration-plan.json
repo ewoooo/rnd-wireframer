@@ -1,0 +1,102 @@
+{
+  "areas": [
+    {
+      "componentRefs": [
+        "AppBarHeader"
+      ],
+      "displayTitle": "비교 컴포넌트로 대안 비교",
+      "id": "decor.area.0.0",
+      "layoutIntent": {
+        "areaPatternRole": "app-bar"
+      },
+      "role": "navigation",
+      "sourceAreaId": "0",
+      "targetRegion": "header"
+    },
+    {
+      "componentRefs": [
+        "TitleSectionCompare",
+        "ChipCompareAttribute",
+        "ListProductRowCompareSet",
+        "TextFieldCustomerCriteria",
+        "CardContentsFilledPlanCompare"
+      ],
+      "displayTitle": "상품 비교 기준",
+      "id": "decor.area.1.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "월 요금",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "월 요금"
+          },
+          "required": false,
+          "sourceComponentRef": "TitleSectionCompare"
+        },
+        {
+          "label": "요금제 비교",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "요금제 비교"
+          },
+          "required": true,
+          "sourceComponentRef": "TitleSectionCompare"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "1",
+      "targetRegion": "contents"
+    },
+    {
+      "componentRefs": [
+        "TitleSectionPrice",
+        "CardSummaryMonthlyEstimate",
+        "ListTextOneTimeCost",
+        "ListTextExcludedBenefit",
+        "AccordionPriceInfoSubsidy"
+      ],
+      "displayTitle": "예상 부담·혜택 요약",
+      "id": "decor.area.2.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "공시지원금·선택약정 비교",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "공시지원금·선택약정 비교"
+          },
+          "required": false,
+          "sourceComponentRef": "TitleSectionPrice"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "2",
+      "targetRegion": "contents"
+    },
+    {
+      "componentRefs": [
+        "ActionButton"
+      ],
+      "displayTitle": "화면 하단 액션 영역",
+      "id": "decor.area.999.0",
+      "layoutIntent": {
+        "areaPatternRole": "bottom-action"
+      },
+      "role": "bottom-action",
+      "sourceAreaId": "999",
+      "targetRegion": "bottom"
+    }
+  ],
+  "diagnostics": [],
+  "displayRules": {
+    "hideInternalSourceNames": true
+  },
+  "schemaVersion": "decoration-plan.v0.1",
+  "screenId": "NOVA-PRDD-PG-005-0",
+  "sourceScreenRef": "NOVA-PRDD-PG-005-0"
+}

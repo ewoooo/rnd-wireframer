@@ -1,0 +1,35 @@
+{
+  "payload": {
+    "contentPriority": [
+      "0",
+      "AppBarHeader",
+      "1",
+      "CalloutUsageFrequencyExample",
+      "2",
+      "AccordionPriceInfoSubsidy"
+    ],
+    "primaryUserAction": "complete-primary-flow",
+    "rationale": "Fake pipeline intent keeps the design decision artifact visible before composition planning.",
+    "schemaVersion": "screen-intent.v0.1",
+    "screenPurpose": "혜택·가격·주의사항 확인 화면에서 핵심 정보를 이해하고 다음 행동으로 이어지게 한다.",
+    "sourceInterpretation": {
+      "defer": [],
+      "preserve": [
+        "NOVA-PRDD-PG-003-0",
+        "/nova/prdd/pg/003/0"
+      ],
+      "summarize": [
+        "0",
+        "AppBarHeader",
+        "1",
+        "CalloutUsageFrequencyExample",
+        "2",
+        "AccordionPriceInfoSubsidy"
+      ]
+    }
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "screen-intent"
+}

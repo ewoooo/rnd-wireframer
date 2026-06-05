@@ -7,6 +7,7 @@ import { createModule, deleteModule, duplicateModule, updateModule } from "@/app
 import { createRoute, deleteRoute, duplicateRoute, updateRoute } from "@/app/actions/route-actions";
 import { createVariant } from "@/app/actions/screen-actions";
 import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
+import { RunSourcePanel } from "@/components/new-screen/RunSourcePanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
 import type { AppComponent, AppScreenModule, AppScreenRoute } from "@/model/store";
@@ -120,7 +121,11 @@ export function LeftAside() {
 
 	return (
 		<Aside side="left">
-			{activeTab === "scn" ? (
+			{activeTab === "run" ? (
+				<Panel bodyClassName="p-0">
+					<RunSourcePanel />
+				</Panel>
+			) : activeTab === "scn" ? (
 				<>
 					{/* ── A: 도메인/루트 목록 ── */}
 					<Panel title={`${screenModules.length}개 도메인`} defaultSize={35} minSize={15} bodyClassName="py-1">

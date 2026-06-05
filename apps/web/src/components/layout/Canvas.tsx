@@ -1,10 +1,11 @@
 import { SystemHeader } from "@cx/layout/chrome";
 import { RenderTreeNodeRenderer } from "@cx/renderer";
 import { Puck } from "@measured/puck";
-import { Bot, Box, Boxes, Smartphone } from "lucide-react";
+import { Bot, Box, Boxes, Smartphone, Table2 } from "lucide-react";
 import type { ComponentType } from "react";
 import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
 import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
+import { NewScreenStatusStepper } from "@/components/new-screen/NewScreenStatusStepper";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import type { SelectedAreaContext, SelectedComponentContext } from "@/model/store";
@@ -31,7 +32,8 @@ export function Canvas() {
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
 	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 
-	const isScreenTab = activeTab !== "agent" && !isComponentView && !isAreaView;
+	const isRunView = activeTab === "run";
+	const isScreenTab = activeTab !== "agent" && !isRunView && !isComponentView && !isAreaView;
 	const activeRoute = screenRoutes.find((r) => r.code === activeRouteId);
 
 	let canvasEmptyMessage: string | undefined;
@@ -67,7 +69,16 @@ export function Canvas() {
 			<SidebarContent className="items-center justify-center bg-muted p-6">
 				<div className="flex flex-col items-center gap-6">
 					<CanvasToolbar />
-					{activeTab === "agent" ? (
+					{isRunView ? (
+						<div className="flex flex-col items-center gap-3">
+							<NewScreenStatusStepper />
+							<div className="flex h-211 w-98 max-w-full items-center justify-center overflow-hidden rounded-[28px] border bg-background p-8 text-center shadow-xl">
+								<p className="text-sm text-muted-foreground">
+									소스를 선택하고 Run하면 생성 미리보기가 표시됩니다.
+								</p>
+							</div>
+						</div>
+					) : activeTab === "agent" ? (
 						<AgentRegistryPreview
 							registry={agentRegistry}
 							selectedAsset={selectedAgentAsset}
@@ -115,12 +126,13 @@ export function Canvas() {
 	);
 }
 
-type CanvasKind = "screen" | "area" | "component" | "agent";
+type CanvasKind = "run" | "screen" | "area" | "component" | "agent";
 
 const CANVAS_KIND: Record<
 	CanvasKind,
 	{ label: string; Icon: ComponentType<{ className?: string }> }
 > = {
+	run: { label: "Run", Icon: Table2 },
 	screen: { label: "Screen", Icon: Smartphone },
 	area: { label: "Area", Icon: Boxes },
 	component: { label: "Component", Icon: Box },
@@ -144,6 +156,7 @@ function getCanvasHeader({
 	selectedArea?: SelectedAreaContext;
 	selectedScreen?: { name: string };
 }): { kind: CanvasKind; title?: string } {
+	if (activeTab === "run") return { kind: "run" };
 	if (activeTab === "agent") return { kind: "agent", title: selectedAgentAsset?.item.name };
 	if (isComponentView) return { kind: "component", title: selectedComponent?.node.metadata.title };
 	if (isAreaView) return { kind: "area", title: selectedArea?.node.metadata.title };

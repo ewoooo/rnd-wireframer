@@ -28,7 +28,7 @@ interface AppProps {
 
 const ASIDE_WIDTH = "380px";
 const NAV_TAB_STORAGE_KEY = "workbench:nav-tab";
-const NAV_TABS = new Set<string>(["scn", "ogn", "comp", "agent"]);
+const NAV_TABS = new Set<string>(["run", "scn", "ogn", "comp", "agent"]);
 
 export function App({ agentRegistry = mockAgentAssetRegistry, initialData }: AppProps) {
 	const initializeWorkbench = useWorkbenchStore((state) => state.initializeWorkbench);

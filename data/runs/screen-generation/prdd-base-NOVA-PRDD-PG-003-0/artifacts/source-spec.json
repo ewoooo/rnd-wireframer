@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "source-spec.v0.1",
+  "sourceImport": {
+    "importId": "prdd-base-NOVA-PRDD-PG-003-0",
+    "sourceKind": "prdd-markdown-bundle",
+    "receivedAt": "1970-01-01T00:00:00.000Z",
+    "files": [
+      {
+        "id": "source-unknown-NOVA-PRDD-PG-003-0",
+        "kind": "unknown",
+        "path": "/Users/plusx/Documents/rnd-screen-generator/data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-003-0.md",
+        "title": "혜택·가격·주의사항 확인",
+        "checksum": "mvp-d17e3a75"
+      }
+    ]
+  },
+  "sourceShape": {
+    "screen": {
+      "screenCode": "NOVA-PRDD-PG-003-0",
+      "name": "혜택·가격·주의사항 확인",
+      "route": "/nova/prdd/pg/003/0",
+      "regions": [
+        {
+          "slot": "header",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "static",
+              "description": "화면 상단 네비게이션",
+              "layout": "vertical",
+              "renderNodeType": "area.static",
+              "sourceAreaId": "0",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "AppBar",
+                  "componentType": "AppBar",
+                  "roleAlias": "AppBarHeader",
+                  "sourceId": "AppBarHeader",
+                  "description": "화면 상단 네비게이션",
+                  "label": "AppBarHeader",
+                  "props": {
+                    "title": "혜택·가격·주의사항 확인"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "화면 상단 네비게이션",
+                    "displayText": "title: 혜택·가격·주의사항 확인"
+                  },
+                  "text": "title: 혜택·가격·주의사항 확인",
+                  "variant": "WithBack"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "contents",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "혜택·가격·가치 산정 표시 영역",
+              "errorPolicy": "오류 항목 미노출",
+              "layout": "vertical",
+              "maxCount": "1",
+              "minCount": "1",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "1",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "Callout",
+                  "componentType": "Callout",
+                  "roleAlias": "CalloutUsageFrequencyExample",
+                  "sourceId": "CalloutUsageFrequencyExample",
+                  "description": "실사용 빈도 가치 예시",
+                  "label": "CalloutUsageFrequencyExample",
+                  "props": {
+                    "title": "이렇게 쓰면 더 이득이에요",
+                    "body": "월 N회 사용 시 구독료 이상의 가치를 얻을 수 있어요. 적용·제외 조건을 함께 확인하세요."
+                  },
+                  "raw": {
+                    "bindingSource": "할인·혜택 적용 결과 (api:FN-PRDD-BENEFIT-001)\n실사용 빈도 예시 (policy:PI-PRDD-PRICE-001-05)",
+                    "description": "실사용 빈도 가치 예시",
+                    "displayText": "title: 이렇게 쓰면 더 이득이에요\nbody: 월 N회 사용 시 구독료 이상의 가치를 얻을 수 있어요. 적용·제외 조건을 함께 확인하세요.",
+                    "note": "[정책:PI-PRDD-PRICE-001-05] 실사용 빈도 가치 — 과장 없이 적용·제외 조건 함께 표시"
+                  },
+                  "text": "title: 이렇게 쓰면 더 이득이에요\nbody: 월 N회 사용 시 구독료 이상의 가치를 얻을 수 있어요. 적용·제외 조건을 함께 확인하세요."
+                }
+              ]
+            },
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "예상 부담·혜택 요약 계산 영역",
+              "errorPolicy": "오류 항목 미노출",
+              "layout": "vertical",
+              "maxCount": "1",
+              "minCount": "1",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "2",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "AccordionPriceInfo",
+                  "componentType": "AccordionPriceInfo",
+                  "roleAlias": "AccordionPriceInfoSubsidy",
+                  "sourceId": "AccordionPriceInfoSubsidy",
+                  "description": "공시지원금 가격 상세 펼침",
+                  "label": "AccordionPriceInfoSubsidy",
+                  "props": {
+                    "priceText": "예상 부담 {예상 부담액}",
+                    "titleText": "공시지원금·선택약정 비교",
+                    "slot": "{출고가} / {공시지원금} / {선택약정 할인 적용가}"
+                  },
+                  "raw": {
+                    "bindingSource": "예상 부담액, 할인·혜택 적용 결과 (api:FN-PRDD-PRICE-001)\nsubsidyDetailOpen (state)",
+                    "description": "공시지원금 가격 상세 펼침",
+                    "displayText": "priceText: 예상 부담 {예상 부담액}\ntitleText: 공시지원금·선택약정 비교\nslot: {출고가} / {공시지원금} / {선택약정 할인 적용가}",
+                    "note": "[정책:PI-PRDD-PRICE-001-03] 공시지원금 — 출고가·공시지원금·선택약정 할인가·약정 기간 비교 단위 제공"
+                  },
+                  "text": "priceText: 예상 부담 {예상 부담액}\ntitleText: 공시지원금·선택약정 비교\nslot: {출고가} / {공시지원금} / {선택약정 할인 적용가}",
+                  "variant": "default"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

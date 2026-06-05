@@ -1,6 +1,7 @@
 import { Puck } from "@measured/puck";
 import { ChevronRight, Grid3x3, Palette, Type, Workflow } from "lucide-react";
 import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
+import { NewScreenReviewSummary } from "@/components/new-screen/NewScreenReviewSummary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useWorkbenchStore } from "@/model/store";
 import { Aside, Divider, Panel } from "./Aside";
@@ -19,7 +20,11 @@ export function RightAside() {
 
 	return (
 		<Aside side="right">
-			{activeTab === "agent" ? (
+			{activeTab === "run" ? (
+				<Panel title="Review">
+					<NewScreenReviewSummary review={{}} />
+				</Panel>
+			) : activeTab === "agent" ? (
 				<Panel
 					title={
 						<span className="flex items-center gap-1.5">

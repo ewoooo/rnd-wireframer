@@ -1,0 +1,61 @@
+{
+  "areas": [
+    {
+      "componentRefs": [
+        "AppBarHeader"
+      ],
+      "displayTitle": "혜택·가격·주의사항 확인",
+      "id": "decor.area.0.0",
+      "layoutIntent": {
+        "areaPatternRole": "app-bar"
+      },
+      "role": "navigation",
+      "sourceAreaId": "0",
+      "targetRegion": "header"
+    },
+    {
+      "componentRefs": [
+        "CalloutUsageFrequencyExample"
+      ],
+      "displayTitle": "이렇게 쓰면 더 이득이에요",
+      "id": "decor.area.1.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "role": "content-list",
+      "sourceAreaId": "1",
+      "targetRegion": "contents"
+    },
+    {
+      "componentRefs": [
+        "AccordionPriceInfoSubsidy"
+      ],
+      "displayTitle": "예상 부담·혜택 요약 계산 영역",
+      "id": "decor.area.2.0",
+      "layoutIntent": {
+        "areaPatternRole": "list-stack"
+      },
+      "repeatedItems": [
+        {
+          "label": "예상 부담",
+          "propsHint": {
+            "showRightItem": true,
+            "subText": "예상 부담"
+          },
+          "required": false,
+          "sourceComponentRef": "AccordionPriceInfoSubsidy"
+        }
+      ],
+      "role": "content-list",
+      "sourceAreaId": "2",
+      "targetRegion": "contents"
+    }
+  ],
+  "diagnostics": [],
+  "displayRules": {
+    "hideInternalSourceNames": true
+  },
+  "schemaVersion": "decoration-plan.v0.1",
+  "screenId": "NOVA-PRDD-PG-003-0",
+  "sourceScreenRef": "NOVA-PRDD-PG-003-0"
+}

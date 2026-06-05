@@ -1,0 +1,106 @@
+{
+  "commands": [
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/source-spec.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/screen-intent.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/composition-plan.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/decoration-plan.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/pattern-selection.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/agent-result.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/final-result.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/validation-report.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/quality-review.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/component-proposal.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    },
+    {
+      "artifact": {
+        "kind": "file",
+        "uri": "/Users/plusx/Documents/rnd-screen-generator/data/runs/screen-generation/web-NOVA-PRDD-PG-007-3-20260604043106/artifacts/trace.json"
+      },
+      "issues": [],
+      "operation": "versioned-artifact-write",
+      "status": "succeeded"
+    }
+  ],
+  "issues": [],
+  "ok": true,
+  "operation": "side-effect-command-conveying"
+}

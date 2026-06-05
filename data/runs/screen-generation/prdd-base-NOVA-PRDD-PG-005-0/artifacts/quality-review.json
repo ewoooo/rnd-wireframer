@@ -1,0 +1,30 @@
+{
+  "payload": {
+    "findings": [
+      {
+        "code": "validation-warning-review",
+        "message": "Generation result has validation warnings that should be reviewed.",
+        "path": [
+          "validationReport",
+          "issues"
+        ],
+        "severity": "warning",
+        "suggestion": "Inspect warning paths before approving the generated screen."
+      }
+    ],
+    "inspection": {
+      "compositionAligned": false,
+      "sourceFaithful": false,
+      "visualHierarchyClear": true
+    },
+    "schemaVersion": "quality-inspection.v0.1",
+    "summary": {
+      "errorCount": 0,
+      "warningCount": 1
+    }
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "quality-review"
+}

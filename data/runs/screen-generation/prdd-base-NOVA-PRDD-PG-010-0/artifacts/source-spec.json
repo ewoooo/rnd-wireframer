@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "source-spec.v0.1",
+  "sourceImport": {
+    "importId": "prdd-base-NOVA-PRDD-PG-010-0",
+    "sourceKind": "prdd-markdown-bundle",
+    "receivedAt": "1970-01-01T00:00:00.000Z",
+    "files": [
+      {
+        "id": "source-unknown-NOVA-PRDD-PG-010-0",
+        "kind": "unknown",
+        "path": "/Users/plusx/Documents/rnd-screen-generator/data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-010-0.md",
+        "title": "공유·딥링크·문의 맥락 유지",
+        "checksum": "mvp-ba69a05a"
+      }
+    ]
+  },
+  "sourceShape": {
+    "screen": {
+      "screenCode": "NOVA-PRDD-PG-010-0",
+      "name": "공유·딥링크·문의 맥락 유지",
+      "route": "/nova/prdd/pg/010/0",
+      "regions": [
+        {
+          "slot": "header",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "static",
+              "description": "화면 상단 네비게이션",
+              "layout": "vertical",
+              "renderNodeType": "area.static",
+              "sourceAreaId": "0",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "AppBar",
+                  "componentType": "AppBar",
+                  "roleAlias": "AppBarHeader",
+                  "sourceId": "AppBarHeader",
+                  "description": "화면 상단 네비게이션",
+                  "label": "AppBarHeader",
+                  "props": {
+                    "title": "공유·딥링크·문의 맥락 유지"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "화면 상단 네비게이션",
+                    "displayText": "title: 공유·딥링크·문의 맥락 유지"
+                  },
+                  "text": "title: 공유·딥링크·문의 맥락 유지",
+                  "variant": "WithBack"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "contents",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "공유·딥링크·원위치 복귀 영역",
+              "errorPolicy": "오류 항목 미노출",
+              "layout": "vertical",
+              "maxCount": "1",
+              "minCount": "0",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "1",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "Callout",
+                  "componentType": "Callout",
+                  "roleAlias": "CalloutDeeplinkInstall",
+                  "sourceId": "CalloutDeeplinkInstall",
+                  "description": "딥링크 미설치 유도 안내",
+                  "label": "CalloutDeeplinkInstall",
+                  "props": {
+                    "title": "앱에서 이어보기",
+                    "body": "앱을 설치하면 선택한 상품 구성을 그대로 이어볼 수 있어요."
+                  },
+                  "raw": {
+                    "bindingSource": "딥링크 진입 경로와 복원 상태 (api:FN-PRDD-SHARE-001)\n인증 후 핵심 상태 복원 (policy:PI-PRDD-FAIL-001-03)",
+                    "description": "딥링크 미설치 유도 안내",
+                    "displayText": "title: 앱에서 이어보기\nbody: 앱을 설치하면 선택한 상품 구성을 그대로 이어볼 수 있어요.",
+                    "note": "[정책:PI-PRDD-FAIL-001-03] 인증 복귀"
+                  },
+                  "text": "title: 앱에서 이어보기\nbody: 앱을 설치하면 선택한 상품 구성을 그대로 이어볼 수 있어요.",
+                  "variant": "WithTitle"
+                }
+              ]
+            },
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "상품 문맥 상담 전달 영역",
+              "errorPolicy": "영역 전체 숨김",
+              "layout": "vertical",
+              "maxCount": "N",
+              "minCount": "1",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "2",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "TitleSection",
+                  "componentType": "TitleSection",
+                  "roleAlias": "TitleSectionCounsel",
+                  "sourceId": "TitleSectionCounsel",
+                  "description": "상담 전달 섹션 헤더",
+                  "label": "TitleSectionCounsel",
+                  "props": {
+                    "subtitle": "도움이 필요하신가요?",
+                    "title": "상품 문맥 상담 전달"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "상담 전달 섹션 헤더",
+                    "displayText": "subtitle: 도움이 필요하신가요?\ntitle: 상품 문맥 상담 전달"
+                  },
+                  "text": "subtitle: 도움이 필요하신가요?\ntitle: 상품 문맥 상담 전달",
+                  "variant": "Default"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "ListText",
+                  "componentType": "ListText",
+                  "roleAlias": "ListTextCounselConnect",
+                  "sourceId": "ListTextCounselConnect",
+                  "description": "상담 연결",
+                  "label": "ListTextCounselConnect",
+                  "props": {
+                    "title": "상담 연결하기"
+                  },
+                  "raw": {
+                    "bindingSource": "상담 전환 문맥 (api:FN-PRDD-CS-001)\n상담 문맥 전달 기준 (policy:PI-PRDD-CS-001-01)",
+                    "description": "상담 연결",
+                    "displayText": "title: 상담 연결하기",
+                    "note": "[정책:PI-PRDD-CS-001-01] 상담 문맥\n[정책:PI-PRDD-CS-001-03] 대체 안내"
+                  },
+                  "text": "title: 상담 연결하기",
+                  "variant": "off"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "payload": {
+    "schemaVersion": "screen-intent.v0.1",
+    "screenPurpose": "로그인·인증 후 복귀했을 때 색상·용량·약정·혜택·그룹 구성 선택이 소실된 상태를 인지시키고, 사용자가 옵션·구성을 다시 선택해 다음 단계로 진행할 수 있도록 한다.",
+    "primaryUserAction": "OptionListColorVolume에서 색상·용량·약정을 재선택하고 ListSelectedBenefitOption·ListSelectedGroupProduct에서 혜택·그룹 구성을 확정한 뒤 ActionButtonNext로 다음 단계 진행",
+    "contentPriority": [
+      "AppBarHeader",
+      "TitleSectionOption",
+      "OptionListColorVolume",
+      "ListSelectedBenefitOption",
+      "CalloutComboValidation",
+      "ListSelectedGroupProduct",
+      "ActionButtonNext"
+    ],
+    "sourceInterpretation": {
+      "preserve": [
+        "AppBarHeader",
+        "TitleSectionOption",
+        "OptionListColorVolume",
+        "ListSelectedBenefitOption",
+        "CalloutComboValidation",
+        "ListSelectedGroupProduct",
+        "ActionButtonNext"
+      ],
+      "summarize": [
+        "1",
+        "2"
+      ],
+      "defer": [
+        "999"
+      ]
+    },
+    "audience": "로그인·인증을 완료하고 옵션·구성 선택 단계로 복귀한 상품 가입·구매 시도 사용자",
+    "primaryTask": "소실된 옵션·구성(색상·용량·약정, 혜택, 그룹 상품)을 재선택하고 조합 유효성을 확인한 뒤 다음 단계로 진행한다.",
+    "successMoment": "재선택한 구성이 담기 조건을 통과하여 ActionButtonNext가 활성화되고 다음 단계로 이동하는 순간",
+    "missingDecisions": [
+      "복귀 시 선택 소실을 명시적으로 알리는 안내 컴포넌트(예: 토스트·배너) 정의 부재",
+      "이전 선택을 복원할지 완전히 초기화할지에 대한 상태 복원 정책 미정",
+      "OptionListColorVolume의 비선택·오류 상태에서 ActionButtonNext의 disabled 처리 규칙 명시 없음"
+    ],
+    "stateCoverageHints": [
+      {
+        "surface": "form",
+        "states": [
+          "empty",
+          "populated",
+          "validation"
+        ],
+        "reason": "복귀 직후 OptionListColorVolume·ListSelectedBenefitOption·ListSelectedGroupProduct가 비어 있는 empty 상태와, 재선택 후 populated 및 조합 유효성 검증 상태가 모두 노출 가능"
+      },
+      {
+        "surface": "async",
+        "states": [
+          "loading",
+          "error"
+        ],
+        "reason": "FN-PRDD-OPTION-001·FN-PRDD-COMBO-001 호출에 따른 로딩과, errorPolicy(오류 항목 미노출·영역 전체 숨김) 적용 시 오류 상태 처리 필요"
+      },
+      {
+        "surface": "form",
+        "states": [
+          "disabled"
+        ],
+        "reason": "PI-PRDD-COMBO-001-04 담기 판정 정책에 따라 조건 미충족 시 ActionButtonNext가 비활성화되어야 함"
+      }
+    ],
+    "rationale": "SourceSpec은 옵션·구성 선택 화면의 복귀 시 선택 소실 상황을 다루며, contents 영역(area 1)은 옵션 재선택, area 2는 조합·중복가입 유효성 안내를 담당한다. 사용자는 AppBar로 맥락을 확인하고 TitleSection으로 섹션 의도를 파악한 뒤, OptionList → BenefitOption → ComboValidation → GroupProduct 순으로 선택과 검증을 거쳐 ActionButtonNext로 진행한다. 따라서 contentPriority는 인지·선택·검증·CTA 순서로 정렬했고, bottom 액션 영역(999)은 구조적으로 단일 CTA만 포함하므로 defer 처리하여 본문 흐름에 집중하도록 했다."
+  },
+  "session": {
+    "mode": "new"
+  },
+  "taskKind": "screen-intent"
+}

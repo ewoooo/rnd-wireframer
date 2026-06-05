@@ -1,0 +1,292 @@
+{
+  "schemaVersion": "source-spec.v0.1",
+  "sourceImport": {
+    "importId": "prdd-base-NOVA-PRDD-PG-006-0",
+    "sourceKind": "prdd-markdown-bundle",
+    "receivedAt": "1970-01-01T00:00:00.000Z",
+    "files": [
+      {
+        "id": "source-unknown-NOVA-PRDD-PG-006-0",
+        "kind": "unknown",
+        "path": "/Users/plusx/Documents/rnd-screen-generator/data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-006-0.md",
+        "title": "추천·AI 요약 근거 검토",
+        "checksum": "mvp-5c1ad300"
+      }
+    ]
+  },
+  "sourceShape": {
+    "screen": {
+      "screenCode": "NOVA-PRDD-PG-006-0",
+      "name": "추천·AI 요약 근거 검토",
+      "route": "/nova/prdd/pg/006/0",
+      "regions": [
+        {
+          "slot": "header",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "static",
+              "description": "화면 상단 네비게이션",
+              "layout": "vertical",
+              "renderNodeType": "area.static",
+              "sourceAreaId": "0",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "AppBar",
+                  "componentType": "AppBar",
+                  "roleAlias": "AppBarHeader",
+                  "sourceId": "AppBarHeader",
+                  "description": "화면 상단 네비게이션",
+                  "label": "AppBarHeader",
+                  "props": {
+                    "title": "추천·AI 요약 근거 검토"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "화면 상단 네비게이션",
+                    "displayText": "title: 추천·AI 요약 근거 검토"
+                  },
+                  "text": "title: 추천·AI 요약 근거 검토",
+                  "variant": "WithBack"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "slot": "contents",
+          "children": [
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "AI 요약·추천·atomic view 영역",
+              "errorPolicy": "오류 항목 미노출",
+              "layout": "vertical",
+              "maxCount": "N",
+              "minCount": "1",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "1",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "TitleSection",
+                  "componentType": "TitleSection",
+                  "roleAlias": "TitleSectionAiSummary",
+                  "sourceId": "TitleSectionAiSummary",
+                  "description": "AI 요약·추천 영역 제목",
+                  "label": "TitleSectionAiSummary",
+                  "props": {
+                    "title": "AI 요약·추천"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "AI 요약·추천 영역 제목",
+                    "displayText": "title: AI 요약·추천"
+                  },
+                  "text": "title: AI 요약·추천",
+                  "variant": "Default"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "Callout",
+                  "componentType": "Callout",
+                  "roleAlias": "CalloutAiSummary",
+                  "sourceId": "CalloutAiSummary",
+                  "description": "상품 핵심 특징 AI 요약",
+                  "label": "CalloutAiSummary",
+                  "props": {
+                    "title": "AI 핵심 요약",
+                    "body": "{AI 요약 문구} — 생성 기준·반영 시점·원문 이동 경로를 함께 표시합니다"
+                  },
+                  "raw": {
+                    "bindingSource": "고객용 상품 요약 (api:FN-PRDD-AI-001)\nAI 요약 생성 기준 (policy:PI-PRDD-COMPARE-001-02)",
+                    "description": "상품 핵심 특징 AI 요약",
+                    "displayText": "title: AI 핵심 요약\nbody: {AI 요약 문구} — 생성 기준·반영 시점·원문 이동 경로를 함께 표시합니다",
+                    "note": "[정책:PI-PRDD-COMPARE-001-02] AI 요약"
+                  },
+                  "text": "title: AI 핵심 요약\nbody: {AI 요약 문구} — 생성 기준·반영 시점·원문 이동 경로를 함께 표시합니다",
+                  "variant": "WithTitle"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "InfoTextList",
+                  "componentType": "InfoTextList",
+                  "roleAlias": "InfoTextListRecommendBasis",
+                  "sourceId": "InfoTextListRecommendBasis",
+                  "description": "추천 근거 표시",
+                  "label": "InfoTextListRecommendBasis",
+                  "props": {
+                    "title": "{추천 근거 항목} (예: 월 예상 부담)",
+                    "category": "추천 기준"
+                  },
+                  "raw": {
+                    "bindingSource": "상품군별 필수 정보 표시 여부 (api:FN-PRDD-AI-001)\n추천 사용 기준 (policy:PI-PRDD-COMPARE-001-03)",
+                    "description": "추천 근거 표시",
+                    "displayText": "title: {추천 근거 항목} (예: 월 예상 부담)\ncategory: 추천 기준",
+                    "note": "[정책:PI-PRDD-COMPARE-001-03] 추천 근거"
+                  },
+                  "text": "title: {추천 근거 항목} (예: 월 예상 부담)\ncategory: 추천 기준",
+                  "variant": "Default"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "CardText",
+                  "componentType": "CardText",
+                  "roleAlias": "CardTextReviewSummary",
+                  "sourceId": "CardTextReviewSummary",
+                  "description": "구매후기 AI 요약",
+                  "label": "CardTextReviewSummary",
+                  "props": {
+                    "title": "후기 AI 요약",
+                    "body": "{후기 요약 문구} — 장점과 단점을 균형 있게 제공하며 원문으로 이동할 수 있습니다"
+                  },
+                  "raw": {
+                    "bindingSource": "고객용 상품 요약 (api:FN-PRDD-AI-001)\n후기 요약 균형 기준 (policy:PI-PRDD-COMPARE-001-04)",
+                    "description": "구매후기 AI 요약",
+                    "displayText": "title: 후기 AI 요약\nbody: {후기 요약 문구} — 장점과 단점을 균형 있게 제공하며 원문으로 이동할 수 있습니다",
+                    "note": "[정책:PI-PRDD-COMPARE-001-04] 후기 요약"
+                  },
+                  "text": "title: 후기 AI 요약\nbody: {후기 요약 문구} — 장점과 단점을 균형 있게 제공하며 원문으로 이동할 수 있습니다",
+                  "variant": "Default"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "ListProductRow",
+                  "componentType": "ListProductRow",
+                  "roleAlias": "ListProductRowSimilarCompare",
+                  "sourceId": "ListProductRowSimilarCompare",
+                  "description": "유사상품 AI 비교 표시",
+                  "label": "ListProductRowSimilarCompare",
+                  "raw": {
+                    "bindingSource": "상품 상세 조회와 비교 전환 이력 (api:FN-PRDD-AI-001)\natomic view 재조립 기준 (policy:PI-PRDD-COMPARE-001-05)",
+                    "description": "유사상품 AI 비교 표시",
+                    "note": "[정책:PI-PRDD-COMPARE-001-05] atomic view"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "area",
+              "areaType": "dynamic",
+              "description": "상품 리뷰·평점·Q&A 제공 영역",
+              "errorPolicy": "오류 항목 미노출",
+              "layout": "vertical",
+              "maxCount": "N",
+              "minCount": "0",
+              "renderNodeType": "area.dynamic",
+              "sourceAreaId": "2",
+              "visibility": "항상",
+              "children": [
+                {
+                  "kind": "component",
+                  "sourceComponentId": "TitleSection",
+                  "componentType": "TitleSection",
+                  "roleAlias": "TitleSectionReview",
+                  "sourceId": "TitleSectionReview",
+                  "description": "리뷰·평점·Q&A 영역 제목",
+                  "label": "TitleSectionReview",
+                  "props": {
+                    "title": "리뷰·평점·Q&A"
+                  },
+                  "raw": {
+                    "bindingSource": "- (static)",
+                    "description": "리뷰·평점·Q&A 영역 제목",
+                    "displayText": "title: 리뷰·평점·Q&A"
+                  },
+                  "text": "title: 리뷰·평점·Q&A",
+                  "variant": "Default"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "InfoTextList",
+                  "componentType": "InfoTextList",
+                  "roleAlias": "InfoTextListReview",
+                  "sourceId": "InfoTextListReview",
+                  "description": "후기 목록 표시",
+                  "label": "InfoTextListReview",
+                  "props": {
+                    "title": "{후기 작성자} (예: 익명 고객)",
+                    "category": "{작성일} (예: 2026-05-10)",
+                    "badge": "{답변·신고 상태} (예: 답변완료)"
+                  },
+                  "raw": {
+                    "bindingSource": "상품 상세 조회와 비교·담기 전환 이력 (api:FN-PRDD-REVIEW-001)\n고객 표시 표준 컬럼 (policy:PI-PRDD-REVIEW-001-01)",
+                    "description": "후기 목록 표시",
+                    "displayText": "title: {후기 작성자} (예: 익명 고객)\ncategory: {작성일} (예: 2026-05-10)\nbadge: {답변·신고 상태} (예: 답변완료)",
+                    "note": "[정책:PI-PRDD-REVIEW-001-01] 공통 컬럼"
+                  },
+                  "text": "title: {후기 작성자} (예: 익명 고객)\ncategory: {작성일} (예: 2026-05-10)\nbadge: {답변·신고 상태} (예: 답변완료)",
+                  "variant": "WithBadge"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "CardSummary",
+                  "componentType": "CardSummary",
+                  "roleAlias": "CardSummaryRating",
+                  "sourceId": "CardSummaryRating",
+                  "description": "평점 요약 표시",
+                  "label": "CardSummaryRating",
+                  "props": {
+                    "title": "평점 요약",
+                    "subText": "{평균 평점} (예: 4.5 / 5.0)"
+                  },
+                  "raw": {
+                    "bindingSource": "상품군별 필수 정보 표시 여부 (api:FN-PRDD-REVIEW-001)\n평점 표시 기준 (policy:PI-PRDD-REVIEW-001-01)",
+                    "description": "평점 요약 표시",
+                    "displayText": "title: 평점 요약\nsubText: {평균 평점} (예: 4.5 / 5.0)",
+                    "note": "[정책:PI-PRDD-REVIEW-001-01] 공통 컬럼"
+                  },
+                  "text": "title: 평점 요약\nsubText: {평균 평점} (예: 4.5 / 5.0)",
+                  "variant": "text"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "Chip",
+                  "componentType": "Chip",
+                  "roleAlias": "ChipQnaFilter",
+                  "sourceId": "ChipQnaFilter",
+                  "description": "Q&A 필터 선택",
+                  "label": "ChipQnaFilter",
+                  "props": {
+                    "label": "{필터 유형} (예: 최신순)"
+                  },
+                  "raw": {
+                    "bindingSource": "selectedQnaFilter (state)\n최신순·도움순·유형별 필터 (policy:PI-PRDD-SUMMARY-001-04)",
+                    "description": "Q&A 필터 선택",
+                    "displayText": "label: {필터 유형} (예: 최신순)",
+                    "note": "[정책:PI-PRDD-SUMMARY-001-04] 상품 리뷰·평점·Q&A"
+                  },
+                  "text": "label: {필터 유형} (예: 최신순)"
+                },
+                {
+                  "kind": "component",
+                  "sourceComponentId": "Callout",
+                  "componentType": "Callout",
+                  "roleAlias": "CalloutFilterRelaxGuide",
+                  "sourceId": "CalloutFilterRelaxGuide",
+                  "description": "필터 완화 안내",
+                  "label": "CalloutFilterRelaxGuide",
+                  "props": {
+                    "title": "조건에 맞는 후기가 없습니다",
+                    "body": "조건 완화, 전체 후기 보기, 후기 작성 가능 여부 중 하나 이상을 안내합니다."
+                  },
+                  "raw": {
+                    "bindingSource": "미노출·대체 안내 사유 (api:FN-PRDD-REVIEW-001)\n결과 없음 안내 기준 (policy:PI-PRDD-REVIEW-001-04)",
+                    "description": "필터 완화 안내",
+                    "displayText": "title: 조건에 맞는 후기가 없습니다\nbody: 조건 완화, 전체 후기 보기, 후기 작성 가능 여부 중 하나 이상을 안내합니다.",
+                    "note": "[정책:PI-PRDD-REVIEW-001-04] 결과 없음"
+                  },
+                  "text": "title: 조건에 맞는 후기가 없습니다\nbody: 조건 완화, 전체 후기 보기, 후기 작성 가능 여부 중 하나 이상을 안내합니다.",
+                  "variant": "WithTitle"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

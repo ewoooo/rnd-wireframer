@@ -17,7 +17,7 @@ import {
 	type SelectedAgentAsset,
 } from "@/agent/agent-registry-view";
 
-export type NavigatorTab = "agent" | "comp" | "ogn" | "scn";
+export type NavigatorTab = "agent" | "comp" | "ogn" | "run" | "scn";
 
 export interface AppScreenModule {
 	id: string;
