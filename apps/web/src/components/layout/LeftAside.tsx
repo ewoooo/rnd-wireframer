@@ -6,7 +6,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { createModule, deleteModule, duplicateModule, updateModule } from "@/app/actions/module-actions";
 import { createRoute, deleteRoute, duplicateRoute, updateRoute } from "@/app/actions/route-actions";
 import { createVariant } from "@/app/actions/screen-actions";
-import { AgentRegistryNavigation } from "@/components/agent/AgentRegistryNavigation";
 import { RunSourcePanel } from "@/components/new-screen/RunSourcePanel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/utils";
@@ -55,18 +54,15 @@ function groupComponentsByType(components: AppComponent[]) {
 export function LeftAside() {
 	const router = useRouter();
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const components = useWorkbenchStore((state) => state.components);
 	const areas = useWorkbenchStore((state) => state.areas);
 	const screens = useWorkbenchStore((state) => state.screens);
 	const screenModules = useWorkbenchStore((state) => state.screenModules);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
-	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
 	const selectedComponentCode = useWorkbenchStore((state) => state.selectedComponentCode);
 	const selectedAreaCode = useWorkbenchStore((state) => state.selectedAreaCode);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
 	const selectedScreenCode = useWorkbenchStore((state) => state.selectedScreenCode);
-	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 	const selectComponent = useWorkbenchStore((state) => state.selectComponent);
 	const selectArea = useWorkbenchStore((state) => state.selectArea);
 	const selectScreenRoute = useWorkbenchStore((state) => state.selectScreenRoute);
@@ -301,17 +297,7 @@ export function LeftAside() {
 						</div>
 					</Panel>
 				</>
-			) : (
-				<Panel bodyClassName="p-2">
-					{activeTab === "agent" ? (
-						<AgentRegistryNavigation
-							registry={agentRegistry}
-							selectedNode={selectedAgentNode}
-							onSelectNode={selectAgentNode}
-						/>
-					) : null}
-				</Panel>
-			)}
+			) : null}
 		</Aside>
 	);
 }
