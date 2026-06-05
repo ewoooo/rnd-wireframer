@@ -113,6 +113,7 @@ export const SCREEN_GENERATION_STAGE_DESCRIPTORS = [
 			composition: stepOutput("plan-composition", "result"),
 			decoration: stepOutput("derive-decoration-plan", "result"),
 			designContextBundles: refs.designContextBundles,
+			intent: stepOutput("derive-screen-intent", "result"),
 			layoutCatalogs: refs.layoutCatalogs,
 			source: stepOutput("parse-source", "result"),
 		},

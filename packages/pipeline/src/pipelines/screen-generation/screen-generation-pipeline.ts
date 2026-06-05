@@ -635,7 +635,7 @@ async function runPlanCompositionAiStep(
 	runner: AgentRunner,
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
-	const screenIntent = inputs.intent ?? state.screenIntent.agentResult?.payload;
+	const screenIntent = inputs.intent;
 	const layerCandidates = buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
 	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
@@ -695,19 +695,22 @@ async function runSelectPatternAiStep(
 	runner: AgentRunner,
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
-	const composition = readRecordInput(inputs.composition);
-	const decoration = readRecordInput(inputs.decoration);
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
 	const layerCandidates =
-		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
+		decoration?.patternLayerCandidates ??
+		buildScreenGenerationPatternLayerCandidates(
+			inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
+			sourceSpec,
+		);
 	const nodeResult = await runPatternSelectionNode({
-		compositionPlan: composition?.compositionPlan ?? state.compositionPlan.agentResult?.payload,
-		decorationPlan:
-			(decoration?.decorationPlan as DecorationPlanContract | undefined) ?? state.decorationPlan,
-		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
-		designSkillSelection: state.designSkillSelection,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleRefs: composition?.designContextBundleSelection?.bundleRefs,
+		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates,
 		runner,
-		screenIntent: state.screenIntent.agentResult?.payload,
+		screenIntent: inputs.intent,
 		sourceSpec,
 	});
 
@@ -1146,10 +1149,6 @@ function readSourceSpecInput(
 		return source.sourceSpec as SourceSpec;
 	}
 	return requireSourceSpec(state);
-}
-
-function readRecordInput(input: unknown): Record<string, unknown> | undefined {
-	return isRecord(input) ? input : undefined;
 }
 
 function buildScreenGenerationPatternLayerCandidates(
