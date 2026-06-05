@@ -1,7 +1,7 @@
 "use client";
 
 import { AppScreen } from "@cx/layout/chrome";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 
 import { defaultRendererDefinitions } from "./default-renderers";
 import { RendererRegistry, type RenderTreeRenderer } from "./registry";
@@ -24,10 +24,10 @@ export function RenderTreeScreenRenderer({
 	return (
 		<AppScreen
 			node={node}
-			header={headerNode.children?.map((child) => renderNode(child, renderData))}
-			bottom={bottomNode.children?.map((child) => renderNode(child, renderData))}
+			header={renderChildList(headerNode.children, renderData)}
+			bottom={renderChildList(bottomNode.children, renderData)}
 		>
-			{contentsNode.children?.map((child) => renderNode(child, renderData))}
+			{renderChildList(contentsNode.children, renderData)}
 		</AppScreen>
 	);
 }
@@ -52,8 +52,22 @@ export function renderNode(node: RenderTreeNode, data: Record<string, unknown>):
 		data,
 		node,
 		renderable: renderableNode,
-		renderChildren: () => node.children?.map((child) => renderNode(child, data)),
+		renderChildren: () => renderChildList(node.children, data),
 	});
+}
+
+/**
+ * 자식 노드 목록을 렌더한다. 형제 노드의 metadata.id가 중복될 수 있으므로
+ * (예: 한 area가 동일 composite를 여러 번 참조) React key는 항상 위치 기반으로
+ * 유니크하게 부여한다. 렌더러는 id 유일성을 가정하지 않는다.
+ */
+function renderChildList(
+	children: RenderTreeNode[] | undefined,
+	data: Record<string, unknown>,
+): ReactNode {
+	return children?.map((child, index) => (
+		<Fragment key={`${child.metadata.id}#${index}`}>{renderNode(child, data)}</Fragment>
+	));
 }
 
 function getRenderer(kind: RenderTreeNodeKind): RenderTreeRenderer {
