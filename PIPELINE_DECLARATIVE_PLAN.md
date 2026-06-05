@@ -105,3 +105,143 @@ defineStep({
 
 - 이 브랜치는 옆 세션(inference-nodes 최적화)과 공유될 수 있음. 전역 git 조작(stash/reset/checkout) 금지. 커밋은 **파이프라인 파일만 pathspec**으로 분리.
 - inference-nodes는 본 plan에서 **수정하지 않음**(순수 primitive 유지). 노드 조합은 preset 레벨에서.
+
+---
+
+# 부록: 최종 설계 명세 (Target)
+
+## A. 디렉토리 구조
+
+의존 DAG(단방향, 무순환): **contract ← persistence ← runtime ← presets** (+ testing는 dev 전용 sibling).
+
+```
+packages/pipeline/src/
+  contract/                 # 공유 어휘. ZERO 내부 의존 (leaf).
+    types.ts                #   StepInputRef, PipelineExecutionState, PipelineRunStatus/Event,
+                            #   PipelineRunResult, OutputContract, SideEffect* …
+    contract.ts             #   sideEffectBoundary
+    smoke-run-manifest.ts
+  runtime/                  # 제네릭 엔진 (도메인 무지)
+    run-step-pipeline.ts    #   오케스트레이션 루프
+    definition/             #   definePipeline, defineStep, from/refInput/refs/stepOutput/value,
+                            #   step-input-resolver(async + reference memoize)
+    side-effects/           #   run-side-effects, command-registry, executors/*
+    adapters/               #   clock, id, node-fs (IO 포트)
+  persistence/              # run-status 상태머신 + file adapter (contract에만 의존)
+    run-status.ts, file-persistence.ts
+  presets/
+    screen-generation/
+      steps.ts              #   ★ 5축 defineStep 배열 (메타 + 순수 run) — descriptor 대체
+      nodes/                #   composed step-node (inference-nodes primitive 조합)
+      references.ts, skill-catalog.ts, design-context-catalog.ts
+      artifact-commands.ts  #   산출물 커맨드 (layer-groups는 입력)
+      projection.ts         #   step 출력 → PipelineRunResult/trace 조립
+      run.ts                #   runScreenGenerationPipeline + runPipeline 디스패처
+  testing/                  # fixtures, memory-fs (dev)
+  index.ts                  # public 배럴
+```
+
+현재→목표 매핑: `public/`→`contract/`; `runtime`+`definition`+`runner`+`executors`+`adapters`→`runtime/*`; `persistence/`→그대로; `pipelines/screen-generation/`→`presets/screen-generation/`(+ `descriptor.ts`는 `steps.ts`로 흡수, 명령형 `screen-generation-pipeline.ts`는 `run.ts`+`nodes/`+`projection.ts`로 분해); `commands/`→preset(도메인 전용).
+
+## B. API
+
+### B-1. 제네릭 엔진 (재사용 가능, 도메인 무지)
+- **정의**: `definePipeline`, `defineStep`, `from`, `refInput`, `refs`, `stepOutput`, `value`
+- **실행**: `runStepPipeline(definition, options) → StepPipelineRunResult`
+- **입력 해석**: `resolveStepInputs`(async), `resolveStepInput`, `createReferenceResolution`
+- **상태머신**: `createPipelineRunStatus` / `updatePipelineRunStatus` / `completePipelineRunStatus` / `skipPipelineRunStatus` / `createPipelineRunEvent` / `persistPipelineRunEvent`
+- **side-effect/adapter**: `runSideEffects`, `createNodePipelineAdapters`, `createFilePipelinePersistenceAdapter`
+- **subpath**: `@cx/pipeline/{definition,runtime,runner,persistence,adapters,types,contract,testing,parser,commands}`
+
+### B-2. screen-generation preset
+- `runScreenGenerationPipeline(options) → PipelineRunResult` (또는 `runPipeline("screen-generation", options)`)
+- `ScreenGenerationPipelineOptions`: `{ source, references?, agentMode?, useAI?, artifactStore?, outDir?, persistence?, onProgress?, disableDesignContext?, tags?, runId? }`
+- 헬퍼(public, apps/web 사용): `createScreenGenerationStageLayers`, `getScreenGenerationStageOrder/Layer/Message`, `getScreenGenerationStagesByKind`, `isScreenGenerationAiStageDescriptor`, 상수 `SCREEN_GENERATION_{PIPELINE_ID,ARTIFACT_FILES,LAYER_ORDER,LAYER_LABELS}`
+
+### B-3. 목표 step 정의 형태
+```ts
+definePipeline({
+  id: "screen-generation",
+  steps: [ defineStep({ id, layer, input, run, output, /* taskKind?, skipPolicy?, message? */ }) ],
+  feedback: [{ from, goTo, thenStep, maxRetries, when }],
+})
+```
+
+## C. 라이프사이클
+
+`runScreenGenerationPipeline(options)`:
+1. **normalize**: source/references/adapters/persistence/runId/paths 확정.
+2. **build**: pipeline 정의(steps + feedback) 생성.
+3. **runStepPipeline**:
+   - init `PipelineRunStatus`(queued) → `writeStatus`
+   - cursor 루프, step마다:
+     1. `skipWhen(state)` → skipped 기록 → 다음(또는 feedback target)
+     2. started 상태 + started 이벤트 emit(`writeStatus`+`appendEvent`+`onEvent`)
+     3. **입력 해석**(await): `refs([...])` resolve+run단위 memoize, `outputOf`는 이전 step 출력에서, `value`/`ref` 즉시
+     4. **실행**: AI → agent adapter(runAi 노드 + runner) / non-AI → `run(inputs)`
+     5. 출력 저장 → `state.steps[id].outputs.result`
+     6. completed 상태 + completed 이벤트
+     7. **feedback**: `fromStep` 일치 & `retry<max` & `when(output,state)` → `goTo`로 점프, `afterStep[goTo]=thenStep`
+     8. 실패 → failed 상태+이벤트 + throw
+   - complete 상태(completed) → `writeStatus`
+   - artifacts 해석 → `{ artifacts, events, runId, state, status }`
+4. **project**: step 출력 → `PipelineRunResult` 조립.
+
+**Revision 피드백 루프**: `review-quality` →(`generationNextAction.action==='request-revision'`)→ `revise-render-tree-if-invalid` → `validate-render-tree-after-revision` (maxRetries 1, 악화 시 pre-revision으로 롤백).
+
+## D. 비즈니스 로직 (13 stage / 3 layer)
+
+| layer | stage | kind | 역할 |
+|---|---|---|---|
+| understand | read-source | effect | md 소스 읽기 |
+| understand | parse-source | deterministic | md → `SourceSpec` 파싱 |
+| understand | derive-screen-intent | ai | 화면 의도 추론 |
+| compose | plan-composition | ai | compositionPlan + designSkillSelection + designContextBundleSelection + patternLayerCandidates |
+| compose | derive-decoration-plan | deterministic | decorationPlan + (decoration 반영) patternLayerCandidates |
+| compose | select-pattern | ai | layout 패턴 선택 |
+| compose | generate-render-tree | ai | RenderTree 초안 생성 |
+| revise | validate-render-tree | validation | 검증 리포트 + (validationReport 반영) bundleRefs 재계산 |
+| revise | propose-components | ai | 컴포넌트 제안(비파괴) |
+| revise | review-quality | ai | 품질 검수 → `generationNextAction` 결정 |
+| revise | revise-render-tree-if-invalid | ai | 요청 시 초안 수정 |
+| revise | validate-render-tree-after-revision | validation | 재검증, 악화 시 롤백 |
+| revise | write-artifacts | effect | 모든 산출물 + manifest 기록 |
+
+**제어 신호** `generationNextAction`: `request-revision` | `request-human-review` | `accept` — 피드백 루프와 skipPolicy를 구동(5번째 축).
+
+## E. 데이터 구조
+
+```ts
+// 입력 참조 (engine)
+type StepInputRef = RefStepInputRef | ReferencesStepInputRef | StepOutputStepInputRef | ValueStepInputRef
+type ResolvedStepInputs = Record<string, unknown>
+type ReferenceResolver = (name, refs) => Promise<unknown> | unknown   // refs([...]) 해석
+
+// 실행 상태 (engine, 블랙보드 아님 — step 출력 보관)
+type PipelineExecutionState = {
+  input: Record<string,unknown>; refs: Record<string,unknown>; retryCounts: Record<string,number>;
+  steps: Record<id, { status; startedAt?; completedAt?; outputs?: { result } ; error? }>
+}
+type PipelineRunStatus = { …, stageOrder, stages: Record<id,{status,startedAt?,completedAt?}>, status: queued|running|completed|failed }
+type PipelineRunEvent  = { eventId, pipelineId, runId, stage?, status: started|completed|failed, timestamp, type }
+
+// step 출력 (preset, target rich 스키마)
+type AgentStepOutput<TInput> = { agentInput?: TInput; agentResult?: AgentRunResult; runnerRequest?: AgentRunnerRequest; payload?: unknown }
+type CompositionStepResult = { compositionPlan?; designContextBundleSelection?; designSkillSelection?; patternLayerCandidates? }
+type DecorationStepResult  = { decorationPlan?; patternLayerCandidates? }
+type ValidationStepResult  = { validationReport; designContextBundleSelection? }
+
+// 최종 결과 (preset, flat projection — public 계약)
+type PipelineRunResult = {
+  outDir; runId; sourcePath; pipelineResult; pipelineResultWrite; summary: PipelineSummary;
+  finalResult?; …<stage>Agent{Input,Result}/RunnerRequest; decorationPlan?; designContextBundleSelection?;
+  designSkillSelection?; patternLayerCandidates?; validationReport?; revisionDecision?; parseCommandResult?; …
+}
+
+// 계약 (메타) + 도메인 타입(@cx/schema)
+type OutputContract = { artifactKind?; jsonSchema?; schemaVersion? }
+// SourceSpec, CompositionPlanContract, DecorationPlanContract, ValidationReportContract,
+// DesignSkillSelectionContract, DesignContextBundle* … 는 @cx/schema 소유.
+```
+
+> 주: 위 설계는 **S2-S5 완료 시점의 목표 상태**다. 현재(2026-06-05)는 S0/S1/S2a까지 도달했고, `state` 블랙보드·`descriptor.ts`·`screenGenerationStageRuntimes`는 아직 존재한다(S4에서 블랙보드 제거, S2/S3에서 descriptor 제거 예정).
