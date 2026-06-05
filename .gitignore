@@ -46,3 +46,6 @@ supabase/.temp/
 next-env.d.ts
 
 .gstack/
+
+# generated screen-generation run artifacts (non-DB, runtime)
+data/runs/
