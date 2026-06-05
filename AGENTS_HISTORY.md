@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Catalog Facade Alignment Plan
+
+- 변경: `CATALOG_FACADE_ALIGNMENT_PLAN.md`를 추가해 `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`가 동일한 export subpath와 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds` facade를 제공하도록 하는 개선 계획을 작성함
+- 변경: 실제 코드 기준으로 두 패키지의 public/internal/runtime/candidate 구조, catalog 원천, 상태 모델 차이를 정리하고 `docs/development/README.md`의 활성 하위 계획에 연결함
+- 이유: Component Candidate와 Layout Candidate 제작, ID 조회, catalog 조회 기능을 같은 public API 형식으로 노출하기 위한 기준을 먼저 고정하기 위함
+- 검증: 문서 링크 확인, `git diff --check`
+
 ## 2026-06-05 - Web API Consumption Hook Plan
 
 - 변경: `API_ENDPOINTS.md`에 "Browser-facing UI는 `/api/*` endpoint만 소비하고 Pipeline/DB/Claude 실행은 Next API route와 `server/*` service/repo 뒤에 둔다"는 경계 규칙을 추가함
