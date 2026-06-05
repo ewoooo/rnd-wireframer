@@ -1,12 +1,20 @@
-import { listPatterns } from "@cx/layout-pattern-store";
+import {
+	createCandidate,
+	getEntry,
+	listCatalog,
+	listCatalogIds,
+	listPatterns,
+} from "@cx/layout-pattern-store/catalog";
 import { listLayoutPatternComponents } from "@cx/layout-pattern-store/components";
 import { createLayoutPattern } from "@cx/layout-pattern-store/mutations";
 import { resolveCompositePatternByComponentType } from "@cx/layout-pattern-store/resolver";
 import type { PatternStore } from "@cx/layout-pattern-store/types";
 import { describe, expect, it } from "vitest";
+import packageJson from "../../package.json";
 
 describe("@cx/layout-pattern-store public API", () => {
 	it("keeps catalog, resolver, mutations, and types on explicit public subpaths", () => {
+		expect(Object.keys(packageJson.exports)).toContain("./catalog");
 		expect(listPatterns("screen").length).toBeGreaterThan(0);
 		expect(resolveCompositePatternByComponentType).toBeTypeOf("function");
 
@@ -19,6 +27,36 @@ describe("@cx/layout-pattern-store public API", () => {
 			variants: { default: {} },
 		});
 		expect(created.ok).toBe(true);
+	});
+
+	it("exposes the standard catalog-driven resolution facade", () => {
+		const ids = listCatalogIds({ target: "area" });
+		const entries = listCatalog({ target: "area" });
+		const listStack = getEntry("layout.area.listStack", { target: "area" });
+
+		expect(ids).toContain("layout.area.listStack");
+		expect(entries.length).toBe(ids.length);
+		expect(listStack?.id).toBe("layout.area.listStack");
+		expect(listStack?.target).toBe("area");
+		expect(listCatalogIds({ status: "draft" }).length).toBeGreaterThan(0);
+
+		const created = createCandidate({
+			entry: {
+				id: "layout.area.generatedFacadeList",
+				target: "area",
+				name: "Generated facade list",
+				componentID: "GeneratedFacadeListArea",
+				children: { accepts: "component" },
+				props: {
+					gap: { type: "number" },
+				},
+				status: "draft",
+			},
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error("layout candidate create failed");
+		expect(created.pattern?.id).toBe("generated-facade-list");
+		expect(getEntry("layout.area.generatedFacadeList")).toBeUndefined();
 	});
 
 	it("exposes shared divider contracts for PageStack-backed area layouts", () => {

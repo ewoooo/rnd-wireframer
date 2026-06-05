@@ -32,8 +32,9 @@
 
 ### @cx/layout-pattern-store
 
-- root export `@cx/layout-pattern-store`: 현재 pattern catalog read API
-- runtime component export `@cx/layout-pattern-store/components`: layout component registry
+- root export `@cx/layout-pattern-store`: layout component runtime surface
+- catalog export `@cx/layout-pattern-store/catalog`: layout pattern catalog facade와 기존 pattern store read API
+- runtime component compatibility export `@cx/layout-pattern-store/components`: layout component registry
 - catalog 원천: `src/catalog/*.json`
 - runtime store shape: `{ patterns: PatternStorePattern[] }`
 - layout catalog entry shape: `layout.<target>.*`, `target`, `componentID`, `children`, `props`, `status`
@@ -110,7 +111,7 @@ import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/layo
 }
 ```
 
-단계적으로 `@cx/layout-pattern-store` root는 runtime layout component surface로 맞춘다. catalog read API는 `@cx/layout-pattern-store/catalog`로 이동한다.
+`@cx/layout-pattern-store` root는 runtime layout component surface로 맞춘다. catalog read API는 `@cx/layout-pattern-store/catalog`로 이동한다.
 
 ## 5. 개선된 디렉토리 기준
 
@@ -226,12 +227,12 @@ export function createLayoutPattern(...): PatternStoreMutationResult;
 
 ## 7. Rollout
 
-1. `@cx/layout-pattern-store/catalog` export를 추가하고 root catalog export는 유지한다.
+1. `@cx/layout-pattern-store/catalog` export를 추가한다.
 2. 두 패키지의 `public/catalog.ts`에 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds` facade를 추가한다.
 3. repo 내부 catalog 소비처를 표준 facade로 옮긴다.
 4. `@cx/layout-pattern-store` root import에서 catalog read API 사용을 제거한다.
 5. `@cx/layout-pattern-store` root를 runtime layout component surface로 전환한다.
-6. compatibility API 제거 여부는 별도 breaking-change 시점에 결정한다.
+6. `@cx/layout-pattern-store/components` compatibility subpath 제거 여부는 별도 breaking-change 시점에 결정한다.
 
 ## 8. 검증 기준
 

@@ -32,11 +32,17 @@ export type PipelineDefinition = {
 	stages: PipelineStageId[];
 };
 
-export type StepInputRef = RefStepInputRef | ValueStepInputRef;
+export type StepInputRef = RefStepInputRef | StepOutputStepInputRef | ValueStepInputRef;
 
 export type RefStepInputRef = {
 	kind: "ref";
 	ref: string;
+};
+
+export type StepOutputStepInputRef = {
+	kind: "step-output";
+	outputName: string;
+	stepId: string;
 };
 
 export type ValueStepInputRef = {
@@ -48,6 +54,11 @@ export type OutputContract = {
 	artifactKind?: string;
 	jsonSchema?: unknown;
 	schemaVersion?: string;
+};
+
+export type PipelineStepOutputDefinition = {
+	result: OutputContract;
+	[outputName: string]: OutputContract;
 };
 
 export type StepRunContext = {
@@ -69,14 +80,14 @@ export type BasePipelineStep = {
 };
 
 export type AiPipelineStep = BasePipelineStep & {
-	output: OutputContract;
+	output: PipelineStepOutputDefinition;
 	prompt: unknown;
 	usesAI: true;
 };
 
 export type ExecutablePipelineStep = BasePipelineStep & {
 	execute: StepExecutor;
-	output?: OutputContract;
+	output?: PipelineStepOutputDefinition;
 	usesAI: false;
 };
 
@@ -123,7 +134,9 @@ export type PipelineExecutionStepState = {
 		code: string;
 		message: string;
 	};
+	/** Compatibility alias during output map migration. Prefer outputs.result. */
 	output?: unknown;
+	outputs?: Record<string, unknown>;
 	startedAt?: string;
 	status: PipelineStageRunStatus;
 };

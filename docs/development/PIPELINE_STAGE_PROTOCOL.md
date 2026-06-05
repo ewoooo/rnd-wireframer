@@ -30,11 +30,26 @@ source artifact read
 
 경계 규칙:
 
-- `@cx/pipeline`: stage 순서, runtime context, command 실행, artifact write
+- `@cx/pipeline`: stage 순서, runtime context, AI step 선언과 agent adapter 연결, command 실행, artifact write
 - `@cx/inference-nodes`: 각 stage의 순수 입력 조립
 - `@cx/agent`: Claude 실행과 세션 정책
 - `@cx/validation`: schema/catalog/layout 검증 리포트 반환
 - `@cx/renderer`: 완료된 RenderTree preview 소비만 담당
+
+AI stage 실행 규칙:
+
+- AI stage는 `usesAI: true` Step으로 선언하고 `runStepPipeline(..., { agent })` 경로에서만 실행한다.
+- stage별 context 조립은 `@cx/inference-nodes` node/helper를 그대로 사용한다.
+- AI step runner는 stage executor 내부 전역 상태만 보지 않고 runtime이 resolve한 `inputs`를 인자로 받는다. 예: `runGenerateRenderTreeAiStep(inputs, state, runner)`.
+- fake/Claude 전환은 stage executor 내부 분기가 아니라 pipeline agent adapter에서 결정한다.
+- 실행 방식이 fake에서 Claude local-first로 바뀌어도 agent input context와 trace의 runner request shape는 유지한다.
+
+Step input/output 규칙:
+
+- 모든 step의 공개 output contract는 named output map으로 선언한다. 기본 output name은 `result`다.
+- runtime은 step 완료 시 `state.steps[step.id].outputs.result`에 결과를 저장한다. migration 기간에는 기존 `state.steps[step.id].output`도 compatibility alias로 유지한다.
+- 새 step 간 참조는 `stepOutput("step-id", "result")`를 사용한다. `from("step.step-id.some.path")`는 compatibility path로만 남긴다.
+- 외부 reference는 `refInput("componentCatalogs")`처럼 입력 API helper로 선언한다.
 
 design skill/context 경계:
 

@@ -1,6 +1,10 @@
 import type { ComponentCatalogEntry } from "@cx/components/catalog";
 import { componentCatalog } from "@cx/components/catalog";
-import { listPatternSummaries, listPatterns, loadPatternStore } from "@cx/layout-pattern-store";
+import {
+	listPatternSummaries,
+	listPatterns,
+	loadPatternStore,
+} from "@cx/layout-pattern-store/catalog";
 import { describe, expect, it } from "vitest";
 import { patternSchema, patternStoreSchema } from "../internal/schema";
 

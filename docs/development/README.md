@@ -32,6 +32,7 @@
 | 문서 | 책임 |
 |---|---|
 | [CATALOG_FACADE_ALIGNMENT_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/CATALOG_FACADE_ALIGNMENT_PLAN.md) | `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`의 public facade, export subpath, candidate/lookup/list API 통일 계획 |
+| [PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md) | `defineStep`에서 step별 참조 자료, named output, output contract를 직관적으로 파악하기 위한 개선 계획 |
 | [PUCK_EDIT_PANEL_ENHANCEMENT_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PUCK_EDIT_PANEL_ENHANCEMENT_PLAN.md) | Puck 편집 패널 개선 rollout 상위 계획 |
 | [WEB_API_CONSUMPTION_HOOK_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/WEB_API_CONSUMPTION_HOOK_PLAN.md) | Browser-facing UI가 `/api/*` endpoint만 소비하도록 hook 경계를 정리하는 계획 |
 | [puck-edit/](/Users/plusx/Documents/rnd-screen-generator/docs/development/puck-edit) | Puck 편집 패널 rollout별 세부 계획 |

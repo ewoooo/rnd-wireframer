@@ -1,4 +1,12 @@
-export { definePipeline, defineStep, from, value } from "./step-definition";
+export {
+	contract,
+	definePipeline,
+	defineStep,
+	from,
+	refInput,
+	stepOutput,
+	value,
+} from "./step-definition";
 export {
 	createPipelineExecutionState,
 	resolveStepInput,

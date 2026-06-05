@@ -1,7 +1,6 @@
+export type { LayoutPatternComponentEntry } from "./public/components";
 export {
-	findPattern,
-	getPatternPreset,
-	listPatternSummaries,
-	listPatterns,
-	loadPatternStore,
-} from "./public/catalog";
+	findLayoutPatternComponent,
+	findLayoutPatternComponentByLayoutId,
+	listLayoutPatternComponents,
+} from "./public/components";

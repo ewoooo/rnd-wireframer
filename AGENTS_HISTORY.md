@@ -36,11 +36,43 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Pipeline Step Output Registry
+
+- 변경: `@cx/pipeline` Step output 계약을 `output.result` named map으로 정규화하고 runtime 완료 상태에 `state.steps[step.id].outputs.result`를 저장하도록 변경함
+- 변경: `stepOutput(stepId, "result")`, `refInput(id)`, `contract(id)` helper를 추가하고 screen-generation step wiring을 upstream `*.result`와 외부 reference helper 기반으로 정리함
+- 변경: screen-generation AI step runner가 runtime resolved `inputs`를 받아 실행하도록 바꾸고, 각 AI step prompt에는 `@cx/agent/tasks`의 실제 prompt artifact를 연결함
+- 이유: defineStep만 봐도 step별 입력과 output contract를 추적할 수 있게 하고, 추후 `uses` manifest 설계 전에 실행 API를 먼저 안정화하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`
+
+## 2026-06-05 - Catalog Facade Alignment Implementation
+
+- 변경: `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`에 공통 facade인 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds`를 추가함
+- 변경: `@cx/layout-pattern-store`에 `./catalog` package export를 추가하고, package root는 runtime layout component surface로 전환함
+- 변경: repo 내부의 layout catalog read import를 `@cx/layout-pattern-store/catalog`로 이동하고 layout-pattern-store README/plan 문서를 갱신함
+- 변경: component/layout public API 테스트에 동일한 catalog-driven resolution facade 검증을 추가함
+- 이유: Component와 Layout 모두 catalog 조회, ID 기반 선택, candidate 생성이라는 같은 resolution 패턴을 동일한 export path와 함수명으로 소비하게 하기 위함
+- 검증: `pnpm exec vitest run packages/component/src/__tests__/catalog-public-contract.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, targeted `pnpm exec biome check`
+
 ## 2026-06-05 - Catalog Facade Alignment Plan
 
 - 변경: `CATALOG_FACADE_ALIGNMENT_PLAN.md`를 추가해 `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`가 동일한 export subpath와 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds` facade를 제공하도록 하는 개선 계획을 작성함
 - 변경: 실제 코드 기준으로 두 패키지의 public/internal/runtime/candidate 구조, catalog 원천, 상태 모델 차이를 정리하고 `docs/development/README.md`의 활성 하위 계획에 연결함
 - 이유: Component Candidate와 Layout Candidate 제작, ID 조회, catalog 조회 기능을 같은 public API 형식으로 노출하기 위한 기준을 먼저 고정하기 위함
+- 검증: 문서 링크 확인, `git diff --check`
+
+## 2026-06-05 - Pipeline AI Step Adapter Execution
+
+- 변경: `screen-generation` pipeline의 AI stage를 `usesAI: true` Step으로 선언하고 `runStepPipeline(..., { agent })`의 `StepAgentAdapter` 경로에서 실행하도록 전환함
+- 변경: fake/Claude local-first runner 선택을 각 stage executor 내부 분기에서 `createScreenGenerationStepAgentAdapter(...)`로 이동하고, 기존 `@cx/inference-nodes` node/helper 기반 agent input context 조립은 유지함
+- 변경: `screen-generation-tags.test.ts`에 AI stage runner request와 agent input context 유지 검증을 추가하고, `PIPELINE_STAGE_PROTOCOL.md`와 `packages/pipeline/README.md`에 AI step 실행 규칙을 반영함
+- 이유: pipeline을 단순 stage wrapper가 아니라 AI/deterministic 실행 계약을 소유하는 runtime으로 만들고, 실행 방식이 fake/Claude로 바뀌어도 stage별 agent context가 유지되게 하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts`
+
+## 2026-06-05 - Pipeline Step Reference Manifest Plan
+
+- 변경: `PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md`를 추가해 `defineStep`에서 `uses`, named `output.result`, `stepOutput(stepId, outputName)` helper로 step별 참조 자료와 output contract를 드러내는 개선안을 작성함
+- 변경: `docs/development/README.md`의 활성 하위 계획에 해당 문서를 추가함
+- 이유: 현재 screen-generation step 정의만 봐서는 각 step이 어떤 upstream artifact, catalog, docSet, schema를 참고하는지 직관적으로 파악하기 어렵기 때문
 - 검증: 문서 링크 확인, `git diff --check`
 
 ## 2026-06-05 - Web API Consumption Hook Plan

@@ -162,6 +162,21 @@ describe("screen-generation manifest tags", () => {
 		expect(defaultPath.trace.layers.revise.traceKeys).toContain("initialValidationReport");
 	});
 
+	it("runs AI stages through the Step runner agent adapter", async () => {
+		const { trace } = await runFake("ai-step-adapter-path");
+
+		expect(trace.screenIntent.runnerRequest.taskKind).toBe("screen-intent");
+		expect(trace.composition.runnerRequest.taskKind).toBe("composition-planning");
+		expect(trace.patternSelection.runnerRequest.taskKind).toBe("pattern-selection");
+		expect(trace.generation.runnerRequest.taskKind).toBe("screen-generation");
+		expect(trace.componentProposal.runnerRequest.taskKind).toBe("component-proposal");
+		expect(trace.qualityReview.runnerRequest.taskKind).toBe("quality-review");
+		expect(trace.generation.runnerRequest.input.context).toEqual(trace.generation.input.context);
+		expect(trace.qualityReview.runnerRequest.input.context).toEqual(
+			trace.qualityReview.input.context,
+		);
+	});
+
 	it("uses injected component and layout refs while building screen-generation context", async () => {
 		const componentLookups: string[] = [];
 		const componentLayoutLookups: string[] = [];

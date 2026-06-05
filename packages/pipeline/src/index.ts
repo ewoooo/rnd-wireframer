@@ -2,13 +2,16 @@ export { createNodePipelineAdapters } from "./adapters";
 export type { ParseMarkdownSourceCommand, ParseMarkdownSourceCommandResult } from "./commands";
 export { runParseMarkdownSourceCommand } from "./commands";
 export {
+	contract,
 	createPipelineExecutionState,
 	definePipeline,
 	defineStep,
 	from,
+	refInput,
 	resolveStepInput,
 	resolveStepInputs,
 	StepInputResolutionError,
+	stepOutput,
 	value,
 } from "./definition";
 export type {
@@ -54,6 +57,7 @@ export type {
 	PipelineStageId,
 	PipelineStageRunStatus,
 	PipelineStep,
+	PipelineStepOutputDefinition,
 	PipelineSummary,
 	ResolvedStepInputs,
 	RunSideEffectsInput,
@@ -78,6 +82,7 @@ export type {
 	StepCollectionRef,
 	StepExecutor,
 	StepInputRef,
+	StepOutputStepInputRef,
 	StepPipelineDefinition,
 	StepPipelineRunResult,
 	StepRunContext,

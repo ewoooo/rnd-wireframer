@@ -6,7 +6,11 @@ stage/runtime 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Docu
 
 현재 MVP에서는 `buildPipeline()`/`runPipeline()`으로 screen generation pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다. 외부 저장소 sync, queue/worker, 병렬 실행, 복잡한 retry 정책은 후속으로 미룬다.
 
-`@cx/inference-nodes`는 각 stage에서 실행할 node wrapper와 deterministic helper를 제공하고, `@cx/validation`은 순수 검증 결과를 반환한다. `@cx/pipeline`은 stage 순서, runtime context, agent 실행 연결, validation 호출, IO/effect 실행을 조립한다.
+`@cx/inference-nodes`는 각 stage에서 실행할 node wrapper와 deterministic helper를 제공하고, `@cx/validation`은 순수 검증 결과를 반환한다. `@cx/pipeline`은 stage 순서, runtime context, AI step 선언과 agent adapter 연결, validation 호출, IO/effect 실행을 조립한다.
+
+AI stage는 `usesAI: true` Step으로 선언하고 `runStepPipeline(..., { agent })` 경로로 실행한다. fake/Claude local-first 전환은 screen-generation stage executor 내부가 아니라 pipeline agent adapter가 담당하며, 전환 후에도 agent input context와 trace의 runner request shape를 유지한다.
+
+Step 결과는 named output map으로 저장한다. 기본 참조점은 `state.steps[step.id].outputs.result`이며, step 간 wiring은 `stepOutput("step-id", "result")` helper를 우선 사용한다. 기존 `state.steps[step.id].output`은 migration compatibility alias다.
 
 생성/검수 prompt, checklist, output 규약 같은 문장형 자산의 정본은 `@cx/pipeline`이 아니라 [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)에서 관리한다.
 

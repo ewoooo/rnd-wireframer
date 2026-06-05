@@ -2,8 +2,12 @@ import { describe, expect, it } from "vitest";
 import packageJson from "../../package.json";
 import {
 	componentCatalog,
+	createCandidate,
 	createComponentCatalogEntry,
 	deleteComponentCatalogEntry,
+	getEntry,
+	listCatalog,
+	listCatalogIds,
 	promoteComponentCatalogEntry,
 	readComponentCatalogEntry,
 	updateComponentCatalogEntry,
@@ -44,6 +48,32 @@ describe("@cx/components public catalog contract", () => {
 		for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
 			expect(entry).not.toHaveProperty("status");
 		}
+	});
+
+	it("exposes the standard catalog-driven resolution facade", () => {
+		const ids = listCatalogIds();
+		const entries = listCatalog();
+		const actionButton = getEntry("ActionButton");
+
+		expect(ids).toContain("ActionButton");
+		expect(entries.length).toBe(ids.length);
+		expect(actionButton?.type).toBe("ActionButton");
+		expect(actionButton).not.toHaveProperty("status");
+		expect(listCatalogIds({ status: "candidate" })).toContain("RadioGroup");
+
+		const created = createCandidate({
+			entry: {
+				type: "GeneratedFacadeCard",
+				source: "react-component",
+				version: "0.1.0",
+				description: "Generated through the standard catalog facade.",
+				props: {},
+			},
+		});
+		expect(created.ok).toBe(true);
+		if (!created.ok) throw new Error("candidate create failed");
+		expect(created.entry?.status).toBe("candidate");
+		expect(componentCatalog.GeneratedFacadeCard).toBeUndefined();
 	});
 
 	it("keeps enum props explicit about allowed values", () => {

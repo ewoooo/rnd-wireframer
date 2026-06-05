@@ -6,7 +6,7 @@ import type {
 	ComponentPropType,
 } from "@cx/components/types";
 import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
-import { findPattern } from "@cx/layout-pattern-store";
+import { findPattern } from "@cx/layout-pattern-store/catalog";
 import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
 import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";

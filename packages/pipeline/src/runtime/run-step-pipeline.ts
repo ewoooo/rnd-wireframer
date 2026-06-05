@@ -100,6 +100,9 @@ export async function runStepPipeline(
 				...state.steps[step.id],
 				completedAt,
 				output,
+				outputs: {
+					result: output,
+				},
 				status: "completed",
 			};
 			status = updateStepStatus(status, step.id, "completed", completedAt);

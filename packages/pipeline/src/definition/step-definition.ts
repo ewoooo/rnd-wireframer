@@ -1,4 +1,5 @@
 import type {
+	OutputContract,
 	PipelineArtifactRule,
 	PipelineStep,
 	StepInputRef,
@@ -9,8 +10,23 @@ export function from(ref: string): StepInputRef {
 	return { kind: "ref", ref };
 }
 
+export function refInput(ref: string): StepInputRef {
+	return { kind: "ref", ref: ref.includes(".") ? ref : `ref.${ref}` };
+}
+
+export function stepOutput(stepId: string, outputName: string): StepInputRef {
+	return { kind: "step-output", outputName, stepId };
+}
+
 export function value(input: unknown): StepInputRef {
 	return { kind: "value", value: input };
+}
+
+export function contract(contractId: string): OutputContract {
+	return {
+		artifactKind: contractId,
+		schemaVersion: `${contractId}.v0.1`,
+	};
 }
 
 export function defineStep<Step extends PipelineStep>(step: Step): Step {

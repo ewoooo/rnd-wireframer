@@ -35,6 +35,17 @@ export function resolveStepInputs(
 
 export function resolveStepInput(ref: StepInputRef, state: PipelineExecutionState): unknown {
 	if (ref.kind === "value") return ref.value;
+	if (ref.kind === "step-output") {
+		const stepState = state.steps[ref.stepId];
+		const outputs = stepState?.outputs;
+		if (!outputs || !(ref.outputName in outputs)) {
+			throw new StepInputResolutionError(`step.${ref.stepId}.${ref.outputName}`);
+		}
+		const output = outputs[ref.outputName];
+		if (output === undefined)
+			throw new StepInputResolutionError(`step.${ref.stepId}.${ref.outputName}`);
+		return output;
+	}
 
 	const [namespace, key, ...path] = ref.ref.split(".");
 	if (!namespace || !key) throw new StepInputResolutionError(ref.ref);

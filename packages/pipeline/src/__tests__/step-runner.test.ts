@@ -1,4 +1,4 @@
-import { definePipeline, defineStep, from, runStepPipeline, value } from "@cx/pipeline";
+import { definePipeline, defineStep, from, runStepPipeline, stepOutput, value } from "@cx/pipeline";
 import type {
 	PipelineFeedbackRule,
 	PipelinePersistenceAdapter,
@@ -92,7 +92,7 @@ describe("runStepPipeline", () => {
 				defineStep({
 					id: "agent-step",
 					inputs: { topic: from("input.topic") },
-					output: { schemaVersion: "agent-output.v0.1" },
+					output: { result: { schemaVersion: "agent-output.v0.1" } },
 					prompt: { id: "test-agent" },
 					usesAI: true,
 				}),
@@ -112,6 +112,42 @@ describe("runStepPipeline", () => {
 		expect(result.state.steps["agent-step"]?.output).toEqual({
 			promptId: "test-agent",
 			result: "draft screen",
+		});
+		expect(result.state.steps["agent-step"]?.outputs).toEqual({
+			result: {
+				promptId: "test-agent",
+				result: "draft screen",
+			},
+		});
+	});
+
+	it("resolves normalized step outputs by name", async () => {
+		const pipeline = definePipeline({
+			id: "step-output-fixture",
+			steps: [
+				defineStep({
+					execute: () => ({ sourceSpec: { screenCode: "NOVA" } }),
+					id: "parse-source",
+					usesAI: false,
+				}),
+				defineStep({
+					execute: (inputs) => ({
+						received: inputs.source,
+					}),
+					id: "consume-source",
+					inputs: { source: stepOutput("parse-source", "result") },
+					usesAI: false,
+				}),
+			],
+		});
+
+		const result = await runStepPipeline(pipeline, {
+			now: createClock(),
+			runId: "step-output-run",
+		});
+
+		expect(result.state.steps["consume-source"]?.outputs?.result).toEqual({
+			received: { sourceSpec: { screenCode: "NOVA" } },
 		});
 	});
 
