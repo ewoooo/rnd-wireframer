@@ -216,6 +216,7 @@ type ScreenGenerationAiStageId = Extract<
 	{ kind: "ai" }
 >["id"];
 type ScreenGenerationStageExecutor = (
+	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ) => Promise<unknown> | unknown;
 type ScreenGenerationAiStepRunner = (
@@ -351,7 +352,7 @@ function createScreenGenerationStep(
 	}
 
 	return defineStep({
-		execute: async () => screenGenerationStageRuntimes[stage].run(state),
+		execute: async (inputs) => screenGenerationStageRuntimes[stage].run(inputs, state),
 		id: stage,
 		inputs: descriptor.inputs,
 		output: {
@@ -564,6 +565,7 @@ function shouldSkipScreenGenerationStage(
 }
 
 async function runReadSourceStage(
+	_inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): Promise<PipelineMarkdownSourceFile> {
 	const result = await runSideEffects({
@@ -595,7 +597,10 @@ async function runReadSourceStage(
 	return state.sourceFile;
 }
 
-function runParseSourceStage(state: ScreenGenerationPipelineState): SourceSpec {
+function runParseSourceStage(
+	_inputs: ResolvedStepInputs,
+	state: ScreenGenerationPipelineState,
+): SourceSpec {
 	if (!state.sourceFile) {
 		throw new Error("Cannot parse source before read-source stage.");
 	}
@@ -669,7 +674,10 @@ async function runPlanCompositionAiStep(
 	};
 }
 
-function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): {
+function runDeriveDecorationPlanStage(
+	_inputs: ResolvedStepInputs,
+	state: ScreenGenerationPipelineState,
+): {
 	decorationPlan?: DecorationPlanContract;
 	patternLayerCandidates?: PatternLayerCandidate[];
 } {
@@ -781,6 +789,7 @@ async function runGenerateRenderTreeAiStep(
 }
 
 function runValidateRenderTreeStage(
+	_inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): ValidationReportContract {
 	const validationReport = createRenderTreeValidationReport(state.generation.agentResult?.payload, {
@@ -806,9 +815,10 @@ function runValidateRenderTreeStage(
 }
 
 function runValidateRenderTreeAfterRevisionStage(
+	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): ValidationReportContract {
-	const validationReport = runValidateRenderTreeStage(state);
+	const validationReport = runValidateRenderTreeStage(inputs, state);
 	if (!state.preRevisionAgentResult || !state.preRevisionValidationReport) return validationReport;
 	if (!isValidationWorse(state.validationReport, state.preRevisionValidationReport)) {
 		return validationReport;
@@ -957,6 +967,7 @@ async function runReviseRenderTreeIfInvalidAiStep(
 }
 
 async function runWriteArtifactsStage(
+	_inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): Promise<SideEffectExecutionResult> {
 	if (!state.parseCommandResult) {
