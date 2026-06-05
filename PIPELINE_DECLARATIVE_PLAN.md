@@ -35,8 +35,23 @@ defineStep({
 | **S0** 엔진 `refs([])` + async resolver + run단위 memoize | ✅ | `8600d402` |
 | **S1** 데이터흐름 선언화 (7 AI step + validate가 파생 데이터를 선언적 `inputs`로 읽음, references는 `inputs.X`, validate는 rich output) | ✅ | `da1df530`~`2faa9e10` (10커밋) |
 | **S2a** artifact-commands → descriptor 순환 끊기 (layer-groups를 입력으로) | ✅ | `e6de25bc`, `…(test fix)` |
+| **S4b** 7 AI step이 rich output(`agentStepOutput`: agent triple + payload + 파생) 반환, 다운스트림은 `readAgentStepPayload`로 subfield 읽음 | ✅ | `a960f9d0` |
+| **S2/S3** descriptor.ts·`screenGenerationStageRuntimes`·`createScreenGenerationStep` 팩토리 제거 → 단일 `SCREEN_GENERATION_STEPS`(`defineScreenStep`) 배열로 통합. 순수 상수/맵은 leaf `constants.ts`로 분리. getter/layers는 배열에서 파생, public API는 descriptor 전용 export 제거 | ✅ | `464e254c` |
+| **S5** 죽은 블랙보드 필드 제거(`designContextBundleContents`→지역변수, `sourceReadResult` 삭제) + S4a 미사용 배선 회수 | ✅ | `5b9819d0` |
+| **S4c/S4d** 블랙보드 데이터 write 완전 제거(write-artifacts/projection을 engine step 출력에서 조립) | ⏸️ 보류(아래 결정 사항) | — |
 
 **S1 잔여(의도적):** `generationNextAction`(결정), `initialValidationReport`(첫 리포트), `retryCount`(루프 횟수), `preRevision*`(스냅샷) — 피드백 루프의 **cross-iteration 제어 상태**. 단순 데이터 input이 아니라 제어흐름 5번째 축에 속함.
+
+## 실현된 아키텍처 & 결정 사항 (2026-06-05)
+
+**달성:** 파이프라인 정의가 `descriptor 배열 + stageRuntimes 맵 + step 팩토리`의 3분할 인다이렉션 없이, 메타데이터와 run이 한곳에 있는 단일 `SCREEN_GENERATION_STEPS = [defineScreenStep({ id, layer, kind, message, input, output, run/runAi, taskKind?, skipPolicy? }), …]` 배열로 collapse됨. 순환 없는 leaf `constants.ts`(어휘) + 배열 파생 getter. 5축 모델 충족(제어흐름은 `skipPolicy`/feedback = 5번째 축). 동작 보존 게이트(11개 산출물 byte-identical) 전 구간 green.
+
+**보류한 것 — 블랙보드 데이터 write 완전 제거(S4c/S4d):** 도메인 `state`는 현재 **run-context/aggregator + 제어 상태**로 남아 있다(데이터 흐름의 1차 경로는 이미 선언적 `inputs`). 완전 제거를 보류한 기술적 근거:
+
+1. **엔진이 skip된 step의 출력 참조 시 throw** (`resolveStepInput`, `step-input-resolver.ts`). `write-artifacts`는 parse 실패·happy-path에서 일부 step이 skip되는 **terminal aggregator**라 `stepOutput([...])` 선언 입력으로 조립할 수 없다. 선언적 조립을 하려면 *옵셔널 step-output 입력* 또는 *engine 실행 state를 `StepRunContext`로 노출*하는 **엔진 변경**이 선행돼야 한다.
+2. **revision(피드백 루프) 경로가 무테스트.** golden 게이트는 happy-path만 커버하고, `generationNextAction`/`preRevision*`/rollback(악화 시 복원)으로 결정되는 **최종 후보(state.generation.agentResult)·최종 validationReport**는 cross-iteration 제어 상태다. 이를 step 출력 기반으로 재구성하면 검증 불가능한 revision 경로에서 silent regression 위험이 있다. → **revision fixture 확보가 선행 조건.**
+
+따라서 S4c/S4d는 (엔진 `StepRunContext`에 실행 state 노출 + revision fixture) 두 선행 작업 후 별도로 진행하는 것이 안전하다. 현재 상태는 사용자가 명시한 핵심(“descriptor 제거 + 단일 defineStep”)을 충족하며, 게이트로 완전 검증된 안정 지점이다.
 
 ## 핵심 제약 (왜 이 순서인가)
 
@@ -244,4 +259,4 @@ type OutputContract = { artifactKind?; jsonSchema?; schemaVersion? }
 // DesignSkillSelectionContract, DesignContextBundle* … 는 @cx/schema 소유.
 ```
 
-> 주: 위 설계는 **S2-S5 완료 시점의 목표 상태**다. 현재(2026-06-05)는 S0/S1/S2a까지 도달했고, `state` 블랙보드·`descriptor.ts`·`screenGenerationStageRuntimes`는 아직 존재한다(S4에서 블랙보드 제거, S2/S3에서 descriptor 제거 예정).
+> 주(2026-06-05 갱신): **descriptor.ts·`screenGenerationStageRuntimes`·step 팩토리는 제거 완료**되어 단일 `SCREEN_GENERATION_STEPS`(`defineScreenStep`) 배열 + leaf `constants.ts`로 실현됨. `state` 블랙보드는 **run-context/제어 상태**로 축소되어 잔존한다(데이터 write 완전 제거 S4c/S4d는 위 “결정 사항”의 두 선행조건 후 진행). 위 디렉토리 트리(`steps.ts`/`run.ts`/`projection.ts` 분리)는 추가 목표이며, 현재는 단일 `screen-generation-pipeline.ts`에 통합되어 있다.
