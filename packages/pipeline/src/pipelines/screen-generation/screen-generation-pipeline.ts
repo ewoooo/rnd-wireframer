@@ -4,11 +4,6 @@ import { fileURLToPath } from "node:url";
 import { createClaudeRunner } from "@cx/agent/claude";
 import type { AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
 import {
-	getComponentCatalogEntry,
-	getComponentCatalogStatus,
-	getComponentCatalogTypes,
-} from "@cx/components/catalog";
-import {
 	createFakeComponentProposal,
 	createFakeCompositionPlan,
 	createFakeGenerationAgentRunner,
@@ -24,10 +19,6 @@ import {
 	runScreenIntentNode,
 	runScreenRevisionNode,
 } from "@cx/inference-nodes/screen-generation";
-import {
-	resolveCompositeLayoutByComponentType,
-	resolveRegionLayoutFromScreenLayout,
-} from "@cx/layout-pattern-store/resolver";
 import {
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,
@@ -59,7 +50,7 @@ import { validateComponentProposal } from "@cx/validation";
 
 import { createNodePipelineAdapters } from "../../adapters";
 import { runParseMarkdownSourceCommand } from "../../commands";
-import { definePipeline, defineStep } from "../../definition";
+import { definePipeline, defineStep, from } from "../../definition";
 import {
 	completePipelineRunStatus,
 	createFilePipelinePersistenceAdapter,
@@ -71,6 +62,7 @@ import {
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
 	PipelineDefinition,
+	PipelineFeedbackRule,
 	PipelineMarkdownSourceFile,
 	PipelinePersistenceAdapter,
 	PipelineProgressEvent,
@@ -78,8 +70,11 @@ import type {
 	PipelineRunStatus,
 	PipelineStageId,
 	ScreenGenerationPipelineOptions,
+	ScreenGenerationReferences,
+	ScreenGenerationSkillBundleRef,
 	SideEffectCommandResult,
 	SideEffectExecutionResult,
+	StepInputRef,
 } from "../../public/types";
 import { runSideEffects } from "../../runner";
 import { runStepPipeline } from "../../runtime/run-step-pipeline";
@@ -90,12 +85,10 @@ import {
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
-import { loadDesignContextBundleContents } from "./design-context-catalog";
 import {
-	findGenerationSkill,
-	type GenerationSkill,
-	loadGenerationSkillCatalog,
-} from "./skill-catalog";
+	createDefaultScreenGenerationReferences,
+	mergeScreenGenerationReferences,
+} from "./references";
 
 const CLIENT_IMPORT_ROOT = "data/client-imports";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
@@ -134,7 +127,7 @@ type ScreenGenerationPipelineState = {
 	designContextBundleSelection?: DesignContextBundleSelection;
 	designSkillSelection?: DesignSkillSelectionContract;
 	generationNextAction?: GenerationNextAction;
-	generationSkillCatalog?: GenerationSkill[];
+	generationSkillCatalog?: ScreenGenerationSkillBundleRef[];
 	initialValidationReport?: ValidationReportContract;
 	options: NormalizedScreenGenerationPipelineOptions;
 	parseCommandResult?: ReturnType<typeof runParseMarkdownSourceCommand>;
@@ -144,13 +137,15 @@ type ScreenGenerationPipelineState = {
 	patternSelectionRunnerRequest?: AgentRunnerRequest;
 	pipelineResult?: SideEffectExecutionResult;
 	pipelineResultWrite?: SideEffectExecutionResult;
+	preRevisionAgentResult?: AgentRunResult;
+	preRevisionValidationReport?: ValidationReportContract;
 	qualityReviewAgentInput?: QualityReviewAgentInput;
 	qualityReviewAgentResult?: AgentRunResult;
 	qualityReviewRunnerRequest?: AgentRunnerRequest;
 	revisionAgentInput?: ScreenRevisionAgentInput;
 	revisionAgentResult?: AgentRunResult;
 	revisionRunnerRequest?: AgentRunnerRequest;
-	renderTreeGenerationSkill?: GenerationSkill;
+	renderTreeGenerationSkill?: ScreenGenerationSkillBundleRef;
 	runnerRequest?: AgentRunnerRequest;
 	screenIntentAgentInput?: ScreenIntentAgentInput;
 	screenIntentAgentResult?: AgentRunResult;
@@ -177,6 +172,7 @@ type NormalizedScreenGenerationPipelineOptions = {
 	onProgress: NonNullable<ScreenGenerationPipelineOptions["onProgress"]>;
 	outDir: string;
 	persistence?: PipelinePersistenceAdapter;
+	references: ScreenGenerationReferences;
 	runDir: string;
 	runId: string;
 	sourceKind: PipelineMarkdownSourceFile["kind"];
@@ -198,7 +194,7 @@ const screenGenerationStageExecutors = {
 	"revise-render-tree-if-invalid": runReviseRenderTreeIfInvalidStage,
 	"select-pattern": runSelectPatternStage,
 	"validate-render-tree": runValidateRenderTreeStage,
-	"validate-render-tree-after-revision": runValidateRenderTreeStage,
+	"validate-render-tree-after-revision": runValidateRenderTreeAfterRevisionStage,
 	"write-artifacts": runWriteArtifactsStage,
 } satisfies Record<PipelineStageId, ScreenGenerationStageExecutor>;
 
@@ -236,11 +232,10 @@ async function runScreenGenerationStageLoop(
 	await state.options.persistence?.writeStatus(runStatus);
 
 	for (const stage of definition.stages) {
-		if (
-			state.parseCommandResult &&
-			!state.parseCommandResult.parseResult.ok &&
-			stage !== "write-artifacts"
-		) {
+		if (shouldSkipScreenGenerationStage(state, stage)) {
+			const skippedAt = state.options.clockNow();
+			runStatus = markPipelineStageSkipped(runStatus, stage, skippedAt);
+			await state.options.persistence?.writeStatus(runStatus);
 			continue;
 		}
 		const startedEvent = createProgressEvent(state, stage, "started");
@@ -273,6 +268,7 @@ async function runScreenGenerationStepRunner(
 	state: ScreenGenerationPipelineState,
 ): Promise<void> {
 	const pipeline = definePipeline({
+		feedback: [createScreenGenerationFeedbackRule(state)],
 		id: definition.id,
 		steps: definition.stages.map((stage) =>
 			defineStep({
@@ -281,12 +277,8 @@ async function runScreenGenerationStepRunner(
 					return readScreenGenerationStageOutput(state, stage);
 				},
 				id: stage,
-				skipWhen: () =>
-					Boolean(
-						state.parseCommandResult &&
-							!state.parseCommandResult.parseResult.ok &&
-							stage !== "write-artifacts",
-					),
+				inputs: createScreenGenerationStepInputs(stage),
+				skipWhen: () => shouldSkipScreenGenerationStage(state, stage),
 				usesAI: false,
 			}),
 		),
@@ -306,6 +298,12 @@ async function runScreenGenerationStepRunner(
 			});
 		},
 		persistence: state.options.persistence,
+		refs: {
+			componentCatalogs: state.options.references.componentCatalogs,
+			designContextBundles: state.options.references.designContextBundles,
+			layoutCatalogs: state.options.references.layoutCatalogs,
+			skillBundles: state.options.references.skillBundles,
+		},
 		runId: state.options.runId,
 		status: {
 			outDir: state.options.outDir,
@@ -397,6 +395,68 @@ function readScreenGenerationStageOutput(
 	return outputs[stage];
 }
 
+function createScreenGenerationStepInputs(
+	stage: PipelineStageId,
+): Record<string, StepInputRef> | undefined {
+	const externalRefs = {
+		componentCatalogs: from("ref.componentCatalogs"),
+		designContextBundles: from("ref.designContextBundles"),
+		layoutCatalogs: from("ref.layoutCatalogs"),
+		skillBundles: from("ref.skillBundles"),
+	};
+	const inputs = {
+		"derive-decoration-plan": {
+			layoutCatalogs: externalRefs.layoutCatalogs,
+		},
+		"derive-screen-intent": undefined,
+		"generate-render-tree": externalRefs,
+		"parse-source": undefined,
+		"plan-composition": {
+			layoutCatalogs: externalRefs.layoutCatalogs,
+		},
+		"propose-components": {
+			componentCatalogs: externalRefs.componentCatalogs,
+			designContextBundles: externalRefs.designContextBundles,
+		},
+		"read-source": undefined,
+		"review-quality": {
+			componentCatalogs: externalRefs.componentCatalogs,
+			designContextBundles: externalRefs.designContextBundles,
+		},
+		"revise-render-tree-if-invalid": {
+			componentCatalogs: externalRefs.componentCatalogs,
+			designContextBundles: externalRefs.designContextBundles,
+		},
+		"select-pattern": {
+			designContextBundles: externalRefs.designContextBundles,
+			layoutCatalogs: externalRefs.layoutCatalogs,
+		},
+		"validate-render-tree": {
+			componentCatalogs: externalRefs.componentCatalogs,
+		},
+		"validate-render-tree-after-revision": {
+			componentCatalogs: externalRefs.componentCatalogs,
+		},
+		"write-artifacts": undefined,
+	} satisfies Record<PipelineStageId, Record<string, StepInputRef> | undefined>;
+
+	return inputs[stage];
+}
+
+function createScreenGenerationFeedbackRule(
+	state: ScreenGenerationPipelineState,
+): PipelineFeedbackRule {
+	const rule: PipelineFeedbackRule = {
+		fromStep: "review-quality",
+		goTo: "revise-render-tree-if-invalid",
+		id: "quality-revision",
+		maxRetries: 1,
+		thenStep: "validate-render-tree-after-revision",
+		when: () => state.generationNextAction?.action === "request-revision",
+	};
+	return rule;
+}
+
 function createProgressEvent(
 	state: ScreenGenerationPipelineState,
 	stage: PipelineStageId,
@@ -439,6 +499,48 @@ async function recordPipelineProgress(
 function readErrorMessage(error: unknown): string {
 	if (error instanceof Error) return error.message;
 	return String(error);
+}
+
+function shouldSkipScreenGenerationStage(
+	state: ScreenGenerationPipelineState,
+	stage: PipelineStageId,
+): boolean {
+	if (
+		state.parseCommandResult &&
+		!state.parseCommandResult.parseResult.ok &&
+		stage !== "write-artifacts"
+	) {
+		return true;
+	}
+	if (stage === "revise-render-tree-if-invalid") {
+		return state.generationNextAction?.action !== "request-revision";
+	}
+	if (stage === "validate-render-tree-after-revision") {
+		return !state.revisionAgentResult;
+	}
+	return false;
+}
+
+function markPipelineStageSkipped(
+	status: PipelineRunStatus,
+	stage: PipelineStageId,
+	timestamp: string,
+): PipelineRunStatus {
+	const previous = status.stages[stage] ?? { status: "pending" as const };
+	return {
+		...status,
+		currentStage: stage,
+		stages: {
+			...status.stages,
+			[stage]: {
+				...previous,
+				completedAt: timestamp,
+				status: "skipped",
+			},
+		},
+		status: "running",
+		updatedAt: timestamp,
+	};
 }
 
 async function runReadSourceStage(state: ScreenGenerationPipelineState): Promise<void> {
@@ -508,7 +610,7 @@ async function runDeriveScreenIntentStage(state: ScreenGenerationPipelineState):
 
 async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
-	const layerCandidates = buildScreenGenerationPatternLayerCandidates(sourceSpec);
+	const layerCandidates = buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
 	const designSkillSelection = buildDesignSkillSelection({
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -553,6 +655,7 @@ function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): voi
 		sourceSpec,
 	});
 	state.patternLayerCandidates = buildScreenGenerationPatternLayerCandidates(
+		state,
 		sourceSpec,
 		state.decorationPlan,
 	);
@@ -561,7 +664,7 @@ function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): voi
 async function runSelectPatternStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
 	const layerCandidates =
-		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(sourceSpec);
+		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
 	const realRunner = createClaudeRunner({ localFirst: true });
 	const nodeResult = await runPatternSelectionNode({
 		compositionPlan: state.compositionPlanAgentResult?.payload,
@@ -592,13 +695,14 @@ async function runSelectPatternStage(state: ScreenGenerationPipelineState): Prom
 
 async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
-	state.generationSkillCatalog ??= await loadGenerationSkillCatalog();
+	state.generationSkillCatalog ??= await state.options.references.skillBundles.loadCatalog();
 	state.renderTreeGenerationSkill = findGenerationSkill(
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
+		state,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -630,6 +734,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void {
 	state.validationReport = createRenderTreeValidationReport(state.agentResult?.payload, {
 		allowedLayoutIds: state.patternLayerCandidates?.map((candidate) => candidate.layout),
+		componentCatalog: state.options.references.componentCatalogs.validationCatalog,
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		decorationPlan: state.decorationPlan,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -647,9 +752,19 @@ function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void 
 	}
 }
 
+function runValidateRenderTreeAfterRevisionStage(state: ScreenGenerationPipelineState): void {
+	runValidateRenderTreeStage(state);
+	if (!state.preRevisionAgentResult || !state.preRevisionValidationReport) return;
+	if (!isValidationWorse(state.validationReport, state.preRevisionValidationReport)) return;
+
+	state.agentResult = state.preRevisionAgentResult;
+	state.validationReport = state.preRevisionValidationReport;
+}
+
 async function runProposeComponentsStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
+		state,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -701,6 +816,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 	const nodeResult = await runQualityReviewNode({
 		candidate: state.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
+			state,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
@@ -730,26 +846,28 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 	state.qualityReviewAgentInput = nodeResult.agentInput;
 	state.qualityReviewAgentResult = nodeResult.agentResult;
 	state.qualityReviewRunnerRequest = nodeResult.runnerRequest;
+	state.generationNextAction = buildGenerationNextAction({
+		initialValidationReport: state.initialValidationReport,
+		qualityInspection: state.qualityReviewAgentResult.payload,
+		retryCount: state.revisionAgentResult ? 1 : 0,
+		validationReport: state.validationReport,
+	});
 }
 
 async function runReviseRenderTreeIfInvalidStage(
 	state: ScreenGenerationPipelineState,
 ): Promise<void> {
-	state.generationNextAction = buildGenerationNextAction({
-		initialValidationReport: state.initialValidationReport,
-		qualityInspection: state.qualityReviewAgentResult?.payload,
-		retryCount: state.revisionAgentResult ? 1 : 0,
-		validationReport: state.validationReport,
-	});
-
-	if (state.generationNextAction.action !== "request-revision") return;
+	if (state.generationNextAction?.action !== "request-revision") return;
 
 	const sourceSpec = requireSourceSpec(state);
 	const previousCandidate = state.agentResult?.payload;
+	state.preRevisionAgentResult = state.agentResult;
+	state.preRevisionValidationReport = state.validationReport;
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const realRunner = createClaudeRunner({ localFirst: true });
 	const nodeResult = await runScreenRevisionNode({
 		componentContractCatalog: buildSourceComponentContractCatalog(
+			state,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
@@ -895,6 +1013,10 @@ function normalizeScreenGenerationPipelineOptions(
 		onProgress: options.onProgress ?? (() => undefined),
 		...paths,
 		persistence,
+		references: mergeScreenGenerationReferences(
+			createDefaultScreenGenerationReferences(),
+			options.references,
+		),
 		runId,
 		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
 		sourcePath,
@@ -975,29 +1097,31 @@ function requireSourceSpec(state: ScreenGenerationPipelineState): SourceSpec {
 }
 
 function buildScreenGenerationPatternLayerCandidates(
+	state: ScreenGenerationPipelineState,
 	sourceSpec: SourceSpec,
 	decorationPlan?: DecorationPlanContract,
 ): PatternLayerCandidate[] {
 	return buildPatternLayerCandidates({
 		decorationPlan,
 		resolver: {
-			resolveComponentLayout: ({ componentType, sourceComponentId }) =>
-				resolveCompositeLayoutByComponentType(componentType ?? sourceComponentId),
-			resolveRegionLayout: resolveRegionLayoutFromScreenLayout,
+			resolveComponentLayout: state.options.references.layoutCatalogs.resolveComponentLayout,
+			resolveRegionLayout: state.options.references.layoutCatalogs.resolveRegionLayout,
 		},
 		sourceSpec,
 	});
 }
 
 function buildSourceComponentContractCatalog(
+	state: ScreenGenerationPipelineState,
 	sourceSpec: SourceSpec,
 	layerCandidates: PatternLayerCandidate[],
 ): ComponentContractCatalog {
+	const componentCatalogs = state.options.references.componentCatalogs;
 	const entries = sourceSpec.sourceShape.screen.regions.flatMap((region) =>
 		region.children.flatMap((area) =>
 			area.children.map((component) => {
 				const componentType = component.componentType ?? component.sourceComponentId;
-				const componentEntry = getComponentCatalogEntry(componentType);
+				const componentEntry = componentCatalogs.getEntry(componentType);
 				const sourceRefs = [
 					...new Set(
 						[
@@ -1042,17 +1166,18 @@ function buildSourceComponentContractCatalog(
 	// promotion (candidate->stable) only flips the tag, it does not drop the component.
 	const entryCanonicalTypes = new Set(
 		entries.map(
-			(entry) => getComponentCatalogEntry(entry.componentType)?.type ?? entry.componentType,
+			(entry) => componentCatalogs.getEntry(entry.componentType)?.type ?? entry.componentType,
 		),
 	);
-	const available = getComponentCatalogTypes()
+	const available = componentCatalogs
+		.getTypes()
 		.filter((type) => !entryCanonicalTypes.has(type))
 		.filter((type) => !type.startsWith("Layout.") && type !== "PageStack")
 		.map((type) => {
-			const entry = getComponentCatalogEntry(type);
+			const entry = componentCatalogs.getEntry(type);
 			return {
 				componentType: type,
-				status: getComponentCatalogStatus(type) ?? ("stable" as const),
+				status: componentCatalogs.getStatus(type) ?? ("stable" as const),
 				props: Object.fromEntries(
 					Object.entries(entry?.props ?? {}).map(([propName, contract]) => [
 						propName,
@@ -1227,7 +1352,27 @@ async function loadBundleContentsForState(
 	state: ScreenGenerationPipelineState,
 ): Promise<DesignContextBundleContent[]> {
 	if (state.options.disableDesignContext) return [];
-	return loadDesignContextBundleContents(state.designContextBundleSelection?.bundleRefs ?? []);
+	return state.options.references.designContextBundles.loadContents(
+		state.designContextBundleSelection?.bundleRefs ?? [],
+	);
+}
+
+function findGenerationSkill(
+	catalog: ScreenGenerationSkillBundleRef[],
+	stage: ScreenGenerationSkillBundleRef["stage"],
+): ScreenGenerationSkillBundleRef | undefined {
+	return catalog.find((skill) => skill.stage === stage);
+}
+
+function isValidationWorse(
+	current: ValidationReportContract | undefined,
+	previous: ValidationReportContract,
+): boolean {
+	return readValidationErrorCount(current) > readValidationErrorCount(previous);
+}
+
+function readValidationErrorCount(report: ValidationReportContract | undefined): number {
+	return report?.summary.errorCount ?? Number.POSITIVE_INFINITY;
 }
 
 function isRecord(input: unknown): input is Record<string, unknown> {

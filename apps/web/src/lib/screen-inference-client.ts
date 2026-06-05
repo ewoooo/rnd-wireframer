@@ -1,9 +1,14 @@
+import type { PipelineRunEvent } from "@cx/pipeline";
+import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import {
+	parseScreenInferencePipelineEventMessage,
+	SCREEN_INFERENCE_PIPELINE_EVENT_NAME,
+} from "@/lib/screen-inference-events";
 import type {
 	ScreenInferenceRunCreateResponse,
 	ScreenInferenceRunResponse,
 	ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
-import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 
 type ScreenInferenceSourceUploadResponse = {
 	error?: string;
@@ -69,7 +74,9 @@ export async function createScreenInferenceRunFromSource(
 	return body;
 }
 
-export async function fetchScreenInferenceRunStatus(runId: string): Promise<ScreenInferenceRunStatus> {
+export async function fetchScreenInferenceRunStatus(
+	runId: string,
+): Promise<ScreenInferenceRunStatus> {
 	const response = await fetch(`/api/screen-inference/runs/${encodeURIComponent(runId)}`);
 	const body = (await response.json()) as ScreenInferenceRunResponse & { error?: string };
 
@@ -80,7 +87,10 @@ export async function fetchScreenInferenceRunStatus(runId: string): Promise<Scre
 	return body.status;
 }
 
-export async function fetchScreenInferenceArtifact<T>(runId: string, artifactName: string): Promise<T> {
+export async function fetchScreenInferenceArtifact<T>(
+	runId: string,
+	artifactName: string,
+): Promise<T> {
 	const response = await fetch(
 		`/api/screen-inference/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(
 			artifactName,
@@ -104,4 +114,33 @@ export async function applyScreenInferenceRun(runId: string): Promise<void> {
 	if (!response.ok || body.error || !body.ok) {
 		throw new Error(body.error ?? `새 화면 DB 등록 실패 ${response.status}`);
 	}
+}
+
+export function subscribeScreenInferenceRunEvents(
+	runId: string,
+	handlers: {
+		onError?: () => void;
+		onEvent: (event: PipelineRunEvent) => Promise<void> | void;
+	},
+): () => void {
+	if (typeof EventSource === "undefined") return () => undefined;
+
+	const source = new EventSource(`/api/screen-inference/runs/${encodeURIComponent(runId)}/events`);
+	const handlePipelineEvent = (message: MessageEvent<string>) => {
+		const event = parseScreenInferencePipelineEventMessage(message.data);
+		if (!event) return;
+		void handlers.onEvent(event);
+	};
+	const handleError = () => {
+		handlers.onError?.();
+	};
+
+	source.addEventListener(SCREEN_INFERENCE_PIPELINE_EVENT_NAME, handlePipelineEvent);
+	source.addEventListener("error", handleError);
+
+	return () => {
+		source.removeEventListener(SCREEN_INFERENCE_PIPELINE_EVENT_NAME, handlePipelineEvent);
+		source.removeEventListener("error", handleError);
+		source.close();
+	};
 }

@@ -291,10 +291,10 @@ const screenInferencePipeline = definePipeline({
 });
 ```
 
-위 예시는 현재 `screenGenerationPipelineDefinition.stages`를 보존하는 1차 migration 형태다.
-현재 구현에서는 revision loop가 별도 `feedback` rule로 외부화되어 있지 않고,
-`revise-render-tree-if-invalid` Step 내부에서 `buildGenerationNextAction(...)` 결과에 따라 no-op 또는 revision을 수행한다.
-`feedback` rule은 그 판단을 pipeline runtime으로 끌어올릴 때의 후속 목표 API다.
+위 예시는 현재 `screenGenerationPipelineDefinition.stages`를 보존하는 migration 형태다.
+Rollout 7 이후 `review-quality`가 `buildGenerationNextAction(...)`으로 decision fact를 만들고,
+`revise-render-tree-if-invalid`와 `validate-render-tree-after-revision`은 feedback route가 요청할 때만 실행된다.
+happy path에서는 두 optional revision stage가 `skipped`로 기록된다.
 
 현재 구현에서 `sourceReferenceCatalog`는 `parse-source`가 별도 public output으로 내보내는 값이 아니라,
 각 agent input builder가 `sourceSpec`에서 조립해 context에 포함하는 값이다.
@@ -1045,8 +1045,9 @@ maxRetries = feedback이 계속 발동할 때 무한 루프를 막는 상한
 ```
 
 `then`은 optional revision Step을 feedback rule로 외부화할 때 재진입 위치를 명확하게 하기 위해 필요하다.
-현재 구현은 `revise-render-tree-if-invalid` ordered Step 내부에서 no-op 또는 revision을 수행한다.
-후속 목표 API에서 revision을 optional feedback Step으로 빼면, revision이 끝난 뒤 `validate-render-tree`부터 다시 돌도록 `then`을 둔다.
+코드 내부 fixture는 Biome `noThenProperty` 정책 때문에 lint-safe alias인 `thenStep`을 사용할 수 있다.
+runtime은 외부 API의 `then`과 내부 alias `thenStep`을 모두 같은 재진입 Step으로 처리한다.
+현재 screen-generation path는 revision이 끝난 뒤 `validate-render-tree-after-revision`부터 다시 이어간다.
 
 `maxRetries`는 `review-quality`가 계속 revise를 요청할 때 무한 루프를 막는 안전장치다.
 `then`은 재진입 위치를 정의하고, `maxRetries`는 반복 횟수를 제한한다.
@@ -1775,124 +1776,67 @@ Responsibilities:
 
 ```text
 - load current status snapshot
-- stream pipeline events
-- stream step events
-- stream artifact events
-- close when pipeline reaches terminal status
+- stream persisted pipeline events from pipeline-events.ndjson
+- support Last-Event-ID replay for reconnect
+- close when screen inference run reaches terminal status
 ```
 
-Run start API 예:
+현재 구현 기준:
 
 ```ts
-export async function POST(request: Request) {
-  const body = await request.json();
-  const runId = createRunId();
+// apps/web/src/app/api/screen-inference/runs/[runId]/events/route.ts
+GET /api/screen-inference/runs/:runId/events
 
-  void runPipeline(screenInferencePipeline, {
-    input: {
-      runId,
-      source: body.source,
-    },
-    storage: {
-      persistence: { enabled: true },
-    },
-    observers: {
-      onEvent(event) {
-        pipelineEventBroadcaster.publish(runId, event);
-      },
-    },
-  });
-
-  return Response.json({ runId });
-}
+// source of truth
+data/runs/screen-generation/:runId/pipeline-events.ndjson
 ```
 
-SSE route 예:
+SSE route 흐름:
 
 ```ts
-export async function GET(
-  _request: Request,
-  { params }: { params: { runId: string } },
-) {
-  const { runId } = params;
+const stream = new ReadableStream({
+  async start(controller) {
+    let lastSentEventId = request.headers.get("last-event-id");
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      const send = (message: PipelineSseMessage) => {
-        controller.enqueue(encodeSse(message.event, message.data));
-      };
+    while (!request.signal.aborted) {
+      const events = filterEventsAfter(
+        await readScreenInferenceRunPipelineEvents(runId),
+        lastSentEventId,
+      );
 
-      const status = await persistence.readStatus(runId);
-      if (status) {
-        send({ event: "status", data: status });
+      for (const event of events) {
+        controller.enqueue(encodeSse("pipeline-event", event, event.eventId));
+        lastSentEventId = event.eventId;
       }
 
-      const unsubscribe = pipelineEventBroadcaster.subscribe(runId, (event) => {
-        send({ event: event.type === "artifact" ? "artifact" : "step", data: event });
-
-        if (event.type === "pipeline" && isTerminalStatus(event.status)) {
-          send({ event: "done", data: { runId, status: event.status } });
-          unsubscribe();
-          controller.close();
-        }
-      });
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
-    },
-  });
-}
-
-function encodeSse(event: string, data: unknown) {
-  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-}
+      if (await isTerminalScreenInferenceRun(runId)) break;
+      await wait(750);
+    }
+  },
+});
 ```
 
-Web client 예:
+Web client 흐름:
 
 ```ts
-async function startScreenInference(source: unknown) {
-  const response = await fetch("/api/screen-inference/runs", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ source }),
-  });
+const unsubscribe = subscribeScreenInferenceRunEvents(runId, {
+  onEvent() {
+    // SSE event는 즉시 갱신 트리거로 쓰고, UI model은 기존 snapshot API로 유지한다.
+    void fetchScreenInferenceRunStatus(runId).then(setRunStatus);
+  },
+  onError() {
+    // 기존 polling effect가 그대로 살아 있으므로 reconnect/polling fallback으로 복구된다.
+  },
+});
 
-  const { runId } = await response.json();
-  subscribePipelineRun(runId);
-}
-
-function subscribePipelineRun(runId: string) {
-  const events = new EventSource(`/api/screen-inference/runs/${runId}/events`);
-
-  events.addEventListener("status", (message) => {
-    screenInferenceStore.setStatus(JSON.parse(message.data));
-  });
-
-  events.addEventListener("step", (message) => {
-    screenInferenceStore.applyEvent(JSON.parse(message.data));
-  });
-
-  events.addEventListener("artifact", (message) => {
-    screenInferenceStore.addArtifact(JSON.parse(message.data));
-  });
-
-  events.addEventListener("done", (message) => {
-    screenInferenceStore.complete(JSON.parse(message.data));
-    events.close();
-  });
-
-  events.onerror = () => {
-    events.close();
-    screenInferenceStore.enablePollingFallback(runId);
-  };
-}
+return () => {
+  unsubscribe();
+};
 ```
+
+이 방식은 Web UI가 pipeline event shape에 직접 결합하지 않도록 한다.
+`pipeline-events.ndjson`는 replay/debug/SSE source이고, `/api/screen-inference/runs/:runId`는 화면 상태 snapshot source다.
+향후 Web UI가 per-stage event를 직접 apply할 만큼 안정되면 snapshot refetch 대신 `pipeline-event` reducer를 추가할 수 있다.
 
 통신 규칙:
 
@@ -2226,6 +2170,7 @@ Current implementation status:
 - Screen generation still defaults to the current hardcoded `stage-loop` path while Rollout 4 parity is verified.
 - Smoke CLI can select the migration path with `--execution-mode step-runner`.
 - Rollout 5 created `@cx/inference-nodes` and moved screen-generation agent/validation node wrappers out of `@cx/pipeline`.
+- Rollout 6 added explicit screen-generation `references` injection for component catalogs, layout catalogs, skill bundles, and design-context bundles.
 ```
 
 ### 11.3 Rollout 0. Baseline Capture
@@ -2413,6 +2358,22 @@ Done when:
 - Pipeline runtime does not import component/layout/design-context catalogs directly for migrated nodes.
 - Static, fake-mode parity, and Claude local-first quality gates pass.
 
+Rollout 6 implementation note:
+
+```text
+2026-06-05
+- `ScreenGenerationPipelineOptions.references` accepts nested partial overrides for:
+  - `componentCatalogs`
+  - `layoutCatalogs`
+  - `skillBundles`
+  - `designContextBundles`
+- Default references are assembled in `screen-generation/references.ts` from the existing public APIs.
+- `screen-generation-pipeline.ts` uses only `state.options.references` for component contract catalog assembly, pattern layer candidate layout resolution, skill catalog loading, and design-context bundle loading.
+- `createRenderTreeValidationReport(...)` receives the component catalog from the caller instead of importing the default catalog.
+- Source refs remain derived from `SourceSpec` inside orchestration/agent input assembly.
+- `screen-generation-tags.test.ts` includes an injected refs smoke fixture proving component/layout refs are called from run options.
+```
+
 ### 11.10 Rollout 7. Feedback Route Externalization
 
 Goal:
@@ -2436,6 +2397,20 @@ Done when:
 - Persistence records running/completed/skipped/failed statuses accurately.
 - Static, fake-mode parity, and Claude local-first quality gates pass.
 
+Rollout 7 implementation note:
+
+```text
+2026-06-05
+- `runStepPipeline(...)` evaluates `definition.feedback` after a Step completes.
+- Feedback rules increment `state.retryCounts[rule.id]`, jump to `goTo`, and resume at `then`/`thenStep` when provided.
+- `then` remains the public API field; `thenStep` is a lint-safe alias for internal fixtures because Biome flags object literals with a `then` property.
+- `review-quality` now creates `generationNextAction` with the existing `buildGenerationNextAction(...)` policy.
+- `revise-render-tree-if-invalid` only executes revision work when `generationNextAction.action === "request-revision"`.
+- If post-revision validation has more errors than the pre-revision candidate, final output rolls back to the pre-revision candidate while keeping revision artifacts for trace/debug.
+- Happy path marks `revise-render-tree-if-invalid` and `validate-render-tree-after-revision` as `skipped`.
+- Step runner tests cover feedback route execution and optional feedback step skipping.
+```
+
 ### 11.11 Rollout 8. SSE Web Delivery
 
 Goal:
@@ -2458,6 +2433,18 @@ Done when:
 - Refresh/reconnect can recover from `pipeline-status.json`.
 - Polling fallback still works.
 - Static and relevant Web tests pass.
+
+Rollout 8 implementation note:
+
+```text
+2026-06-05
+- Added `/api/screen-inference/runs/:runId/events` SSE route.
+- The route replays/tails `pipeline-events.ndjson`, emits `pipeline-event` messages, honors `Last-Event-ID`, and closes when the Web run reaches a terminal status.
+- Added `screen-inference-events` helpers for NDJSON parsing, SSE formatting, event-id replay filtering, and client message parsing.
+- Added `subscribeScreenInferenceRunEvents(...)` client helper.
+- `useNewScreenInference(...)` keeps the existing polling effect as fallback and uses SSE events as immediate status refresh triggers.
+- Web unit tests cover event parsing, filtering, and SSE payload formatting.
+```
 
 ### 11.12 Rollout 9. Cleanup Legacy Stage Loop
 

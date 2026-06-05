@@ -1,8 +1,17 @@
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { getComponentCatalogEntry } from "@cx/components/catalog";
+import {
+	resolveCompositeLayoutByComponentType,
+	resolveRegionLayoutFromScreenLayout,
+} from "@cx/layout-pattern-store/resolver";
 import { runPipeline } from "@cx/pipeline";
-import type { PipelineProgressEvent, ScreenGenerationPipelineOptions } from "@cx/pipeline/types";
+import type {
+	PipelineProgressEvent,
+	ScreenGenerationPipelineOptions,
+	ScreenGenerationReferencesInput,
+} from "@cx/pipeline/types";
 import { afterAll, describe, expect, it } from "vitest";
 
 const SOURCE = "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md";
@@ -16,6 +25,7 @@ async function runFake(
 	runId: string,
 	tags?: string[],
 	executionMode?: ScreenGenerationPipelineOptions["executionMode"],
+	references?: ScreenGenerationReferencesInput,
 ) {
 	const rootDir = await mkdtemp(path.join(tmpdir(), "cx-tags-"));
 	tempRoots.push(rootDir);
@@ -27,6 +37,7 @@ async function runFake(
 			progressEvents.push(event);
 		},
 		executionMode,
+		references,
 		runId,
 		source: { path: SOURCE, type: "file" },
 		tags,
@@ -95,8 +106,6 @@ describe("screen-generation manifest tags", () => {
 			"validate-render-tree",
 			"propose-components",
 			"review-quality",
-			"revise-render-tree-if-invalid",
-			"validate-render-tree-after-revision",
 			"write-artifacts",
 		]);
 		expect(progressEvents.at(-1)).toMatchObject({
@@ -116,8 +125,10 @@ describe("screen-generation manifest tags", () => {
 		});
 		expect(pipelineStatus.currentStage).toBeUndefined();
 		expect(pipelineStatus.stages["read-source"]?.status).toBe("completed");
+		expect(pipelineStatus.stages["revise-render-tree-if-invalid"]?.status).toBe("skipped");
+		expect(pipelineStatus.stages["validate-render-tree-after-revision"]?.status).toBe("skipped");
 		expect(pipelineStatus.stages["write-artifacts"]?.status).toBe("completed");
-		expect(pipelineEvents.trim().split("\n")).toHaveLength(26);
+		expect(pipelineEvents.trim().split("\n")).toHaveLength(22);
 		expect(pipelineEvents).toContain('"stage":"read-source"');
 		expect(pipelineEvents).toContain('"status":"completed"');
 	});
@@ -127,7 +138,7 @@ describe("screen-generation manifest tags", () => {
 		const stepPath = await runFake("step-path", undefined, "step-runner");
 
 		expect(stepPath.artifactFiles.sort()).toEqual(oldPath.artifactFiles.sort());
-		expect(stepPath.pipelineEvents.trim().split("\n")).toHaveLength(26);
+		expect(stepPath.pipelineEvents.trim().split("\n")).toHaveLength(22);
 		expect(stepPath.pipelineStatus).toMatchObject({
 			runId: "step-path",
 			schemaVersion: "pipeline-run-status.v0.1",
@@ -145,5 +156,39 @@ describe("screen-generation manifest tags", () => {
 		);
 		expect(stepPath.manifest.stageLayers).toEqual(oldPath.manifest.stageLayers);
 		expect(stepPath.trace.layers).toEqual(oldPath.trace.layers);
+	});
+
+	it("uses injected component and layout refs while building screen-generation context", async () => {
+		const componentLookups: string[] = [];
+		const componentLayoutLookups: string[] = [];
+		const regionLayoutLookups: string[] = [];
+
+		await runFake("injected-refs", undefined, "step-runner", {
+			componentCatalogs: {
+				getEntry: (type) => {
+					componentLookups.push(type);
+					return getComponentCatalogEntry(type);
+				},
+			},
+			layoutCatalogs: {
+				resolveComponentLayout: (input) => {
+					componentLayoutLookups.push(input.componentType ?? input.sourceComponentId);
+					return resolveCompositeLayoutByComponentType(
+						input.componentType ?? input.sourceComponentId,
+					);
+				},
+				resolveRegionLayout: (input) => {
+					regionLayoutLookups.push(input.type);
+					return resolveRegionLayoutFromScreenLayout(input);
+				},
+			},
+		});
+
+		expect(componentLookups).toContain("AppBar");
+		expect(componentLookups).toContain("CardSummary");
+		expect(componentLayoutLookups).toContain("AppBar");
+		expect(regionLayoutLookups).toContain("Screen.Header");
+		expect(regionLayoutLookups).toContain("Screen.Contents");
+		expect(regionLayoutLookups.length).toBeGreaterThan(0);
 	});
 });

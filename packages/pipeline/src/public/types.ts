@@ -1,3 +1,5 @@
+import type { ComponentCatalog } from "@cx/components/types";
+import type { DesignContextBundleContent, DesignContextBundleRef } from "@cx/schema";
 import type { sideEffectBoundary } from "./contract";
 
 export type SideEffectBoundary = typeof sideEffectBoundary;
@@ -89,6 +91,8 @@ export type PipelineFeedbackRule = {
 	id: string;
 	maxRetries: number;
 	then?: string;
+	/** Lint-safe alias for `then`; runtime accepts either field. */
+	thenStep?: string;
 	when: FeedbackCondition;
 };
 
@@ -222,6 +226,88 @@ export type PipelinePersistenceAdapter = {
 	writeStatus(status: PipelineRunStatus): Promise<void>;
 };
 
+export type ScreenGenerationComponentCatalogEntryRef = {
+	type: string;
+	props?: Record<
+		string,
+		{
+			required?: boolean;
+			role?: string;
+			type: string;
+			values?: readonly string[];
+		}
+	>;
+};
+
+export type ScreenGenerationComponentCatalogRefs = {
+	/**
+	 * Fixed adapter key. Resolves one component type into the prop contract used
+	 * when building agent context, e.g. "AppBar" -> allowed props/roles.
+	 */
+	getEntry(type: string): ScreenGenerationComponentCatalogEntryRef | undefined;
+	/**
+	 * Fixed adapter key. Marks catalog entries as stable/candidate so agent
+	 * context and review can distinguish promoted components from experimental ones.
+	 */
+	getStatus(type: string): "candidate" | "stable" | undefined;
+	/**
+	 * Fixed adapter key. Lists the component vocabulary available beyond the
+	 * source-mapped components, so generation can choose better-fitting catalog entries.
+	 */
+	getTypes(): string[];
+	/**
+	 * Fixed adapter key. Full catalog value passed to RenderTree validation.
+	 * The lookup functions above shape agent context; this value checks final output.
+	 */
+	validationCatalog?: ComponentCatalog;
+};
+
+export type ScreenGenerationLayoutCatalogRefs = {
+	resolveComponentLayout(input: {
+		componentType?: string;
+		sourceComponentId: string;
+		sourceId?: string;
+	}): string | undefined;
+	resolveRegionLayout(input: {
+		compositionText: string;
+		fallbackByType: Record<"Screen.Bottom" | "Screen.Contents" | "Screen.Header", string>;
+		screenLayout: string;
+		type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header";
+	}): string;
+};
+
+export type ScreenGenerationSkillBundleRef = {
+	body: string;
+	description?: string;
+	dir: string;
+	id: string;
+	inputContract?: string;
+	outputContract?: string;
+	sideFiles: Array<{
+		content: string;
+		path: string;
+	}>;
+	stage: "pattern-selection" | "quality-inspection" | "render-tree-generation" | "revision";
+};
+
+export type ScreenGenerationReferences = {
+	componentCatalogs: ScreenGenerationComponentCatalogRefs;
+	designContextBundles: {
+		loadContents(refs: DesignContextBundleRef[]): Promise<DesignContextBundleContent[]>;
+	};
+	layoutCatalogs: ScreenGenerationLayoutCatalogRefs;
+	skillBundles: {
+		loadCatalog(): Promise<ScreenGenerationSkillBundleRef[]>;
+	};
+};
+
+export type ScreenGenerationReferencesInput = {
+	componentCatalogs?: Partial<ScreenGenerationComponentCatalogRefs>;
+	designContextBundles?: Partial<ScreenGenerationReferences["designContextBundles"]>;
+	layoutCatalogs?: Partial<ScreenGenerationLayoutCatalogRefs>;
+	skillBundles?: Partial<ScreenGenerationReferences["skillBundles"]>;
+};
+
 export type ScreenGenerationPipelineOptions = {
 	agentMode?: PipelineAgentMode;
 	artifactStore?: {
@@ -240,6 +326,7 @@ export type ScreenGenerationPipelineOptions = {
 		eventsFileName?: string;
 		statusFileName?: string;
 	};
+	references?: ScreenGenerationReferencesInput;
 	runId?: string;
 	source:
 		| {

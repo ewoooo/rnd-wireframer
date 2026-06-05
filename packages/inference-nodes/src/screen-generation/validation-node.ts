@@ -1,4 +1,4 @@
-import { componentCatalog } from "@cx/components/catalog";
+import type { ComponentCatalog } from "@cx/components/types";
 import { SCHEMA_VERSION, type SourceSpec, type ValidationReportContract } from "@cx/schema";
 import {
 	validateCompositionPlan,
@@ -11,6 +11,7 @@ export function createRenderTreeValidationReport(
 	payload: unknown,
 	options: {
 		allowedLayoutIds?: string[];
+		componentCatalog?: ComponentCatalog;
 		compositionPlan?: unknown;
 		decorationPlan?: unknown;
 		screenIntent?: unknown;
@@ -22,7 +23,7 @@ export function createRenderTreeValidationReport(
 	const schemaReport = validateSchemaArtifact("render-tree", renderTree);
 	const semanticReport = validateRenderTree(renderTree, {
 		allowedLayoutIds: options.allowedLayoutIds,
-		componentCatalog,
+		componentCatalog: options.componentCatalog,
 		generatedArtifact: payload,
 		sourceSpec: options.sourceSpec,
 	});

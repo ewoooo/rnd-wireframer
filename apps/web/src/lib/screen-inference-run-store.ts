@@ -1,8 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import type { PipelineRunEvent } from "@cx/pipeline";
 import { runPipeline } from "@cx/pipeline";
 import type { PipelineStageId } from "@cx/pipeline/types";
 import { readErrorMessage } from "@/lib/api-error";
+import { parseScreenInferencePipelineEventLines } from "@/lib/screen-inference-events";
 import {
 	createScreenInferenceProgressStatus,
 	createScreenInferenceRunId,
@@ -107,6 +109,13 @@ export async function updateScreenInferenceRunStatus(
 	});
 }
 
+export async function readScreenInferenceRunPipelineEvents(
+	runId: string,
+): Promise<PipelineRunEvent[]> {
+	const contents = await readOptionalText(path.join(readRunDir(runId), "pipeline-events.ndjson"));
+	return contents ? parseScreenInferencePipelineEventLines(contents) : [];
+}
+
 async function runScreenInferencePipeline(input: {
 	createdAt: string;
 	previousRunId?: string;
@@ -191,6 +200,15 @@ async function writeRunStatus(status: ScreenInferenceRunStatus) {
 async function readOptionalJson<T>(filePath: string): Promise<T | undefined> {
 	try {
 		return JSON.parse(await readFile(filePath, "utf8")) as T;
+	} catch (error) {
+		if (isNodeError(error) && error.code === "ENOENT") return undefined;
+		throw error;
+	}
+}
+
+async function readOptionalText(filePath: string): Promise<string | undefined> {
+	try {
+		return await readFile(filePath, "utf8");
 	} catch (error) {
 		if (isNodeError(error) && error.code === "ENOENT") return undefined;
 		throw error;
