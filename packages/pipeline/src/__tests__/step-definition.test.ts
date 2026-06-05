@@ -1,9 +1,11 @@
 import {
 	createPipelineExecutionState,
+	createReferenceResolution,
 	definePipeline,
 	defineStep,
 	from,
 	refInput,
+	refs,
 	resolveStepInputs,
 	StepInputResolutionError,
 	stepOutput,
@@ -179,7 +181,7 @@ describe("pipeline step definition helpers", () => {
 });
 
 describe("pipeline step input resolver", () => {
-	it("resolves input, ref, step, nested step, and literal values", () => {
+	it("resolves input, ref, step, nested step, and literal values", async () => {
 		const source = { path: "source.md" };
 		const layoutCatalogs = { screen: { id: "layout.screen.sample" } };
 		const schema = { schemaVersion: "sample.v0.1" };
@@ -203,7 +205,7 @@ describe("pipeline step input resolver", () => {
 			},
 		});
 
-		expect(
+		await expect(
 			resolveStepInputs(
 				{
 					layerCandidates: from("step.derive-decoration-plan.layerCandidates"),
@@ -215,7 +217,7 @@ describe("pipeline step input resolver", () => {
 				},
 				state,
 			),
-		).toEqual({
+		).resolves.toEqual({
 			layerCandidates: [{ layout: "layout.area.sample" }],
 			layoutCatalogs,
 			schema,
@@ -225,7 +227,40 @@ describe("pipeline step input resolver", () => {
 		});
 	});
 
-	it("throws a distinct missing-ref error for unresolved Step inputs", () => {
+	it("resolves refs([...]) to a name-keyed record via resolveReference, memoized per run", async () => {
+		const state = createPipelineExecutionState({
+			refs: { componentCatalog: { adapter: "raw" }, layoutCatalog: { adapter: "raw" } },
+		});
+		const calls: string[] = [];
+		const resolution = createReferenceResolution((name, runRefs) => {
+			calls.push(name);
+			return { resolvedFrom: name, raw: runRefs[name] };
+		});
+
+		const first = await resolveStepInputs(
+			{ references: refs(["componentCatalog", "layoutCatalog"]) },
+			state,
+			resolution,
+		);
+		expect(first).toEqual({
+			references: {
+				componentCatalog: { resolvedFrom: "componentCatalog", raw: { adapter: "raw" } },
+				layoutCatalog: { resolvedFrom: "layoutCatalog", raw: { adapter: "raw" } },
+			},
+		});
+
+		// Second step reusing componentCatalog must hit the per-run cache (no re-resolve).
+		await resolveStepInputs({ references: refs(["componentCatalog"]) }, state, resolution);
+		expect(calls).toEqual(["componentCatalog", "layoutCatalog"]);
+	});
+
+	it("falls back to raw adapters when no resolveReference is provided", async () => {
+		const state = createPipelineExecutionState({ refs: { skillBundle: { load: true } } });
+		const resolved = await resolveStepInputs({ references: refs(["skillBundle"]) }, state);
+		expect(resolved).toEqual({ references: { skillBundle: { load: true } } });
+	});
+
+	it("throws a distinct missing-ref error for unresolved Step inputs", async () => {
 		const state = createPipelineExecutionState({
 			steps: {
 				"parse-source": {
@@ -235,11 +270,11 @@ describe("pipeline step input resolver", () => {
 			},
 		});
 
-		expect(() =>
+		await expect(
 			resolveStepInputs({ sourceSpec: from("step.parse-source.sourceSpec") }, state),
-		).toThrow(StepInputResolutionError);
-		expect(() =>
+		).rejects.toThrow(StepInputResolutionError);
+		await expect(
 			resolveStepInputs({ sourceSpec: from("step.parse-source.sourceSpec") }, state),
-		).toThrow("Pipeline step input reference is missing: step.parse-source.sourceSpec");
+		).rejects.toThrow("Pipeline step input reference is missing: step.parse-source.sourceSpec");
 	});
 });

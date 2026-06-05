@@ -18,6 +18,11 @@ export function stepOutput(stepId: string, outputName: string): StepInputRef {
 	return { kind: "step-output", outputName, stepId };
 }
 
+/** Declares the named references a step needs; the engine resolves them to pure data. */
+export function refs(names: string[]): StepInputRef {
+	return { kind: "refs", names };
+}
+
 export function value(input: unknown): StepInputRef {
 	return { kind: "value", value: input };
 }

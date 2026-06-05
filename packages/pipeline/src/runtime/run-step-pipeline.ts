@@ -1,5 +1,6 @@
 import {
 	createPipelineExecutionState,
+	createReferenceResolution,
 	resolveStepInput,
 	resolveStepInputs,
 	StepInputResolutionError,
@@ -38,6 +39,7 @@ export async function runStepPipeline(
 			definition.steps.map((step) => [step.id, { status: "pending" as const }]),
 		),
 	});
+	const referenceResolution = createReferenceResolution(options.resolveReference);
 	const events: PipelineRunEvent[] = [];
 	let status = createPipelineRunStatus({
 		createdAt,
@@ -84,7 +86,7 @@ export async function runStepPipeline(
 		});
 
 		try {
-			const inputs = resolveStepInputs(step.inputs, state);
+			const inputs = await resolveStepInputs(step.inputs, state, referenceResolution);
 			const output = await executeStep(
 				step,
 				inputs,

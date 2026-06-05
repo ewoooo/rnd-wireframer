@@ -1,5 +1,23 @@
 import { isRecord } from "@cx/types/guards";
-import type { PipelineExecutionState, ResolvedStepInputs, StepInputRef } from "../public/types";
+import type {
+	PipelineExecutionState,
+	ReferenceResolver,
+	ResolvedStepInputs,
+	StepInputRef,
+} from "../public/types";
+
+/**
+ * Per-run reference resolution: maps a declared reference name to pure data and
+ * memoizes it so adapter loads (loadCatalog/loadContents) run once per run.
+ */
+export type ReferenceResolution = {
+	resolveReference?: ReferenceResolver;
+	cache: Map<string, Promise<unknown>>;
+};
+
+export function createReferenceResolution(resolveReference?: ReferenceResolver): ReferenceResolution {
+	return { cache: new Map(), resolveReference };
+}
 
 export class StepInputResolutionError extends Error {
 	readonly code = "pipeline.step_input_ref_missing";
@@ -25,13 +43,48 @@ export function createPipelineExecutionState(input: {
 	};
 }
 
-export function resolveStepInputs(
+export async function resolveStepInputs(
 	inputs: Record<string, StepInputRef> | undefined,
 	state: PipelineExecutionState,
-): ResolvedStepInputs {
-	return Object.fromEntries(
-		Object.entries(inputs ?? {}).map(([key, ref]) => [key, resolveStepInput(ref, state)]),
+	resolution?: ReferenceResolution,
+): Promise<ResolvedStepInputs> {
+	const entries = await Promise.all(
+		Object.entries(inputs ?? {}).map(async ([key, ref]) => {
+			if (ref.kind === "refs") return [key, await resolveReferences(ref.names, state, resolution)];
+			return [key, resolveStepInput(ref, state)];
+		}),
 	);
+	return Object.fromEntries(entries);
+}
+
+async function resolveReferences(
+	names: string[],
+	state: PipelineExecutionState,
+	resolution?: ReferenceResolution,
+): Promise<Record<string, unknown>> {
+	const resolved = await Promise.all(
+		names.map((name) => resolveReferenceMemo(name, state, resolution)),
+	);
+	return Object.fromEntries(names.map((name, index) => [name, resolved[index]]));
+}
+
+function resolveReferenceMemo(
+	name: string,
+	state: PipelineExecutionState,
+	resolution?: ReferenceResolution,
+): Promise<unknown> {
+	// No resolver provided: fall back to the raw adapter under state.refs[name].
+	if (!resolution) return Promise.resolve(state.refs[name]);
+	let pending = resolution.cache.get(name);
+	if (!pending) {
+		pending = Promise.resolve(
+			resolution.resolveReference
+				? resolution.resolveReference(name, state.refs)
+				: state.refs[name],
+		);
+		resolution.cache.set(name, pending);
+	}
+	return pending;
 }
 
 export function resolveStepInput(ref: StepInputRef, state: PipelineExecutionState): unknown {
@@ -47,6 +100,8 @@ export function resolveStepInput(ref: StepInputRef, state: PipelineExecutionStat
 			throw new StepInputResolutionError(`step.${ref.stepId}.${ref.outputName}`);
 		return output;
 	}
+	// `refs([...])` is resolved asynchronously in resolveStepInputs, never here.
+	if (ref.kind === "refs") throw new StepInputResolutionError(`refs:${ref.names.join(",")}`);
 
 	const [namespace, key, ...path] = ref.ref.split(".");
 	if (!namespace || !key) throw new StepInputResolutionError(ref.ref);

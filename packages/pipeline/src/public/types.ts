@@ -27,12 +27,33 @@ export type PipelineStageId =
 	| "validate-render-tree-after-revision"
 	| "write-artifacts";
 
-export type StepInputRef = RefStepInputRef | StepOutputStepInputRef | ValueStepInputRef;
+export type StepInputRef =
+	| RefStepInputRef
+	| ReferencesStepInputRef
+	| StepOutputStepInputRef
+	| ValueStepInputRef;
 
 export type RefStepInputRef = {
 	kind: "ref";
 	ref: string;
 };
+
+/**
+ * Declares the named references a step's node needs. The engine resolves each
+ * name to pure data (via `resolveReference`, memoized per run) and injects them
+ * as a `{ [name]: resolved }` record — replacing imperative adapter calls in
+ * step bodies.
+ */
+export type ReferencesStepInputRef = {
+	kind: "refs";
+	names: string[];
+};
+
+/** Resolves a declared reference name to pure data, given the run's ref adapters. */
+export type ReferenceResolver = (
+	name: string,
+	refs: Record<string, unknown>,
+) => Promise<unknown> | unknown;
 
 export type StepOutputStepInputRef = {
 	kind: "step-output";
@@ -161,6 +182,8 @@ export type RunStepPipelineOptions = {
 	onEvent?: (event: PipelineRunEvent) => Promise<void> | void;
 	persistence?: PipelinePersistenceAdapter;
 	refs?: Record<string, unknown>;
+	/** Resolves `refs([...])` step inputs to pure data; memoized per run. */
+	resolveReference?: ReferenceResolver;
 	runId: string;
 	status?: {
 		outDir?: string;
