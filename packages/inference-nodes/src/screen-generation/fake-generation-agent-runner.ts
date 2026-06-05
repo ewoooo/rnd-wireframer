@@ -2,16 +2,19 @@ import type { AgentRunner, AgentRunnerRequest } from "@cx/agent/contract";
 import type { ScreenGenerationAgentInput } from "@cx/orchestration/types";
 
 export function createFakeGenerationAgentRunner(input: {
-	agentInput: ScreenGenerationAgentInput;
 	onRequest: (request: AgentRunnerRequest) => void;
 }): AgentRunner {
 	return async (request) => {
 		input.onRequest(request);
+		const agentInput = {
+			context: request.input.context,
+			query: request.input.query,
+		} as ScreenGenerationAgentInput;
 
 		return {
 			payload: {
-				renderTree: createFakeRenderTree(input.agentInput),
-				tableGenerationResult: createFakeTableGenerationResult(input.agentInput),
+				renderTree: createFakeRenderTree(agentInput),
+				tableGenerationResult: createFakeTableGenerationResult(agentInput),
 			},
 			session: {
 				mode: request.session?.mode ?? "new",

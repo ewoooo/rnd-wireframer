@@ -284,7 +284,7 @@ packages/orchestration/src/
 
 ## 12. `packages/inference-nodes`
 
-`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. Rollout 5A에서는 첫 slice로 `screen-intent` agent node만 소유한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner는 pipeline이 제공한다.
+`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner는 pipeline이 제공한다. 현재는 screen-generation agent node wrapper와 RenderTree validation node wrapper를 소유한다.
 
 ```text
 packages/inference-nodes/src/

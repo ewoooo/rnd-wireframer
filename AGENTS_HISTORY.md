@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Inference Pipeline Rollout 5B
+
+- 변경: `runAgentPromptNode(...)` 공통 wrapper를 추가하고 composition, pattern selection, screen generation, component proposal, quality review, screen revision agent stage를 `@cx/inference-nodes/screen-generation` node wrapper로 분리함
+- 변경: fake generation runner와 fake composition/pattern/proposal/quality artifact helper를 `@cx/inference-nodes`로 이동함
+- 변경: RenderTree validation report 생성을 `createRenderTreeValidationReport(...)` validation node로 이동해 pipeline의 validation rule 소유를 줄임
+- 이유: Rollout 5 전체 범위에서 `@cx/pipeline`은 stage 순서, runner 선택, state 기록, artifact write를 유지하고 agent/validation 작업 단위는 node 패키지로 옮기기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md packages/inference-nodes packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/inference-nodes/package.json`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout5b-step-runner-fake-check`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout5b-stage-loop-ai-check --use-ai`
+- 검증 결과: `rollout5b-stage-loop-ai-check`는 `pipeline-status.json.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.json.ok=true`, error 0건, warning 0건
+
 ## 2026-06-05 - Inference Pipeline Rollout 5A
 
 - 변경: `@cx/inference-nodes` 패키지를 추가하고 root, `./agent`, `./screen-generation` public surface를 만듦

@@ -1,9 +1,8 @@
-import { createAgentRuntime } from "@cx/agent";
-import { runAgentQuery } from "@cx/agent/adapters";
 import type { AgentRunner, AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
 import { buildScreenIntentAgentInput } from "@cx/orchestration";
 import type { ScreenIntentAgentInput } from "@cx/orchestration/types";
 import { SCHEMA_VERSION, type ScreenIntentContract, type SourceSpec } from "@cx/schema";
+import { runAgentPromptNode } from "../agent";
 
 export type RunScreenIntentNodeInput = {
 	onRunnerRequest?: (request: AgentRunnerRequest) => void;
@@ -21,26 +20,12 @@ export async function runScreenIntentNode(
 	input: RunScreenIntentNodeInput,
 ): Promise<RunScreenIntentNodeResult> {
 	const agentInput = buildScreenIntentAgentInput(input.sourceSpec);
-	let runnerRequest: AgentRunnerRequest | undefined;
-	const runtime = createAgentRuntime({
-		runner: async (request) => {
-			runnerRequest = request;
-			input.onRunnerRequest?.(request);
-			return input.runner(request);
-		},
-	});
-
-	const agentResult = await runAgentQuery(runtime, {
-		context: agentInput.context,
-		query: agentInput.query,
+	return runAgentPromptNode({
+		agentInput,
+		onRunnerRequest: input.onRunnerRequest,
+		runner: input.runner,
 		taskKind: "screen-intent",
 	});
-
-	return {
-		agentInput,
-		agentResult,
-		runnerRequest,
-	};
 }
 
 export function createFakeScreenIntent(sourceSpec: SourceSpec): ScreenIntentContract {

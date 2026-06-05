@@ -2225,7 +2225,7 @@ Current implementation status:
 - Rollout 4 screen-generation Step runner wrapper path is implemented behind `executionMode: "step-runner"`.
 - Screen generation still defaults to the current hardcoded `stage-loop` path while Rollout 4 parity is verified.
 - Smoke CLI can select the migration path with `--execution-mode step-runner`.
-- Rollout 5A created `@cx/inference-nodes` and moved the first agent node, `screen-intent`, out of `@cx/pipeline`.
+- Rollout 5 created `@cx/inference-nodes` and moved screen-generation agent/validation node wrappers out of `@cx/pipeline`.
 ```
 
 ### 11.3 Rollout 0. Baseline Capture
@@ -2377,15 +2377,16 @@ Done when:
 - The node package does not perform persistence or direct file writes.
 - Static, fake-mode parity, and Claude local-first quality gates pass.
 
-Rollout 5A implementation note:
+Rollout 5 implementation note:
 
 ```text
 2026-06-05
 - `@cx/inference-nodes` exists as a package with root, `./agent`, and `./screen-generation` public surfaces.
-- The first migrated node is `runScreenIntentNode(...)`.
-- `runScreenIntentNode(...)` owns ScreenIntent agent input assembly and agent task execution.
+- `runAgentPromptNode(...)` owns the common agent task execution wrapper.
+- Migrated agent nodes include screen intent, composition plan, pattern selection, screen generation, component proposal, quality review, and screen revision.
+- `createRenderTreeValidationReport(...)` owns RenderTree validation report assembly.
 - `@cx/pipeline` still owns stage order, status persistence, file IO, artifact writes, and Claude/fake runner selection.
-- The `derive-screen-intent` stage is now a wrapper that provides a runner to `runScreenIntentNode(...)` and stores the returned agent input/result/request in pipeline state.
+- Screen-generation stages now provide a runner to node wrappers and store returned agent input/result/request values in pipeline state.
 ```
 
 ### 11.9 Rollout 6. External References Injection
