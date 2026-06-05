@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { SideEffectCommand } from "@cx/pipeline/types";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
-import { SCREEN_GENERATION_ARTIFACT_FILES } from "./descriptor";
+import { SCREEN_GENERATION_ARTIFACT_FILES } from "./constants";
 
 /** Trace layer grouping, passed in by the caller to avoid a module cycle. */
 export type ArtifactLayerGroups = Record<string, { artifacts: string[]; traceKeys: string[] }>;

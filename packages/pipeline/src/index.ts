@@ -29,14 +29,17 @@ export {
 	updatePipelineRunStatus,
 } from "./persistence";
 export type {
-	ScreenGenerationAiStageDescriptor,
 	ScreenGenerationLayer,
-	ScreenGenerationNonAiStageDescriptor,
-	ScreenGenerationStageDescriptor,
 	ScreenGenerationStageKind,
 	ScreenGenerationStageLayerGroup,
 	ScreenGenerationStageSkipPolicy,
-} from "./pipelines/screen-generation/descriptor";
+} from "./pipelines/screen-generation/constants";
+export {
+	SCREEN_GENERATION_ARTIFACT_FILES,
+	SCREEN_GENERATION_LAYER_LABELS,
+	SCREEN_GENERATION_LAYER_ORDER,
+	SCREEN_GENERATION_PIPELINE_ID,
+} from "./pipelines/screen-generation/constants";
 export {
 	createScreenGenerationStageLayers,
 	getScreenGenerationStageLayer,
@@ -44,12 +47,7 @@ export {
 	getScreenGenerationStageOrder,
 	getScreenGenerationStagesByKind,
 	isScreenGenerationAiStageDescriptor,
-	SCREEN_GENERATION_ARTIFACT_FILES,
-	SCREEN_GENERATION_LAYER_LABELS,
-	SCREEN_GENERATION_LAYER_ORDER,
-	SCREEN_GENERATION_PIPELINE_ID,
-	SCREEN_GENERATION_STAGE_DESCRIPTORS,
-} from "./pipelines/screen-generation/descriptor";
+} from "./pipelines/screen-generation/screen-generation-pipeline";
 export { sideEffectBoundary } from "./public/contract";
 export type { SmokeRunManifest } from "./public/smoke-run-manifest";
 export type {

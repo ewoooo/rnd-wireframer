@@ -2,7 +2,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createClaudeRunner } from "@cx/agent/claude";
-import type { AgentRunner, AgentRunnerRequest, AgentRunResult } from "@cx/agent/contract";
+import type {
+	AgentRunner,
+	AgentRunnerRequest,
+	AgentRunResult,
+	AgentTaskKind,
+} from "@cx/agent/contract";
 import { agentTaskCatalog } from "@cx/agent/tasks";
 import type {
 	ComponentContractCatalog,
@@ -51,11 +56,12 @@ import { validateComponentProposal } from "@cx/validation";
 
 import { createNodePipelineAdapters } from "../../adapters";
 import { runParseMarkdownSourceCommand } from "../../commands";
-import { definePipeline, defineStep } from "../../definition";
+import { contract, definePipeline, defineStep, refInput, stepOutput } from "../../definition";
 import { createFilePipelinePersistenceAdapter } from "../../persistence";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
 	ArtifactStorePreset,
+	OutputContract,
 	PipelineFeedbackRule,
 	PipelineMarkdownSourceFile,
 	PipelinePersistenceAdapter,
@@ -71,6 +77,7 @@ import type {
 	SideEffectCommandResult,
 	SideEffectExecutionResult,
 	StepAgentAdapter,
+	StepInputRef,
 	StepPipelineDefinition,
 	StepPipelineRunResult,
 } from "../../public/types";
@@ -84,13 +91,17 @@ import {
 	createGenerationSmokePipelineResultCommands,
 } from "./artifact-commands";
 import {
-	createScreenGenerationStageLayers,
-	isScreenGenerationAiStageDescriptor,
+	readScreenGenerationPreviewArtifact,
+	SCREEN_GENERATION_LAYER_ARTIFACTS,
+	SCREEN_GENERATION_LAYER_LABELS,
+	SCREEN_GENERATION_LAYER_ORDER,
+	SCREEN_GENERATION_LAYER_TRACE_KEYS,
 	SCREEN_GENERATION_PIPELINE_ID,
-	SCREEN_GENERATION_STAGE_DESCRIPTORS,
-	type ScreenGenerationStageDescriptor,
+	type ScreenGenerationLayer,
+	type ScreenGenerationStageKind,
+	type ScreenGenerationStageLayerGroup,
 	type ScreenGenerationStageSkipPolicy,
-} from "./descriptor";
+} from "./constants";
 import {
 	createDefaultScreenGenerationReferences,
 	mergeScreenGenerationReferences,
@@ -98,14 +109,6 @@ import {
 
 const CLIENT_IMPORT_ROOT = "data/client-imports";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
-
-/** Trace layer grouping (raw artifact names), passed into the artifact builder. */
-const SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS: ArtifactLayerGroups = Object.fromEntries(
-	createScreenGenerationStageLayers().map((layer) => [
-		layer.layer,
-		{ artifacts: layer.artifacts, traceKeys: layer.traceKeys },
-	]),
-);
 
 /**
  * One AI stage's agent triple (input / result / runner request). Replaces the
@@ -253,10 +256,6 @@ type NormalizedScreenGenerationPipelineOptions = {
 	tags: string[];
 };
 
-type ScreenGenerationAiStageId = Extract<
-	(typeof SCREEN_GENERATION_STAGE_DESCRIPTORS)[number],
-	{ kind: "ai" }
->["id"];
 type ScreenGenerationStageExecutor = (
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
@@ -267,35 +266,306 @@ type ScreenGenerationAiStepRunner = (
 	runner: AgentRunner,
 ) => Promise<unknown>;
 
-type ScreenGenerationNonAiStageId = Exclude<PipelineStageId, ScreenGenerationAiStageId>;
-
-/**
- * Stage runtime binding keyed by stage id. The kind↔runtime correspondence is
- * enforced at compile time: ai stages must expose `runAi`, the rest must expose
- * `run`. A missing or mismatched binding fails `satisfies`, so no runtime
- * coverage assertion or per-call guards are needed.
- */
-type ScreenGenerationStageRuntimes = {
-	[K in ScreenGenerationAiStageId]: { runAi: ScreenGenerationAiStepRunner };
-} & {
-	[K in ScreenGenerationNonAiStageId]: { run: ScreenGenerationStageExecutor };
+type ScreenGenerationStepBase = {
+	id: PipelineStageId;
+	inputs?: Record<string, StepInputRef>;
+	layer: ScreenGenerationLayer;
+	message: string;
+	output: OutputContract;
+	skipPolicy?: ScreenGenerationStageSkipPolicy;
 };
 
-const screenGenerationStageRuntimes = {
-	"derive-decoration-plan": { run: runDeriveDecorationPlanStage },
-	"derive-screen-intent": { runAi: runDeriveScreenIntentAiStep },
-	"generate-render-tree": { runAi: runGenerateRenderTreeAiStep },
-	"parse-source": { run: runParseSourceStage },
-	"plan-composition": { runAi: runPlanCompositionAiStep },
-	"propose-components": { runAi: runProposeComponentsAiStep },
-	"read-source": { run: runReadSourceStage },
-	"review-quality": { runAi: runReviewQualityAiStep },
-	"revise-render-tree-if-invalid": { runAi: runReviseRenderTreeIfInvalidAiStep },
-	"select-pattern": { runAi: runSelectPatternAiStep },
-	"validate-render-tree": { run: runValidateRenderTreeStage },
-	"validate-render-tree-after-revision": { run: runValidateRenderTreeAfterRevisionStage },
-	"write-artifacts": { run: runWriteArtifactsStage },
-} satisfies ScreenGenerationStageRuntimes;
+/** AI stage: declares its agent task and AI runner (dispatched via the agent adapter). */
+export type ScreenGenerationAiStep = ScreenGenerationStepBase & {
+	kind: "ai";
+	runAi: ScreenGenerationAiStepRunner;
+	taskKind: AgentTaskKind;
+};
+
+/** Deterministic/effect/validation stage: declares its executor. */
+export type ScreenGenerationNonAiStep = ScreenGenerationStepBase & {
+	kind: Exclude<ScreenGenerationStageKind, "ai">;
+	run: ScreenGenerationStageExecutor;
+	taskKind?: never;
+};
+
+export type ScreenGenerationStep = ScreenGenerationAiStep | ScreenGenerationNonAiStep;
+
+/** Identity helper pinning each entry to the 5-axis screen-step literal shape. */
+function defineScreenStep<const T extends ScreenGenerationStep>(step: T): T {
+	return step;
+}
+
+const refs = {
+	componentCatalogs: refInput("componentCatalogs"),
+	designContextBundles: refInput("designContextBundles"),
+	layoutCatalogs: refInput("layoutCatalogs"),
+	skillBundles: refInput("skillBundles"),
+};
+
+/**
+ * The screen-generation pipeline as a single declarative array. Each entry owns
+ * its metadata (id/layer/kind/message/output, optional taskKind/skipPolicy), its
+ * declarative inputs (prior step outputs + `refs`), and its run function. This
+ * replaces the former descriptor array + stage-runtime map + step factory split.
+ */
+export const SCREEN_GENERATION_STEPS = [
+	defineScreenStep({
+		id: "read-source",
+		kind: "effect",
+		layer: "understand",
+		message: "Reading source…",
+		output: contract("source-file"),
+		run: runReadSourceStage,
+	}),
+	defineScreenStep({
+		id: "parse-source",
+		inputs: { source: stepOutput("read-source", "result") },
+		kind: "deterministic",
+		layer: "understand",
+		message: "Parsing markdown source…",
+		output: contract("source-spec-parse-result"),
+		run: runParseSourceStage,
+	}),
+	defineScreenStep({
+		id: "derive-screen-intent",
+		inputs: { source: stepOutput("parse-source", "result") },
+		kind: "ai",
+		layer: "understand",
+		message: "Understanding screen intent…",
+		output: contract("screen-intent"),
+		runAi: runDeriveScreenIntentAiStep,
+		taskKind: "screen-intent",
+	}),
+	defineScreenStep({
+		id: "plan-composition",
+		inputs: {
+			intent: stepOutput("derive-screen-intent", "result"),
+			layoutCatalogs: refs.layoutCatalogs,
+			source: stepOutput("parse-source", "result"),
+		},
+		kind: "ai",
+		layer: "compose",
+		message: "Planning composition…",
+		output: contract("composition-plan-result"),
+		runAi: runPlanCompositionAiStep,
+		taskKind: "composition-planning",
+	}),
+	defineScreenStep({
+		id: "derive-decoration-plan",
+		inputs: {
+			composition: stepOutput("plan-composition", "result"),
+			layoutCatalogs: refs.layoutCatalogs,
+			source: stepOutput("parse-source", "result"),
+		},
+		kind: "deterministic",
+		layer: "compose",
+		message: "Decorating sections…",
+		output: contract("decoration-plan-result"),
+		run: runDeriveDecorationPlanStage,
+	}),
+	defineScreenStep({
+		id: "select-pattern",
+		inputs: {
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			designContextBundles: refs.designContextBundles,
+			intent: stepOutput("derive-screen-intent", "result"),
+			layoutCatalogs: refs.layoutCatalogs,
+			source: stepOutput("parse-source", "result"),
+		},
+		kind: "ai",
+		layer: "compose",
+		message: "Selecting layout patterns…",
+		output: contract("pattern-selection"),
+		runAi: runSelectPatternAiStep,
+		taskKind: "pattern-selection",
+	}),
+	defineScreenStep({
+		id: "generate-render-tree",
+		inputs: {
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			designContextBundles: refs.designContextBundles,
+			intent: stepOutput("derive-screen-intent", "result"),
+			layoutCatalogs: refs.layoutCatalogs,
+			pattern: stepOutput("select-pattern", "result"),
+			skillBundles: refs.skillBundles,
+			source: stepOutput("parse-source", "result"),
+		},
+		kind: "ai",
+		layer: "compose",
+		message: "Generating UI draft…",
+		output: contract("screen-generation-agent-result"),
+		runAi: runGenerateRenderTreeAiStep,
+		taskKind: "screen-generation",
+	}),
+	defineScreenStep({
+		id: "validate-render-tree",
+		inputs: {
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			intent: stepOutput("derive-screen-intent", "result"),
+			source: stepOutput("parse-source", "result"),
+			target: stepOutput("generate-render-tree", "result"),
+		},
+		kind: "validation",
+		layer: "revise",
+		message: "Validating render tree…",
+		output: contract("validation-report"),
+		run: runValidateRenderTreeStage,
+	}),
+	defineScreenStep({
+		id: "propose-components",
+		inputs: {
+			candidate: stepOutput("generate-render-tree", "result"),
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			designContextBundles: refs.designContextBundles,
+			intent: stepOutput("derive-screen-intent", "result"),
+			pattern: stepOutput("select-pattern", "result"),
+			source: stepOutput("parse-source", "result"),
+			validation: stepOutput("validate-render-tree", "result"),
+		},
+		kind: "ai",
+		layer: "revise",
+		message: "Checking component proposals…",
+		output: contract("component-proposal"),
+		runAi: runProposeComponentsAiStep,
+		taskKind: "component-proposal",
+	}),
+	defineScreenStep({
+		id: "review-quality",
+		inputs: {
+			candidate: stepOutput("generate-render-tree", "result"),
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			designContextBundles: refs.designContextBundles,
+			intent: stepOutput("derive-screen-intent", "result"),
+			pattern: stepOutput("select-pattern", "result"),
+			source: stepOutput("parse-source", "result"),
+			validation: stepOutput("validate-render-tree", "result"),
+		},
+		kind: "ai",
+		layer: "revise",
+		message: "Reviewing quality…",
+		output: contract("quality-inspection"),
+		runAi: runReviewQualityAiStep,
+		taskKind: "quality-review",
+	}),
+	defineScreenStep({
+		id: "revise-render-tree-if-invalid",
+		inputs: {
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			designContextBundles: refs.designContextBundles,
+			generation: stepOutput("generate-render-tree", "result"),
+			intent: stepOutput("derive-screen-intent", "result"),
+			pattern: stepOutput("select-pattern", "result"),
+			quality: stepOutput("review-quality", "result"),
+			source: stepOutput("parse-source", "result"),
+			validation: stepOutput("validate-render-tree", "result"),
+		},
+		kind: "ai",
+		layer: "revise",
+		message: "Revising draft if needed…",
+		output: contract("screen-generation-agent-result"),
+		runAi: runReviseRenderTreeIfInvalidAiStep,
+		skipPolicy: "requires-revision-request",
+		taskKind: "screen-revision",
+	}),
+	defineScreenStep({
+		id: "validate-render-tree-after-revision",
+		inputs: {
+			componentCatalogs: refs.componentCatalogs,
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			intent: stepOutput("derive-screen-intent", "result"),
+			source: stepOutput("parse-source", "result"),
+			target: stepOutput("revise-render-tree-if-invalid", "result"),
+		},
+		kind: "validation",
+		layer: "revise",
+		message: "Validating revised draft…",
+		output: contract("validation-report"),
+		run: runValidateRenderTreeAfterRevisionStage,
+		skipPolicy: "requires-revision-result",
+	}),
+	defineScreenStep({
+		id: "write-artifacts",
+		kind: "effect",
+		layer: "revise",
+		message: "Writing review artifacts…",
+		output: contract("pipeline-artifact-write-result"),
+		run: runWriteArtifactsStage,
+		skipPolicy: "continue-after-parse-failure",
+	}),
+] satisfies readonly ScreenGenerationStep[];
+
+type ScreenGenerationAiStageId = Extract<
+	(typeof SCREEN_GENERATION_STEPS)[number],
+	{ kind: "ai" }
+>["id"];
+
+function getScreenGenerationStep(stageId: PipelineStageId): ScreenGenerationStep {
+	const step = SCREEN_GENERATION_STEPS.find((entry) => entry.id === stageId);
+	if (!step) throw new Error(`Unknown screen-generation stage: ${stageId}`);
+	return step;
+}
+
+function getScreenGenerationAiStep(stageId: ScreenGenerationAiStageId): ScreenGenerationAiStep {
+	const step = getScreenGenerationStep(stageId);
+	if (step.kind !== "ai") throw new Error(`Screen generation stage is not AI: ${stageId}`);
+	return step;
+}
+
+export function getScreenGenerationStageOrder(): PipelineStageId[] {
+	return SCREEN_GENERATION_STEPS.map((step) => step.id);
+}
+
+export function getScreenGenerationStagesByKind(
+	kind: ScreenGenerationStageKind,
+): PipelineStageId[] {
+	return SCREEN_GENERATION_STEPS.filter((step) => step.kind === kind).map((step) => step.id);
+}
+
+export function isScreenGenerationAiStageDescriptor(stageId: PipelineStageId | string): boolean {
+	return SCREEN_GENERATION_STEPS.some((step) => step.id === stageId && step.kind === "ai");
+}
+
+export function getScreenGenerationStageLayer(stageId: PipelineStageId): ScreenGenerationLayer {
+	return getScreenGenerationStep(stageId).layer;
+}
+
+export function getScreenGenerationStageMessage(stageId: PipelineStageId): string {
+	return getScreenGenerationStep(stageId).message;
+}
+
+export function createScreenGenerationStageLayers(
+	artifact: (fileName: string) => string = (fileName) => fileName,
+): ScreenGenerationStageLayerGroup[] {
+	return SCREEN_GENERATION_LAYER_ORDER.map((layer) => ({
+		artifacts: SCREEN_GENERATION_LAYER_ARTIFACTS[layer].map(artifact),
+		label: SCREEN_GENERATION_LAYER_LABELS[layer],
+		layer,
+		previewArtifact: readScreenGenerationPreviewArtifact(layer, artifact),
+		stages: SCREEN_GENERATION_STEPS.filter((step) => step.layer === layer).map((step) => step.id),
+		traceKeys: [...SCREEN_GENERATION_LAYER_TRACE_KEYS[layer]],
+	}));
+}
+
+/** Trace layer grouping (raw artifact names), passed into the artifact builder. */
+const SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS: ArtifactLayerGroups = Object.fromEntries(
+	createScreenGenerationStageLayers().map((layer) => [
+		layer.layer,
+		{ artifacts: layer.artifacts, traceKeys: layer.traceKeys },
+	]),
+);
 
 export async function runScreenGenerationPipeline(
 	options: ScreenGenerationPipelineOptions,
@@ -371,52 +641,40 @@ function createScreenGenerationStepPipeline(
 	return definePipeline({
 		feedback: [createScreenGenerationFeedbackRule(state)],
 		id: SCREEN_GENERATION_PIPELINE_ID,
-		steps: SCREEN_GENERATION_STAGE_DESCRIPTORS.map((descriptor) =>
-			createScreenGenerationStep(state, descriptor),
-		),
+		steps: SCREEN_GENERATION_STEPS.map((step) => toEnginePipelineStep(state, step)),
 	});
 }
 
-function createScreenGenerationStep(
-	state: ScreenGenerationPipelineState,
-	descriptor: ScreenGenerationStageDescriptor,
-) {
-	const stage = descriptor.id;
-	if (isScreenGenerationAiStage(stage)) {
+/** Project a declarative screen-step to the engine's per-run PipelineStep. */
+function toEnginePipelineStep(state: ScreenGenerationPipelineState, step: ScreenGenerationStep) {
+	if (step.kind === "ai") {
 		return defineStep({
-			id: stage,
-			inputs: descriptor.inputs,
-			output: {
-				result: descriptor.output,
-			},
-			prompt: createScreenGenerationStepPrompt(descriptor),
-			skipWhen: () => shouldSkipScreenGenerationStage(state, descriptor),
+			id: step.id,
+			inputs: step.inputs,
+			output: { result: step.output },
+			prompt: createScreenGenerationStepPrompt(step),
+			skipWhen: () => shouldSkipScreenGenerationStage(state, step),
 			usesAI: true,
 		});
 	}
 
 	return defineStep({
-		execute: async (inputs) => screenGenerationStageRuntimes[stage].run(inputs, state),
-		id: stage,
-		inputs: descriptor.inputs,
-		output: {
-			result: descriptor.output,
-		},
-		skipWhen: () => shouldSkipScreenGenerationStage(state, descriptor),
+		execute: async (inputs) => step.run(inputs, state),
+		id: step.id,
+		inputs: step.inputs,
+		output: { result: step.output },
+		skipWhen: () => shouldSkipScreenGenerationStage(state, step),
 		usesAI: false,
 	});
 }
 
-function createScreenGenerationStepPrompt(descriptor: ScreenGenerationStageDescriptor) {
-	if (!descriptor.taskKind) {
-		throw new Error(`Screen generation AI stage is missing taskKind: ${descriptor.id}`);
-	}
-	return agentTaskCatalog[descriptor.taskKind].createPrompt({
+function createScreenGenerationStepPrompt(step: ScreenGenerationAiStep) {
+	return agentTaskCatalog[step.taskKind].createPrompt({
 		context: {
 			pipelineId: SCREEN_GENERATION_PIPELINE_ID,
-			stage: descriptor.id,
+			stage: step.id,
 		},
-		query: `Runtime query is built by the ${descriptor.id} inference node.`,
+		query: `Runtime query is built by the ${step.id} inference node.`,
 	});
 }
 
@@ -431,7 +689,7 @@ function createScreenGenerationStepAgentAdapter(
 			throw new Error(`Screen generation step is not an AI stage: ${stage}`);
 		}
 
-		return screenGenerationStageRuntimes[stage].runAi(
+		return getScreenGenerationAiStep(stage).runAi(
 			inputs,
 			state,
 			state.options.agentMode === "claude-local-first"
@@ -596,17 +854,17 @@ const SCREEN_GENERATION_SKIP_PREDICATES = {
 
 function shouldSkipScreenGenerationStage(
 	state: ScreenGenerationPipelineState,
-	descriptor: ScreenGenerationStageDescriptor,
+	step: ScreenGenerationStep,
 ): boolean {
 	if (
 		state.parseCommandResult &&
 		!state.parseCommandResult.parseResult.ok &&
-		descriptor.skipPolicy !== "continue-after-parse-failure"
+		step.skipPolicy !== "continue-after-parse-failure"
 	) {
 		return true;
 	}
-	if (!descriptor.skipPolicy) return false;
-	return SCREEN_GENERATION_SKIP_PREDICATES[descriptor.skipPolicy](state);
+	if (!step.skipPolicy) return false;
+	return SCREEN_GENERATION_SKIP_PREDICATES[step.skipPolicy](state);
 }
 
 async function runReadSourceStage(
@@ -686,7 +944,10 @@ async function runPlanCompositionAiStep(
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
 	const screenIntent = readAgentStepPayload(inputs.intent);
-	const layerCandidates = buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
+	const layerCandidates = buildScreenGenerationPatternLayerCandidates(
+		inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
+		sourceSpec,
+	);
 	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
 		screenIntent,

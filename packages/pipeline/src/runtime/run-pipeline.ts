@@ -1,4 +1,4 @@
-import { SCREEN_GENERATION_PIPELINE_ID } from "../pipelines/screen-generation/descriptor";
+import { SCREEN_GENERATION_PIPELINE_ID } from "../pipelines/screen-generation/constants";
 import { runScreenGenerationPipeline } from "../pipelines/screen-generation/screen-generation-pipeline";
 import type { PipelineRunResult, ScreenGenerationPipelineOptions } from "../public/types";
 

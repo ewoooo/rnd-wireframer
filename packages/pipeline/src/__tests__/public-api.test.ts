@@ -10,7 +10,6 @@ import {
 	runPipeline,
 	runSideEffects,
 	SCREEN_GENERATION_PIPELINE_ID,
-	SCREEN_GENERATION_STAGE_DESCRIPTORS,
 	sideEffectBoundary,
 } from "@cx/pipeline";
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
@@ -175,11 +174,23 @@ describe("@cx/pipeline public API", () => {
 		expect(typeof runPipeline).toBe("function");
 	});
 
-	it("exposes screen-generation descriptor metadata as the stage SSOT", () => {
+	it("exposes screen-generation stage metadata as the stage SSOT", () => {
 		expect(SCREEN_GENERATION_PIPELINE_ID).toBe("screen-generation");
-		expect(getScreenGenerationStageOrder()).toEqual(
-			SCREEN_GENERATION_STAGE_DESCRIPTORS.map((stage) => stage.id),
-		);
+		expect(getScreenGenerationStageOrder()).toEqual([
+			"read-source",
+			"parse-source",
+			"derive-screen-intent",
+			"plan-composition",
+			"derive-decoration-plan",
+			"select-pattern",
+			"generate-render-tree",
+			"validate-render-tree",
+			"propose-components",
+			"review-quality",
+			"revise-render-tree-if-invalid",
+			"validate-render-tree-after-revision",
+			"write-artifacts",
+		]);
 		expect(getScreenGenerationStagesByKind("ai")).toEqual([
 			"derive-screen-intent",
 			"plan-composition",
