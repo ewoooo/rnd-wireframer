@@ -72,6 +72,7 @@ import type {
 	SideEffectExecutionResult,
 	StepAgentAdapter,
 	StepPipelineDefinition,
+	StepPipelineRunResult,
 } from "../../public/types";
 import { runSideEffects } from "../../runner";
 import { runStepPipeline } from "../../runtime/run-step-pipeline";
@@ -271,11 +272,11 @@ export async function runScreenGenerationPipeline(
 		...EMPTY_AGENT_STEPS(),
 		options: normalizeScreenGenerationPipelineOptions(options),
 	};
-	await runScreenGenerationStepRunner(state);
+	const runResult = await runScreenGenerationStepRunner(state);
 
 	assertScreenGenerationCompleted(state);
 
-	return createScreenGenerationPipelineResult(state);
+	return createScreenGenerationPipelineResult(state, runResult);
 }
 
 /**
@@ -295,11 +296,13 @@ function createScreenGenerationReferenceResolver(
 	return (name) => byName[name];
 }
 
-async function runScreenGenerationStepRunner(state: ScreenGenerationPipelineState): Promise<void> {
+async function runScreenGenerationStepRunner(
+	state: ScreenGenerationPipelineState,
+): Promise<StepPipelineRunResult> {
 	const pipeline = createScreenGenerationStepPipeline(state);
 	state.stageOrder = pipeline.steps.map((step) => step.id as PipelineStageId);
 
-	await runStepPipeline(pipeline, {
+	return runStepPipeline(pipeline, {
 		agent: createScreenGenerationStepAgentAdapter(state),
 		createEventId: state.options.createEventId,
 		now: state.options.clockNow,
@@ -503,6 +506,7 @@ function createFakeAgentRunner(
 
 function createScreenGenerationPipelineResult(
 	state: CompletedScreenGenerationPipelineState,
+	_runResult: StepPipelineRunResult,
 ): PipelineRunResult {
 	return {
 		...projectCommonAgentSteps(state),
