@@ -675,19 +675,20 @@ async function runPlanCompositionAiStep(
 }
 
 function runDeriveDecorationPlanStage(
-	_inputs: ResolvedStepInputs,
+	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): {
 	decorationPlan?: DecorationPlanContract;
 	patternLayerCandidates?: PatternLayerCandidate[];
 } {
-	const sourceSpec = requireSourceSpec(state);
+	const sourceSpec = readSourceSpecInput(inputs, state);
+	const composition = inputs.composition as CompositionStepResult | undefined;
 	state.decorationPlan = runDecorationPlanNode({
-		compositionPlan: state.compositionPlan.agentResult?.payload,
+		compositionPlan: composition?.compositionPlan,
 		sourceSpec,
 	});
 	state.patternLayerCandidates = buildScreenGenerationPatternLayerCandidates(
-		state.options.references.layoutCatalogs,
+		inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
 		sourceSpec,
 		state.decorationPlan,
 	);
