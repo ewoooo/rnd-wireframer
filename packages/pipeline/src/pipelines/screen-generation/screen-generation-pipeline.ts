@@ -718,14 +718,28 @@ async function runSelectPatternAiStep(
 	return state.patternSelection.agentResult.payload;
 }
 
+/** Rich output of the plan-composition step, consumed by downstream steps via outputOf. */
+type CompositionStepResult = {
+	compositionPlan?: unknown;
+	designContextBundleSelection?: DesignContextBundleSelection;
+	designSkillSelection?: DesignSkillSelectionContract;
+	patternLayerCandidates?: PatternLayerCandidate[];
+};
+
+/** Rich output of the derive-decoration-plan step. */
+type DecorationStepResult = {
+	decorationPlan?: DecorationPlanContract;
+	patternLayerCandidates?: PatternLayerCandidate[];
+};
+
 async function runGenerateRenderTreeAiStep(
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 	runner: AgentRunner,
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
-	const composition = readRecordInput(inputs.composition);
-	const decoration = readRecordInput(inputs.decoration);
+	const composition = inputs.composition as CompositionStepResult | undefined;
+	const decoration = inputs.decoration as DecorationStepResult | undefined;
 	state.generationSkillCatalog ??= await (
 		inputs.skillBundles as ScreenGenerationReferences["skillBundles"]
 	).loadCatalog();
@@ -733,24 +747,27 @@ async function runGenerateRenderTreeAiStep(
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
-	state.designContextBundleContents = await loadBundleContentsForState(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
+		composition?.designContextBundleSelection?.bundleRefs,
+		state.options.disableDesignContext,
+	);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
 		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 		sourceSpec,
-		state.patternLayerCandidates ?? [],
+		decoration?.patternLayerCandidates ?? [],
 	);
 	const nodeResult = await runScreenGenerationNode({
 		componentContractCatalog,
-		compositionPlan: composition?.compositionPlan ?? state.compositionPlan.agentResult?.payload,
-		decorationPlan:
-			(decoration?.decorationPlan as DecorationPlanContract | undefined) ?? state.decorationPlan,
-		designContextBundleRefs: state.designContextBundleSelection?.bundleRefs,
+		compositionPlan: composition?.compositionPlan,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleRefs: composition?.designContextBundleSelection?.bundleRefs,
 		designContextBundles: state.designContextBundleContents,
-		designSkillSelection: state.designSkillSelection,
-		layerCandidates: state.patternLayerCandidates,
-		patternSelection: inputs.pattern ?? state.patternSelection.agentResult?.payload,
+		designSkillSelection: composition?.designSkillSelection,
+		layerCandidates: decoration?.patternLayerCandidates,
+		patternSelection: inputs.pattern,
 		runner,
-		screenIntent: inputs.intent ?? state.screenIntent.agentResult?.payload,
+		screenIntent: inputs.intent,
 		sourceSpec,
 	});
 
@@ -810,7 +827,11 @@ async function runProposeComponentsAiStep(
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
-	state.designContextBundleContents = await loadBundleContentsForState(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
+		state.designContextBundleSelection?.bundleRefs,
+		state.options.disableDesignContext,
+	);
 	const nodeResult = await runComponentProposalNode({
 		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
 		componentContractCatalog,
@@ -847,7 +868,11 @@ async function runReviewQualityAiStep(
 	runner: AgentRunner,
 ): Promise<unknown> {
 	const sourceSpec = requireSourceSpec(state);
-	state.designContextBundleContents = await loadBundleContentsForState(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
+		state.designContextBundleSelection?.bundleRefs,
+		state.options.disableDesignContext,
+	);
 	const nodeResult = await runQualityReviewNode({
 		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
@@ -894,7 +919,11 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	const previousCandidate = inputs.generation ?? state.generation.agentResult?.payload;
 	state.preRevisionAgentResult = state.generation.agentResult;
 	state.preRevisionValidationReport = state.validationReport;
-	state.designContextBundleContents = await loadBundleContentsForState(state);
+	state.designContextBundleContents = await loadDesignContextBundleContents(
+		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
+		state.designContextBundleSelection?.bundleRefs,
+		state.options.disableDesignContext,
+	);
 	const nodeResult = await runScreenRevisionNode({
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
@@ -1350,13 +1379,13 @@ function extractPayloadArtifact(payload: unknown, key: "renderTree" | "tableGene
 	return payload[key] ?? (key === "renderTree" ? payload : undefined);
 }
 
-async function loadBundleContentsForState(
-	state: ScreenGenerationPipelineState,
+async function loadDesignContextBundleContents(
+	designContextBundles: ScreenGenerationReferences["designContextBundles"],
+	bundleRefs: DesignContextBundleSelection["bundleRefs"] | undefined,
+	disableDesignContext: boolean,
 ): Promise<DesignContextBundleContent[]> {
-	if (state.options.disableDesignContext) return [];
-	return state.options.references.designContextBundles.loadContents(
-		state.designContextBundleSelection?.bundleRefs ?? [],
-	);
+	if (disableDesignContext) return [];
+	return designContextBundles.loadContents(bundleRefs ?? []);
 }
 
 function findGenerationSkill(
