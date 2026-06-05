@@ -272,12 +272,43 @@ export async function updateScreenRegions(
 ): Promise<{ error?: string }> {
 	const db = createServerClient();
 
-	const { error } = await db
-		.from("screens")
-		.update({ screen })
-		.eq("id", screenId);
+	// screen.regions 의 각 영역 children(area 참조, 순서)을
+	// render_screen_region_children(정규화 junction)에 replace 한다.
+	const regions =
+		(screen as { regions?: Record<string, { children?: Array<{ id: string }> }> })?.regions ?? {};
+	const regionTypes = ["header", "contents", "bottom"] as const;
+	const regionIds = regionTypes.map((type) => `${screenId}.${type}`);
 
-	if (error) return { error: error.message };
+	const { error: deleteError } = await db
+		.from("render_screen_region_children")
+		.delete()
+		.in("screen_region_id", regionIds);
+	if (deleteError) return { error: deleteError.message };
+
+	const rows: Array<{
+		id: string;
+		screen_region_id: string;
+		area_id: string;
+		order_index: number;
+	}> = [];
+	for (const type of regionTypes) {
+		const children = regions[type]?.children ?? [];
+		children.forEach((child, index) => {
+			rows.push({
+				id: crypto.randomUUID(),
+				screen_region_id: `${screenId}.${type}`,
+				area_id: child.id,
+				order_index: index,
+			});
+		});
+	}
+
+	if (rows.length > 0) {
+		const { error: insertError } = await db
+			.from("render_screen_region_children")
+			.insert(rows);
+		if (insertError) return { error: insertError.message };
+	}
 
 	// 수동 저장이므로 revalidatePath 를 호출하지 않는다. 저장 시점에 클라이언트
 	// 스토어가 이미 최신이고, revalidate 는 라우터 refresh → 스토어 재초기화 →
