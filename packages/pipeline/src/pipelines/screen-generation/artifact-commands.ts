@@ -1,11 +1,15 @@
 import path from "node:path";
 import type { SideEffectCommand } from "@cx/pipeline/types";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
-import { createScreenGenerationStageLayers, SCREEN_GENERATION_ARTIFACT_FILES } from "./descriptor";
+import { SCREEN_GENERATION_ARTIFACT_FILES } from "./descriptor";
+
+/** Trace layer grouping, passed in by the caller to avoid a module cycle. */
+export type ArtifactLayerGroups = Record<string, { artifacts: string[]; traceKeys: string[] }>;
 
 export type GenerationSmokeArtifactInput = {
 	agentInput?: unknown;
 	agentResult?: unknown;
+	layers?: ArtifactLayerGroups;
 	compositionPlanAgentInput?: unknown;
 	compositionPlanAgentResult?: unknown;
 	compositionPlanRunnerRequest?: unknown;
@@ -50,15 +54,6 @@ export type GenerationSmokeArtifactInput = {
  * Consumers read these via manifest pointers, not hardcoded names.
  */
 export const ARTIFACT_FILES = SCREEN_GENERATION_ARTIFACT_FILES;
-export const ARTIFACT_LAYER_GROUPS = Object.fromEntries(
-	createScreenGenerationStageLayers().map((layer) => [
-		layer.layer,
-		{
-			artifacts: layer.artifacts,
-			traceKeys: layer.traceKeys,
-		},
-	]),
-) as Record<"compose" | "revise" | "understand", { artifacts: string[]; traceKeys: string[] }>;
 
 export function createGenerationSmokeArtifactCommands(
 	input: GenerationSmokeArtifactInput,
@@ -132,7 +127,7 @@ export function createGenerationSmokeArtifactCommands(
 
 function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown> {
 	return {
-		layers: ARTIFACT_LAYER_GROUPS,
+		layers: input.layers ?? {},
 		parseResult: input.parseCommandResult,
 		screenIntent: {
 			input: input.screenIntentAgentInput,

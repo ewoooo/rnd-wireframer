@@ -77,6 +77,7 @@ import { runSideEffects } from "../../runner";
 import { runStepPipeline } from "../../runtime/run-step-pipeline";
 import {
 	ARTIFACT_FILES,
+	type ArtifactLayerGroups,
 	createGenerationSmokeArtifactCommands,
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
@@ -96,6 +97,14 @@ import {
 
 const CLIENT_IMPORT_ROOT = "data/client-imports";
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
+
+/** Trace layer grouping (raw artifact names), passed into the artifact builder. */
+const SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS: ArtifactLayerGroups = Object.fromEntries(
+	createScreenGenerationStageLayers().map((layer) => [
+		layer.layer,
+		{ artifacts: layer.artifacts, traceKeys: layer.traceKeys },
+	]),
+);
 
 /**
  * One AI stage's agent triple (input / result / runner request). Replaces the
@@ -995,6 +1004,7 @@ async function runWriteArtifactsStage(
 	}
 
 	const commands = createGenerationSmokeArtifactCommands({
+		layers: SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS,
 		...projectCommonAgentSteps(state),
 		...flattenAgentStep("componentProposal", state.componentProposal),
 		componentProposal: state.componentProposal.agentResult?.payload,
