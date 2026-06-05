@@ -15,7 +15,9 @@ export type ReferenceResolution = {
 	cache: Map<string, Promise<unknown>>;
 };
 
-export function createReferenceResolution(resolveReference?: ReferenceResolver): ReferenceResolution {
+export function createReferenceResolution(
+	resolveReference?: ReferenceResolver,
+): ReferenceResolution {
 	return { cache: new Map(), resolveReference };
 }
 

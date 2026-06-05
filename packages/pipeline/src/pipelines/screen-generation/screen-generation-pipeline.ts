@@ -79,7 +79,6 @@ import type {
 	StepAgentAdapter,
 	StepInputRef,
 	StepPipelineDefinition,
-	StepPipelineRunResult,
 } from "../../public/types";
 import { runSideEffects } from "../../runner";
 import { runStepPipeline } from "../../runtime/run-step-pipeline";
@@ -166,7 +165,6 @@ type ScreenGenerationPipelineState = {
 	// Non-agent scaffolding produced by deterministic/effect stages.
 	componentProposalValidationReport?: ReturnType<typeof validateComponentProposal>;
 	decorationPlan?: DecorationPlanContract;
-	designContextBundleContents?: DesignContextBundleContent[];
 	designContextBundleSelection?: DesignContextBundleSelection;
 	designSkillSelection?: DesignSkillSelectionContract;
 	generationNextAction?: GenerationNextAction;
@@ -181,7 +179,6 @@ type ScreenGenerationPipelineState = {
 	preRevisionValidationReport?: ValidationReportContract;
 	renderTreeGenerationSkill?: ScreenGenerationSkillBundleRef;
 	sourceFile?: PipelineMarkdownSourceFile;
-	sourceReadResult?: SideEffectExecutionResult;
 	sourceSpec?: SourceSpec;
 	stageOrder?: PipelineStageId[];
 	validationReport?: ValidationReportContract;
@@ -574,11 +571,11 @@ export async function runScreenGenerationPipeline(
 		...EMPTY_AGENT_STEPS(),
 		options: normalizeScreenGenerationPipelineOptions(options),
 	};
-	const runResult = await runScreenGenerationStepRunner(state);
+	await runScreenGenerationStepRunner(state);
 
 	assertScreenGenerationCompleted(state);
 
-	return createScreenGenerationPipelineResult(state, runResult);
+	return createScreenGenerationPipelineResult(state);
 }
 
 /**
@@ -598,13 +595,11 @@ function createScreenGenerationReferenceResolver(
 	return (name) => byName[name];
 }
 
-async function runScreenGenerationStepRunner(
-	state: ScreenGenerationPipelineState,
-): Promise<StepPipelineRunResult> {
+async function runScreenGenerationStepRunner(state: ScreenGenerationPipelineState): Promise<void> {
 	const pipeline = createScreenGenerationStepPipeline(state);
 	state.stageOrder = pipeline.steps.map((step) => step.id as PipelineStageId);
 
-	return runStepPipeline(pipeline, {
+	await runStepPipeline(pipeline, {
 		agent: createScreenGenerationStepAgentAdapter(state),
 		createEventId: state.options.createEventId,
 		now: state.options.clockNow,
@@ -796,7 +791,6 @@ function createFakeAgentRunner(
 
 function createScreenGenerationPipelineResult(
 	state: CompletedScreenGenerationPipelineState,
-	_runResult: StepPipelineRunResult,
 ): PipelineRunResult {
 	return {
 		...projectCommonAgentSteps(state),
@@ -891,7 +885,6 @@ async function runReadSourceStage(
 		throw new Error(`Pipeline source read failed: ${state.options.sourcePath}`);
 	}
 
-	state.sourceReadResult = result;
 	state.sourceFile = getSourceFileFromReadResult(
 		result,
 		state.options.sourceKind,
@@ -1077,7 +1070,7 @@ async function runGenerateRenderTreeAiStep(
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
+	const designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
 		composition?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
@@ -1092,7 +1085,7 @@ async function runGenerateRenderTreeAiStep(
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
 		designContextBundleRefs: composition?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: state.designContextBundleContents,
+		designContextBundles: designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
 		patternSelection: readAgentStepPayload(inputs.pattern),
@@ -1176,7 +1169,7 @@ async function runProposeComponentsAiStep(
 		sourceSpec,
 		decoration?.patternLayerCandidates ?? [],
 	);
-	state.designContextBundleContents = await loadDesignContextBundleContents(
+	const designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
 		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
@@ -1187,7 +1180,7 @@ async function runProposeComponentsAiStep(
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
 		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: state.designContextBundleContents,
+		designContextBundles: designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
 		patternSelection: readAgentStepPayload(inputs.pattern),
@@ -1223,7 +1216,7 @@ async function runReviewQualityAiStep(
 	const composition = inputs.composition as CompositionStepResult | undefined;
 	const decoration = inputs.decoration as DecorationStepResult | undefined;
 	const validation = inputs.validation as ValidationStepResult | undefined;
-	state.designContextBundleContents = await loadDesignContextBundleContents(
+	const designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
 		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
@@ -1238,7 +1231,7 @@ async function runReviewQualityAiStep(
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
 		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: state.designContextBundleContents,
+		designContextBundles: designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
 		patternSelection: readAgentStepPayload(inputs.pattern),
@@ -1279,7 +1272,7 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	const previousCandidate = readAgentStepPayload(inputs.generation);
 	state.preRevisionAgentResult = state.generation.agentResult;
 	state.preRevisionValidationReport = state.validationReport;
-	state.designContextBundleContents = await loadDesignContextBundleContents(
+	const designContextBundleContents = await loadDesignContextBundleContents(
 		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
 		validation?.designContextBundleSelection?.bundleRefs,
 		state.options.disableDesignContext,
@@ -1293,7 +1286,7 @@ async function runReviseRenderTreeIfInvalidAiStep(
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
 		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: state.designContextBundleContents,
+		designContextBundles: designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
 		patternSelection: readAgentStepPayload(inputs.pattern),
