@@ -242,8 +242,26 @@ function isInternalSourceName(value: string): boolean {
 	return /(?:Section|Component)$/.test(value);
 }
 
+/**
+ * Concatenates a component's visible-content fields (props/label/description/raw text).
+ * Agreement/required detection reads this instead of JSON.stringify(component) so the
+ * keywords only match real copy, not ids, types, or metadata that happen to contain them.
+ */
+function componentText(component: SourceSpecComponentNode): string {
+	return [
+		...Object.values(component.props ?? {}),
+		component.raw?.propsText,
+		component.raw?.displayText,
+		component.text,
+		component.description,
+		component.label,
+	]
+		.filter((value): value is string => typeof value === "string")
+		.join(" ");
+}
+
 function isAgreementSource(component: SourceSpecComponentNode): boolean {
-	const text = JSON.stringify(component);
+	const text = componentText(component);
 	return text.includes("동의") || text.includes("필수") || text.includes("선택");
 }
 
@@ -252,7 +270,7 @@ function isListSource(component: SourceSpecComponentNode): boolean {
 }
 
 function isRequiredSource(component: SourceSpecComponentNode): boolean | undefined {
-	const text = JSON.stringify(component);
+	const text = componentText(component);
 	if (text.includes("[필수]") || text.includes("필수")) return true;
 	if (text.includes("[선택]") || text.includes("선택")) return false;
 	return undefined;
