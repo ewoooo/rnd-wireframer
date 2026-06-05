@@ -250,9 +250,12 @@ export const useWorkbenchStore = create<WorkbenchState>((set, get) => ({
 	},
 	reorderScreenAreas: (screenCode, areaCodes) => {
 		const state = get();
+		// 드로어에서 새로 끌어온 area(스크린에 아직 없는 코드)도 materialize 할 수 있도록
+		// 전체 area 노드 카탈로그(code→node)를 함께 넘긴다.
+		const areaNodeByCode = new Map(state.areas.map((area) => [area.code, area.node]));
 		const nextScreens = state.screens.map((screen) => {
 			if (screen.code !== screenCode) return screen;
-			return reorderWorkbenchScreenAreas(screen, areaCodes);
+			return reorderWorkbenchScreenAreas(screen, areaCodes, areaNodeByCode);
 		});
 		const nextState = {
 			...state,
@@ -452,7 +455,11 @@ function getDerivedWorkbenchState(
 	};
 }
 
-function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): AppScreen {
+function reorderWorkbenchScreenAreas(
+	screen: AppScreen,
+	areaCodes: string[],
+	areaNodeByCode: Map<string, RenderTreeNode>,
+): AppScreen {
 	const areaByCode = new Map(
 		screen.areas.map((area) => [area.areaCode, area]),
 	);
@@ -468,8 +475,12 @@ function reorderWorkbenchScreenAreas(screen: AppScreen, areaCodes: string[]): Ap
 	const screenNode = getScreenNode({ ...screen, schema });
 	const contentsNode = screenNode?.children.find((node) => node.type === "Screen.Contents");
 
-	if (contentsNode?.children) {
-		contentsNode.children = rebuildAreaContainers(contentsNode.children, areaCodes);
+	if (contentsNode) {
+		contentsNode.children = rebuildAreaContainers(
+			contentsNode.children ?? [],
+			areaCodes,
+			areaNodeByCode,
+		);
 	}
 
 	return {
@@ -518,7 +529,11 @@ export function buildAreaComponentCatalog(areas: AppArea[]): Map<string, RenderT
 // 재정렬·복제·삭제를 모두 반영: areaCodes에 나온 만큼(중복 포함) 컨테이너를 만들고,
 // 빠진 area는 제거한다. contents에 없는 코드(header/bottom 영역의 area)는 무시한다.
 // divider 같은 비-area 노드는 저장 시 어차피 제거되고 로드 시 패턴이 재생성하므로 버린다.
-function rebuildAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
+function rebuildAreaContainers(
+	nodes: RenderTreeNode[],
+	areaCodes: string[],
+	areaNodeByCode: Map<string, RenderTreeNode>,
+) {
 	const templateByCode = new Map<string, RenderTreeNode>();
 	for (const node of nodes) {
 		const areaCode = getContainedAreaCode(node);
@@ -527,8 +542,9 @@ function rebuildAreaContainers(nodes: RenderTreeNode[], areaCodes: string[]) {
 		}
 	}
 
+	// 현재 contents에서 먼저 찾고, 없으면(드로어에서 새로 끌어온 area) 카탈로그에서 가져온다.
 	return areaCodes
-		.map((areaCode) => templateByCode.get(areaCode))
+		.map((areaCode) => templateByCode.get(areaCode) ?? areaNodeByCode.get(areaCode))
 		.filter(isRenderTreeNode)
 		.map((node) => cloneSchema(node));
 }
