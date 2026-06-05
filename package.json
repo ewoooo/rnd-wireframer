@@ -12,6 +12,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"build:decks": "tsx packages/agent/src/deck/build-decks.ts",
+		"sync:catalog": "tsx scripts/sync-catalog/sync.ts",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui"
 	},
