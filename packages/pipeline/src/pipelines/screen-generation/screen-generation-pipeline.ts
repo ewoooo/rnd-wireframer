@@ -425,7 +425,10 @@ function createFakeAgentRunner(
 			const sourceSpec = requireSourceSpec(state);
 			const layerCandidates =
 				state.patternLayerCandidates ??
-				buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
+				buildScreenGenerationPatternLayerCandidates(
+					state.options.references.layoutCatalogs,
+					sourceSpec,
+				);
 			const designSkillSelection =
 				state.designSkillSelection ??
 				runDesignSkillSelectionNode({
@@ -470,7 +473,10 @@ function createFakeAgentRunner(
 			const sourceSpec = requireSourceSpec(state);
 			const layerCandidates =
 				state.patternLayerCandidates ??
-				buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
+				buildScreenGenerationPatternLayerCandidates(
+					state.options.references.layoutCatalogs,
+					sourceSpec,
+				);
 			return {
 				payload: createFakePatternSelection(layerCandidates),
 				session: {
@@ -630,7 +636,7 @@ async function runPlanCompositionAiStep(
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
 	const screenIntent = inputs.intent ?? state.screenIntent.agentResult?.payload;
-	const layerCandidates = buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
+	const layerCandidates = buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
 	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
 		screenIntent,
@@ -692,7 +698,7 @@ async function runSelectPatternAiStep(
 	const composition = readRecordInput(inputs.composition);
 	const decoration = readRecordInput(inputs.decoration);
 	const layerCandidates =
-		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(state.options.references.layoutCatalogs, sourceSpec);
+		state.patternLayerCandidates ?? buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
 	const nodeResult = await runPatternSelectionNode({
 		compositionPlan: composition?.compositionPlan ?? state.compositionPlan.agentResult?.payload,
 		decorationPlan:
@@ -720,14 +726,16 @@ async function runGenerateRenderTreeAiStep(
 	const sourceSpec = readSourceSpecInput(inputs, state);
 	const composition = readRecordInput(inputs.composition);
 	const decoration = readRecordInput(inputs.decoration);
-	state.generationSkillCatalog ??= await state.options.references.skillBundles.loadCatalog();
+	state.generationSkillCatalog ??= await (
+		inputs.skillBundles as ScreenGenerationReferences["skillBundles"]
+	).loadCatalog();
 	state.renderTreeGenerationSkill = findGenerationSkill(
 		state.generationSkillCatalog,
 		"render-tree-generation",
 	);
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
-		state.options.references.componentCatalogs,
+		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -798,7 +806,7 @@ async function runProposeComponentsAiStep(
 ): Promise<unknown> {
 	const sourceSpec = requireSourceSpec(state);
 	const componentContractCatalog = buildSourceComponentContractCatalog(
-		state.options.references.componentCatalogs,
+		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 		sourceSpec,
 		state.patternLayerCandidates ?? [],
 	);
@@ -843,7 +851,7 @@ async function runReviewQualityAiStep(
 	const nodeResult = await runQualityReviewNode({
 		candidate: inputs.candidate ?? state.generation.agentResult?.payload,
 		componentContractCatalog: buildSourceComponentContractCatalog(
-			state.options.references.componentCatalogs,
+			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
@@ -889,7 +897,7 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	state.designContextBundleContents = await loadBundleContentsForState(state);
 	const nodeResult = await runScreenRevisionNode({
 		componentContractCatalog: buildSourceComponentContractCatalog(
-			state.options.references.componentCatalogs,
+			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 			sourceSpec,
 			state.patternLayerCandidates ?? [],
 		),
