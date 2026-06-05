@@ -1,10 +1,8 @@
 import { SystemHeader } from "@cx/layout/chrome";
 import { RenderTreeNodeRenderer } from "@cx/renderer";
 import { Puck } from "@measured/puck";
-import { Bot, Box, Boxes, Smartphone, Table2 } from "lucide-react";
+import { Box, Boxes, Smartphone, Table2 } from "lucide-react";
 import type { ComponentType } from "react";
-import type { SelectedAgentAsset } from "@/agent/agent-registry-view";
-import { AgentRegistryPreview } from "@/components/agent/AgentRegistryPreview";
 import { NewScreenStatusStepper } from "@/components/new-screen/NewScreenStatusStepper";
 import { SidebarContent, SidebarHeader, SidebarInset } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
@@ -18,10 +16,7 @@ export function Canvas() {
 	const isComponentView = useWorkbenchStore((state) => state.isComponentView);
 	const isAreaView = useWorkbenchStore((state) => state.isAreaView);
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
 	const screenNode = useWorkbenchStore((state) => state.screenNode);
-	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
-	const selectedAgentNode = useWorkbenchStore((state) => state.selectedAgentNode);
 	const selectedComponent = useWorkbenchStore((state) => state.selectedComponent);
 	const selectedArea = useWorkbenchStore((state) => state.selectedArea);
 	const selectedScreen = useWorkbenchStore((state) => state.selectedScreen);
@@ -30,10 +25,9 @@ export function Canvas() {
 
 	const activeRouteId = useWorkbenchStore((state) => state.activeRouteId);
 	const screenRoutes = useWorkbenchStore((state) => state.screenRoutes);
-	const selectAgentNode = useWorkbenchStore((state) => state.selectAgentNode);
 
 	const isRunView = activeTab === "run";
-	const isScreenTab = activeTab !== "agent" && !isRunView && !isComponentView && !isAreaView;
+	const isScreenTab = !isRunView && !isComponentView && !isAreaView;
 	const activeRoute = screenRoutes.find((r) => r.code === activeRouteId);
 
 	let canvasEmptyMessage: string | undefined;
@@ -55,7 +49,6 @@ export function Canvas() {
 							activeTab,
 							isComponentView,
 							isAreaView,
-							selectedAgentAsset,
 							selectedComponent,
 							selectedArea,
 							selectedScreen,
@@ -83,13 +76,6 @@ export function Canvas() {
 								소스를 선택하고 Run하면 생성 미리보기가 표시됩니다.
 							</p>
 						</div>
-					) : activeTab === "agent" ? (
-						<AgentRegistryPreview
-							registry={agentRegistry}
-							selectedAsset={selectedAgentAsset}
-							selectedNode={selectedAgentNode}
-							onSelectNode={selectAgentNode}
-						/>
 					) : isComponentView && selectedComponent ? (
 						<div className="flex h-211 w-98 max-w-full overflow-hidden rounded-[28px] border bg-background shadow-2xl">
 							<div className="size-full overflow-y-auto bg-background p-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -131,7 +117,7 @@ export function Canvas() {
 	);
 }
 
-type CanvasKind = "run" | "screen" | "area" | "component" | "agent";
+type CanvasKind = "run" | "screen" | "area" | "component";
 
 const CANVAS_KIND: Record<
 	CanvasKind,
@@ -141,14 +127,12 @@ const CANVAS_KIND: Record<
 	screen: { label: "Screen", Icon: Smartphone },
 	area: { label: "Area", Icon: Boxes },
 	component: { label: "Component", Icon: Box },
-	agent: { label: "Agent", Icon: Bot },
 };
 
 function getCanvasHeader({
 	activeTab,
 	isComponentView,
 	isAreaView,
-	selectedAgentAsset,
 	selectedComponent,
 	selectedArea,
 	selectedScreen,
@@ -156,13 +140,11 @@ function getCanvasHeader({
 	activeTab: string;
 	isComponentView: boolean;
 	isAreaView: boolean;
-	selectedAgentAsset?: SelectedAgentAsset;
 	selectedComponent?: SelectedComponentContext;
 	selectedArea?: SelectedAreaContext;
 	selectedScreen?: { name: string };
 }): { kind: CanvasKind; title?: string } {
 	if (activeTab === "run") return { kind: "run" };
-	if (activeTab === "agent") return { kind: "agent", title: selectedAgentAsset?.item.name };
 	if (isComponentView) return { kind: "component", title: selectedComponent?.node.metadata.title };
 	if (isAreaView) return { kind: "area", title: selectedArea?.node.metadata.title };
 	return { kind: "screen", title: selectedScreen?.name };

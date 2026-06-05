@@ -1,6 +1,5 @@
 import { Puck } from "@measured/puck";
-import { ChevronRight, Grid3x3, Palette, Type, Workflow } from "lucide-react";
-import { AgentRegistryInspection } from "@/components/agent/AgentRegistryInspection";
+import { ChevronRight, Grid3x3, Palette, Type } from "lucide-react";
 import { NewScreenReviewSummary } from "@/components/new-screen/NewScreenReviewSummary";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useWorkbenchStore } from "@/model/store";
@@ -8,11 +7,8 @@ import { Aside, Divider, Panel } from "./Aside";
 
 export function RightAside() {
 	const activeTab = useWorkbenchStore((state) => state.activeNavigatorTab);
-	const agentRegistry = useWorkbenchStore((state) => state.agentRegistry);
-	const agentWarnings = useWorkbenchStore((state) => state.agentWarnings);
 	const screen = useWorkbenchStore((state) => state.activeScreen);
 	const isAreaView = useWorkbenchStore((state) => state.isAreaView);
-	const selectedAgentAsset = useWorkbenchStore((state) => state.selectedAgentAsset);
 
 	// Properties(Puck.Fields)는 편집 컨텍스트가 있을 때 렌더. area 뷰는 activeScreen 이
 	// 없으므로 isAreaView 도 함께 본다.
@@ -23,23 +19,6 @@ export function RightAside() {
 			{activeTab === "run" ? (
 				<Panel title="Review">
 					<NewScreenReviewSummary review={{}} />
-				</Panel>
-			) : activeTab === "agent" ? (
-				<Panel
-					title={
-						<span className="flex items-center gap-1.5">
-							<Workflow className="size-3" />
-							Agent
-						</span>
-					}
-				>
-					<div className="p-3">
-						<AgentRegistryInspection
-							registry={agentRegistry}
-							selectedAsset={selectedAgentAsset}
-							warnings={agentWarnings}
-						/>
-					</div>
 				</Panel>
 			) : (
 				<>
