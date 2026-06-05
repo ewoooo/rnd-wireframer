@@ -1,0 +1,584 @@
+{
+	"screenRoutes": [
+		{
+			"id": "prdd-smoke",
+			"moduleId": "prdd",
+			"name": "PRDD-smoke",
+			"order": 1,
+			"processId": null
+		}
+	],
+	"screenVariants": [
+		{
+			"id": "nova-prdd-pg-001",
+			"screenRouteId": "prdd-smoke",
+			"name": "상품 상세 핵심 요약 탐색",
+			"order": 1,
+			"variantType": "base",
+			"followUp": null
+		}
+	],
+	"screens": [
+		{
+			"id": "NOVA-PRDD-PG-001-0",
+			"screenVariantId": "nova-prdd-pg-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 1,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "상품 상세 핵심 요약 탐색",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-0"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-1"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "synth-bottom-NOVA-PRDD-PG-001-0"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-PRDD-PG-001-1",
+			"screenVariantId": "nova-prdd-pg-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 2,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "상품 상세 핵심 요약 탐색-상품 기준 정보 누락",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-0"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-1"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "synth-bottom-NOVA-PRDD-PG-001-1"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"id": "NOVA-PRDD-PG-001-E1",
+			"screenVariantId": "nova-prdd-pg-001",
+			"minRendererVersion": "0.1.0",
+			"version": "1.0.0",
+			"order": 3,
+			"pattern": {
+				"id": "screen-shell",
+				"variant": "default"
+			},
+			"metadata": {
+				"title": "상품 상세 핵심 요약 탐색-미디어·후기·스펙 로딩 실패",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"theme": {
+				"mode": "light"
+			},
+			"screen": {
+				"type": "screen.page",
+				"regions": {
+					"header": {
+						"type": "Screen.Header",
+						"metadata": {
+							"title": "고정 상단 영역"
+						},
+						"children": []
+					},
+					"contents": {
+						"type": "Screen.Contents",
+						"metadata": {
+							"title": "스크롤 콘텐츠 영역"
+						},
+						"children": [
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-0"
+							},
+							{
+								"kind": "area",
+								"id": "NOVA-PRDD-PG-001-0-area-1"
+							}
+						]
+					},
+					"bottom": {
+						"type": "Screen.Bottom",
+						"metadata": {
+							"title": "고정 하단 영역"
+						},
+						"children": []
+					}
+				}
+			}
+		}
+	],
+	"areas": [
+		{
+			"id": "NOVA-PRDD-PG-001-0-area-0",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "화면 상단 네비게이션",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"props": {
+				"name": "화면 상단 네비게이션"
+			},
+			"pattern": {
+				"id": "area-vertical",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "AppBarHeader"
+				}
+			]
+		},
+		{
+			"id": "NOVA-PRDD-PG-001-0-area-1",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "상품 요약·핵심 속성 표시 영역",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"props": {
+				"name": "상품 요약·핵심 속성 표시 영역"
+			},
+			"pattern": {
+				"id": "product-hero-summary",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "composite-product-hero-summary"
+				}
+			]
+		},
+		{
+			"id": "synth-bottom-NOVA-PRDD-PG-001-0",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"props": {
+				"name": ""
+			},
+			"pattern": {
+				"id": "area-vertical",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "cta-NOVA-PRDD-PG-001-0"
+				}
+			]
+		},
+		{
+			"id": "synth-bottom-NOVA-PRDD-PG-001-1",
+			"type": "area.static",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"props": {
+				"name": ""
+			},
+			"pattern": {
+				"id": "area-vertical",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"kind": "component",
+					"id": "cta-NOVA-PRDD-PG-001-1"
+				}
+			]
+		}
+	],
+	"components": [
+		{
+			"id": "AppBarHeader",
+			"type": "AppBar",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "AppBarHeader",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-app-bar",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "AppBar"
+					},
+					"props": {
+						"variant": "WithBack",
+						"title": "상품 상세"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-0",
+					"params": {
+						"parameter": "NOVA-PRDD-PG-001-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "CardSummaryProductSummary",
+			"type": "CardSummary",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "CardSummaryProductSummary",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-product-info",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardSummary"
+					},
+					"props": {
+						"variant": "text",
+						"title": "상품명",
+						"subText": "상품 유형 · 가격 · 할인 혜택",
+						"buttonLabel": "자세히 보기"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "BadgeProductStatus",
+			"type": "Badge",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "BadgeProductStatus",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-badge",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Badge"
+					},
+					"props": {
+						"variant": "blue",
+						"children": "가입 가능"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "ButtonTextUnderlineProductOriginNav",
+			"type": "ButtonTextUnderline",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ButtonTextUnderlineProductOriginNav",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-button",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ButtonTextUnderline"
+					},
+					"props": {
+						"label": "상품 원문 보기"
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-002-0",
+					"params": {
+						"parameter": "NOVA-PRDD-PG-002-0"
+					}
+				}
+			]
+		},
+		{
+			"id": "ListTextProductInfo",
+			"type": "ListText",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "ListTextProductInfo",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-list-cell",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"title": "이용 조건",
+						"subText": "가입 자격 및 주요 안내 사항"
+					}
+				}
+			],
+			"hooks": []
+		},
+		{
+			"id": "cta-NOVA-PRDD-PG-001-0",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "Primary CTA",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-action-button-with-tooltip",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"label": "다음",
+						"variant": "primary",
+						"size": "xlarge",
+						"fullWidth": true
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-1"
+				}
+			]
+		},
+		{
+			"id": "cta-NOVA-PRDD-PG-001-1",
+			"type": "Button",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "Primary CTA",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-action-button-with-tooltip",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "Button"
+					},
+					"props": {
+						"label": "다음",
+						"variant": "primary",
+						"size": "xlarge",
+						"fullWidth": true
+					}
+				}
+			],
+			"hooks": [
+				{
+					"trigger": "onClick",
+					"action": "navigate",
+					"target": "NOVA-PRDD-PG-001-E1"
+				}
+			]
+		},
+		{
+			"id": "composite-product-hero-summary",
+			"type": "Layout.Flex",
+			"version": "1.0.0",
+			"metadata": {
+				"title": "상품 요약 헤로",
+				"author": "plus_x_athor_1",
+				"createdAt": "2026-05-26T08:36:43.191Z",
+				"updatedAt": "2026-05-26T08:36:43.191Z"
+			},
+			"pattern": {
+				"id": "component-product-info",
+				"variant": "default"
+			},
+			"children": [
+				{
+					"component": {
+						"type": "CardSummary"
+					},
+					"props": {
+						"variant": "text",
+						"title": "상품명",
+						"subText": "상품 유형 · 가격 · 할인 혜택",
+						"buttonLabel": "자세히 보기"
+					}
+				},
+				{
+					"component": {
+						"type": "Badge"
+					},
+					"props": {
+						"variant": "blue",
+						"children": "가입 가능"
+					}
+				},
+				{
+					"component": {
+						"type": "ButtonTextUnderline"
+					},
+					"props": {
+						"label": "상품 원문 보기"
+					}
+				},
+				{
+					"component": {
+						"type": "ListText"
+					},
+					"props": {
+						"variant": "on",
+						"title": "이용 조건",
+						"subText": "가입 자격 및 주요 안내 사항"
+					}
+				}
+			],
+			"hooks": []
+		}
+	],
+	"warnings": [
+		"DesignReview: ai-reviewer: skipped op #0 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"DesignReview: ai-reviewer: skipped op #1 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"DesignReview: ai-reviewer: skipped op #2 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]"
+	]
+}

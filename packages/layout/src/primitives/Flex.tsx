@@ -1,6 +1,8 @@
+import { NODE_TYPES } from "@cx/types/node-types";
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../internal/style";
-import { type FlexLayoutProps, LAYOUT_NODE_TYPES, type LayoutFlexNode } from "../types";
+import type { FlexLayoutProps, LayoutFlexNode } from "../types";
+
+import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "./style";
 
 export type FlexProps = {
 	as?: ElementType;
@@ -16,7 +18,7 @@ export function Flex({ as: Element = "div", children, className, layout, node, s
 		<Element
 			className={cx(flexLayoutClassName(layout), className)}
 			data-node-id={node?.metadata.id}
-			data-node-type={node?.type ?? LAYOUT_NODE_TYPES.layout[0]}
+			data-node-type={node?.type ?? NODE_TYPES.layout[0]}
 			style={{
 				...flexLayoutFallbackStyle(layout),
 				...style,

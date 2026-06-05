@@ -1,0 +1,62 @@
+{
+	"version": "1.0.0",
+	"reviewer": "deterministic-design-review",
+	"scope": {
+		"treeStage": "decorated",
+		"screenIds": [
+			"NOVA-PRDD-PG-001-0",
+			"NOVA-PRDD-PG-001-1",
+			"NOVA-PRDD-PG-001-E1"
+		]
+	},
+	"findings": [],
+	"operations": [
+		{
+			"id": "op-composite-product-summary-hero",
+			"priority": "P2",
+			"confidence": 0.55,
+			"rationale": "CardSummary + Badge + underline Button + ListText in area-1 together form the product hero summary block — they always appear and read as a single unit. Bundling them into a composite makes the 'product-hero-summary' area pattern cohesive and avoids treating each leaf as independent.",
+			"designReferences": [
+				{
+					"path": "docs/design/COMPOSITION_LAYERS.md",
+					"section": "Composite layer",
+					"rationale": "Related leaf components that always co-occur should be promoted into a composite layer."
+				},
+				{
+					"path": "docs/design/SECTION_PATTERNS.md",
+					"section": "product-hero-summary",
+					"rationale": "The hero summary area expects a cohesive summary unit, best modeled as a composite."
+				}
+			],
+			"operation": "createComposite",
+			"composite": {
+				"id": "composite-product-hero-summary",
+				"name": "상품 요약 헤로",
+				"componentIds": [
+					"CardSummaryProductSummary",
+					"BadgeProductStatus",
+					"ButtonTextUnderlineProductOriginNav",
+					"ListTextProductInfo"
+				],
+				"pattern": {
+					"id": "component-product-info",
+					"variant": "default"
+				}
+			},
+			"replace": {
+				"areaId": "NOVA-PRDD-PG-001-0-area-1",
+				"componentIds": [
+					"CardSummaryProductSummary",
+					"BadgeProductStatus",
+					"ButtonTextUnderlineProductOriginNav",
+					"ListTextProductInfo"
+				]
+			}
+		}
+	],
+	"warnings": [
+		"ai-reviewer: skipped op #0 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"ai-reviewer: skipped op #1 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]",
+		"ai-reviewer: skipped op #2 — [\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"target\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"expected\": \"object\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"operations\",\n      0,\n      \"pattern\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  }\n]"
+	]
+}

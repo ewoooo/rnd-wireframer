@@ -1,289 +1,132 @@
 // ============================================================
-// RND Screen Generator — Supabase Render Read Model
-// ============================================================
-//
-// Status:
-//   Active reference for the relational render_* Supabase read model.
-//   Existing non-render tables may remain alive until a dedicated drop migration,
-//   but current app/package runtime should not consume them.
-//
-// Goal:
-//   Persist accepted local generation results in a relational shape that can be
-//   loaded into @cx/adapters/table and rebuilt as RenderTreeScreenNode.
-//
-// Source shape:
-//   data/tables/screen_routes.json
-//   data/tables/screen_variants.json
-//   data/tables/screens.json
-//   data/tables/areas.json
-//   data/tables/components.json
-//
-// Design rule:
-//   Do not hide parent/child structure, ordering, screen regions, or layout refs
-//   inside JSONB. JSONB is allowed only for bounded payload fields whose shape
-//   is owned by component/catalog contracts, such as props, hook payload, and
-//   display hints.
-//
-// Naming:
-//   CX component definitions are owned by @cx/components/catalog. DB rows do
-//   not redefine those definitions. The DB stores components and ordered
-//   render_component_children that reference catalog component type keys.
+// RND Screen Generator — DB Schema
+// dbdiagram.io 에서 이 파일 전체를 붙여넣으면 ERD 자동 생성
+// 마지막 업데이트: 2026-05-22
 // ============================================================
 
-Project rnd_screen_generator_render_read_model {
+Project rnd_wireframer {
   database_type: 'PostgreSQL'
   Note: '''
-    Local inference remains the authoring flow:
+    와이어프레임 생성기의 소비 데이터 테이블.
 
-      Markdown/local inference
-      -> final-result.json
-      -> data/tables/*.json
-      -> DB upsert
-      -> DB read
-      -> @cx/adapters/table
-      -> RenderTreeScreenNode
-      -> @cx/renderer / workbench
+    데이터 흐름 방향:
+      screen_route → screen_variant → screen
+      organism.children (jsonb) → components.id
+      screen.screen (jsonb) → organisms.id / components.id
 
-    This schema models screen, region, area, component, and child ordering as
-    relational rows. It intentionally avoids the previous render_* mirror shape
-    that kept screen/area/component children in nested JSONB.
+    organisms / components 사이의 참조는
+    DB FK 가 아닌 JSONB 내부 참조로 관리된다.
   '''
 }
 
-Enum render_screen_variant_type {
-  base
-  edge
-}
-
-Enum render_screen_type {
-  page
-  bottomsheet
-  popup
-}
-
-Enum render_screen_region_type {
-  header
-  contents
-  bottom
-}
-
-Enum render_area_type {
-  area_static
-  area_dynamic
-}
-
 // ============================================================
-// Route grouping for navigation/module/process rails.
-// Local source: screen_routes.json screenRoutes[].
+// 화면 흐름 단위 (예: "회원 가입 및 휴면 해제")
 // ============================================================
-Table render_screen_routes {
-  id          varchar     [pk]
-  module_id   varchar     [null, note: "local moduleId"]
-  process_id  varchar     [null, note: "local processId"]
+Table screen_routes {
+  id          varchar     [pk,   note: "예: sb-mbr-uc01_02-0513"]
+  module_id   varchar     [not null, note: "업무 모듈. 예: mbr"]
   name        varchar     [not null]
-  order_index integer     [not null, note: "local order"]
+  order       integer     [not null]
+  process_id  varchar     [null, note: "정책/업무 프로세스 연결 코드"]
   created_at  timestamptz [not null, default: `now()`]
   updated_at  timestamptz [not null, default: `now()`]
-
-  indexes {
-    (module_id, order_index, id)
-    (process_id)
-  }
 }
 
 // ============================================================
-// Variant grouping inside a route.
-// Local source: screen_variants.json screenVariants[].
+// 흐름 안의 화면 묶음 (base: 정상 흐름 / edge: 에러·분기 케이스)
 // ============================================================
-Table render_screen_variants {
-  id              varchar             [pk]
-  screen_route_id varchar             [not null, ref: > render_screen_routes.id]
-  name            varchar             [not null]
-  order_index     integer             [not null, note: "local order"]
-  type            render_screen_variant_type [not null, default: 'base']
-  created_at      timestamptz         [not null, default: `now()`]
-  updated_at      timestamptz         [not null, default: `now()`]
-
-  indexes {
-    (screen_route_id, order_index, id)
-    (type)
-  }
+Table screen_variants {
+  id                   varchar     [pk,  note: "예: nova-mbr-fp-001"]
+  screen_route_id      varchar     [not null, ref: > screen_routes.id]
+  name                 varchar     [not null, note: "예: 약관 동의"]
+  order                integer     [not null]
+  variant_type         varchar     [not null, note: "'base' | 'edge'"]
+  base_variant_id      varchar     [null,     ref: > screen_variants.id, note: "edge 가 참조하는 base variant"]
+  trigger              varchar     [null,     note: "edge 발생 조건"]
+  difference_from_base varchar     [null,     note: "base 대비 차이 설명"]
+  follow_up            varchar     [null]
+  source_ref           jsonb       [null,     note: "원천 명세 추적 정보"]
+  created_at           timestamptz [not null, default: `now()`]
+  updated_at           timestamptz [not null, default: `now()`]
 }
 
 // ============================================================
-// Screen shell record.
-// Local source: screens.json screens[] except screen.regions.
+// 실제 렌더링 대상 화면 인스턴스
+// screen 컬럼: Screen.Header / Screen.Contents / Screen.Bottom 렌더 트리 전체
 // ============================================================
-Table render_screens {
-  id                   varchar     [pk]
-  screen_variant_id    varchar     [not null, ref: > render_screen_variants.id]
-  version              varchar     [not null, default: '0.1.0']
-  type                 render_screen_type [not null, default: 'page']
-  layout_id            varchar     [not null, note: "layout.screen.*"]
-  order_index          integer     [not null, default: 0, note: "local order when present"]
-  name                 text        [not null]
-  description          text        [null]
+Table screens {
+  id                   varchar     [pk,  note: "예: NOVA-MBR-FP-001-0"]
+  screen_variant_id    varchar     [not null, ref: > screen_variants.id]
+  version              varchar     [not null]
+  min_renderer_version varchar     [not null]
+  order                integer     [not null]
+  pattern_id           varchar     [null, note: "공급 pattern 참조. 예: screen-shell"]
+  pattern_variant      varchar     [null, note: "예: default"]
+  theme_mode           varchar     [not null, default: 'light', note: "'light' | 'dark'"]
+  title                varchar     [null]
   author               varchar     [null]
+  screen               jsonb       [not null, note: "렌더 트리 전체 (regions: header/contents/bottom)"]
+  source_ref           jsonb       [null]
   created_at           timestamptz [not null, default: `now()`]
   updated_at           timestamptz [not null, default: `now()`]
 
-  indexes {
-    (screen_variant_id, order_index, id)
-    (layout_id)
-  }
+  Note: "53개 화면 인스턴스 (base + edge 케이스 포함)"
 }
 
 // ============================================================
-// One row per screen rail.
-// Local source: screens[].screen.regions.header/contents/bottom.
+// 화면 region 에 배치되는 섹션 단위
+// children(jsonb): 이 OGN 이 사용하는 component id 배열
 // ============================================================
-Table render_screen_regions {
-  id          varchar            [pk, note: "recommended ${screen_id}.${type}"]
-  screen_id   varchar            [not null, ref: > render_screens.id]
-  type        render_screen_region_type [not null, note: "maps to RenderTree Screen.Header/Screen.Contents/Screen.Bottom"]
-  layout_id   varchar            [not null, note: "layout.region.*"]
-  created_at  timestamptz        [not null, default: `now()`]
-  updated_at  timestamptz        [not null, default: `now()`]
-
-  indexes {
-    (screen_id, type) [unique]
-    (layout_id)
-  }
-
-  Note: '''
-    Region row type is the only region node type source. @cx/adapters/table maps
-    header/contents/bottom to RenderTree Screen.Header/Screen.Contents/
-    Screen.Bottom node types and derives region order from type.
-  '''
-}
-
-// ============================================================
-// Ordered children inside a screen region.
-// Local source: region.children[].
-// ============================================================
-Table render_screen_region_children {
-  id               uuid        [pk, default: `gen_random_uuid()`]
-  screen_region_id varchar     [not null, ref: > render_screen_regions.id]
-  area_id          varchar     [not null, ref: > render_areas.id]
-  order_index      integer     [not null]
+Table organisms {
+  id               varchar     [pk,  note: "예: ogn-mbr-term-list"]
+  type             varchar     [not null, default: 'Organism']
+  version          varchar     [not null]
+  pattern_id       varchar     [null, note: "예: list-stack"]
+  pattern_variant  varchar     [null]
+  title            varchar     [null]
+  author           varchar     [null]
+  props            jsonb       [null]
+  children         jsonb       [null, note: "composite id 배열 (JSONB 참조)"]
+  states           jsonb       [null, note: "default/loading/error 상태별 visible composite id"]
+  policy_refs      jsonb       [null]
+  feature_refs     jsonb       [null]
+  source_ref       jsonb       [null]
   created_at       timestamptz [not null, default: `now()`]
+  updated_at       timestamptz [not null, default: `now()`]
 
-  indexes {
-    (screen_region_id, order_index) [unique]
-    (area_id)
-  }
-
-  Note: '''
-    Screen regions always point to area rows. Even header AppBar rows are
-    normalized as:
-
-      Screen.Header -> area -> component(AppBar)
-
-    Direct region -> component shortcuts are not part of this schema.
-  '''
+  Note: "15개 organism"
 }
 
 // ============================================================
-// Area wrapper record.
-// Local source: areas.json areas[] except children.
+// renderer 가 leaf node 로 그리는 구체적 UI 컴포넌트
 // ============================================================
-Table render_areas {
-  id          varchar     [pk]
-  type        render_area_type   [not null, note: "area.static -> area_static, area.dynamic -> area_dynamic"]
-  version     varchar     [not null, default: '0.1.0']
-  layout_id   varchar     [not null, note: "layout.area.*"]
-  name        text        [not null]
-  description text        [null]
-  author      varchar     [null]
-  props       jsonb       [null, note: "bounded area payload; no child refs"]
-  created_at  timestamptz [not null, default: `now()`]
-  updated_at  timestamptz [not null, default: `now()`]
+Table components {
+  id               varchar     [pk,  note: "예: list-cell-term-required"]
+  type             varchar     [not null, note: "renderer 매핑 타입. 예: list-cell, accordion, button"]
+  version          varchar     [not null]
+  pattern_id       varchar     [null]
+  pattern_variant  varchar     [null]
+  title            varchar     [null]
+  author           varchar     [null]
+  props            jsonb       [null]
+  children         jsonb       [null, note: "concrete render subtree"]
+  hooks            jsonb       [null, note: "onChange 등 이벤트 핸들러"]
+  events           jsonb       [null]
+  display          jsonb       [null, note: "상태별 노출 조건"]
+  source_ref       jsonb       [null]
+  created_at       timestamptz [not null, default: `now()`]
+  updated_at       timestamptz [not null, default: `now()`]
 
-  indexes {
-    (layout_id)
-    (type)
-  }
+  Note: "58개 component"
 }
 
 // ============================================================
-// Ordered children inside an area.
-// Local source: areas[].children[].
+// component type 문자열 → renderer kind 매핑 테이블
+// 예: 'ListCell' → 'list-cell', 'button' → 'action'
 // ============================================================
-Table render_area_children {
-  id           uuid        [pk, default: `gen_random_uuid()`]
-  area_id      varchar     [not null, ref: > render_areas.id]
-  component_id varchar     [not null, ref: > render_components.id]
-  order_index  integer     [not null]
-  created_at   timestamptz [not null, default: `now()`]
+Table component_renderer_kinds {
+  type  varchar [pk,       note: "예: ListCell, list-cell, Accordion, button"]
+  kind  varchar [not null, note: "예: list-cell, accordion, action, text-field"]
 
-  indexes {
-    (area_id, order_index) [unique]
-    (component_id)
-  }
-
-  Note: '''
-    Current local data has no area-under-area relation. All area children are
-    component refs, so this table intentionally does not carry child_kind or
-    child_area_id. Add a separate relation only if the local table contract
-    introduces nested areas under areas.
-  '''
-}
-
-// ============================================================
-// Component record.
-// Local source: components.json components[].
-// A component is the DB renderable unit placed under an area.
-// It contains one or more ordered catalog component references in
-// render_component_children.
-// ============================================================
-Table render_components {
-  id                varchar     [pk]
-  type              varchar     [not null, note: "local components[].type"]
-  version           varchar     [not null, default: '0.1.0']
-  layout_id         varchar     [not null, note: "layout.composite.*"]
-  name              text        [not null]
-  description       text        [null]
-  author            varchar     [null]
-  display           jsonb       [null, note: "bounded display/state hints only"]
-  hooks             jsonb       [null, note: "NodeHook[] interaction contract; e.g. trigger/action/target/payload"]
-  created_at        timestamptz [not null, default: `now()`]
-  updated_at        timestamptz [not null, default: `now()`]
-
-  indexes {
-    (type)
-    (layout_id)
-  }
-
-  Note: '''
-    This row does not redefine @cx/components catalog entries. Its children
-    reference catalog component types through render_component_children. Current local
-    data has one child per component row, but the schema supports ordered
-    combinations without adding a separate composite table.
-  '''
-}
-
-// ============================================================
-// Ordered catalog component references inside a component.
-// Local source: components[].children[].
-// ============================================================
-Table render_component_children {
-  id                     uuid        [pk, default: `gen_random_uuid()`]
-  component_id           varchar     [not null, ref: > render_components.id]
-  order_index            integer     [not null]
-  catalog_component_type varchar     [not null, note: "child.component.type; lookup in @cx/components/catalog"]
-  variant                varchar     [null, note: "reserved for child.component.variant when introduced"]
-  props                  jsonb       [null, note: "catalog component props payload"]
-  created_at             timestamptz [not null, default: `now()`]
-  updated_at             timestamptz [not null, default: `now()`]
-
-  indexes {
-    (component_id, order_index) [unique]
-    (catalog_component_type)
-  }
-
-  Note: '''
-    One row means the component renders one catalog component. Multiple rows
-    mean it renders an ordered catalog component composition. Catalog details
-    are read from @cx/components/catalog, not stored here.
-  '''
+  Note: "25개 매핑 (대소문자 변형 포함)"
 }

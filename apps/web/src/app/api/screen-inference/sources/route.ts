@@ -6,7 +6,7 @@ import {
 	isMarkdownSourceFileName,
 	listUploadedScreenSources,
 } from "@/lib/screen-inference-source";
-import { CLIENT_IMPORT_ROOT, RUN_ROOT } from "@/lib/server-paths";
+import { CLIENT_IMPORT_ROOT, REPO_ROOT, RUN_ROOT } from "@/lib/server-paths";
 
 export const runtime = "nodejs";
 
@@ -18,7 +18,7 @@ export async function GET() {
 			sources: await listUploadedScreenSources({
 				clientImportRoot: CLIENT_IMPORT_ROOT,
 				importIds: ["web-upload"],
-				repoRoot: process.cwd(),
+				repoRoot: REPO_ROOT,
 				runRoot: RUN_ROOT,
 			}),
 		});

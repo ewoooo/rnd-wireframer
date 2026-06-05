@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
 const roots = process.argv.slice(2);
@@ -27,11 +27,13 @@ const checks = [
 	},
 	{
 		pattern: /\bReact\s*\.\s*useCallback\s*\(/,
-		message: "React.useCallback is banned. Prefer simpler data flow or component boundaries.",
+		message:
+			"React.useCallback is banned. Prefer simpler data flow or component boundaries.",
 	},
 	{
 		pattern: /\bReact\s*\.\s*useMemo\s*\(/,
-		message: "React.useMemo is banned. Prefer simpler data flow or moving work out of render.",
+		message:
+			"React.useMemo is banned. Prefer simpler data flow or moving work out of render.",
 	},
 	{
 		pattern: /\b(?:const|let|var)\s*\{[^}]*\buseCallback\b[^}]*\}\s*=\s*React\b/,
@@ -100,3 +102,4 @@ function getExtension(fileName) {
 	const match = fileName.match(/\.[^.]+$/);
 	return match?.[0] ?? "";
 }
+

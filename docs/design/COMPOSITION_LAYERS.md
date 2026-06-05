@@ -25,6 +25,6 @@
 - `tokens`: 색상, 타이포그래피, radius, spacing은 `cx-tokens`와 `DESIGN_FOUNDATION.md`의 semantic token을 기준으로 한다.
 - `new`: 기존 vocabulary로 정책 의미, 선택지, 에러, slot, Figma bridge identity를 표현할 수 없어 신규 candidate가 필요하다.
 
-`new` candidate는 `@cx/components` 패키지 내부 status인 `candidate`로 관리한다. candidate는 패키지 내부 `candidates/`에 둘 수 있지만, 외부 catalog에서는 정본 component와 구분되지 않는 단일 component vocabulary로 노출한다. 정식 component vocabulary로 승격할 때는 status를 `stable`로 바꾸고 구현 위치를 `components/`로 이동한다.
+`new` candidate는 생성 가능하지만 반드시 `RQR` 식별자를 붙인다. React 이름은 `RQR{Name}`, 폴더와 `componentId`, `data-figma-component-id`는 `rqr-{name}`을 사용한다. 정식 component vocabulary로 승격할 때는 `RQR` prefix를 제거한다.
 
 ---
