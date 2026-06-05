@@ -118,6 +118,38 @@ type AgentStep<TInput> = {
 	runnerRequest?: AgentRunnerRequest;
 };
 
+/**
+ * Rich output of an AI step: the agent triple plus the unwrapped payload.
+ * Steps return this so the projection can assemble artifacts/result from engine
+ * step outputs (`state.steps[id].outputs.result`) instead of the blackboard.
+ * Downstream consumers read `.payload` for the node payload.
+ */
+type AgentStepOutput<TPayload = unknown> = {
+	agentInput?: unknown;
+	agentResult?: AgentRunResult;
+	payload?: TPayload;
+	runnerRequest?: AgentRunnerRequest;
+};
+
+/** Build the rich AI-step output from an inference-node result. */
+function agentStepOutput<TPayload>(nodeResult: {
+	agentInput?: unknown;
+	agentResult: AgentRunResult;
+	runnerRequest?: AgentRunnerRequest;
+}): AgentStepOutput<TPayload> {
+	return {
+		agentInput: nodeResult.agentInput,
+		agentResult: nodeResult.agentResult,
+		payload: nodeResult.agentResult.payload as TPayload,
+		runnerRequest: nodeResult.runnerRequest,
+	};
+}
+
+/** Read the `.payload` from an AI step's rich output (consumed downstream). */
+function readAgentStepPayload(value: unknown): unknown {
+	return isRecord(value) ? (value as AgentStepOutput).payload : undefined;
+}
+
 type ScreenGenerationPipelineState = {
 	// Per-stage agent triples (always present; populated as stages run).
 	compositionPlan: AgentStep<CompositionPlanAgentInput>;
@@ -644,7 +676,7 @@ async function runDeriveScreenIntentAiStep(
 	state.screenIntent.agentInput = nodeResult.agentInput;
 	state.screenIntent.agentResult = nodeResult.agentResult;
 	state.screenIntent.runnerRequest = nodeResult.runnerRequest;
-	return state.screenIntent.agentResult.payload;
+	return agentStepOutput(nodeResult);
 }
 
 async function runPlanCompositionAiStep(
@@ -653,7 +685,7 @@ async function runPlanCompositionAiStep(
 	runner: AgentRunner,
 ): Promise<unknown> {
 	const sourceSpec = readSourceSpecInput(inputs, state);
-	const screenIntent = inputs.intent;
+	const screenIntent = readAgentStepPayload(inputs.intent);
 	const layerCandidates = buildScreenGenerationPatternLayerCandidates(inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs, sourceSpec);
 	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
@@ -680,10 +712,13 @@ async function runPlanCompositionAiStep(
 		sourceSpec,
 	});
 	return {
+		agentInput: nodeResult.agentInput,
+		agentResult: nodeResult.agentResult,
 		compositionPlan: state.compositionPlan.agentResult.payload,
 		designContextBundleSelection: state.designContextBundleSelection,
 		designSkillSelection: state.designSkillSelection,
 		patternLayerCandidates: state.patternLayerCandidates,
+		runnerRequest: nodeResult.runnerRequest,
 	};
 }
 
@@ -732,7 +767,7 @@ async function runSelectPatternAiStep(
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates,
 		runner,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 	});
 
@@ -740,15 +775,18 @@ async function runSelectPatternAiStep(
 	state.patternSelection.agentInput = nodeResult.agentInput;
 	state.patternSelection.agentResult = nodeResult.agentResult;
 	state.patternSelection.runnerRequest = nodeResult.runnerRequest;
-	return state.patternSelection.agentResult.payload;
+	return agentStepOutput(nodeResult);
 }
 
 /** Rich output of the plan-composition step, consumed by downstream steps via outputOf. */
 type CompositionStepResult = {
+	agentInput?: unknown;
+	agentResult?: AgentRunResult;
 	compositionPlan?: unknown;
 	designContextBundleSelection?: DesignContextBundleSelection;
 	designSkillSelection?: DesignSkillSelectionContract;
 	patternLayerCandidates?: PatternLayerCandidate[];
+	runnerRequest?: AgentRunnerRequest;
 };
 
 /** Rich output of the derive-decoration-plan step. */
@@ -796,16 +834,24 @@ async function runGenerateRenderTreeAiStep(
 		designContextBundles: state.designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: inputs.pattern,
+		patternSelection: readAgentStepPayload(inputs.pattern),
 		runner,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 	});
 
 	state.generation.agentInput = nodeResult.agentInput;
 	state.generation.agentResult = repairAgentRunResultPayload(nodeResult.agentResult);
 	state.generation.runnerRequest = nodeResult.runnerRequest;
-	return state.generation.agentResult.payload;
+	return {
+		...agentStepOutput({
+			agentInput: nodeResult.agentInput,
+			agentResult: state.generation.agentResult,
+			runnerRequest: nodeResult.runnerRequest,
+		}),
+		generationSkillCatalog: state.generationSkillCatalog,
+		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
+	};
 }
 
 function runValidateRenderTreeStage(
@@ -815,13 +861,13 @@ function runValidateRenderTreeStage(
 	const sourceSpec = inputs.source as SourceSpec | undefined;
 	const composition = inputs.composition as CompositionStepResult | undefined;
 	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const validationReport = createRenderTreeValidationReport(inputs.target, {
+	const validationReport = createRenderTreeValidationReport(readAgentStepPayload(inputs.target), {
 		allowedLayoutIds: decoration?.patternLayerCandidates?.map((candidate) => candidate.layout),
 		componentCatalog: (inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs)
 			.validationCatalog,
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 	});
 	state.validationReport = validationReport;
@@ -831,7 +877,7 @@ function runValidateRenderTreeStage(
 		designContextBundleSelection = runDesignContextBundleRefsNode({
 			compositionPlan: composition?.compositionPlan,
 			layerCandidates: decoration?.patternLayerCandidates,
-			screenIntent: inputs.intent,
+			screenIntent: readAgentStepPayload(inputs.intent),
 			sourceSpec,
 			validationReport,
 		});
@@ -875,7 +921,7 @@ async function runProposeComponentsAiStep(
 		state.options.disableDesignContext,
 	);
 	const nodeResult = await runComponentProposalNode({
-		candidate: inputs.candidate,
+		candidate: readAgentStepPayload(inputs.candidate),
 		componentContractCatalog,
 		compositionPlan: composition?.compositionPlan,
 		decorationPlan: decoration?.decorationPlan,
@@ -883,9 +929,9 @@ async function runProposeComponentsAiStep(
 		designContextBundles: state.designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: inputs.pattern,
+		patternSelection: readAgentStepPayload(inputs.pattern),
 		runner,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 	});
 
@@ -901,7 +947,10 @@ async function runProposeComponentsAiStep(
 			catalogComponentTypes: componentContractCatalog.entries.map((entry) => entry.componentType),
 		},
 	);
-	return state.componentProposal.agentResult.payload;
+	return {
+		...agentStepOutput(nodeResult),
+		componentProposalValidationReport: state.componentProposalValidationReport,
+	};
 }
 
 async function runReviewQualityAiStep(
@@ -919,7 +968,7 @@ async function runReviewQualityAiStep(
 		state.options.disableDesignContext,
 	);
 	const nodeResult = await runQualityReviewNode({
-		candidate: inputs.candidate,
+		candidate: readAgentStepPayload(inputs.candidate),
 		componentContractCatalog: buildSourceComponentContractCatalog(
 			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
 			sourceSpec,
@@ -931,9 +980,9 @@ async function runReviewQualityAiStep(
 		designContextBundles: state.designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: inputs.pattern,
+		patternSelection: readAgentStepPayload(inputs.pattern),
 		runner,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 		validationReport: validation?.validationReport,
 	});
@@ -947,7 +996,10 @@ async function runReviewQualityAiStep(
 		retryCount: state.revision.agentResult ? 1 : 0,
 		validationReport: state.validationReport,
 	});
-	return state.qualityReview.agentResult.payload;
+	return {
+		...agentStepOutput(nodeResult),
+		generationNextAction: state.generationNextAction,
+	};
 }
 
 async function runReviseRenderTreeIfInvalidAiStep(
@@ -956,14 +1008,14 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	runner: AgentRunner,
 ): Promise<unknown> {
 	if (state.generationNextAction?.action !== "request-revision") {
-		return state.generation.agentResult?.payload;
+		return { payload: state.generation.agentResult?.payload };
 	}
 
 	const sourceSpec = readSourceSpecInput(inputs, state);
 	const composition = inputs.composition as CompositionStepResult | undefined;
 	const decoration = inputs.decoration as DecorationStepResult | undefined;
 	const validation = inputs.validation as ValidationStepResult | undefined;
-	const previousCandidate = inputs.generation;
+	const previousCandidate = readAgentStepPayload(inputs.generation);
 	state.preRevisionAgentResult = state.generation.agentResult;
 	state.preRevisionValidationReport = state.validationReport;
 	state.designContextBundleContents = await loadDesignContextBundleContents(
@@ -983,11 +1035,11 @@ async function runReviseRenderTreeIfInvalidAiStep(
 		designContextBundles: state.designContextBundleContents,
 		designSkillSelection: composition?.designSkillSelection,
 		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: inputs.pattern,
+		patternSelection: readAgentStepPayload(inputs.pattern),
 		previousCandidate,
-		qualityInspection: inputs.quality,
+		qualityInspection: readAgentStepPayload(inputs.quality),
 		runner,
-		screenIntent: inputs.intent,
+		screenIntent: readAgentStepPayload(inputs.intent),
 		sourceSpec,
 		validationReport: validation?.validationReport,
 	});
@@ -996,7 +1048,11 @@ async function runReviseRenderTreeIfInvalidAiStep(
 	state.revision.agentResult = repairAgentRunResultPayload(nodeResult.agentResult);
 	state.revision.runnerRequest = nodeResult.runnerRequest;
 	state.generation.agentResult = state.revision.agentResult;
-	return state.generation.agentResult.payload;
+	return agentStepOutput({
+		agentInput: nodeResult.agentInput,
+		agentResult: state.revision.agentResult,
+		runnerRequest: nodeResult.runnerRequest,
+	});
 }
 
 async function runWriteArtifactsStage(
