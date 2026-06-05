@@ -61,6 +61,7 @@ import type {
 	PipelinePersistenceAdapter,
 	PipelineRunResult,
 	PipelineStageId,
+	ReferenceResolver,
 	ResolvedStepInputs,
 	ScreenGenerationPipelineOptions,
 	ScreenGenerationReferences,
@@ -265,6 +266,23 @@ export async function runScreenGenerationPipeline(
 	return createScreenGenerationPipelineResult(state);
 }
 
+/**
+ * Maps the declarative reference names used in `refs([...])` step inputs to the
+ * injected reference adapters. Composed step-nodes receive these resolved and
+ * build their context from them — no reaching into pipeline state/options.
+ */
+function createScreenGenerationReferenceResolver(
+	references: ScreenGenerationReferences,
+): ReferenceResolver {
+	const byName: Record<string, unknown> = {
+		componentCatalog: references.componentCatalogs,
+		designContext: references.designContextBundles,
+		layoutCatalog: references.layoutCatalogs,
+		skillBundle: references.skillBundles,
+	};
+	return (name) => byName[name];
+}
+
 async function runScreenGenerationStepRunner(state: ScreenGenerationPipelineState): Promise<void> {
 	const pipeline = createScreenGenerationStepPipeline(state);
 	state.stageOrder = pipeline.steps.map((step) => step.id as PipelineStageId);
@@ -290,6 +308,7 @@ async function runScreenGenerationStepRunner(state: ScreenGenerationPipelineStat
 			layoutCatalogs: state.options.references.layoutCatalogs,
 			skillBundles: state.options.references.skillBundles,
 		},
+		resolveReference: createScreenGenerationReferenceResolver(state.options.references),
 		runId: state.options.runId,
 		status: {
 			outDir: state.options.outDir,
