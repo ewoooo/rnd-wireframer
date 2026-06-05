@@ -239,6 +239,12 @@ describe("@cx/pipeline public API", () => {
 				selectedSkill: { id: "detail-confirmation-screen" },
 			},
 			finalResult,
+			layers: Object.fromEntries(
+				createScreenGenerationStageLayers().map((layer) => [
+					layer.layer,
+					{ artifacts: layer.artifacts, traceKeys: layer.traceKeys },
+				]),
+			),
 			outDir: "runs/sample",
 			parseCommandResult: {},
 			runnerRequest: {},
