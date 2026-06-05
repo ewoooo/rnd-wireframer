@@ -36,6 +36,30 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Web API Consumption Hook Plan
+
+- 변경: `API_ENDPOINTS.md`에 "Browser-facing UI는 `/api/*` endpoint만 소비하고 Pipeline/DB/Claude 실행은 Next API route와 `server/*` service/repo 뒤에 둔다"는 경계 규칙을 추가함
+- 변경: `WEB_API_CONSUMPTION_HOOK_PLAN.md`를 추가해 `features/*`, `server/*`, `shared/*`, `app/api/*` 기준과 screen inference API 소비 hook을 source/run/review/actions/workbench composer로 분리하는 rollout 계획을 작성함
+- 변경: `AGENTS.md`와 `docs/development/README.md`에 해당 규칙과 계획 문서를 연결함
+- 이유: Web UI가 endpoint 소비자라는 원칙을 명확히 하고, 현재 넓은 `useNewScreenInference`를 안전하게 쪼갤 기준을 먼저 고정하기 위함
+- 검증: 문서 링크 확인, `git diff --check`
+
+## 2026-06-05 - API Endpoint Documentation
+
+- 변경: `docs/development/API_ENDPOINTS.md`를 추가해 현재 구현된 Web API route, 입력/출력 요약, SSE 사용 방식, dev-only endpoint, 변경 체크리스트를 정리함
+- 변경: `docs/development/README.md`의 운영 기준 문서 목록에 endpoint 문서를 추가함
+- 변경: `README.md`와 `AGENTS.md`에도 endpoint 문서를 기준 문서로 연결하고, Web API route 변경 시 함께 갱신해야 한다는 운영 원칙을 추가함
+- 이유: endpoint 논의가 archive 계획 문서와 코드에 흩어져 있어 현재 활성 Web API 표면을 한 곳에서 확인하기 어렵기 때문
+- 검증: `find apps/web/src/app/api -maxdepth 5 -type f`, route 파일 확인, `git diff --check`
+
+## 2026-06-05 - Development Docs Responsibility Cleanup
+
+- 변경: `docs/development/README.md`에 문서 책임 기준, 현재 운영 기준 문서, 활성 하위 계획, archive 이동 문서 표를 추가함
+- 변경: 완료 또는 최신 기준에 흡수된 `ADAPTERS_PACKAGE_TRANSITION_PLAN.md`, `RENDER_DB_REST_LOADER_TRANSITION_PLAN.md`, `SCREEN_DESIGN_STAGE_PLAN.md`, `NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md`, `INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md`를 `docs/archive/completed-plans/`로 이동함
+- 변경: `PIPELINE_STAGE_PROTOCOL.md`의 완료된 stage 확장 계획 링크를 현재 상세 해설 문서와 archive 기록으로 분리함
+- 이유: `docs/development/`가 운영 기준 문서와 완료된 전환 계획을 같은 위상으로 보여 문서 책임과 SSOT가 겹쳐 보였기 때문
+- 검증: `rg`로 이동 전 development 경로 참조 확인, `git diff --check`. `pnpm exec biome check ...`는 Markdown 문서가 repo Biome ignore 대상이라 처리 파일 0개로 종료됨
+
 ## 2026-06-05 - Smoke App To Scripts
 
 - 변경: `apps/smoke/src/*`의 smoke/generation/render-db/proposal CLI와 helper를 `scripts/*`로 이동하고 `apps/smoke` 앱 패키지와 `@cx/smoke` public package export를 제거함

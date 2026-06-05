@@ -4,7 +4,7 @@
 
 이 문서는 에이전트 역할, 작업 인계 방식, 완료 기준만 정의한다.
 
-제품 방향성은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
+제품 방향성은 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. Web API route 표면과 endpoint 작성 기준은 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
 Claude 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), pipeline stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
 `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터/디자인 문서는 `docs/` 아래에 둔다.
@@ -44,6 +44,8 @@ Claude 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-s
 - 기존 `database/client-imports`, `database/ai-imports`, `database/tables` 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
+- Web API route를 추가, 제거, rename, response shape 변경할 때는 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 함께 갱신한다.
+- Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실행은 Next API route와 `server/*` service/repo 뒤에 두며, hook 경계 개선은 [WEB_API_CONSUMPTION_HOOK_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/WEB_API_CONSUMPTION_HOOK_PLAN.md)를 따른다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
 ## 3. 재설계 기준
@@ -99,10 +101,10 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 | 에이전트 | 책임 | 기준 문서 |
 |---|---|---|
 | Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
-| Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
+| Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
 | Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | 현재 문서와 `@cx/schema` 계약 |
-| Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
-| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
+| Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
+| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
 | Claude Generation Agent | Claude 기반 RenderTree 후보 생성 | 현재 문서와 `@cx/schema` 계약 |
 | Claude Review Agent | Claude 기반 생성 결과 검수 | 현재 문서와 `@cx/schema` 계약 |
 | Agent Runtime Agent | Claude Agent SDK, 로컬 실행 우선, API fallback 관리 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |

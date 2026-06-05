@@ -46,5 +46,6 @@ bun run lint         # biome + react hooks 정책
 - [AGENTS.md](./AGENTS.md) — 에이전트 운영 규칙
 - [MASTER_PLAN.md](./MASTER_PLAN.md) — 마스터 플랜
 - [PROJECT_STRUCTURE.md](./docs/development/PROJECT_STRUCTURE.md) — 저장소/패키지 구조 규칙
+- [API_ENDPOINTS.md](./docs/development/API_ENDPOINTS.md) — Web API route 표면과 endpoint 작성 기준
 - [PACKAGE_MAP.md](./PACKAGE_MAP.md) — 활성 패키지 책임과 관계망
 - [AGENTS_HISTORY.md](./AGENTS_HISTORY.md) — 변경 이력

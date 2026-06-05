@@ -253,7 +253,8 @@ agent input, runner request, 후보, bundle 선택, skill 선택, initial valida
 - agent prompt/checklist/output 규약: [`packages/agent/docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs)
 - design skill 본문: [`packages/agent/docs/design-skills/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-skills)
 - design-context bundle 본문: [`packages/agent/docs/design-context/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/design-context)
-- 확장 설계 맥락: [SCREEN_DESIGN_STAGE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_DESIGN_STAGE_PLAN.md)
+- 현재 단계별 상세 해설: [SCREEN_GENERATION_PIPELINE.md](/Users/plusx/Documents/rnd-screen-generator/docs/SCREEN_GENERATION_PIPELINE.md)
+- 완료된 확장 설계 기록: [SCREEN_DESIGN_STAGE_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/docs/archive/completed-plans/SCREEN_DESIGN_STAGE_PLAN.md)
 
 ## 12. 검증 기준
 
