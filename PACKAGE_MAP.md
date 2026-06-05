@@ -17,8 +17,8 @@ Markdown source
 -> screen-generation stage contract
 -> @cx/adapters/markdown
 -> SourceSpec
--> @cx/orchestration deterministic stage helpers
 -> @cx/inference-nodes executable generation nodes
+-> @cx/orchestration deterministic helper data
 -> @cx/agent generation/review tasks
 -> @cx/validation contract validation
 -> @cx/pipeline artifact write
@@ -33,7 +33,7 @@ stage 순서와 stage별 입출력 계약의 정본은 [PIPELINE_STAGE_PROTOCOL.
 `@cx/adapters`는 Markdown/Table/Puck 같은 외부 표현과 내부 계약 사이의 순수 변환 경계다. Markdown -> SourceSpec, Table -> RenderTree, RenderTree -> Table, Puck <-> RenderTree 변환을 소유한다.
 `@cx/smoke`는 위 흐름을 개발자가 반복 실행하는 통합 앱이다.
 생성/검수 prompt, checklist, output example 같은 문장형 참조 자산의 정본은 `packages/agent/docs/`가 소유한다. smoke/pipeline도 필요한 문장형 참조 자산은 이 정본 위치를 참조한다.
-design skill과 design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/` 아래에 둔다. `@cx/orchestration`은 skill/bundle ref만 선택하고, `@cx/pipeline`이 bundle 본문을 로드해 agent stage context에 주입한다.
+design skill과 design-context bundle의 에이전트용 규칙 정본은 `packages/agent/docs/` 아래에 둔다. `@cx/inference-nodes`는 `@cx/orchestration` helper를 통해 skill/bundle ref를 선택하고, `@cx/pipeline`은 bundle 본문 IO를 수행해 agent stage context에 주입한다.
 `component-proposal`은 카탈로그 밖 후보를 제시하는 비파괴 아티팩트다. generation은 카탈로그에 bounded인 채로 두고, 제안의 확정·반영은 `@cx/components` mutation으로만 한다.
 
 ## 3. 활성 패키지 요약
@@ -42,11 +42,11 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 |---|---|---|---|
 | `@cx/schema` | generation pipeline 전반 DTO/schema 계약 SSOT | schemaVersion, artifact kind, DTO 타입, JSON Schema registry, schema lookup | 파일 IO, Claude 실행, validation rule 판정, orchestration decision, React render |
 | `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 | `@cx/adapters/markdown` Markdown -> SourceSpec, `@cx/adapters/table` DB row bundle -> RenderTree와 RenderTree -> table projection, `@cx/adapters/puck` RenderTree <-> Puck editable data | 파일 IO, Supabase/REST 호출, DB write, AI 실행, validation policy, React/Puck UI render |
-| `@cx/orchestration` | pipeline stage deterministic helper | SourceSpec -> pattern layer candidates, pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 stage/transition helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
-| `@cx/inference-nodes` | pipeline에서 실행하는 inference 작업 단위 | screen-generation agent/validation node wrapper, pipeline-provided runner 실행, node별 input -> output 결과 반환 | stage 순서 소유, persistence, 파일 IO, Claude runner 구현, artifact write, React render |
+| `@cx/orchestration` | inference node 내부 deterministic helper | SourceSpec -> pattern layer candidates, pattern-selection/screen-generation/screen-revision AgentTaskInput, 후속 action helper | pipeline 실행, stage 순서 소유, 파일 IO, Claude 실행, validation rule 판정, React render |
+| `@cx/inference-nodes` | pipeline에서 실행하는 inference 작업 단위 | screen-generation agent/deterministic/validation node wrapper, pipeline-provided runner 실행, node별 input -> output 결과 반환 | stage 순서 소유, persistence, 파일 IO, Claude runner 구현, artifact write, React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter | task 분류, prompt/session/result adapter, `runAgentQuery`, 패키지 내부 참조 자산 관리 | 출력 타입 SSOT, workflow 소유, 저장, render |
 | `@cx/validation` | 생성물의 렌더 가능성과 schema/catalog/layout 계약 검증 | `validateSchemaArtifact`, `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` | 디자인 품질 판단, retry 정책, stage transition, 파일 IO |
-| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, markdown parse command facade, screen-generation external references injection | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
+| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 | `buildPipeline`, `runPipeline`, `runStepPipeline`, `runSideEffects`, source artifact read, artifact write, run log write, markdown parse command facade, screen-generation external references injection | stage helper rule 소유, parsing rule, validation rule, Claude adapter 구현, render |
 | `@cx/renderer` | RenderTree JSON을 React로 렌더링 | `@cx/schema` RenderTree 계약 소비, resolver 기반 interpreter, renderer adapter runtime | table projection, schema validation, materializer, AI 실행 |
 | `@cx/components` | component vocabulary와 catalog 계약 | React components, public catalog, resolver, pure catalog CRUD, component token aliases | workflow, 파일 승인 반영, foundation token 소유 |
 | `@cx/layout` | 화면 chrome과 layout primitive | `AppScreen`, `Flex`, `Grid`, layout style helper, DTO guards | component catalog, token SSOT, 생성 workflow |
@@ -82,10 +82,10 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 - `@cx/adapters/table`은 DB/read-model row bundle을 받아 `RenderTreeScreenNodeContract`를 조립하고 diagnostics를 반환한다.
 - `@cx/adapters/table`은 최종 RenderTree를 table generation result로 투영하되 파일 IO나 DB write를 수행하지 않는다.
 - `@cx/adapters/puck`은 RenderTree와 Puck editable data 사이의 변환만 담당하고, Puck React UI나 저장 API를 소유하지 않는다.
-- `@cx/orchestration`은 pipeline stage가 사용할 입력과 의도를 순수 데이터로 만든다.
+- `@cx/orchestration`은 inference node가 사용할 입력과 의도를 순수 데이터로 만든다.
 - `@cx/agent`는 Claude 실행만 담당하고, 결과의 최종 정합성 판단은 `@cx/validation`에 맡긴다.
 - `@cx/validation`은 필요한 catalog와 contract를 인자로 받으며 파일을 쓰지 않는다.
-- `@cx/pipeline`은 pipeline definition과 stage runtime을 실행하고, IO는 side effect command runner로 위임한다.
+- `@cx/pipeline`은 Step pipeline definition과 runtime을 실행하고, IO는 side effect command runner로 위임한다.
 - `@cx/renderer`는 RenderTree JSON만 소비하고 생성 과정이나 검증을 소유하지 않는다.
 - `@cx/renderer`는 `data/tables` schema나 table materializer 타입을 import하지 않는다.
 - `@cx/renderer/renderer`는 과거 public import를 위한 compatibility entrypoint로만 유지하고, 신규 소비자는 `@cx/renderer` root를 사용한다.
@@ -113,10 +113,10 @@ design skill과 design-context bundle의 에이전트용 규칙 정본은 `packa
 
 ## 6. Pipeline Runtime Boundary
 
-`@cx/pipeline`은 generation pipeline definition과 stage runtime을 소유한다. stage 순서, stage id, runtime context, agent 실행 연결, validation 호출 연결, artifact write 연결은 pipeline 경계에 둔다.
+`@cx/pipeline`은 generation pipeline definition과 Step runtime을 소유한다. stage 순서, stage id, runtime context, agent 실행 연결, validation 호출 연결, artifact write 연결은 pipeline 경계에 둔다.
 stage 순서와 stage별 입출력, design skill/context 주입, revision 조건, artifact 추적 기준은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
 
-`@cx/orchestration`은 pipeline stage 내부에서 쓰는 deterministic helper만 제공한다. SourceSpec, 후보 pattern, validation report 같은 입력을 agent task input이나 next-action data로 조립하지만 실행 가능한 plan을 소유하지 않는다.
+`@cx/orchestration`은 inference node 내부에서 쓰는 deterministic helper만 제공한다. SourceSpec, 후보 pattern, validation report 같은 입력을 agent task input이나 next-action data로 조립하지만 실행 가능한 plan을 소유하지 않는다. `@cx/pipeline`은 orchestration helper를 직접 import하지 않고 `@cx/inference-nodes`의 실행 가능한 node wrapper를 호출한다.
 
 `apps/smoke`는 개발 환경에서 `runPipeline("screen-generation", options)`만 호출하는 thin harness다. smoke는 `@cx/orchestration`, `@cx/agent`, `@cx/validation`, catalog 패키지를 직접 import하지 않는다.
 

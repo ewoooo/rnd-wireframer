@@ -2166,11 +2166,13 @@ Current implementation status:
 - Rollout 1 Step Definition types/helpers are implemented in `@cx/pipeline/definition`.
 - Rollout 2 Step input resolver/state helpers are implemented in `@cx/pipeline/definition`.
 - Rollout 3 generic Step runner is implemented as `runStepPipeline(...)` for small Step pipeline fixtures.
-- Rollout 4 screen-generation Step runner wrapper path is implemented behind `executionMode: "step-runner"`.
-- Screen generation still defaults to the current hardcoded `stage-loop` path while Rollout 4 parity is verified.
-- Smoke CLI can select the migration path with `--execution-mode step-runner`.
+- Rollout 4 screen-generation Step runner wrapper path was implemented and verified.
 - Rollout 5 created `@cx/inference-nodes` and moved screen-generation agent/validation node wrappers out of `@cx/pipeline`.
 - Rollout 6 added explicit screen-generation `references` injection for component catalogs, layout catalogs, skill bundles, and design-context bundles.
+- Rollout 7 moved revision routing into pipeline feedback rules.
+- Rollout 8 added SSE delivery for persisted pipeline events.
+- Rollout 9 removed the legacy stage-loop runtime path. Screen generation now always runs through `runStepPipeline(...)`.
+- Rollout 9 moved pipeline's direct orchestration builder calls behind `@cx/inference-nodes/screen-generation` deterministic node wrappers.
 ```
 
 ### 11.3 Rollout 0. Baseline Capture
@@ -2286,10 +2288,19 @@ Current implementation note:
 
 ```text
 2026-06-05
-- `ScreenGenerationPipelineOptions.executionMode` selects `stage-loop` or `step-runner`.
-- The default remains `stage-loop` as the safe fallback.
-- `apps/smoke` accepts `--execution-mode step-runner` so rollout gates can compare both runtime paths through the same CLI harness.
-- The Step runner wrapper delegates each current stage id to the existing `screenGenerationStageExecutors` entry and preserves artifact writing through the current `write-artifacts` stage.
+- This rollout originally introduced a selectable Step runner wrapper for parity testing.
+- Rollout 9 later removed the legacy stage-loop branch and the public execution-mode selector.
+- The Step runner now delegates each current stage id through `screenGenerationStepExecutors` and preserves artifact writing through the current `write-artifacts` stage.
+```
+
+Rollout 9 update:
+
+```text
+2026-06-05
+- `screen-generation` now always executes through `runStepPipeline(...)`.
+- `ScreenGenerationPipelineOptions.executionMode` and the smoke CLI `--execution-mode` flag were removed.
+- The legacy `runScreenGenerationStageLoop(...)` path and stage-loop persistence helper code were removed.
+- The stage executor table was renamed to `screenGenerationStepExecutors` and is only used to define Step execute functions.
 ```
 
 ### 11.8 Rollout 5. Extract Inference Nodes
@@ -2468,6 +2479,23 @@ Done when:
 - Public API still runs `screen-generation`.
 - All parity gates pass.
 - Migration notes document any intentionally changed artifact or trace shape.
+
+Rollout 9 implementation note:
+
+```text
+2026-06-05
+- Removed the legacy stage-loop branch from `runScreenGenerationPipeline(...)`.
+- `runPipeline("screen-generation")` now always uses the Step runner; the old execution-mode option and smoke CLI flag were removed.
+- Moved deterministic orchestration calls behind `@cx/inference-nodes/screen-generation` wrappers:
+  - `runPatternLayerCandidatesNode(...)`
+  - `runDesignSkillSelectionNode(...)`
+  - `runDesignContextBundleRefsNode(...)`
+  - `runDecorationPlanNode(...)`
+  - `runGenerationNextActionNode(...)`
+- Added `runRequiredRegionLayoutRepairNode(...)` so AI output cannot fail solely by omitting required `layout.region.*` refs on `Screen.Header`, `Screen.Contents`, or `Screen.Bottom`.
+- `@cx/pipeline` still imports orchestration types for state shape compatibility, but no longer imports individual orchestration builder functions.
+- Artifact shape is intentionally unchanged. Event shape remains `PipelineRunEvent`; happy-path optional revision stages are persisted as `skipped`, so fake happy path keeps 22 persisted stage events.
+```
 
 ## 12. Open Decisions
 

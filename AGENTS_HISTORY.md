@@ -36,6 +36,18 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-05 - Inference Pipeline Rollout 9
+
+- 변경: `runScreenGenerationPipeline(...)`에서 legacy `stage-loop` 분기를 제거하고 `screen-generation` 실행을 항상 `runStepPipeline(...)` 경로로 고정함
+- 변경: `ScreenGenerationPipelineOptions.executionMode`와 smoke CLI `--execution-mode` 플래그를 제거해 더 이상 runtime path 선택 표면을 노출하지 않게 함
+- 변경: legacy `runScreenGenerationStageLoop(...)`와 stage-loop 전용 status/event persistence helper를 제거하고, stage executor table을 `screenGenerationStepExecutors`로 rename해 Step 정의용 executor로만 사용하게 함
+- 변경: `@cx/pipeline`이 직접 import하던 orchestration builder 호출을 `@cx/inference-nodes/screen-generation`의 deterministic node wrapper(`runPatternLayerCandidatesNode`, `runDesignSkillSelectionNode`, `runDesignContextBundleRefsNode`, `runDecorationPlanNode`, `runGenerationNextActionNode`) 뒤로 이동함
+- 변경: agent 결과가 `Screen.Header`, `Screen.Contents`, `Screen.Bottom`의 필수 `layout.region.*` ref를 누락하면 `runRequiredRegionLayoutRepairNode(...)`가 검증 전에 보정하도록 추가함
+- 이유: 마지막 Rollout 9 범위에서 pipeline은 Step runtime/order/status/IO를 소유하고, 실제 agent/deterministic/validation 작업 단위는 inference-nodes가 소유하도록 경계를 확정하기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md apps/smoke/README.md packages/inference-nodes/src/screen-generation/deterministic-nodes.ts packages/inference-nodes/src/screen-generation/index.ts packages/inference-nodes/src/__tests__/deterministic-nodes.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/public/types.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/smoke/src/cli.ts apps/smoke/src/generation/types.ts apps/smoke/src/generation/run-generation-smoke.ts apps/smoke/src/generation/batch/run-batch.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/inference-nodes/src/__tests__/deterministic-nodes.test.ts apps/smoke/src/generation/batch/run-batch.test.ts apps/web/src/lib/screen-inference-events.test.ts apps/web/src/components/App.test.tsx`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --artifact-store local-transient --run-id rollout9-cleanup-final-fake-check`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --artifact-store local-transient --run-id rollout9-default-step-runner-ai-check-2 --use-ai`
+- 검증 결과: cleanup fake `rollout9-cleanup-final-fake-check`는 `pipeline-status.status=completed`, `write-artifacts=completed`, `revise-render-tree-if-invalid=skipped`, `pipeline-events.ndjson=22 events`, `validationOk=true`; real AI `rollout9-default-step-runner-ai-check-2`는 revision route를 실행하고 `pipeline-status.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.errorCount=0`, `warningCount=2`, `validationOk=true`
+- 후속: 첫 real AI 재검증(`rollout9-default-step-runner-ai-check`)은 revision 결과가 `Screen.Bottom.layout`을 누락해 `validationOk=false`였다. 해당 계약은 deterministic region layout repair node로 보강했고 재실행에서 통과했다.
+
 ## 2026-06-05 - Inference Pipeline Rollout 8
 
 - 변경: `GET /api/screen-inference/runs/:runId/events` SSE route를 추가해 `pipeline-events.ndjson`에 저장된 `PipelineRunEvent`를 `pipeline-event`로 replay/tail할 수 있게 함

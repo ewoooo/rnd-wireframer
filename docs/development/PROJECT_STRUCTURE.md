@@ -21,8 +21,8 @@
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
-| `@cx/inference-nodes` | pipeline에서 실행하는 inference node wrapper |
+| `@cx/orchestration` | inference node 내부의 순수 입력 조립과 next action helper |
+| `@cx/inference-nodes` | pipeline에서 실행하는 agent/deterministic/validation inference node wrapper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 | `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
 
@@ -263,7 +263,7 @@ smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 �
 
 ## 11. `packages/orchestration`
 
-`@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
+`@cx/orchestration`은 inference node 내부에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision agent input builder와 generation next action helper를 제공한다. pipeline 실행, stage 순서, 파일 IO는 소유하지 않는다.
 
 ```text
 packages/orchestration/src/
@@ -284,7 +284,7 @@ packages/orchestration/src/
 
 ## 12. `packages/inference-nodes`
 
-`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner와 외부 catalog/reference 값은 pipeline이 제공한다. 현재는 screen-generation agent node wrapper와 RenderTree validation node wrapper를 소유한다.
+`@cx/inference-nodes`는 pipeline에서 호출되는 inference node wrapper를 담당한다. node는 input을 받아 output을 반환하는 작업 단위이며, 실제 Claude/fake runner와 외부 catalog/reference 값은 pipeline이 제공한다. 현재는 screen-generation agent node wrapper, deterministic helper node wrapper, RenderTree validation node wrapper를 소유한다.
 
 ```text
 packages/inference-nodes/src/

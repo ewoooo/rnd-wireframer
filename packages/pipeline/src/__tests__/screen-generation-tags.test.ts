@@ -7,11 +7,7 @@ import {
 	resolveRegionLayoutFromScreenLayout,
 } from "@cx/layout-pattern-store/resolver";
 import { runPipeline } from "@cx/pipeline";
-import type {
-	PipelineProgressEvent,
-	ScreenGenerationPipelineOptions,
-	ScreenGenerationReferencesInput,
-} from "@cx/pipeline/types";
+import type { PipelineProgressEvent, ScreenGenerationReferencesInput } from "@cx/pipeline/types";
 import { afterAll, describe, expect, it } from "vitest";
 
 const SOURCE = "data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md";
@@ -24,7 +20,6 @@ afterAll(async () => {
 async function runFake(
 	runId: string,
 	tags?: string[],
-	executionMode?: ScreenGenerationPipelineOptions["executionMode"],
 	references?: ScreenGenerationReferencesInput,
 ) {
 	const rootDir = await mkdtemp(path.join(tmpdir(), "cx-tags-"));
@@ -36,7 +31,6 @@ async function runFake(
 		onProgress: (event) => {
 			progressEvents.push(event);
 		},
-		executionMode,
 		references,
 		runId,
 		source: { path: SOURCE, type: "file" },
@@ -133,29 +127,39 @@ describe("screen-generation manifest tags", () => {
 		expect(pipelineEvents).toContain('"status":"completed"');
 	});
 
-	it("can run the current screen-generation stages through the Step runner path", async () => {
-		const oldPath = await runFake("old-path");
-		const stepPath = await runFake("step-path", undefined, "step-runner");
+	it("runs screen-generation through the Step runner path by default", async () => {
+		const defaultPath = await runFake("default-path");
 
-		expect(stepPath.artifactFiles.sort()).toEqual(oldPath.artifactFiles.sort());
-		expect(stepPath.pipelineEvents.trim().split("\n")).toHaveLength(22);
-		expect(stepPath.pipelineStatus).toMatchObject({
-			runId: "step-path",
+		expect(defaultPath.pipelineEvents.trim().split("\n")).toHaveLength(22);
+		expect(defaultPath.pipelineStatus).toMatchObject({
+			runId: "default-path",
 			schemaVersion: "pipeline-run-status.v0.1",
 			status: "completed",
 		});
-		expect(stepPath.pipelineStatus.currentStage).toBeUndefined();
+		expect(defaultPath.pipelineStatus.currentStage).toBeUndefined();
 		expect(
-			stepPath.progressEvents
+			defaultPath.progressEvents
 				.filter((event) => event.status === "started")
 				.map((event) => event.stage),
-		).toEqual(
-			oldPath.progressEvents
-				.filter((event) => event.status === "started")
-				.map((event) => event.stage),
-		);
-		expect(stepPath.manifest.stageLayers).toEqual(oldPath.manifest.stageLayers);
-		expect(stepPath.trace.layers).toEqual(oldPath.trace.layers);
+		).toEqual([
+			"read-source",
+			"parse-source",
+			"derive-screen-intent",
+			"plan-composition",
+			"derive-decoration-plan",
+			"select-pattern",
+			"generate-render-tree",
+			"validate-render-tree",
+			"propose-components",
+			"review-quality",
+			"write-artifacts",
+		]);
+		expect(defaultPath.manifest.stageLayers.map((layer) => layer.layer)).toEqual([
+			"understand",
+			"compose",
+			"revise",
+		]);
+		expect(defaultPath.trace.layers.revise.traceKeys).toContain("initialValidationReport");
 	});
 
 	it("uses injected component and layout refs while building screen-generation context", async () => {
@@ -163,7 +167,7 @@ describe("screen-generation manifest tags", () => {
 		const componentLayoutLookups: string[] = [];
 		const regionLayoutLookups: string[] = [];
 
-		await runFake("injected-refs", undefined, "step-runner", {
+		await runFake("injected-refs", undefined, {
 			componentCatalogs: {
 				getEntry: (type) => {
 					componentLookups.push(type);

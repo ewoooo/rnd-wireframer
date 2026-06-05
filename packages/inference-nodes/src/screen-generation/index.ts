@@ -14,6 +14,15 @@ export {
 	runScreenGenerationNode,
 	runScreenRevisionNode,
 } from "./agent-nodes";
+export type { ScreenGenerationLayoutResolver } from "./deterministic-nodes";
+export {
+	runDecorationPlanNode,
+	runDesignContextBundleRefsNode,
+	runDesignSkillSelectionNode,
+	runGenerationNextActionNode,
+	runPatternLayerCandidatesNode,
+	runRequiredRegionLayoutRepairNode,
+} from "./deterministic-nodes";
 export {
 	createFakeComponentProposal,
 	createFakeCompositionPlan,

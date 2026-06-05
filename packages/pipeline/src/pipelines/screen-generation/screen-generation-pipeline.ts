@@ -13,19 +13,18 @@ import {
 	createRenderTreeValidationReport,
 	runComponentProposalNode,
 	runCompositionPlanNode,
+	runDecorationPlanNode,
+	runDesignContextBundleRefsNode,
+	runDesignSkillSelectionNode,
+	runGenerationNextActionNode,
+	runPatternLayerCandidatesNode,
 	runPatternSelectionNode,
 	runQualityReviewNode,
+	runRequiredRegionLayoutRepairNode,
 	runScreenGenerationNode,
 	runScreenIntentNode,
 	runScreenRevisionNode,
 } from "@cx/inference-nodes/screen-generation";
-import {
-	buildDecorationPlan,
-	buildDesignContextBundleRefs,
-	buildDesignSkillSelection,
-	buildGenerationNextAction,
-	buildPatternLayerCandidates,
-} from "@cx/orchestration";
 import type {
 	ComponentContractCatalog,
 	ComponentProposalAgentInput,
@@ -51,23 +50,14 @@ import { validateComponentProposal } from "@cx/validation";
 import { createNodePipelineAdapters } from "../../adapters";
 import { runParseMarkdownSourceCommand } from "../../commands";
 import { definePipeline, defineStep, from } from "../../definition";
-import {
-	completePipelineRunStatus,
-	createFilePipelinePersistenceAdapter,
-	createPipelineRunEvent,
-	createPipelineRunStatus,
-	persistPipelineRunEvent,
-	updatePipelineRunStatus,
-} from "../../persistence";
+import { createFilePipelinePersistenceAdapter } from "../../persistence";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
 	PipelineDefinition,
 	PipelineFeedbackRule,
 	PipelineMarkdownSourceFile,
 	PipelinePersistenceAdapter,
-	PipelineProgressEvent,
 	PipelineRunResult,
-	PipelineRunStatus,
 	PipelineStageId,
 	ScreenGenerationPipelineOptions,
 	ScreenGenerationReferences,
@@ -168,7 +158,6 @@ type NormalizedScreenGenerationPipelineOptions = {
 	createdAt: string;
 	createEventId: () => string;
 	disableDesignContext: boolean;
-	executionMode: "stage-loop" | "step-runner";
 	onProgress: NonNullable<ScreenGenerationPipelineOptions["onProgress"]>;
 	outDir: string;
 	persistence?: PipelinePersistenceAdapter;
@@ -182,7 +171,7 @@ type NormalizedScreenGenerationPipelineOptions = {
 
 type ScreenGenerationStageExecutor = (state: ScreenGenerationPipelineState) => Promise<void> | void;
 
-const screenGenerationStageExecutors = {
+const screenGenerationStepExecutors = {
 	"derive-screen-intent": runDeriveScreenIntentStage,
 	"derive-decoration-plan": runDeriveDecorationPlanStage,
 	"generate-render-tree": runGenerateRenderTreeStage,
@@ -205,62 +194,11 @@ export async function runScreenGenerationPipeline(
 	const state: ScreenGenerationPipelineState = {
 		options: normalizeScreenGenerationPipelineOptions(options),
 	};
-	if (state.options.executionMode === "step-runner") {
-		await runScreenGenerationStepRunner(definition, state);
-	} else {
-		await runScreenGenerationStageLoop(definition, state);
-	}
+	await runScreenGenerationStepRunner(definition, state);
 
 	assertScreenGenerationCompleted(state);
 
 	return createScreenGenerationPipelineResult(state);
-}
-
-async function runScreenGenerationStageLoop(
-	definition: PipelineDefinition,
-	state: ScreenGenerationPipelineState,
-): Promise<void> {
-	let runStatus = createPipelineRunStatus({
-		createdAt: state.options.createdAt,
-		definition,
-		outDir: state.options.outDir,
-		pipelineId: "screen-generation",
-		runDir: state.options.runDir,
-		runId: state.options.runId,
-		sourcePath: state.options.sourcePath,
-	});
-	await state.options.persistence?.writeStatus(runStatus);
-
-	for (const stage of definition.stages) {
-		if (shouldSkipScreenGenerationStage(state, stage)) {
-			const skippedAt = state.options.clockNow();
-			runStatus = markPipelineStageSkipped(runStatus, stage, skippedAt);
-			await state.options.persistence?.writeStatus(runStatus);
-			continue;
-		}
-		const startedEvent = createProgressEvent(state, stage, "started");
-		runStatus = await recordPipelineProgress(state, runStatus, startedEvent);
-		await state.options.onProgress(startedEvent);
-
-		try {
-			await screenGenerationStageExecutors[stage](state);
-		} catch (error) {
-			const failedEvent = createProgressEvent(state, stage, "failed");
-			runStatus = await recordPipelineProgress(state, runStatus, failedEvent, {
-				code: "pipeline_stage_failed",
-				message: readErrorMessage(error),
-			});
-			await state.options.onProgress(failedEvent);
-			throw error;
-		}
-
-		const completedEvent = createProgressEvent(state, stage, "completed");
-		runStatus = await recordPipelineProgress(state, runStatus, completedEvent);
-		await state.options.onProgress(completedEvent);
-	}
-
-	runStatus = completePipelineRunStatus(runStatus, state.options.clockNow());
-	await state.options.persistence?.writeStatus(runStatus);
 }
 
 async function runScreenGenerationStepRunner(
@@ -273,7 +211,7 @@ async function runScreenGenerationStepRunner(
 		steps: definition.stages.map((stage) =>
 			defineStep({
 				execute: async () => {
-					await screenGenerationStageExecutors[stage](state);
+					await screenGenerationStepExecutors[stage](state);
 					return readScreenGenerationStageOutput(state, stage);
 				},
 				id: stage,
@@ -457,50 +395,6 @@ function createScreenGenerationFeedbackRule(
 	return rule;
 }
 
-function createProgressEvent(
-	state: ScreenGenerationPipelineState,
-	stage: PipelineStageId,
-	status: PipelineProgressEvent["status"],
-): PipelineProgressEvent {
-	return {
-		pipelineId: "screen-generation",
-		runId: state.options.runId,
-		stage,
-		status,
-		timestamp: state.options.clockNow(),
-	};
-}
-
-async function recordPipelineProgress(
-	state: ScreenGenerationPipelineState,
-	status: PipelineRunStatus,
-	event: PipelineProgressEvent,
-	error?: PipelineRunStatus["error"],
-): Promise<PipelineRunStatus> {
-	const timestamp = event.timestamp ?? state.options.clockNow();
-	const nextStatus = updatePipelineRunStatus({
-		error,
-		event,
-		status,
-		timestamp,
-	});
-	await persistPipelineRunEvent({
-		adapter: state.options.persistence,
-		event: createPipelineRunEvent({
-			event,
-			eventId: state.options.createEventId(),
-			timestamp,
-		}),
-		status: nextStatus,
-	});
-	return nextStatus;
-}
-
-function readErrorMessage(error: unknown): string {
-	if (error instanceof Error) return error.message;
-	return String(error);
-}
-
 function shouldSkipScreenGenerationStage(
 	state: ScreenGenerationPipelineState,
 	stage: PipelineStageId,
@@ -519,28 +413,6 @@ function shouldSkipScreenGenerationStage(
 		return !state.revisionAgentResult;
 	}
 	return false;
-}
-
-function markPipelineStageSkipped(
-	status: PipelineRunStatus,
-	stage: PipelineStageId,
-	timestamp: string,
-): PipelineRunStatus {
-	const previous = status.stages[stage] ?? { status: "pending" as const };
-	return {
-		...status,
-		currentStage: stage,
-		stages: {
-			...status.stages,
-			[stage]: {
-				...previous,
-				completedAt: timestamp,
-				status: "skipped",
-			},
-		},
-		status: "running",
-		updatedAt: timestamp,
-	};
 }
 
 async function runReadSourceStage(state: ScreenGenerationPipelineState): Promise<void> {
@@ -611,7 +483,7 @@ async function runDeriveScreenIntentStage(state: ScreenGenerationPipelineState):
 async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Promise<void> {
 	const sourceSpec = requireSourceSpec(state);
 	const layerCandidates = buildScreenGenerationPatternLayerCandidates(state, sourceSpec);
-	const designSkillSelection = buildDesignSkillSelection({
+	const designSkillSelection = runDesignSkillSelectionNode({
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
 		sourceSpec,
@@ -640,7 +512,7 @@ async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Pr
 	state.compositionPlanAgentInput = nodeResult.agentInput;
 	state.compositionPlanAgentResult = nodeResult.agentResult;
 	state.compositionPlanRunnerRequest = nodeResult.runnerRequest;
-	state.designContextBundleSelection = buildDesignContextBundleRefs({
+	state.designContextBundleSelection = runDesignContextBundleRefsNode({
 		compositionPlan: state.compositionPlanAgentResult.payload,
 		layerCandidates,
 		screenIntent: state.screenIntentAgentResult?.payload,
@@ -650,7 +522,7 @@ async function runPlanCompositionStage(state: ScreenGenerationPipelineState): Pr
 
 function runDeriveDecorationPlanStage(state: ScreenGenerationPipelineState): void {
 	const sourceSpec = requireSourceSpec(state);
-	state.decorationPlan = buildDecorationPlan({
+	state.decorationPlan = runDecorationPlanNode({
 		compositionPlan: state.compositionPlanAgentResult?.payload,
 		sourceSpec,
 	});
@@ -727,7 +599,7 @@ async function runGenerateRenderTreeStage(state: ScreenGenerationPipelineState):
 	});
 
 	state.agentInput = nodeResult.agentInput;
-	state.agentResult = nodeResult.agentResult;
+	state.agentResult = repairAgentRunResultPayload(nodeResult.agentResult);
 	state.runnerRequest = nodeResult.runnerRequest;
 }
 
@@ -742,7 +614,7 @@ function runValidateRenderTreeStage(state: ScreenGenerationPipelineState): void 
 	});
 	state.initialValidationReport ??= state.validationReport;
 	if (state.sourceSpec) {
-		state.designContextBundleSelection = buildDesignContextBundleRefs({
+		state.designContextBundleSelection = runDesignContextBundleRefsNode({
 			compositionPlan: state.compositionPlanAgentResult?.payload,
 			layerCandidates: state.patternLayerCandidates,
 			screenIntent: state.screenIntentAgentResult?.payload,
@@ -846,7 +718,7 @@ async function runReviewQualityStage(state: ScreenGenerationPipelineState): Prom
 	state.qualityReviewAgentInput = nodeResult.agentInput;
 	state.qualityReviewAgentResult = nodeResult.agentResult;
 	state.qualityReviewRunnerRequest = nodeResult.runnerRequest;
-	state.generationNextAction = buildGenerationNextAction({
+	state.generationNextAction = runGenerationNextActionNode({
 		initialValidationReport: state.initialValidationReport,
 		qualityInspection: state.qualityReviewAgentResult.payload,
 		retryCount: state.revisionAgentResult ? 1 : 0,
@@ -897,7 +769,7 @@ async function runReviseRenderTreeIfInvalidStage(
 	});
 
 	state.revisionAgentInput = nodeResult.agentInput;
-	state.revisionAgentResult = nodeResult.agentResult;
+	state.revisionAgentResult = repairAgentRunResultPayload(nodeResult.agentResult);
 	state.revisionRunnerRequest = nodeResult.runnerRequest;
 	state.agentResult = state.revisionAgentResult;
 }
@@ -1009,7 +881,6 @@ function normalizeScreenGenerationPipelineOptions(
 		createdAt,
 		createEventId,
 		disableDesignContext: options.disableDesignContext ?? false,
-		executionMode: options.executionMode ?? "stage-loop",
 		onProgress: options.onProgress ?? (() => undefined),
 		...paths,
 		persistence,
@@ -1101,7 +972,7 @@ function buildScreenGenerationPatternLayerCandidates(
 	sourceSpec: SourceSpec,
 	decorationPlan?: DecorationPlanContract,
 ): PatternLayerCandidate[] {
-	return buildPatternLayerCandidates({
+	return runPatternLayerCandidatesNode({
 		decorationPlan,
 		resolver: {
 			resolveComponentLayout: state.options.references.layoutCatalogs.resolveComponentLayout,
@@ -1373,6 +1244,13 @@ function isValidationWorse(
 
 function readValidationErrorCount(report: ValidationReportContract | undefined): number {
 	return report?.summary.errorCount ?? Number.POSITIVE_INFINITY;
+}
+
+function repairAgentRunResultPayload(result: AgentRunResult): AgentRunResult {
+	return {
+		...result,
+		payload: runRequiredRegionLayoutRepairNode(result.payload),
+	};
 }
 
 function isRecord(input: unknown): input is Record<string, unknown> {

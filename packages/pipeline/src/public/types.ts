@@ -317,7 +317,6 @@ export type ScreenGenerationPipelineOptions = {
 	};
 	/** Evaluation 전용: design-context bundle 본문 주입을 끈다(A/B 비교). */
 	disableDesignContext?: boolean;
-	executionMode?: "stage-loop" | "step-runner";
 	outDir?: string;
 	onProgress?: (event: PipelineProgressEvent) => Promise<void> | void;
 	persistence?: {

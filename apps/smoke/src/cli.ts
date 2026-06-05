@@ -5,7 +5,6 @@ type SmokeCliOptions = {
 	artifactStore?: "data-run" | "local-transient" | "web-fixture";
 	batchId?: string;
 	disableDesignContext?: boolean;
-	executionMode?: "stage-loop" | "step-runner";
 	glob?: string;
 	outDir?: string;
 	runId?: string;
@@ -31,7 +30,6 @@ async function main() {
 		artifactRoot: options.artifactRoot,
 		artifactStore: options.artifactStore,
 		disableDesignContext: options.disableDesignContext,
-		executionMode: options.executionMode,
 		outDir: options.outDir,
 		runId: options.runId,
 		useAI: options.useAI,
@@ -50,7 +48,6 @@ async function runBatch(options: SmokeCliOptions) {
 		artifactStore: options.artifactStore,
 		batchId: options.batchId,
 		disableDesignContext: options.disableDesignContext,
-		executionMode: options.executionMode,
 		glob: options.glob,
 		targetDir: options.targetDir as string,
 		useAI: options.useAI,
@@ -137,16 +134,6 @@ function parseArgs(args: string[]): SmokeCliOptions {
 			continue;
 		}
 
-		if (arg === "--execution-mode") {
-			const value = readRequiredValue(args, index, "--execution-mode");
-			if (value !== "stage-loop" && value !== "step-runner") {
-				throw new Error(`Unknown execution mode: ${value}`);
-			}
-			options.executionMode = value;
-			index += 1;
-			continue;
-		}
-
 		if (arg === "--help" || arg === "-h") {
 			printUsage();
 			process.exit(0);
@@ -169,7 +156,6 @@ function parseArgs(args: string[]): SmokeCliOptions {
 		artifactStore: options.artifactStore,
 		batchId: options.batchId,
 		disableDesignContext: options.disableDesignContext ?? false,
-		executionMode: options.executionMode,
 		glob: options.glob,
 		outDir: options.outDir,
 		runId: options.runId,
@@ -200,8 +186,6 @@ Options:
   --run-id <id>     Single only. Stable output id. Defaults to <target-basename>-<timestamp>.
   --out-dir <path>  Legacy output directory override (single only).
   --no-design-context  Eval 전용: design-context bundle 본문 주입을 끈다(A/B 비교).
-  --execution-mode <stage-loop|step-runner>
-                   Runtime path. Defaults to stage-loop.
   --artifact-store <data-run|local-transient|web-fixture>
                    Output store. Defaults to data-run.
   --artifact-root <path>
