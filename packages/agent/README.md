@@ -29,7 +29,7 @@ caller
   -> Claude Agent SDK runner
 ```
 
-caller는 web API route, server action, CLI script, 후속 FastAPI bridge가 될 수 있다. 브라우저 client component는 이 패키지를 직접 import하지 않는다.
+caller는 web API route, server action, CLI script가 될 수 있다. 브라우저 client component는 이 패키지를 직접 import하지 않는다.
 
 ## 외부 사용 방법
 

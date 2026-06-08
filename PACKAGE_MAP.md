@@ -4,7 +4,7 @@
 
 This document tracks active package responsibilities, public surfaces, and package relationships.
 
-Product direction follows [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), agent operation follows [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), repository layout follows [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), and the new screen inference execution architecture follows [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md).
+Agent operation follows [AGENTS.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS.md), repository layout follows [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), and screen inference execution architecture follows [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md).
 
 Package-specific API examples belong in each `packages/*/README.md`. This document keeps only responsibility boundaries.
 

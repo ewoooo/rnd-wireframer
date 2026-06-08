@@ -4,7 +4,7 @@
 
 이 문서는 RND Screen Generator의 데이터 종류와 소비 데이터 계약을 정의한다.
 
-제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 기술 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md)를 따른다.
+기술 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md)를 따른다.
 
 현재 데이터는 아래 생명 주기로 나눈다.
 
@@ -25,8 +25,6 @@
 - `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
 - `@cx/layout/catalog`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
-
-데이터 흐름 관계를 시각 검토할 때는 [DATA_FLOW.dbml](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_FLOW.dbml)을 사용한다. 이 DBML은 migration 스키마가 아니라 공급 데이터가 소비 데이터로 정규화되는 흐름과 참조 관계를 표현한 산출물이다.
 
 ## 2. 데이터 흐름
 
@@ -87,7 +85,7 @@ apps/web
 |---|---|---|
 | `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
 | `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
-| `@cx/component-pattern-store` | primitive/componentPattern 조합으로 만든 재사용 semantic UI block registry | Compose 단계의 `reuse-pattern`, `proposedComponentPatterns` 큐레이션/재사용 |
+| `@cx/components/catalog` | leaf component prop, variant, AI 작성 가능 surface 계약 | component type/props/hook 후보 검증 |
 | `@cx/layout/catalog` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
 
 PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 `database/client-imports/PRDD/variants/`에 보관하며, 명시적 variant/retry 생성 또는 edge-case 검증 때만 입력으로 승격한다.
@@ -100,7 +98,7 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 
 - 원천 import는 파괴적으로 수정하지 않는다.
 - 공급 데이터는 workbench 직접 입력이 아니라 소비 데이터 생성 근거다.
-- `@cx/component-pattern-store`는 의미 있는 UI 조합 계약이다. `@cx/layout/catalog`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
+- `@cx/components/catalog`는 leaf component의 작성 가능한 surface 계약이다. `@cx/layout/catalog`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
 - `@cx/layout/catalog`는 공급 데이터다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - layout catalog의 recipe는 parser/resolver/generator 단계에서 `pattern.id`, `pattern.variant` 참조로만 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 layout recipe를 materialize한다. React render 단계는 layout catalog JSON을 직접 읽지 않는다.
 - layout catalog가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.

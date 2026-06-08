@@ -21,17 +21,11 @@ Next.js
 @cx/layout / @cx/components / @cx/tokens
 
 후속 연결:
-Next.js
+Next.js API routes
   |
-  v
-FastAPI
-  |
-  +--> Agent SDK
-  |     +--> Local AI Session
-  |     +--> Remote AI API
+  +--> @cx/inference
+  +--> @cx/agent
   +--> 운영 DB/Storage
-  +--> Claude API
-  +--> Codex Review
 ```
 
 ## 3. 레이어 책임
@@ -42,12 +36,10 @@ FastAPI
 | `@cx/schema` | SourceSpec, RenderTree, validation report 같은 저장/전달 DTO와 JSON schema 계약 |
 | `@cx/tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
 | `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
-| `@cx/component-pattern-store` | primitive/componentPattern을 조합한 재사용 semantic UI block registry |
 | `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive, layout catalog/resolver |
 | `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, `tablesToRenderTree` projection, React 렌더링 패키지 |
 | `@cx/agent` | screen/area/component read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
-| FastAPI | 후속 JSON 검증, 정규화, OGN 조합, AI 호출, 결과 검증 |
 | Agent SDK | 후속 Claude 생성과 Codex 검수를 실행하는 공통 런타임 계층 |
 | Local AI Session | 후속 로컬 AI 실행과 선택적 세션 재개 |
 | Remote AI API | 후속 로컬 세션 실패 시 fallback |
@@ -65,7 +57,6 @@ FastAPI
 ```text
 AGENTS.md
 AGENTS_HISTORY.md
-MASTER_PLAN.md
 apps/
   web/
     src/
@@ -86,12 +77,6 @@ packages/
   layout/
   renderer/
   agent/
-services/
-  api/
-    app/
-      api/
-      services/
-      schemas/
 docs/
   development/
     DEVELOPMENT_ARCHITECTURE.md
@@ -99,55 +84,15 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/component-pattern-store`는 primitive와 registered componentPattern을 조합한 semantic UI block registry를 소유한 `@cx/component-pattern-store` 패키지다. `packages/layout`은 기존 `cx-layout`의 화면 chrome, primitive, layout pattern component, layout catalog/resolver를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. Layout catalog 타입과 runtime schema는 `@cx/layout` 내부 공개 API가 관리한다. `packages/renderer`는 `sdui-renderer`의 schema, binding, registry, validation, React renderer 패턴을 흡수해 `database/tables` shape를 RenderTree DTO로 projection하고, render node type과 props를 해석해 `@cx/layout` chrome/primitive/layout pattern component와 `@cx/components` leaf component로 렌더링한다. Renderer는 `@cx/layout` 공개 subpath만 소비하고 layout catalog 내부 JSON을 직접 import하지 않는다. `packages/renderer/src/component-catalog.ts`는 compose/AI/editor가 공유하는 component prop, variant, AI writable surface 계약 레지스트리다. `packages/renderer/src/renderer-kind-contract.ts`는 render node type을 renderer kind로 연결하는 계약 테이블이다. `packages/agent`는 Agent SDK runtime과 deterministic NodeTree registration pipeline을 담당한다.
+`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome, primitive, layout pattern component, layout catalog/resolver를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. Layout catalog 타입과 runtime schema는 `@cx/layout` 내부 공개 API가 관리한다. `packages/renderer`는 RenderTree DTO를 해석해 `@cx/layout` chrome/primitive/layout pattern component와 `@cx/components` leaf component로 렌더링한다. Renderer는 `@cx/layout` 공개 subpath만 소비하고 layout catalog 내부 JSON을 직접 import하지 않는다.
 
 `packages/agent/src`는 `register`, `compose`, `decorate`, `design-review`, `pattern`, `database`, `runtime`, `deck`, `validate` 책임 디렉토리로 나눈다. 외부 subpath import는 `package.json` `exports`에서 유지하고, 내부 구현 위치는 책임 디렉토리 기준으로 관리한다. `register/prdd-parser.ts`와 `register/register-prdd.ts`는 업로드된 PRDD markdown을 deterministic하게 파싱·등록하고, 생성 단계 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> MaterializedNodeTree` 및 신규 `PrddScreenRecord -> CompositionOutput -> DecoratedOutput` 검증 흐름을 함께 따른다.
 
-`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
+`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서이므로 루트에 둔다. 상세 개발/데이터/디자인 문서는 `docs/` 아래에 둔다. ERD 산출물 위치는 후속 DB 설계 시점에 다시 확정한다.
 
 화면 생성 데이터는 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/` 아래에 둔다. `database/client-imports`는 업로드 원본, `database/ai-imports`는 AI 생성 후보 bundle/table 후보, `database/tables`는 workbench가 소비하는 승인된 table dump다. Layout preset reference catalog는 `@cx/layout/catalog`가 소유한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다. 공급 데이터와 소비 데이터의 구분은 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
 
-## 5. FastAPI 모듈
-
-아래 구조는 후속 API 구현 기준이다. 현재는 `requirements.txt`와 디렉토리 골격만 존재한다.
-
-```text
-services/api/app/
-  api/
-    source_imports.py
-    screen_sources.py
-    area_sources.py
-    generation_jobs.py
-    generated_screen_sets.py
-    generated_screens.py
-    generated_areas.py
-  services/
-    json_validator.py
-    source_normalizer.py
-    source_importer.py
-    screen_table_resolver.py
-    prompt_builder.py
-    agent_runtime.py
-    local_session_resolver.py
-    claude_table_generator.py
-    codex_table_reviewer.py
-    generated_screen_set_builder.py
-    generated_screen_builder.py
-    generated_area_builder.py
-    tables_draft_to_puck.py
-    puck_to_tables_draft.py
-  schemas/
-    source_import.py
-    screen_source.py
-    area_source.py
-    render_tree.py
-    generation_job.py
-    generated_screen.py
-    generated_area.py
-    puck_edit.py
-```
-
-## 6. Next.js 모듈
+## 5. Next.js 모듈
 
 ```text
 apps/web/
@@ -223,7 +168,7 @@ Codex는 Claude의 생성 결과를 검수한다. 검수 기준은 JSON 스키�
 
 Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로컬 실행을 우선 사용하되, 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다. Codex 검수는 로컬 CLI 또는 로컬 런타임 실행기를 우선 사용한다. 로컬 실행이 없거나 실패하면 원격 API로 fallback한다.
 
-현재 render tree 입력 스키마의 구현 기준은 `packages/renderer`의 TypeScript 타입과 Zod validation이다. 이 스키마는 저장 포맷이 아니라 `database/tables`를 렌더러에 넘기기 위해 펼친 입력 DTO다. FastAPI 구현이 붙으면 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
+현재 render tree 입력 스키마의 구현 기준은 `@cx/schema`의 RenderTree DTO와 `@cx/validation` 검증이다. 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
 
 생성 JSON의 `component.type`, `pattern.id`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/layout/catalog`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
