@@ -147,11 +147,7 @@ importers:
         specifier: ^19.2.0
         version: 19.2.7
 
-  packages/component-pattern-store:
-    dependencies:
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
+  packages/inference: {}
 
   packages/inference-nodes:
     dependencies:
@@ -200,15 +196,6 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
-
-  packages/pattern-store:
-    dependencies:
-      '@cx/components':
-        specifier: workspace:*
-        version: link:../component
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
 
   packages/pipeline:
     dependencies:
