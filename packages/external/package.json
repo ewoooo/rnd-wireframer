@@ -5,7 +5,10 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./catalog": "./src/catalog.generated.ts"
+		"./catalog": "./src/catalog.ts"
+	},
+	"dependencies": {
+		"@cx/types": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

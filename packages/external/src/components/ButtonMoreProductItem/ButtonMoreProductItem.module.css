@@ -1,0 +1,54 @@
+/* Figma: .ButtonMoreProductItem — 329×48px, HORIZONTAL gap 14, pad 16/12 */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #ebeef6;
+  border-radius: 20px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+/* Left: logo + label */
+.info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* 24×24 circular logo thumbnail */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.label {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1.4;
+  color: #05001a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right: chevron */
+.arrow {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #05001a;
+}

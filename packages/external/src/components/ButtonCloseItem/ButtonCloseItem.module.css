@@ -1,0 +1,15 @@
+/* Figma: .ButtonCloseItem — 18×18px circle, bg=#EBEEF6, X icon rgba(6,12,31,0.5) */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #ebeef6;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: rgba(6, 12, 31, 0.5);
+  flex-shrink: 0;
+}

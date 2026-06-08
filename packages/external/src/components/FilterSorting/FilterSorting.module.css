@@ -1,0 +1,96 @@
+/* Figma: FilterSorting — node 9638:92802, 393×52px */
+.wrap {
+  position: relative;
+  width: 393px;
+  height: 52px;
+}
+
+.topDivider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #ebeef6;
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  box-sizing: border-box;
+}
+
+.total {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #05001a;
+  white-space: nowrap;
+}
+
+.btnGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sortBtn,
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.filterBtn {
+  gap: 3px;
+}
+
+.btnLabel {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #05001a;
+  white-space: nowrap;
+}
+
+.divider {
+  width: 1px;
+  height: 12px;
+  background: #ebeef6;
+  flex-shrink: 0;
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sortArrow {
+  width: 16px;
+  height: 16px;
+  transform: rotate(180deg);
+  flex-shrink: 0;
+}
+
+.filterIconImg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}

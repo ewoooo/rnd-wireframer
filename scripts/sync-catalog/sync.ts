@@ -22,9 +22,12 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { CATALOG_SOURCE, EXTERNAL_PKG_DIR, HARNESS_EXCLUDES } from "./config.ts";
+import { genCatalog } from "./gen-catalog.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..");
 const CHECK_ONLY = process.argv.includes("--check");
+const LOCAL_IDX = process.argv.indexOf("--local");
+const LOCAL_PATH = LOCAL_IDX !== -1 ? process.argv[LOCAL_IDX + 1] : undefined;
 
 function git(args: string[], cwd: string): string {
 	return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
@@ -34,8 +37,13 @@ function log(msg: string): void {
 	process.stdout.write(`${msg}\n`);
 }
 
-/** 소스 리포의 subpath 만 얕게 sparse-checkout 해서 임시 디렉토리에 가져온다. */
+/** 소스 리포의 subpath 만 얕게 sparse-checkout 해서 임시 디렉토리에 가져온다.
+ *  --local <path> 플래그가 있으면 로컬 경로를 그대로 사용한다. */
 function fetchSource(): { dir: string; sha: string; cleanup: () => void } {
+	if (LOCAL_PATH) {
+		log(`· local  ${LOCAL_PATH}`);
+		return { dir: LOCAL_PATH, sha: "local", cleanup: () => {} };
+	}
 	const tmp = mkdtempSync(join(tmpdir(), "catalog-src-"));
 	log(`· fetch  ${CATALOG_SOURCE.repo}@${CATALOG_SOURCE.ref} (${CATALOG_SOURCE.subpath})`);
 	git(
@@ -138,8 +146,19 @@ function main(): void {
 		writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
 
 		log(`· vendored     ${fileCount} files → ${EXTERNAL_PKG_DIR}/src`);
+
+		// 카탈로그 생성
+		const catalogPath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "catalog.ts");
+		const compCount = genCatalog({
+			externalSrcDir: destSrc,
+			barrelExports: exports,
+			outputPath: catalogPath,
+		});
+		log(`· catalog      ${compCount}개 컴포넌트 → ${EXTERNAL_PKG_DIR}/src/catalog.ts`);
+		log(`  barrel: [kiki] × ${exports.filter((e) => !e.startsWith("type ")).length}  draft: [kiki/draft] × ${compCount - exports.filter((e) => !e.startsWith("type ")).length}`);
+
 		log(`✓ sync 완료 — @cx/external (source: ${CATALOG_SOURCE.id}@${sha.slice(0, 12)})`);
-		log("  다음 단계: 카탈로그 생성(prop 파싱) + AI/렌더 연결");
+		log("  다음 단계: AI/렌더 연결 (build-catalog-deck, component-by-type)");
 	} finally {
 		cleanup();
 	}

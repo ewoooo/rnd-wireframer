@@ -1,0 +1,117 @@
+/* Figma: CarouselProductText — 330×265, pad 24, gap 32, radius 20, #F4F5FA */
+.card {
+  width: 330px;
+  background: #f4f5fa;
+  border-radius: 20px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* header: ProductInfo + ThumbnailLogo, horizontal, gap 40 */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.textInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.subtitle {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #05001a;
+}
+
+.title {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #05001a;
+}
+
+.description {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.4;
+  color: rgba(6, 12, 31, 0.50);
+}
+
+/* logo: ThumbnailItem 40×40, radius 8 */
+.logo {
+  flex-shrink: 0;
+}
+
+.logoImg {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+/* BadgeIcon list: vertical, gap 4 */
+.badgeList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Each badge row: white bg, radius 10, pad 6/10/6/8, horizontal, gap 20 */
+.badgeItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 6px 10px 6px 8px;
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.badgeMain {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badgeIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.badgeLabel {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: rgba(6, 12, 31, 0.60);
+  white-space: nowrap;
+}
+
+.badgeSubLabel {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: rgba(6, 12, 31, 0.60);
+  white-space: nowrap;
+}

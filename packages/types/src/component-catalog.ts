@@ -38,7 +38,12 @@ export type RenderTreeNodeKind =
 	| "thumbnail-large"
 	| "title-section";
 
-export type ComponentCatalogSource = "react-component" | "renderer-composite" | "layout-primitive";
+export type ComponentCatalogSource =
+	| "react-component"
+	| "renderer-composite"
+	| "layout-primitive"
+	| "kiki-barrel"      // kiki 공식 barrel export
+	| "kiki-draft";      // kiki 비공식 (barrel 미등록)
 
 export type ComponentPropType = "array" | "boolean" | "enum" | "node" | "number" | "string";
 

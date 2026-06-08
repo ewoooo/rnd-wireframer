@@ -1,0 +1,1 @@
+export { BannerShop } from './BannerShop';

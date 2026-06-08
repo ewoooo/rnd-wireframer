@@ -1,0 +1,21 @@
+/* Figma: 68×4px, 6 dots 4px, gap 8, active=#3617CE, inactive=rgba(6,12,31,0.20) */
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+  width: 68px;
+  height: 4px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(6, 12, 31, 0.20);
+  flex-shrink: 0;
+}
+
+.active {
+  background: #3617CE;
+}
