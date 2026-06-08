@@ -1,4 +1,4 @@
-import { findLayoutPatternComponentByLayoutId } from "@cx/layout-pattern-store/components";
+import { findLayoutPatternComponentByLayoutId } from "@cx/layout/components";
 
 export function resolveLayout(input: { layoutId: string; props: Record<string, unknown> }) {
 	const entry = findLayoutPatternComponentByLayoutId(input.layoutId);

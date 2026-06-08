@@ -36,6 +36,8 @@ Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실
 
 신규 `/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다.
 
+MVP 구현 상태: `POST /api/inference`와 `GET /api/inference/:jobId/events`는 `@cx/inference` local file runtime을 호출하는 thin route로 연결되어 있다. `GET /api/inference/:jobId/steps`는 후속 구현 대상이다.
+
 Target MVP endpoint:
 
 | Method | Path | 목적 | 입력 | 출력 |

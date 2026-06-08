@@ -72,4 +72,4 @@ type ValidationReport = {
 - `validateLayoutProps`: `Layout.Flex`, `Layout.Grid`, Screen region props의 enum과 숫자/문자/boolean 타입을 확인한다.
 - `validateComponentProposal`: 비파괴 `component-proposal` 아티팩트가 bounded인지(근거 ⊆ allowedRefs, nearestCatalogMatch ∈ 카탈로그 type, 개수 상한) 확인한다.
 
-필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`, `@cx/layout-pattern-store`의 public API만 소비한다.
+필요한 catalog나 contract는 인자로 받는다. 이 패키지는 `@cx/schema`, `@cx/components`, `@cx/layout`의 public API만 소비한다.

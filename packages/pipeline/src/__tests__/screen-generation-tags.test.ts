@@ -5,7 +5,7 @@ import { getComponentCatalogEntry } from "@cx/components/catalog";
 import {
 	resolveCompositeLayoutByComponentType,
 	resolveRegionLayoutFromScreenLayout,
-} from "@cx/layout-pattern-store/resolver";
+} from "@cx/layout/resolver";
 import { runPipeline } from "@cx/pipeline";
 import type { PipelineProgressEvent, ScreenGenerationReferencesInput } from "@cx/pipeline/types";
 import { afterAll, describe, expect, it } from "vitest";

@@ -12,6 +12,7 @@ export type ValidationTarget =
 	| "composition-plan"
 	| "component-usage"
 	| "layout-props"
+	| "output-contract"
 	| "render-tree"
 	| "schema-artifact"
 	| "table-generation-result";

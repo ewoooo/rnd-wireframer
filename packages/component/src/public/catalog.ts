@@ -1,3 +1,4 @@
+import { type ComponentCatalogObject, SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
 import { assembleComponentCatalog } from "../internal/assembly";
 import { auditComponentCatalog as auditCatalog } from "../internal/audit";
 import { internalComponentCatalog } from "../internal/registry";
@@ -76,6 +77,20 @@ export function listCatalogIds(options: ComponentCatalogListOptions = {}) {
 
 export function auditComponentCatalog() {
 	return auditCatalog(componentCatalog);
+}
+
+export function resolveComponentCatalogForInference(): ComponentCatalogObject {
+	return {
+		kind: "component-catalog",
+		id: "default",
+		owner: "@cx/components",
+		sourceRef: "catalog",
+		version: "v1",
+		schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
+		data: {
+			entries: listCatalog(),
+		},
+	};
 }
 
 function filterRegistry(options: ComponentCatalogListOptions) {

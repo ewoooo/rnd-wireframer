@@ -5,9 +5,14 @@ import type {
 	ComponentPropContract,
 	ComponentPropType,
 } from "@cx/components/types";
+import { findPattern } from "@cx/layout/catalog";
 import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
-import { findPattern } from "@cx/layout-pattern-store/catalog";
-import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
+import type {
+	GenerationArtifactKind,
+	JsonSchemaDocument,
+	SchemaPropBinding,
+	SourceSpec,
+} from "@cx/schema";
 import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
 import { isRecord } from "@cx/types/guards";
 import type { ErrorObject, ValidateFunction } from "ajv";
@@ -81,6 +86,29 @@ export function validateSchemaArtifact(
 	}
 
 	return buildReport("schema-artifact", issues);
+}
+
+export function validateJsonSchema(
+	schema: JsonSchemaDocument,
+	input: unknown,
+	target: ValidationTarget = "output-contract",
+): ValidationReport {
+	const issues: ValidationIssue[] = [];
+	const value = parseJsonLikeInput(input, issues);
+	if (value === undefined) return buildReport(target, issues);
+
+	const validate = ajv.compile(schema);
+	if (validate(value)) return buildReport(target, issues);
+
+	for (const error of validate.errors ?? []) {
+		addIssue(issues, {
+			code: "schema-invalid",
+			message: formatSchemaError(error),
+			path: parseJsonPointer(error.instancePath),
+		});
+	}
+
+	return buildReport(target, issues);
 }
 
 export function validateAgentResult(

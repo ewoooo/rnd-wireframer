@@ -28,7 +28,7 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 - 컴포넌트 토큰은 `@cx/components`의 `--skt-component-*` alias만 소유하고, foundation/semantic 값은 `@cx/tokens`를 참조한다.
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
-- 재설계 기간에는 `@cx/agent`를 Claude Agent SDK 실행 adapter로만 운영한다. `@cx/layout-pattern-store`는 layout pattern reference catalog로 운영하되 내부 타입과 schema를 자체 소유한다. `@cx/importer`, `@cx/types`, `@cx/workflow` 패키지는 새 설계가 확정될 때까지 운영하지 않는다.
+- 재설계 기간에는 `@cx/agent`를 Claude Agent SDK 실행 adapter로만 운영한다. `@cx/layout`은 layout primitive, layout pattern component, layout catalog/resolver를 함께 소유한다. `@cx/importer`, `@cx/types`, `@cx/workflow` 패키지는 새 설계가 확정될 때까지 운영하지 않는다.
 - `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일, 공개되지 않은 subpath, JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `packages/adapters`의 `@cx/adapters/markdown` subpath는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 함수만 관리한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
@@ -38,7 +38,7 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 - `packages/pipeline`의 `@cx/pipeline` 패키지는 기존 screen-generation compatibility runtime과 승인된 side effect/IO 유틸리티로 운영한다. 새 inference runtime 개념은 `@cx/inference` 설계로 이동한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
-- 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `layout-pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
+- 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `@cx/layout` layout catalog/resolver(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
 - 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고, 런타임 데이터와 섞지 않는다.
 - screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다.
 - 기존 `database/client-imports`, `database/ai-imports`, `database/tables` 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.

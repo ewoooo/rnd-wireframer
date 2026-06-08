@@ -13,9 +13,11 @@ import {
 	type QualityInspectionContract,
 	RENDER_TREE_NODE_TYPE,
 	type RenderTreeContract,
+	resolveOutputContractForInference,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
 	type SourceSpec,
+	SSOT_OBJECT_SCHEMA_VERSION,
 } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
@@ -159,6 +161,24 @@ describe("@cx/schema public API", () => {
 
 		expect(sourceSpec.schemaVersion).toBe(SCHEMA_VERSION.sourceSpec);
 		expect(renderTree.version).toBe(SCHEMA_VERSION.renderTree);
+	});
+
+	it("exposes output contracts as inference SSOT objects", () => {
+		const contract = resolveOutputContractForInference("composition-plan");
+
+		expect(contract).toMatchObject({
+			kind: "output-contract",
+			id: "composition-plan",
+			owner: "@cx/schema",
+			sourceRef: "json-schema/composition-plan",
+			schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
+			data: {
+				dtoName: "CompositionPlanContract",
+				jsonSchema: {
+					$id: SCHEMA_VERSION.compositionPlan,
+				},
+			},
+		});
 	});
 
 	it("exposes RenderTree node type constants and guards from the package root", () => {

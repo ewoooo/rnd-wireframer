@@ -52,8 +52,8 @@ JSON Schema의 정본은 `getJsonSchema()`가 반환하는 registry 값이다.
 - `TableGenerationResult`는 현재 MVP에서 table-shaped 중간 산출물과 검증 보조 기록으로만 사용한다.
 - 장기 기준에서 table apply는 최종 RenderTree를 레이어별로 분해해 수행한다.
 - `screen.layout`, `screen.screen.regions.*.layout`, `areas[].layout`, `components[].layout`은 모두 `layout.<target>.<PatternName>` 형태를 사용한다.
-- layout id가 실제 store component registry에 존재하는지와 target에 맞는지는 `@cx/validation`이 `@cx/layout-pattern-store`를 조회해 확인한다.
-- component record의 layout은 layout-pattern-store의 `composite` target을 참조한다.
+- layout id가 실제 store component registry에 존재하는지와 target에 맞는지는 `@cx/validation`이 `@cx/layout`를 조회해 확인한다.
+- component record의 layout은 `@cx/layout` catalog의 `composite` target을 참조한다.
 
 ## RenderTree Contract
 

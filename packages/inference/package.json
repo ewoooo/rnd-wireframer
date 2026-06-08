@@ -1,0 +1,20 @@
+{
+	"name": "@cx/inference",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./testing": "./src/testing/index.ts"
+	},
+	"dependencies": {
+		"@cx/agent": "workspace:*",
+		"@cx/components": "workspace:*",
+		"@cx/layout": "workspace:*",
+		"@cx/schema": "workspace:*",
+		"@cx/tokens": "workspace:*",
+		"@cx/validation": "workspace:*"
+	}
+}

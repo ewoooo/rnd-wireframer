@@ -23,7 +23,7 @@
 		"@cx/agent": "workspace:*",
 		"@cx/components": "workspace:*",
 		"@cx/inference-nodes": "workspace:*",
-		"@cx/layout-pattern-store": "workspace:*",
+		"@cx/layout": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"@cx/types": "workspace:*",
 		"@cx/validation": "workspace:*"

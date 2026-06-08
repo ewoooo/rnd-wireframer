@@ -1,3 +1,4 @@
+import { resolvePromptCatalogForInference, resolveSkillForInference } from "@cx/agent";
 import { describe, expect, it } from "vitest";
 import { runAgentQuery } from "../adapters";
 import type { AgentRunnerRequest } from "../contract";
@@ -100,5 +101,33 @@ describe("@cx/agent runtime", () => {
 				screenId: "draft-1",
 			},
 		});
+	});
+
+	it("resolves skills and prompt catalogs as inference SSOT objects", () => {
+		const skill = resolveSkillForInference("screen-generation");
+		const prompt = resolvePromptCatalogForInference("screen-generation");
+
+		expect(skill).toMatchObject({
+			kind: "skill",
+			id: "screen-generation",
+			owner: "@cx/agent",
+			sourceRef: "../docs/screen-generation/checklist.md",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				format: "markdown",
+			},
+		});
+		expect(skill.data.body.length).toBeGreaterThan(0);
+		expect(prompt).toMatchObject({
+			kind: "prompt-catalog",
+			id: "screen-generation",
+			owner: "@cx/agent",
+			sourceRef: "../docs/screen-generation/prompt-contract.md",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				variables: {},
+			},
+		});
+		expect(prompt.data.template?.length).toBeGreaterThan(0);
 	});
 });

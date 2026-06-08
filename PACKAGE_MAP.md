@@ -22,7 +22,7 @@ Client App
    -> deterministic functions
 -> Knowledge Base
    -> @cx/components catalog
-   -> @cx/layout-pattern-store catalog
+   -> @cx/layout catalog
    -> @cx/agent prompt templates / skill docs
 -> Job Store artifacts/events
 -> @cx/renderer preview
@@ -50,9 +50,8 @@ Existing `/api/screen-inference/*`, `@cx/pipeline`, and `@cx/inference-nodes` re
 | `@cx/agent` | Active | Claude Agent SDK local-first execution engine adapter and prompt assets | workflow orchestration, final output SSOT, persistence, render |
 | `@cx/validation` | Active | Pure validation reports for schema/catalog/layout contracts | retry policy, stage transition, file write |
 | `@cx/components` | Active | Component implementations, component catalog, component token aliases | workflow, foundation tokens, file approval |
-| `@cx/layout` | Active | Screen chrome and layout primitives | component catalog, generation workflow |
+| `@cx/layout` | Active | Screen chrome, layout primitives, layout pattern components, layout catalog/resolver | component catalog, generation workflow |
 | `@cx/tokens` | Active | Foundation/semantic token SSOT and public CSS/Tailwind entrypoints | component alias tokens, workflow |
-| `@cx/layout-pattern-store` | Active | Layout pattern reference catalog and pattern component registry | pattern selection workflow, file approval |
 | `@cx/inference` | Target MVP | Job/artifact stores, pipeline context, execution engines, pipeline definitions, worker, in-memory fakes | React render, catalog ownership, legacy pipeline compatibility |
 | `@cx/inference-nodes` | Deprecated | Compatibility node/planning helpers for current screen-generation flow | new inference behavior |
 | `@cx/pipeline` | Compatibility | Current screen-generation runtime and side effect utilities | new inference runtime concepts |
@@ -67,9 +66,8 @@ Existing `/api/screen-inference/*`, `@cx/pipeline`, and `@cx/inference-nodes` re
 | `@cx/agent` | `.`, `./adapters`, `./claude`, `./contract`, `./tasks` |
 | `@cx/validation` | `.`, `./contract`, `./types` |
 | `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
-| `@cx/layout` | `.`, `./chrome`, `./contract`, `./primitives`, `./style`, `./types` |
+| `@cx/layout` | `.`, `./catalog`, `./chrome`, `./components`, `./contract`, `./mutations`, `./primitives`, `./resolver`, `./style`, `./types` |
 | `@cx/tokens` | `.`, `./variables.css`, `./tailwind.css` |
-| `@cx/layout-pattern-store` | `.`, `./components`, `./mutations`, `./resolver`, `./types` |
 | `@cx/inference` | Target MVP: `.`, internal module public surfaces to be fixed during package creation |
 | `@cx/pipeline` | Compatibility: `.`, `./adapters`, `./commands`, `./contract`, `./parser`, `./runner`, `./runtime`, `./testing`, `./types` |
 | `@cx/inference-nodes` | Deprecated compatibility: `.`, `./agent`, `./screen-generation` |

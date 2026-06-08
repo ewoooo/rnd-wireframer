@@ -22,6 +22,7 @@ export {
 	validateComponentProposal,
 	validateComponentUsage,
 	validateCompositionPlan,
+	validateJsonSchema,
 	validateLayoutProps,
 	validateRenderTree,
 	validateSchemaArtifact,

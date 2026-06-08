@@ -22,7 +22,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 
 초기 목표는 완성형 UI 빌더가 아니다. 내부 설계 문서를 검토 가능한 모바일 화면 초안으로 빠르게 변환하고, 사람이 screen/OGN 구조를 제한된 범위에서 후편집할 수 있게 만드는 것이 목표다.
 
-정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터다. 공급 reference catalog인 layout pattern store는 `@cx/pattern-store` 패키지가 소유한다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
+정책서/유즈케이스 입력과 화면 명세 입력은 생명 주기에 따라 `database/client-imports/`, `database/ai-imports/`, `database/tables/`에서 관리한다. `database/client-imports`는 원천 import, `database/ai-imports`는 AI 생성 후보 산출물, `database/tables`는 승인된 소비 데이터다. 공급 reference catalog인 layout catalog는 `@cx/layout` 패키지가 소유한다. 현재는 workbench와 renderer가 직접 소비하는 소비 데이터 계약을 먼저 강화한다. `apps/web` workbench는 `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
 
 현재 구현은 DB/API보다 로컬 렌더러 수직 슬라이스가 먼저 만들어진 상태다. 따라서 단기 제품 목표는 `database/tables -> @cx/renderer tablesToRenderTree -> RenderTree -> @cx/renderer React render -> @cx/layout/@cx/components -> apps/web` 흐름을 안정화하는 것이다. DB 적재, Agent SDK, Puck 편집은 이 수직 슬라이스가 흔들리지 않는 상태에서 단계적으로 연결한다.
 
@@ -35,10 +35,10 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | 영역 | 상태 | 현재 기준 |
 |---|---|---|
 | `apps/web` | 구현 시작 | Next.js 앱, Tailwind v4 global CSS, 단일 제품 앱 구조, mock data 렌더링 |
-| `packages/types` | 1차 신설 | `database/tables` row shape와 pattern-store 공유 타입 계약 |
+| `packages/types` | 1차 신설 | `database/tables` row shape와 공통 타입 계약 |
 | `packages/renderer` | 1차 승격 | schema/type, binding, registry, validation, table shape -> RenderTree projection, `@cx/layout`/`@cx/components` React element 렌더링 mapping |
 | `packages/agent` | 1차 구현 | AI import bundle 등록, decorator, database table import 보조 |
-| `packages/layout` | 1차 구현 | `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Layout.Flex`, `Layout.Grid`를 Tailwind v4 class 기반으로 렌더링하되 legacy `styles.css` export 정리 필요 |
+| `packages/layout` | 1차 구현 | `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Layout.Flex`, `Layout.Grid`, layout pattern component, layout catalog/resolver를 Tailwind v4 class 기반으로 관리 |
 | `packages/component` | 1차 이관 | `ewoooo/cx-components` 기반 leaf component 일부와 token CSS 이관 |
 | `packages/token` | 1차 구현 | Tailwind v4 `@theme` generated CSS export |
 | `database/client-imports` | 구현 시작 | 사용자가 올린 screen/area 원천 import 보관 |

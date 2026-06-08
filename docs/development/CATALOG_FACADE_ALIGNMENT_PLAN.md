@@ -2,7 +2,7 @@
 
 ## 1. 목적
 
-`@cx/components`와 `@cx/layout-pattern-store`는 모두 AI 생성과 검증 과정에서 다음 기능을 제공해야 한다.
+`@cx/components`와 `@cx/layout`는 모두 AI 생성과 검증 과정에서 다음 기능을 제공해야 한다.
 
 - 새로운 후보 제작: Component Candidate, Layout Candidate
 - ID 기반 단건 조회: Component, Layout
@@ -30,11 +30,11 @@
 - `packages/component/src/internal/registry.ts`
 - `packages/component/src/internal/assembly.ts`
 
-### @cx/layout-pattern-store
+### @cx/layout
 
-- root export `@cx/layout-pattern-store`: layout component runtime surface
-- catalog export `@cx/layout-pattern-store/catalog`: layout pattern catalog facade와 기존 pattern store read API
-- runtime component compatibility export `@cx/layout-pattern-store/components`: layout component registry
+- root export `@cx/layout`: layout component runtime surface
+- catalog export `@cx/layout/catalog`: layout pattern catalog facade와 기존 pattern store read API
+- runtime component compatibility export `@cx/layout/components`: layout component registry
 - catalog 원천: `src/catalog/*.json`
 - runtime store shape: `{ patterns: PatternStorePattern[] }`
 - layout catalog entry shape: `layout.<target>.*`, `target`, `componentID`, `children`, `props`, `status`
@@ -42,15 +42,15 @@
 
 주요 파일:
 
-- `packages/layout-pattern-store/package.json`
-- `packages/layout-pattern-store/src/public/catalog.ts`
-- `packages/layout-pattern-store/src/public/components.ts`
-- `packages/layout-pattern-store/src/public/resolver.ts`
-- `packages/layout-pattern-store/src/public/mutations.ts`
-- `packages/layout-pattern-store/src/internal/data.ts`
-- `packages/layout-pattern-store/src/internal/store.ts`
-- `packages/layout-pattern-store/src/internal/schema.ts`
-- `packages/layout-pattern-store/src/catalog/*.json`
+- `packages/layout/package.json`
+- `packages/layout/src/public/catalog.ts`
+- `packages/layout/src/public/components.ts`
+- `packages/layout/src/public/resolver.ts`
+- `packages/layout/src/public/mutations.ts`
+- `packages/layout/src/internal/data.ts`
+- `packages/layout/src/internal/store.ts`
+- `packages/layout/src/internal/schema.ts`
+- `packages/layout/src/catalog/*.json`
 
 ## 3. 통일 원칙
 
@@ -63,7 +63,7 @@
 
 ```ts
 import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/components/catalog";
-import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/layout-pattern-store/catalog";
+import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/layout/catalog";
 ```
 
 공통 의미:
@@ -103,7 +103,7 @@ import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/layo
 }
 ```
 
-`@cx/layout-pattern-store`:
+`@cx/layout`:
 
 ```json
 {
@@ -111,7 +111,7 @@ import { createCandidate, getEntry, listCatalog, listCatalogIds } from "@cx/layo
 }
 ```
 
-`@cx/layout-pattern-store` root는 runtime layout component surface로 맞춘다. catalog read API는 `@cx/layout-pattern-store/catalog`로 이동한다.
+`@cx/layout` root는 runtime layout component surface로 맞춘다. catalog read API는 `@cx/layout/catalog`로 이동한다.
 
 ## 5. 개선된 디렉토리 기준
 
@@ -142,7 +142,7 @@ src/
 
 `catalog-store.ts`는 public facade가 사용할 내부 조회 helper를 모은다. 현재 `registry.ts`, `assembly.ts`, `resolver.ts`에 흩어진 catalog 조립과 lookup 코드를 단계적으로 모은다.
 
-### @cx/layout-pattern-store
+### @cx/layout
 
 ```text
 src/
@@ -198,7 +198,7 @@ export const getComponentCatalogTypes: typeof listCatalogIds;
 export const createComponentCatalogEntry: ...;
 ```
 
-### @cx/layout-pattern-store/catalog
+### @cx/layout/catalog
 
 ```ts
 export type LayoutCatalogListOptions = {
@@ -227,12 +227,12 @@ export function createLayoutPattern(...): PatternStoreMutationResult;
 
 ## 7. Rollout
 
-1. `@cx/layout-pattern-store/catalog` export를 추가한다.
+1. `@cx/layout/catalog` export를 추가한다.
 2. 두 패키지의 `public/catalog.ts`에 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds` facade를 추가한다.
 3. repo 내부 catalog 소비처를 표준 facade로 옮긴다.
-4. `@cx/layout-pattern-store` root import에서 catalog read API 사용을 제거한다.
-5. `@cx/layout-pattern-store` root를 runtime layout component surface로 전환한다.
-6. `@cx/layout-pattern-store/components` compatibility subpath 제거 여부는 별도 breaking-change 시점에 결정한다.
+4. `@cx/layout` root import에서 catalog read API 사용을 제거한다.
+5. `@cx/layout` root를 runtime layout component surface로 전환한다.
+6. `@cx/layout/components` compatibility subpath 제거 여부는 별도 breaking-change 시점에 결정한다.
 
 ## 8. 검증 기준
 
@@ -248,12 +248,12 @@ export function createLayoutPattern(...): PatternStoreMutationResult;
 추가 검증:
 
 - `pnpm exec tsc --noEmit --pretty false --incremental false`
-- `pnpm exec vitest run packages/component/src/__tests__/catalog-public-contract.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`
+- `pnpm exec vitest run packages/component/src/__tests__/catalog-public-contract.test.ts packages/layout/src/__tests__/public-api.test.ts`
 - `git diff --check`
 
 ## 9. 열린 결정
 
 - layout candidate의 public 상태명을 `draft` 그대로 둘지, facade에서 `candidate`로 매핑할지 결정해야 한다.
 - layout `getEntry(id)`가 `layout.area.listStack` 같은 layout ID만 받을지, normalized pattern ID `list-stack`도 받을지 결정해야 한다.
-- `@cx/layout-pattern-store/components`를 장기적으로 유지할지, root runtime surface만 남길지 결정해야 한다.
+- `@cx/layout/components`를 장기적으로 유지할지, root runtime surface만 남길지 결정해야 한다.
 - 공통 facade 타입을 별도 패키지에 둘 필요는 아직 없다. 중복이 실제 유지보수 문제로 커질 때만 고려한다.

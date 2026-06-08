@@ -12,4 +12,5 @@ export type {
 	AgentTaskKind,
 } from "./contract";
 export { createAgentRuntime } from "./runtime/create-agent-runtime";
+export { resolvePromptCatalogForInference, resolveSkillForInference } from "./inference-reference";
 export { runAgentTask } from "./runtime/run-agent-task";

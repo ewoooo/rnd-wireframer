@@ -1,11 +1,11 @@
-export { BottomFixedArea, type BottomFixedAreaProps } from "../primitives/BottomFixedArea";
-export { Flex, type FlexProps } from "../primitives/Flex";
-export { Grid, type GridProps } from "../primitives/Grid";
-export { PageStack, type PageStackProps } from "../primitives/PageStack";
+export { BottomFixedArea, type BottomFixedAreaProps } from "../components/primitives/BottomFixedArea";
+export { Flex, type FlexProps } from "../components/primitives/Flex";
+export { Grid, type GridProps } from "../components/primitives/Grid";
+export { PageStack, type PageStackProps } from "../components/primitives/PageStack";
 export {
 	HStack,
 	type HStackProps,
 	type StackProps,
 	VStack,
 	type VStackProps,
-} from "../primitives/Stack";
+} from "../components/primitives/Stack";
