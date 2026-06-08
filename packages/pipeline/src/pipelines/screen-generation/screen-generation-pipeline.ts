@@ -83,6 +83,7 @@ import {
 	createGenerationSmokeArtifactCommands,
 	createGenerationSmokeManifestCommand,
 	createGenerationSmokePipelineResultCommands,
+	type GenerationSmokeArtifactInput,
 } from "./artifact-commands";
 import {
 	readScreenGenerationPreviewArtifact,
@@ -444,6 +445,17 @@ export const SCREEN_GENERATION_STEPS = [
 	}),
 	defineScreenStep({
 		id: "write-artifacts",
+		inputs: {
+			composition: stepOutput("plan-composition", "result"),
+			decoration: stepOutput("derive-decoration-plan", "result"),
+			generation: stepOutput("generate-render-tree", "result"),
+			intent: stepOutput("derive-screen-intent", "result"),
+			pattern: stepOutput("select-pattern", "result"),
+			proposal: stepOutput("propose-components", "result"),
+			quality: stepOutput("review-quality", "result"),
+			source: stepOutput("parse-source", "result"),
+			validation: stepOutput("validate-render-tree", "result"),
+		},
 		kind: "effect",
 		layer: "revise",
 		message: "Writing review artifacts…",
@@ -791,10 +803,16 @@ async function runReadSourceStage(
 	return state.sourceFile;
 }
 
+/** Rich output of parse-source: the spec plus the full parse command result. */
+type ParseStepResult = {
+	parseCommandResult: ReturnType<typeof runParseMarkdownSourceCommand>;
+	sourceSpec: SourceSpec;
+};
+
 function runParseSourceStage(
 	_inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
-): SourceSpec {
+): ParseStepResult {
 	if (!state.sourceFile) {
 		throw new Error("Cannot parse source before read-source stage.");
 	}
@@ -808,7 +826,7 @@ function runParseSourceStage(
 		throw new Error("Markdown source parse finished without SourceSpec.");
 	}
 	state.sourceSpec = state.parseCommandResult.parseResult.sourceSpec;
-	return state.sourceSpec;
+	return { parseCommandResult: state.parseCommandResult, sourceSpec: state.sourceSpec };
 }
 
 async function runDeriveScreenIntentAiStep(
@@ -1010,7 +1028,7 @@ function runValidateRenderTreeStage(
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): ValidationStepResult {
-	const sourceSpec = inputs.source as SourceSpec | undefined;
+	const sourceSpec = readSourceSpecInput(inputs, state);
 	const composition = inputs.composition as CompositionStepResult | undefined;
 	const decoration = inputs.decoration as DecorationStepResult | undefined;
 	const validationReport = createRenderTreeValidationReport(readAgentStepPayload(inputs.target), {
@@ -1130,34 +1148,78 @@ async function runReviewQualityAiStep(
 	return agentStepOutput(nodeResult);
 }
 
+/** Rich output of generate-render-tree (agent triple + skill scaffolding). */
+type GenerationStepResult = AgentStepOutput & {
+	generationSkillCatalog?: ScreenGenerationSkillBundleRef[];
+	renderTreeGenerationSkill?: ScreenGenerationSkillBundleRef;
+};
+/** Rich output of propose-components (agent triple + bounded-check report). */
+type ProposalStepResult = AgentStepOutput & {
+	componentProposalValidationReport?: ReturnType<typeof validateComponentProposal>;
+};
+
+/** Flatten an agent step output to the artifact builder's `<prefix>Agent*` fields. */
+function flattenAgentOutput(prefix: string, out: AgentStepOutput | undefined) {
+	return {
+		[`${prefix}AgentInput`]: out?.agentInput,
+		[`${prefix}AgentResult`]: out?.agentResult,
+		[`${prefix}RunnerRequest`]: out?.runnerRequest,
+	};
+}
+
+/** Assemble the artifact-builder input purely from resolved step outputs. */
+function buildGenerationArtifactInput(
+	inputs: ResolvedStepInputs,
+	outDir: string,
+): GenerationSmokeArtifactInput {
+	const source = inputs.source as ParseStepResult;
+	const intent = inputs.intent as AgentStepOutput;
+	const composition = inputs.composition as CompositionStepResult;
+	const decoration = inputs.decoration as DecorationStepResult;
+	const pattern = inputs.pattern as AgentStepOutput;
+	const generation = inputs.generation as GenerationStepResult;
+	const validation = inputs.validation as ValidationStepResult;
+	const proposal = inputs.proposal as ProposalStepResult;
+	const quality = inputs.quality as AgentStepOutput;
+
+	return {
+		layers: SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS,
+		agentInput: generation.agentInput,
+		agentResult: generation.agentResult,
+		runnerRequest: generation.runnerRequest,
+		...flattenAgentOutput("screenIntent", intent),
+		...flattenAgentOutput("compositionPlan", composition),
+		...flattenAgentOutput("patternSelection", pattern),
+		...flattenAgentOutput("qualityReview", quality),
+		...flattenAgentOutput("componentProposal", proposal),
+		componentProposal: proposal?.payload,
+		componentProposalValidationReport: proposal?.componentProposalValidationReport,
+		decorationPlan: decoration?.decorationPlan,
+		designContextBundleSelection: validation?.designContextBundleSelection,
+		designCritique: quality?.payload,
+		designSkillSelection: composition?.designSkillSelection,
+		finalResult: extractPayloadArtifact(generation.payload, "renderTree"),
+		generationSkillCatalog: generation.generationSkillCatalog,
+		initialValidationReport: validation?.validationReport,
+		outDir,
+		parseCommandResult: source.parseCommandResult,
+		patternLayerCandidates: decoration?.patternLayerCandidates,
+		renderTreeGenerationSkill: generation.renderTreeGenerationSkill,
+		sourceSpec: source.sourceSpec,
+		validationReport: validation?.validationReport,
+	};
+}
+
 async function runWriteArtifactsStage(
-	_inputs: ResolvedStepInputs,
+	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
 ): Promise<SideEffectExecutionResult> {
 	if (!state.parseCommandResult) {
 		throw new Error("Cannot write artifacts before parse-source stage.");
 	}
 
-	const commands = createGenerationSmokeArtifactCommands({
-		layers: SCREEN_GENERATION_ARTIFACT_LAYER_GROUPS,
-		...projectCommonAgentSteps(state),
-		...flattenAgentStep("componentProposal", state.componentProposal),
-		componentProposal: state.componentProposal.agentResult?.payload,
-		componentProposalValidationReport: state.componentProposalValidationReport,
-		decorationPlan: state.decorationPlan,
-		designContextBundleSelection: state.designContextBundleSelection,
-		designCritique: state.qualityReview.agentResult?.payload,
-		designSkillSelection: state.designSkillSelection,
-		finalResult: extractPayloadArtifact(state.generation.agentResult?.payload, "renderTree"),
-		generationSkillCatalog: state.generationSkillCatalog,
-		initialValidationReport: state.initialValidationReport,
-		outDir: state.options.outDir,
-		parseCommandResult: state.parseCommandResult,
-		patternLayerCandidates: state.patternLayerCandidates,
-		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
-		sourceSpec: state.sourceSpec,
-		validationReport: state.validationReport,
-	});
+	const artifactInput = buildGenerationArtifactInput(inputs, state.options.outDir);
+	const commands = createGenerationSmokeArtifactCommands(artifactInput);
 
 	state.pipelineResult = await runSideEffects({
 		adapters: createNodePipelineAdapters(),
