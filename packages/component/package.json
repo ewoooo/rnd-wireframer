@@ -19,7 +19,7 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/tokens": "0.1.0"
+		"@cx/tokens": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

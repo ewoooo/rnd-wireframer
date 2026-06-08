@@ -14,21 +14,12 @@ import { readFileSync, writeFileSync } from "node:fs";
 const RT_PATH = process.argv[2] || "/tmp/rt.json";
 const rt = JSON.parse(readFileSync(RT_PATH, "utf8"));
 
-const core = readFileSync(
-	new URL("../packages/figma-screen-sync/generator-core.js", import.meta.url),
-	"utf8",
-);
+const core = readFileSync(new URL("../packages/figma-screen-sync/generator-core.js", import.meta.url), "utf8");
 
 // Structural container types → plain frame (group). Everything else = leaf component (ref).
 const STRUCTURAL = new Set([
-	"Screen",
-	"Screen.Header",
-	"Screen.Contents",
-	"Screen.Bottom",
-	"area.dynamic",
-	"PageStack",
-	"Layout.Flex",
-	"Layout.Grid",
+	"Screen", "Screen.Header", "Screen.Contents", "Screen.Bottom",
+	"area.dynamic", "PageStack", "Layout.Flex", "Layout.Grid",
 ]);
 
 // Variant prop mapping (from Figma introspect). Unknown types → no props.
@@ -45,9 +36,7 @@ const VARIANT_MAP = {
 	ListText: (p) => ("table" in p ? { Table: String(p.table) } : {}),
 };
 
-function num(v, d) {
-	return typeof v === "number" ? v : d;
-}
+function num(v, d) { return typeof v === "number" ? v : d; }
 
 // Build a component-spec layout for a structural frame from RenderTree props.
 function frameLayout(node, isRoot) {
@@ -58,45 +47,19 @@ function frameLayout(node, isRoot) {
 	const padY = num(p.paddingY, num(flex.paddingY, 0));
 	const dir = (p.direction || flex.direction) === "row" ? "HORIZONTAL" : "VERTICAL";
 	if (isRoot) {
-		return {
-			mode: "VERTICAL",
-			primaryAxisSizingMode: "FIXED",
-			counterAxisSizingMode: "FIXED",
-			primaryAxisAlignItems: "MIN",
-			counterAxisAlignItems: "MIN",
-			paddingTop: 0,
-			paddingRight: 0,
-			paddingBottom: 0,
-			paddingLeft: 0,
-			itemSpacing: 0,
-			width: 375,
-			height: 812,
-		};
+		return { mode: "VERTICAL", primaryAxisSizingMode: "FIXED", counterAxisSizingMode: "FIXED", primaryAxisAlignItems: "MIN", counterAxisAlignItems: "MIN", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, itemSpacing: 0, width: 375, height: 812 };
 	}
-	return {
-		mode: dir,
-		primaryAxisSizingMode: "AUTO",
-		counterAxisSizingMode: "AUTO",
-		primaryAxisAlignItems: "MIN",
-		counterAxisAlignItems: "MIN",
-		paddingTop: padY,
-		paddingRight: padX,
-		paddingBottom: padY,
-		paddingLeft: padX,
-		itemSpacing: gap,
-		width: "FILL",
-		height: "HUG",
-	};
+	return { mode: dir, primaryAxisSizingMode: "AUTO", counterAxisSizingMode: "AUTO", primaryAxisAlignItems: "MIN", counterAxisAlignItems: "MIN", paddingTop: padY, paddingRight: padX, paddingBottom: padY, paddingLeft: padX, itemSpacing: gap, width: "FILL", height: "HUG" };
 }
 
 const emptyVisual = () => ({ cornerRadius: 0, fill: null, stroke: null, shadow: null });
 
 let nodeSeq = 0;
 function idFor(node) {
-	const id = node.metadata?.id;
+	const id = node.metadata && node.metadata.id;
 	if (id) return id;
 	nodeSeq += 1;
-	return `${node.type || "node"}-${nodeSeq}`;
+	return (node.type || "node") + "-" + nodeSeq;
 }
 
 // Convert a RenderTree node → component-spec child node.
@@ -107,13 +70,7 @@ function convert(node, isRoot) {
 
 	if (isStructural) {
 		const children = (node.children || []).map((c) => convert(c, false)).filter(Boolean);
-		const g = {
-			kind: "group",
-			id,
-			layout: frameLayout(node, isRoot),
-			visual: emptyVisual(),
-			children,
-		};
+		const g = { kind: "group", id, layout: frameLayout(node, isRoot), visual: emptyVisual(), children };
 		return g;
 	}
 
@@ -124,23 +81,21 @@ function convert(node, isRoot) {
 }
 
 // Root must be the Screen node (rt.children[0]).
-const screenNode = rt.children?.[0] || rt;
+const screenNode = (rt.children && rt.children[0]) || rt;
 const rootGroup = convert(screenNode, true);
 
 const COMPONENT_SPEC = {
 	$schema: "component-spec-v1",
-	name: `page/${String(rt.metadata?.id || "screen").toLowerCase()}`,
+	name: "page/" + String((rt.metadata && rt.metadata.id) || "screen").toLowerCase(),
 	category: "page",
-	description: rt.metadata?.title || "RenderTree export",
+	description: (rt.metadata && rt.metadata.title) || "RenderTree export",
 	base: { layout: rootGroup.layout, visual: rootGroup.visual, children: rootGroup.children },
 };
 
-const DS_TOKENS = {
-	foundation: { dimension: { size: { "screen-content-width": { value: 375 } } } },
-};
+const DS_TOKENS = { foundation: { dimension: { size: { "screen-content-width": { value: 375 } } } } };
 
 const out = [
-	`// AUTO-GENERATED from RenderTree (${String(rt.metadata?.id || "?")}) — paste into bridge plugin (JSON → Figma) and Run.`,
+	"// AUTO-GENERATED from RenderTree (" + String((rt.metadata && rt.metadata.id) || "?") + ") — paste into bridge plugin (JSON → Figma) and Run.",
 	`const DS_TOKENS = ${JSON.stringify(DS_TOKENS, null, 2)};`,
 	`const COMPONENT_SPEC = ${JSON.stringify(COMPONENT_SPEC, null, 2)};`,
 	"",
@@ -160,4 +115,4 @@ const out = [
 
 const dest = new URL("./figma-export-screen.generated.js", import.meta.url);
 writeFileSync(dest, out, "utf8");
-console.log("written:", dest.pathname, `(${out.length} bytes) from screen`, rt.metadata?.id);
+console.log("written:", dest.pathname, "(" + out.length + " bytes) from screen", (rt.metadata && rt.metadata.id));

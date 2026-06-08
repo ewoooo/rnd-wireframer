@@ -7,18 +7,8 @@ import { writeFileSync } from "node:fs";
 // Figma DS component names we need real schemas for (variant axes + text node NAMES + props),
 // to wire the registry. Callout = the real component behind app's `section-message` (alias).
 const TARGETS = [
-	"Callout",
-	"CheckBox",
-	"Divider",
-	"ListText",
-	"AppBar",
-	"Badge",
-	"TextButton",
-	"Button",
-	"TitleSection/Default",
-	"TitleSection",
-	"TitleMain",
-	"ActionButton",
+	"Callout", "CheckBox", "Divider", "ListText", "AppBar", "Badge", "TextButton",
+	"Button", "TitleSection/Default", "TitleSection", "TitleMain", "ActionButton",
 ];
 
 const body = `
@@ -119,6 +109,6 @@ const TARGETS = ${JSON.stringify(TARGETS)};
 })();
 `;
 
-const dest = new URL("./figma-introspect.generated.js", import.meta.url);
+const dest = "/Users/plusx/Documents/GitHub/rnd-wireframer/scripts/figma-introspect.generated.js";
 writeFileSync(dest, body, "utf8");
-console.log("written:", dest.pathname, `(${body.length} bytes)`);
+console.log("written:", dest, "(" + body.length + " bytes)");

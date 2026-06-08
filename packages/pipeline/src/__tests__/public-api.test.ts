@@ -1,8 +1,15 @@
 import {
 	buildPipeline,
+	createFilePipelinePersistenceAdapter,
 	createNodePipelineAdapters,
+	createScreenGenerationStageLayers,
+	defineStep,
+	getScreenGenerationStageMessage,
+	getScreenGenerationStageOrder,
+	getScreenGenerationStagesByKind,
 	runPipeline,
 	runSideEffects,
+	SCREEN_GENERATION_PIPELINE_ID,
 	sideEffectBoundary,
 } from "@cx/pipeline";
 import { runParseMarkdownSourceCommand } from "@cx/pipeline/parser";
@@ -139,14 +146,75 @@ describe("@cx/pipeline public API", () => {
 	it("exposes pipeline runtime builders", () => {
 		const pipeline = buildPipeline({
 			id: "screen-generation",
-			stages: ["read-source", "parse-source", "write-artifacts"],
+			steps: [
+				defineStep({
+					execute: () => ({ content: "# Source" }),
+					id: "read-source",
+					usesAI: false,
+				}),
+				defineStep({
+					execute: () => ({ sourceSpec: {} }),
+					id: "parse-source",
+					usesAI: false,
+				}),
+				defineStep({
+					execute: () => ({ ok: true }),
+					id: "write-artifacts",
+					usesAI: false,
+				}),
+			],
 		});
 
-		expect(pipeline).toEqual({
-			id: "screen-generation",
-			stages: ["read-source", "parse-source", "write-artifacts"],
-		});
+		expect(pipeline.id).toBe("screen-generation");
+		expect(pipeline.steps.map((step) => step.id)).toEqual([
+			"read-source",
+			"parse-source",
+			"write-artifacts",
+		]);
 		expect(typeof runPipeline).toBe("function");
+	});
+
+	it("exposes screen-generation stage metadata as the stage SSOT", () => {
+		expect(SCREEN_GENERATION_PIPELINE_ID).toBe("screen-generation");
+		expect(getScreenGenerationStageOrder()).toEqual([
+			"read-source",
+			"parse-source",
+			"derive-screen-intent",
+			"plan-composition",
+			"derive-decoration-plan",
+			"select-pattern",
+			"generate-render-tree",
+			"validate-render-tree",
+			"propose-components",
+			"review-quality",
+			"write-artifacts",
+		]);
+		expect(getScreenGenerationStagesByKind("ai")).toEqual([
+			"derive-screen-intent",
+			"plan-composition",
+			"select-pattern",
+			"generate-render-tree",
+			"propose-components",
+			"review-quality",
+		]);
+		expect(getScreenGenerationStageMessage("generate-render-tree")).toBe("Generating UI draft…");
+		expect(createScreenGenerationStageLayers().map((layer) => [layer.layer, layer.stages])).toEqual(
+			[
+				["understand", ["read-source", "parse-source", "derive-screen-intent"]],
+				[
+					"compose",
+					["plan-composition", "derive-decoration-plan", "select-pattern", "generate-render-tree"],
+				],
+				[
+					"revise",
+					["validate-render-tree", "propose-components", "review-quality", "write-artifacts"],
+				],
+			],
+		);
+	});
+
+	it("exposes pipeline persistence helpers", () => {
+		expect(typeof createFilePipelinePersistenceAdapter).toBe("function");
 	});
 
 	it("writes the final result as a standalone RenderTree artifact", () => {
@@ -172,6 +240,12 @@ describe("@cx/pipeline public API", () => {
 				selectedSkill: { id: "detail-confirmation-screen" },
 			},
 			finalResult,
+			layers: Object.fromEntries(
+				createScreenGenerationStageLayers().map((layer) => [
+					layer.layer,
+					{ artifacts: layer.artifacts, traceKeys: layer.traceKeys },
+				]),
+			),
 			outDir: "runs/sample",
 			parseCommandResult: {},
 			runnerRequest: {},
@@ -218,7 +292,7 @@ describe("@cx/pipeline public API", () => {
 			},
 			revise: {
 				artifacts: expect.arrayContaining(["validation-report.json", "final-result.json"]),
-				traceKeys: expect.arrayContaining(["qualityReview", "revision"]),
+				traceKeys: expect.arrayContaining(["qualityReview", "initialValidationReport"]),
 			},
 			understand: {
 				artifacts: expect.arrayContaining(["source-spec.json", "screen-intent.json"]),

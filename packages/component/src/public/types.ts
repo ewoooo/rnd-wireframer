@@ -128,6 +128,14 @@ export type CreateComponentCatalogEntryInput = {
 	entry: ComponentCatalogEntry;
 };
 
+export type ComponentCatalogListOptions = {
+	status?: ComponentCatalogStatus;
+};
+
+export type CreateComponentCandidateInput = {
+	entry: ComponentCatalogEntry;
+};
+
 export type ReadComponentCatalogEntryInput = {
 	type: string;
 };

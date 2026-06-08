@@ -1,10 +1,15 @@
 import path from "node:path";
 import type { SideEffectCommand } from "@cx/pipeline/types";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
+import { SCREEN_GENERATION_ARTIFACT_FILES } from "./constants";
+
+/** Trace layer grouping, passed in by the caller to avoid a module cycle. */
+export type ArtifactLayerGroups = Record<string, { artifacts: string[]; traceKeys: string[] }>;
 
 export type GenerationSmokeArtifactInput = {
-	agentInput: unknown;
-	agentResult: unknown;
+	agentInput?: unknown;
+	agentResult?: unknown;
+	layers?: ArtifactLayerGroups;
 	compositionPlanAgentInput?: unknown;
 	compositionPlanAgentResult?: unknown;
 	compositionPlanRunnerRequest?: unknown;
@@ -29,12 +34,8 @@ export type GenerationSmokeArtifactInput = {
 	qualityReviewAgentInput?: unknown;
 	qualityReviewAgentResult?: unknown;
 	qualityReviewRunnerRequest?: unknown;
-	revisionDecision?: unknown;
-	revisionAgentInput?: unknown;
-	revisionAgentResult?: unknown;
-	revisionRunnerRequest?: unknown;
 	renderTreeGenerationSkill?: unknown;
-	runnerRequest: unknown;
+	runnerRequest?: unknown;
 	screenIntentAgentInput?: unknown;
 	screenIntentAgentResult?: unknown;
 	screenIntentRunnerRequest?: unknown;
@@ -48,56 +49,7 @@ export type GenerationSmokeArtifactInput = {
  * decision/selection scaffolding) is consolidated into a single trace.json.
  * Consumers read these via manifest pointers, not hardcoded names.
  */
-export const ARTIFACT_FILES = {
-	agentResult: "agent-result.json",
-	componentProposal: "component-proposal.json",
-	compositionPlan: "composition-plan.json",
-	decorationPlan: "decoration-plan.json",
-	finalResult: "final-result.json",
-	patternSelection: "pattern-selection.json",
-	pipelineResult: "pipeline-result.json",
-	qualityReview: "quality-review.json",
-	screenIntent: "screen-intent.json",
-	sourceSpec: "source-spec.json",
-	trace: "trace.json",
-	validationReport: "validation-report.json",
-} as const;
-
-export const ARTIFACT_LAYER_GROUPS = {
-	understand: {
-		artifacts: [ARTIFACT_FILES.sourceSpec, ARTIFACT_FILES.screenIntent],
-		traceKeys: ["parseResult", "screenIntent"],
-	},
-	compose: {
-		artifacts: [
-			ARTIFACT_FILES.compositionPlan,
-			ARTIFACT_FILES.decorationPlan,
-			ARTIFACT_FILES.patternSelection,
-			ARTIFACT_FILES.agentResult,
-			ARTIFACT_FILES.componentProposal,
-		],
-		traceKeys: [
-			"composition",
-			"designSkillSelection",
-			"patternLayerCandidates",
-			"patternSelection",
-			"designContextBundleSelection",
-			"generation",
-			"generationSkillCatalog",
-			"renderTreeGenerationSkill",
-			"componentProposal",
-		],
-	},
-	revise: {
-		artifacts: [
-			ARTIFACT_FILES.validationReport,
-			ARTIFACT_FILES.qualityReview,
-			ARTIFACT_FILES.finalResult,
-			ARTIFACT_FILES.pipelineResult,
-		],
-		traceKeys: ["initialValidationReport", "qualityReview", "revisionDecision", "revision"],
-	},
-} as const;
+export const ARTIFACT_FILES = SCREEN_GENERATION_ARTIFACT_FILES;
 
 export function createGenerationSmokeArtifactCommands(
 	input: GenerationSmokeArtifactInput,
@@ -171,7 +123,7 @@ export function createGenerationSmokeArtifactCommands(
 
 function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown> {
 	return {
-		layers: ARTIFACT_LAYER_GROUPS,
+		layers: input.layers ?? {},
 		parseResult: input.parseCommandResult,
 		screenIntent: {
 			input: input.screenIntentAgentInput,
@@ -198,11 +150,6 @@ function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown
 		qualityReview: {
 			input: input.qualityReviewAgentInput,
 			runnerRequest: input.qualityReviewRunnerRequest,
-		},
-		revisionDecision: input.revisionDecision,
-		revision: {
-			input: input.revisionAgentInput,
-			runnerRequest: input.revisionRunnerRequest,
 		},
 		componentProposal: {
 			input: input.componentProposalAgentInput,

@@ -14,13 +14,7 @@ const DS_TOKENS = {
 	foundation: { dimension: { size: { "screen-content-width": { value: 375 } } } },
 };
 
-const group = (id, layout, children) => ({
-	kind: "group",
-	id,
-	layout,
-	visual: { cornerRadius: 0, fill: null, stroke: null, shadow: null },
-	children,
-});
+const group = (id, layout, children) => ({ kind: "group", id, layout, visual: { cornerRadius: 0, fill: null, stroke: null, shadow: null }, children });
 const ref = (id, component, props) => ({ kind: "ref", id, component, props });
 
 const col = (extra = {}) => ({
@@ -29,10 +23,7 @@ const col = (extra = {}) => ({
 	counterAxisSizingMode: "AUTO",
 	primaryAxisAlignItems: "MIN",
 	counterAxisAlignItems: "MIN",
-	paddingTop: 0,
-	paddingRight: 0,
-	paddingBottom: 0,
-	paddingLeft: 0,
+	paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0,
 	itemSpacing: 0,
 	width: "FILL",
 	height: "HUG",
@@ -45,20 +36,7 @@ const COMPONENT_SPEC = {
 	category: "page",
 	description: "Spike: 상품 상세 핵심 요약 탐색",
 	base: {
-		layout: {
-			mode: "VERTICAL",
-			primaryAxisSizingMode: "FIXED",
-			counterAxisSizingMode: "FIXED",
-			primaryAxisAlignItems: "MIN",
-			counterAxisAlignItems: "MIN",
-			paddingTop: 0,
-			paddingRight: 0,
-			paddingBottom: 0,
-			paddingLeft: 0,
-			itemSpacing: 0,
-			width: 375,
-			height: 812,
-		},
+		layout: { mode: "VERTICAL", primaryAxisSizingMode: "FIXED", counterAxisSizingMode: "FIXED", primaryAxisAlignItems: "MIN", counterAxisAlignItems: "MIN", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, itemSpacing: 0, width: 375, height: 812 },
 		visual: { cornerRadius: 0, fill: "#ffffff", stroke: null, shadow: null },
 		children: [
 			// props = real Figma variant axes (from introspect). Text content deferred (option a).
@@ -66,26 +44,16 @@ const COMPONENT_SPEC = {
 				// AppBar variant axes: LeftItem/Title/Logo/RightItem (On/Off)
 				ref("d-appbar-1", "AppBar", { LeftItem: "On", Title: "On", Logo: "Off" }),
 			]),
-			group(
-				"screen-contents-section-1",
-				col({
-					paddingTop: 16,
-					paddingRight: 16,
-					paddingBottom: 16,
-					paddingLeft: 16,
-					itemSpacing: 12,
-				}),
-				[
-					group("NOVA-PRDD-PG-001-0__area1", col({ itemSpacing: 12 }), [
-						// CardSummary: not in DS → auto fallback to plain frame layer (props ignored)
-						ref("d-card-summary-1", "CardSummary", {}),
-						ref("d-badge-status-1", "Badge", { Type: "Blue" }),
-						// TextButton: only "Property 1" variant exists; label/underline have no mapping
-						ref("d-text-button-origin-1", "TextButton", {}),
-						ref("d-list-text-info-1", "ListText", { Table: "on" }),
-					]),
-				],
-			),
+			group("screen-contents-section-1", col({ paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16, itemSpacing: 12 }), [
+				group("NOVA-PRDD-PG-001-0__area1", col({ itemSpacing: 12 }), [
+					// CardSummary: not in DS → auto fallback to plain frame layer (props ignored)
+					ref("d-card-summary-1", "CardSummary", {}),
+					ref("d-badge-status-1", "Badge", { Type: "Blue" }),
+					// TextButton: only "Property 1" variant exists; label/underline have no mapping
+					ref("d-text-button-origin-1", "TextButton", {}),
+					ref("d-list-text-info-1", "ListText", { Table: "on" }),
+				]),
+			]),
 		],
 	},
 };
@@ -109,6 +77,6 @@ const out = [
 	"",
 ].join("\n");
 
-const dest = new URL("./figma-export-sample.generated.js", import.meta.url);
+const dest = "/Users/plusx/Documents/GitHub/rnd-wireframer/scripts/figma-export-sample.generated.js";
 writeFileSync(dest, out, "utf8");
-console.log("written:", dest.pathname, `(${out.length} bytes)`);
+console.log("written:", dest, "(" + out.length + " bytes)");

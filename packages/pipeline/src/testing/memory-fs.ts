@@ -9,6 +9,9 @@ export function createMemoryFileSystemAdapter(initialFiles?: Record<string, stri
 	return {
 		files,
 		fs: {
+			async appendText(path, content) {
+				files.set(path, `${files.get(path) ?? ""}${content}`);
+			},
 			async copyFile(from, to) {
 				const content = files.get(from);
 				if (content === undefined) throw new Error(`Missing memory file: ${from}`);

@@ -33,4 +33,20 @@ describe("screen inference run status", () => {
 			["revise", "running"],
 		]);
 	});
+
+	it("keeps post-validation component proposal progress in the revise layer", () => {
+		const status = createScreenInferenceProgressStatus({
+			now: "2026-06-04T12:00:00.000Z",
+			runId: "web-run",
+			stage: "propose-components",
+		});
+
+		expect(status.currentLayer).toBe("revise");
+		expect(status.currentMessage).toBe("Checking component proposals…");
+		expect(status.layers.map((layer) => [layer.layer, layer.status])).toEqual([
+			["understand", "completed"],
+			["compose", "completed"],
+			["revise", "running"],
+		]);
+	});
 });

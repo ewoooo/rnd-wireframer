@@ -6,9 +6,10 @@ import type {
 	ComponentPropType,
 } from "@cx/components/types";
 import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
-import { findPattern } from "@cx/layout-pattern-store";
+import { findPattern } from "@cx/layout-pattern-store/catalog";
 import type { GenerationArtifactKind, SchemaPropBinding, SourceSpec } from "@cx/schema";
 import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
+import { isRecord } from "@cx/types/guards";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type {
@@ -1206,11 +1207,6 @@ function isSafeDefaultValue(input: unknown) {
 		typeof input === "boolean"
 	);
 }
-
-function isRecord(input: unknown): input is Record<string, unknown> {
-	return typeof input === "object" && input !== null && !Array.isArray(input);
-}
-
 function addIssue(issues: ValidationIssue[], issue: IssueInput) {
 	issues.push({
 		severity: "error",

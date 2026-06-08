@@ -10,19 +10,22 @@
 		"./adapters": "./src/adapters/index.ts",
 		"./commands": "./src/commands/index.ts",
 		"./contract": "./src/public/contract.ts",
+		"./definition": "./src/definition/index.ts",
 		"./runner": "./src/runner/index.ts",
 		"./runtime": "./src/runtime/index.ts",
 		"./parser": "./src/public/parser.ts",
+		"./persistence": "./src/persistence/index.ts",
 		"./testing": "./src/testing/index.ts",
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/adapters": "0.1.0",
-		"@cx/agent": "0.1.0",
-		"@cx/components": "0.1.0",
-		"@cx/layout-pattern-store": "0.1.0",
-		"@cx/orchestration": "0.1.0",
-		"@cx/schema": "0.1.0",
-		"@cx/validation": "0.1.0"
+		"@cx/adapters": "workspace:*",
+		"@cx/agent": "workspace:*",
+		"@cx/components": "workspace:*",
+		"@cx/inference-nodes": "workspace:*",
+		"@cx/layout-pattern-store": "workspace:*",
+		"@cx/schema": "workspace:*",
+		"@cx/types": "workspace:*",
+		"@cx/validation": "workspace:*"
 	}
 }

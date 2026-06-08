@@ -12,6 +12,6 @@
 		"./table": "./src/table/index.ts"
 	},
 	"dependencies": {
-		"@cx/schema": "0.1.0"
+		"@cx/schema": "workspace:*"
 	}
 }

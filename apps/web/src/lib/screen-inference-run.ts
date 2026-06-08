@@ -1,6 +1,14 @@
-import type { PipelineStageId } from "@cx/pipeline";
+import { randomUUID } from "node:crypto";
 
-export type ScreenInferenceLayer = "compose" | "revise" | "understand";
+import {
+	createScreenGenerationStageLayers,
+	getScreenGenerationStageLayer,
+	getScreenGenerationStageMessage,
+	type PipelineStageId,
+	type ScreenGenerationLayer,
+} from "@cx/pipeline";
+
+export type ScreenInferenceLayer = ScreenGenerationLayer;
 
 export type ScreenInferenceLifecycleStatus =
 	| "applied"
@@ -74,54 +82,20 @@ export type ScreenInferenceRunCreateResponse = ScreenInferenceRunResponse & {
 	statusUrl: string;
 };
 
-export const SCREEN_INFERENCE_LAYERS: ScreenInferenceStatusLayer[] = [
-	{
-		artifacts: ["source-spec.json", "screen-intent.json"],
-		label: "Understand",
-		layer: "understand",
-		stages: ["read-source", "parse-source", "derive-screen-intent"],
+export const SCREEN_INFERENCE_LAYERS: ScreenInferenceStatusLayer[] =
+	createScreenGenerationStageLayers().map((layer) => ({
+		artifacts: layer.artifacts,
+		label: layer.label,
+		layer: layer.layer,
+		previewArtifact: layer.previewArtifact ? `artifacts/${layer.previewArtifact}` : undefined,
+		stages: layer.stages,
 		status: "pending",
-	},
-	{
-		artifacts: [
-			"composition-plan.json",
-			"decoration-plan.json",
-			"pattern-selection.json",
-			"agent-result.json",
-			"component-proposal.json",
-		],
-		label: "Compose",
-		layer: "compose",
-		previewArtifact: "artifacts/agent-result.json",
-		stages: [
-			"plan-composition",
-			"derive-decoration-plan",
-			"select-pattern",
-			"generate-render-tree",
-			"propose-components",
-		],
-		status: "pending",
-	},
-	{
-		artifacts: ["validation-report.json", "quality-review.json", "final-result.json"],
-		label: "Revise",
-		layer: "revise",
-		previewArtifact: "artifacts/final-result.json",
-		stages: [
-			"validate-render-tree",
-			"review-quality",
-			"revise-render-tree-if-invalid",
-			"validate-render-tree-after-revision",
-			"write-artifacts",
-		],
-		status: "pending",
-	},
-];
+	}));
 
 export function createScreenInferenceRunId(screenId: string, date = new Date()): string {
-	const timestamp = date.toISOString().replace(/\D/g, "").slice(0, 14);
+	const timestamp = date.toISOString().replace(/\D/g, "").slice(0, 17);
 	const safeScreenId = screenId.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80) || "screen";
-	return `web-${safeScreenId}-${timestamp}`;
+	return `web-${safeScreenId}-${timestamp}-${randomUUID().slice(0, 8)}`;
 }
 
 export function createScreenInferenceStatus(input: {
@@ -239,38 +213,6 @@ function readCurrentLayer(
 	return undefined;
 }
 
-const STAGE_LAYER_BY_STAGE = {
-	"derive-decoration-plan": "compose",
-	"derive-screen-intent": "understand",
-	"generate-render-tree": "compose",
-	"parse-source": "understand",
-	"plan-composition": "compose",
-	"propose-components": "compose",
-	"read-source": "understand",
-	"review-quality": "revise",
-	"revise-render-tree-if-invalid": "revise",
-	"select-pattern": "compose",
-	"validate-render-tree": "revise",
-	"validate-render-tree-after-revision": "revise",
-	"write-artifacts": "revise",
-} as const satisfies Record<PipelineStageId, ScreenInferenceLayer>;
-
-const STAGE_MESSAGE_BY_STAGE = {
-	"derive-decoration-plan": "Decorating sections…",
-	"derive-screen-intent": "Understanding screen intent…",
-	"generate-render-tree": "Generating UI draft…",
-	"parse-source": "Parsing markdown source…",
-	"plan-composition": "Planning composition…",
-	"propose-components": "Checking component proposals…",
-	"read-source": "Reading source…",
-	"review-quality": "Reviewing quality…",
-	"revise-render-tree-if-invalid": "Revising draft if needed…",
-	"select-pattern": "Selecting layout patterns…",
-	"validate-render-tree": "Validating render tree…",
-	"validate-render-tree-after-revision": "Validating revised draft…",
-	"write-artifacts": "Writing review artifacts…",
-} as const satisfies Record<PipelineStageId, string>;
-
 function createLayersForStage(stage: PipelineStageId, now: string): ScreenInferenceStatusLayer[] {
 	const currentLayer = readLayerForStage(stage);
 	const currentIndex = SCREEN_INFERENCE_LAYERS.findIndex((layer) => layer.layer === currentLayer);
@@ -290,9 +232,9 @@ function createLayersForStage(stage: PipelineStageId, now: string): ScreenInfere
 }
 
 function readLayerForStage(stage: PipelineStageId): ScreenInferenceLayer {
-	return STAGE_LAYER_BY_STAGE[stage];
+	return getScreenGenerationStageLayer(stage);
 }
 
 function readMessageForStage(stage: PipelineStageId): string {
-	return STAGE_MESSAGE_BY_STAGE[stage];
+	return getScreenGenerationStageMessage(stage);
 }

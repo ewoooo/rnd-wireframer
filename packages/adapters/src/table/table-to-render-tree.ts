@@ -5,11 +5,11 @@ import {
 } from "@cx/schema";
 import type {
 	MaterializeDiagnostic,
-	MaterializeRenderNodeResult,
 	MaterializedRenderTreeNode,
 	MaterializedRenderTreeScreenBottomNode,
 	MaterializedRenderTreeScreenContentsNode,
 	MaterializedRenderTreeScreenHeaderNode,
+	MaterializeRenderNodeResult,
 	MaterializeRenderScreenResult,
 	RenderAreaChildRow,
 	RenderAreaRow,

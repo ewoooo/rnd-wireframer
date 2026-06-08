@@ -3,8 +3,8 @@
 import { Braces, Check, Copy, FileJson2, X } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { ScreenSummary } from "@/lib/screen-sources";
 import { renderTreeToBuildCode, renderTreeToJson } from "@/lib/figma-export/build-code";
+import type { ScreenSummary } from "@/lib/screen-sources";
 
 // Symmetric counterpart to CanvasToolbar. Each action opens a modal showing the code and
 // copies it to the clipboard within the click gesture (so it works inside the preview iframe).

@@ -11,10 +11,11 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/components": "0.1.0",
-		"@cx/layout": "0.1.0",
-		"@cx/layout-pattern-store": "0.1.0",
-		"@cx/schema": "0.1.0",
+		"@cx/components": "workspace:*",
+		"@cx/layout": "workspace:*",
+		"@cx/layout-pattern-store": "workspace:*",
+		"@cx/schema": "workspace:*",
+		"@cx/types": "workspace:*",
 		"ajv": "^8.20.0"
 	}
 }

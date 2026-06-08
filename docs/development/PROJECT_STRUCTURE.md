@@ -5,7 +5,7 @@
 이 문서는 저장소 디렉토리와 현재 패키지 책임 경계를 정의한다.
 
 패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
-`@cx/agent` 실행 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md), `@cx/pipeline` stage/runtime 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
+Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
 
 현재 생성 과정은 재설계된 패키지 경계 기준으로 운영한다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog와 layout component registry 패키지로 운영한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
 
@@ -21,15 +21,17 @@
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/orchestration` | pipeline stage의 순수 입력 조립과 next action helper |
+| `@cx/inference` | target MVP: inference stores, context, engine, pipeline, worker, in-memory test fakes |
+| `@cx/inference-nodes` | deprecated compatibility: 기존 screen-generation node/planning helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
-| `@cx/pipeline` | pipeline runtime과 side effect/IO 유틸리티 |
+| `@cx/pipeline` | compatibility: 기존 screen-generation runtime과 side effect/IO 유틸리티 |
 
-개발자용 앱:
+개발자용 스크립트:
 
-| 앱 | 책임 |
+| 위치 | 책임 |
 |---|---|
-| `@cx/smoke` | generation smoke flow를 반복 실행하는 통합 앱 |
+| `scripts/smoke-pipeline.ts`, `scripts/generation/*` | generation smoke flow를 반복 실행하는 CLI와 helper |
+| `scripts/push-render-db.ts`, `scripts/canonicalize-render-db.ts` | render DB migration/audit helper |
 
 제거된 패키지:
 
@@ -163,18 +165,17 @@ apps/web/src/
 - smoke explorer는 artifact 비교만 하고 DB apply를 수행하지 않는다.
 - workbench shell은 screen summary, candidate state, tab routing만 조립한다.
 
-생성, 검수, Claude 실행, stage orchestration은 앱 책임이 아니며 `@cx/pipeline`/`@cx/agent`/`@cx/validation` 경계를 따른다.
+생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. 기존 `@cx/pipeline` 경로는 compatibility surface다. `apps/web` API route는 얇은 adapter로만 둔다.
 
-`apps/smoke`는 사용자-facing 앱이 아니라 개발자-facing 통합 실행 앱이다.
+Smoke 실행은 사용자-facing 앱이 아니라 개발자-facing 스크립트다.
 
 ```text
-apps/smoke/src/
-  index.ts       public app API
-  cli.ts         smoke CLI entrypoint
-  generation/    runGenerationSmoke wrapper and public smoke types
+scripts/
+  smoke-pipeline.ts    smoke CLI entrypoint
+  generation/          runGenerationSmoke wrapper and smoke helper types
 ```
 
-외부 사용은 `@cx/smoke` 또는 `@cx/smoke/generation` public export를 기준으로 한다. root script는 이 앱의 CLI를 호출한다. generation 실행은 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임한다.
+외부 package/app code는 smoke helper를 import하지 않는다. root script는 `scripts/smoke-pipeline.ts`를 호출한다. 현재 generation 실행은 compatibility 경로인 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임하고, 신규 구조에서는 `@cx/inference`로 이동한다.
 
 ## 7. `packages/token`
 
@@ -260,26 +261,46 @@ packages/agent/docs/
 이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
 smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
 
-## 11. `packages/orchestration`
+## 11. Target Inference Packages
 
-`@cx/orchestration`은 pipeline stage에서 쓰는 deterministic helper를 담당한다. 현재는 pattern-selection, screen-generation, screen-revision stage input builder를 제공하고, 더 복잡한 next action 결정 로직은 후속 설계가 확정된 뒤 추가한다.
+새 screen inference 구조는 MVP에서 단일 target package로 시작한다.
 
 ```text
-packages/orchestration/src/
-  index.ts       public barrel
-  public/        pure orchestration boundary contract, generation helper, public types
+packages/inference/src/
+  index.ts
+  stores/       JobStore, ArtifactStore, File*Store, Memory*Store
+  context/      PipelineContext
+  engine/       Claude/function execution engine boundary
+  pipeline/     Pipeline Step format and execution helpers
+  worker/       runInferenceJob orchestration
+```
+
+책임:
+
+- `@cx/inference`: job/step/event/artifact/context/output contract 타입
+- `@cx/inference`: `JobStore`/`ArtifactStore`와 local file/in-memory fake 구현
+- `@cx/inference`: pipeline context, execution engine dispatch, pipeline/step definition, worker
+
+기존 `@cx/inference-nodes`는 deprecated compatibility 패키지다. 새 screen inference 동작을 추가하지 않는다.
+
+```text
+packages/inference-nodes/src/
+  index.ts              public barrel
+  agent/                agent runner-facing shared node types
+  screen-generation/    screen generation node wrappers and planning helpers
+    planning/           pure agent input/context, pattern candidate, next-action helpers
 ```
 
 두지 않는 책임:
 
 - 파일 읽기/쓰기
-- Claude Agent SDK 실행
-- 검증 rule 판정
-- pipeline 실행
-- stage 순서 소유
+- persistence/status 기록
+- pipeline/stage 순서 소유
+- Claude runner 구현 또는 local/API fallback 정책
+- artifact write
+- validation retry/fallback 정책
 - RenderTree React render
 - component/layout/pattern catalog 값 소유
-- 승인 데이터 직접 반영
 
 ## 12. `packages/validation`
 
@@ -302,7 +323,7 @@ packages/validation/src/
 
 ## 13. `packages/pipeline`
 
-`@cx/pipeline`은 생성 과정의 pipeline runtime과 side effect/IO 유틸리티를 담당한다. MVP에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
+`@cx/pipeline`은 기존 screen-generation compatibility runtime과 side effect/IO 유틸리티를 담당한다. 신규 inference runtime 개념은 `@cx/inference`로 이동한다. 현재 MVP compatibility 경로에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
 
 ```text
 packages/pipeline/src/

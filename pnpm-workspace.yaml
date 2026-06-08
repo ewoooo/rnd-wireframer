@@ -1,0 +1,15 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+  sharp: true
+
+# esbuild(tsx/vitest), sharp(next image) 빌드 스크립트 허용
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+
+overrides:
+  postcss: ^8.5.10

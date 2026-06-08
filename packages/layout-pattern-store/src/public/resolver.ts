@@ -1,3 +1,4 @@
+import { isRecord } from "@cx/types/guards";
 import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/types";
 import { componentSignals, scorePatternSignals } from "../internal/matcher";
 import { findPattern, listPatterns } from "../internal/store";
@@ -122,11 +123,6 @@ function arrayOfRecords(value: unknown): Array<Record<string, unknown>> {
 		? value.filter((entry): entry is Record<string, unknown> => isRecord(entry))
 		: [];
 }
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 export function indexPatternsById(
 	patterns: readonly PatternStorePattern[],
 ): Map<string, PatternStorePattern> {

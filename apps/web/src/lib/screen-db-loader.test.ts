@@ -1,12 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { listPuckCatalogItems } from "./puck-catalog-loader";
-import {
-	listScreenRoutes,
-	listScreens,
-	loadScreenRows,
-	loadScreenTree,
-} from "./screen-db-loader";
+import { listScreenRoutes, listScreens, loadScreenRows, loadScreenTree } from "./screen-db-loader";
 
 const originalEnv = process.env;
 

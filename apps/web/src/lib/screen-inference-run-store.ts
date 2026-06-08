@@ -1,7 +1,10 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { runPipeline } from "@cx/pipeline";
+import type { PipelineRunEvent } from "@cx/pipeline";
+import { getScreenGenerationStageOrder, runPipeline } from "@cx/pipeline";
+import type { PipelineStageId } from "@cx/pipeline/types";
 import { readErrorMessage } from "@/lib/api-error";
+import { parseScreenInferencePipelineEventLines } from "@/lib/screen-inference-events";
 import {
 	createScreenInferenceProgressStatus,
 	createScreenInferenceRunId,
@@ -11,6 +14,8 @@ import {
 	type ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
 import { CLIENT_IMPORT_ROOT, RUN_ROOT } from "@/lib/server-paths";
+
+const SCREEN_GENERATION_STAGES = new Set<string>(getScreenGenerationStageOrder());
 
 export type ScreenInferenceRunCreateInput = {
 	previousRunId?: string;
@@ -90,6 +95,13 @@ export async function updateScreenInferenceRunStatus(
 	});
 }
 
+export async function readScreenInferenceRunPipelineEvents(
+	runId: string,
+): Promise<PipelineRunEvent[]> {
+	const contents = await readOptionalText(path.join(readRunDir(runId), "pipeline-events.ndjson"));
+	return contents ? parseScreenInferencePipelineEventLines(contents) : [];
+}
+
 async function runScreenInferencePipeline(input: {
 	createdAt: string;
 	previousRunId?: string;
@@ -122,6 +134,7 @@ async function runScreenInferencePipeline(input: {
 			],
 			onProgress: async (event) => {
 				if (event.status !== "started") return;
+				if (!isScreenGenerationStage(event.stage)) return;
 				await writeRunStatus(
 					createScreenInferenceProgressStatus({
 						createdAt: input.createdAt,
@@ -179,6 +192,15 @@ async function readOptionalJson<T>(filePath: string): Promise<T | undefined> {
 	}
 }
 
+async function readOptionalText(filePath: string): Promise<string | undefined> {
+	try {
+		return await readFile(filePath, "utf8");
+	} catch (error) {
+		if (isNodeError(error) && error.code === "ENOENT") return undefined;
+		throw error;
+	}
+}
+
 function resolveClientImportPath(sourcePath: string): string {
 	const absolutePath = path.resolve(process.cwd(), sourcePath);
 	const relativePath = path.relative(CLIENT_IMPORT_ROOT, absolutePath);
@@ -197,6 +219,10 @@ function readRunDir(runId: string): string {
 	const safeRunId = runId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 120);
 	if (!safeRunId) throw new Error("runId is required.");
 	return path.join(RUN_ROOT, safeRunId);
+}
+
+function isScreenGenerationStage(stage: string): stage is PipelineStageId {
+	return SCREEN_GENERATION_STAGES.has(stage);
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

@@ -36,6 +36,250 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Inference MVP Package Direction
+
+- 변경: `SCREEN_INFERENCE_ARCHITECTURE.md`의 target package 방향을 여러 inference package가 아니라 단일 `@cx/inference` MVP 패키지로 조정함
+- 변경: `@cx/inference` 내부 책임을 `stores`, `context`, `engine`, `pipeline`, `worker`로 나누고, `apps/web` API route는 thin adapter로만 운영한다고 명시함
+- 변경: MVP local file storage 규약을 `.data/inference-jobs/{jobId}/job.json`, `events.ndjson`, `steps/*`, `context/*` 기준으로 고정함
+- 변경: `JobStore`, `ArtifactStore`, `FileJobStore`, `FileArtifactStore`, `MemoryJobStore`, `MemoryArtifactStore` 기준과 worker 격리 테스트 방향을 문서화함
+- 변경: `InferenceEvent.seq`를 job별 monotonic sequence로 고정하고 SSE event id와 `listEvents(jobId, after)` 기준으로 사용한다고 명시함
+- 이유: MVP에서는 package 분할보다 로컬 파일 기반 job/artifact storage와 in-memory fake store로 inference call을 빠르게 검증하는 것이 우선이기 때문
+- 검증: 문서 링크와 target package 명칭 `rg` 확인. 구현 변경은 수행하지 않음
+- 후속: `@cx/inference` 패키지를 추가하고 store/context/step/worker 순서로 구현한다.
+
+## 2026-06-08 - Pipeline Declarative Completion Contract Cleanup
+
+- 변경: `@cx/pipeline` public `PipelineStageId`와 `PipelineRunResult`, `ScreenGenerationSkillBundleRef.stage`에서 제거된 revision 단계/필드를 정리해 현재 11-step screen-generation 계약과 일치시킴
+- 변경: `apps/web/src/lib/screen-inference-run-store.ts`가 hardcoded stage allowlist 대신 `getScreenGenerationStageOrder()`를 사용하도록 바꿔 Web 진행률 SSOT가 pipeline metadata와 드리프트하지 않게 함
+- 변경: `packages/pipeline/src/__tests__/step-definition.test.ts`의 예시 step 순서를 현재 단일 패스 screen-generation 흐름에 맞게 갱신함
+- 이유: `PIPELINE_DECLARATIVE_PLAN.md`는 revision 제거와 public stage 목록 반영 완료를 선언했지만, 실제 public 타입/웹 진행률 경계에는 이전 revision surface가 남아 있었기 때문
+- 검증: `pnpm -s vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/lib/screen-inference-run.test.ts`, `pnpm -s tsc --noEmit --pretty false`, `pnpm -s biome lint packages/pipeline/src/public/types.ts packages/pipeline/src/pipelines/screen-generation/skill-catalog.ts packages/pipeline/src/__tests__/step-definition.test.ts apps/web/src/lib/screen-inference-run-store.ts`
+- 후속: 남아 있는 revision 관련 설명 자산(`packages/agent/docs/*`)은 현재 호환 문맥인지 target inference 문서로 이관할지 별도 정리한다.
+
+## 2026-06-08 - Screen Inference Architecture Reset
+
+- 변경: `docs/development/SCREEN_INFERENCE_ARCHITECTURE.md`를 추가해 Job Store, Worker, Inference Pipeline, Pipeline Context, Execution Engines, Knowledge Base 중심의 새 screen inference 실행 구조를 정본화함
+- 변경: 기존 `AGENT_RUNTIME_PROTOCOL.md`, `PIPELINE_STAGE_PROTOCOL.md`, `PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md`, 빈 `INFERENCE_SERVICE_STRUCTURE.md`를 제거하고 관련 링크를 새 정본 문서로 통합함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `API_ENDPOINTS.md`, `docs/development/README.md`, `packages/pipeline/README.md`, `packages/agent/README.md`를 새 target package 구조와 compatibility/deprecated 상태 기준으로 갱신함
+- 이유: 기존 `@cx/inference-nodes` 및 `@cx/pipeline` screen-generation 경계가 복잡해져 새 inference contract/store/runtime/screen-inference 구조로 재설계하기 위함
+- 검증: 문서 링크 `rg` 확인. 구현 변경은 수행하지 않음
+- 후속: `@cx/inference-contracts`, `@cx/inference-store`, `@cx/inference-runtime`, `@cx/screen-inference` 패키지를 순서대로 추가하고 `/api/inference/*` target route로 이관한다.
+
+## 2026-06-05 - Contract Branch Audit
+
+- 변경: `docs/development/CONTRACT_BRANCH_AUDIT_2026-06-05.md`를 추가해 pipeline 외 패키지의 schema/contract 부족성 도메인 분기를 코드 청크 단위로 점검함
+- 변경: `@cx/renderer` renderer kind 선택, `@cx/inference-nodes` decoration role projection, table/read model area type 매핑, region contract 중복, layout matcher, Web Puck scope adapter를 위험도별로 분류함
+- 변경: 2차 AST 스캔으로 운영 소스 439개에서 후보 349개를 추출하고, `packages/figma-screen-sync`, `@cx/types/node-types`, markdown kind 추론, renderer coercion, RenderTree->Figma mapping까지 추가 위험으로 반영함
+- 변경: 선언적 데이터 구조 후보 86개를 추가 스캔해 local policy table, coverage type 부족, 병렬 vocabulary, JSON/문서 catalog validation 취약성을 별도 섹션으로 정리함
+- 이유: 옆 세션에서 확인된 "스키마 부족으로 인한 명령형 분기 과다" 문제가 다른 패키지에도 남아 있는지 후속 정리 순서를 잡기 위함
+- 검증: `rg` 기반 운영 TypeScript 소스 분기 스캔, TypeScript AST 기반 `if`/삼항/`switch`/contract lookup 후보 수집, 선언적 상수/registry/catalog 후보 수집, 주요 후보 파일 주변 코드 수동 확인. 구현 변경은 수행하지 않음
+- 후속: renderer kind contract, Figma sync 운영 여부, schema region contract, table area row type mapping, `@cx/types/node-types` legacy 정리부터 순서대로 SSOT를 확정해야 한다.
+
+## 2026-06-05 - Screen Generation Descriptor SSOT
+
+- 변경: `screen-generation` stage id/order/input/output/AI task/layer/message/artifact metadata를 `packages/pipeline/src/pipelines/screen-generation/descriptor.ts`의 `SCREEN_GENERATION_STAGE_DESCRIPTORS` 기준으로 모음
+- 변경: `screen-generation-pipeline.ts`가 descriptor를 `definePipeline({ steps })`로 컴파일하게 하고, stage output contract/input map/AI task map 중복 선언을 제거함
+- 변경: smoke manifest layer, artifact layer group, Web `SCREEN_INFERENCE_LAYERS`, stage→layer/message 조회를 같은 descriptor에서 파생하도록 정리함
+- 변경: `propose-components`는 `validate-render-tree` 결과를 입력으로 받는 post-validation 단계이므로 `Revise` layer로 이동해 Web 진행 상태가 Revise 이후 Compose로 되돌아가지 않게 함
+- 변경: descriptor와 stage executor/AI runner registry가 어긋나면 pipeline 생성 시 즉시 실패하도록 coverage guard를 추가하고 public API 테스트에 descriptor 계약 검증을 추가함
+- 변경: stage output projection map(`readScreenGenerationStageOutput`)을 제거하고 각 stage 실행 함수가 자기 output을 직접 반환하도록 정리함
+- 변경: revision 관련 skip 조건과 parse failure 이후 artifact write 예외를 descriptor `skipPolicy`로 이동해 stage id 문자열 분기를 줄임
+- 변경: deterministic executor registry와 AI runner registry를 단일 `screenGenerationStageRuntimes`로 합쳐 stage 구현 연결점을 하나로 줄임
+- 이유: 최신 Step runtime API 위에 screen-generation 전용 stage/layer/contract 선언이 중복으로 남아 있어 stage 추가/rename 시 pipeline, smoke artifact, Web progress를 손으로 맞춰야 했기 때문
+- 검증: `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm exec vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts apps/web/src/lib/screen-inference-run.test.ts`, `pnpm exec biome check AGENTS_HISTORY.md docs/development/PIPELINE_STAGE_PROTOCOL.md packages/pipeline/src/pipelines/screen-generation/descriptor.ts packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/index.ts packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/lib/screen-inference-run.ts apps/web/src/lib/screen-inference-run.test.ts`
+- 후속: `screenGenerationStageRuntimes`는 stage 구현 함수 registry로 남아 있으며, 다음 정리에서는 inference-node descriptor가 runner 구현까지 소유할지 결정해야 한다.
+
+## 2026-06-05 - Pipeline Step Output Registry
+
+- 변경: `@cx/pipeline` Step output 계약을 `output.result` named map으로 정규화하고 runtime 완료 상태에 `state.steps[step.id].outputs.result`를 저장하도록 변경함
+- 변경: `stepOutput(stepId, "result")`, `refInput(id)`, `contract(id)` helper를 추가하고 screen-generation step wiring을 upstream `*.result`와 외부 reference helper 기반으로 정리함
+- 변경: screen-generation AI step runner가 runtime resolved `inputs`를 받아 실행하도록 바꾸고, 각 AI step prompt에는 `@cx/agent/tasks`의 실제 prompt artifact를 연결함
+- 이유: defineStep만 봐도 step별 입력과 output contract를 추적할 수 있게 하고, 추후 `uses` manifest 설계 전에 실행 API를 먼저 안정화하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`
+
+## 2026-06-05 - Catalog Facade Alignment Implementation
+
+- 변경: `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`에 공통 facade인 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds`를 추가함
+- 변경: `@cx/layout-pattern-store`에 `./catalog` package export를 추가하고, package root는 runtime layout component surface로 전환함
+- 변경: repo 내부의 layout catalog read import를 `@cx/layout-pattern-store/catalog`로 이동하고 layout-pattern-store README/plan 문서를 갱신함
+- 변경: component/layout public API 테스트에 동일한 catalog-driven resolution facade 검증을 추가함
+- 이유: Component와 Layout 모두 catalog 조회, ID 기반 선택, candidate 생성이라는 같은 resolution 패턴을 동일한 export path와 함수명으로 소비하게 하기 위함
+- 검증: `pnpm exec vitest run packages/component/src/__tests__/catalog-public-contract.test.ts packages/layout-pattern-store/src/__tests__/public-api.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, targeted `pnpm exec biome check`
+
+## 2026-06-05 - Catalog Facade Alignment Plan
+
+- 변경: `CATALOG_FACADE_ALIGNMENT_PLAN.md`를 추가해 `@cx/components/catalog`와 `@cx/layout-pattern-store/catalog`가 동일한 export subpath와 `createCandidate`, `getEntry`, `listCatalog`, `listCatalogIds` facade를 제공하도록 하는 개선 계획을 작성함
+- 변경: 실제 코드 기준으로 두 패키지의 public/internal/runtime/candidate 구조, catalog 원천, 상태 모델 차이를 정리하고 `docs/development/README.md`의 활성 하위 계획에 연결함
+- 이유: Component Candidate와 Layout Candidate 제작, ID 조회, catalog 조회 기능을 같은 public API 형식으로 노출하기 위한 기준을 먼저 고정하기 위함
+- 검증: 문서 링크 확인, `git diff --check`
+
+## 2026-06-05 - Pipeline AI Step Adapter Execution
+
+- 변경: `screen-generation` pipeline의 AI stage를 `usesAI: true` Step으로 선언하고 `runStepPipeline(..., { agent })`의 `StepAgentAdapter` 경로에서 실행하도록 전환함
+- 변경: fake/Claude local-first runner 선택을 각 stage executor 내부 분기에서 `createScreenGenerationStepAgentAdapter(...)`로 이동하고, 기존 `@cx/inference-nodes` node/helper 기반 agent input context 조립은 유지함
+- 변경: `screen-generation-tags.test.ts`에 AI stage runner request와 agent input context 유지 검증을 추가하고, `PIPELINE_STAGE_PROTOCOL.md`와 `packages/pipeline/README.md`에 AI step 실행 규칙을 반영함
+- 이유: pipeline을 단순 stage wrapper가 아니라 AI/deterministic 실행 계약을 소유하는 runtime으로 만들고, 실행 방식이 fake/Claude로 바뀌어도 stage별 agent context가 유지되게 하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts`
+
+## 2026-06-05 - Pipeline Step Reference Manifest Plan
+
+- 변경: `PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md`를 추가해 `defineStep`에서 `uses`, named `output.result`, `stepOutput(stepId, outputName)` helper로 step별 참조 자료와 output contract를 드러내는 개선안을 작성함
+- 변경: `docs/development/README.md`의 활성 하위 계획에 해당 문서를 추가함
+- 이유: 현재 screen-generation step 정의만 봐서는 각 step이 어떤 upstream artifact, catalog, docSet, schema를 참고하는지 직관적으로 파악하기 어렵기 때문
+- 검증: 문서 링크 확인, `git diff --check`
+
+## 2026-06-05 - Web API Consumption Hook Plan
+
+- 변경: `API_ENDPOINTS.md`에 "Browser-facing UI는 `/api/*` endpoint만 소비하고 Pipeline/DB/Claude 실행은 Next API route와 `server/*` service/repo 뒤에 둔다"는 경계 규칙을 추가함
+- 변경: `WEB_API_CONSUMPTION_HOOK_PLAN.md`를 추가해 `features/*`, `server/*`, `shared/*`, `app/api/*` 기준과 screen inference API 소비 hook을 source/run/review/actions/workbench composer로 분리하는 rollout 계획을 작성함
+- 변경: `AGENTS.md`와 `docs/development/README.md`에 해당 규칙과 계획 문서를 연결함
+- 이유: Web UI가 endpoint 소비자라는 원칙을 명확히 하고, 현재 넓은 `useNewScreenInference`를 안전하게 쪼갤 기준을 먼저 고정하기 위함
+- 검증: 문서 링크 확인, `git diff --check`
+
+## 2026-06-05 - API Endpoint Documentation
+
+- 변경: `docs/development/API_ENDPOINTS.md`를 추가해 현재 구현된 Web API route, 입력/출력 요약, SSE 사용 방식, dev-only endpoint, 변경 체크리스트를 정리함
+- 변경: `docs/development/README.md`의 운영 기준 문서 목록에 endpoint 문서를 추가함
+- 변경: `README.md`와 `AGENTS.md`에도 endpoint 문서를 기준 문서로 연결하고, Web API route 변경 시 함께 갱신해야 한다는 운영 원칙을 추가함
+- 이유: endpoint 논의가 archive 계획 문서와 코드에 흩어져 있어 현재 활성 Web API 표면을 한 곳에서 확인하기 어렵기 때문
+- 검증: `find apps/web/src/app/api -maxdepth 5 -type f`, route 파일 확인, `git diff --check`
+
+## 2026-06-05 - Development Docs Responsibility Cleanup
+
+- 변경: `docs/development/README.md`에 문서 책임 기준, 현재 운영 기준 문서, 활성 하위 계획, archive 이동 문서 표를 추가함
+- 변경: 완료 또는 최신 기준에 흡수된 `ADAPTERS_PACKAGE_TRANSITION_PLAN.md`, `RENDER_DB_REST_LOADER_TRANSITION_PLAN.md`, `SCREEN_DESIGN_STAGE_PLAN.md`, `NEW_SCREEN_INFERENCE_LIFECYCLE_PLAN.md`, `INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md`를 `docs/archive/completed-plans/`로 이동함
+- 변경: `PIPELINE_STAGE_PROTOCOL.md`의 완료된 stage 확장 계획 링크를 현재 상세 해설 문서와 archive 기록으로 분리함
+- 이유: `docs/development/`가 운영 기준 문서와 완료된 전환 계획을 같은 위상으로 보여 문서 책임과 SSOT가 겹쳐 보였기 때문
+- 검증: `rg`로 이동 전 development 경로 참조 확인, `git diff --check`. `pnpm exec biome check ...`는 Markdown 문서가 repo Biome ignore 대상이라 처리 파일 0개로 종료됨
+
+## 2026-06-05 - Smoke App To Scripts
+
+- 변경: `apps/smoke/src/*`의 smoke/generation/render-db/proposal CLI와 helper를 `scripts/*`로 이동하고 `apps/smoke` 앱 패키지와 `@cx/smoke` public package export를 제거함
+- 변경: root `package.json`의 `smoke:pipeline`, `test:smoke:pipeline`, `smoke:proposals`, `smoke:promote-*`, `render-db:*` scripts가 새 `scripts/*` entrypoint를 호출하도록 수정함
+- 변경: smoke helper 테스트 위치가 `scripts/**`로 이동함에 따라 `vitest.config.ts` include에 `scripts/**/*.{test,spec}.{ts,tsx}`를 추가함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `scripts/SMOKE.md`, 관련 development 문서를 `@cx/smoke` 앱/패키지 기준이 아니라 개발자용 scripts 기준으로 갱신함
+- 이유: smoke는 제품 앱이나 reusable package가 아니라 `@cx/pipeline`을 반복 실행하는 개발/검증 도구이므로 `apps`에서 제거하고 scripts로 낮추기 위함
+
+## 2026-06-05 - Orchestration Package Absorption
+
+- 변경: `packages/orchestration` 패키지를 제거하고 기존 deterministic planning helper와 agent input/context builder를 `packages/inference-nodes/src/screen-generation/planning/`으로 흡수함
+- 변경: `@cx/pipeline`과 `@cx/inference-nodes`의 `@cx/orchestration` dependency를 제거하고, pipeline은 screen-generation planning 타입도 `@cx/inference-nodes/screen-generation` public surface에서 import하도록 정리함
+- 변경: `@cx/inference-nodes/screen-generation`이 screen-generation agent input 타입, pattern layer candidate, design-context bundle selection, generation next action 타입을 공개하도록 export를 보강함
+- 변경: `AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, 주요 development/design/README 문서에서 현재 책임 기준을 `@cx/pipeline` runtime과 `@cx/inference-nodes` node/planning helper로 갱신함
+- 이유: `orchestration`이라는 패키지명이 pipeline 순서와 실행 책임을 소유한다는 오해를 만들었고, 실제 역할은 inference node 내부 planning helper였으므로 node 패키지 안으로 흡수해 경계를 단순화하기 위함
+
+## 2026-06-05 - Inference Pipeline Rollout 9
+
+- 변경: `runScreenGenerationPipeline(...)`에서 legacy `stage-loop` 분기를 제거하고 `screen-generation` 실행을 항상 `runStepPipeline(...)` 경로로 고정함
+- 변경: `ScreenGenerationPipelineOptions.executionMode`와 smoke CLI `--execution-mode` 플래그를 제거해 더 이상 runtime path 선택 표면을 노출하지 않게 함
+- 변경: legacy `runScreenGenerationStageLoop(...)`와 stage-loop 전용 status/event persistence helper를 제거하고, stage executor table을 `screenGenerationStepExecutors`로 rename해 Step 정의용 executor로만 사용하게 함
+- 변경: `@cx/pipeline`이 직접 import하던 orchestration builder 호출을 `@cx/inference-nodes/screen-generation`의 deterministic node wrapper(`runPatternLayerCandidatesNode`, `runDesignSkillSelectionNode`, `runDesignContextBundleRefsNode`, `runDecorationPlanNode`, `runGenerationNextActionNode`) 뒤로 이동함
+- 변경: agent 결과가 `Screen.Header`, `Screen.Contents`, `Screen.Bottom`의 필수 `layout.region.*` ref를 누락하면 `runRequiredRegionLayoutRepairNode(...)`가 검증 전에 보정하도록 추가함
+- 이유: 마지막 Rollout 9 범위에서 pipeline은 Step runtime/order/status/IO를 소유하고, 실제 agent/deterministic/validation 작업 단위는 inference-nodes가 소유하도록 경계를 확정하기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md apps/smoke/README.md packages/inference-nodes/src/screen-generation/deterministic-nodes.ts packages/inference-nodes/src/screen-generation/index.ts packages/inference-nodes/src/__tests__/deterministic-nodes.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/public/types.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/smoke/src/cli.ts apps/smoke/src/generation/types.ts apps/smoke/src/generation/run-generation-smoke.ts apps/smoke/src/generation/batch/run-batch.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/inference-nodes/src/__tests__/deterministic-nodes.test.ts apps/smoke/src/generation/batch/run-batch.test.ts apps/web/src/lib/screen-inference-events.test.ts apps/web/src/components/App.test.tsx`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --artifact-store local-transient --run-id rollout9-cleanup-final-fake-check`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --artifact-store local-transient --run-id rollout9-default-step-runner-ai-check-2 --use-ai`
+- 검증 결과: cleanup fake `rollout9-cleanup-final-fake-check`는 `pipeline-status.status=completed`, `write-artifacts=completed`, `revise-render-tree-if-invalid=skipped`, `pipeline-events.ndjson=22 events`, `validationOk=true`; real AI `rollout9-default-step-runner-ai-check-2`는 revision route를 실행하고 `pipeline-status.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.errorCount=0`, `warningCount=2`, `validationOk=true`
+- 후속: 첫 real AI 재검증(`rollout9-default-step-runner-ai-check`)은 revision 결과가 `Screen.Bottom.layout`을 누락해 `validationOk=false`였다. 해당 계약은 deterministic region layout repair node로 보강했고 재실행에서 통과했다.
+
+## 2026-06-05 - Inference Pipeline Rollout 8
+
+- 변경: `GET /api/screen-inference/runs/:runId/events` SSE route를 추가해 `pipeline-events.ndjson`에 저장된 `PipelineRunEvent`를 `pipeline-event`로 replay/tail할 수 있게 함
+- 변경: SSE route가 `Last-Event-ID`를 기준으로 reconnect 이후 이벤트를 이어 보내고, Web run이 `failed`, `waiting-review`, `applied` 같은 terminal 상태가 되면 stream을 닫도록 함
+- 변경: `screen-inference-events` helper를 추가해 persisted NDJSON parsing, SSE payload formatting, event-id filtering, client message parsing을 분리함
+- 변경: Web client에 `subscribeScreenInferenceRunEvents(...)`를 추가하고 `useNewScreenInference(...)`가 SSE event를 즉시 status refresh trigger로 사용하되 기존 polling effect는 fallback으로 유지하도록 연결함
+- 이유: Rollout 8 범위에서 run status persistence를 Web UI에 실시간으로 전달하되, 기존 snapshot API와 polling fallback을 유지해 reconnect/refresh 안정성을 보장하기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md apps/web/src/lib/screen-inference-events.ts apps/web/src/lib/screen-inference-events.test.ts apps/web/src/lib/screen-inference-run-store.ts apps/web/src/lib/screen-inference-client.ts apps/web/src/model/workbench/use-new-screen-inference.ts 'apps/web/src/app/api/screen-inference/runs/[runId]/events/route.ts'`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run apps/web/src/lib/screen-inference-events.test.ts apps/web/src/lib/screen-inference-run.test.ts apps/web/src/components/App.test.tsx packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --artifact-store local-transient --execution-mode step-runner --run-id rollout8-step-runner-fake-check`
+- 후속: Web UI가 pipeline event shape를 직접 안정적으로 소비할 만큼 stage reducer가 정리되면, 현재의 snapshot refetch trigger 방식에서 event reducer apply 방식으로 최적화할 수 있다.
+
+## 2026-06-05 - Inference Pipeline Rollout 7
+
+- 변경: `runStepPipeline(...)`에 `PipelineFeedbackRule` 실행을 추가해 `fromStep`, `when`, `goTo`, `then`/`thenStep`, `maxRetries` 기반 cursor routing을 지원함
+- 변경: `review-quality` stage가 `buildGenerationNextAction(...)` decision fact를 만들고, `revise-render-tree-if-invalid`는 decision이 revision 요청일 때만 실행되도록 분리함
+- 변경: happy path에서 `revise-render-tree-if-invalid`와 `validate-render-tree-after-revision`이 no-op 실행 대신 `skipped` status로 기록되게 함
+- 변경: revision 후 validation error count가 이전 후보보다 악화되면 final candidate를 pre-revision 후보로 되돌리는 안전장치를 추가함
+- 변경: feedback route 단위 테스트와 screen-generation skipped status/event count 테스트를 추가함
+- 이유: Rollout 7 범위에서 revision 여부 판단은 pipeline feedback route가 소유하고, revision node는 실제 수정 실행만 담당하도록 경계를 올리기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md packages/pipeline/src/public/types.ts packages/pipeline/src/pipelines/screen-generation packages/pipeline/src/runtime/run-step-pipeline.ts packages/inference-nodes/src/screen-generation/validation-node.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/inference-nodes/src/__tests__/screen-intent-node.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout7-step-runner-fake-check`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout7-stage-loop-ai-check-3 --use-ai`
+- 검증 결과: fake happy path는 optional revision stages를 `skipped`로 기록하고 `pipeline-events.ndjson=22 events`; `rollout7-stage-loop-ai-check-3`는 revision route를 실행하고 `pipeline-status.json.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.json.ok=true`, error 0건, warning 2건
+- 후속: `rollout7-stage-loop-ai-check`와 `rollout7-stage-loop-ai-check-2`에서 revision 결과가 `Screen.Bottom.layout` error를 만들 수 있음을 확인했다. 안전장치로 final 승격은 막았지만, agent revision prompt/repair 정책은 후속 hardening 대상으로 남긴다.
+
+## 2026-06-05 - Inference Pipeline Rollout 6
+
+- 변경: `ScreenGenerationPipelineOptions.references`를 추가해 `componentCatalogs`, `layoutCatalogs`, `skillBundles`, `designContextBundles`를 외부에서 주입할 수 있게 함
+- 변경: `screen-generation` stage runtime이 component catalog, layout resolver, skill/design-context loader를 직접 import하지 않고 normalized references만 사용하도록 변경함
+- 변경: 기본 references는 `createDefaultScreenGenerationReferences(...)`에서 기존 공개 API(`@cx/components/catalog`, `@cx/layout-pattern-store/resolver`, agent docs loader)를 묶어 제공함
+- 변경: RenderTree validation node가 component catalog 값을 직접 import하지 않고 caller가 전달한 `componentCatalog`로 검증하도록 변경함
+- 이유: Rollout 6 범위에서 외부 catalog/skill/design-context 자산을 pipeline 실행 옵션으로 교체 가능하게 만들어, 다음 단계의 preset/experiment와 step definition 전환을 쉽게 하기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md packages/pipeline/src/public/types.ts packages/pipeline/src/pipelines/screen-generation packages/inference-nodes/src/screen-generation/validation-node.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/inference-nodes/src/__tests__/screen-intent-node.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout6-step-runner-fake-check-2`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout6-stage-loop-ai-check-2 --use-ai`
+- 검증 결과: `rollout6-stage-loop-ai-check-2`는 `pipeline-status.json.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.json.ok=true`, error 0건, warning 3건
+- 후속: 첫 real AI smoke(`rollout6-stage-loop-ai-check`)는 `plan-composition`에서 Claude JSON parse 오류로 실패했다. 재시도는 통과했지만 Rollout 7 이후 agent output parse retry/repair 정책을 별도 보강 대상으로 둔다.
+
+## 2026-06-05 - Inference Pipeline Rollout 5B
+
+- 변경: `runAgentPromptNode(...)` 공통 wrapper를 추가하고 composition, pattern selection, screen generation, component proposal, quality review, screen revision agent stage를 `@cx/inference-nodes/screen-generation` node wrapper로 분리함
+- 변경: fake generation runner와 fake composition/pattern/proposal/quality artifact helper를 `@cx/inference-nodes`로 이동함
+- 변경: RenderTree validation report 생성을 `createRenderTreeValidationReport(...)` validation node로 이동해 pipeline의 validation rule 소유를 줄임
+- 이유: Rollout 5 전체 범위에서 `@cx/pipeline`은 stage 순서, runner 선택, state 기록, artifact write를 유지하고 agent/validation 작업 단위는 node 패키지로 옮기기 위함
+- 검증: `pnpm exec biome check AGENTS_HISTORY.md PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md packages/inference-nodes packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/inference-nodes/package.json`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout5b-step-runner-fake-check`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout5b-stage-loop-ai-check --use-ai`
+- 검증 결과: `rollout5b-stage-loop-ai-check`는 `pipeline-status.json.status=completed`, `pipeline-events.ndjson=26 events`, `validation-report.json.ok=true`, error 0건, warning 0건
+
+## 2026-06-05 - Inference Pipeline Rollout 5A
+
+- 변경: `@cx/inference-nodes` 패키지를 추가하고 root, `./agent`, `./screen-generation` public surface를 만듦
+- 변경: 첫 agent node로 `runScreenIntentNode(...)`를 추가해 ScreenIntent agent input 조립과 agent task 실행을 pipeline 밖으로 분리함
+- 변경: fake smoke용 `createFakeScreenIntent(...)`도 `@cx/inference-nodes/screen-generation`으로 이동해 pipeline 내부 pure helper 소유를 줄임
+- 변경: `derive-screen-intent` stage는 Claude/fake runner 선택과 pipeline state 반영만 담당하고, 실제 node 실행은 `runScreenIntentNode(...)`에 위임하도록 바꿈
+- 이유: Rollout 5A 범위에서 `@cx/pipeline`은 stage order/status/artifact/IO를 유지하고, agent 관련 작업 단위는 `@cx/inference-nodes`로 옮기는 경계를 코드로 확정하기 위함
+- 검증: `pnpm exec biome check ...`, `pnpm exec vitest run packages/inference-nodes/src/__tests__/screen-intent-node.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout5a-step-runner-fake-check`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout5a-stage-loop-ai-check --use-ai`
+- 후속: real AI smoke는 `validationOk: true`이나 `divider` unknown-prop과 `layout.region.bottom` candidate warning이 남아 있어 후속 node 추출/contract 정리 때 계속 추적한다.
+
+## 2026-06-05 - Inference Pipeline Rollout 4
+
+- 변경: `ScreenGenerationPipelineOptions.executionMode`를 추가해 기존 `stage-loop`와 신규 `step-runner` 경로를 선택할 수 있게 함
+- 변경: screen-generation 13개 기존 stage executor를 `defineStep(...)` wrapper로 감싸 `runStepPipeline(...)`에서 순차 실행하는 경로를 추가함
+- 변경: Step runner status에 `outDir`, `runDir`, `sourcePath` 메타데이터를 전달하고, smoke CLI에 `--execution-mode stage-loop|step-runner` 옵션을 추가함
+- 변경: `PipelineStep.skipWhen`을 추가해 parse 실패 후 불필요한 step이 completed output처럼 기록되지 않고 `skipped` status로 남도록 함
+- 이유: Rollout 4 범위에서 stage 내부 구현, artifact write, revision/validation 로직은 유지하면서 Step runner path가 current runtime을 side-by-side로 실행할 수 있음을 검증하기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/smoke/src/generation/batch/run-batch.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec biome check ...`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout4-step-runner-fake-check-2`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --execution-mode step-runner --run-id rollout4-step-runner-ai-check --use-ai`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --run-id rollout4-stage-loop-ai-check --use-ai`, `git diff --check`
+- 후속: real AI smoke에서 `Badge.divider` 또는 `ListText.divider` unknown-prop warning이 1건씩 남아 있어 Rollout 5 이후 node/contract extraction 때 component catalog 계약과 prompt 출력 surface를 함께 정리한다.
+
+## 2026-06-05 - Inference Pipeline Rollout 3
+
+- 변경: `runStepPipeline(...)` generic Step runner를 추가해 작은 `StepPipelineDefinition`을 순차 실행할 수 있게 함
+- 변경: executable Step, AI Step adapter, `from(...)`/`value(...)` input resolution, artifact rule, status/event persistence를 runner fixture에서 검증함
+- 변경: generic Step runner를 위해 `PipelineRunStatus`와 `PipelineRunEvent`의 `pipelineId`/`stage` 타입을 string-compatible하게 확장함
+- 변경: Web screen inference progress handler에는 screen-generation stage guard를 추가해 generic step event와 기존 UI stage 타입 경계를 분리함
+- 이유: Rollout 3 범위에서 기존 `runPipeline("screen-generation")` hardcoded stage loop는 유지하면서, Step runner를 side-by-side로 성숙시키기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/lib/screen-inference-run.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `git diff --check`
+
+## 2026-06-05 - Inference Pipeline Rollout 0-2
+
+- 변경: `npm run test:smoke:pipeline`을 추가해 fake-mode CLI smoke를 rollout static/fake-mode gate에 포함함
+- 변경: `@cx/pipeline/definition`에 `definePipeline`, `defineStep`, `from`, `value` Step Definition helper를 추가함
+- 변경: `PipelineStep`, `StepInputRef`, `OutputContract`, `StepPipelineDefinition`, `PipelineExecutionState` 등 Step migration 타입을 public type으로 추가함
+- 변경: `resolveStepInputs`, `resolveStepInput`, `createPipelineExecutionState`, `StepInputResolutionError`를 추가해 `input.*`, `step.*`, `ref.*`, `value(...)` resolver를 구현함
+- 변경: 현재 screen inference 13단계가 Step 정의 데이터로 표현되는지와 nested input ref resolver가 동작하는지 테스트를 추가함
+- 이유: Rollout 0~2 범위에서 기존 screen-generation 런타임은 변경하지 않고, Step migration의 선언/입력 해석 기반만 먼저 세우기 위함
+- 검증: `pnpm exec vitest run packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `npm run test:smoke:pipeline`, `npm run smoke:pipeline -- --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient --use-ai`, `git diff --check`
+
+## 2026-06-04 - Inference Pipeline Step Runner Plan
+
+- 변경: `docs/development/INFERENCE_PIPELINE_ARCHITECTURE_PLAN.md`를 graph/node 중심 설명에서 `PipelineDefinition`, `PipelineStep`, `StepInputRef`, `OutputContract`, `feedback`, `persistence` 중심 설명으로 재정리함
+- 변경: 공개 input reference API를 `artifactFrom(...)` 대신 `from(ref)`, `value(value)` 중심으로 단순화함
+- 변경: `PipelineStep`을 `AiPipelineStep | ExecutablePipelineStep` union으로 정리하고, AI Step은 `prompt`와 `output` contract 필수, non-AI Step은 `execute` 필수와 `output` 선택으로 기록함
+- 변경: 1차 migration 목표를 3-call 축소가 아니라 현재 smoke-proven inference flow를 `defineStep` 구조로 감싸는 것으로 조정함
+- 변경: 현재 screen inference 과정을 `definePipeline`/`defineStep` 신규 API 예시로 문서화하고, `feedback`과 `artifacts` 선언 예시를 추가함
+- 변경: feedback rule에서 `then`은 optional revision Step 이후 재진입 위치, `maxRetries`는 무한 revise loop 방지 상한으로 역할을 명시함
+- 변경: Step runtime cursor 실행 예시, `resolveStepInputs`/feedback 평가 코드 예시, SSE route/Web `EventSource` 통신 예시를 계획 문서에 추가함
+- 변경: input API를 1차 `from(ref)`, `value(value)` 체계로 정규화하고, ref namespace를 `input.*`, `step.*`, `ref.*`로 단순화함
+- 변경: Web client endpoint 기준으로 run 생성/조회/artifact/apply/events, run directory File I/O, `status.json`과 `pipeline-status.json` 책임 차이를 문서화함
+- 변경: 외부 reference 명칭을 `skillBundles`, `designContextBundles`, `layoutCatalogs`, `componentCatalogs`로 정리하고 모두 `ref.*` 아래에서 참조하도록 계획 문서를 갱신함
+- 변경: `componentCatalogs`와 `layoutCatalogs` 예시를 실제 `@cx/components/catalog`, `@cx/layout-pattern-store`, `@cx/layout-pattern-store/resolver` public API 기준으로 보정함
+- 변경: Step API 예시를 현재 `screenGenerationPipelineDefinition.stages` 순서와 참조 흐름 기준으로 보정하고, `derive-decoration-plan`, `revise-render-tree-if-invalid`, `validate-render-tree-after-revision`, `write-artifacts`를 1차 migration 예시에 포함함
+- 변경: 현재 코드 근거 파일, 품질 parity gate, fake-mode/Claude local-first baseline, Step migration rollout 0~9를 계획 문서에 추가함
+- 변경: fake-mode CLI smoke를 `npm run test:smoke:pipeline`으로 추가하고 migration static/fake-mode gate에 포함함
+- 이유: 현재 요구사항이 범용 graph engine보다 단계 순서, 단계별 참고 자료, 출력 계약, AI 사용 유무, feedback loop, UI 상태 persistence를 빠르게 실험하는 것에 가깝기 때문
+- 검증: `packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts`, `artifact-commands.ts`, `public/types.ts`, `screen-generation-tags.test.ts`, `public-api.test.ts` 확인 후 문서 변경, `npm run test:smoke:pipeline`, `git diff --check`
+
 ## 2026-06-04 - Divider Prop Contract Cleanup
 
 - 변경: PageStack area divider 계약을 `divider: "contents" | "section" | "none"` 단일 prop으로 정리하고 `divider:true`의 trailing 의미와 공개 `sectionDivider` prop을 제거함
@@ -1631,6 +1875,14 @@
 - 이유: 왼쪽 사이드바가 스크린 탐색만 담당하던 상태에서 벗어나, 선택된 화면의 Area와 Component 구조를 바로 확인하고 편집 범위로 진입할 수 있게 하기 위함
 - 검증: `pnpm lint`, `pnpm test`, `pnpm build`, `curl -I http://127.0.0.1:3000`. 인앱 브라우저는 로컬 URL 접근이 `net::ERR_BLOCKED_BY_CLIENT`로 차단되어 시각 확인은 수행하지 못함
 
+## 2026-06-04 - Pipeline Persistence API
+
+- 변경: `@cx/pipeline`에 `PipelineRunStatus`, `PipelineRunEvent`, `PipelinePersistenceAdapter` 계약과 파일 기반 persistence adapter를 추가함
+- 변경: `screen-generation` 실행 중 `pipeline-status.json`과 `pipeline-events.ndjson`를 run root에 기본 기록하고, `persistence.enabled: false` 또는 custom adapter로 제어할 수 있게 함
+- 변경: `PipelineProgressEvent`에 `failed` 상태와 `timestamp`를 추가하고, Node/memory file system adapter에 append I/O를 확장함
+- 이유: web/app shell 외부에서도 파이프라인 실행 중 stage 상태를 조회하고, 향후 SSE/WebSocket/queue UI가 pipeline persistence를 직접 소비할 수 있게 하기 위함
+- 검증: `pnpm -s exec tsc --noEmit`, `pnpm test -- --run packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/public-api.test.ts apps/web/src/lib/screen-inference-run.test.ts`
+
 ## 2026-06-01 - Understand Compose Revise Artifact Docs
 
 - 변경: `SCREEN_GENERATION_PIPELINE.md`, `SCREEN_DESIGN_STAGE_PLAN.md`, `packages/pipeline/README.md`, `apps/smoke/README.md`에 `Understand -> Compose -> Revise` 논리 레이어와 flat artifact + `trace.json` 통합 저장 기준을 반영함
@@ -1651,6 +1903,15 @@
 - 변경: quality review prompt/checklist/output 문서와 fake quality result가 새 score/layer 계약을 따르도록 보강함
 - 이유: Revise 단계가 단순 pass/fail이나 3축 점수에 머물지 않고, action 명료성·밀도·패턴 적합성 문제를 Compose/Revise 원인으로 분리해 smoke UI와 재시도 전략에 활용하게 하기 위함
 - 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `npx biome check packages/schema/src/quality-inspection.ts packages/schema/src/index.ts packages/schema/src/json-schema-registry.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts`, `npx tsc --noEmit --pretty false`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --run-id 'layered-quality-check' --artifact-store local-transient`
+
+## 2026-06-05 - Pipeline Step Definition SSOT Alignment
+
+- 변경: `@cx/pipeline`의 `buildPipeline()`을 `{ stages }` 복사 helper가 아니라 `definePipeline({ steps })` 기반 builder로 변경함
+- 변경: `PipelineDefinition` public type을 `StepPipelineDefinition` alias로 전환하고, run status 생성도 `definition.steps`에서 stage order를 읽도록 변경함
+- 변경: `screen-generation` 실행 경로에서 `screenGenerationPipelineDefinition.stages` lookup을 제거하고, `definePipeline({ steps: [...] })` 배열이 실행 순서의 SSOT가 되도록 1차 정리함
+- 변경: `screen-generation-pipeline.ts` 내부에서 `screenGenerationPipelineDefinition.stages`를 Step으로 변환하던 경로를 제거하고, `createScreenGenerationStepPipeline()`의 `definePipeline({ steps })` 배열이 stage order를 직접 소유하도록 정리함
+- 이유: 최신 Step API가 이미 pipeline/step/input/output/AI 여부를 표현하는데, 별도 stage list를 다시 Step으로 변환하던 중복 정의를 줄이기 위함
+- 검증: `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm exec vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts`, `pnpm exec biome check AGENTS_HISTORY.md packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/runtime/run-pipeline.ts packages/pipeline/src/runtime/build-pipeline.ts packages/pipeline/src/persistence/run-status.ts packages/pipeline/src/public/types.ts packages/pipeline/src/__tests__/public-api.test.ts`
 
 ## 2026-06-01 - Design Skill Backlog Planning
 

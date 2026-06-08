@@ -1,6 +1,6 @@
 "use client";
 
-import { screenRegionSlotNames, type PuckCatalogItem } from "@cx/adapters/puck";
+import { type PuckCatalogItem, screenRegionSlotNames } from "@cx/adapters/puck";
 import { RenderNodeView, type RenderTreeNode, RenderTreeView } from "@cx/renderer";
 import type { Config } from "@puckeditor/core";
 import type { ReactNode } from "react";

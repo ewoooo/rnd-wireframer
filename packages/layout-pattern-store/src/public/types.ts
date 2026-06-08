@@ -107,6 +107,15 @@ export type LayoutPatternCatalog = {
 	patterns: LayoutPatternCatalogEntry[];
 };
 
+export type LayoutCatalogListOptions = {
+	status?: LayoutPatternStatus;
+	target?: LayoutPatternTarget;
+};
+
+export type CreateLayoutCandidateInput = {
+	entry: LayoutPatternCatalogEntry;
+};
+
 export type PatternStorePattern = {
 	id: string;
 	target: PatternStoreTarget;

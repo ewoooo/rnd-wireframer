@@ -12,7 +12,8 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/schema": "0.1.0"
+		"@cx/schema": "workspace:*",
+		"@cx/types": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

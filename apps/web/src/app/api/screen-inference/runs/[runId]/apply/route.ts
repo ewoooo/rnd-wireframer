@@ -26,6 +26,7 @@ export async function POST(_request: Request, context: ScreenInferenceApplyRoute
 		const result = await applyScreenInferenceFinalResult({ node: finalResult });
 
 		if (!result.written) {
+			await updateScreenInferenceRunStatus(runId, "waiting-review");
 			return NextResponse.json(
 				{
 					ok: false,
@@ -50,6 +51,8 @@ export async function POST(_request: Request, context: ScreenInferenceApplyRoute
 			schemaVersion: SCHEMA_VERSION.applyResult,
 		});
 	} catch (error) {
+		const runId = await readRunIdSafe(context);
+		if (runId) await updateRunStatusSafe(runId, "failed");
 		return NextResponse.json(
 			{ error: readErrorMessage(error, "Failed to apply screen inference run.") },
 			{ status: readErrorStatus(error) },
@@ -61,6 +64,27 @@ function readRunDir(runId: string): string {
 	const safeRunId = runId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 120);
 	if (!safeRunId) throw new Error("runId is required.");
 	return path.join(RUN_ROOT, safeRunId);
+}
+
+async function readRunIdSafe(
+	context: ScreenInferenceApplyRouteContext,
+): Promise<string | undefined> {
+	try {
+		return (await context.params).runId;
+	} catch {
+		return undefined;
+	}
+}
+
+async function updateRunStatusSafe(
+	runId: string,
+	status: Parameters<typeof updateScreenInferenceRunStatus>[1],
+) {
+	try {
+		await updateScreenInferenceRunStatus(runId, status);
+	} catch {
+		// Preserve the original response error when status persistence also fails.
+	}
 }
 
 function readErrorStatus(error: unknown): number {

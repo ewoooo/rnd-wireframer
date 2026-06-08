@@ -1,9 +1,4 @@
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarRail,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarRail } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import { NavigationLibrary } from "./NavigationLibrary";
 import { NavigationServices } from "./NavigationServices";

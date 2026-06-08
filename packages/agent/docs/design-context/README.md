@@ -7,8 +7,7 @@
 - `docs/design/`: SKT SDUI 디자인 패턴 원문 정본
 - `packages/agent/docs/design-context/`: agent prompt에 넣기 위한 압축 규칙
 - `@cx/schema`: bundle ref DTO 계약
-- `@cx/orchestration`: bundle id 선택과 선택 이유
-- `@cx/pipeline`: 선택 결과와 사용 artifact 기록
+- `@cx/inference`: bundle id 선택, 선택 이유, 사용 artifact 기록
 
 Bundle은 `SourceSpec`, JSON Schema, component contract, pattern candidate를 우회하지 않는다. Bundle 본문은 화면 구조, state coverage, interaction, visual foundation, review 기준을 좁히는 보조 context로만 사용한다.
 

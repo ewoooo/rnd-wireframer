@@ -1,3 +1,4 @@
+import { isRecord } from "@cx/types/guards";
 import type {
 	FlexLayoutProps,
 	GridLayoutProps,
@@ -76,11 +77,6 @@ export function isScreenNode(value: unknown): value is ScreenNode {
 		children.every(isScreenRegionNode)
 	);
 }
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function isOptionalNumber(value: unknown): boolean {
 	return value === undefined || typeof value === "number";
 }
