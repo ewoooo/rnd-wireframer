@@ -1,4 +1,6 @@
 import { resolvePromptCatalogForInference, resolveSkillForInference } from "@cx/agent";
+import { resolvePromptCatalogForInference as resolvePromptCatalogFromSubpath } from "@cx/agent/prompt-catalog";
+import { resolveSkillForInference as resolveSkillFromSubpath } from "@cx/agent/skill-catalog";
 import { describe, expect, it } from "vitest";
 import { runAgentQuery } from "../adapters";
 import type { AgentRunnerRequest } from "../contract";
@@ -111,23 +113,69 @@ describe("@cx/agent runtime", () => {
 			kind: "skill",
 			id: "screen-generation",
 			owner: "@cx/agent",
-			sourceRef: "../docs/screen-generation/checklist.md",
+			sourceRef: "../docs/skills/screen-generation",
 			schemaVersion: "ssot-object.v1",
 			data: {
-				format: "markdown",
+				format: "json",
+				sets: {
+					checklist: {
+						format: "markdown",
+						sourceRef: "../docs/skills/screen-generation/checklist.md",
+					},
+					"output-contract": {
+						format: "markdown",
+						sourceRef: "../docs/skills/screen-generation/output-contract.md",
+					},
+				},
 			},
 		});
-		expect(skill.data.body.length).toBeGreaterThan(0);
+		expect(skill.data.sets.checklist.body.length).toBeGreaterThan(0);
 		expect(prompt).toMatchObject({
 			kind: "prompt-catalog",
 			id: "screen-generation",
 			owner: "@cx/agent",
-			sourceRef: "../docs/screen-generation/prompt-contract.md",
+			sourceRef: "../docs/prompts/screen-generation.md",
 			schemaVersion: "ssot-object.v1",
 			data: {
 				variables: {},
 			},
 		});
 		expect(prompt.data.template?.length).toBeGreaterThan(0);
+	});
+
+	it("exposes prompt catalog resolver from root and subpath", () => {
+		expect(resolvePromptCatalogFromSubpath("screen-intent")).toMatchObject({
+			kind: "prompt-catalog",
+			id: "screen-intent",
+			owner: "@cx/agent",
+			sourceRef: "../docs/prompts/screen-intent.md",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				variables: {},
+			},
+		});
+		expect(() => resolvePromptCatalogForInference("missing")).toThrow(
+			"Unknown prompt catalog: missing",
+		);
+	});
+
+	it("exposes skill resolver from root and subpath", () => {
+		expect(resolveSkillFromSubpath("detail-confirmation-screen")).toMatchObject({
+			kind: "skill",
+			id: "detail-confirmation-screen",
+			owner: "@cx/agent",
+			sourceRef: "../docs/skills/detail-confirmation-screen",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				format: "json",
+				sets: {
+					skill: {
+						format: "markdown",
+						sourceRef: "../docs/skills/design-skills/detail-confirmation-screen.md",
+					},
+				},
+			},
+		});
+		expect(() => resolveSkillForInference("missing")).toThrow("Unknown skill: missing");
 	});
 });

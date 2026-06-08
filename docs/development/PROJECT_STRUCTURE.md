@@ -248,17 +248,21 @@ screen generation의 최종 결과물은 `final-result.json`에 저장되는 Ren
 packages/agent/docs/
   README.md
   session-policy.md
-  screen-generation/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
-  quality-review/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
+  prompts/
+    screen-generation.md
+    quality-review.md
+    ...
+  skills/
+    screen-generation/
+      checklist.md
+      output-contract.md
+    quality-review/
+      checklist.md
+      output-contract.md
+    ...
 ```
 
-이 디렉토리는 prompt 코드 구현이 아니라 prompt contract, checklist, output 규약 같은 문서 자산의 정본 위치다.
+이 디렉토리는 prompt 코드 구현이 아니라 prompt 원문, checklist, output 규약 같은 문서 자산의 정본 위치다.
 smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
 
 ## 11. Target Inference Packages

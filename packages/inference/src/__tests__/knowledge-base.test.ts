@@ -53,6 +53,9 @@ describe("Inference KnowledgeBase", () => {
 		expect(skill).toMatchObject({
 			kind: "skill",
 			owner: "@cx/agent",
+			data: {
+				format: "json",
+			},
 		});
 		expect(prompt).toMatchObject({
 			kind: "prompt-catalog",

@@ -20,17 +20,17 @@ export type GenerationSkill = {
 	stage: GenerationSkillStage;
 };
 
-const DEFAULT_SCREEN_GENERATION_DOCS_DIR = "packages/agent/docs/screen-generation";
+const DEFAULT_SCREEN_GENERATION_SKILL_DIR = "packages/agent/docs/skills/screen-generation";
+const DEFAULT_SCREEN_GENERATION_PROMPT = "packages/agent/docs/prompts/screen-generation.md";
 const SCREEN_GENERATION_REFERENCE = {
 	checklist: "checklist.md",
 	outputContract: "output-contract.md",
-	promptContract: "prompt-contract.md",
 } as const;
 
 export async function loadGenerationSkillCatalog(
-	rootDir = DEFAULT_SCREEN_GENERATION_DOCS_DIR,
+	rootDir = DEFAULT_SCREEN_GENERATION_SKILL_DIR,
 ): Promise<GenerationSkill[]> {
-	const promptPath = path.join(rootDir, SCREEN_GENERATION_REFERENCE.promptContract);
+	const promptPath = DEFAULT_SCREEN_GENERATION_PROMPT;
 	if (!(await isFile(promptPath))) return [];
 
 	return [

@@ -10,6 +10,8 @@
 		"./adapters": "./src/adapters/index.ts",
 		"./claude": "./src/claude/index.ts",
 		"./contract": "./src/contract/index.ts",
+		"./prompt-catalog": "./src/prompt-catalog/index.ts",
+		"./skill-catalog": "./src/skill-catalog/index.ts",
 		"./tasks": "./src/tasks/index.ts"
 	},
 	"dependencies": {

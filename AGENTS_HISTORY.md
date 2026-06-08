@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Agent Prompt Catalog Scaffold
+
+- 변경: `@cx/agent` 문서 자산을 `docs/prompts/{prompt-id}.md`와 `docs/skills/`로 분리하고, prompt 파일명을 prompt id와 1:1로 맞춤
+- 변경: `prompt-catalog`와 `skill-catalog` 모듈을 추가해 `resolvePromptCatalogForInference(id)`는 단일 prompt md를, `resolveSkillForInference(id)`는 skill set JSON 객체를 SSOT snapshot으로 반환하도록 정리함
+- 변경: `@cx/agent/prompt-catalog`, `@cx/agent/skill-catalog` subpath와 root `AgentPromptCatalogId`/`AgentSkillId` 타입 공개 표면을 추가함
+- 이유: 신규 `screen-generation@v1` inference pipeline step 정의가 prompt catalog id를 안정적으로 참조하고, `@cx/inference`는 owner resolver snapshot만 소비하게 하기 위함
+- 검증: `pnpm vitest run packages/agent/src/__tests__/agent-runtime.test.ts packages/inference/src/__tests__/knowledge-base.test.ts`
+
 ## 2026-06-08 - Inference Output Contract SSOT MVP
 
 - 변경: `@cx/schema`에 `SsotObject`, `InferenceReference`, `OutputContractObject` 타입과 `resolveOutputContractForInference(id)` resolver를 추가함

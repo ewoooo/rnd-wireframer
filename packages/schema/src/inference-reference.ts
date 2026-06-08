@@ -32,10 +32,16 @@ export type OutputContractData = {
 
 export type OutputContractObject = SsotObject<"output-contract", OutputContractData>;
 
-export type SkillData = {
+export type SkillDocumentData = {
 	format: "markdown";
 	body: string;
 	frontmatter?: Record<string, unknown>;
+	sourceRef: string;
+};
+
+export type SkillData = {
+	format: "json";
+	sets: Record<string, SkillDocumentData>;
 };
 
 export type SkillObject = SsotObject<"skill", SkillData>;

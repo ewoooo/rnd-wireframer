@@ -2,7 +2,7 @@
 
 Bundle id: `quality-review`
 
-Source docs: `packages/agent/docs/quality-review/checklist.md`, `packages/agent/docs/screen-generation/checklist.md`, `docs/design/SECTION_PATTERNS.md`, `docs/design/INTERACTION_PATTERNS.md`
+Source docs: `packages/agent/docs/skills/quality-review/checklist.md`, `packages/agent/docs/skills/screen-generation/checklist.md`, `docs/design/SECTION_PATTERNS.md`, `docs/design/INTERACTION_PATTERNS.md`
 
 이 번들은 생성물의 디자인 품질을 점수화하고 결함을 bounded finding으로 기록하는 게이트를 제공한다. schema/contract 실패와 디자인 품질 우려를 구분한다.
 

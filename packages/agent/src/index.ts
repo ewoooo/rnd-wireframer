@@ -11,6 +11,8 @@ export type {
 	AgentTaskInput,
 	AgentTaskKind,
 } from "./contract";
-export { createAgentRuntime } from "./runtime/create-agent-runtime";
 export { resolvePromptCatalogForInference, resolveSkillForInference } from "./inference-reference";
+export type { AgentPromptCatalogId } from "./prompt-catalog";
+export { createAgentRuntime } from "./runtime/create-agent-runtime";
 export { runAgentTask } from "./runtime/run-agent-task";
+export type { AgentSkillId } from "./skill-catalog";

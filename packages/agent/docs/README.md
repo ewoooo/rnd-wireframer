@@ -20,24 +20,35 @@ packages/agent/docs/
     interaction-state.md
     visual-foundation.md
     quality-review.md
-  design-skills/
-    README.md
-    detail-confirmation-screen.md
-    form-entry-screen.md
-    list-selection-screen.md
-  screen-generation/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
-  quality-review/
-    prompt-contract.md
-    checklist.md
-    output-contract.md
+  prompts/
+    screen-intent.md
+    composition-planning.md
+    pattern-selection.md
+    screen-generation.md
+    quality-review.md
+    screen-revision.md
+    component-proposal.md
+  skills/
+    screen-generation/
+      checklist.md
+      output-contract.md
+    quality-review/
+      checklist.md
+      output-contract.md
+    component-proposal/
+      checklist.md
+      output-contract.md
+    design-skills/
+      README.md
+      detail-confirmation-screen.md
+      form-entry-screen.md
+      list-selection-screen.md
 ```
 
 운영 규칙:
 
 - 실제 Claude 호출 코드는 `src/` 아래에 둔다.
-- prompt 원문, 체크리스트, 예시 출력 규약은 이 디렉토리에서 관리한다.
+- prompt 원문은 `docs/prompts/{prompt-id}.md`에서 관리한다.
+- skill/checklist/output 규칙은 `docs/skills/`에서 set 단위로 관리한다.
 - 문서 자산을 즉시 코드가 읽지 않더라도, 기준선은 먼저 이 위치에 고정한다.
 - smoke/pipeline은 필요한 경우 이 디렉토리의 문서 자산을 참조 artifact로 기록할 수 있지만, 생성/검수 규칙의 정본은 이 패키지 내부에 둔다.

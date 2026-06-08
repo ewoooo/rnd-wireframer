@@ -33,5 +33,5 @@ Phase 1에서는 design-context bundle을 최종 schema 계약으로 고정하�
 6. Put source component values into node `props`.
 7. Render separation via the area stack node `props.divider` only. Use `"contents"` for 1px dividers between repeated row children, `"section"` for a trailing 4px area break, and `"none"` or omission when no divider is needed. Do not use `divider: true`, `sectionDivider`, or standalone Divider leaf nodes for stack-row separation.
 8. Apply visual hierarchy through component choice and props within the catalog. Do not invent colors, gradients, or icons for emphasis.
-9. Use `output-contract.md` for output shape rules.
-10. Use `checklist.md` before returning the final JSON object.
+9. Use the `screen-generation` skill set's `output-contract` document for output shape rules.
+10. Use the `screen-generation` skill set's `checklist` document before returning the final JSON object.
