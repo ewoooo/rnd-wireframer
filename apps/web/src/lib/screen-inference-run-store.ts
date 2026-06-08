@@ -6,6 +6,7 @@ import type { PipelineStageId } from "@cx/pipeline/types";
 import { readErrorMessage } from "@/lib/api-error";
 import { parseScreenInferencePipelineEventLines } from "@/lib/screen-inference-events";
 import {
+	createFailedScreenInferenceStatus,
 	createScreenInferenceProgressStatus,
 	createScreenInferenceRunId,
 	createScreenInferenceStatus,
@@ -159,15 +160,17 @@ async function runScreenInferencePipeline(input: {
 			}),
 		);
 	} catch (error) {
+		const currentStatus = await readRunStatus(input.runId);
 		await writeRunStatus(
-			createScreenInferenceStatus({
+			createFailedScreenInferenceStatus({
+				createdAt: currentStatus?.createdAt ?? input.createdAt,
 				error: {
 					code: "screen_inference_run_failed",
 					message: readErrorMessage(error, "Screen inference run failed."),
 				},
 				now: new Date().toISOString(),
 				runId: input.runId,
-				status: "failed",
+				stage: currentStatus?.currentStage,
 			}),
 		);
 	}
