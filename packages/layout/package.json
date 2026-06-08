@@ -18,7 +18,6 @@
 	"dependencies": {
 		"@cx/components": "workspace:*",
 		"@cx/schema": "workspace:*",
-		"@cx/types": "workspace:*",
 		"zod": "^4.4.3"
 	},
 	"peerDependencies": {

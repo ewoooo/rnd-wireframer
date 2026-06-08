@@ -25,7 +25,6 @@
 		"@cx/inference-nodes": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/schema": "workspace:*",
-		"@cx/types": "workspace:*",
 		"@cx/validation": "workspace:*"
 	}
 }

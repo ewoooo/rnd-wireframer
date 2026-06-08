@@ -123,9 +123,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../../packages/types
       '@puckeditor/core':
         specifier: ^0.21.2
         version: 0.21.2(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
@@ -192,9 +189,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
       '@cx/validation':
         specifier: workspace:*
         version: link:../validation
@@ -207,9 +201,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
       react:
         specifier: ^19.2.0
         version: 19.2.7
@@ -237,9 +228,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
       '@cx/validation':
         specifier: workspace:*
         version: link:../validation
@@ -267,12 +255,6 @@ importers:
         specifier: workspace:*
         version: link:../schema
 
-  packages/types:
-    dependencies:
-      zod:
-        specifier: ^4.4.3
-        version: 4.4.3
-
   packages/validation:
     dependencies:
       '@cx/components':
@@ -284,9 +266,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-      '@cx/types':
-        specifier: workspace:*
-        version: link:../types
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
