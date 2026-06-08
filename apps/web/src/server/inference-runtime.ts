@@ -1,12 +1,13 @@
 import path from "node:path";
 import {
-	createContextStore,
-	createInferenceKnowledgeBase,
-	createJobStore,
-	type Engine,
-	FileArtifactStore,
+	createInferenceRuntime,
+	createPipelineRegistry,
+	definePipeline,
+	defineStep,
+	type EngineRequest,
 	type InferenceRuntime,
-	type PipelineDefinition,
+	jobInput,
+	outputContractRef,
 	runInferenceJob,
 } from "@cx/inference";
 
@@ -14,84 +15,54 @@ const cwd = process.cwd();
 const dataRoot = cwd.endsWith(`${path.sep}apps${path.sep}web`)
 	? path.resolve(cwd, "../..", ".data")
 	: path.resolve(cwd, ".data");
-const artifactStore = new FileArtifactStore(dataRoot);
-const jobStore = createJobStore(artifactStore, {
-	now: () => new Date().toISOString(),
-	newId: () => `job-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+
+function buildSourceSpec(request: EngineRequest) {
+	const jobInputValue =
+		request.inputs.job && typeof request.inputs.job === "object"
+			? (request.inputs.job as Record<string, unknown>)
+			: {};
+	const screenCode = typeof jobInputValue.screenCode === "string" ? jobInputValue.screenCode : "MVP-SCREEN";
+	return {
+		schemaVersion: "source-spec.v0.1",
+		sourceImport: {
+			files: [],
+			importId: String(jobInputValue.importId ?? "api-inference-mvp"),
+			receivedAt: new Date().toISOString(),
+			sourceKind: "prdd-markdown-bundle",
+		},
+		sourceShape: {
+			screen: {
+				name: String(jobInputValue.name ?? screenCode),
+				regions: [],
+				route: String(jobInputValue.route ?? `/${screenCode.toLowerCase()}`),
+				screenCode,
+			},
+		},
+	};
+}
+
+const pipelines = createPipelineRegistry();
+pipelines.register(
+	definePipeline({
+		id: "screen-generation",
+		version: "v1",
+		steps: [
+			defineStep({
+				id: "01-analyze",
+				engine: "function",
+				inputs: { job: jobInput() },
+				run: { id: "source-spec-mvp" },
+				output: { contractRef: outputContractRef("source-spec"), writeToContext: "source-spec" },
+			}),
+		],
+	}),
+);
+
+export const inferenceRuntime: InferenceRuntime = createInferenceRuntime({
+	dataRoot,
+	pipelines,
+	functions: { "source-spec-mvp": buildSourceSpec },
 });
-
-const sourceSpecEngine: Engine = {
-	async execute(request) {
-		const jobInput =
-			request.inputs.job && typeof request.inputs.job === "object"
-				? (request.inputs.job as Record<string, unknown>)
-				: {};
-		const screenCode = typeof jobInput.screenCode === "string" ? jobInput.screenCode : "MVP-SCREEN";
-		return {
-			raw: {
-				schemaVersion: "source-spec.v0.1",
-				sourceImport: {
-					files: [],
-					importId: String(jobInput.importId ?? "api-inference-mvp"),
-					receivedAt: new Date().toISOString(),
-					sourceKind: "prdd-markdown-bundle",
-				},
-				sourceShape: {
-					screen: {
-						name: String(jobInput.name ?? screenCode),
-						regions: [],
-						route: String(jobInput.route ?? `/${screenCode.toLowerCase()}`),
-						screenCode,
-					},
-				},
-			},
-		};
-	},
-};
-
-const screenGenerationPipeline: PipelineDefinition = {
-	id: "screen-generation",
-	version: "v1",
-	steps: [
-		{
-			id: "01-analyze",
-			engine: "function",
-			inputs: {
-				job: { kind: "job-input" },
-			},
-			run: { id: "source-spec-mvp" },
-			output: {
-				contractRef: { source: "output-contract", id: "source-spec" },
-				writeToContext: "source-spec",
-			},
-		},
-	],
-};
-
-export const inferenceRuntime: InferenceRuntime = {
-	artifactStore,
-	createContextStore: (jobId) => createContextStore(jobId, artifactStore),
-	engines: {
-		claude: sourceSpecEngine,
-		function: sourceSpecEngine,
-	},
-	jobStore,
-	knowledgeBase: createInferenceKnowledgeBase(),
-	newId: () => `runtime-${Date.now().toString(36)}`,
-	now: () => new Date().toISOString(),
-	pipelines: {
-		register() {},
-		get(pipelineId, pipelineVersion) {
-			if (
-				pipelineId === screenGenerationPipeline.id &&
-				pipelineVersion === screenGenerationPipeline.version
-			) {
-				return screenGenerationPipeline;
-			}
-			throw new Error(`Unknown inference pipeline: ${pipelineId}@${pipelineVersion}`);
-		},
-	},
-};
 
 export async function createInferenceJob(input: unknown) {
 	const job = await inferenceRuntime.jobStore.createJob({
@@ -99,6 +70,8 @@ export async function createInferenceJob(input: unknown) {
 		pipelineVersion: "v1",
 		input,
 	});
-	void runInferenceJob(inferenceRuntime, job.jobId);
+	void runInferenceJob(inferenceRuntime, job.jobId).catch((error) => {
+		console.error(`runInferenceJob failed for job ${job.jobId}`, error);
+	});
 	return job;
 }
