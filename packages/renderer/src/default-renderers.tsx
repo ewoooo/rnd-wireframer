@@ -244,11 +244,10 @@ export const defaultRendererDefinitions: RendererDefinition[] = [
 	...areaRendererDefinitions,
 	...leafDefinitions,
 	{
+		// fallback: kind가 매핑 안 된 노드(예: kiki.* 처럼 catalog kind 없는 type).
+		// autoRenderLeaf가 type→component(getComponentForType)를 시도하고, 못 찾으면
+		// 동일한 라벨 박스로 떨어진다 — 기존 fallback 동작과 하위호환이면서 컴포넌트가 있으면 렌더.
 		kind: "fallback",
-		render: ({ node }) => (
-			<div key={node.metadata.id} className="rounded-lg border bg-background p-3 text-sm">
-				{toText(node.metadata.title)}
-			</div>
-		),
+		render: autoRenderLeaf,
 	},
 ];

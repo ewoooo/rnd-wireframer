@@ -10,6 +10,7 @@ import {
 	getSelectedScreen,
 	getValidationStatus,
 } from "@/adapters/tables-to-render-tree";
+import { buildExternalComponentCatalog } from "@/model/external-palette";
 import {
 	type AgentNodeSelection,
 	findSelectedAgentAsset,
@@ -521,6 +522,11 @@ export function buildAreaComponentCatalog(areas: AppArea[]): Map<string, RenderT
 		for (const child of area.node.children ?? []) {
 			if (!byId.has(child.metadata.id)) byId.set(child.metadata.id, child);
 		}
+	}
+	// kiki(@cx/external) 컴포넌트도 팔레트/insert 카탈로그에 합친다.
+	// area에 이미 있는 id가 우선(area가 SSOT), 나머지 kiki 항목을 뒤에 채운다.
+	for (const [id, node] of buildExternalComponentCatalog()) {
+		if (!byId.has(id)) byId.set(id, node);
 	}
 	return byId;
 }

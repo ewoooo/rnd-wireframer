@@ -87,6 +87,8 @@ export interface ComponentCatalogEntry {
 	type: string;
 	source: ComponentCatalogSource;
 	version: string;
+	/** UI 표시용 이름. 미지정 시 type을 그대로 사용. 예: "[kiki] Button", "[kiki/draft] CardSection" */
+	label?: string;
 	description?: string;
 	aliases?: readonly string[];
 	/**

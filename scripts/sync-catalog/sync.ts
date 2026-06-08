@@ -23,6 +23,7 @@ import { join, resolve } from "node:path";
 
 import { CATALOG_SOURCE, EXTERNAL_PKG_DIR, HARNESS_EXCLUDES } from "./config.ts";
 import { genCatalog } from "./gen-catalog.ts";
+import { genRegistry } from "./gen-registry.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..");
 const CHECK_ONLY = process.argv.includes("--check");
@@ -94,6 +95,8 @@ function vendorSource(srcDir: string, destSrc: string): number {
 			if (!rel) return true;
 			const top = rel.split("/")[0];
 			if (excludes.has(top) || excludes.has(rel)) return false;
+			// storybook 하네스 파일 제외
+			if (rel.endsWith(".stories.tsx") || rel.endsWith(".stories.ts")) return false;
 			copied += 1;
 			return true;
 		},
@@ -148,6 +151,19 @@ function main(): void {
 		log(`· vendored     ${fileCount} files → ${EXTERNAL_PKG_DIR}/src`);
 
 		// 카탈로그 생성
+		// kiki는 Vite 기반 — PNG/SVG를 string URL로 취급하도록 선언
+		const modulesDtsPath = join(destSrc, "modules.d.ts");
+		writeFileSync(
+			modulesDtsPath,
+			`// AUTO-GENERATED — kiki는 Vite 기반이므로 이미지 import를 string으로 선언
+declare module "*.png" { const src: string; export default src; }
+declare module "*.jpg" { const src: string; export default src; }
+declare module "*.jpeg" { const src: string; export default src; }
+declare module "*.svg" { const src: string; export default src; }
+declare module "*.webp" { const src: string; export default src; }
+`,
+		);
+
 		const catalogPath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "catalog.ts");
 		const compCount = genCatalog({
 			externalSrcDir: destSrc,
@@ -156,6 +172,14 @@ function main(): void {
 		});
 		log(`· catalog      ${compCount}개 컴포넌트 → ${EXTERNAL_PKG_DIR}/src/catalog.ts`);
 		log(`  barrel: [kiki] × ${exports.filter((e) => !e.startsWith("type ")).length}  draft: [kiki/draft] × ${compCount - exports.filter((e) => !e.startsWith("type ")).length}`);
+
+		// 렌더러용 전체 export 표면 — draft 포함 모든 컴포넌트를 렌더 가능하게 한다.
+		const registryPath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "registry.generated.ts");
+		const registry = genRegistry({ externalSrcDir: destSrc, outputPath: registryPath });
+		log(`· registry     ${registry.exported}개 export → ${EXTERNAL_PKG_DIR}/src/registry.generated.ts`);
+		if (registry.skipped.length > 0) {
+			log(`  ⚠ 렌더 제외(dir명과 다른 export): ${registry.skipped.join(", ")}`);
+		}
 
 		log(`✓ sync 완료 — @cx/external (source: ${CATALOG_SOURCE.id}@${sha.slice(0, 12)})`);
 		log("  다음 단계: AI/렌더 연결 (build-catalog-deck, component-by-type)");

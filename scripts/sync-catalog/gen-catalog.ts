@@ -44,7 +44,11 @@ export function genCatalog(opts: GenCatalogOptions): number {
 
 		let props: ReturnType<typeof parseProps> = [];
 		try {
-			props = parseProps(tsxPath);
+			const parsed = parseProps(tsxPath);
+			// 중복 prop 이름 제거 — 마지막 선언이 우선
+			const seen = new Map<string, (typeof parsed)[number]>();
+			for (const p of parsed) seen.set(p.name, p);
+			props = [...seen.values()];
 		} catch {
 			// 파싱 실패 시 빈 props로 진행
 		}

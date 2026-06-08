@@ -99,6 +99,9 @@ importers:
       '@cx/components':
         specifier: workspace:*
         version: link:../../packages/component
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../../packages/external
       '@cx/layout':
         specifier: workspace:*
         version: link:../../packages/layout
@@ -135,6 +138,9 @@ importers:
       '@cx/components':
         specifier: workspace:*
         version: link:../component
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../external
       '@cx/pattern-store':
         specifier: workspace:*
         version: link:../pattern-store
@@ -201,6 +207,9 @@ importers:
       '@cx/components':
         specifier: workspace:*
         version: link:../component
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout

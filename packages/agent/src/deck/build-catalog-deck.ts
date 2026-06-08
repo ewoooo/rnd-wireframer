@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import { loadComponentPatternStore } from "@cx/component-pattern-store";
 import { componentCatalog } from "@cx/components/catalog";
+import { externalCatalog } from "@cx/external/catalog";
 import type { CatalogDeck, ComponentPatternCard, PrimitiveCard } from "@cx/types/ai-deck";
 import type {
 	ComponentCatalog,
@@ -26,7 +27,9 @@ export interface BuildCatalogDeckOptions {
  * componentPatterns ← @cx/component-pattern-store
  */
 export async function buildCatalogDeck(options: BuildCatalogDeckOptions): Promise<CatalogDeck> {
-	const primitives = buildPrimitiveCards(componentCatalog);
+	// 우선순위: 우리 독자(낮음) → kiki-draft → kiki-barrel(높음)
+	const mergedCatalog = { ...componentCatalog, ...externalCatalog };
+	const primitives = buildPrimitiveCards(mergedCatalog);
 
 	const componentPatterns = options.componentPatternsRoot
 		? {

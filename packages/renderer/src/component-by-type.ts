@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
 import * as ComponentsModule from "@cx/components";
 import { componentCatalogAliases } from "@cx/components/catalog";
+// 공식 barrel(@cx/external)이 아니라 registry(전체 표면)를 쓴다 — draft 컴포넌트까지 렌더 가능해야 한다.
+import * as ExternalModule from "@cx/external/registry";
 
 /**
  * Catalog의 component type 이름 → 실제 React 컴포넌트 함수 매핑.
@@ -14,6 +16,13 @@ const componentsByType: Record<string, ComponentType<unknown>> = {};
 for (const [name, value] of Object.entries(ComponentsModule)) {
 	if (typeof value === "function") {
 		componentsByType[name] = value as ComponentType<unknown>;
+	}
+}
+
+// kiki 컴포넌트: "kiki.Button" 형태로 등록
+for (const [name, value] of Object.entries(ExternalModule)) {
+	if (typeof value === "function") {
+		componentsByType[`kiki.${name}`] = value as ComponentType<unknown>;
 	}
 }
 
