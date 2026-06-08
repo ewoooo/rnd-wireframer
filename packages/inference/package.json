@@ -7,7 +7,8 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./testing": "./src/testing/index.ts"
+		"./testing": "./src/testing/index.ts",
+		"./pipelines/screen-generation-v1": "./src/pipelines/screen-generation-v1.ts"
 	},
 	"dependencies": {
 		"@cx/agent": "workspace:*",
