@@ -155,11 +155,6 @@ function buildTrace(input: GenerationSmokeArtifactInput): Record<string, unknown
 			input: input.qualityReviewAgentInput,
 			runnerRequest: input.qualityReviewRunnerRequest,
 		},
-		revisionDecision: input.revisionDecision,
-		revision: {
-			input: input.revisionAgentInput,
-			runnerRequest: input.revisionRunnerRequest,
-		},
 		componentProposal: {
 			input: input.componentProposalAgentInput,
 			runnerRequest: input.componentProposalRunnerRequest,

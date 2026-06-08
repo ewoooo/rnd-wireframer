@@ -14,13 +14,11 @@ import type {
 	ComponentProposalAgentInput,
 	CompositionPlanAgentInput,
 	DesignContextBundleSelection,
-	GenerationNextAction,
 	PatternLayerCandidate,
 	PatternSelectionAgentInput,
 	QualityReviewAgentInput,
 	ScreenGenerationAgentInput,
 	ScreenIntentAgentInput,
-	ScreenRevisionAgentInput,
 } from "@cx/inference-nodes/screen-generation";
 import {
 	createFakeComponentProposal,
@@ -35,14 +33,12 @@ import {
 	runDecorationPlanNode,
 	runDesignContextBundleRefsNode,
 	runDesignSkillSelectionNode,
-	runGenerationNextActionNode,
 	runPatternLayerCandidatesNode,
 	runPatternSelectionNode,
 	runQualityReviewNode,
 	runRequiredRegionLayoutRepairNode,
 	runScreenGenerationNode,
 	runScreenIntentNode,
-	runScreenRevisionNode,
 } from "@cx/inference-nodes/screen-generation";
 import type {
 	DecorationPlanContract,
@@ -62,7 +58,6 @@ import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
 	ArtifactStorePreset,
 	OutputContract,
-	PipelineFeedbackRule,
 	PipelineMarkdownSourceFile,
 	PipelinePersistenceAdapter,
 	PipelineRunResult,
@@ -156,18 +151,16 @@ type ScreenGenerationPipelineState = {
 	// Per-stage agent triples (always present; populated as stages run).
 	compositionPlan: AgentStep<CompositionPlanAgentInput>;
 	componentProposal: AgentStep<ComponentProposalAgentInput>;
-	/** Render-tree generation. `generation.agentResult` is the live candidate (revision overwrites it). */
+	/** Render-tree generation. `generation.agentResult` is the final candidate (one pass, no revision). */
 	generation: AgentStep<ScreenGenerationAgentInput>;
 	patternSelection: AgentStep<PatternSelectionAgentInput>;
 	qualityReview: AgentStep<QualityReviewAgentInput>;
-	revision: AgentStep<ScreenRevisionAgentInput>;
 	screenIntent: AgentStep<ScreenIntentAgentInput>;
 	// Non-agent scaffolding produced by deterministic/effect stages.
 	componentProposalValidationReport?: ReturnType<typeof validateComponentProposal>;
 	decorationPlan?: DecorationPlanContract;
 	designContextBundleSelection?: DesignContextBundleSelection;
 	designSkillSelection?: DesignSkillSelectionContract;
-	generationNextAction?: GenerationNextAction;
 	generationSkillCatalog?: ScreenGenerationSkillBundleRef[];
 	initialValidationReport?: ValidationReportContract;
 	options: NormalizedScreenGenerationPipelineOptions;
@@ -175,8 +168,6 @@ type ScreenGenerationPipelineState = {
 	patternLayerCandidates?: PatternLayerCandidate[];
 	pipelineResult?: SideEffectExecutionResult;
 	pipelineResultWrite?: SideEffectExecutionResult;
-	preRevisionAgentResult?: AgentRunResult;
-	preRevisionValidationReport?: ValidationReportContract;
 	renderTreeGenerationSkill?: ScreenGenerationSkillBundleRef;
 	sourceFile?: PipelineMarkdownSourceFile;
 	sourceSpec?: SourceSpec;
@@ -191,7 +182,6 @@ const EMPTY_AGENT_STEPS = (): Pick<
 	| "generation"
 	| "patternSelection"
 	| "qualityReview"
-	| "revision"
 	| "screenIntent"
 > => ({
 	compositionPlan: {},
@@ -199,7 +189,6 @@ const EMPTY_AGENT_STEPS = (): Pick<
 	generation: {},
 	patternSelection: {},
 	qualityReview: {},
-	revision: {},
 	screenIntent: {},
 });
 
@@ -226,7 +215,6 @@ function projectCommonAgentSteps(state: ScreenGenerationPipelineState): Record<s
 		...flattenAgentStep("compositionPlan", state.compositionPlan),
 		...flattenAgentStep("patternSelection", state.patternSelection),
 		...flattenAgentStep("qualityReview", state.qualityReview),
-		...flattenAgentStep("revision", state.revision),
 	};
 }
 
@@ -455,52 +443,12 @@ export const SCREEN_GENERATION_STEPS = [
 		taskKind: "quality-review",
 	}),
 	defineScreenStep({
-		id: "revise-render-tree-if-invalid",
-		inputs: {
-			componentCatalogs: refs.componentCatalogs,
-			composition: stepOutput("plan-composition", "result"),
-			decoration: stepOutput("derive-decoration-plan", "result"),
-			designContextBundles: refs.designContextBundles,
-			generation: stepOutput("generate-render-tree", "result"),
-			intent: stepOutput("derive-screen-intent", "result"),
-			pattern: stepOutput("select-pattern", "result"),
-			quality: stepOutput("review-quality", "result"),
-			source: stepOutput("parse-source", "result"),
-			validation: stepOutput("validate-render-tree", "result"),
-		},
-		kind: "ai",
-		layer: "revise",
-		message: "Revising draft if needed…",
-		output: contract("screen-generation-agent-result"),
-		runAi: runReviseRenderTreeIfInvalidAiStep,
-		skipPolicy: "requires-revision-request",
-		taskKind: "screen-revision",
-	}),
-	defineScreenStep({
-		id: "validate-render-tree-after-revision",
-		inputs: {
-			componentCatalogs: refs.componentCatalogs,
-			composition: stepOutput("plan-composition", "result"),
-			decoration: stepOutput("derive-decoration-plan", "result"),
-			intent: stepOutput("derive-screen-intent", "result"),
-			source: stepOutput("parse-source", "result"),
-			target: stepOutput("revise-render-tree-if-invalid", "result"),
-		},
-		kind: "validation",
-		layer: "revise",
-		message: "Validating revised draft…",
-		output: contract("validation-report"),
-		run: runValidateRenderTreeAfterRevisionStage,
-		skipPolicy: "requires-revision-result",
-	}),
-	defineScreenStep({
 		id: "write-artifacts",
 		kind: "effect",
 		layer: "revise",
 		message: "Writing review artifacts…",
 		output: contract("pipeline-artifact-write-result"),
 		run: runWriteArtifactsStage,
-		skipPolicy: "continue-after-parse-failure",
 	}),
 ] satisfies readonly ScreenGenerationStep[];
 
@@ -634,7 +582,6 @@ function createScreenGenerationStepPipeline(
 	state: ScreenGenerationPipelineState,
 ): StepPipelineDefinition {
 	return definePipeline({
-		feedback: [createScreenGenerationFeedbackRule(state)],
 		id: SCREEN_GENERATION_PIPELINE_ID,
 		steps: SCREEN_GENERATION_STEPS.map((step) => toEnginePipelineStep(state, step)),
 	});
@@ -648,7 +595,6 @@ function toEnginePipelineStep(state: ScreenGenerationPipelineState, step: Screen
 			inputs: step.inputs,
 			output: { result: step.output },
 			prompt: createScreenGenerationStepPrompt(step),
-			skipWhen: () => shouldSkipScreenGenerationStage(state, step),
 			usesAI: true,
 		});
 	}
@@ -658,7 +604,6 @@ function toEnginePipelineStep(state: ScreenGenerationPipelineState, step: Screen
 		id: step.id,
 		inputs: step.inputs,
 		output: { result: step.output },
-		skipWhen: () => shouldSkipScreenGenerationStage(state, step),
 		usesAI: false,
 	});
 }
@@ -759,14 +704,6 @@ function createFakeAgentRunner(
 			},
 			taskKind: request.taskKind,
 		}),
-		"revise-render-tree-if-invalid": async (request) => ({
-			payload: state.generation.agentResult?.payload,
-			session: {
-				mode: request.session?.mode ?? "new",
-				sessionId: request.session?.sessionId,
-			},
-			taskKind: request.taskKind,
-		}),
 		"select-pattern": async (request) => {
 			const sourceSpec = requireSourceSpec(state);
 			const layerCandidates =
@@ -806,7 +743,6 @@ function createScreenGenerationPipelineResult(
 		pipelineResult: state.pipelineResult,
 		pipelineResultWrite: state.pipelineResultWrite,
 		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
-		revisionDecision: state.generationNextAction,
 		runId: state.options.runId,
 		sourcePath: state.options.sourcePath,
 		sourceSpec: state.sourceSpec,
@@ -821,44 +757,6 @@ function assertScreenGenerationCompleted(
 	if (!state.pipelineResult || !state.pipelineResultWrite || !state.parseCommandResult) {
 		throw new Error("Screen generation pipeline finished without artifact write results.");
 	}
-}
-
-function createScreenGenerationFeedbackRule(
-	state: ScreenGenerationPipelineState,
-): PipelineFeedbackRule {
-	const rule: PipelineFeedbackRule = {
-		fromStep: "review-quality",
-		goTo: "revise-render-tree-if-invalid",
-		id: "quality-revision",
-		maxRetries: 1,
-		thenStep: "validate-render-tree-after-revision",
-		when: () => state.generationNextAction?.action === "request-revision",
-	};
-	return rule;
-}
-
-const SCREEN_GENERATION_SKIP_PREDICATES = {
-	"continue-after-parse-failure": () => false,
-	"requires-revision-request": (state) => state.generationNextAction?.action !== "request-revision",
-	"requires-revision-result": (state) => !state.revision.agentResult,
-} as const satisfies Record<
-	ScreenGenerationStageSkipPolicy,
-	(state: ScreenGenerationPipelineState) => boolean
->;
-
-function shouldSkipScreenGenerationStage(
-	state: ScreenGenerationPipelineState,
-	step: ScreenGenerationStep,
-): boolean {
-	if (
-		state.parseCommandResult &&
-		!state.parseCommandResult.parseResult.ok &&
-		step.skipPolicy !== "continue-after-parse-failure"
-	) {
-		return true;
-	}
-	if (!step.skipPolicy) return false;
-	return SCREEN_GENERATION_SKIP_PREDICATES[step.skipPolicy](state);
 }
 
 async function runReadSourceStage(
@@ -1140,21 +1038,6 @@ function runValidateRenderTreeStage(
 	return { designContextBundleSelection, validationReport };
 }
 
-function runValidateRenderTreeAfterRevisionStage(
-	inputs: ResolvedStepInputs,
-	state: ScreenGenerationPipelineState,
-): ValidationReportContract {
-	const { validationReport } = runValidateRenderTreeStage(inputs, state);
-	if (!state.preRevisionAgentResult || !state.preRevisionValidationReport) return validationReport;
-	if (!isValidationWorse(state.validationReport, state.preRevisionValidationReport)) {
-		return validationReport;
-	}
-
-	state.generation.agentResult = state.preRevisionAgentResult;
-	state.validationReport = state.preRevisionValidationReport;
-	return state.validationReport;
-}
-
 async function runProposeComponentsAiStep(
 	inputs: ResolvedStepInputs,
 	state: ScreenGenerationPipelineState,
@@ -1244,69 +1127,7 @@ async function runReviewQualityAiStep(
 	state.qualityReview.agentInput = nodeResult.agentInput;
 	state.qualityReview.agentResult = nodeResult.agentResult;
 	state.qualityReview.runnerRequest = nodeResult.runnerRequest;
-	state.generationNextAction = runGenerationNextActionNode({
-		initialValidationReport: state.initialValidationReport,
-		qualityInspection: state.qualityReview.agentResult.payload,
-		retryCount: state.revision.agentResult ? 1 : 0,
-		validationReport: state.validationReport,
-	});
-	return {
-		...agentStepOutput(nodeResult),
-		generationNextAction: state.generationNextAction,
-	};
-}
-
-async function runReviseRenderTreeIfInvalidAiStep(
-	inputs: ResolvedStepInputs,
-	state: ScreenGenerationPipelineState,
-	runner: AgentRunner,
-): Promise<unknown> {
-	if (state.generationNextAction?.action !== "request-revision") {
-		return { payload: state.generation.agentResult?.payload };
-	}
-
-	const sourceSpec = readSourceSpecInput(inputs, state);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const validation = inputs.validation as ValidationStepResult | undefined;
-	const previousCandidate = readAgentStepPayload(inputs.generation);
-	state.preRevisionAgentResult = state.generation.agentResult;
-	state.preRevisionValidationReport = state.validationReport;
-	const designContextBundleContents = await loadDesignContextBundleContents(
-		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		validation?.designContextBundleSelection?.bundleRefs,
-		state.options.disableDesignContext,
-	);
-	const nodeResult = await runScreenRevisionNode({
-		componentContractCatalog: buildSourceComponentContractCatalog(
-			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
-			sourceSpec,
-			decoration?.patternLayerCandidates ?? [],
-		),
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: designContextBundleContents,
-		designSkillSelection: composition?.designSkillSelection,
-		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: readAgentStepPayload(inputs.pattern),
-		previousCandidate,
-		qualityInspection: readAgentStepPayload(inputs.quality),
-		runner,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-		validationReport: validation?.validationReport,
-	});
-
-	state.revision.agentInput = nodeResult.agentInput;
-	state.revision.agentResult = repairAgentRunResultPayload(nodeResult.agentResult);
-	state.revision.runnerRequest = nodeResult.runnerRequest;
-	state.generation.agentResult = state.revision.agentResult;
-	return agentStepOutput({
-		agentInput: nodeResult.agentInput,
-		agentResult: state.revision.agentResult,
-		runnerRequest: nodeResult.runnerRequest,
-	});
+	return agentStepOutput(nodeResult);
 }
 
 async function runWriteArtifactsStage(
@@ -1334,7 +1155,6 @@ async function runWriteArtifactsStage(
 		parseCommandResult: state.parseCommandResult,
 		patternLayerCandidates: state.patternLayerCandidates,
 		renderTreeGenerationSkill: state.renderTreeGenerationSkill,
-		revisionDecision: state.generationNextAction,
 		sourceSpec: state.sourceSpec,
 		validationReport: state.validationReport,
 	});
@@ -1747,17 +1567,6 @@ function findGenerationSkill(
 	stage: ScreenGenerationSkillBundleRef["stage"],
 ): ScreenGenerationSkillBundleRef | undefined {
 	return catalog.find((skill) => skill.stage === stage);
-}
-
-function isValidationWorse(
-	current: ValidationReportContract | undefined,
-	previous: ValidationReportContract,
-): boolean {
-	return readValidationErrorCount(current) > readValidationErrorCount(previous);
-}
-
-function readValidationErrorCount(report: ValidationReportContract | undefined): number {
-	return report?.summary.errorCount ?? Number.POSITIVE_INFINITY;
 }
 
 function repairAgentRunResultPayload(result: AgentRunResult): AgentRunResult {

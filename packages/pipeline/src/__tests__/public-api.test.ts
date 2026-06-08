@@ -187,8 +187,6 @@ describe("@cx/pipeline public API", () => {
 			"validate-render-tree",
 			"propose-components",
 			"review-quality",
-			"revise-render-tree-if-invalid",
-			"validate-render-tree-after-revision",
 			"write-artifacts",
 		]);
 		expect(getScreenGenerationStagesByKind("ai")).toEqual([
@@ -198,7 +196,6 @@ describe("@cx/pipeline public API", () => {
 			"generate-render-tree",
 			"propose-components",
 			"review-quality",
-			"revise-render-tree-if-invalid",
 		]);
 		expect(getScreenGenerationStageMessage("generate-render-tree")).toBe("Generating UI draft…");
 		expect(createScreenGenerationStageLayers().map((layer) => [layer.layer, layer.stages])).toEqual(
@@ -210,14 +207,7 @@ describe("@cx/pipeline public API", () => {
 				],
 				[
 					"revise",
-					[
-						"validate-render-tree",
-						"propose-components",
-						"review-quality",
-						"revise-render-tree-if-invalid",
-						"validate-render-tree-after-revision",
-						"write-artifacts",
-					],
+					["validate-render-tree", "propose-components", "review-quality", "write-artifacts"],
 				],
 			],
 		);
@@ -302,7 +292,7 @@ describe("@cx/pipeline public API", () => {
 			},
 			revise: {
 				artifacts: expect.arrayContaining(["validation-report.json", "final-result.json"]),
-				traceKeys: expect.arrayContaining(["qualityReview", "revision"]),
+				traceKeys: expect.arrayContaining(["qualityReview", "initialValidationReport"]),
 			},
 			understand: {
 				artifacts: expect.arrayContaining(["source-spec.json", "screen-intent.json"]),

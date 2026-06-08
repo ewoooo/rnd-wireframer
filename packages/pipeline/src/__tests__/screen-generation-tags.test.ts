@@ -119,8 +119,6 @@ describe("screen-generation manifest tags", () => {
 		});
 		expect(pipelineStatus.currentStage).toBeUndefined();
 		expect(pipelineStatus.stages["read-source"]?.status).toBe("completed");
-		expect(pipelineStatus.stages["revise-render-tree-if-invalid"]?.status).toBe("skipped");
-		expect(pipelineStatus.stages["validate-render-tree-after-revision"]?.status).toBe("skipped");
 		expect(pipelineStatus.stages["write-artifacts"]?.status).toBe("completed");
 		expect(pipelineEvents.trim().split("\n")).toHaveLength(22);
 		expect(pipelineEvents).toContain('"stage":"read-source"');

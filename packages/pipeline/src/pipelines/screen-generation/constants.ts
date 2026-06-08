@@ -71,13 +71,7 @@ export const SCREEN_GENERATION_LAYER_TRACE_KEYS = {
 		"generationSkillCatalog",
 		"renderTreeGenerationSkill",
 	],
-	revise: [
-		"initialValidationReport",
-		"componentProposal",
-		"qualityReview",
-		"revisionDecision",
-		"revision",
-	],
+	revise: ["initialValidationReport", "componentProposal", "qualityReview"],
 	understand: ["parseResult", "screenIntent"],
 } as const satisfies Record<ScreenGenerationLayer, readonly string[]>;
 
