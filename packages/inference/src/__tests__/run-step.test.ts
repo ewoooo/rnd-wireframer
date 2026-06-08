@@ -56,7 +56,7 @@ describe("runStep", () => {
 		});
 
 		expect(execution.status).toBe("succeeded");
-		expect(execution.output).toEqual(validSourceSpec);
+		expect(execution.raw).toEqual(validSourceSpec);
 		expect(execution.contextWrites).toEqual({ "source-spec": validSourceSpec });
 	});
 
@@ -79,7 +79,7 @@ describe("runStep", () => {
 
 		expect(execution.status).toBe("failed");
 		expect(execution.error?.code).toBe("output_contract_validation_failed");
-		expect(execution.output).toBeUndefined();
+		expect(execution.contextWrites).toBeUndefined();
 	});
 
 	it("passes the step.prompt ref through to the engine unchanged", async () => {

@@ -43,7 +43,6 @@ export type StepExecution = {
 	outputContract: OutputContractValue;
 	prompt?: PromptTemplateRef;
 	raw: unknown;
-	output?: unknown;
 	contextWrites?: Record<string, unknown>;
 	error?: { code: string; message: string };
 };

@@ -54,7 +54,7 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 				throw execution.error ?? new Error(`Step failed: ${step.id}`);
 			}
 
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/output.json`, execution.output);
+			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/output.json`, execution.raw);
 			for (const [key, value] of Object.entries(execution.contextWrites ?? {})) {
 				await contextStore.writeJson(key, value);
 			}

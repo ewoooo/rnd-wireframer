@@ -41,7 +41,6 @@ export async function runStep(
 		outputContract,
 		prompt,
 		raw: result.raw,
-		output: result.raw,
 		contextWrites: step.output.writeToContext
 			? { [step.output.writeToContext]: result.raw }
 			: undefined,
