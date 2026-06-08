@@ -26,7 +26,10 @@ export function createClaudeAgentSdkRunner(
 			"Context JSON:",
 			JSON.stringify(request.prompt.metadata ?? {}, null, 2),
 		].join("\n");
-		const args = [
+
+		const schema = extractOutputSchema(request.input); // meta keys already stripped
+
+		const baseArgs = [
 			"--print",
 			"--output-format",
 			"json",
@@ -37,16 +40,52 @@ export function createClaudeAgentSdkRunner(
 			request.prompt.system,
 			"--model",
 			model,
-			prompt,
 		];
-		const { stdout } = await execFileAsync(options.claudeBin ?? "claude", args, {
-			maxBuffer: options.maxBuffer ?? 1024 * 1024 * 10,
-		});
-		const rawText = extractClaudeResultText(stdout);
-		const parsed = parseClaudeJsonResult(rawText);
+
+		const runClaude = async (withSchema: boolean): Promise<string> => {
+			const args = [...baseArgs];
+			if (withSchema && schema) args.push("--json-schema", JSON.stringify(schema));
+			args.push(prompt);
+			const { stdout } = await execFileAsync(options.claudeBin ?? "claude", args, {
+				maxBuffer: options.maxBuffer ?? 1024 * 1024 * 10,
+			});
+			return stdout.trim();
+		};
+
+		const parseEnvelope = (stdout: string) =>
+			JSON.parse(stdout) as { result?: unknown; structured_output?: unknown };
+
+		let payload: unknown;
+		if (schema) {
+			try {
+				const stdout = await runClaude(true);
+				const envelope = parseEnvelope(stdout);
+				// structured_output is the schema-constrained object (preferred). On the
+				// rare "accepted but not extracted" case it's null → fall back to result text.
+				payload =
+					envelope.structured_output !== undefined && envelope.structured_output !== null
+						? envelope.structured_output
+						: parseClaudeJsonResult(typeof envelope.result === "string" ? envelope.result : stdout)
+								.payload;
+			} catch {
+				// Schema rejected (e.g. recursive render-tree) → CLI stdout is not valid
+				// JSON. Re-run WITHOUT --json-schema and text-parse, exactly as before.
+				const stdout = await runClaude(false);
+				const envelope = parseEnvelope(stdout);
+				payload = parseClaudeJsonResult(
+					typeof envelope.result === "string" ? envelope.result : stdout,
+				).payload;
+			}
+		} else {
+			const stdout = await runClaude(false);
+			const envelope = parseEnvelope(stdout);
+			payload = parseClaudeJsonResult(
+				typeof envelope.result === "string" ? envelope.result : stdout,
+			).payload;
+		}
 
 		return {
-			payload: parsed.payload,
+			payload,
 			session: {
 				mode: request.session?.mode ?? "new",
 				sessionId: request.session?.sessionId,
@@ -56,8 +95,15 @@ export function createClaudeAgentSdkRunner(
 	};
 }
 
-function extractClaudeResultText(stdout: string): string {
-	const output = JSON.parse(stdout.trim()) as { result?: unknown };
-	if (typeof output.result === "string") return output.result;
-	return stdout.trim();
+function extractOutputSchema(input: { context?: unknown }): Record<string, unknown> | undefined {
+	const context = input.context;
+	if (!context || typeof context !== "object") return undefined;
+	const raw = (context as { jsonSchema?: unknown }).jsonSchema;
+	if (!raw || typeof raw !== "object") return undefined;
+	// $schema/$id/title silently disable the CLI's structured_output extraction — drop them.
+	const { $schema, $id, title, ...rest } = raw as Record<string, unknown>;
+	void $schema;
+	void $id;
+	void title;
+	return rest;
 }
