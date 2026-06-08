@@ -1,8 +1,7 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
+import { SCHEMA_VERSION } from "@cx/schema";
 import { NextResponse } from "next/server";
 import { readErrorMessage } from "@/lib/api-error";
-import { RUN_ROOT } from "@/lib/server-paths";
+import { inferenceRuntime } from "@/server/inference-runtime";
 
 export const runtime = "nodejs";
 
@@ -28,8 +27,7 @@ export async function GET(_request: Request, context: ScreenInferenceArtifactRou
 			return NextResponse.json({ error: "Artifact is not allowed." }, { status: 403 });
 		}
 
-		const artifactPath = path.join(readRunDir(runId), "artifacts", artifactName);
-		return NextResponse.json(JSON.parse(await readFile(artifactPath, "utf8")));
+		return NextResponse.json(await readScreenInferenceArtifact(runId, artifactName));
 	} catch (error) {
 		if (isNodeError(error) && error.code === "ENOENT") {
 			return NextResponse.json({ error: "Artifact not found." }, { status: 404 });
@@ -41,10 +39,35 @@ export async function GET(_request: Request, context: ScreenInferenceArtifactRou
 	}
 }
 
-function readRunDir(runId: string): string {
-	const safeRunId = runId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 120);
-	if (!safeRunId) throw new Error("runId is required.");
-	return path.join(RUN_ROOT, safeRunId);
+async function readScreenInferenceArtifact(runId: string, artifactName: string): Promise<unknown> {
+	if (artifactName === "final-result.json") {
+		return inferenceRuntime.artifactStore.readJson(runId, "steps/04-render-tree/output.json");
+	}
+	if (artifactName === "quality-review.json") {
+		return inferenceRuntime.artifactStore.readJson(runId, "steps/05-quality/output.json");
+	}
+	if (artifactName === "validation-report.json") {
+		const job = await inferenceRuntime.jobStore.getJob(runId);
+		return {
+			issues: job.error
+				? [{ code: job.error.code, message: job.error.message, severity: "error" }]
+				: [],
+			ok: !job.error,
+			schemaVersion: SCHEMA_VERSION.validationReport,
+			summary: {
+				errorCount: job.error ? 1 : 0,
+				warningCount: 0,
+			},
+			target: "steps/04-render-tree/output.json",
+		};
+	}
+	if (artifactName === "pipeline-result.json") {
+		return inferenceRuntime.jobStore.getJob(runId);
+	}
+	if (artifactName === "agent-result.json") {
+		return inferenceRuntime.artifactStore.readJson(runId, "steps/04-render-tree/raw-response.json");
+	}
+	throw Object.assign(new Error("Artifact not found."), { code: "ENOENT" });
 }
 
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {

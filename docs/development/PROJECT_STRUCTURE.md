@@ -21,10 +21,8 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
 | `@cx/layout` | screen/region/area/composite layout pattern reference catalog, local schema/type |
-| `@cx/inference` | target MVP: inference stores, context, engine, pipeline, worker, in-memory test fakes |
-| `@cx/inference-nodes` | deprecated compatibility: 기존 screen-generation node/planning helper |
+| `@cx/inference` | inference stores, context, engine, pipeline, worker, in-memory test fakes |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
-| `@cx/pipeline` | compatibility: 기존 screen-generation runtime과 side effect/IO 유틸리티 |
 
 개발자용 스크립트:
 
@@ -165,7 +163,7 @@ apps/web/src/
 - smoke explorer는 artifact 비교만 하고 DB apply를 수행하지 않는다.
 - workbench shell은 screen summary, candidate state, tab routing만 조립한다.
 
-생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. 기존 `@cx/pipeline` 경로는 compatibility surface다. `apps/web` API route는 얇은 adapter로만 둔다.
+생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. `apps/web` API route는 얇은 adapter로만 둔다.
 
 Smoke 실행은 사용자-facing 앱이 아니라 개발자-facing 스크립트다.
 
@@ -175,7 +173,7 @@ scripts/
   generation/          runGenerationSmoke wrapper and smoke helper types
 ```
 
-외부 package/app code는 smoke helper를 import하지 않는다. root script는 `scripts/smoke-pipeline.ts`를 호출한다. 현재 generation 실행은 compatibility 경로인 `@cx/pipeline`의 `runPipeline("screen-generation")`에 위임하고, 신규 구조에서는 `@cx/inference`로 이동한다.
+외부 package/app code는 smoke helper를 import하지 않는다. root script는 `scripts/smoke-pipeline.ts`를 호출한다. generation smoke 실행은 `@cx/inference`의 `screen-generation` pipeline runtime에 위임한다.
 
 ## 7. `packages/token`
 
@@ -285,16 +283,6 @@ packages/inference/src/
 - `@cx/inference`: `JobStore`/`ArtifactStore`와 local file/in-memory fake 구현
 - `@cx/inference`: pipeline context, execution engine dispatch, pipeline/step definition, worker
 
-기존 `@cx/inference-nodes`는 deprecated compatibility 패키지다. 새 screen inference 동작을 추가하지 않는다.
-
-```text
-packages/inference-nodes/src/
-  index.ts              public barrel
-  agent/                agent runner-facing shared node types
-  screen-generation/    screen generation node wrappers and planning helpers
-    planning/           pure agent input/context, pattern candidate, next-action helpers
-```
-
 두지 않는 책임:
 
 - 파일 읽기/쓰기
@@ -325,23 +313,6 @@ packages/validation/src/
 - RenderTree React render
 - catalog 값 생성 또는 수정
 
-## 13. `packages/pipeline`
-
-`@cx/pipeline`은 기존 screen-generation compatibility runtime과 side effect/IO 유틸리티를 담당한다. 신규 inference runtime 개념은 `@cx/inference`로 이동한다. 현재 MVP compatibility 경로에서는 `screen-generation` pipeline을 실행하고, 내부 stage에서 승인된 side effect command 배열을 순서대로 실행한다. source artifact read/versioned artifact/write log/approved artifact apply 결과는 감사 가능한 envelope로 반환한다.
-
-```text
-packages/pipeline/src/
-  index.ts       public barrel
-  public/        side effect boundary contract, parser adapter, public types
-  runtime/       buildPipeline/runPipeline
-  pipelines/     screen-generation pipeline definition and stages
-  commands/      approved side effect command contracts and command helpers
-  runner/        command sequence execution, executor registry, result envelope
-  executors/     source artifact read, versioned artifact write, run log write, approved artifact apply
-  adapters/      fs/clock/id environment adapters
-  errors/        pipeline error types
-  testing/       memory adapters and test fixtures
-```
 
 두지 않는 책임:
 

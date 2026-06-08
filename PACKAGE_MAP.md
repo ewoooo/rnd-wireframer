@@ -38,7 +38,7 @@ The target architecture has five first-class boundaries, implemented first insid
 | Screen-specific pipeline | `@cx/inference` pipeline |
 | Claude execution | `@cx/agent` |
 
-Existing `/api/screen-inference/*`, `@cx/pipeline`, and `@cx/inference-nodes` remain compatibility surfaces until migration is complete.
+Legacy `/api/screen-inference/*` routes are thin web compatibility facades over `@cx/inference`.
 
 ## 3. Active And Target Packages
 
@@ -52,9 +52,7 @@ Existing `/api/screen-inference/*`, `@cx/pipeline`, and `@cx/inference-nodes` re
 | `@cx/components` | Active | Component implementations, component catalog, component token aliases | workflow, foundation tokens, file approval |
 | `@cx/layout` | Active | Screen chrome, layout primitives, layout pattern components, layout catalog/resolver | component catalog, generation workflow |
 | `@cx/tokens` | Active | Foundation/semantic token SSOT and public CSS/Tailwind entrypoints | component alias tokens, workflow |
-| `@cx/inference` | Target MVP | Job/artifact stores, pipeline context, execution engines, pipeline definitions, worker, in-memory fakes | React render, catalog ownership, legacy pipeline compatibility |
-| `@cx/inference-nodes` | Deprecated | Compatibility node/planning helpers for current screen-generation flow | new inference behavior |
-| `@cx/pipeline` | Compatibility | Current screen-generation runtime and side effect utilities | new inference runtime concepts |
+| `@cx/inference` | Active | Job/artifact stores, pipeline context, execution engines, pipeline definitions, worker, in-memory fakes | React render, catalog ownership |
 
 ## 4. Public Surface
 
@@ -68,9 +66,7 @@ Existing `/api/screen-inference/*`, `@cx/pipeline`, and `@cx/inference-nodes` re
 | `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
 | `@cx/layout` | `.`, `./catalog`, `./chrome`, `./components`, `./contract`, `./mutations`, `./primitives`, `./resolver`, `./style`, `./types` |
 | `@cx/tokens` | `.`, `./variables.css`, `./tailwind.css` |
-| `@cx/inference` | Target MVP: `.`, internal module public surfaces to be fixed during package creation |
-| `@cx/pipeline` | Compatibility: `.`, `./adapters`, `./commands`, `./contract`, `./parser`, `./runner`, `./runtime`, `./testing`, `./types` |
-| `@cx/inference-nodes` | Deprecated compatibility: `.`, `./agent`, `./screen-generation` |
+| `@cx/inference` | `.`, `./testing`, `./pipelines/screen-generation-v1` |
 
 External packages must not import `src/internal/*`, implementation directories, generated artifacts, or unpublished subpaths. `@cx/schema` remains root-export only.
 
@@ -85,8 +81,7 @@ External packages must not import `src/internal/*`, implementation directories, 
 - `@cx/agent` owns Claude execution and prompt asset packaging, not workflow decisions.
 - Knowledge base packages are read-only during a run.
 - Pipeline Context is run-local working memory; inspectable results must be written as artifacts or events.
-- New inference behavior must not be added to `@cx/inference-nodes`.
-- New runtime concepts must not be added to current `@cx/pipeline` screen-generation internals.
+- Screen inference execution, state, event, artifact, and step orchestration logic belongs in `@cx/inference`.
 
 ## 6. Web Feature Boundary
 
@@ -112,4 +107,4 @@ Implementation order:
 4. Add Pipeline Context and Pipeline Step format.
 5. Add minimal Worker entrypoint.
 6. Add thin `POST /api/inference` and `GET /api/inference/:jobId/events` routes.
-7. Deprecate then remove `@cx/inference-nodes` and old `@cx/pipeline` screen-generation internals after consumers are migrated.
+7. Keep legacy `/api/screen-inference/*` as a thin adapter only while UI callers migrate to `/api/inference/*`.

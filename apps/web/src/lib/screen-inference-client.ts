@@ -1,8 +1,8 @@
-import type { PipelineRunEvent } from "@cx/pipeline";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import {
 	parseScreenInferencePipelineEventMessage,
 	SCREEN_INFERENCE_PIPELINE_EVENT_NAME,
+	type ScreenInferencePipelineEvent,
 } from "@/lib/screen-inference-events";
 import type {
 	ScreenInferenceRunCreateResponse,
@@ -120,7 +120,7 @@ export function subscribeScreenInferenceRunEvents(
 	runId: string,
 	handlers: {
 		onError?: () => void;
-		onEvent: (event: PipelineRunEvent) => Promise<void> | void;
+		onEvent: (event: ScreenInferencePipelineEvent) => Promise<void> | void;
 	},
 ): () => void {
 	if (typeof EventSource === "undefined") return () => undefined;

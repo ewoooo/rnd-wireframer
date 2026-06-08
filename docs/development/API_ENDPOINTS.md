@@ -84,7 +84,7 @@ Artifact endpoint는 allowlist 방식으로 운영한다. 현재 review UI가 �
 ## 변경 시 체크리스트
 
 - `apps/web/src/app/api/**/route.ts`와 이 문서의 method/path가 일치한다.
-- Browser component가 `@cx/pipeline`, `@cx/agent`, Supabase service-role credential을 직접 import하지 않는다.
+- Browser component가 `@cx/inference`, `@cx/agent`, Supabase service-role credential을 직접 import하지 않는다.
 - Browser-facing hook은 `apps/web/src/features/<domain>/api/*.client.ts`만 통해 `/api/*`를 호출하고, `server/*`를 직접 import하지 않는다.
 - route는 `server/*` service를 호출하고, UI shape 변환은 component 또는 feature model layer에 둔다.
 - error response는 `{ error: string }` 형태를 유지한다.

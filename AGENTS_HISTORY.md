@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Deprecated Inference Package Removal
+
+- 변경: `@cx/pipeline`과 `@cx/inference-nodes` workspace package를 제거하고 root/app dependencies와 Next transpile 설정에서 제외함
+- 변경: legacy `/api/screen-inference/*` route가 내부적으로 `@cx/inference` job/artifact/event store를 읽도록 전환하고, web progress stage metadata는 app-local compatibility 타입으로 축소함
+- 변경: `scripts/smoke-pipeline.ts`/`scripts/generation` smoke harness를 `@cx/inference` runtime 기반으로 전환하고 smoke 문서와 패키지 경계 문서를 갱신함
+- 이유: screen inference 실행, 상태, 이벤트, artifact, step orchestration 책임을 `@cx/inference`로 단일화하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run apps/web/src/lib/screen-inference-events.test.ts apps/web/src/lib/screen-inference-run.test.ts scripts/generation/batch/run-batch.test.ts packages/inference/src/__tests__`
+
 ## 2026-06-08 - Type Package Removal
 
 - 변경: dependency-free `isRecord` guard를 `@cx/schema` root export로 이동하고 기존 `@cx/types/guards` 소비처를 `@cx/schema`로 전환함

@@ -1,10 +1,3 @@
-import type { ParseMarkdownSourceCommandResult } from "@cx/pipeline/parser";
-import type {
-	PipelineRunResult,
-	PipelineSummary,
-	ScreenGenerationPipelineOptions,
-} from "@cx/pipeline/types";
-
 export type GenerationSmokeOptions = {
 	artifactRoot?: string;
 	artifactStore?: "data-run" | "local-transient" | "web-fixture";
@@ -15,10 +8,29 @@ export type GenerationSmokeOptions = {
 	useAI?: boolean;
 };
 
-export type GenerationSmokeSummary = PipelineSummary;
-
-export type GenerationSmokeResult = PipelineRunResult & {
-	parseCommandResult: ParseMarkdownSourceCommandResult;
+export type GenerationSmokeSummary = {
+	ok: boolean;
+	outDir: string;
+	runDir: string;
+	runId: string;
+	validationOk?: boolean;
 };
 
-export type GenerationSmokePipelineOptions = ScreenGenerationPipelineOptions;
+export type GenerationSmokeResult = {
+	outDir: string;
+	parseCommandResult: {
+		parseResult: {
+			ok: boolean;
+		};
+	};
+	runId: string;
+	summary: GenerationSmokeSummary;
+	validationReport?: {
+		summary?: {
+			errorCount?: number;
+			warningCount?: number;
+		};
+	};
+};
+
+export type GenerationSmokePipelineOptions = GenerationSmokeOptions;

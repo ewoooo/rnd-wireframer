@@ -5,14 +5,8 @@ import { join } from "node:path";
 const ROOT = "packages/inference/src/pipelines";
 // Patterns anchor on the import specifier (`from "..."`) so comments and unrelated
 // substrings don't false-positive. The trailing `["'/]` matches either the closing
-// quote or a subpath separator, catching `@cx/pipeline/x` and `node:fs/promises`
-// while excluding sibling packages like `@cx/pipeline-utils`.
+// quote or a subpath separator, catching `node:fs/promises`.
 const FORBIDDEN = [
-	{
-		pattern: /from\s+["']@cx\/pipeline["'/]/,
-		why: "@cx/pipeline (deprecated screen-generation internals)",
-	},
-	{ pattern: /from\s+["']@cx\/inference-nodes["'/]/, why: "@cx/inference-nodes (deprecated)" },
 	{ pattern: /from\s+["']apps\//, why: "apps/* (pipelines must not import app code)" },
 	{ pattern: /from\s+["']node:fs["'/]/, why: "node:fs (pipelines must be pure declarations)" },
 ];

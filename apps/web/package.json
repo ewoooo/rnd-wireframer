@@ -14,7 +14,6 @@
 		"@cx/components": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/layout": "workspace:*",
-		"@cx/pipeline": "workspace:*",
 		"@cx/renderer": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"@puckeditor/core": "^0.21.2",

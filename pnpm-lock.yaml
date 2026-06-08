@@ -11,12 +11,18 @@ importers:
 
   .:
     dependencies:
+      '@cx/agent':
+        specifier: workspace:*
+        version: link:packages/agent
       '@cx/components':
         specifier: workspace:*
         version: link:packages/component
-      '@cx/pipeline':
+      '@cx/inference':
         specifier: workspace:*
-        version: link:packages/pipeline
+        version: link:packages/inference
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:packages/schema
       '@radix-ui/react-scroll-area':
         specifier: ^1.2.10
         version: 1.2.11(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -114,9 +120,6 @@ importers:
       '@cx/layout':
         specifier: workspace:*
         version: link:../../packages/layout
-      '@cx/pipeline':
-        specifier: workspace:*
-        version: link:../../packages/pipeline
       '@cx/renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
@@ -178,21 +181,6 @@ importers:
         specifier: workspace:*
         version: link:../validation
 
-  packages/inference-nodes:
-    dependencies:
-      '@cx/agent':
-        specifier: workspace:*
-        version: link:../agent
-      '@cx/components':
-        specifier: workspace:*
-        version: link:../component
-      '@cx/schema':
-        specifier: workspace:*
-        version: link:../schema
-      '@cx/validation':
-        specifier: workspace:*
-        version: link:../validation
-
   packages/layout:
     dependencies:
       '@cx/components':
@@ -207,30 +195,6 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
-
-  packages/pipeline:
-    dependencies:
-      '@cx/adapters':
-        specifier: workspace:*
-        version: link:../adapters
-      '@cx/agent':
-        specifier: workspace:*
-        version: link:../agent
-      '@cx/components':
-        specifier: workspace:*
-        version: link:../component
-      '@cx/inference-nodes':
-        specifier: workspace:*
-        version: link:../inference-nodes
-      '@cx/layout':
-        specifier: workspace:*
-        version: link:../layout
-      '@cx/schema':
-        specifier: workspace:*
-        version: link:../schema
-      '@cx/validation':
-        specifier: workspace:*
-        version: link:../validation
 
   packages/renderer:
     dependencies:

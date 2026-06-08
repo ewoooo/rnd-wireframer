@@ -1,10 +1,22 @@
-import type { PipelineRunEvent } from "@cx/pipeline";
 import { isRecord } from "@cx/schema";
+import type { PipelineStageId } from "@/lib/screen-inference-run";
 
 export const SCREEN_INFERENCE_PIPELINE_EVENT_NAME = "pipeline-event";
 
-export function parseScreenInferencePipelineEventLines(contents: string): PipelineRunEvent[] {
-	const events: PipelineRunEvent[] = [];
+export type ScreenInferencePipelineEvent = {
+	eventId: string;
+	pipelineId: "screen-generation";
+	runId: string;
+	stage?: PipelineStageId;
+	status: "completed" | "failed" | "started";
+	timestamp: string;
+	type: string;
+};
+
+export function parseScreenInferencePipelineEventLines(
+	contents: string,
+): ScreenInferencePipelineEvent[] {
+	const events: ScreenInferencePipelineEvent[] = [];
 	for (const line of contents.split("\n")) {
 		const trimmed = line.trim();
 		if (!trimmed) continue;
@@ -15,15 +27,15 @@ export function parseScreenInferencePipelineEventLines(contents: string): Pipeli
 }
 
 export function filterScreenInferencePipelineEventsAfter(
-	events: PipelineRunEvent[],
+	events: ScreenInferencePipelineEvent[],
 	lastEventId?: string | null,
-): PipelineRunEvent[] {
+): ScreenInferencePipelineEvent[] {
 	if (!lastEventId) return events;
 	const lastIndex = events.findIndex((event) => event.eventId === lastEventId);
 	return lastIndex < 0 ? events : events.slice(lastIndex + 1);
 }
 
-export function formatScreenInferencePipelineEvent(event: PipelineRunEvent): string {
+export function formatScreenInferencePipelineEvent(event: ScreenInferencePipelineEvent): string {
 	return [
 		`id: ${event.eventId}`,
 		`event: ${SCREEN_INFERENCE_PIPELINE_EVENT_NAME}`,
@@ -35,11 +47,11 @@ export function formatScreenInferencePipelineEvent(event: PipelineRunEvent): str
 
 export function parseScreenInferencePipelineEventMessage(
 	data: string,
-): PipelineRunEvent | undefined {
+): ScreenInferencePipelineEvent | undefined {
 	return parsePipelineRunEvent(data);
 }
 
-function parsePipelineRunEvent(input: string): PipelineRunEvent | undefined {
+function parsePipelineRunEvent(input: string): ScreenInferencePipelineEvent | undefined {
 	try {
 		const value = JSON.parse(input) as unknown;
 		if (!isPipelineRunEvent(value)) return undefined;
@@ -49,7 +61,7 @@ function parsePipelineRunEvent(input: string): PipelineRunEvent | undefined {
 	}
 }
 
-function isPipelineRunEvent(value: unknown): value is PipelineRunEvent {
+function isPipelineRunEvent(value: unknown): value is ScreenInferencePipelineEvent {
 	if (!isRecord(value)) return false;
 	return (
 		typeof value.eventId === "string" &&

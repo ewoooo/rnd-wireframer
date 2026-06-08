@@ -71,6 +71,7 @@ function parseArgs(args: string[]): SmokeCliOptions {
 	for (let index = 0; index < args.length; index += 1) {
 		const arg = args[index];
 		if (!arg) continue;
+		if (arg === "--") continue;
 
 		if (arg === "--target") {
 			options.target = readRequiredValue(args, index, "--target");

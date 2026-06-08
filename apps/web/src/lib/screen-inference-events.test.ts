@@ -1,4 +1,3 @@
-import type { PipelineRunEvent } from "@cx/pipeline";
 import { describe, expect, it } from "vitest";
 import {
 	filterScreenInferencePipelineEventsAfter,
@@ -6,7 +5,9 @@ import {
 	parseScreenInferencePipelineEventLines,
 	parseScreenInferencePipelineEventMessage,
 	SCREEN_INFERENCE_PIPELINE_EVENT_NAME,
+	type ScreenInferencePipelineEvent,
 } from "@/lib/screen-inference-events";
+import type { PipelineStageId } from "@/lib/screen-inference-run";
 
 describe("screen inference pipeline events", () => {
 	it("parses persisted pipeline event lines and ignores incomplete lines", () => {
@@ -44,9 +45,9 @@ describe("screen inference pipeline events", () => {
 
 function pipelineEvent(
 	eventId: string,
-	stage: string,
-	status: PipelineRunEvent["status"],
-): PipelineRunEvent {
+	stage: PipelineStageId,
+	status: ScreenInferencePipelineEvent["status"],
+): ScreenInferencePipelineEvent {
 	return {
 		eventId,
 		pipelineId: "screen-generation",

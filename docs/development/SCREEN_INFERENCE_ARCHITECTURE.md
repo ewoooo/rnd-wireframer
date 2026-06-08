@@ -191,9 +191,7 @@ Long-term knowledge is read-only during a run. Working memory is run-local and m
 
 ## 3. Package Direction
 
-The current `@cx/inference-nodes` and screen-generation implementation under `@cx/pipeline` are deprecated for new work. They may stay temporarily as compatibility code until Web routes and smoke scripts are migrated.
-
-MVP starts with one new package:
+Screen inference is implemented in one package:
 
 | Package | Responsibility |
 |---|---|
@@ -219,13 +217,6 @@ packages/inference/src/
 The full file-level scaffold, dependency rules, and build order are in §15.
 
 `apps/web` API routes are thin adapters only. They create/read jobs, stream events, and call `@cx/inference` worker entrypoints. They do not own store logic, pipeline execution logic, prompt assembly, or worker state transitions. This keeps the worker testable with an in-memory fake store.
-
-Compatibility packages:
-
-| Package | Status | Rule |
-|---|---|---|
-| `@cx/inference-nodes` | Deprecated | Do not add new screen inference logic. Move reusable builders into `@cx/inference`. |
-| `@cx/pipeline` screen-generation internals | Deprecated for new architecture | Keep existing consumers working during migration. New runtime concepts belong in `@cx/inference`. |
 
 ## 4. Local MVP Storage Contract
 
@@ -766,8 +757,6 @@ The goal of the first pass is **one vertical slice**: a single fake step that le
 
 ## 13. Migration Rules
 
-- Do not add new inference behavior to `@cx/inference-nodes`.
-- Do not add new screen inference runtime concepts to `@cx/pipeline`.
 - New contracts, stores, context, engines, pipeline, and worker code start in `@cx/inference`.
 - Existing Web routes may call compatibility adapters during migration, but browser-facing UI still consumes only `/api/*`.
 - Claude local-first execution remains in `@cx/agent`; fallback policy is exposed as execution engine configuration.
@@ -776,8 +765,7 @@ The goal of the first pass is **one vertical slice**: a single fake step that le
 ## 14. Completion Criteria
 
 - `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, and `API_ENDPOINTS.md` point to this document for screen inference architecture.
-- Deprecated packages are marked clearly before replacement packages are introduced.
-- `@cx/inference` can be created without importing current `@cx/pipeline` screen-generation internals.
+- `@cx/inference` owns screen inference execution without compatibility runtime packages.
 - Job, step, artifact, and event shapes are stable enough for Web UI and worker implementation.
 
 ## 15. Scaffold, Dependency Rules, and Build Order
@@ -843,7 +831,7 @@ The package is a dependency-injection design. One leaf holds the vocabulary; con
 2. **Cross-module collaboration is by injected interface, not by importing another module's implementation.** `FileJobStore` is constructed with an `ArtifactStore`; `createContextStore` receives an `ArtifactStore`; `runStep` receives an `EngineRegistry` and resolver functions; `runInferenceJob` receives everything via `WorkerDeps`. A module depends on the *interface* (in `contracts/`), never the concrete sibling.
 3. **Wiring happens only at the composition roots.** Assembling concrete stores + engines + registry into a runtime happens in `worker/` (`createInferenceRuntime`) and `testing/` (`createTestRuntime`) — nowhere else. Steps, stores, and engines never new-up each other.
 4. **Allowed runtime edges:** `worker/` and `testing/` → `pipeline/`, `engine/`, `context/`, `stores/`. `stores/`, `context/`, `engine/`, `pipeline/` → `contracts/` only (plus `engine/claude-engine` → `@cx/agent`, file impls → `node:fs`).
-5. **Forbidden:** any import cycle; `stores/`/`engine/`/`pipeline/` importing `worker/` or `testing/`; importing current `@cx/pipeline` screen-generation internals or `@cx/inference-nodes`.
+5. **Forbidden:** any import cycle; `stores/`/`engine/`/`pipeline/` importing `worker/` or `testing/`; pipeline definitions importing app code or filesystem APIs.
 
 This is what keeps a single step and the worker testable with `Memory*` stores and a fake `Engine` — no module reaches past its injected interfaces.
 
@@ -967,7 +955,7 @@ Three invariants are not just conventions — they are enforced so a violating i
 Enforcement follows the repo's existing pattern — Biome plus a custom AST check run inside `lint` (mirroring `scripts/check-react-hooks-policy.mjs`):
 
 - Add Biome `noRestrictedImports` per-directory rules for the obvious forbidden paths.
-- Add `scripts/check-inference-boundaries.mjs` (wired into the `lint` script) that walks `packages/inference/src/**` and fails on: `pipeline/`,`engine/`,`stores/`,`context/` importing `worker/` or `testing/`; `pipeline/` importing `stores/`|`context/`; `engine/` importing `context/`|`stores/`|`pipeline/`; any module importing `@cx/pipeline` screen-generation internals or `@cx/inference-nodes`; and any import cycle.
+- Add `scripts/check-inference-boundaries.mjs` (wired into the `lint` script) that walks `packages/inference/src/**` and fails on: `pipeline/`,`engine/`,`stores/`,`context/` importing `worker/` or `testing/`; `pipeline/` importing `stores` or `context`; `engine/` importing `context`, `stores`, or `pipeline`; pipeline definitions importing app code or filesystem APIs; and any import cycle.
 
 The payoff: the testability goal holds by construction — a step and the worker are testable with `Memory*` stores and a fake `Engine` because no module can reach past its injected interfaces even by accident.
 
@@ -977,7 +965,7 @@ Runner is **Vitest** (`vitest run`, root `vitest.config.ts`, `describe/expect/it
 
 ### 16.1 Fakes location
 
-All test doubles live in `packages/inference/src/testing/` and are exported via the **`@cx/inference/testing` subpath** (mirroring the existing `packages/pipeline/src/testing/` precedent). This keeps them out of the main `index.ts` while letting `apps/web` route tests and downstream consumers import a memory-backed runtime:
+All test doubles live in `packages/inference/src/testing/` and are exported via the **`@cx/inference/testing` subpath**. This keeps them out of the main `index.ts` while letting `apps/web` route tests and downstream consumers import a memory-backed runtime:
 
 - `MemoryArtifactStore`, `MemoryJobStore` — `Map`-backed, expose their internal map for assertions (e.g. `{ store, files }`), same idea as `createMemoryFileSystemAdapter`.
 - `createFakeEngine({ respond })` — programmable engine; each test controls the `raw` it returns and can inspect `lastRequest`.

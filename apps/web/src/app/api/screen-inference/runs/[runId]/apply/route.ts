@@ -1,11 +1,9 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { type RenderTreeScreenNodeContract, SCHEMA_VERSION } from "@cx/schema";
 import { NextResponse } from "next/server";
 import { readErrorMessage } from "@/lib/api-error";
 import { applyScreenInferenceFinalResult } from "@/lib/screen-inference-apply";
 import { updateScreenInferenceRunStatus } from "@/lib/screen-inference-run-store";
-import { RUN_ROOT } from "@/lib/server-paths";
+import { inferenceRuntime } from "@/server/inference-runtime";
 
 export const runtime = "nodejs";
 
@@ -20,9 +18,10 @@ export async function POST(_request: Request, context: ScreenInferenceApplyRoute
 		const { runId } = await context.params;
 		await updateScreenInferenceRunStatus(runId, "applying");
 
-		const finalResult = JSON.parse(
-			await readFile(path.join(readRunDir(runId), "artifacts/final-result.json"), "utf8"),
-		) as RenderTreeScreenNodeContract;
+		const finalResult = await inferenceRuntime.artifactStore.readJson<RenderTreeScreenNodeContract>(
+			runId,
+			"steps/04-render-tree/output.json",
+		);
 		const result = await applyScreenInferenceFinalResult({ node: finalResult });
 
 		if (!result.written) {
@@ -58,12 +57,6 @@ export async function POST(_request: Request, context: ScreenInferenceApplyRoute
 			{ status: readErrorStatus(error) },
 		);
 	}
-}
-
-function readRunDir(runId: string): string {
-	const safeRunId = runId.replace(/[^a-zA-Z0-9:_-]/g, "_").slice(0, 120);
-	if (!safeRunId) throw new Error("runId is required.");
-	return path.join(RUN_ROOT, safeRunId);
 }
 
 async function readRunIdSafe(

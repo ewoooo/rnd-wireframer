@@ -34,8 +34,10 @@
 		"vitest": "^4.1.6"
 	},
 	"dependencies": {
+		"@cx/agent": "workspace:*",
 		"@cx/components": "workspace:*",
-		"@cx/pipeline": "workspace:*",
+		"@cx/inference": "workspace:*",
+		"@cx/schema": "workspace:*",
 		"@radix-ui/react-scroll-area": "^1.2.10",
 		"@radix-ui/react-slot": "^1.2.4",
 		"@radix-ui/react-tabs": "^1.1.13",

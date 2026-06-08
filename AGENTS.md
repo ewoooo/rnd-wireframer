@@ -33,9 +33,8 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 - `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
 - `packages/adapters`의 `@cx/adapters/markdown` subpath는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 함수만 관리한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
 - `packages/adapters`의 `@cx/adapters/table` subpath는 table/read model을 screen 단위 `RenderTreeScreenNode`로 조립하는 순수 함수만 관리한다. 파일 IO, React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정 책임을 두지 않는다.
-- `packages/inference-nodes`의 `@cx/inference-nodes` 패키지는 deprecated compatibility 패키지다. 새 screen inference 동작을 추가하지 않고, 재사용 가능한 계약은 새 `@cx/inference`로 이동한다.
 - `packages/validation`의 `@cx/validation` 패키지는 `@cx/schema` JSON Schema, DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
-- `packages/pipeline`의 `@cx/pipeline` 패키지는 기존 screen-generation compatibility runtime과 승인된 side effect/IO 유틸리티로 운영한다. 새 inference runtime 개념은 `@cx/inference` 설계로 이동한다.
+- screen inference 실행, 상태, 이벤트, artifact, step orchestration은 `@cx/inference` 패키지가 소유한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `@cx/layout` layout catalog/resolver(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
