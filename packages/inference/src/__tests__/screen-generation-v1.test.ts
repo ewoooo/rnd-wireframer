@@ -24,7 +24,7 @@ describe("screenGenerationPipelineV1", () => {
 			"quality-review",
 		]);
 		for (const step of claudeSteps) {
-			expect(step.references ?? {}).toEqual({});
+			expect("references" in step ? step.references : undefined).toBeUndefined();
 		}
 	});
 

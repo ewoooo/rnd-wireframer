@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Agent Topology Refactor
+
+- 변경: `@cx/agent`의 task별 `runner.ts`를 제거하고 각 task `index.ts`가 task definition 객체와 `createPrompt`만 직접 공개하도록 축소함
+- 변경: runtime이 별도 `src/prompt` builder 없이 `task.createPrompt()`를 직접 호출하고, session 결정은 `src/claude/claude-session-policy.ts`로 단일화함
+- 변경: 사용되지 않던 `src/session`, `src/result`, `src/inference-reference.ts` facade를 제거하고 root export가 `prompt-catalog`/`skill-catalog` resolver를 직접 re-export하도록 정리함
+- 이유: task runner, prompt builder, session/result normalization 레이어가 실제 기능 없이 중복 구조를 만들던 상태를 줄이고, prompt/skill catalog 공개 표면을 명확히 하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm vitest run packages/agent/src/__tests__ packages/inference/src/__tests__/knowledge-base.test.ts packages/inference/src/__tests__/screen-generation-v1.test.ts`, `pnpm exec biome check packages/agent packages/inference/src/__tests__/screen-generation-v1.test.ts AGENTS_HISTORY.md`
+
 ## 2026-06-08 - Agent Design Reference Move
 
 - 변경: 기존 `docs/design/` 디자인 정본 8개 문서를 `packages/agent/docs/skills/references/design/`으로 이동하고, agent design reference README를 추가함

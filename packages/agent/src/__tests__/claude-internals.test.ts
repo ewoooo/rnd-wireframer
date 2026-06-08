@@ -6,8 +6,6 @@ import {
 	resolveClaudeGenerationModel,
 } from "../claude";
 import { assertClaudeResumeAllowed } from "../claude/claude-session-policy";
-import { normalizeAgentError } from "../result";
-import { createMemorySessionStore } from "../session";
 
 describe("@cx/agent Claude internals", () => {
 	it("detects local Claude availability without opening a real session", async () => {
@@ -83,31 +81,5 @@ describe("@cx/agent Claude internals", () => {
 				process.env.CLAUDE_GENERATION_MODEL = previousModel;
 			}
 		}
-	});
-
-	it("stores local session metadata in memory for package-level tests", () => {
-		const store = createMemorySessionStore();
-		store.write("session-1", {
-			mode: "resume",
-			sessionId: "session-1",
-			reason: "explicit-resume",
-		});
-
-		expect(store.read("session-1")).toEqual({
-			mode: "resume",
-			sessionId: "session-1",
-			reason: "explicit-resume",
-		});
-	});
-
-	it("normalizes thrown values into agent errors", () => {
-		expect(normalizeAgentError(new Error("boom"))).toEqual({
-			name: "Error",
-			message: "boom",
-		});
-		expect(normalizeAgentError("failed")).toEqual({
-			name: "UnknownAgentError",
-			message: "failed",
-		});
 	});
 });

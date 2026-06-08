@@ -1,6 +1,8 @@
+import {
+	assertClaudeResumeAllowed,
+	resolveClaudeSessionMode,
+} from "../claude/claude-session-policy";
 import type { AgentRunRequest, AgentRunResult, AgentRuntime } from "../contract";
-import { composePrompt } from "../prompt";
-import { resolveSessionMode } from "../session";
 import { resolveTaskDefinition } from "./resolve-task-runner";
 
 export async function runAgentTask(
@@ -8,8 +10,9 @@ export async function runAgentTask(
 	request: AgentRunRequest,
 ): Promise<AgentRunResult> {
 	const task = resolveTaskDefinition(request.taskKind);
-	const prompt = composePrompt(task, request.input);
-	const sessionMode = resolveSessionMode(task, request);
+	const prompt = task.createPrompt(request.input);
+	assertClaudeResumeAllowed(request);
+	const sessionMode = resolveClaudeSessionMode(task, request);
 
 	return runtime.run({
 		...request,

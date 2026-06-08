@@ -25,7 +25,7 @@ caller
   -> @cx/agent/adapters
   -> @cx/agent runtime
   -> task catalog
-  -> prompt/session/result adapter
+  -> task prompt artifact + Claude session policy
   -> Claude Agent SDK runner
 ```
 
@@ -122,9 +122,11 @@ console.log(JSON.stringify(result, null, 2));
 | `@cx/agent/adapters` | 서버/API/CLI 권장 진입점 | web과 script가 공유하는 `runAgentQuery` 요청 shape |
 | `@cx/agent/claude` | 서버/API/CLI | Claude runner 생성과 Claude 내부 판정 helper |
 | `@cx/agent/contract` | 타입 참조 | agent 실행 계약 타입 |
+| `@cx/agent/prompt-catalog` | inference knowledge resolver | prompt catalog SSOT object resolver |
+| `@cx/agent/skill-catalog` | inference knowledge resolver | skill set SSOT object resolver |
 | `@cx/agent/tasks` | 테스트/진단 | task catalog와 task definition 확인 |
 
-`src/runtime`, `src/prompt`, `src/session`, `src/result`, `src/errors` 내부 파일은 직접 import하지 않는다. 필요한 외부 표면은 위 subpath를 통해서만 공개한다.
+`src/runtime`, `src/claude`, `src/errors` 내부 파일은 직접 import하지 않는다. 필요한 외부 표면은 위 subpath를 통해서만 공개한다.
 
 ## 두지 않는 책임
 
@@ -152,15 +154,12 @@ packages/agent/
       screen-generation/
         index.ts
         prompt.ts
-        runner.ts
       screen-revision/
         index.ts
         prompt.ts
-        runner.ts
       quality-review/
         index.ts
         prompt.ts
-        runner.ts
 
     runtime/
       create-agent-runtime.ts
@@ -173,20 +172,11 @@ packages/agent/
       claude-availability.ts
       claude-result-parser.ts
 
-    prompt/
-      compose-prompt.ts
-      prompt-context.ts
-      prompt-artifact.ts
+    prompt-catalog/
+      catalog.ts
 
-    session/
-      agent-session.ts
-      session-store.ts
-      resume-policy.ts
-
-    result/
-      normalize-agent-result.ts
-      normalize-agent-error.ts
-      agent-run-log.ts
+    skill-catalog/
+      catalog.ts
 
     errors/
       agent-error.ts
@@ -217,7 +207,7 @@ Agent 패키지 내부 실행 계약을 둔다.
 
 생성/검수/제안 prompt가 참조하는 design-context bundle 규칙 정본은 `docs/design-context/`에 있고, prompt 원문은 `docs/prompts/`, skill/checklist/output 규칙은 `docs/skills/`의 set 단위 참조 자산이다.
 
-각 task는 prompt 구성, 세션 정책, 결과 파싱 정책을 가진다. 런타임은 문자열 `switch`/`if` 분기 대신 task catalog를 조회해 실행한다.
+각 task는 task definition 객체와 `createPrompt`만 가진다. 세션 정책과 Claude 응답 해석은 `src/claude`가 담당한다. 런타임은 문자열 `switch`/`if` 분기 대신 task catalog를 조회해 실행한다.
 
 ### `src/runtime`
 
@@ -226,9 +216,9 @@ Agent 패키지 내부 실행 계약을 둔다.
 ```text
 task catalog 조회
 -> prompt artifact 구성
--> session 정책 결정
+-> Claude session 정책 결정
 -> Claude runner 호출
--> 결과 정규화
+-> Claude 응답 payload 반환
 ```
 
 `runtime`은 특정 task의 세부 의미를 몰라야 한다. task별 차이는 `tasks`와 `contract`의 catalog에 둔다.
@@ -239,27 +229,13 @@ Claude Agent SDK와 직접 맞닿는 adapter를 둔다.
 
 로컬 Claude 사용 가능 여부 확인, Claude Agent SDK 호출, Claude session 옵션 변환, Claude 응답 envelope 해석이 이 디렉토리의 책임이다. 다른 AI provider를 일반화하기 위한 `providers` 계층은 현재 두지 않는다.
 
-### `src/prompt`
+### `src/prompt-catalog`
 
-Claude에 넘길 prompt artifact를 구성한다.
+`packages/agent/docs/prompts`의 prompt markdown 정본을 inference에서 참조할 수 있는 `prompt-catalog` SSOT object로 내보낸다. `@cx/agent` root와 `@cx/agent/prompt-catalog` subpath가 같은 resolver를 공개한다.
 
-이 디렉토리는 단순 문자열 유틸이 아니다. 사용자 쿼리, 기준 문서 요약, component/layout vocabulary, 출력 JSON 계약 설명, 금지사항을 안정적으로 합치는 AI 입력 계약 builder다.
+### `src/skill-catalog`
 
-Prompt는 실행 결과 품질에 직접 영향을 주므로 task 코드 안에 흩어두지 않고 별도 책임으로 관리한다.
-
-생성/검수용 문장형 기준 자산은 `packages/agent/docs/` 아래에 두고, 코드에서 필요할 때 참조 가능한 패키지 내부 정본으로 유지한다.
-
-### `src/session`
-
-Claude 세션 시작과 재개 정책을 관리한다.
-
-기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 허용한다. 이 정책은 task별로 달라질 수 있으므로 단순 유틸이 아니라 agent 실행 정책의 일부다.
-
-### `src/result`
-
-Claude 응답을 agent 실행 결과로 정규화한다.
-
-Claude 응답에는 텍스트, JSON 블록, 중간 로그, 경고가 섞일 수 있다. 이 디렉토리는 필요한 payload를 뽑고, parse 실패와 실행 실패를 기록 가능한 형태로 변환한다.
+`packages/agent/docs/skills`의 skill/checklist/output-contract set을 inference에서 참조할 수 있는 `skill` SSOT object로 내보낸다. 스킬은 prompt catalog와 같은 방식으로 공개하되, 세트 단위 JSON 객체 형태를 가진다.
 
 ### `src/errors`
 
@@ -313,6 +289,6 @@ CLI Script
 - `runAgentQuery` 외부 adapter가 runtime으로 넘기는 요청 shape
 - Claude local/remote availability 판정 로직
 - Claude JSON 응답 parser
-- session store와 error normalization
+- prompt/skill catalog root와 subpath 공개 표면
 
 실제 Claude Agent SDK 세션을 열거나 web 버튼부터 생성 결과까지 검증하는 e2e는 전역 테스트에서 다룬다.
