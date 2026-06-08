@@ -63,7 +63,6 @@ export type {
 	PipelineDefinition,
 	PipelineExecutionState,
 	PipelineExecutionStepState,
-	PipelineFeedbackRule,
 	PipelineFileSystemAdapter,
 	PipelineId,
 	PipelineIdAdapter,

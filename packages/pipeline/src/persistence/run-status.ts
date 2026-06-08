@@ -88,29 +88,6 @@ export function completePipelineRunStatus(
 	};
 }
 
-export function skipPipelineRunStatus(
-	status: PipelineRunStatus,
-	stage: string,
-	timestamp: string,
-): PipelineRunStatus {
-	const previous = status.stages[stage] ?? { status: "pending" as const };
-
-	return {
-		...status,
-		currentStage: stage,
-		stages: {
-			...status.stages,
-			[stage]: {
-				...previous,
-				completedAt: timestamp,
-				status: "skipped",
-			},
-		},
-		status: "running",
-		updatedAt: timestamp,
-	};
-}
-
 export async function persistPipelineRunEvent(input: {
 	adapter?: PipelinePersistenceAdapter;
 	event: PipelineRunEvent;

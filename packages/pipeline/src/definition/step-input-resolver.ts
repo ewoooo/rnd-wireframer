@@ -40,7 +40,6 @@ export function createPipelineExecutionState(input: {
 	return {
 		input: input.input ?? {},
 		refs: input.refs ?? {},
-		retryCounts: {},
 		steps: input.steps ?? {},
 	};
 }

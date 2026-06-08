@@ -1,6 +1,5 @@
 import { definePipeline, defineStep, from, runStepPipeline, stepOutput, value } from "@cx/pipeline";
 import type {
-	PipelineFeedbackRule,
 	PipelinePersistenceAdapter,
 	PipelineRunEvent,
 	PipelineRunStatus,
@@ -151,41 +150,6 @@ describe("runStepPipeline", () => {
 		});
 	});
 
-	it("skips steps before emitting started events when skipWhen matches", async () => {
-		const persistence = createMemoryPersistence();
-		const pipeline = definePipeline({
-			id: "skip-fixture",
-			steps: [
-				defineStep({
-					execute: () => ({ read: true }),
-					id: "read-source",
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => ({ unreachable: true }),
-					id: "compose",
-					skipWhen: () => true,
-					usesAI: false,
-				}),
-			],
-		});
-
-		const result = await runStepPipeline(pipeline, {
-			createEventId: createEventIds(),
-			now: createClock(),
-			persistence,
-			runId: "skip-run",
-		});
-
-		expect(result.events.map((event) => `${event.stage}:${event.status}`)).toEqual([
-			"read-source:started",
-			"read-source:completed",
-		]);
-		expect(result.status.stages.compose?.status).toBe("skipped");
-		expect(result.state.steps.compose?.status).toBe("skipped");
-		expect(persistence.events.map((event) => event.stage)).toEqual(["read-source", "read-source"]);
-	});
-
 	it("persists failed status for missing input references", async () => {
 		const persistence = createMemoryPersistence();
 		const pipeline = definePipeline({
@@ -218,121 +182,23 @@ describe("runStepPipeline", () => {
 		});
 	});
 
-	it("routes feedback steps with bounded retry counts", async () => {
-		const calls: string[] = [];
-		const pipeline = definePipeline({
-			feedback: [createQualityRevisionFeedbackRule()],
-			id: "feedback-fixture",
-			steps: [
-				defineStep({
-					execute: () => {
-						calls.push("generate");
-						return { candidate: "draft" };
-					},
-					id: "generate",
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => {
-						calls.push("review");
-						return { decision: "revise" };
-					},
-					id: "review",
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => {
-						calls.push("revise");
-						return { candidate: "revised" };
-					},
-					id: "revise",
-					skipWhen: (state) => (state.retryCounts["quality-revision"] ?? 0) === 0,
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => {
-						calls.push("validate-after-revision");
-						return { ok: true };
-					},
-					id: "validate-after-revision",
-					skipWhen: (state) => (state.retryCounts["quality-revision"] ?? 0) === 0,
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => {
-						calls.push("write");
-						return { done: true };
-					},
-					id: "write",
-					usesAI: false,
-				}),
-			],
-		});
-
-		const result = await runStepPipeline(pipeline, {
-			now: createClock(),
-			runId: "feedback-run",
-		});
-
-		expect(calls).toEqual(["generate", "review", "revise", "validate-after-revision", "write"]);
-		expect(result.state.retryCounts["quality-revision"]).toBe(1);
-		expect(result.state.steps.revise?.status).toBe("completed");
-		expect(result.state.steps["validate-after-revision"]?.status).toBe("completed");
-		expect(result.status.status).toBe("completed");
-	});
-
-	it("skips optional feedback steps when feedback condition does not match", async () => {
-		const pipeline = definePipeline({
-			feedback: [
-				{
-					fromStep: "review",
-					goTo: "revise",
-					id: "quality-revision",
-					maxRetries: 1,
-					when: () => false,
-				},
-			],
-			id: "feedback-skip-fixture",
-			steps: [
-				defineStep({
-					execute: () => ({ decision: "accept" }),
-					id: "review",
-					usesAI: false,
-				}),
-				defineStep({
-					execute: () => ({ unreachable: true }),
-					id: "revise",
-					skipWhen: (state) => (state.retryCounts["quality-revision"] ?? 0) === 0,
-					usesAI: false,
-				}),
-			],
-		});
-
-		const result = await runStepPipeline(pipeline, {
-			now: createClock(),
-			runId: "feedback-skip-run",
-		});
-
-		expect(result.state.retryCounts["quality-revision"]).toBeUndefined();
-		expect(result.state.steps.revise?.status).toBe("skipped");
-		expect(result.events.map((event) => `${event.stage}:${event.status}`)).toEqual([
-			"review:started",
-			"review:completed",
-		]);
+	it("validates that step inputs reference earlier steps", () => {
+		expect(() =>
+			definePipeline({
+				id: "bad-order-fixture",
+				steps: [
+					defineStep({
+						execute: () => ({ ok: true }),
+						id: "compose",
+						inputs: { prior: stepOutput("write", "result") },
+						usesAI: false,
+					}),
+					defineStep({ execute: () => ({ ok: true }), id: "write", usesAI: false }),
+				],
+			}),
+		).toThrow('Pipeline step "compose" reads "write" which is not declared before it.');
 	});
 });
-
-function createQualityRevisionFeedbackRule(): PipelineFeedbackRule {
-	const rule: PipelineFeedbackRule = {
-		fromStep: "review",
-		goTo: "revise",
-		id: "quality-revision",
-		maxRetries: 1,
-		thenStep: "validate-after-revision",
-		when: (output) => (output as { decision: string }).decision === "revise",
-	};
-	return rule;
-}
 
 function createMemoryPersistence(): PipelinePersistenceAdapter & {
 	events: PipelineRunEvent[];

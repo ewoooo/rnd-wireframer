@@ -10,13 +10,11 @@ import {
 	createPipelineRunEvent,
 	createPipelineRunStatus,
 	persistPipelineRunEvent,
-	skipPipelineRunStatus,
 	updatePipelineRunStatus,
 } from "../persistence";
 import type {
 	PipelineArtifactRule,
 	PipelineExecutionState,
-	PipelineFeedbackRule,
 	PipelineRunEvent,
 	PipelineRunStatus,
 	PipelineStep,
@@ -53,26 +51,8 @@ export async function runStepPipeline(
 
 	await options.persistence?.writeStatus(status);
 
-	const afterStep: Record<string, string | undefined> = {};
-	let cursor = 0;
-	while (cursor < definition.steps.length) {
-		const step = definition.steps[cursor];
-		if (!step) break;
-
-		if (step.skipWhen && (await step.skipWhen(state))) {
-			const skippedAt = now();
-			status = markStepSkipped(state, status, step.id, skippedAt);
-			await options.persistence?.writeStatus(status);
-			const nextStepId = afterStep[step.id];
-			if (nextStepId) {
-				delete afterStep[step.id];
-				cursor = findStepIndex(definition.steps, nextStepId);
-				continue;
-			}
-			cursor += 1;
-			continue;
-		}
-
+	// Steps run in declaration order; each reads prior outputs via its inputs.
+	for (const step of definition.steps) {
 		const startedAt = now();
 		status = markStepStarted(state, status, step.id, startedAt);
 		await emitStepEvent({
@@ -107,23 +87,6 @@ export async function runStepPipeline(
 				timestamp: completedAt,
 				type: "completed",
 			});
-
-			const route = await evaluateFeedback(definition.feedback, step.id, output, state);
-			if (route) {
-				state.retryCounts[route.id] = (state.retryCounts[route.id] ?? 0) + 1;
-				if (route.thenStep) afterStep[route.goTo] = route.thenStep;
-				cursor = findStepIndex(definition.steps, route.goTo);
-				continue;
-			}
-
-			const nextStepId = afterStep[step.id];
-			if (nextStepId) {
-				delete afterStep[step.id];
-				cursor = findStepIndex(definition.steps, nextStepId);
-				continue;
-			}
-
-			cursor += 1;
 		} catch (error) {
 			const failedAt = now();
 			const stepError = normalizeStepError(error);
@@ -152,26 +115,6 @@ export async function runStepPipeline(
 		state,
 		status,
 	};
-}
-
-async function evaluateFeedback(
-	rules: PipelineFeedbackRule[] | undefined,
-	stepId: string,
-	output: unknown,
-	state: PipelineExecutionState,
-): Promise<PipelineFeedbackRule | undefined> {
-	for (const rule of rules ?? []) {
-		if (rule.fromStep !== stepId) continue;
-		if ((state.retryCounts[rule.id] ?? 0) >= rule.maxRetries) continue;
-		if (await rule.when(output, state)) return rule;
-	}
-	return undefined;
-}
-
-function findStepIndex(steps: PipelineStep[], stepId: string): number {
-	const index = steps.findIndex((step) => step.id === stepId);
-	if (index < 0) throw new Error(`Pipeline feedback target step is missing: ${stepId}`);
-	return index;
 }
 
 async function executeStep(
@@ -279,16 +222,6 @@ function markStepFailed(
 		status: "failed",
 	};
 	return applyStepStatus(status, stepId, "failed", timestamp, error);
-}
-
-function markStepSkipped(
-	state: PipelineExecutionState,
-	status: PipelineRunStatus,
-	stepId: string,
-	timestamp: string,
-): PipelineRunStatus {
-	state.steps[stepId] = { ...state.steps[stepId], completedAt: timestamp, status: "skipped" };
-	return skipPipelineRunStatus(status, stepId, timestamp);
 }
 
 async function emitStepEvent(input: {

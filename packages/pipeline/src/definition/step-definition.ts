@@ -44,12 +44,31 @@ export function defineStep<Step extends PipelineStep>(step: Step): Step {
 export function definePipeline<Definition extends StepPipelineDefinition>(
 	definition: Definition,
 ): Definition {
+	assertStepInputOrder(definition.steps);
 	return {
 		...definition,
 		artifacts: definition.artifacts?.map(copyArtifactRule),
-		feedback: definition.feedback?.map((rule) => ({ ...rule })),
 		steps: definition.steps.map((step) => defineStep(step)),
 	};
+}
+
+/**
+ * Validate that every `stepOutput(id)` input refers to a step declared earlier in
+ * the array. Steps run in declaration order with no feedback/skip, so a forward
+ * (or self) reference can never resolve — catch it at definition time.
+ */
+function assertStepInputOrder(steps: StepPipelineDefinition["steps"]): void {
+	const seen = new Set<string>();
+	for (const step of steps) {
+		for (const ref of Object.values(step.inputs ?? {})) {
+			if (ref.kind === "step-output" && !seen.has(ref.stepId)) {
+				throw new Error(
+					`Pipeline step "${step.id}" reads "${ref.stepId}" which is not declared before it.`,
+				);
+			}
+		}
+		seen.add(step.id);
+	}
 }
 
 function copyArtifactRule(rule: PipelineArtifactRule): PipelineArtifactRule {

@@ -6,6 +6,5 @@ export {
 	createPipelineRunEvent,
 	createPipelineRunStatus,
 	persistPipelineRunEvent,
-	skipPipelineRunStatus,
 	updatePipelineRunStatus,
 } from "./run-status";

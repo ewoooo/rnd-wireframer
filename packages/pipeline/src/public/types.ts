@@ -92,7 +92,6 @@ export type PipelineStep = AiPipelineStep | ExecutablePipelineStep;
 export type BasePipelineStep = {
 	id: string;
 	inputs?: Record<string, StepInputRef>;
-	skipWhen?: (state: PipelineExecutionState) => boolean | Promise<boolean>;
 };
 
 export type AiPipelineStep = BasePipelineStep & {
@@ -105,20 +104,6 @@ export type ExecutablePipelineStep = BasePipelineStep & {
 	execute: StepExecutor;
 	output?: PipelineStepOutputDefinition;
 	usesAI: false;
-};
-
-export type FeedbackCondition = (
-	output: unknown,
-	state: PipelineExecutionState,
-) => boolean | Promise<boolean>;
-
-export type PipelineFeedbackRule = {
-	fromStep: string;
-	goTo: string;
-	id: string;
-	maxRetries: number;
-	thenStep?: string;
-	when: FeedbackCondition;
 };
 
 export type StepCollectionRef = {
@@ -137,7 +122,6 @@ export type PipelineArtifactRule = {
 
 export type StepPipelineDefinition = {
 	artifacts?: PipelineArtifactRule[];
-	feedback?: PipelineFeedbackRule[];
 	id: string;
 	steps: PipelineStep[];
 };
@@ -160,7 +144,6 @@ export type PipelineExecutionStepState = {
 export type PipelineExecutionState = {
 	input: Record<string, unknown>;
 	refs: Record<string, unknown>;
-	retryCounts: Record<string, number>;
 	steps: Record<string, PipelineExecutionStepState>;
 };
 
