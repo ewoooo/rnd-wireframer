@@ -34,10 +34,6 @@ export type GenerationSmokeArtifactInput = {
 	qualityReviewAgentInput?: unknown;
 	qualityReviewAgentResult?: unknown;
 	qualityReviewRunnerRequest?: unknown;
-	revisionDecision?: unknown;
-	revisionAgentInput?: unknown;
-	revisionAgentResult?: unknown;
-	revisionRunnerRequest?: unknown;
 	renderTreeGenerationSkill?: unknown;
 	runnerRequest?: unknown;
 	screenIntentAgentInput?: unknown;

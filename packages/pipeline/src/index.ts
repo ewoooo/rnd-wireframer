@@ -32,7 +32,6 @@ export type {
 	ScreenGenerationLayer,
 	ScreenGenerationStageKind,
 	ScreenGenerationStageLayerGroup,
-	ScreenGenerationStageSkipPolicy,
 } from "./pipelines/screen-generation/constants";
 export {
 	SCREEN_GENERATION_ARTIFACT_FILES,

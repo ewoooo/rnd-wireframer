@@ -48,14 +48,19 @@ skip·feedback를 없애면 “skip된 step 출력 참조 시 throw” 제약이
 
 `PipelineFeedbackRule` · `evaluateFeedback` · `afterStep` · `retryCounts` · `skipWhen` · `skipPolicy`(+술어) · `generationNextAction` · `preRevision*` · 롤백 · 블랙보드. run-status/persistence/side-effect conveyor는 최소화 또는 호스트로.
 
-## 구현 순서 (확정)
+## 구현 순서 (확정) — ✅ 완료 (2026-06-08)
 
-| 단계 | 내용 | 게이트 |
-|---|---|---|
-| **M1 엔진 축소** | `runStepPipeline`에서 feedback/skip/retry/afterStep 제거 + 정의시점 위상검증 추가. `defineStep`은 ai/run 2종 유지. input 해석부(S0)는 재사용. | tsc + 기존 엔진 테스트(피드백/skip 테스트는 삭제) |
-| **M2 screen-gen 재표현** | revise·validate-after-revision·feedback·skipPolicy·블랙보드 제거. 모든 step이 `inputs`로 읽고 rich output 반환, `write-artifacts`는 모든 이전 step을 `stepOutput`으로 선언해 조립, projection도 `outputs`에서. | tsc + 신 golden 재캡처 |
-| **M3 golden 재캡처** | 신동작(revision 없는 1패스)으로 게이트 golden 1회 재캡처 후 고정. | gate(신 golden) green |
-| **M4 정리·검증** | 죽은 코드/타입 제거, import 정리. | tsc·vitest·biome·gate 전부 green. 완료 시 본 문서에 ✅ 표시. |
+실제 진행 순서는 screen-gen을 먼저 정리(M1·M2)해 동작을 고정한 뒤 엔진을 축소(M3)했다(컴파일 안전성). golden은 M1에서 재캡처(`16c641d1`→`f0aeb797`) 후 M2/M3/M4 내내 byte-identical 유지.
+
+| 단계 | 내용 | 상태 | 커밋 |
+|---|---|---|---|
+| **M1 revision 제거** | revise·validate-after-revision 단계 + feedback rule + generationNextAction/preRevision/롤백 + skipPolicy 사용 제거. golden 재캡처(`f0aeb797`). | ✅ | `27f97ebe` |
+| **M2a write-artifacts 선언화** | 모든 이전 step을 `stepOutput` input으로 선언해 조립(`buildGenerationArtifactInput`). parse는 `{sourceSpec, parseCommandResult}` 반환. | ✅ | `e46d251c` |
+| **M2b 블랙보드 제거** | `ScreenGenerationPipelineState` 삭제. run은 `(inputs, options)`→output 순수형. projection은 engine step 출력에서 조립. fake runner는 inputs/options 기반. | ✅ | `462c8428` |
+| **M3 엔진 축소** | `runStepPipeline`에서 feedback/skip/retry/afterStep 제거(순차 루프). `PipelineFeedbackRule`/`skipWhen`/`retryCounts`/`skipPipelineRunStatus` 삭제. 정의시점 위상검증 추가. | ✅ | `0348a6d5` |
+| **M4 정리·검증** | 죽은 타입/필드 제거(`ScreenGenerationStageSkipPolicy`, artifact-commands revision 필드). tsc·vitest·biome·gate 전부 green. | ✅ | (이 커밋) |
+
+**최종 상태:** 엔진은 6 프리미티브(정의·파일참조·프롬프트·아웃풋·순서·이전출력 참조)만 제공. screen-generation은 단일 `SCREEN_GENERATION_STEPS`(`defineScreenStep`) 배열 + 순수 `(inputs, options)` run + `outputs` 기반 projection으로 표현되며 블랙보드·피드백·skip·제어상태가 전부 사라졌다. 게이트 `f0aeb797` byte-identical, `tsc`/`vitest`(pipeline 32, 전체 226)/`biome` green. (전체 vitest의 `App.test.tsx` 1건 실패는 `@dnd-kit`/Puck 테스트환경 이슈로 본 작업과 무관.)
 
 ## 동작 변경 (수용됨)
 

@@ -90,7 +90,6 @@ import {
 	type ScreenGenerationLayer,
 	type ScreenGenerationStageKind,
 	type ScreenGenerationStageLayerGroup,
-	type ScreenGenerationStageSkipPolicy,
 } from "./constants";
 import {
 	createDefaultScreenGenerationReferences,
@@ -165,7 +164,6 @@ type ScreenGenerationStepBase = {
 	layer: ScreenGenerationLayer;
 	message: string;
 	output: OutputContract;
-	skipPolicy?: ScreenGenerationStageSkipPolicy;
 };
 
 /** AI stage: declares its agent task and AI runner (dispatched via the agent adapter). */
@@ -198,7 +196,7 @@ const refs = {
 
 /**
  * The screen-generation pipeline as a single declarative array. Each entry owns
- * its metadata (id/layer/kind/message/output, optional taskKind/skipPolicy), its
+ * its metadata (id/layer/kind/message/output, optional taskKind), its
  * declarative inputs (prior step outputs + `refs`), and its run function. This
  * replaces the former descriptor array + stage-runtime map + step factory split.
  */

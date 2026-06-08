@@ -12,11 +12,6 @@ export const SCREEN_GENERATION_PIPELINE_ID = "screen-generation" as const;
 export type ScreenGenerationLayer = "compose" | "revise" | "understand";
 export type ScreenGenerationStageKind = "ai" | "deterministic" | "effect" | "validation";
 
-export type ScreenGenerationStageSkipPolicy =
-	| "continue-after-parse-failure"
-	| "requires-revision-request"
-	| "requires-revision-result";
-
 export const SCREEN_GENERATION_ARTIFACT_FILES = {
 	agentResult: "agent-result.json",
 	componentProposal: "component-proposal.json",
