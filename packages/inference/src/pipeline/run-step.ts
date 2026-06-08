@@ -9,9 +9,7 @@ export async function runStep(
 	const references = await resolveReferences(step, context);
 	const outputContract = await context.resolveOutputContract(step.output.contractRef);
 	const engine = context.engines[step.engine];
-	const prompt = step.prompt
-		? { messages: [{ role: "user", content: JSON.stringify({ inputs, references }) }] }
-		: undefined;
+	const prompt = step.prompt;
 	const result = await engine.execute({
 		prompt,
 		run: step.run,

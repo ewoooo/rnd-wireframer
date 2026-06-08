@@ -1,10 +1,11 @@
-import type { EngineRegistry, PromptPayload } from "./engine";
+import type { EngineRegistry } from "./engine";
 import type { PipelineRegistry } from "./pipeline";
 import type {
 	KnowledgeRef,
 	KnowledgeValue,
 	OutputContractRef,
 	OutputContractValue,
+	PromptTemplateRef,
 	StepInputRef,
 } from "./step";
 import type { ArtifactStore, ContextStore, JobStore } from "./stores";
@@ -40,7 +41,7 @@ export type StepExecution = {
 	inputs: Record<string, unknown>;
 	references: Record<string, KnowledgeValue | KnowledgeValue[]>;
 	outputContract: OutputContractValue;
-	prompt?: PromptPayload;
+	prompt?: PromptTemplateRef;
 	raw: unknown;
 	output?: unknown;
 	contextWrites?: Record<string, unknown>;

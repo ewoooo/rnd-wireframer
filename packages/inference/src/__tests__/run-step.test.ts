@@ -1,5 +1,6 @@
 import type { Engine, InferenceStepDefinition } from "@cx/inference";
 import { createInferenceKnowledgeBase, runStep } from "@cx/inference";
+import { resolveOutputContractForInference, SCHEMA_VERSION } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
 const validSourceSpec = {
@@ -79,5 +80,44 @@ describe("runStep", () => {
 		expect(execution.status).toBe("failed");
 		expect(execution.error?.code).toBe("output_contract_validation_failed");
 		expect(execution.output).toBeUndefined();
+	});
+
+	it("passes the step.prompt ref through to the engine unchanged", async () => {
+		let captured: unknown;
+		const step = {
+			id: "02-screen-intent",
+			engine: "claude" as const,
+			inputs: { sourceSpec: { kind: "context" as const, key: "source-spec" } },
+			prompt: { id: "screen-intent" },
+			output: { contractRef: { source: "output-contract" as const, id: "screen-intent" } },
+		};
+		const context = {
+			resolveInput: async () => ({ a: 1 }),
+			resolveReference: async () => ({}) as never,
+			resolveOutputContract: async () => resolveOutputContractForInference("screen-intent"),
+			engines: {
+				claude: {
+					async execute(request: { prompt?: unknown }) {
+						captured = request.prompt;
+						return {
+							raw: {
+								schemaVersion: SCHEMA_VERSION.screenIntent,
+								screenPurpose: "x",
+								contentPriority: [],
+								sourceInterpretation: { defer: [], preserve: [], summarize: [] },
+							},
+						};
+					},
+				},
+				function: {
+					async execute() {
+						return { raw: {} };
+					},
+				},
+			},
+		};
+		const result = await runStep(step, context as never);
+		expect(captured).toEqual({ id: "screen-intent" });
+		expect(result.status).toBe("succeeded");
 	});
 });
