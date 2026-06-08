@@ -1,19 +1,8 @@
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { createClaudeRunner } from "@cx/agent/claude";
-import type {
-	AgentRunner,
-	AgentRunnerRequest,
-	AgentRunResult,
-	AgentTaskKind,
-} from "@cx/agent/contract";
+import type { AgentRunner, AgentTaskKind } from "@cx/agent/contract";
 import { agentTaskCatalog } from "@cx/agent/tasks";
-import type {
-	ComponentContractCatalog,
-	DesignContextBundleSelection,
-	PatternLayerCandidate,
-} from "@cx/inference-nodes/screen-generation";
 import {
 	createFakeComponentProposal,
 	createFakeCompositionPlan,
@@ -21,50 +10,20 @@ import {
 	createFakePatternSelection,
 	createFakeQualityInspection,
 	createFakeScreenIntent,
-	createRenderTreeValidationReport,
-	runComponentProposalNode,
-	runCompositionPlanNode,
-	runDecorationPlanNode,
-	runDesignContextBundleRefsNode,
 	runDesignSkillSelectionNode,
-	runPatternLayerCandidatesNode,
-	runPatternSelectionNode,
-	runQualityReviewNode,
-	runRequiredRegionLayoutRepairNode,
-	runScreenGenerationNode,
-	runScreenIntentNode,
 } from "@cx/inference-nodes/screen-generation";
-import type {
-	DecorationPlanContract,
-	DesignContextBundleContent,
-	DesignSkillSelectionContract,
-	SourceSpec,
-	ValidationReportContract,
-} from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
-import { validateComponentProposal } from "@cx/validation";
 
 import { createNodePipelineAdapters } from "../../adapters";
-import { runParseMarkdownSourceCommand } from "../../commands";
 import { contract, definePipeline, defineStep, refInput, stepOutput } from "../../definition";
-import { createFilePipelinePersistenceAdapter } from "../../persistence";
 import type { SmokeRunManifest } from "../../public/smoke-run-manifest";
 import type {
-	ArtifactStorePreset,
 	OutputContract,
-	PipelineMarkdownSourceFile,
-	PipelinePersistenceAdapter,
 	PipelineRunResult,
 	PipelineStageId,
 	ReferenceResolver,
 	ResolvedStepInputs,
-	ScreenGenerationComponentCatalogRefs,
-	ScreenGenerationLayoutCatalogRefs,
 	ScreenGenerationPipelineOptions,
 	ScreenGenerationReferences,
-	ScreenGenerationSkillBundleRef,
-	SideEffectCommandResult,
-	SideEffectExecutionResult,
 	StepAgentAdapter,
 	StepInputRef,
 	StepPipelineDefinition,
@@ -92,61 +51,41 @@ import {
 	type ScreenGenerationStageLayerGroup,
 } from "./constants";
 import {
-	createDefaultScreenGenerationReferences,
-	mergeScreenGenerationReferences,
-} from "./references";
-
-const CLIENT_IMPORT_ROOT = "data/client-imports";
-const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
-
-/**
- * Rich output of an AI step: the agent triple plus the unwrapped payload.
- * Steps return this so the projection can assemble artifacts/result from engine
- * step outputs (`state.steps[id].outputs.result`) — there is no blackboard.
- * Downstream consumers read `.payload` for the node payload.
- */
-type AgentStepOutput<TPayload = unknown> = {
-	agentInput?: unknown;
-	agentResult?: AgentRunResult;
-	payload?: TPayload;
-	runnerRequest?: AgentRunnerRequest;
-};
-
-/** Build the rich AI-step output from an inference-node result. */
-function agentStepOutput<TPayload>(nodeResult: {
-	agentInput?: unknown;
-	agentResult: AgentRunResult;
-	runnerRequest?: AgentRunnerRequest;
-}): AgentStepOutput<TPayload> {
-	return {
-		agentInput: nodeResult.agentInput,
-		agentResult: nodeResult.agentResult,
-		payload: nodeResult.agentResult.payload as TPayload,
-		runnerRequest: nodeResult.runnerRequest,
-	};
-}
-
-/** Read the `.payload` from an AI step's rich output (consumed downstream). */
-function readAgentStepPayload(value: unknown): unknown {
-	return isRecord(value) ? (value as AgentStepOutput).payload : undefined;
-}
-
-type NormalizedScreenGenerationPipelineOptions = {
-	agentMode: "claude-local-first" | "fake";
-	clockNow: () => string;
-	createdAt: string;
-	createEventId: () => string;
-	disableDesignContext: boolean;
-	onProgress: NonNullable<ScreenGenerationPipelineOptions["onProgress"]>;
-	outDir: string;
-	persistence?: PipelinePersistenceAdapter;
-	references: ScreenGenerationReferences;
-	runDir: string;
-	runId: string;
-	sourceKind: PipelineMarkdownSourceFile["kind"];
-	sourcePath: string;
-	tags: string[];
-};
+	buildScreenGenerationPatternLayerCandidates,
+	countSourceAreas,
+	countSourceComponents,
+	extractPayloadArtifact,
+	readSourceSpecInput,
+} from "./node-helpers";
+import {
+	type NormalizedScreenGenerationPipelineOptions,
+	normalizeScreenGenerationPipelineOptions,
+	resolveInvocationRoot,
+} from "./options";
+import {
+	runDeriveDecorationPlanStage,
+	runDeriveScreenIntentAiStep,
+	runGenerateRenderTreeAiStep,
+	runParseSourceStage,
+	runPlanCompositionAiStep,
+	runProposeComponentsAiStep,
+	runReadSourceStage,
+	runReviewQualityAiStep,
+	runSelectPatternAiStep,
+	runValidateRenderTreeStage,
+} from "./step-nodes";
+import {
+	type AgentStepOutput,
+	type CompositionStepResult,
+	type DecorationStepResult,
+	flattenAgentOutput,
+	type GenerationStepResult,
+	type ParseStepResult,
+	type ProposalStepResult,
+	readAgentStepPayload,
+	type ValidationStepResult,
+	type WriteArtifactsResult,
+} from "./step-results";
 
 type ScreenGenerationStageExecutor = (
 	inputs: ResolvedStepInputs,
@@ -672,357 +611,6 @@ function createScreenGenerationPipelineResult(
 	};
 }
 
-async function runReadSourceStage(
-	_inputs: ResolvedStepInputs,
-	options: NormalizedScreenGenerationPipelineOptions,
-): Promise<PipelineMarkdownSourceFile> {
-	const result = await runSideEffects({
-		adapters: createNodePipelineAdapters(),
-		commands: [
-			{
-				id: "read-source-markdown",
-				input: {
-					kind: options.sourceKind,
-					path: options.sourcePath,
-				},
-				operation: "source-artifact-read",
-			},
-		],
-		mode: "commit",
-		runId: options.runId,
-	});
-
-	if (!result.ok) {
-		throw new Error(`Pipeline source read failed: ${options.sourcePath}`);
-	}
-
-	return getSourceFileFromReadResult(result, options.sourceKind, options.sourcePath);
-}
-
-/** Rich output of parse-source: the spec plus the full parse command result. */
-type ParseStepResult = {
-	parseCommandResult: ReturnType<typeof runParseMarkdownSourceCommand>;
-	sourceSpec: SourceSpec;
-};
-
-function runParseSourceStage(
-	inputs: ResolvedStepInputs,
-	options: NormalizedScreenGenerationPipelineOptions,
-): ParseStepResult {
-	const sourceFile = inputs.source as PipelineMarkdownSourceFile | undefined;
-	if (!sourceFile) {
-		throw new Error("Cannot parse source before read-source stage.");
-	}
-
-	const parseCommandResult = runParseMarkdownSourceCommand({
-		files: [sourceFile],
-		importId: options.runId,
-		receivedAt: "1970-01-01T00:00:00.000Z",
-	});
-	if (!parseCommandResult.parseResult.sourceSpec) {
-		throw new Error("Markdown source parse finished without SourceSpec.");
-	}
-	return { parseCommandResult, sourceSpec: parseCommandResult.parseResult.sourceSpec };
-}
-
-async function runDeriveScreenIntentAiStep(
-	inputs: ResolvedStepInputs,
-	_options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const nodeResult = await runScreenIntentNode({
-		runner,
-		sourceSpec: readSourceSpecInput(inputs),
-	});
-	return agentStepOutput(nodeResult);
-}
-
-async function runPlanCompositionAiStep(
-	inputs: ResolvedStepInputs,
-	_options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const screenIntent = readAgentStepPayload(inputs.intent);
-	const layerCandidates = buildScreenGenerationPatternLayerCandidates(
-		inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
-		sourceSpec,
-	);
-	const designSkillSelection = runDesignSkillSelectionNode({
-		layerCandidates,
-		screenIntent,
-		sourceSpec,
-	});
-	const nodeResult = await runCompositionPlanNode({
-		designSkillSelection,
-		layerCandidates,
-		runner,
-		screenIntent,
-		sourceSpec,
-	});
-
-	return {
-		agentInput: nodeResult.agentInput,
-		agentResult: nodeResult.agentResult,
-		compositionPlan: nodeResult.agentResult.payload,
-		designContextBundleSelection: runDesignContextBundleRefsNode({
-			compositionPlan: nodeResult.agentResult.payload,
-			layerCandidates,
-			screenIntent,
-			sourceSpec,
-		}),
-		designSkillSelection,
-		patternLayerCandidates: layerCandidates,
-		runnerRequest: nodeResult.runnerRequest,
-	};
-}
-
-function runDeriveDecorationPlanStage(inputs: ResolvedStepInputs): {
-	decorationPlan?: DecorationPlanContract;
-	patternLayerCandidates?: PatternLayerCandidate[];
-} {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decorationPlan = runDecorationPlanNode({
-		compositionPlan: composition?.compositionPlan,
-		sourceSpec,
-	});
-	return {
-		decorationPlan,
-		patternLayerCandidates: buildScreenGenerationPatternLayerCandidates(
-			inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
-			sourceSpec,
-			decorationPlan,
-		),
-	};
-}
-
-async function runSelectPatternAiStep(
-	inputs: ResolvedStepInputs,
-	_options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const layerCandidates =
-		decoration?.patternLayerCandidates ??
-		buildScreenGenerationPatternLayerCandidates(
-			inputs.layoutCatalogs as ScreenGenerationLayoutCatalogRefs,
-			sourceSpec,
-		);
-	const nodeResult = await runPatternSelectionNode({
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		designContextBundleRefs: composition?.designContextBundleSelection?.bundleRefs,
-		designSkillSelection: composition?.designSkillSelection,
-		layerCandidates,
-		runner,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-	});
-	return agentStepOutput(nodeResult);
-}
-
-/** Rich output of the plan-composition step, consumed by downstream steps via outputOf. */
-type CompositionStepResult = {
-	agentInput?: unknown;
-	agentResult?: AgentRunResult;
-	compositionPlan?: unknown;
-	designContextBundleSelection?: DesignContextBundleSelection;
-	designSkillSelection?: DesignSkillSelectionContract;
-	patternLayerCandidates?: PatternLayerCandidate[];
-	runnerRequest?: AgentRunnerRequest;
-};
-
-/** Rich output of the derive-decoration-plan step. */
-type DecorationStepResult = {
-	decorationPlan?: DecorationPlanContract;
-	patternLayerCandidates?: PatternLayerCandidate[];
-};
-
-/** Rich output of the validate steps: the report plus the (re-derived) bundle selection. */
-type ValidationStepResult = {
-	designContextBundleSelection?: DesignContextBundleSelection;
-	validationReport: ValidationReportContract;
-};
-
-async function runGenerateRenderTreeAiStep(
-	inputs: ResolvedStepInputs,
-	options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const generationSkillCatalog = await (
-		inputs.skillBundles as ScreenGenerationReferences["skillBundles"]
-	).loadCatalog();
-	const renderTreeGenerationSkill = findGenerationSkill(
-		generationSkillCatalog,
-		"render-tree-generation",
-	);
-	const designContextBundleContents = await loadDesignContextBundleContents(
-		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		composition?.designContextBundleSelection?.bundleRefs,
-		options.disableDesignContext,
-	);
-	const componentContractCatalog = buildSourceComponentContractCatalog(
-		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
-		sourceSpec,
-		decoration?.patternLayerCandidates ?? [],
-	);
-	const nodeResult = await runScreenGenerationNode({
-		componentContractCatalog,
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		designContextBundleRefs: composition?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: designContextBundleContents,
-		designSkillSelection: composition?.designSkillSelection,
-		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: readAgentStepPayload(inputs.pattern),
-		runner,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-	});
-
-	return {
-		...agentStepOutput({
-			agentInput: nodeResult.agentInput,
-			agentResult: repairAgentRunResultPayload(nodeResult.agentResult),
-			runnerRequest: nodeResult.runnerRequest,
-		}),
-		generationSkillCatalog,
-		renderTreeGenerationSkill,
-	};
-}
-
-function runValidateRenderTreeStage(inputs: ResolvedStepInputs): ValidationStepResult {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const validationReport = createRenderTreeValidationReport(readAgentStepPayload(inputs.target), {
-		allowedLayoutIds: decoration?.patternLayerCandidates?.map((candidate) => candidate.layout),
-		componentCatalog: (inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs)
-			.validationCatalog,
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-	});
-	return {
-		designContextBundleSelection: runDesignContextBundleRefsNode({
-			compositionPlan: composition?.compositionPlan,
-			layerCandidates: decoration?.patternLayerCandidates,
-			screenIntent: readAgentStepPayload(inputs.intent),
-			sourceSpec,
-			validationReport,
-		}),
-		validationReport,
-	};
-}
-
-async function runProposeComponentsAiStep(
-	inputs: ResolvedStepInputs,
-	options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const validation = inputs.validation as ValidationStepResult | undefined;
-	const componentContractCatalog = buildSourceComponentContractCatalog(
-		inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
-		sourceSpec,
-		decoration?.patternLayerCandidates ?? [],
-	);
-	const designContextBundleContents = await loadDesignContextBundleContents(
-		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		validation?.designContextBundleSelection?.bundleRefs,
-		options.disableDesignContext,
-	);
-	const nodeResult = await runComponentProposalNode({
-		candidate: readAgentStepPayload(inputs.candidate),
-		componentContractCatalog,
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: designContextBundleContents,
-		designSkillSelection: composition?.designSkillSelection,
-		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: readAgentStepPayload(inputs.pattern),
-		runner,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-	});
-
-	// 제안은 비파괴 아티팩트다. 검증은 bounded 여부만 리포트하고 파이프라인을 실패시키지 않는다.
-	// allowedRefs는 source reference catalog(생성 입력 context)의 전체 vocabulary를 기준으로 한다.
-	const componentProposalValidationReport = validateComponentProposal(
-		nodeResult.agentResult.payload,
-		{
-			allowedRefs: nodeResult.agentInput.context.constraints.sourceReferenceCatalog.allowedRefs,
-			catalogComponentTypes: componentContractCatalog.entries.map((entry) => entry.componentType),
-		},
-	);
-	return { ...agentStepOutput(nodeResult), componentProposalValidationReport };
-}
-
-async function runReviewQualityAiStep(
-	inputs: ResolvedStepInputs,
-	options: NormalizedScreenGenerationPipelineOptions,
-	runner: AgentRunner,
-): Promise<unknown> {
-	const sourceSpec = readSourceSpecInput(inputs);
-	const composition = inputs.composition as CompositionStepResult | undefined;
-	const decoration = inputs.decoration as DecorationStepResult | undefined;
-	const validation = inputs.validation as ValidationStepResult | undefined;
-	const designContextBundleContents = await loadDesignContextBundleContents(
-		inputs.designContextBundles as ScreenGenerationReferences["designContextBundles"],
-		validation?.designContextBundleSelection?.bundleRefs,
-		options.disableDesignContext,
-	);
-	const nodeResult = await runQualityReviewNode({
-		candidate: readAgentStepPayload(inputs.candidate),
-		componentContractCatalog: buildSourceComponentContractCatalog(
-			inputs.componentCatalogs as ScreenGenerationComponentCatalogRefs,
-			sourceSpec,
-			decoration?.patternLayerCandidates ?? [],
-		),
-		compositionPlan: composition?.compositionPlan,
-		decorationPlan: decoration?.decorationPlan,
-		designContextBundleRefs: validation?.designContextBundleSelection?.bundleRefs,
-		designContextBundles: designContextBundleContents,
-		designSkillSelection: composition?.designSkillSelection,
-		layerCandidates: decoration?.patternLayerCandidates,
-		patternSelection: readAgentStepPayload(inputs.pattern),
-		runner,
-		screenIntent: readAgentStepPayload(inputs.intent),
-		sourceSpec,
-		validationReport: validation?.validationReport,
-	});
-	return agentStepOutput(nodeResult);
-}
-
-/** Rich output of generate-render-tree (agent triple + skill scaffolding). */
-type GenerationStepResult = AgentStepOutput & {
-	generationSkillCatalog?: ScreenGenerationSkillBundleRef[];
-	renderTreeGenerationSkill?: ScreenGenerationSkillBundleRef;
-};
-/** Rich output of propose-components (agent triple + bounded-check report). */
-type ProposalStepResult = AgentStepOutput & {
-	componentProposalValidationReport?: ReturnType<typeof validateComponentProposal>;
-};
-
-/** Flatten an agent step output to the artifact builder's `<prefix>Agent*` fields. */
-function flattenAgentOutput(prefix: string, out: AgentStepOutput | undefined) {
-	return {
-		[`${prefix}AgentInput`]: out?.agentInput,
-		[`${prefix}AgentResult`]: out?.agentResult,
-		[`${prefix}RunnerRequest`]: out?.runnerRequest,
-	};
-}
-
 /** Assemble the artifact-builder input purely from resolved step outputs. */
 function buildGenerationArtifactInput(
 	inputs: ResolvedStepInputs,
@@ -1066,12 +654,6 @@ function buildGenerationArtifactInput(
 	};
 }
 
-/** Output of write-artifacts: the two side-effect write results for the projection. */
-type WriteArtifactsResult = {
-	pipelineResult: SideEffectExecutionResult;
-	pipelineResultWrite: SideEffectExecutionResult;
-};
-
 async function runWriteArtifactsStage(
 	inputs: ResolvedStepInputs,
 	options: NormalizedScreenGenerationPipelineOptions,
@@ -1107,270 +689,6 @@ async function runWriteArtifactsStage(
 		runId: options.runId,
 	});
 	return { pipelineResult, pipelineResultWrite };
-}
-
-function normalizeScreenGenerationPipelineOptions(
-	options: ScreenGenerationPipelineOptions,
-): NormalizedScreenGenerationPipelineOptions {
-	const source =
-		typeof options.source === "string"
-			? { path: options.source, type: "file" as const }
-			: options.source;
-	const sourcePath = normalizeTargetPath(source.path);
-	const runId = options.runId ?? createRunId(sourcePath);
-	const paths = resolveRunOutputPaths(options, runId);
-	const adapters = createNodePipelineAdapters();
-	const createdAt = adapters.clock.now();
-	let eventSequence = 0;
-	const createEventId = () => {
-		eventSequence += 1;
-		return `${runId}:event:${String(eventSequence).padStart(4, "0")}`;
-	};
-	const persistence =
-		options.persistence?.enabled === false
-			? undefined
-			: (options.persistence?.adapter ??
-				createFilePipelinePersistenceAdapter({
-					adapters,
-					eventsFileName: options.persistence?.eventsFileName,
-					runDir: paths.runDir,
-					statusFileName: options.persistence?.statusFileName,
-				}));
-
-	return {
-		agentMode: options.agentMode ?? (options.useAI ? "claude-local-first" : "fake"),
-		clockNow: adapters.clock.now,
-		createdAt,
-		createEventId,
-		disableDesignContext: options.disableDesignContext ?? false,
-		onProgress: options.onProgress ?? (() => undefined),
-		...paths,
-		persistence,
-		references: mergeScreenGenerationReferences(
-			createDefaultScreenGenerationReferences(),
-			options.references,
-		),
-		runId,
-		sourceKind: source.kind ?? resolveSourceKind(sourcePath),
-		sourcePath,
-		tags: options.tags ?? [],
-	};
-}
-
-function normalizeTargetPath(target: string): string {
-	if (path.isAbsolute(target)) return target;
-	const repoRelativePath = target.startsWith(CLIENT_IMPORT_ROOT)
-		? target
-		: path.join(CLIENT_IMPORT_ROOT, target);
-	return path.resolve(resolveInvocationRoot(), repoRelativePath);
-}
-
-function normalizeOutDir(outDir: string): string {
-	return path.isAbsolute(outDir) ? outDir : path.resolve(resolveInvocationRoot(), outDir);
-}
-
-function resolveRunOutputPaths(
-	options: ScreenGenerationPipelineOptions,
-	runId: string,
-): Pick<NormalizedScreenGenerationPipelineOptions, "outDir" | "runDir"> {
-	if (options.outDir) {
-		const normalizedOutDir = normalizeOutDir(options.outDir);
-		return { outDir: normalizedOutDir, runDir: normalizedOutDir };
-	}
-
-	const runDir = createRunDir(runId, options.artifactStore);
-	return {
-		outDir: path.join(runDir, "artifacts"),
-		runDir,
-	};
-}
-
-const SOURCE_KIND_PATH_MARKERS = [
-	["/screen/", "screen"],
-	["/area/", "area"],
-	["/component/", "component"],
-] as const satisfies ReadonlyArray<readonly [string, PipelineMarkdownSourceFile["kind"]]>;
-
-function resolveSourceKind(targetPath: string): PipelineMarkdownSourceFile["kind"] {
-	for (const [marker, kind] of SOURCE_KIND_PATH_MARKERS) {
-		if (targetPath.includes(marker)) return kind;
-	}
-	return "unknown";
-}
-
-function createRunId(targetPath: string): string {
-	return `${path.basename(targetPath).replace(/\.[^.]+$/, "")}-${createTimestamp()}`;
-}
-
-function createRunDir(
-	runId: string,
-	artifactStore?: ScreenGenerationPipelineOptions["artifactStore"],
-): string {
-	const preset = artifactStore?.preset ?? "data-run";
-	if (artifactStore?.rootDir) {
-		const rootDir = path.isAbsolute(artifactStore.rootDir)
-			? artifactStore.rootDir
-			: path.resolve(resolveInvocationRoot(), artifactStore.rootDir);
-		return path.join(rootDir, runId);
-	}
-	return path.resolve(resolveInvocationRoot(), ...RUN_DIR_PRESET_SEGMENTS[preset], runId);
-}
-
-const RUN_DIR_PRESET_SEGMENTS = {
-	"data-run": ["data", "runs", "screen-generation"],
-	"local-transient": ["tmp", "generation-runs"],
-	"web-fixture": ["apps", "web", "fixtures", "smoke-runs"],
-} as const satisfies Record<ArtifactStorePreset, readonly string[]>;
-
-function createTimestamp(): string {
-	return new Date().toISOString().replace(/\D/g, "").slice(0, 14);
-}
-
-function resolveInvocationRoot(): string {
-	return process.env.INIT_CWD ?? REPO_ROOT;
-}
-
-/** Resolve the SourceSpec from a step's `source` input (parse-source output). */
-function readSourceSpecInput(inputs: ResolvedStepInputs): SourceSpec {
-	const source = inputs.source;
-	if (isRecord(source) && "sourceShape" in source) return source as SourceSpec;
-	if (isRecord(source) && "sourceSpec" in source && isRecord(source.sourceSpec)) {
-		return source.sourceSpec as SourceSpec;
-	}
-	throw new Error("SourceSpec is required but the source input is missing it.");
-}
-
-function buildScreenGenerationPatternLayerCandidates(
-	layoutCatalogs: ScreenGenerationLayoutCatalogRefs,
-	sourceSpec: SourceSpec,
-	decorationPlan?: DecorationPlanContract,
-): PatternLayerCandidate[] {
-	return runPatternLayerCandidatesNode({
-		decorationPlan,
-		resolver: {
-			resolveComponentLayout: layoutCatalogs.resolveComponentLayout,
-			resolveRegionLayout: layoutCatalogs.resolveRegionLayout,
-		},
-		sourceSpec,
-	});
-}
-
-function buildSourceComponentContractCatalog(
-	componentCatalogs: ScreenGenerationComponentCatalogRefs,
-	sourceSpec: SourceSpec,
-	layerCandidates: PatternLayerCandidate[],
-): ComponentContractCatalog {
-	const entries = sourceSpec.sourceShape.screen.regions.flatMap((region) =>
-		region.children.flatMap((area) =>
-			area.children.map((component) => {
-				const componentType = component.componentType ?? component.sourceComponentId;
-				const componentEntry = componentCatalogs.getEntry(componentType);
-				const sourceRefs = [
-					...new Set(
-						[
-							component.sourceId,
-							component.roleAlias,
-							component.sourceComponentId,
-							component.componentType,
-						].filter((ref): ref is string => Boolean(ref)),
-					),
-				];
-				const layoutCandidates = layerCandidates
-					.filter(
-						(candidate) =>
-							candidate.level === "component" &&
-							sourceRefs.includes(candidate.targetRef) &&
-							candidate.layout.startsWith("layout.composite."),
-					)
-					.map((candidate) => candidate.layout);
-
-				return {
-					componentType,
-					layoutCandidates,
-					props: Object.fromEntries(
-						Object.entries(componentEntry?.props ?? {}).map(([propName, contract]) => [
-							propName,
-							{
-								required: contract.required,
-								role: contract.role,
-								type: contract.type,
-								values: contract.values,
-							},
-						]),
-					),
-					sourceRefs,
-				};
-			}),
-		),
-	);
-
-	// Expose the registry (status-tagged) beyond the source-mapped entries, so the agent
-	// may reach for a better-fitting component. Visibility is independent of status;
-	// promotion (candidate->stable) only flips the tag, it does not drop the component.
-	const entryCanonicalTypes = new Set(
-		entries.map(
-			(entry) => componentCatalogs.getEntry(entry.componentType)?.type ?? entry.componentType,
-		),
-	);
-	const available = componentCatalogs
-		.getTypes()
-		.filter((type) => !entryCanonicalTypes.has(type))
-		.filter((type) => !type.startsWith("Layout.") && type !== "PageStack")
-		.map((type) => {
-			const entry = componentCatalogs.getEntry(type);
-			return {
-				componentType: type,
-				status: componentCatalogs.getStatus(type) ?? ("stable" as const),
-				props: Object.fromEntries(
-					Object.entries(entry?.props ?? {}).map(([propName, contract]) => [
-						propName,
-						{
-							required: contract.required,
-							role: contract.role,
-							type: contract.type,
-							values: contract.values,
-						},
-					]),
-				),
-			};
-		});
-
-	return available.length > 0 ? { available, entries } : { entries };
-}
-
-function getSourceFileFromReadResult(
-	result: SideEffectExecutionResult,
-	sourceKind: PipelineMarkdownSourceFile["kind"],
-	sourcePath: string,
-): PipelineMarkdownSourceFile {
-	const readResult = result.commands?.[0];
-	const output = readResult ? getSourceReadOutput(readResult) : undefined;
-
-	if (!output) {
-		throw new Error(`Pipeline source read did not return content: ${sourcePath}`);
-	}
-
-	return {
-		content: output.content,
-		kind: output.kind ?? sourceKind,
-		path: output.path,
-	};
-}
-
-function getSourceReadOutput(
-	result: SideEffectCommandResult,
-): Pick<PipelineMarkdownSourceFile, "content" | "kind" | "path"> | undefined {
-	if (!isSourceReadOutput(result.output)) return undefined;
-	return result.output;
-}
-
-function isSourceReadOutput(
-	output: unknown,
-): output is Pick<PipelineMarkdownSourceFile, "content" | "kind" | "path"> {
-	if (!output || typeof output !== "object") return false;
-
-	const candidate = output as Partial<PipelineMarkdownSourceFile>;
-	return typeof candidate.content === "string" && typeof candidate.path === "string";
 }
 
 function createScreenGenerationPipelineSummary(
@@ -1454,47 +772,4 @@ function createSmokeRunStageLayers(
 			traceKeys,
 		}),
 	);
-}
-
-function countSourceAreas(sourceSpec: SourceSpec): number {
-	return sourceSpec.sourceShape.screen.regions.reduce(
-		(count, region) => count + region.children.length,
-		0,
-	);
-}
-
-function countSourceComponents(sourceSpec: SourceSpec): number {
-	return sourceSpec.sourceShape.screen.regions.reduce(
-		(count, region) =>
-			count + region.children.reduce((areaCount, area) => areaCount + area.children.length, 0),
-		0,
-	);
-}
-
-function extractPayloadArtifact(payload: unknown, key: "renderTree" | "tableGenerationResult") {
-	if (!isRecord(payload)) return key === "renderTree" ? payload : undefined;
-	return payload[key] ?? (key === "renderTree" ? payload : undefined);
-}
-
-async function loadDesignContextBundleContents(
-	designContextBundles: ScreenGenerationReferences["designContextBundles"],
-	bundleRefs: DesignContextBundleSelection["bundleRefs"] | undefined,
-	disableDesignContext: boolean,
-): Promise<DesignContextBundleContent[]> {
-	if (disableDesignContext) return [];
-	return designContextBundles.loadContents(bundleRefs ?? []);
-}
-
-function findGenerationSkill(
-	catalog: ScreenGenerationSkillBundleRef[],
-	stage: ScreenGenerationSkillBundleRef["stage"],
-): ScreenGenerationSkillBundleRef | undefined {
-	return catalog.find((skill) => skill.stage === stage);
-}
-
-function repairAgentRunResultPayload(result: AgentRunResult): AgentRunResult {
-	return {
-		...result,
-		payload: runRequiredRegionLayoutRepairNode(result.payload),
-	};
 }
