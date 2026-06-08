@@ -16,3 +16,15 @@ prompt artifact는 최소한 다음을 포함한다.
 - 제안은 확정이 아니다. component/token/pattern catalog를 우회해 임의 값을 확정하지 않는다.
 - 각 제안은 sourceEvidence(allowedRefs 안의 ref)와 nearestCatalogMatch(componentContractCatalog 안의 type)를 반드시 갖는다.
 - 최대 5개. 근거 없는 제안, 카탈로그 밖 nearestMatch, source 무관 장식 제안을 만들지 않는다.
+
+## Instructions
+
+1. Propose components or variants that are not in the catalog but would improve this screen.
+2. Use design-context bundle bodies as bounded design guidance when present.
+3. Each proposal must include `id`, `proposedComponentType`, `sourceEvidence`, `nearestCatalogMatch`, and `rationale`.
+4. `sourceEvidence` must be an array of source refs from the provided source reference catalog or `SourceSpec`.
+5. `nearestCatalogMatch` must be a single component type from the component contract catalog.
+6. `suggestedProps` is optional and must stay close to catalog prop vocabulary.
+7. Return at most 5 proposals.
+8. Do not confirm, apply, or mutate any catalog. This is a non-binding proposal artifact.
+9. Return one JSON object only and match the provided output JSON Schema.

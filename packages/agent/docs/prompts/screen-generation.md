@@ -35,3 +35,41 @@ Phase 1에서는 design-context bundle을 최종 schema 계약으로 고정하�
 8. Apply visual hierarchy through component choice and props within the catalog. Do not invent colors, gradients, or icons for emphasis.
 9. Use the `screen-generation` skill set's `output-contract` document for output shape rules.
 10. Use the `screen-generation` skill set's `checklist` document before returning the final JSON object.
+
+## Migrated Generation Rules
+
+These rules are migrated from the removed compatibility inference nodes and are now owned by this prompt document.
+
+1. Treat context by priority: constraints are inviolable; upstream decisions should be honored; guidance is advisory and yields to constraints and upstream on conflict.
+2. Use upstream `screenIntent` and `compositionPlan` as design guidance when present.
+3. Use upstream decoration guidance when present for display structure, split areas, display titles, roles, layout intents, and repeated item props hints.
+4. Area `metadata.title` and `props.name` are structural metadata only, not visible copy. If a section heading should be visible, render it with an explicit heading component such as `TitleSection`.
+5. Do not duplicate the same section heading through both area metadata/name and a visible heading component.
+6. When a source area is split into multiple decorated areas, materialize the split areas in both RenderTree and `tableGenerationResult`.
+7. List rows that need visible secondary copy must use the catalog-supported row props rather than placeholder text.
+8. When `SourceSpec` includes error policy, required agreement, disabled, loading, or validation evidence, include bounded state-role coverage in RenderTree.
+9. State-variant nodes that share one slot, especially bottom CTAs, must be mutually exclusive through display conditions or expressed as a single node. Never place two ungated primary CTAs in `Screen.Bottom`.
+10. Every `CompositionPlan` section should be visible in `tableGenerationResult` through matching region, area, component, metadata, or provenance identifiers.
+11. Preserve high-priority source refs from `compositionPlan.sections[].sourceRefs` whenever possible.
+12. Preserve the SourceSpec screen skeleton: `Screen` > `Screen.Header`/`Screen.Contents`/`Screen.Bottom` > `area.static` or `area.dynamic` > optional layout wrapper > components.
+13. Never output a render node with type `Area`. Use `SourceSpec` area render node type, `area.static`, or `area.dynamic` for area wrapper nodes.
+14. Use the final RenderTree handoff shape as the primary result contract: top-level `version`, `minRendererVersion`, `metadata`, `theme`, and `children` containing a `Screen` root.
+15. Screen region containers may omit `props`. When region props are present, keep them valid and renderer-oriented.
+16. Use layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.
+17. Render separation through area stack `props.divider`, not standalone Divider leaf nodes.
+18. Use only `props.divider: "contents" | "section" | "none"`.
+19. Use `contents` only for 1px dividers between repeated row children inside a list, checkbox, or field stack. It must not create a trailing divider after the last row.
+20. Use `section` only for a trailing area break between two `Screen.Contents` areas. Omit it on the last area and when cards/groups already separate sections.
+21. For a field-side action button such as verify, request, resend, or use-all, use catalog-supported TextField button props. Do not write renderer-owned slot objects such as `rightElement`.
+22. Use source reference catalog entries, props, description, and raw notes as source text evidence for visible labels and descriptions.
+23. Use the component contract catalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.
+24. Optional catalog components may be used when they fit the source better than source-provided component refs, but unstable candidate components require clear source evidence.
+25. Respect `sourceShape.screen.regions`: each region contains area nodes, and each area contains component nodes.
+26. Map header, contents, and bottom regions to `Screen.Header`, `Screen.Contents`, and `Screen.Bottom`.
+27. `tableGenerationResult` must follow its JSON Schema and use layout ids shaped as `layout.<target>.<PatternName>`.
+28. Every `tableGenerationResult` screen, region, area, and component record must include a real layout id from selected candidates.
+29. RenderTree must match the provided RenderTree JSON Schema.
+30. Use top-level `version`, `metadata`, and `children`. Do not use `contractVersion`, `schemaVersion`, `root`, `tree`, `nodeId`, or `componentId`.
+31. Top-level `metadata` must not include `title`. Every render node `metadata` must include `id` and `title`.
+32. RenderTree nodes use `node.layout` for layout pattern components.
+33. Put component-specific values inside `node.props`.
