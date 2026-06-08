@@ -135,7 +135,6 @@ const childWrapSchema = z.object({
 	sectionPaddingX: z.number().optional(),
 	sectionGap: z.number().optional(),
 	slotInsetX: z.number().optional(),
-	titleMode: z.enum(["hidden", "none", "visible"]).optional(),
 }) satisfies z.ZodType<ChildWrapPreset>;
 
 const childrenLayoutSchema: z.ZodType<ChildrenLayoutPreset> = z.object({

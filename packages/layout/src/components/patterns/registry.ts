@@ -135,10 +135,6 @@ const collectionPropContractByKey = {
 		type: "number",
 		description: "Legacy layoutProps.titleGap preserved as PageStack title-to-contents gap.",
 	},
-	titleMode: {
-		type: "enum",
-		values: ["hidden", "none", "visible"],
-	},
 } as const satisfies Record<
 	string,
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
@@ -180,10 +176,6 @@ const generalAreaPropContractByKey = {
 	surface: { type: "string" },
 	thumbnailHeight: { type: "number" },
 	titleGap: { type: "number" },
-	titleMode: {
-		type: "enum",
-		values: ["hidden", "none", "visible"],
-	},
 } as const satisfies Record<
 	string,
 	NonNullable<LayoutPatternComponentEntry["pattern"]["props"]>[string]
@@ -783,7 +775,7 @@ const areaCollectionLayouts: Array<{
 		componentID: "ListSummaryCardArea",
 		layoutId: "layout.area.listSummaryCardArea",
 		name: "List Summary Card Area",
-		props: collectionProps(["componentGap", "flow", "gap", "titleMode"]),
+		props: collectionProps(["componentGap", "flow", "gap"]),
 	},
 	{
 		component: FilterChipTextListArea,
@@ -838,7 +830,6 @@ const areaCollectionLayouts: Array<{
 			"flow",
 			"gap",
 			"itemTemplate",
-			"titleMode",
 		]),
 	},
 ];
@@ -1201,7 +1192,6 @@ function collectionProps(
 		| "sectionPaddingX"
 		| "slotInsetX"
 		| "titleGap"
-		| "titleMode"
 	>,
 ): LayoutPatternComponentEntry["pattern"]["props"] {
 	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};
@@ -1240,7 +1230,6 @@ function generalAreaProps(
 		| "surface"
 		| "thumbnailHeight"
 		| "titleGap"
-		| "titleMode"
 	>,
 ): LayoutPatternComponentEntry["pattern"]["props"] {
 	const contracts: LayoutPatternComponentEntry["pattern"]["props"] = {};

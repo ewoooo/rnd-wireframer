@@ -31,7 +31,6 @@ export type ChildWrapPreset = {
 	sectionPaddingX?: number;
 	sectionGap?: number;
 	slotInsetX?: number;
-	titleMode?: "hidden" | "none" | "visible";
 };
 
 export type ChildrenLayoutPreset = {

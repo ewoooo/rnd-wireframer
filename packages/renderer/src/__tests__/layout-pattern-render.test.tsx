@@ -36,7 +36,6 @@ describe("@cx/renderer layout pattern rendering", () => {
 					componentVersion: "0.1.0",
 					layout: "layout.area.listStack",
 					metadata: { id: "area-layout-structural", title: "Structural Layout Area Title" },
-					props: { titleMode: "visible" },
 					children: [
 						{
 							type: "TitleSection",
@@ -53,7 +52,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.queryByText("Structural Layout Area Title")).not.toBeInTheDocument();
 		expect(
 			screen.getByText("Visible Layout Section Title").closest("[data-node-type='PageStack']"),
-		).toHaveAttribute("data-page-stack-title", "none");
+		).not.toBeNull();
 	});
 
 	it("renders layout pattern components from the node layout key", () => {

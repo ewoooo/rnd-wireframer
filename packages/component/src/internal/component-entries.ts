@@ -74,12 +74,6 @@ export const componentCatalogEntries = {
 				values: ["card-0", "default-20", "plain"],
 				defaultValue: "default-20",
 			},
-			titleMode: {
-				type: "enum",
-				role: "visibility",
-				values: ["hidden", "none", "visible"],
-				defaultValue: "none",
-			},
 		},
 	},
 	ActionButton: {

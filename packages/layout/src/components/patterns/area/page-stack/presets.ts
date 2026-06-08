@@ -14,7 +14,6 @@ export const areaPageStackPresets = {
 			...pageStackBaseDefaults,
 			divider: "contents",
 			gap: 0,
-			titleMode: "none",
 		},
 	},
 	actionStack: {
@@ -23,7 +22,6 @@ export const areaPageStackPresets = {
 			gap: 12,
 			paddingY: 0,
 			titleGap: 0,
-			titleMode: "none",
 		},
 	},
 	authCodeEntry: {
@@ -41,7 +39,6 @@ export const areaPageStackPresets = {
 			divider: "contents",
 			gap: 0,
 			titleGap: 0,
-			titleMode: "none",
 		},
 	},
 	fieldStack: {
@@ -58,7 +55,6 @@ export const areaPageStackPresets = {
 			...pageStackBaseDefaults,
 			divider: "contents",
 			gap: 0,
-			titleMode: "none",
 		},
 	},
 	pagestackInfoTextSection: {
@@ -74,7 +70,6 @@ export const areaPageStackPresets = {
 			...pageStackBaseDefaults,
 			divider: "contents",
 			gap: 0,
-			titleMode: "hidden",
 		},
 	},
 	priceAccordionStackArea: {
@@ -91,14 +86,13 @@ export const areaPageStackPresets = {
 			divider: "contents",
 			gap: 0,
 			titleGap: 0,
-			titleMode: "none",
 		},
 	},
 	productInfoSection: {
 		defaults: { ...pageStackBaseDefaults, gap: 16, titleGap: 16 },
 	},
 	tabChipSearchAccordionArea: {
-		defaults: { ...pageStackBaseDefaults, gap: 12, titleMode: "none" },
+		defaults: { ...pageStackBaseDefaults, gap: 12 },
 	},
 	textListGroupArea: {
 		defaults: {

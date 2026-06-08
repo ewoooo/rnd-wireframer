@@ -17,7 +17,6 @@ export type AreaPageStackDefaults = {
 	sectionPaddingX?: number;
 	slotInsetX?: number;
 	titleGap?: number;
-	titleMode?: PageStackProps["titleMode"];
 };
 
 export type AreaPageStackFrameProps = LayoutPatternComponentProps & {
@@ -32,7 +31,6 @@ export const pageStackBaseDefaults = {
 	paddingY: 28,
 	sectionPaddingX: 12,
 	titleGap: 8,
-	titleMode: "none",
 } as const satisfies Omit<AreaPageStackDefaults, "gap">;
 
 export function AreaPageStackFrame({
@@ -87,6 +85,5 @@ export function resolveAreaPageStackProps(
 		sectionGap: toNumber(props.sectionGap) ?? toNumber(props.titleGap) ?? defaults.titleGap,
 		sectionPaddingX: toNumber(props.sectionPaddingX) ?? defaults.sectionPaddingX,
 		slotInsetX: toNumber(props.slotInsetX) ?? defaults.slotInsetX,
-		titleMode: "none",
 	};
 }

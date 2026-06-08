@@ -24,10 +24,9 @@ const sectionDefaults = {
 	itemTemplate: "default-20",
 	paddingY: 28,
 	sectionPaddingX: 12,
-	titleMode: "none",
 } as const satisfies Pick<
 	CollectionAreaDefaults,
-	"itemPaddingX" | "itemTemplate" | "paddingY" | "sectionPaddingX" | "titleMode"
+	"itemPaddingX" | "itemTemplate" | "paddingY" | "sectionPaddingX"
 >;
 
 export const ProductOptionGridArea = createCollectionArea({
@@ -35,24 +34,18 @@ export const ProductOptionGridArea = createCollectionArea({
 	columns: 2,
 	flow: "grid",
 	gap: 8,
-	titleGap: 12,
-	titleMode: "visible",
-});
+	titleGap: 12,});
 export const BenefitBrandListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 12,
-	titleGap: 16,
-	titleMode: "visible",
-});
+	titleGap: 16,});
 export const NearbyStoreListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 8,
 	mapHeight: 172,
-	titleGap: 16,
-	titleMode: "visible",
-});
+	titleGap: 16,});
 export const ProductMoreLinkArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
@@ -69,9 +62,7 @@ export const OptionListSectionArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 8,
-	titleGap: 12,
-	titleMode: "visible",
-});
+	titleGap: 12,});
 export const CouponBenefitArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
@@ -92,23 +83,17 @@ export const ListSummaryCardArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 0,
-	paddingY: 0,
-	titleMode: "hidden",
-});
+	paddingY: 0,});
 export const FilterChipTextListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 16,
-	titleGap: 12,
-	titleMode: "visible",
-});
+	titleGap: 12,});
 export const ProductListGroupArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 16,
-	titleGap: 12,
-	titleMode: "visible",
-});
+	titleGap: 12,});
 export const ProductListChipSortArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "horizontal",
@@ -137,9 +122,7 @@ export const HiddenTitlePagestackCardListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 12,
-	itemTemplate: "card-0",
-	titleMode: "hidden",
-});
+	itemTemplate: "card-0",});
 
 function createCollectionArea(defaults: CollectionAreaDefaults) {
 	return function CollectionArea({

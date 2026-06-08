@@ -4,7 +4,6 @@ import type { LayoutNode } from "../../types";
 import type { StackProps } from "./Stack";
 
 export type PageStackItemTemplate = "card-0" | "default-20" | "plain";
-export type PageStackTitleMode = "hidden" | "none" | "visible";
 
 export type PageStackProps = Omit<StackProps, "node" | "paddingX" | "paddingY"> & {
 	children?: ReactNode;
@@ -16,7 +15,6 @@ export type PageStackProps = Omit<StackProps, "node" | "paddingX" | "paddingY"> 
 	sectionGap?: number;
 	sectionPaddingX?: number;
 	slotInsetX?: number;
-	titleMode?: PageStackTitleMode;
 };
 
 export function PageStack({
@@ -33,10 +31,8 @@ export function PageStack({
 	sectionPaddingX,
 	slotInsetX = 0,
 	style,
-	titleMode = "none",
 }: PageStackProps) {
 	const resolvedSectionPaddingX = sectionPaddingX ?? paddingX ?? 12;
-	const showTitle = titleMode === "visible";
 	const rootStyle: CSSProperties = {
 		gap: spacingFallbackStyleValue(sectionGap),
 		paddingBlock: spacingFallbackStyleValue(paddingY),
@@ -57,17 +53,8 @@ export function PageStack({
 			data-node-id={node?.metadata.id}
 			data-node-type={node?.type ?? "PageStack"}
 			data-page-stack-template={itemTemplate}
-			data-page-stack-title={titleMode}
 			style={rootStyle}
 		>
-			{showTitle ? (
-				<div
-					className={cx("box-border w-full", spacingUtilityClass("px", itemPaddingX))}
-					style={{ paddingInline: spacingFallbackStyleValue(itemPaddingX) }}
-				>
-					<h2 className="m-0">{node?.metadata.title}</h2>
-				</div>
-			) : null}
 			<div
 				className={cx(
 					"box-border flex w-full flex-col",

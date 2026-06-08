@@ -13,13 +13,3 @@ export function toPageStackItemTemplate(
 ): PageStackProps["itemTemplate"] | undefined {
 	return value === "card-0" || value === "default-20" || value === "plain" ? value : undefined;
 }
-
-export function toPageStackTitleMode(value: unknown): PageStackProps["titleMode"] | undefined {
-	return value === "hidden" || value === "none" || value === "visible" ? value : undefined;
-}
-
-export function toTitleModeFromLegacyProps(
-	props: Record<string, unknown>,
-): PageStackProps["titleMode"] {
-	return props.hideTitle === true ? "hidden" : undefined;
-}

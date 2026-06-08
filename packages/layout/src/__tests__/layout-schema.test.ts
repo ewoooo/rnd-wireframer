@@ -149,10 +149,6 @@ describe("@cx/layout schema", () => {
 						titleGap: {
 							type: "number",
 						},
-						titleMode: {
-							type: "enum",
-							values: ["hidden", "none", "visible"],
-						},
 					},
 					children: {
 						accepts: "component",
@@ -204,7 +200,7 @@ describe("@cx/layout schema", () => {
 				name: "Bad enum",
 				componentID: "FieldStackArea",
 				props: {
-					titleMode: {
+					sampleEnum: {
 						type: "enum",
 					},
 				},
