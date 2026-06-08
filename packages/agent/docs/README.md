@@ -40,9 +40,25 @@ packages/agent/docs/
       output-contract.md
     design-skills/
       README.md
-      detail-confirmation-screen.md
-      form-entry-screen.md
-      list-selection-screen.md
+      <design-skill-id>/
+        README.md
+        references/
+          README.md
+    reference-skills/
+      sot/
+        <reference-id>/
+          manifest.json
+          USAGE.md
+          nodes.md
+          component-inventory.md
+          source/
+            evidence.md
+    review-skills/
+      <review-skill-id>/
+        README.md
+    revision-skills/
+      <revision-skill-id>/
+        README.md
 ```
 
 운영 규칙:
@@ -51,4 +67,4 @@ packages/agent/docs/
 - prompt 원문은 `docs/prompts/{prompt-id}.md`에서 관리한다.
 - skill/checklist/output 규칙은 `docs/skills/`에서 set 단위로 관리한다.
 - 문서 자산을 즉시 코드가 읽지 않더라도, 기준선은 먼저 이 위치에 고정한다.
-- smoke/pipeline은 필요한 경우 이 디렉토리의 문서 자산을 참조 artifact로 기록할 수 있지만, 생성/검수 규칙의 정본은 이 패키지 내부에 둔다.
+- `@cx/inference`는 필요한 경우 이 디렉토리의 문서 자산을 참조 artifact로 기록할 수 있지만, 생성/검수 규칙의 정본은 이 패키지 내부에 둔다.

@@ -1,4 +1,8 @@
-import { resolvePromptCatalogForInference, resolveSkillForInference } from "@cx/agent";
+import {
+	resolvePromptCatalogForInference,
+	resolveSkillForInference,
+	resolveStageSkillsetForInference,
+} from "@cx/agent";
 import { resolvePromptCatalogForInference as resolvePromptCatalogFromSubpath } from "@cx/agent/prompt-catalog";
 import { resolveSkillForInference as resolveSkillFromSubpath } from "@cx/agent/skill-catalog";
 import { describe, expect, it } from "vitest";
@@ -171,11 +175,43 @@ describe("@cx/agent runtime", () => {
 				sets: {
 					skill: {
 						format: "markdown",
-						sourceRef: "../docs/skills/design-skills/detail-confirmation-screen.md",
+						sourceRef: "../docs/skills/design-skills/detail-confirmation-screen/README.md",
 					},
 				},
 			},
 		});
 		expect(() => resolveSkillForInference("missing")).toThrow("Unknown skill: missing");
+	});
+
+	it("resolves stage skillsets with source refs and frontmatter", () => {
+		const skillset = resolveStageSkillsetForInference("understand.screen-intent");
+
+		expect(skillset).toMatchObject({
+			kind: "stage-skillset",
+			id: "understand.screen-intent",
+			owner: "@cx/agent",
+			sourceRef: "../docs/skills/stage-skillsets/understand.screen-intent",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				stage: "understand",
+				task: "screen-intent",
+			},
+		});
+		expect(skillset.data.documents.map((document) => document.id)).toEqual([
+			"screen-intent",
+			"source-fidelity-review",
+			"state-coverage-review",
+		]);
+		expect(skillset.data.documents[0]).toMatchObject({
+			kind: "prompt",
+			priority: "required",
+			role: "intent-extraction",
+			sourceRef: "../docs/prompts/screen-intent.md",
+			stage: "understand",
+			task: "screen-intent",
+		});
+		expect(() => resolveStageSkillsetForInference("missing")).toThrow(
+			"Unknown stage skillset: missing",
+		);
 	});
 });

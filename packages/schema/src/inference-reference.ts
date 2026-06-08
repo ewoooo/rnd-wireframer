@@ -46,6 +46,26 @@ export type SkillData = {
 
 export type SkillObject = SsotObject<"skill", SkillData>;
 
+export type StageSkillsetDocument = {
+	id: string;
+	body: string;
+	frontmatter?: Record<string, unknown>;
+	kind: "prompt" | "skill";
+	priority?: "optional" | "recommended" | "required";
+	role?: string;
+	sourceRef: string;
+	stage: "compose" | "revise" | "understand";
+	task: string;
+};
+
+export type StageSkillsetData = {
+	documents: StageSkillsetDocument[];
+	stage: "compose" | "revise" | "understand";
+	task: string;
+};
+
+export type StageSkillsetObject = SsotObject<"stage-skillset", StageSkillsetData>;
+
 export type ComponentCatalogData = {
 	entries: unknown[];
 };
@@ -73,6 +93,7 @@ export type InferenceReference =
 	| TokenCatalogObject
 	| OutputContractObject
 	| SkillObject
+	| StageSkillsetObject
 	| ComponentCatalogObject
 	| LayoutCatalogObject
 	| PromptCatalogObject;

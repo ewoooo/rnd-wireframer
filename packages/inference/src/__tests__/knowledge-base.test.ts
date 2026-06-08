@@ -44,6 +44,10 @@ describe("Inference KnowledgeBase", () => {
 		const knowledgeBase = createInferenceKnowledgeBase();
 
 		const skill = await knowledgeBase.resolve({ source: "skill", id: "screen-generation" });
+		const skillset = await knowledgeBase.resolve({
+			source: "stage-skillset",
+			id: "understand.screen-intent",
+		});
 		const prompt = await knowledgeBase.resolve({
 			source: "prompt-catalog",
 			id: "screen-generation",
@@ -55,6 +59,15 @@ describe("Inference KnowledgeBase", () => {
 			owner: "@cx/agent",
 			data: {
 				format: "json",
+			},
+		});
+		expect(skillset).toMatchObject({
+			kind: "stage-skillset",
+			id: "understand.screen-intent",
+			owner: "@cx/agent",
+			data: {
+				stage: "understand",
+				task: "screen-intent",
 			},
 		});
 		expect(prompt).toMatchObject({

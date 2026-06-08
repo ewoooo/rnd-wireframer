@@ -135,8 +135,9 @@ defineStep({
 `source-spec-mvp`, `deterministic-validation`
 
 **knowledge source** (`references`로 주입 가능, `src/knowledge/knowledge-base.ts`):
-`component-catalog`, `layout-catalog`, `skill`(+id), `prompt-catalog`(+id), `token-catalog`
-※ 현재 screen-generation@v1의 claude 스텝은 references를 쓰지 않는다 (prompt/skill은 `@cx/agent` task 정의가 소유).
+`component-catalog`, `layout-catalog`, `skill`(+id), `stage-skillset`(+id), `prompt-catalog`(+id), `token-catalog`
+
+현재 `screen-generation@v1`은 `02-screen-intent`에서 `stage-skillset:understand.screen-intent`를 references로 주입한다. 이 bundle은 `@cx/agent`가 prompt/skill 문서의 `sourceRef`, frontmatter, body를 모아 만든 SSOT object이며, 실행 후 `steps/02-screen-intent/references.json`에서 확인할 수 있다. `screen-intent` output contract는 `usedSkills`를 허용하므로 Claude가 실제 사용한 문서를 output에도 기록할 수 있다.
 
 ## HTTP API (apps/web)
 

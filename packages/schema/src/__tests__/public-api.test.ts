@@ -18,6 +18,7 @@ import {
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
 	type SourceSpec,
 	SSOT_OBJECT_SCHEMA_VERSION,
+	type StageSkillsetObject,
 } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
@@ -74,6 +75,9 @@ describe("@cx/schema public API", () => {
 					type: "array",
 				},
 				stateCoverageHints: {
+					type: "array",
+				},
+				usedSkills: {
 					type: "array",
 				},
 			},
@@ -179,6 +183,35 @@ describe("@cx/schema public API", () => {
 				},
 			},
 		});
+	});
+
+	it("exposes stage skillsets as inference references", () => {
+		const skillset: StageSkillsetObject = {
+			kind: "stage-skillset",
+			id: "understand.screen-intent",
+			owner: "@cx/agent",
+			sourceRef: "../docs/skills/stage-skillsets/understand.screen-intent",
+			schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
+			data: {
+				stage: "understand",
+				task: "screen-intent",
+				documents: [
+					{
+						body: "# Screen Intent",
+						id: "screen-intent",
+						kind: "prompt",
+						priority: "required",
+						role: "intent-extraction",
+						sourceRef: "../docs/prompts/screen-intent.md",
+						stage: "understand",
+						task: "screen-intent",
+					},
+				],
+			},
+		};
+
+		expect(skillset.kind).toBe("stage-skillset");
+		expect(skillset.data.documents[0]?.sourceRef).toBe("../docs/prompts/screen-intent.md");
 	});
 
 	it("exposes RenderTree node type constants and guards from the package root", () => {

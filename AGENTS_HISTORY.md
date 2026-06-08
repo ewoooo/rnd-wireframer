@@ -51,6 +51,25 @@
 - 이유: inference pipeline 순수성을 유지하면서 Web upload와 CLI source path 입력이 같은 `source.path` 계약을 쓰게 하기 위함
 - 검증: `rg -n "/api/screen-inference|app/api/screen-inference|screen-inference/" apps packages docs AGENTS.md PACKAGE_MAP.md -S`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm test`
 
+## 2026-06-08 - Deprecated Smoke Surface Removal
+
+- 변경: deprecated smoke 실행/조회 표면인 root `smoke:*` scripts, `test:smoke:pipeline`, `scripts/smoke-pipeline.ts`, `scripts/generation/**`, `scripts/SMOKE.md`, smoke fixture/proposal helper, Web `/smoke` explorer와 `smoke-runs` reader를 제거함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `AGENTS.md`, `packages/agent/docs/README.md`의 smoke 경계 설명을 `@cx/inference` 중심으로 정리함
+- 이유: screen inference 검증과 실행은 deprecated smoke wrapper가 아니라 `@cx/inference` 패키지와 Web/API adapter 경계에서 수행해야 하기 때문
+- 검증: `rg -n "smoke|Smoke|SMOKE" ... -g '!AGENTS_HISTORY.md'`로 source 참조 제거 확인
+- 후속: source import/SourceSpec 생성 entrypoint는 smoke wrapper 없이 `@cx/inference` job input/API 경계 기준으로 정리한다.
+
+## 2026-06-08 - Agent Skill Scaffold and Understand Skillset
+
+- 변경: `packages/agent/docs/skills/design-skills/`를 스킬별 폴더 구조로 정리하고 각 스킬의 `references/` 폴더를 준비함
+- 변경: SOT 기반 reference skill scaffold, Revise 단계 review skill scaffold, targeted revision skill scaffold를 추가함
+- 변경: `@cx/agent`에 `understand.screen-intent` stage skillset resolver를 추가하고, `screen-intent` 단계에서 prompt/review skill frontmatter와 sourceRef/body를 bundle로 resolve하도록 함
+- 변경: `@cx/inference` KnowledgeBase에 `stage-skillset` source를 추가하고 `screen-generation@v1`의 `02-screen-intent` step이 해당 skillset을 references로 읽도록 연결함
+- 변경: `screen-intent` output contract에 `usedSkills`를 추가해 실제 사용한 skill 문서를 output/context artifact에서 확인할 수 있게 함
+- 이유: Figma SOT를 후속 스킬 작성 전에 source-backed reference로 분리하고, Understand -> Compose -> Revise 추론 구조에서 디자인 판단/검수/수정 스킬을 단계별로 확장하기 위함
+- 검증: SOT `manifest.json` 파일 JSON parse 확인, `packages/agent/src/__tests__/agent-runtime.test.ts`, `packages/schema/src/__tests__/public-api.test.ts`, `packages/inference/src/__tests__/knowledge-base.test.ts`, `packages/inference/src/__tests__/screen-generation-v1.test.ts`, `packages/inference/src/__tests__/screen-generation-e2e.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `git diff --check`
+- 후속: 각 SOT node를 다시 조회해 evidence, component inventory, skill별 good/bad CompositionPlan 예시를 채우고 Compose/Revise skillset으로 확장한다.
+
 ## 2026-06-08 - Orphan Artifact Cleanup
 
 - 변경: deprecated compose/decorate 기반 `database/ai-imports`, generated deck, table backup, `AI-COMPOSITION-SPEC.md`를 제거하고 database/readme/development 문서를 `@cx/inference` artifact 기준으로 갱신함

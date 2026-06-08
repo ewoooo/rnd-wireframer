@@ -1,6 +1,14 @@
 import type { StateCoverageHint } from "./design-context";
 import type { SCHEMA_VERSION } from "./versions";
 
+export type UsedSkillRef = {
+	id: string;
+	role?: string;
+	sourceRef: string;
+	stage: "compose" | "revise" | "understand";
+	task: string;
+};
+
 export type ScreenIntentContract = {
 	audience?: string;
 	contentPriority: string[];
@@ -17,4 +25,5 @@ export type ScreenIntentContract = {
 	};
 	stateCoverageHints?: StateCoverageHint[];
 	successMoment?: string;
+	usedSkills?: UsedSkillRef[];
 };

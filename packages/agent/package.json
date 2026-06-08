@@ -12,6 +12,7 @@
 		"./contract": "./src/contract/index.ts",
 		"./prompt-catalog": "./src/prompt-catalog/index.ts",
 		"./skill-catalog": "./src/skill-catalog/index.ts",
+		"./skillset-catalog": "./src/skillset-catalog/index.ts",
 		"./tasks": "./src/tasks/index.ts"
 	},
 	"dependencies": {

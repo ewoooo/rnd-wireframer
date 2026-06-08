@@ -5,7 +5,13 @@ export type KnowledgeValue = InferenceReference;
 export type StepInputRef = { kind: "job-input"; path?: string } | { kind: "context"; key: string };
 
 export type KnowledgeRef = {
-	source: "component-catalog" | "layout-catalog" | "skill" | "prompt-catalog" | "token-catalog";
+	source:
+		| "component-catalog"
+		| "layout-catalog"
+		| "prompt-catalog"
+		| "skill"
+		| "stage-skillset"
+		| "token-catalog";
 	id?: string;
 	version?: string;
 };

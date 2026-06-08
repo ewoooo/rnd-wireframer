@@ -28,7 +28,6 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 
 | 위치 | 책임 |
 |---|---|
-| `scripts/smoke-pipeline.ts`, `scripts/generation/*` | generation smoke flow를 반복 실행하는 CLI와 helper |
 | `scripts/push-render-db.ts`, `scripts/canonicalize-render-db.ts` | render DB migration/audit helper |
 
 ## 3. `packages/renderer`
@@ -132,7 +131,7 @@ packages/layout/src/
 
 ## 6. 앱 구조 규칙
 
-`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, smoke explorer, workbench shell의 책임은 파일 위치와 import 방향으로 구분한다.
+`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, screen inference UI, workbench shell의 책임은 파일 위치와 import 방향으로 구분한다.
 
 ```text
 apps/web/src/
@@ -142,10 +141,8 @@ apps/web/src/
     layout/        workbench shell
     puck/          Puck editor UI only
     screen/        RenderTree preview UI
-    smoke/         smoke artifact explorer UI
   lib/
     screen-db-*    Supabase REST row read/write facade
-    smoke-*        smoke artifact read helper
   model/           workbench view model
 ```
 
@@ -153,20 +150,9 @@ apps/web/src/
 
 - Puck UI는 `@cx/adapters/puck`만 알고 DB row나 Supabase를 모른다.
 - screen DB loader/save는 Puck 타입을 모르고 RenderTree candidate와 DB row만 다룬다.
-- smoke explorer는 artifact 비교만 하고 DB apply를 수행하지 않는다.
 - workbench shell은 screen summary, candidate state, tab routing만 조립한다.
 
 생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. `apps/web` API route는 얇은 adapter로만 둔다.
-
-Smoke 실행은 사용자-facing 앱이 아니라 개발자-facing 스크립트다.
-
-```text
-scripts/
-  smoke-pipeline.ts    smoke CLI entrypoint
-  generation/          runGenerationSmoke wrapper and smoke helper types
-```
-
-외부 package/app code는 smoke helper를 import하지 않는다. root script는 `scripts/smoke-pipeline.ts`를 호출한다. generation smoke 실행은 `@cx/inference`의 `screen-generation` pipeline runtime에 위임한다.
 
 ## 7. `packages/token`
 
@@ -254,7 +240,7 @@ packages/agent/docs/
 ```
 
 이 디렉토리는 prompt 코드 구현이 아니라 prompt 원문, checklist, output 규약 같은 문서 자산의 정본 위치다.
-smoke/pipeline이 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
+`@cx/inference`가 생성 참조 자산을 artifact로 남겨야 할 때도 이 디렉토리의 정본 문서를 참조한다.
 
 ## 11. Target Inference Packages
 

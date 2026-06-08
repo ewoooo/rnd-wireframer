@@ -20,7 +20,7 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 - Claude는 로컬 실행을 우선 사용하되 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
 - `@cx/agent`가 참조하는 생성/검수 프롬프트, 체크리스트, 출력 규약은 `packages/agent/docs/`에서 독립 관리한다.
-- 생성 관련 문장형 참조 자산은 smoke/pipeline 실험에서도 `packages/agent/docs/`의 정본을 참조한다.
+- 생성 관련 문장형 참조 자산은 `@cx/inference` 실행과 agent context bundle에서도 `packages/agent/docs/`의 정본을 참조한다.
 - 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
 - 컴포넌트별 prop, variant, AI 작성 가능 surface 계약 타입과 실제 catalog 값은 `packages/component`의 `@cx/components/catalog`에서 관리한다.
 - spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.

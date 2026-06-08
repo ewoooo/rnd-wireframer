@@ -19,3 +19,8 @@ export {
 export { createAgentRuntime } from "./runtime/create-agent-runtime";
 export { runAgentTask } from "./runtime/run-agent-task";
 export { AGENT_SKILL_CATALOG, type AgentSkillId, resolveSkillForInference } from "./skill-catalog";
+export {
+	AGENT_STAGE_SKILLSET_CATALOG,
+	type AgentStageSkillsetId,
+	resolveStageSkillsetForInference,
+} from "./skillset-catalog";

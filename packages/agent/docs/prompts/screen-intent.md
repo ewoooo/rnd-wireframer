@@ -1,3 +1,14 @@
+---
+id: screen-intent
+stage: understand
+task: screen-intent
+role: intent-extraction
+priority: required
+tags:
+  - source-intent
+  - screen-purpose
+---
+
 # Screen Intent Prompt Contract
 
 `screen-intent` derives the user's screen goal from normalized source data.
@@ -18,4 +29,5 @@ The output must be JSON only and match `screen-intent.v0.1`.
 4. Capture `screenPurpose`, `primaryUserAction`, `contentPriority`, `sourceInterpretation`, and `rationale`.
 5. Also capture `audience`, `primaryTask`, `successMoment`, `missingDecisions`, and `stateCoverageHints` when the source provides enough evidence.
 6. `contentPriority` should list source component or area refs in the order the user should understand them.
-7. Return one JSON object only and match the provided output JSON Schema.
+7. Fill `usedSkills` with the stage skillset documents that materially influenced the output. Use each document's `id`, `sourceRef`, `stage`, `task`, and `role`.
+8. Return one JSON object only and match the provided output JSON Schema.

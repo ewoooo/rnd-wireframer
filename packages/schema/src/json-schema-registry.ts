@@ -247,11 +247,27 @@ function createScreenIntentJsonSchema(): JsonSchemaDocument {
 				items: { $ref: "#/$defs/stateCoverageHint" },
 			},
 			successMoment: { type: "string", minLength: 1 },
+			usedSkills: {
+				type: "array",
+				items: { $ref: "#/$defs/usedSkill" },
+			},
 		},
 		required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
 		title: "screen-intent",
 		type: "object",
 		$defs: {
+			usedSkill: {
+				type: "object",
+				additionalProperties: false,
+				required: ["id", "sourceRef", "stage", "task"],
+				properties: {
+					id: { type: "string", minLength: 1 },
+					role: { type: "string", minLength: 1 },
+					sourceRef: { type: "string", minLength: 1 },
+					stage: { enum: ["compose", "revise", "understand"] },
+					task: { type: "string", minLength: 1 },
+				},
+			},
 			stateCoverageHint: {
 				type: "object",
 				additionalProperties: false,

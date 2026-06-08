@@ -1,4 +1,4 @@
-import { context, definePipeline, defineStep, jobInput, outputContractRef } from "../pipeline";
+import { context, definePipeline, defineStep, jobInput, knowledge, outputContractRef } from "../pipeline";
 
 /**
  * screen-generation@v1 — declarative only.
@@ -20,6 +20,9 @@ export const screenGenerationPipelineV1 = definePipeline({
 			id: "02-screen-intent",
 			engine: "claude",
 			inputs: { sourceSpec: context("source-spec") },
+			references: {
+				skillset: knowledge("stage-skillset", "understand.screen-intent"),
+			},
 			prompt: { id: "screen-intent" },
 			output: { contractRef: outputContractRef("screen-intent"), writeToContext: "screen-intent" },
 		}),

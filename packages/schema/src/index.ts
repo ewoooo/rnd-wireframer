@@ -49,6 +49,9 @@ export type {
 	SkillData,
 	SkillObject,
 	SsotObject,
+	StageSkillsetData,
+	StageSkillsetDocument,
+	StageSkillsetObject,
 	TokenCatalogData,
 	TokenCatalogObject,
 } from "./inference-reference";
@@ -93,7 +96,7 @@ export {
 	RENDER_TREE_WRAPPER_NODE_TYPES,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "./render-tree";
-export type { ScreenIntentContract } from "./screen-intent";
+export type { ScreenIntentContract, UsedSkillRef } from "./screen-intent";
 export type {
 	SourceFileKind,
 	SourceSpec,

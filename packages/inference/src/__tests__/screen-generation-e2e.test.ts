@@ -101,11 +101,31 @@ const payloadByTaskKind: Record<string, unknown> = {
 	},
 };
 
-const fakeRunner: AgentRunner = async (request) => ({
-	taskKind: request.taskKind,
-	session: { mode: "new" },
-	payload: payloadByTaskKind[request.taskKind],
-});
+const fakeRunner: AgentRunner = async (request) => {
+	const payload = payloadByTaskKind[request.taskKind];
+	if (request.taskKind !== "screen-intent" || !isRecord(payload)) {
+		return {
+			taskKind: request.taskKind,
+			session: { mode: "new" },
+			payload,
+		};
+	}
+	const skillset = readSkillsetReference(request.input.context);
+	return {
+		taskKind: request.taskKind,
+		session: { mode: "new" },
+		payload: {
+			...payload,
+			usedSkills: skillset.data.documents.map((document) => ({
+				id: document.id,
+				role: document.role,
+				sourceRef: document.sourceRef,
+				stage: document.stage,
+				task: document.task,
+			})),
+		},
+	};
+};
 
 describe("screen-generation@v1 end-to-end", () => {
 	it("runs validation and skips revision when the first RenderTree is valid", async () => {
@@ -136,6 +156,46 @@ describe("screen-generation@v1 end-to-end", () => {
 		await expect(
 			runtime.artifactStore.exists(job.jobId, "steps/06-revision/step.json"),
 		).resolves.toBe(false);
+		const references = await runtime.artifactStore.readJson(
+			job.jobId,
+			"steps/02-screen-intent/references.json",
+		);
+		expect(references).toMatchObject({
+			skillset: {
+				kind: "stage-skillset",
+				id: "understand.screen-intent",
+			},
+		});
+		const skillset = readSkillsetFromReferences(references);
+		expect(skillset.data.documents.map((document) => document.id)).toEqual([
+			"screen-intent",
+			"source-fidelity-review",
+			"state-coverage-review",
+		]);
+		await expect(
+			runtime.artifactStore.readJson(job.jobId, "context/screen-intent.json"),
+		).resolves.toMatchObject({
+			usedSkills: [
+				{
+					id: "screen-intent",
+					sourceRef: "../docs/prompts/screen-intent.md",
+					stage: "understand",
+					task: "screen-intent",
+				},
+				{
+					id: "source-fidelity-review",
+					sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md",
+					stage: "understand",
+					task: "screen-intent",
+				},
+				{
+					id: "state-coverage-review",
+					sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md",
+					stage: "understand",
+					task: "screen-intent",
+				},
+			],
+		});
 	});
 
 	it("runs one revision and validates again when deterministic validation has errors", async () => {
@@ -178,3 +238,39 @@ describe("screen-generation@v1 end-to-end", () => {
 		).resolves.toBe(true);
 	});
 });
+
+function readSkillsetFromReferences(references: unknown) {
+	if (!isRecord(references)) {
+		throw new Error("expected references object");
+	}
+	return readSkillsetReference({ references });
+}
+
+function readSkillsetReference(context: unknown) {
+	if (!isRecord(context) || !isRecord(context.references) || !isRecord(context.references.skillset)) {
+		throw new Error("screen-intent runner expected a skillset reference");
+	}
+	const skillset = context.references.skillset;
+	if (
+		skillset.kind !== "stage-skillset" ||
+		!isRecord(skillset.data) ||
+		!Array.isArray(skillset.data.documents)
+	) {
+		throw new Error("screen-intent runner received an invalid skillset reference");
+	}
+	return skillset as {
+		data: {
+			documents: Array<{
+				id: string;
+				role?: string;
+				sourceRef: string;
+				stage: "compose" | "revise" | "understand";
+				task: string;
+			}>;
+		};
+	};
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return !!value && typeof value === "object" && !Array.isArray(value);
+}

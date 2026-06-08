@@ -1,4 +1,8 @@
-import { resolvePromptCatalogForInference, resolveSkillForInference } from "@cx/agent";
+import {
+	resolvePromptCatalogForInference,
+	resolveSkillForInference,
+	resolveStageSkillsetForInference,
+} from "@cx/agent";
 import { resolveComponentCatalogForInference } from "@cx/components/catalog";
 import { resolveLayoutCatalogForInference } from "@cx/layout/catalog";
 import { resolveOutputContractForInference } from "@cx/schema";
@@ -19,6 +23,9 @@ export function createInferenceKnowledgeBase(): KnowledgeBase {
 			}
 			if (ref.source === "prompt-catalog" && ref.id) {
 				return resolvePromptCatalogForInference(ref.id);
+			}
+			if (ref.source === "stage-skillset" && ref.id) {
+				return resolveStageSkillsetForInference(ref.id);
 			}
 			if (ref.source === "token-catalog") {
 				return resolveTokenCatalogForInference();

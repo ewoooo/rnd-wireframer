@@ -10,13 +10,13 @@ export const AGENT_SKILL_CATALOG = {
 		"output-contract": "../docs/skills/component-proposal/output-contract.md",
 	},
 	"detail-confirmation-screen": {
-		skill: "../docs/skills/design-skills/detail-confirmation-screen.md",
+		skill: "../docs/skills/design-skills/detail-confirmation-screen/README.md",
 	},
 	"form-entry-screen": {
-		skill: "../docs/skills/design-skills/form-entry-screen.md",
+		skill: "../docs/skills/design-skills/form-entry-screen/README.md",
 	},
 	"list-selection-screen": {
-		skill: "../docs/skills/design-skills/list-selection-screen.md",
+		skill: "../docs/skills/design-skills/list-selection-screen/README.md",
 	},
 	"quality-review": {
 		checklist: "../docs/skills/quality-review/checklist.md",

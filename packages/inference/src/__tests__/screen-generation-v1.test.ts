@@ -33,9 +33,16 @@ describe("screenGenerationPipelineV1", () => {
 			"screen-revision",
 			"quality-review",
 		]);
-		for (const step of claudeSteps) {
-			expect("references" in step ? step.references : undefined).toBeUndefined();
-		}
+		expect(screenGenerationPipelineV1.steps[1]?.references).toEqual({
+			skillset: {
+				source: "stage-skillset",
+				id: "understand.screen-intent",
+				version: undefined,
+			},
+		});
+		expect(
+			screenGenerationPipelineV1.steps.slice(2).every((step) => step.references === undefined),
+		).toBe(true);
 	});
 
 	it("every step output contract resolves", () => {

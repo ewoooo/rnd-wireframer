@@ -9,12 +9,7 @@
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages && node scripts/check-inference-boundaries.mjs",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
-		"smoke:pipeline": "tsx scripts/smoke-pipeline.ts",
-		"smoke:proposals": "tsx scripts/aggregate-proposals.ts",
-		"smoke:promote-component": "tsx scripts/promote-component.ts",
-		"smoke:promote-fixture": "tsx scripts/promote-fixture.ts",
 		"test": "vitest run",
-		"test:smoke:pipeline": "tsx scripts/smoke-pipeline.ts --target data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md --artifact-store local-transient",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui"
