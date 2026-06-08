@@ -36,6 +36,17 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Inference MVP Package Direction
+
+- 변경: `SCREEN_INFERENCE_ARCHITECTURE.md`의 target package 방향을 여러 inference package가 아니라 단일 `@cx/inference` MVP 패키지로 조정함
+- 변경: `@cx/inference` 내부 책임을 `stores`, `context`, `engine`, `pipeline`, `worker`로 나누고, `apps/web` API route는 thin adapter로만 운영한다고 명시함
+- 변경: MVP local file storage 규약을 `.data/inference-jobs/{jobId}/job.json`, `events.ndjson`, `steps/*`, `context/*` 기준으로 고정함
+- 변경: `JobStore`, `ArtifactStore`, `FileJobStore`, `FileArtifactStore`, `MemoryJobStore`, `MemoryArtifactStore` 기준과 worker 격리 테스트 방향을 문서화함
+- 변경: `InferenceEvent.seq`를 job별 monotonic sequence로 고정하고 SSE event id와 `listEvents(jobId, after)` 기준으로 사용한다고 명시함
+- 이유: MVP에서는 package 분할보다 로컬 파일 기반 job/artifact storage와 in-memory fake store로 inference call을 빠르게 검증하는 것이 우선이기 때문
+- 검증: 문서 링크와 target package 명칭 `rg` 확인. 구현 변경은 수행하지 않음
+- 후속: `@cx/inference` 패키지를 추가하고 store/context/step/worker 순서로 구현한다.
+
 ## 2026-06-08 - Pipeline Declarative Completion Contract Cleanup
 
 - 변경: `@cx/pipeline` public `PipelineStageId`와 `PipelineRunResult`, `ScreenGenerationSkillBundleRef.stage`에서 제거된 revision 단계/필드를 정리해 현재 11-step screen-generation 계약과 일치시킴

@@ -2,7 +2,7 @@
 
 이 문서는 Web client가 호출하는 Next.js API route의 현재 표면을 요약한다.
 
-상세 package 책임은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), screen-generation 실행 계약은 [PIPELINE_STAGE_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PIPELINE_STAGE_PROTOCOL.md)를 따른다.
+상세 package 책임은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
 
 ## 작성 기준
 
@@ -25,12 +25,23 @@ Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실
 
 | 영역 | Endpoint 책임 | 두지 않는 책임 |
 |---|---|---|
-| Screen inference | source upload/list, run 생성, run status 조회, SSE event stream, final result apply | pipeline stage 순서, Claude 실행 구현, validation rule 소유 |
+| Screen inference | source upload/list, job/run 생성, status 조회, SSE event stream, final result apply | pipeline step 순서, Claude 실행 구현, validation rule 소유 |
 | Screen DB facade | screen route/list/tree/rows 조회, RenderTree candidate 저장 | React render, Puck data shape 소유, Supabase credential 노출 |
 | Puck catalog | editor block 선택용 catalog item 조회 | catalog mutation, Puck editor UI |
 | Figma introspection | dev-only Figma probe 결과 파일 저장 | product runtime, 인증, DB write |
 
 ## Screen Inference Endpoints
+
+현재 endpoint는 compatibility surface다. 신규 구현의 target surface는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)의 `/api/inference/*`를 따른다.
+
+신규 `/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다.
+
+Target MVP endpoint:
+
+| Method | Path | 목적 | 입력 | 출력 |
+|---|---|---|---|---|
+| `POST` | `/api/inference` | job 생성, worker 실행, jobId 반환 | JSON create job input | `{ jobId }` |
+| `GET` | `/api/inference/:jobId/events` | `events.ndjson`를 SSE로 stream | `jobId` path param, optional `Last-Event-ID`/`after` | `text/event-stream`, SSE id는 event `seq` |
 
 | Method | Path | 목적 | 입력 | 출력 |
 |---|---|---|---|---|

@@ -7,4 +7,4 @@
 - `resume` 요청에는 `sessionId`가 있어야 한다.
 - 세션 정책 해석은 agent runtime이 소유하고, 어떤 시점에 재개를 요청할지는 상위 workflow가 결정한다.
 
-세부 타입 계약은 [AGENT_RUNTIME_PROTOCOL.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/AGENT_RUNTIME_PROTOCOL.md)를 따른다.
+Screen inference runtime과의 연결 기준은 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
