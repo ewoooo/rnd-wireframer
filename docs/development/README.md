@@ -8,7 +8,7 @@
 |---|---|---|
 | 전역 제품/운영 기준 | 제품 방향, 패키지 관계, 에이전트 운영, 변경 이력 | 루트 `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS.md`, `AGENTS_HISTORY.md` |
 | 개발 운영 기준 | 저장소 구조, screen inference architecture, DB/Docker 참고 | `docs/development/` |
-| 디자인 정본 | Figma-derived 패턴, spacing, component inventory, interaction 기준 | `docs/design/` |
+| 디자인 정본 | Figma-derived 패턴, spacing, component inventory, interaction 기준 | `packages/agent/docs/skills/references/design/` |
 | 생성 과정 상세 해설 | screen inference job/store/runtime/pipeline architecture | `docs/development/SCREEN_INFERENCE_ARCHITECTURE.md` |
 | 진행 중인 설계 계획 | 아직 완료되지 않은 reference 수집, Puck 편집 등 작업 계획 | `docs/development/` 또는 책임별 하위 폴더 |
 | 완료된 계획 기록 | 구현 완료, 전환 완료, 최신 기준 문서에 흡수된 계획 | `docs/archive/completed-plans/` |

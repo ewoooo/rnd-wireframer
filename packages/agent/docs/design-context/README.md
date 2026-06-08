@@ -4,7 +4,7 @@
 
 정본 책임:
 
-- `docs/design/`: SKT SDUI 디자인 패턴 원문 정본
+- `packages/agent/docs/skills/references/design/`: SKT SDUI 디자인 패턴 원문 정본
 - `packages/agent/docs/design-context/`: agent prompt에 넣기 위한 압축 규칙
 - `@cx/schema`: bundle ref DTO 계약
 - `@cx/inference`: bundle id 선택, 선택 이유, 사용 artifact 기록

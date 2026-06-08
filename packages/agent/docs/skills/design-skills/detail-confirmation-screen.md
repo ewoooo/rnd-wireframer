@@ -6,9 +6,9 @@ Use this skill when the screen presents a summary or detail body and asks the us
 
 ## Required Design Docs
 
-- `docs/design/COMPOSITION_LAYERS.md`
-- `docs/design/SCREEN_PATTERN_SUMMARY.md`
-- `docs/design/INTERACTION_PATTERNS.md`
+- `packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md`
+- `packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md`
+- `packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md`
 
 ## Composition Rules
 

@@ -12,9 +12,9 @@ const DESIGN_SKILL_REFS = {
 		reason:
 			"Use when a screen presents summary/detail evidence and closes with a primary confirmation action.",
 		requiredDesignDocs: [
-			"docs/design/COMPOSITION_LAYERS.md",
-			"docs/design/SCREEN_PATTERN_SUMMARY.md",
-			"docs/design/INTERACTION_PATTERNS.md",
+			"packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md",
+			"packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md",
+			"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
 		],
 		version: DESIGN_SKILL_VERSION,
 	},
@@ -25,9 +25,9 @@ const DESIGN_SKILL_REFS = {
 		reason:
 			"Use when a screen contains input, validation, consent, verification, or submit evidence.",
 		requiredDesignDocs: [
-			"docs/design/SECTION_PATTERNS.md",
-			"docs/design/INTERACTION_PATTERNS.md",
-			"docs/design/LAYOUT_SPACING_CONTRACT.md",
+			"packages/agent/docs/skills/references/design/SECTION_PATTERNS.md",
+			"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
+			"packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md",
 		],
 		version: DESIGN_SKILL_VERSION,
 	},
@@ -38,9 +38,9 @@ const DESIGN_SKILL_REFS = {
 		reason:
 			"Use when a screen contains repeated rows, selectable choices, agreement lists, or comparison lists.",
 		requiredDesignDocs: [
-			"docs/design/SECTION_PATTERNS.md",
-			"docs/design/COMPONENT_INVENTORY.md",
-			"docs/design/LAYOUT_SPACING_CONTRACT.md",
+			"packages/agent/docs/skills/references/design/SECTION_PATTERNS.md",
+			"packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md",
+			"packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md",
 		],
 		version: DESIGN_SKILL_VERSION,
 	},
@@ -51,9 +51,9 @@ const DESIGN_SKILL_REFS = {
 		reason:
 			"Fallback when SourceSpec and ScreenIntent do not provide enough evidence for a specific design skill.",
 		requiredDesignDocs: [
-			"docs/design/COMPOSITION_LAYERS.md",
-			"docs/design/SCREEN_PATTERN_SUMMARY.md",
-			"docs/design/LAYOUT_SPACING_CONTRACT.md",
+			"packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md",
+			"packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md",
+			"packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md",
 		],
 		version: DESIGN_SKILL_VERSION,
 	},

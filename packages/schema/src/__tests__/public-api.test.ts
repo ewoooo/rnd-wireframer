@@ -207,7 +207,7 @@ describe("@cx/schema public API", () => {
 		const bundleRef: DesignContextBundleRef = {
 			id: "layout-composition",
 			reason: "screen composition guidance",
-			sourceDocs: ["docs/design/COMPOSITION_LAYERS.md"],
+			sourceDocs: ["packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md"],
 			version: "2026-05-29",
 		};
 
@@ -219,7 +219,7 @@ describe("@cx/schema public API", () => {
 			id: "visual-foundation",
 			version: "2026-05-29",
 			reason: "test",
-			sourceDocs: ["docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md"],
+			sourceDocs: ["packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md"],
 			body: "rule lines",
 		};
 
@@ -239,9 +239,9 @@ describe("@cx/schema public API", () => {
 				qualityGates: ["visual-hierarchy", "action-clarity", "pattern-fit"],
 				reason: "Summary and CTA source evidence match detail confirmation composition.",
 				requiredDesignDocs: [
-					"docs/design/COMPOSITION_LAYERS.md",
-					"docs/design/SCREEN_PATTERN_SUMMARY.md",
-					"docs/design/INTERACTION_PATTERNS.md",
+					"packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md",
+					"packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md",
+					"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
 				],
 				version: "2026-06-01",
 			},
@@ -250,7 +250,7 @@ describe("@cx/schema public API", () => {
 		expect(selection.schemaVersion).toBe("design-skill-selection.v0.1");
 		expect(selection.selectedSkill.id).toBe("detail-confirmation-screen");
 		expect(selection.selectedSkill.requiredDesignDocs).toContain(
-			"docs/design/INTERACTION_PATTERNS.md",
+			"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
 		);
 	});
 

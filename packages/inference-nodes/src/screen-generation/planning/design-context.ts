@@ -5,21 +5,21 @@ import type { DesignContextBundleSelection, PatternLayerCandidate } from "./type
 const DESIGN_CONTEXT_BUNDLE_VERSION = "2026-05-29";
 
 const DESIGN_CONTEXT_BUNDLE_SOURCE_DOCS = {
-	"interaction-state": ["docs/design/INTERACTION_PATTERNS.md", "docs/design/SECTION_PATTERNS.md"],
+	"interaction-state": ["packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md", "packages/agent/docs/skills/references/design/SECTION_PATTERNS.md"],
 	"layout-composition": [
-		"docs/design/COMPOSITION_LAYERS.md",
-		"docs/design/SECTION_PATTERNS.md",
-		"docs/design/SCREEN_PATTERN_SUMMARY.md",
-		"docs/design/LAYOUT_SPACING_CONTRACT.md",
+		"packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md",
+		"packages/agent/docs/skills/references/design/SECTION_PATTERNS.md",
+		"packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md",
+		"packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md",
 	],
 	"quality-review": [
 		"packages/agent/docs/quality-review/checklist.md",
 		"packages/agent/docs/screen-generation/checklist.md",
 	],
 	"visual-foundation": [
-		"docs/design/LAYOUT_SPACING_CONTRACT.md",
-		"docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md",
-		"docs/design/COMPONENT_INVENTORY.md",
+		"packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md",
+		"packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md",
+		"packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md",
 	],
 } as const satisfies Record<DesignContextBundleId, string[]>;
 

@@ -2,7 +2,7 @@
 
 Bundle id: `layout-composition`
 
-Source docs: `docs/design/COMPOSITION_LAYERS.md`, `docs/design/SECTION_PATTERNS.md`, `docs/design/SCREEN_PATTERN_SUMMARY.md`, `docs/design/LAYOUT_SPACING_CONTRACT.md`
+Source docs: `packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md`, `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`, `packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md`, `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`
 
 이 번들은 Screen/Region/Area 조합과 섹션 그룹핑 규칙을 제공한다. 우선순위는 **source evidence ≥ schema/catalog > 이 번들 규칙**이다.
 

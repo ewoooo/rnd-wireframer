@@ -6,9 +6,9 @@ Use this skill when the screen contains repeated rows, options, agreement lists,
 
 ## Required Design Docs
 
-- `docs/design/SECTION_PATTERNS.md`
-- `docs/design/COMPONENT_INVENTORY.md`
-- `docs/design/LAYOUT_SPACING_CONTRACT.md`
+- `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`
+- `packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md`
+- `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`
 
 ## Composition Rules
 

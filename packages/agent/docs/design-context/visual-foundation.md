@@ -2,7 +2,7 @@
 
 Bundle id: `visual-foundation`
 
-Source docs: `docs/design/LAYOUT_SPACING_CONTRACT.md`, `docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md`, `docs/design/COMPONENT_INVENTORY.md`
+Source docs: `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`, `packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md`, `packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md`
 
 이 번들은 화면의 구분선·간격·시각 위계 운영 규칙을 제공한다. 이 규칙은 보조 기준이며 우선순위는 **source evidence ≥ schema/catalog > 이 번들 규칙**이다.
 

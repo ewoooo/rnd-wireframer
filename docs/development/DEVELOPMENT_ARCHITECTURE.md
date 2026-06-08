@@ -174,7 +174,7 @@ apps/web/
 
 Pattern은 앱 소비 데이터가 아니라 `@cx/layout/catalog` reference로 운영한다. Layout catalog는 screen/region/area/composite의 flow, spacing, child ordering 같은 레이아웃 레시피를 소유한다. `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 `@cx/layout` 공개 API를 통해 layout recipe를 materialize한다. React render 단계는 layout catalog JSON을 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/renderer` 입력 DTO로만 취급한다.
 
-Design Review는 DecoratedNodeTree 이후에 실행되는 디자인 품질 patch 단계다. 이 단계는 CTA 승격, pattern variant 보정, placeholder 기반 새 component 제안, tree 맥락 기반 composite 조합 제안, state별 display 보정을 다룬다. Design Review AI는 반드시 [docs/design](/Users/plusx/Documents/rnd-screen-generator/docs/design)의 책임 문서를 근거로 `designReferences`를 남기며, 자유로운 RenderTree 생성은 금지한다. AI가 만든 proposal은 `packages/agent/src/design-review/design-review-schema.ts`의 operation schema를 통과한 뒤 deterministic apply/validation 단계에서만 반영한다.
+Design Review는 DecoratedNodeTree 이후에 실행되는 디자인 품질 patch 단계다. 이 단계는 CTA 승격, pattern variant 보정, placeholder 기반 새 component 제안, tree 맥락 기반 composite 조합 제안, state별 display 보정을 다룬다. Design Review AI는 반드시 [packages/agent/docs/skills/references/design](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design)의 책임 문서를 근거로 `designReferences`를 남기며, 자유로운 RenderTree 생성은 금지한다. AI가 만든 proposal은 `packages/agent/src/design-review/design-review-schema.ts`의 operation schema를 통과한 뒤 deterministic apply/validation 단계에서만 반영한다.
 
 앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 

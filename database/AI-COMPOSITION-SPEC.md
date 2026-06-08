@@ -62,7 +62,7 @@ PRDD.md
    │  - Schema A 입력
    │  - Archetype Scaffold 입력
    │  - 카탈로그 카드덱(설계 1) prior
-   │  - docs/design 기반 design deck prior
+   │  - packages/agent/docs/skills/references/design 기반 design deck prior
    │  - layoutPatternStore prior
    │  - 각 슬롯에서 reuse-primitive / reuse-pattern / propose-pattern / report-gap
    │  - componentPattern 결정
@@ -89,7 +89,7 @@ PRDD.md
    │  DB row shape
    ▼
 [Design Review]
-   │  docs/design 근거로 composed/decorated 결과 검증·개선 patch
+   │  packages/agent/docs/skills/references/design 근거로 composed/decorated 결과 검증·개선 patch
    │  proposed componentPattern 큐레이션 → registered 승격
    │  gap report 큐 처리 → 인간이 primitive 추가
 ```
@@ -97,7 +97,7 @@ PRDD.md
 **LLM 책임 분리**:
 - **LLM #1 (Compose)**: componentPattern + layoutPattern 1차안. "어떤 UI 블록을 어디에 놓고, 어떤 design/layout pattern으로 조립하는가."
 - **LLM #2 (Decorate)**: layoutPattern 검증·보정. Compose의 layoutPattern 1차안을 유지하는 것을 기본으로 하고, 누락·비호환·명백한 품질 문제만 보정한다.
-- Compose는 `docs/design/` 책임 문서를 근거로 화면 골격, area role, componentPattern, layoutPattern을 함께 결정한다.
+- Compose는 `packages/agent/docs/skills/references/design/` 책임 문서를 근거로 화면 골격, area role, componentPattern, layoutPattern을 함께 결정한다.
 - Archetype Scaffold는 코드가 만든 얇은 설계도다. Compose는 이 설계도를 채우고, 채울 수 없는 block을 `missingBlocks`/`gapReports`로 설명한다.
 - Decorate는 트리 구조·prop·binding **절대 변경 금지**. layoutPattern 검증 결과와 보정 사유만 추가한다.
 
@@ -105,7 +105,7 @@ PRDD.md
 1. Compose는 screen/area/decision 단위에 가능한 한 `layoutPatternDraft`를 작성한다. area에는 필수, decision에는 componentPattern 내부 배치가 필요한 경우 작성한다.
 2. Validator #1은 Compose의 `layoutPatternDraft`를 검증한다 (layoutPatternStore hit, variant 존재, node kind 호환).
 3. Decorate는 Compose draft를 (a) 그대로 승인, (b) variant만 조정, (c) 다른 layoutPattern으로 보정 중 하나로 처리한다.
-4. Decorate가 조정/보정한 경우 `verification.reasons[]`에 원 draft와 변경 사유, 참조한 `docs/design/` 문서를 남긴다.
+4. Decorate가 조정/보정한 경우 `verification.reasons[]`에 원 draft와 변경 사유, 참조한 `packages/agent/docs/skills/references/design/` 문서를 남긴다.
 5. Decorate는 새 화면 구조, 새 componentPattern, 새 props/binding/hook을 만들 수 없다.
 
 **경계 규율**:
@@ -113,7 +113,7 @@ PRDD.md
 - PRDD 추출은 LLM 책임이 아니다. Register가 PRDD를 deterministic하게 파싱해 Schema A를 만들고, LLM #1은 Schema A를 읽어 composition decision만 수행한다.
 - 재시도는 **위반 노드 범위로 좁힘**. 전체 트리 재생성 금지.
 - 화면 단위 호출. 다중 화면 일괄 호출 금지 (457KB→0 실패 패턴 회피).
-- 단계 간 책임은 `CLAUDE.md` 메모리 룰 그대로 — Register=parse, Composer=place props·bindings·layoutPattern drafts, Decorator=verify/improve layoutPatterns, DB=materialize. Compose는 Register가 보존한 PRDD prose와 `docs/design/` 근거를 재해석할 수 있지만, 원문 추출·파싱 결과를 대체하지 않는다.
+- 단계 간 책임은 `CLAUDE.md` 메모리 룰 그대로 — Register=parse, Composer=place props·bindings·layoutPattern drafts, Decorator=verify/improve layoutPatterns, DB=materialize. Compose는 Register가 보존한 PRDD prose와 `packages/agent/docs/skills/references/design/` 근거를 재해석할 수 있지만, 원문 추출·파싱 결과를 대체하지 않는다.
 
 **두 LLM 단계의 위험**:
 - Compose 출력이 Decorate 입력 — Validator #1이 새는 결함은 Decorate 비용까지 끌고 감. Validator #1 엄격도가 중요.
@@ -665,7 +665,7 @@ deck은 SOT가 아니다. 생성/검수/renderer projection의 실제 기준은 
 - primitive/component surface: `@cx/components/catalog`
 - reusable componentPattern registry: `@cx/component-pattern-store`
 - layout preset: `@cx/layout/catalog` (`packages/layout/src/catalog/*.json`)
-- design rule/reference: `docs/design/*.md`
+- design rule/reference: `packages/agent/docs/skills/references/design/*.md`
 - token/layout foundation: `@cx/tokens`, `@cx/layout`
 
 deck은 위 원천 계약을 LLM prompt에 넣기 좋은 카드 형태로 요약한 재생성 가능 산출물이다. 감사, 재현, retry prompt 구성에는 쓸 수 있지만 계약 검증의 최종 기준은 아니다. 원천 계약과 deck이 충돌하면 원천 계약을 우선하고 deck을 다시 생성한다.
@@ -742,11 +742,11 @@ interface ComponentPatternCard {
 - `@cx/components/catalog` 변경 시 → primitives 재생성
 - `packages/component-pattern-store/src/catalog/registered/*` 변경 시 → componentPatterns.registered 재생성
 - `packages/component-pattern-store/src/catalog/proposed/*` 변경 시 → componentPatterns.proposed 재생성
-- `docs/design/*.md` 변경 시 → design deck 재생성
+- `packages/agent/docs/skills/references/design/*.md` 변경 시 → design deck 재생성
 - `packages/layout/src/catalog/*.json` 변경 시 → layout catalog deck 재생성
 - pre-commit 또는 dev server start hook에서 자동
 
-**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI prompt packaging deck 산출물 위치다. Compose/Decorate prompt는 `catalog-deck.json`, `design-deck.json`, `layout-catalog-deck.json`을 함께 입력받되, validator와 deterministic code의 기준 계약은 항상 `@cx/components/catalog`, `@cx/layout/catalog`, `@cx/layout/resolver`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
+**결정 ④**: generated deck은 `database/generated-decks/`에 둔다. 이 경로는 SOT catalog가 아니라 AI prompt packaging deck 산출물 위치다. Compose/Decorate prompt는 `catalog-deck.json`, `design-deck.json`, `layout-catalog-deck.json`을 함께 입력받되, validator와 deterministic code의 기준 계약은 항상 `@cx/components/catalog`, `@cx/layout/catalog`, `@cx/layout/resolver`, `packages/agent/docs/skills/references/design`, `@cx/types` 원천을 직접 조회한다.
 
 ---
 
@@ -791,7 +791,7 @@ interface ComponentPatternCard {
 | 노드 호환성 | layoutPattern이 적용 가능한 노드 종류(screen/area/group) 매치 | hard error |
 | 트리 불변 | composed.json의 노드 구조·props·bindings가 변경되지 않음 | hard error (Compose 영역 침범) |
 | reasons 필수 | 각 layoutPattern verification에 `reasons[]`가 비어있지 않음 | hard error |
-| draft 변경 시 사유 필수 | Compose `layoutPatternDraft`를 **변경한 경우**(layoutPatternId 또는 variant) 다음 3종 세트 필수: 원 draft 보존, `reasons[]`에 변경 사유, `designRefs[]`에 `docs/design/` 근거. **변경 자체는 허용**. 누락만 위반. | hard error |
+| draft 변경 시 사유 필수 | Compose `layoutPatternDraft`를 **변경한 경우**(layoutPatternId 또는 variant) 다음 3종 세트 필수: 원 draft 보존, `reasons[]`에 변경 사유, `designRefs[]`에 `packages/agent/docs/skills/references/design/` 근거. **변경 자체는 허용**. 누락만 위반. | hard error |
 | Resolver 룰 | variant 캐시 정합 | hard error |
 
 ---

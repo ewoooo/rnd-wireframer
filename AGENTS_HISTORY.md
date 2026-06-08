@@ -6,7 +6,7 @@
 
 제품, 아키텍처, 데이터, 에이전트 역할의 최신 기준은 `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS.md`와 세부 책임 문서를 참조한다.
 
-`AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 설계 문서는 `docs/` 아래에 둔다.
+`AGENTS.md`, `MASTER_PLAN.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 개발/데이터 문서는 `docs/` 아래에 두고, agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/references/design/` 아래에 둔다.
 
 | 주제          | 기준 문서                                                                        |
 | ------------- | -------------------------------------------------------------------------------- |
@@ -35,6 +35,13 @@
 ## 4. 최근 엔트리
 
 최근 주요 변경만 inline 유지한다.
+
+## 2026-06-08 - Agent Design Reference Move
+
+- 변경: 기존 `docs/design/` 디자인 정본 8개 문서를 `packages/agent/docs/skills/references/design/`으로 이동하고, agent design reference README를 추가함
+- 변경: `AGENTS.md`, 개발 문서, agent design-context/skill 문서, legacy inference planning 참조의 디자인 정본 경로를 새 위치로 갱신함
+- 이유: 디자인 패턴 문서를 agent가 직접 참조하는 문서 자산으로 운영하고, `@cx/agent`의 prompt/skill/context 참조 구조 안에 모으기 위함
+- 검증: `find packages/agent/docs/skills/references/design -maxdepth 1 -type f`, `test ! -e docs/design`, `rg -n "(^|[^/])docs/design/" . -S -g '!database/ai-imports/**' -g '!database/generated-decks/**' -g '!AGENTS_HISTORY.md'`
 
 ## 2026-06-08 - Agent Prompt Catalog Scaffold
 
@@ -1966,7 +1973,7 @@
 - 변경: `@cx/schema`에 `DesignSkillSelectionContract`와 관련 skill id/screen family/quality gate 타입을 추가함
 - 변경: `@cx/orchestration`에 `buildDesignSkillSelection()` 순수 helper를 추가하고, composition/pattern/generation/proposal/review/revision agent input context에 선택 결과를 전달함
 - 변경: `@cx/pipeline`이 Compose 단계에서 design skill을 선택해 `trace.json.designSkillSelection`에 기록하고, fake `CompositionPlan`에도 선택 skill id를 반영하도록 연결함
-- 변경: 초기 design skill 문서 `detail-confirmation-screen`, `form-entry-screen`, `list-selection-screen`을 `packages/agent/docs/design-skills/`에 추가하고, web smoke explorer가 선택 skill/gate/doc count를 표시하도록 보강함
+- 변경: 초기 design skill 문서 `detail-confirmation-screen`, `form-entry-screen`, `list-selection-screen`을 `packages/agent/docs/skills/design-skills/`에 추가하고, web smoke explorer가 선택 skill/gate/doc count를 표시하도록 보강함
 - 이유: Open Design식 skill catalog를 RenderTree runtime이 아니라 `CompositionPlan`과 quality review를 위한 bounded Compose reference로 흡수하기 위함
 - 검증: `npm test -- --run packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npx tsc --noEmit --pretty false`, `npx biome check packages/schema/src/design-skill.ts packages/schema/src/versions.ts packages/schema/src/index.ts packages/schema/src/__tests__/public-api.test.ts packages/orchestration/src/public/design-skills.ts packages/orchestration/src/public/types.ts packages/orchestration/src/public/agent-inputs.ts packages/orchestration/src/public/generation.ts packages/orchestration/src/index.ts packages/orchestration/src/__tests__/public-api.test.ts packages/pipeline/src/pipelines/screen-generation/artifact-commands.ts packages/pipeline/src/pipelines/screen-generation/screen-generation-pipeline.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/lib/smoke-runs.ts apps/web/src/components/smoke/SmokeRunExplorer.tsx apps/web/src/components/smoke/SmokeRunExplorer.test.tsx`, `npm run smoke:pipeline -- --target 'data/client-imports/{id}/260527_prdd/NOVA-PRDD-PG-001-0.md' --run-id 'design-skill-selection-final-check' --artifact-store local-transient`, `git diff --check`
 

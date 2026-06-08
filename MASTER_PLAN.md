@@ -85,7 +85,7 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 4. 시스템이 보정 결과를 `database/ai-imports/{importId}` 아래의 AI import 후보 산출물로 저장한다.
 5. 후보 산출물은 검증과 promote/import 단계를 통과한 뒤에만 `database/tables` 소비 데이터로 반영한다.
 
-이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과와 DecoratedNodeTree를 제한된 patch로 보정하는 역할을 맡는다. 최종 후보 산출물은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> MaterializedNodeTree` 순서와 `database/tables` row 계약을 기준으로 검증한다. Design Review patch는 반드시 `docs/design/`의 근거 문서를 참조해야 한다.
+이 흐름에서 AI는 원본 전체를 자유롭게 재작성하지 않고, deterministic parser가 만든 1차 추출 결과와 DecoratedNodeTree를 제한된 patch로 보정하는 역할을 맡는다. 최종 후보 산출물은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> MaterializedNodeTree` 순서와 `database/tables` row 계약을 기준으로 검증한다. Design Review patch는 반드시 `packages/agent/docs/skills/references/design/`의 근거 문서를 참조해야 한다.
 
 ## 4. MVP 범위
 

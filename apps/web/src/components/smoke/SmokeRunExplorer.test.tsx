@@ -103,7 +103,7 @@ function createRun(id: string): SmokeRunSummary {
 				selectedSkill: {
 					id: "detail-confirmation-screen",
 					qualityGates: ["visual-hierarchy", "action-clarity"],
-					requiredDesignDocs: ["docs/design/COMPOSITION_LAYERS.md"],
+					requiredDesignDocs: ["packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md"],
 				},
 			},
 		},

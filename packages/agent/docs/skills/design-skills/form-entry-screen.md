@@ -6,9 +6,9 @@ Use this skill when the screen contains editable fields, required agreements, ve
 
 ## Required Design Docs
 
-- `docs/design/SECTION_PATTERNS.md`
-- `docs/design/INTERACTION_PATTERNS.md`
-- `docs/design/LAYOUT_SPACING_CONTRACT.md`
+- `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`
+- `packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md`
+- `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`
 
 ## Composition Rules
 
