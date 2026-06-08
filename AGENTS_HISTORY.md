@@ -36,6 +36,18 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Inference Output Contract SSOT MVP
+
+- 변경: `@cx/schema`에 `SsotObject`, `InferenceReference`, `OutputContractObject` 타입과 `resolveOutputContractForInference(id)` resolver를 추가함
+- 변경: `@cx/inference` step 계약을 inline `output.schema` 대신 `output.contractRef` 기반으로 변경하고, `runStep`이 resolved output-contract SSOT로 raw output을 검증하도록 구현함
+- 변경: `@cx/inference` KnowledgeBase MVP resolver와 `runInferenceJob` MVP worker를 추가해 `output-contract.json`을 step artifact로 저장함
+- 변경: `@cx/components/catalog`, `@cx/layout/catalog`, `@cx/agent`, `@cx/tokens`에 inference용 owner resolver를 추가하고 `@cx/inference` KnowledgeBase registry에 연결함
+- 변경: `ReferenceEnvelope` wrapper를 제거하고 `references.json`/`output-contract.json`이 owner `SsotObject`를 직접 저장하도록 단순화함
+- 변경: `apps/web`에 thin `POST /api/inference`와 `GET /api/inference/:jobId/events` MVP route를 추가해 `@cx/inference` worker를 호출하도록 연결함
+- 변경: generic JSON Schema validation helper를 `@cx/validation`에 추가하고 `@cx/inference`가 이를 사용하도록 경계를 맞춤
+- 이유: inference package가 각 SSOT owner 내부 구조를 알지 않고 owner resolver가 반환한 객체 snapshot만 소비하게 하기 위함
+- 검증: `pnpm -s exec tsc --noEmit --pretty false --incremental false`, `pnpm -s exec vitest run packages/schema/src/__tests__/public-api.test.ts packages/component/src/__tests__/catalog-public-contract.test.ts packages/layout/src/__tests__/layout-public-api.test.ts packages/agent/src/__tests__/agent-runtime.test.ts packages/token/src/__tests__/public-api.test.ts packages/validation/src/__tests__/validators.test.ts packages/inference/src/__tests__/knowledge-base.test.ts packages/inference/src/__tests__/run-step.test.ts packages/inference/src/__tests__/worker.test.ts packages/inference/src/__tests__/artifact-store.test.ts packages/inference/src/__tests__/context-store.test.ts packages/inference/src/__tests__/job-store.test.ts`, API smoke `POST /api/inference` + `GET /api/inference/:jobId/events`
+
 ## 2026-06-08 - Layout Catalog Consolidation
 
 - 변경: `@cx/layout-pattern-store` 패키지를 제거하고 catalog, resolver, mutation helper, layout pattern component를 `@cx/layout`의 공개 subpath(`./catalog`, `./resolver`, `./mutations`, `./components`)로 통합함

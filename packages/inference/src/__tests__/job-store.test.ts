@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MemoryArtifactStore } from "../testing/memory-artifact-store";
 import { createJobStore } from "../stores/job-store";
+import { MemoryArtifactStore } from "../testing/memory-artifact-store";
 
 function makeStore() {
 	let t = 0;
@@ -16,7 +16,11 @@ function makeStore() {
 describe("JobStore", () => {
 	it("creates a job snapshot at job.json", async () => {
 		const { artifact, jobStore } = makeStore();
-		const job = await jobStore.createJob({ pipelineId: "demo", pipelineVersion: "v1", input: { a: 1 } });
+		const job = await jobStore.createJob({
+			pipelineId: "demo",
+			pipelineVersion: "v1",
+			input: { a: 1 },
+		});
 		expect(job.jobId).toBe("job-1");
 		expect(job.status).toBe("queued");
 		expect(await jobStore.getJob("job-1")).toEqual(job);
@@ -33,8 +37,16 @@ describe("JobStore", () => {
 	it("appendEvent assigns a monotonic seq and listEvents filters by after", async () => {
 		const { jobStore } = makeStore();
 		await jobStore.createJob({ pipelineId: "demo", pipelineVersion: "v1", input: {} });
-		const e1 = await jobStore.appendEvent("job-1", { jobId: "job-1", type: "job_started", timestamp: "t" });
-		const e2 = await jobStore.appendEvent("job-1", { jobId: "job-1", type: "job_completed", timestamp: "t" });
+		const e1 = await jobStore.appendEvent("job-1", {
+			jobId: "job-1",
+			type: "job_started",
+			timestamp: "t",
+		});
+		const e2 = await jobStore.appendEvent("job-1", {
+			jobId: "job-1",
+			type: "job_completed",
+			timestamp: "t",
+		});
 		expect([e1.seq, e2.seq]).toEqual([1, 2]);
 		expect(await jobStore.listEvents("job-1")).toHaveLength(2);
 		expect(await jobStore.listEvents("job-1", 1)).toEqual([e2]);
@@ -45,7 +57,10 @@ describe("JobStore", () => {
 		await jobStore.createJob({ pipelineId: "demo", pipelineVersion: "v1", input: {} });
 		await jobStore.createStep("job-1", "analyze");
 		await jobStore.updateStep("job-1", "analyze", { status: "succeeded" });
-		const step = await artifact.readJson<{ stepId: string; status: string }>("job-1", "steps/analyze/step.json");
+		const step = await artifact.readJson<{ stepId: string; status: string }>(
+			"job-1",
+			"steps/analyze/step.json",
+		);
 		expect(step).toMatchObject({ stepId: "analyze", status: "succeeded" });
 	});
 });

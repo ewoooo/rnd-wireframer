@@ -35,6 +35,23 @@ export type {
 } from "./design-skill";
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
+export type {
+	ComponentCatalogData,
+	ComponentCatalogObject,
+	InferenceReference,
+	LayoutCatalogData,
+	LayoutCatalogObject,
+	OutputContractData,
+	OutputContractObject,
+	PromptCatalogData,
+	PromptCatalogObject,
+	SkillData,
+	SkillObject,
+	SsotObject,
+	TokenCatalogData,
+	TokenCatalogObject,
+} from "./inference-reference";
+export { resolveOutputContractForInference, SSOT_OBJECT_SCHEMA_VERSION } from "./inference-reference";
 export type { JsonSchemaDocument } from "./json-schema-registry";
 export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-registry";
 export type { PreviewContract } from "./preview";

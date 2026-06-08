@@ -1,4 +1,11 @@
-import type { ArtifactStore, CreateJobInput, InferenceEvent, Job, JobStore, Step } from "../contracts";
+import type {
+	ArtifactStore,
+	CreateJobInput,
+	InferenceEvent,
+	Job,
+	JobStore,
+	Step,
+} from "../contracts";
 
 const EVENTS = "events.ndjson";
 const stepPath = (stepId: string) => `steps/${stepId}/step.json`;
@@ -43,7 +50,9 @@ export function createJobStore(
 		},
 
 		async appendEvent(jobId: string, event: Omit<InferenceEvent, "seq">): Promise<InferenceEvent> {
-			const existing = (await store.exists(jobId, EVENTS)) ? await store.readText(jobId, EVENTS) : "";
+			const existing = (await store.exists(jobId, EVENTS))
+				? await store.readText(jobId, EVENTS)
+				: "";
 			const lines = existing ? existing.trimEnd().split("\n").filter(Boolean) : [];
 			const stored: InferenceEvent = { ...event, seq: lines.length + 1 };
 			await store.appendLine(jobId, EVENTS, JSON.stringify(stored));

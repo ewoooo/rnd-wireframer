@@ -4,6 +4,7 @@ import {
 	listCatalog,
 	listCatalogIds,
 	listPatterns,
+	resolveLayoutCatalogForInference,
 } from "@cx/layout/catalog";
 import { listLayoutPatternComponents } from "@cx/layout/components";
 import { createLayoutPattern } from "@cx/layout/mutations";
@@ -57,6 +58,22 @@ describe("@cx/layout public API", () => {
 		if (!created.ok) throw new Error("layout candidate create failed");
 		expect(created.pattern?.id).toBe("generated-facade-list");
 		expect(getEntry("layout.area.generatedFacadeList")).toBeUndefined();
+	});
+
+	it("resolves the layout catalog as an inference SSOT object", () => {
+		const resolved = resolveLayoutCatalogForInference();
+
+		expect(resolved).toMatchObject({
+			kind: "layout-catalog",
+			id: "default",
+			owner: "@cx/layout",
+			sourceRef: "catalog",
+			schemaVersion: "ssot-object.v1",
+		});
+		expect(resolved.data.screen.length).toBeGreaterThan(0);
+		expect(resolved.data.region.length).toBeGreaterThan(0);
+		expect(resolved.data.area.length).toBeGreaterThan(0);
+		expect(resolved.data.composite.length).toBeGreaterThan(0);
 	});
 
 	it("exposes shared divider contracts for PageStack-backed area layouts", () => {

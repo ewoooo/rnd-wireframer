@@ -105,6 +105,9 @@ importers:
       '@cx/components':
         specifier: workspace:*
         version: link:../../packages/component
+      '@cx/inference':
+        specifier: workspace:*
+        version: link:../../packages/inference
       '@cx/layout':
         specifier: workspace:*
         version: link:../../packages/layout
@@ -136,10 +139,17 @@ importers:
         specifier: workspace:*
         version: link:../schema
 
-  packages/agent: {}
+  packages/agent:
+    dependencies:
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
 
   packages/component:
     dependencies:
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@cx/tokens':
         specifier: workspace:*
         version: link:../token
@@ -147,7 +157,26 @@ importers:
         specifier: ^19.2.0
         version: 19.2.7
 
-  packages/inference: {}
+  packages/inference:
+    dependencies:
+      '@cx/agent':
+        specifier: workspace:*
+        version: link:../agent
+      '@cx/components':
+        specifier: workspace:*
+        version: link:../component
+      '@cx/layout':
+        specifier: workspace:*
+        version: link:../layout
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@cx/tokens':
+        specifier: workspace:*
+        version: link:../token
+      '@cx/validation':
+        specifier: workspace:*
+        version: link:../validation
 
   packages/inference-nodes:
     dependencies:
@@ -229,7 +258,11 @@ importers:
 
   packages/schema: {}
 
-  packages/token: {}
+  packages/token:
+    dependencies:
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
 
   packages/types:
     dependencies:

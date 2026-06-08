@@ -10,6 +10,7 @@ import {
 	listCatalogIds,
 	promoteComponentCatalogEntry,
 	readComponentCatalogEntry,
+	resolveComponentCatalogForInference,
 	updateComponentCatalogEntry,
 	upsertComponentCatalogEntry,
 } from "../catalog";
@@ -74,6 +75,28 @@ describe("@cx/components public catalog contract", () => {
 		if (!created.ok) throw new Error("candidate create failed");
 		expect(created.entry?.status).toBe("candidate");
 		expect(componentCatalog.GeneratedFacadeCard).toBeUndefined();
+	});
+
+	it("resolves the component catalog as an inference SSOT object", () => {
+		const resolved = resolveComponentCatalogForInference();
+
+		expect(resolved).toMatchObject({
+			kind: "component-catalog",
+			id: "default",
+			owner: "@cx/components",
+			sourceRef: "catalog",
+			schemaVersion: "ssot-object.v1",
+		});
+		expect(resolved.data.entries.length).toBe(listCatalog().length);
+		expect(
+			resolved.data.entries.find(
+				(entry) =>
+					typeof entry === "object" &&
+					entry !== null &&
+					"type" in entry &&
+					entry.type === "ActionButton",
+			),
+		).toBeDefined();
 	});
 
 	it("keeps enum props explicit about allowed values", () => {

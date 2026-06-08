@@ -19,6 +19,7 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
+		"@cx/schema": "workspace:*",
 		"@cx/tokens": "workspace:*"
 	},
 	"peerDependencies": {

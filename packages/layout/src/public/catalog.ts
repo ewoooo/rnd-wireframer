@@ -1,3 +1,4 @@
+import { type LayoutCatalogObject, SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
 import { patternCatalogSets } from "../pattern-internal/data";
 import { layoutPatternCatalogSchema, patternStoreSchema } from "../pattern-internal/schema";
 import {
@@ -85,6 +86,23 @@ export function getPatternPreset<TTarget extends PatternStoreTarget>(
 
 	const variant = patternVariant ?? pattern.defaultVariant;
 	return pattern.variants[variant];
+}
+
+export function resolveLayoutCatalogForInference(): LayoutCatalogObject {
+	return {
+		kind: "layout-catalog",
+		id: "default",
+		owner: "@cx/layout",
+		sourceRef: "catalog",
+		version: "v1",
+		schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
+		data: {
+			screen: listCatalog({ target: "screen" }),
+			region: listCatalog({ target: "region" }),
+			area: listCatalog({ target: "area" }),
+			composite: listCatalog({ target: "composite" }),
+		},
+	};
 }
 
 function loadLayoutPatternCatalog() {

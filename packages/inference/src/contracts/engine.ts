@@ -1,4 +1,4 @@
-import type { FunctionRef, ReferenceEnvelope } from "./step";
+import type { FunctionRef, KnowledgeValue, OutputContractValue } from "./step";
 
 export type PromptPayload = { messages: Array<{ role: string; content: string }> };
 
@@ -6,7 +6,8 @@ export type EngineRequest = {
 	prompt?: PromptPayload;
 	run?: FunctionRef;
 	inputs: Record<string, unknown>;
-	references: Record<string, ReferenceEnvelope | ReferenceEnvelope[]>;
+	references: Record<string, KnowledgeValue | KnowledgeValue[]>;
+	outputContract: OutputContractValue;
 };
 
 export type EngineResult = { raw: unknown };

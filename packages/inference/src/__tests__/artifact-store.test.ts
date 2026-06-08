@@ -43,4 +43,7 @@ function artifactStoreContract(name: string, make: () => ArtifactStore) {
 }
 
 artifactStoreContract("memory", () => new MemoryArtifactStore());
-artifactStoreContract("file", () => new FileArtifactStore(mkdtempSync(path.join(tmpdir(), "cx-art-"))));
+artifactStoreContract(
+	"file",
+	() => new FileArtifactStore(mkdtempSync(path.join(tmpdir(), "cx-art-"))),
+);

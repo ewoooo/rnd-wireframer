@@ -9,7 +9,8 @@ export class FileArtifactStore implements ArtifactStore {
 
 	private resolve(jobId: string, rel: string): string {
 		if (!SAFE_JOB_ID.test(jobId)) throw new Error(`Invalid jobId: ${jobId}`);
-		if (rel.includes("..") || path.isAbsolute(rel)) throw new Error(`Invalid artifact path: ${rel}`);
+		if (rel.includes("..") || path.isAbsolute(rel))
+			throw new Error(`Invalid artifact path: ${rel}`);
 		const root = path.resolve(this.dataRoot, "inference-jobs", jobId);
 		const full = path.resolve(root, rel);
 		if (full !== root && !full.startsWith(root + path.sep)) {

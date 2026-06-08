@@ -11,5 +11,8 @@
 		"./claude": "./src/claude/index.ts",
 		"./contract": "./src/contract/index.ts",
 		"./tasks": "./src/tasks/index.ts"
+	},
+	"dependencies": {
+		"@cx/schema": "workspace:*"
 	}
 }

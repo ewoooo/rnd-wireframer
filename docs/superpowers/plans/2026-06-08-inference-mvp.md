@@ -922,17 +922,18 @@ describe("runStep", () => {
 			output: { schema: {}, schemaVersion: "v0", writeToContext: "pattern" },
 		});
 
-		const envelope: ReferenceEnvelope = {
-			id: "layout-catalog",
-			source: "@cx/layout",
+		const layoutCatalog: InferenceReference = {
+			kind: "layout-catalog",
+			id: "default",
+			owner: "@cx/layout",
 			sourceRef: "catalog",
-			format: "json",
-			data: [],
+			schemaVersion: "ssot-object.v1",
+			data: { screen: [], region: [], area: [], composite: [] },
 		};
 
 		const exec = await runStep(step, {
 			resolveInput: async (ref: StepInputRef) => ({ resolved: ref.kind }),
-			resolveReference: async (_ref: KnowledgeRef) => envelope,
+			resolveReference: async (_ref: KnowledgeRef) => layoutCatalog,
 			engines: { claude, function: noopEngine() },
 		});
 

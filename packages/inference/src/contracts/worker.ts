@@ -1,11 +1,17 @@
-import type { EngineRegistry } from "./engine";
-import type { PromptPayload } from "./engine";
+import type { EngineRegistry, PromptPayload } from "./engine";
 import type { PipelineRegistry } from "./pipeline";
-import type { KnowledgeRef, ReferenceEnvelope, StepInputRef } from "./step";
+import type {
+	KnowledgeRef,
+	KnowledgeValue,
+	OutputContractRef,
+	OutputContractValue,
+	StepInputRef,
+} from "./step";
 import type { ArtifactStore, ContextStore, JobStore } from "./stores";
 
 export type KnowledgeBase = {
-	resolve(ref: KnowledgeRef): Promise<ReferenceEnvelope | ReferenceEnvelope[]>;
+	resolve(ref: KnowledgeRef): Promise<KnowledgeValue | KnowledgeValue[]>;
+	resolveOutputContract(ref: OutputContractRef): Promise<OutputContractValue>;
 };
 
 export type WorkerDeps = {
@@ -24,14 +30,16 @@ export type InferenceRuntime = WorkerDeps;
 
 export type StepRunContext = {
 	resolveInput: (ref: StepInputRef) => Promise<unknown>;
-	resolveReference: (ref: KnowledgeRef) => Promise<ReferenceEnvelope | ReferenceEnvelope[]>;
+	resolveReference: (ref: KnowledgeRef) => Promise<KnowledgeValue | KnowledgeValue[]>;
+	resolveOutputContract: (ref: OutputContractRef) => Promise<OutputContractValue>;
 	engines: EngineRegistry;
 };
 
 export type StepExecution = {
 	status: "succeeded" | "failed";
 	inputs: Record<string, unknown>;
-	references: Record<string, ReferenceEnvelope | ReferenceEnvelope[]>;
+	references: Record<string, KnowledgeValue | KnowledgeValue[]>;
+	outputContract: OutputContractValue;
 	prompt?: PromptPayload;
 	raw: unknown;
 	output?: unknown;

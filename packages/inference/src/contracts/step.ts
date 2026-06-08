@@ -1,6 +1,6 @@
-export type ReferenceEnvelope =
-	| { id: string; source: string; sourceRef: string; format: "markdown"; version?: string; content: string }
-	| { id: string; source: string; sourceRef: string; format: "json"; version?: string; data: unknown };
+import type { InferenceReference, OutputContractObject } from "@cx/schema";
+
+export type KnowledgeValue = InferenceReference;
 
 export type StepInputRef =
 	| { kind: "job-input"; path?: string }
@@ -10,8 +10,14 @@ export type StepInputRef =
 	| { kind: "value"; value: unknown };
 
 export type KnowledgeRef = {
-	source: "component-catalog" | "layout-catalog" | "skillset";
+	source: "component-catalog" | "layout-catalog" | "skill" | "prompt-catalog" | "token-catalog";
 	id?: string;
+	version?: string;
+};
+
+export type OutputContractRef = {
+	source: "output-contract";
+	id: string;
 	version?: string;
 };
 
@@ -19,10 +25,11 @@ export type PromptTemplateRef = { id: string; version?: string };
 export type FunctionRef = { id: string };
 
 export type OutputContract = {
-	schema: unknown;
-	schemaVersion: string;
+	contractRef: OutputContractRef;
 	writeToContext?: string;
 };
+
+export type OutputContractValue = OutputContractObject;
 
 export type InferenceStepDefinition = {
 	id: string;
