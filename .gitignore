@@ -53,4 +53,10 @@ tmp/
 
 # session/job artifacts (keep out of repo)
 .data/
-.claude/
+# .claude: ignore local session junk, but track shared skills/config (graphify)
+.claude/*
+!.claude/skills/
+!.claude/settings.json
+!.claude/CLAUDE.md
+# graphify generated graph (regenerable via `graphify .` / `graphify update .`)
+graphify-out/
