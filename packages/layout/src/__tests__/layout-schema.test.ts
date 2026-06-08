@@ -6,6 +6,7 @@ import {
 	patternSchema,
 	patternStoreSchema,
 } from "../pattern-internal/schema";
+import { resolveLayoutCatalogForInference } from "../public/catalog";
 
 describe("@cx/layout schema", () => {
 	it("normalizes layout component catalog records into normalized pattern store shape", () => {
@@ -190,6 +191,25 @@ describe("@cx/layout schema", () => {
 				componentID: "FieldStackArea",
 			}),
 		).toThrow(/layout\.area\./);
+	});
+
+	it("accepts a usedFor vocabulary on a catalog entry", () => {
+		const entry = layoutPatternCatalogEntrySchema.parse({
+			id: "layout.area.fieldStack",
+			target: "area",
+			name: "필드 스택",
+			componentID: "FieldStackArea",
+			usedFor: [
+				{ intent: "체크박스 스택", description: "동의/선택 체크박스 묶음" },
+				{ intent: "메시지 스택" },
+			],
+		});
+		expect(entry.usedFor?.[0]?.intent).toBe("체크박스 스택");
+	});
+
+	it("exposes the area catalog to inference", () => {
+		const cat = resolveLayoutCatalogForInference();
+		expect(Array.isArray(cat.data.area)).toBe(true);
 	});
 
 	it("rejects enum prop contracts without values", () => {

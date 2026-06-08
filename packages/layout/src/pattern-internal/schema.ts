@@ -112,6 +112,14 @@ export const layoutPatternCatalogEntrySchema = z
 		children: layoutPatternChildrenContractSchema.optional(),
 		description: z.string().optional(),
 		props: z.record(z.string(), layoutPatternPropContractSchema).optional(),
+		usedFor: z
+			.array(
+				z.object({
+					intent: z.string().min(1),
+					description: z.string().optional(),
+				}),
+			)
+			.optional(),
 		status: z.enum(["deprecated", "draft", "ready"]).optional(),
 	})
 	.superRefine((entry, ctx) => {
