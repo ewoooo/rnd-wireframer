@@ -24,6 +24,7 @@
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
 	"exclude": [
 		"node_modules",
+		// [KIKI-SHIM] 아래 줄은 임시 — kiki 빌드 제공 시 제거. 가이드: packages/external/KIKI-SHIM.md
 		"packages/external/src/components"
 	]
 }

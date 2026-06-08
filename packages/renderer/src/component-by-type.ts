@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
 import * as ComponentsModule from "@cx/components";
 import { componentCatalogAliases } from "@cx/components/catalog";
+// [KIKI-SHIM] import 소스 "/registry" 가 임시 — kiki 빌드 제공 시 "@cx/external"(빌드 barrel)로 변경.
+// 가이드: packages/external/KIKI-SHIM.md. (kiki를 등록하는 아래 로직 자체는 영구.)
 // 공식 barrel(@cx/external)이 아니라 registry(전체 표면)를 쓴다 — draft 컴포넌트까지 렌더 가능해야 한다.
 import * as ExternalModule from "@cx/external/registry";
 

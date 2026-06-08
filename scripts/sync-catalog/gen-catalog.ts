@@ -6,6 +6,9 @@
  */
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+// [KIKI-SHIM] 우리가 kiki 위에 얹는 큐레이션 주석(description/role/tokenRole). 단일 파일로 격리.
+// kiki 빌드 제공 시 이 import + 머지 + kiki-annotations.ts 삭제. 가이드: packages/external/KIKI-SHIM.md
+import { kikiAnnotations } from "./kiki-annotations.ts";
 import { parseProps } from "./parse-props.ts";
 
 export interface GenCatalogOptions {
@@ -41,6 +44,7 @@ export function genCatalog(opts: GenCatalogOptions): number {
 		const source = isBarrel ? "kiki-barrel" : "kiki-draft";
 		const label = isBarrel ? `[kiki] ${name}` : `[kiki/draft] ${name}`;
 		const typeKey = `kiki.${name}`;
+		const annotation = kikiAnnotations[typeKey]; // [KIKI-SHIM] 큐레이션 주석 머지
 
 		let props: ReturnType<typeof parseProps> = [];
 		try {
@@ -56,6 +60,10 @@ export function genCatalog(opts: GenCatalogOptions): number {
 		const propsEntries = props
 			.map((p) => {
 				const contract: string[] = [`type: "${p.type}"`];
+				// [KIKI-SHIM] 주석의 role/tokenRole 머지 (type 다음, values 앞)
+				const propAnn = annotation?.props?.[p.name];
+				if (propAnn?.role) contract.push(`role: "${propAnn.role}"`);
+				if (propAnn?.tokenRole) contract.push(`tokenRole: "${propAnn.tokenRole}"`);
 				if (p.values && p.values.length > 0) {
 					contract.push(`values: [${p.values.map((v) => `"${v}"`).join(", ")}]`);
 				}
@@ -69,12 +77,17 @@ export function genCatalog(opts: GenCatalogOptions): number {
 			})
 			.join("\n");
 
+		// [KIKI-SHIM] 주석의 description 머지
+		const descLine = annotation?.description
+			? `\t\tdescription: ${JSON.stringify(annotation.description)},\n`
+			: "";
+
 		entries.push(`\t"${typeKey}": {
 \t\ttype: "${typeKey}",
 \t\tsource: "${source}",
 \t\tlabel: "${label}",
 \t\tversion: "0.0.0",
-\t\tprops: {
+${descLine}\t\tprops: {
 ${propsEntries}
 \t\t},
 \t},`);
