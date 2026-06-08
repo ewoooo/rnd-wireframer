@@ -1,6 +1,6 @@
 import type { ComponentCatalog } from "@cx/components/types";
 import { SCHEMA_VERSION, type SourceSpec, type ValidationReportContract } from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import {
 	validateCompositionPlan,
 	validateRenderTree,

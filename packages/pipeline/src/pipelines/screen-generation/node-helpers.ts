@@ -9,7 +9,7 @@ import {
 	runRequiredRegionLayoutRepairNode,
 } from "@cx/inference-nodes/screen-generation";
 import type { DecorationPlanContract, DesignContextBundleContent, SourceSpec } from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import type {
 	PipelineMarkdownSourceFile,
 	ResolvedStepInputs,

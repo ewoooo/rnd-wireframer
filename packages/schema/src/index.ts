@@ -35,6 +35,7 @@ export type {
 } from "./design-skill";
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
+export { isRecord } from "./guards";
 export type {
 	ComponentCatalogData,
 	ComponentCatalogObject,

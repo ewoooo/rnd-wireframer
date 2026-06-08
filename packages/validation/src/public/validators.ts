@@ -14,7 +14,7 @@ import type {
 	SourceSpec,
 } from "@cx/schema";
 import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type {

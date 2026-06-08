@@ -1,5 +1,5 @@
 import type { PipelineRunEvent } from "@cx/pipeline";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 
 export const SCREEN_INFERENCE_PIPELINE_EVENT_NAME = "pipeline-event";
 

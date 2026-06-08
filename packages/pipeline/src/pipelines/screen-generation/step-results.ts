@@ -9,7 +9,7 @@ import type {
 	SourceSpec,
 	ValidationReportContract,
 } from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import type { validateComponentProposal } from "@cx/validation";
 import type { ParseMarkdownSourceCommandResult } from "../../commands";
 import type { ScreenGenerationSkillBundleRef, SideEffectExecutionResult } from "../../public/types";

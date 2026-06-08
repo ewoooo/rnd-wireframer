@@ -1,4 +1,4 @@
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import { readReportSummary } from "../shared/report-summary";
 import type { BuildGenerationNextActionInput, GenerationNextAction } from "./types";
 

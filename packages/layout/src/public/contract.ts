@@ -1,4 +1,4 @@
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import type {
 	FlexLayoutProps,
 	GridLayoutProps,

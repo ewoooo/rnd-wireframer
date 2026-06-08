@@ -4,7 +4,7 @@ import type {
 	SourceSpec,
 	ValidationReportContract,
 } from "@cx/schema";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import {
 	buildDecorationPlan,
 	buildDesignContextBundleRefs,

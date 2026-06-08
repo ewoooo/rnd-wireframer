@@ -1,4 +1,4 @@
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/patterns/types";
 import { componentSignals, scorePatternSignals } from "../pattern-internal/matcher";
 import { findPattern, listPatterns } from "../pattern-internal/store";

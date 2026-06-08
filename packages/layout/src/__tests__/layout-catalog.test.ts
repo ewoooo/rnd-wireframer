@@ -5,7 +5,7 @@ import {
 	listPatterns,
 	loadPatternStore,
 } from "@cx/layout/catalog";
-import { isRecord } from "@cx/types/guards";
+import { isRecord } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 import { patternSchema, patternStoreSchema } from "../pattern-internal/schema";
 
