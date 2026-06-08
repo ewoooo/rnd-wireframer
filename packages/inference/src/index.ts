@@ -5,8 +5,8 @@ export { createInferenceKnowledgeBase } from "./knowledge/knowledge-base";
 export {
 	context,
 	createPipelineRegistry,
-	defineStep,
 	definePipeline,
+	defineStep,
 	jobInput,
 	knowledge,
 	outputContractRef,

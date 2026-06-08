@@ -1,9 +1,13 @@
-import { createInferenceKnowledgeBase, type InferenceRuntime, runInferenceJob } from "@cx/inference";
+import {
+	createInferenceKnowledgeBase,
+	type InferenceRuntime,
+	runInferenceJob,
+} from "@cx/inference";
 import { describe, expect, it } from "vitest";
 import { createContextStore } from "../context/context-store";
 import { createJobStore } from "../stores/job-store";
-import { MemoryArtifactStore } from "../testing/memory-artifact-store";
 import { createFakeEngine } from "../testing/fake-engine";
+import { MemoryArtifactStore } from "../testing/memory-artifact-store";
 
 function runtimeWithNoPipelines(): InferenceRuntime {
 	const artifactStore = new MemoryArtifactStore();
@@ -29,7 +33,11 @@ function runtimeWithNoPipelines(): InferenceRuntime {
 describe("runInferenceJob resilience", () => {
 	it("marks the job failed (no throw) when the pipeline is unknown", async () => {
 		const runtime = runtimeWithNoPipelines();
-		const job = await runtime.jobStore.createJob({ pipelineId: "ghost", pipelineVersion: "v9", input: {} });
+		const job = await runtime.jobStore.createJob({
+			pipelineId: "ghost",
+			pipelineVersion: "v9",
+			input: {},
+		});
 		await expect(runInferenceJob(runtime, job.jobId)).resolves.toBeUndefined();
 		expect((await runtime.jobStore.getJob(job.jobId)).status).toBe("failed");
 		const events = await runtime.jobStore.listEvents(job.jobId);

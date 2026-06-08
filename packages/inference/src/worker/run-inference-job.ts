@@ -9,12 +9,19 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 		const contextStore = runtime.createContextStore(jobId);
 
 		await runtime.jobStore.updateJob(jobId, { status: "running" });
-		await runtime.jobStore.appendEvent(jobId, { jobId, type: "job_started", timestamp: runtime.now() });
+		await runtime.jobStore.appendEvent(jobId, {
+			jobId,
+			type: "job_started",
+			timestamp: runtime.now(),
+		});
 
 		for (const step of pipeline.steps) {
 			await runtime.jobStore.createStep(jobId, step.id);
 			await runtime.jobStore.updateJob(jobId, { currentStepId: step.id });
-			await runtime.jobStore.updateStep(jobId, step.id, { status: "running", startedAt: runtime.now() });
+			await runtime.jobStore.updateStep(jobId, step.id, {
+				status: "running",
+				startedAt: runtime.now(),
+			});
 			await runtime.jobStore.appendEvent(jobId, {
 				jobId,
 				stepId: step.id,
@@ -31,8 +38,16 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 
 			const stepRoot = `steps/${step.id}`;
 			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/inputs.json`, execution.inputs);
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/references.json`, execution.references);
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/output-contract.json`, execution.outputContract);
+			await runtime.artifactStore.writeJson(
+				jobId,
+				`${stepRoot}/references.json`,
+				execution.references,
+			);
+			await runtime.artifactStore.writeJson(
+				jobId,
+				`${stepRoot}/output-contract.json`,
+				execution.outputContract,
+			);
 			if (execution.prompt) {
 				await runtime.artifactStore.writeJson(jobId, `${stepRoot}/prompt.json`, execution.prompt);
 			}
@@ -58,7 +73,10 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 			for (const [key, value] of Object.entries(execution.contextWrites ?? {})) {
 				await contextStore.writeJson(key, value);
 			}
-			await runtime.jobStore.updateStep(jobId, step.id, { status: "succeeded", completedAt: runtime.now() });
+			await runtime.jobStore.updateStep(jobId, step.id, {
+				status: "succeeded",
+				completedAt: runtime.now(),
+			});
 			await runtime.jobStore.appendEvent(jobId, {
 				jobId,
 				stepId: step.id,
@@ -68,7 +86,11 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 		}
 
 		await runtime.jobStore.updateJob(jobId, { status: "succeeded", currentStepId: undefined });
-		await runtime.jobStore.appendEvent(jobId, { jobId, type: "job_completed", timestamp: runtime.now() });
+		await runtime.jobStore.appendEvent(jobId, {
+			jobId,
+			type: "job_completed",
+			timestamp: runtime.now(),
+		});
 	} catch (error) {
 		const normalized = normalizeError(error);
 		try {

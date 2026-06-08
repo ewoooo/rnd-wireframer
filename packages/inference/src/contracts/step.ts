@@ -2,9 +2,7 @@ import type { InferenceReference, OutputContractObject } from "@cx/schema";
 
 export type KnowledgeValue = InferenceReference;
 
-export type StepInputRef =
-	| { kind: "job-input"; path?: string }
-	| { kind: "context"; key: string };
+export type StepInputRef = { kind: "job-input"; path?: string } | { kind: "context"; key: string };
 
 export type KnowledgeRef = {
 	source: "component-catalog" | "layout-catalog" | "skill" | "prompt-catalog" | "token-catalog";

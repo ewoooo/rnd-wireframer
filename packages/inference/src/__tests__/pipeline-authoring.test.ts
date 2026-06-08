@@ -20,8 +20,16 @@ const step = defineStep({
 describe("pipeline authoring", () => {
 	it("builds refs and step literals", () => {
 		expect(step.inputs?.job).toEqual({ kind: "job-input", path: undefined });
-		expect(step.references?.skill).toEqual({ source: "skill", id: "screen-generation", version: undefined });
-		expect(step.output.contractRef).toEqual({ source: "output-contract", id: "source-spec", version: undefined });
+		expect(step.references?.skill).toEqual({
+			source: "skill",
+			id: "screen-generation",
+			version: undefined,
+		});
+		expect(step.output.contractRef).toEqual({
+			source: "output-contract",
+			id: "source-spec",
+			version: undefined,
+		});
 	});
 
 	it("registry resolves by id@version and throws on unknown", () => {
