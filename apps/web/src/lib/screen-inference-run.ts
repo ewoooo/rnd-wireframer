@@ -170,6 +170,31 @@ export function createWaitingReviewStatus(input: {
 	};
 }
 
+export function createFailedScreenInferenceStatus(input: {
+	createdAt?: string;
+	error?: ScreenInferenceRunStatus["error"];
+	now?: string;
+	runId: string;
+	stage?: PipelineStageId;
+}): ScreenInferenceRunStatus {
+	const now = input.now ?? new Date().toISOString();
+
+	return {
+		createdAt: input.createdAt ?? now,
+		currentLayer: input.stage ? readLayerForStage(input.stage) : undefined,
+		currentMessage: input.stage ? readMessageForStage(input.stage) : undefined,
+		currentStage: input.stage,
+		error: input.error,
+		layers: input.stage
+			? createFailedLayersForStage(input.stage, now, input.error)
+			: createLayersForStatus("failed", now, input.error),
+		runId: input.runId,
+		schemaVersion: "screen-inference-run-status.v0.1",
+		status: "failed",
+		updatedAt: now,
+	};
+}
+
 function createLayersForStatus(
 	status: ScreenInferenceLifecycleStatus,
 	now: string,
@@ -211,6 +236,29 @@ function readCurrentLayer(
 ): ScreenInferenceLayer | undefined {
 	if (status === "running") return "understand";
 	return undefined;
+}
+
+function createFailedLayersForStage(
+	stage: PipelineStageId,
+	now: string,
+	error?: ScreenInferenceRunStatus["error"],
+): ScreenInferenceStatusLayer[] {
+	const failedLayer = readLayerForStage(stage);
+	const failedIndex = SCREEN_INFERENCE_LAYERS.findIndex((layer) => layer.layer === failedLayer);
+
+	return SCREEN_INFERENCE_LAYERS.map((layer, index) => ({
+		...layer,
+		completedAt: index <= failedIndex ? now : undefined,
+		startedAt: index <= failedIndex ? now : undefined,
+		status: index < failedIndex ? "completed" : index === failedIndex ? "failed" : "skipped",
+		summary:
+			index === failedIndex
+				? {
+						description: error?.message,
+						title: "Inference failed",
+					}
+				: undefined,
+	}));
 }
 
 function createLayersForStage(stage: PipelineStageId, now: string): ScreenInferenceStatusLayer[] {

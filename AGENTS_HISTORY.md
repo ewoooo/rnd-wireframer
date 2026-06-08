@@ -36,6 +36,15 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Screen Inference Failure Layer Preservation
+
+- 변경: `createFailedScreenInferenceStatus(...)`를 추가해 pipeline 실패 시 마지막 `currentStage`를 기준으로 Web layer status를 `failed/completed/skipped`로 계산하도록 정리함
+- 변경: `screen-inference-run-store` catch 경로가 기존 generic failed status 대신 마지막 저장 상태를 읽어 실패 stage/layer/message를 보존하도록 수정함
+- 변경: `screen-inference-run.test.ts`에 revise layer 실패 회귀 테스트를 추가함
+- 이유: 선언형 pipeline 완료 이후에도 Web status 파일은 실패를 항상 `understand` 레이어로 덮어 compose/revise 실패를 잘못 표시하고 있었기 때문
+- 검증: `pnpm -s vitest run apps/web/src/lib/screen-inference-run.test.ts packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `pnpm -s tsc --noEmit --pretty false`, `pnpm -s biome lint apps/web/src/lib/screen-inference-run.ts apps/web/src/lib/screen-inference-run-store.ts apps/web/src/lib/screen-inference-run.test.ts`
+- 후속: 필요하면 pipeline status의 terminal stage metadata를 Web snapshot API에서 직접 노출해 UI가 run-local status file 대신 pipeline persistence를 1차 근거로 읽도록 정리한다.
+
 ## 2026-06-08 - Pipeline Declarative Completion Contract Cleanup
 
 - 변경: `@cx/pipeline` public `PipelineStageId`와 `PipelineRunResult`, `ScreenGenerationSkillBundleRef.stage`에서 제거된 revision 단계/필드를 정리해 현재 11-step screen-generation 계약과 일치시킴
