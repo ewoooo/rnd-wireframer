@@ -9,30 +9,16 @@ function createPageStackArea(defaults: AreaPageStackDefaults) {
 }
 
 export const AccordionListArea = createPageStackArea(areaPageStackPresets.accordionList.defaults);
-export const AccordionNoticeListArea = createPageStackArea(
-	areaPageStackPresets.accordionNoticeListArea.defaults,
-);
 export const ActionStackArea = createPageStackArea(areaPageStackPresets.actionStack.defaults);
 export const AuthCodeEntryArea = createPageStackArea(areaPageStackPresets.authCodeEntry.defaults);
 export const AuthMethodListArea = createPageStackArea(areaPageStackPresets.authMethodList.defaults);
-export const CheckboxStackArea = createPageStackArea(areaPageStackPresets.checkboxStack.defaults);
-export const DeliveryInfoAccordionArea = createPageStackArea(
-	areaPageStackPresets.deliveryInfoAccordionArea.defaults,
-);
 export const FieldStackArea = createPageStackArea(areaPageStackPresets.fieldStack.defaults);
 export const ListStackArea = createPageStackArea(areaPageStackPresets.listStack.defaults);
-export const MessageStackArea = createPageStackArea(areaPageStackPresets.messageStack.defaults);
 export const NoticeAccordionStackArea = createPageStackArea(
 	areaPageStackPresets.noticeAccordionStackArea.defaults,
 );
-export const PagestackInfoTextSectionArea = createPageStackArea(
-	areaPageStackPresets.pagestackInfoTextSection.defaults,
-);
 export const PlainInfoTextListArea = createPageStackArea(
 	areaPageStackPresets.plainInfoTextListArea.defaults,
-);
-export const PriceAccordionStackArea = createPageStackArea(
-	areaPageStackPresets.priceAccordionStackArea.defaults,
 );
 export const ProductDisclosureAccordionArea = createPageStackArea(
 	areaPageStackPresets.productDisclosureAccordion.defaults,

@@ -34,39 +34,26 @@ export const ProductOptionGridArea = createCollectionArea({
 	columns: 2,
 	flow: "grid",
 	gap: 8,
-	titleGap: 12,});
+	titleGap: 12,
+});
 export const BenefitBrandListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 12,
-	titleGap: 16,});
+	titleGap: 16,
+});
 export const NearbyStoreListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 8,
 	mapHeight: 172,
-	titleGap: 16,});
-export const ProductMoreLinkArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 0,
-	paddingY: 0,
-});
-export const RichImageTabArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 0,
-	paddingY: 0,
+	titleGap: 16,
 });
 export const OptionListSectionArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 8,
-	titleGap: 12,});
-export const CouponBenefitArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 12,
+	titleGap: 12,
 });
 export const MapCardInfoListArea = createCollectionArea({
 	...sectionDefaults,
@@ -83,27 +70,24 @@ export const ListSummaryCardArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 0,
-	paddingY: 0,});
+	paddingY: 0,
+});
 export const FilterChipTextListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 16,
-	titleGap: 12,});
+	titleGap: 12,
+});
 export const ProductListGroupArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 16,
-	titleGap: 12,});
+	titleGap: 12,
+});
 export const ProductListChipSortArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "horizontal",
 	gap: 8,
-	paddingY: 0,
-});
-export const ProductListSortOnlyArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 0,
 	paddingY: 0,
 });
 export const HorizontalCardListArea = createCollectionArea({
@@ -122,7 +106,8 @@ export const HiddenTitlePagestackCardListArea = createCollectionArea({
 	...sectionDefaults,
 	flow: "stack",
 	gap: 12,
-	itemTemplate: "card-0",});
+	itemTemplate: "card-0",
+});
 
 function createCollectionArea(defaults: CollectionAreaDefaults) {
 	return function CollectionArea({

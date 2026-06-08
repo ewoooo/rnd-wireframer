@@ -9,13 +9,6 @@ export const areaPageStackPresets = {
 	accordionList: {
 		defaults: { ...pageStackBaseDefaults, gap: 0 },
 	},
-	accordionNoticeListArea: {
-		defaults: {
-			...pageStackBaseDefaults,
-			divider: "contents",
-			gap: 0,
-		},
-	},
 	actionStack: {
 		defaults: {
 			...pageStackBaseDefaults,
@@ -30,25 +23,11 @@ export const areaPageStackPresets = {
 	authMethodList: {
 		defaults: { ...pageStackBaseDefaults, gap: 0, itemPaddingX: 0, titleGap: 8 },
 	},
-	checkboxStack: {
-		defaults: { ...pageStackBaseDefaults, gap: 12 },
-	},
-	deliveryInfoAccordionArea: {
-		defaults: {
-			...pageStackBaseDefaults,
-			divider: "contents",
-			gap: 0,
-			titleGap: 0,
-		},
-	},
 	fieldStack: {
 		defaults: { ...pageStackBaseDefaults, gap: 12 },
 	},
 	listStack: {
 		defaults: { ...pageStackBaseDefaults, gap: 8 },
-	},
-	messageStack: {
-		defaults: { ...pageStackBaseDefaults, gap: 12 },
 	},
 	noticeAccordionStackArea: {
 		defaults: {
@@ -57,27 +36,11 @@ export const areaPageStackPresets = {
 			gap: 0,
 		},
 	},
-	pagestackInfoTextSection: {
-		defaults: {
-			...pageStackBaseDefaults,
-			divider: "contents",
-			gap: 0,
-			titleGap: 12,
-		},
-	},
 	plainInfoTextListArea: {
 		defaults: {
 			...pageStackBaseDefaults,
 			divider: "contents",
 			gap: 0,
-		},
-	},
-	priceAccordionStackArea: {
-		defaults: {
-			...pageStackBaseDefaults,
-			divider: "contents",
-			gap: 0,
-			titleGap: 0,
 		},
 	},
 	productDisclosureAccordion: {
