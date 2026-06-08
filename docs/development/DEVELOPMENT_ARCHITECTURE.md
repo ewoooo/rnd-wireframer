@@ -39,7 +39,7 @@ FastAPI
 | 레이어 | 책임 |
 |---|---|
 | Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/renderer` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
-| `@cx/types` | `database/tables` row shape처럼 여러 패키지가 공유하는 타입 전용 패키지 |
+| `@cx/schema` | SourceSpec, RenderTree, validation report 같은 저장/전달 DTO와 JSON schema 계약 |
 | `@cx/tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
 | `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
 | `@cx/component-pattern-store` | primitive/componentPattern을 조합한 재사용 semantic UI block registry |

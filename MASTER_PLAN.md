@@ -35,7 +35,6 @@ RND Screen Generator는 정책/유즈케이스, 화면 명세, OGN/컴포넌트,
 | 영역 | 상태 | 현재 기준 |
 |---|---|---|
 | `apps/web` | 구현 시작 | Next.js 앱, Tailwind v4 global CSS, 단일 제품 앱 구조, mock data 렌더링 |
-| `packages/types` | 1차 신설 | `database/tables` row shape와 공통 타입 계약 |
 | `packages/renderer` | 1차 승격 | schema/type, binding, registry, validation, table shape -> RenderTree projection, `@cx/layout`/`@cx/components` React element 렌더링 mapping |
 | `packages/agent` | 1차 구현 | AI import bundle 등록, decorator, database table import 보조 |
 | `packages/layout` | 1차 구현 | `Screen`, `Screen.Header`, `Screen.Contents`, `Screen.Bottom`, `Layout.Flex`, `Layout.Grid`, layout pattern component, layout catalog/resolver를 Tailwind v4 class 기반으로 관리 |

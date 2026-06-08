@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Type Package Removal
+
+- 변경: dependency-free `isRecord` guard를 `@cx/schema` root export로 이동하고 기존 `@cx/types/guards` 소비처를 `@cx/schema`로 전환함
+- 변경: `@cx/types` workspace package, package dependencies, lockfile 항목을 제거하고 활성 문서의 `@cx/types` 현재 패키지 언급을 정리함
+- 이유: 별도 타입 전용 패키지와 schema 패키지의 계약 중복을 줄이고, 저장/전달 DTO 정본은 `@cx/schema`에 두되 legacy 타입을 무비판적으로 schema에 합치지 않기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run packages/schema/src/__tests__/public-api.test.ts packages/layout/src/__tests__/layout-catalog.test.ts packages/validation/src/__tests__/validators.test.ts`
+
 ## 2026-06-08 - Agent Topology Refactor
 
 - 변경: `@cx/agent`의 task별 `runner.ts`를 제거하고 각 task `index.ts`가 task definition 객체와 `createPrompt`만 직접 공개하도록 축소함

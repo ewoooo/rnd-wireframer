@@ -37,8 +37,7 @@
   ├─ @cx/layout catalog
   ├─ @cx/components
   ├─ @cx/layout
-  ├─ @cx/tokens
-  └─ @cx/types
+  └─ @cx/tokens
         |
         v
 parser / normalizer / resolver
@@ -95,7 +94,6 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현, layout pattern component, catalog/resolver | `screens[].screen.regions[*].type`, layout props, pattern refs |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
-| `packages/types` | `database/tables` row shape와 공통 타입 계약 | `@cx/agent`, `@cx/renderer`, `apps/web`의 공통 타입 import |
 | `packages/renderer/src/component-catalog.ts` | compose/AI/editor가 참조하는 component prop/variant 계약 | `components[].props`, `components[].hooks`, AI gap 판정 |
 
 공급 데이터 원칙:
