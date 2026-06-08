@@ -106,6 +106,16 @@
 			"target": "area",
 			"name": "필드 스택",
 			"description": "Area children을 입력 필드 묶음으로 세로 배치하는 레이아웃 프리셋",
+			"usedFor": [
+				{
+					"intent": "체크박스 스택",
+					"description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃"
+				},
+				{
+					"intent": "메시지 스택",
+					"description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃"
+				}
+			],
 			"componentID": "FieldStackArea",
 			"props": {
 				"componentGap": {
@@ -175,93 +185,11 @@
 			"status": "draft"
 		},
 		{
-			"id": "layout.area.checkboxStack",
-			"target": "area",
-			"name": "체크박스 스택",
-			"description": "Area children을 체크/동의 항목 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "CheckboxStackArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"itemPaddingX": {
-					"type": "number"
-				},
-				"itemTemplate": {
-					"type": "enum",
-					"values": ["card-0", "default-20", "plain"]
-				},
-				"paddingY": {
-					"type": "number"
-				},
-				"sectionPaddingX": {
-					"type": "number"
-				},
-				"titleGap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
 			"id": "layout.area.accordionList",
 			"target": "area",
 			"name": "아코디언 리스트",
 			"description": "Area children을 헤더 + 펼침 본문 구조로 묶어, 펼쳐진 헤더 아래에 본문 슬롯을 인라인으로 배치하는 레이아웃 프리셋",
 			"componentID": "AccordionListArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"itemPaddingX": {
-					"type": "number"
-				},
-				"itemTemplate": {
-					"type": "enum",
-					"values": ["card-0", "default-20", "plain"]
-				},
-				"paddingY": {
-					"type": "number"
-				},
-				"sectionPaddingX": {
-					"type": "number"
-				},
-				"titleGap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
-			"id": "layout.area.messageStack",
-			"target": "area",
-			"name": "메시지 스택",
-			"description": "Area children을 안내/상태 메시지 묶음으로 세로 배치하는 레이아웃 프리셋",
-			"componentID": "MessageStackArea",
 			"props": {
 				"componentGap": {
 					"type": "number"
@@ -441,6 +369,16 @@
 			"target": "area",
 			"name": "상품 고시 아코디언",
 			"description": "판매자 정보, 교환/환불, 상품 이용 안내 같은 하단 고시 항목을 accordion list로 배치하는 영역",
+			"usedFor": [
+				{
+					"intent": "배송 정보 아코디언 영역",
+					"description": "배송/수령 안내를 AccordionPriceInfo 또는 AccordionNoticeInfo로 접어 보여주는 영역"
+				},
+				{
+					"intent": "가격 아코디언 스택 영역",
+					"description": "AccordionPriceInfo row를 PageStack 안에서 반복 배치하는 가격/혜택 정보 영역"
+				}
+			],
 			"componentID": "ProductDisclosureAccordionArea",
 			"props": {
 				"componentGap": {
@@ -548,113 +486,6 @@
 			"status": "draft"
 		},
 		{
-			"id": "layout.area.priceAccordionStackArea",
-			"target": "area",
-			"name": "가격 아코디언 스택 영역",
-			"description": "상세-상품의 구독상품 가격/혜택 정보처럼 AccordionPriceInfo row를 PageStack 안에서 반복 배치하는 subtype",
-			"componentID": "PriceAccordionStackArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				},
-				"titleGap": {
-					"type": "number"
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
-			"id": "layout.area.deliveryInfoAccordionArea",
-			"target": "area",
-			"name": "배송 정보 아코디언 영역",
-			"description": "가격 정보와 분리된 배송/수령 안내를 AccordionPriceInfo 또는 AccordionNoticeInfo로 접어 보여주는 subtype",
-			"componentID": "DeliveryInfoAccordionArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
-			"id": "layout.area.productMoreLinkArea",
-			"target": "area",
-			"name": "상품 더보기 링크 영역",
-			"description": "기프티콘의 ButtonMoreProduct 또는 설명 이미지 하단 ButtonMore처럼 TextButton alias로 흡수 가능한 더보기 affordance만 별도 배치하는 subtype",
-			"componentID": "ProductMoreLinkArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"componentGaps": {
-					"type": "array"
-				},
-				"flow": {
-					"type": "enum",
-					"values": ["grid", "horizontal", "stack"]
-				},
-				"gap": {
-					"type": "number"
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
-			"id": "layout.area.richImageTabArea",
-			"target": "area",
-			"name": "탭 포함 상세 이미지 영역",
-			"description": "UnderlineTab 이후 긴 상품 설명 이미지와 ButtonMore가 이어지는 상품 상세 설명 subtype",
-			"componentID": "RichImageTabArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"componentGaps": {
-					"type": "array"
-				},
-				"flow": {
-					"type": "enum",
-					"values": ["grid", "horizontal", "stack"]
-				},
-				"gap": {
-					"type": "number"
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
 			"id": "layout.area.optionListSectionArea",
 			"target": "area",
 			"name": "옵션 리스트 섹션 영역",
@@ -675,33 +506,6 @@
 					"type": "number"
 				},
 				"titleGap": {
-					"type": "number"
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
-			"id": "layout.area.couponBenefitArea",
-			"target": "area",
-			"name": "쿠폰 혜택 영역",
-			"description": "혜택브랜드 상세에서 Coupon layer를 실제 Coupon surface로 배치하는 혜택 블록 subtype.",
-			"componentID": "CouponBenefitArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"componentGaps": {
-					"type": "array"
-				},
-				"flow": {
-					"type": "enum",
-					"values": ["grid", "horizontal", "stack"]
-				},
-				"gap": {
 					"type": "number"
 				}
 			},
@@ -746,6 +550,12 @@
 			"target": "area",
 			"name": "브랜드 카드정보 리스트 영역",
 			"description": "혜택브랜드 상세의 CardContentsLine 이후 CardInfo 브랜드 혜택 리스트를 표현하는 subtype",
+			"usedFor": [
+				{
+					"intent": "쿠폰 혜택 영역",
+					"description": "Coupon layer를 실제 Coupon surface로 배치하는 혜택 블록 영역"
+				}
+			],
 			"componentID": "CardInfoBrandListArea",
 			"props": {
 				"componentGap": {
@@ -773,6 +583,12 @@
 			"target": "area",
 			"name": "공지 아코디언 스택 영역",
 			"description": "기프티콘/혜택브랜드/단말기 상세의 AccordionNoticeInfo disclosure 또는 long guide를 반복 배치하는 subtype",
+			"usedFor": [
+				{
+					"intent": "공지 아코디언 리스트 영역",
+					"description": "AccordionNoticeInfo row들을 Divider로 구분해 반복 배치하는 이용안내 하위 리스트 영역"
+				}
+			],
 			"componentID": "NoticeAccordionStackArea",
 			"props": {
 				"componentGap": {
@@ -818,34 +634,6 @@
 			"status": "draft"
 		},
 		{
-			"id": "layout.area.pagestackInfoTextSection",
-			"target": "area",
-			"name": "페이지스택 정보 텍스트 섹션",
-			"description": "Pagestack 안에서 ContentsTitle/TitleSection 다음 InfoTextList 묶음을 Divider로 구분해 배치하는 이용내역 섹션 영역",
-			"componentID": "PagestackInfoTextSectionArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"titleGap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
 			"id": "layout.area.filterChipTextListArea",
 			"target": "area",
 			"name": "필터 칩 텍스트 리스트 영역",
@@ -880,6 +668,12 @@
 			"target": "area",
 			"name": "텍스트 리스트 그룹 영역",
 			"description": "TextListGroup 내부에서 TitleSection과 Local_ListInfo의 InfoTextList 5개 row를 Divider로 나눠 배치하는 하위 리스트 영역",
+			"usedFor": [
+				{
+					"intent": "페이지스택 정보 텍스트 섹션",
+					"description": "Pagestack 안에서 TitleSection 다음 InfoTextList 묶음을 Divider로 구분해 배치하는 이용내역 섹션"
+				}
+			],
 			"componentID": "TextListGroupArea",
 			"props": {
 				"componentGap": {
@@ -958,31 +752,6 @@
 			"status": "draft"
 		},
 		{
-			"id": "layout.area.accordionNoticeListArea",
-			"target": "area",
-			"name": "공지 아코디언 리스트 영역",
-			"description": "AccordionList 내부 AccordionNoticeInfo row들을 Divider로 구분해 반복 배치하는 이용안내 하위 리스트 영역",
-			"componentID": "AccordionNoticeListArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"gap": {
-					"type": "number"
-				},
-				"divider": {
-					"type": "enum",
-					"values": ["contents", "none", "section"],
-					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
 			"id": "layout.area.productListGroupArea",
 			"target": "area",
 			"name": "상품 리스트 그룹 영역",
@@ -1043,33 +812,6 @@
 			"status": "draft"
 		},
 		{
-			"id": "layout.area.productListSortOnlyArea",
-			"target": "area",
-			"name": "상품 리스트 정렬 단독 영역",
-			"description": "Chip 없이 FilterSorting만 ProductListGroup 앞에 놓이는 리스트-카드 정렬 제어 area 패턴",
-			"componentID": "ProductListSortOnlyArea",
-			"props": {
-				"componentGap": {
-					"type": "number"
-				},
-				"componentGaps": {
-					"type": "array"
-				},
-				"flow": {
-					"type": "enum",
-					"values": ["grid", "horizontal", "stack"]
-				},
-				"gap": {
-					"type": "number"
-				}
-			},
-			"children": {
-				"accepts": "component",
-				"min": 1
-			},
-			"status": "draft"
-		},
-		{
 			"id": "layout.area.horizontalCardListArea",
 			"target": "area",
 			"name": "가로형 상품 카드 리스트 영역",
@@ -1101,6 +843,20 @@
 			"target": "area",
 			"name": "행형 상품 카드 리스트 영역",
 			"description": "ListProductRow가 반복되는 단말기/구독상품형 리스트-카드 area 패턴",
+			"usedFor": [
+				{
+					"intent": "상품 더보기 링크 영역",
+					"description": "ButtonMore/TextButton 더보기 affordance만 별도 배치하는 영역"
+				},
+				{
+					"intent": "탭 포함 상세 이미지 영역",
+					"description": "UnderlineTab 이후 긴 상품 설명 이미지와 ButtonMore가 이어지는 상품 상세 설명 영역"
+				},
+				{
+					"intent": "상품 리스트 정렬 단독 영역",
+					"description": "Chip 없이 FilterSorting만 ProductListGroup 앞에 놓이는 리스트-카드 정렬 제어 영역"
+				}
+			],
 			"componentID": "RowCardListArea",
 			"props": {
 				"componentGap": {
