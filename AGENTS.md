@@ -40,7 +40,7 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 - 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `@cx/layout` layout catalog/resolver(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
 - 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고, 런타임 데이터와 섞지 않는다.
 - screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다.
-- 기존 `database/client-imports`, `database/ai-imports`, `database/tables` 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
+- 기존 database 파일 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
 - component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
 - Web API route를 추가, 제거, rename, response shape 변경할 때는 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 함께 갱신한다.

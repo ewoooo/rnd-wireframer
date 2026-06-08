@@ -12,17 +12,16 @@
 |---|---|---|
 | 원천 import 데이터 | 사용자가 올린 수급 원본이다. 파괴적으로 수정하지 않는다. | [database/client-imports](/Users/plusx/Documents/rnd-screen-generator/database/client-imports) |
 | 공급 데이터 | 화면 생성/렌더링에 필요한 어휘, 패턴, 구현 자산을 제공한다. | [packages/component](/Users/plusx/Documents/rnd-screen-generator/packages/component), [packages/layout](/Users/plusx/Documents/rnd-screen-generator/packages/layout), [packages/token](/Users/plusx/Documents/rnd-screen-generator/packages/token) |
-| AI import 데이터 | AI가 생성한 등록 후보 bundle과 table 후보 산출물이다. 소비 데이터가 아니다. | [database/ai-imports](/Users/plusx/Documents/rnd-screen-generator/database/ai-imports) |
 | 소비 데이터 | workbench, resolver, renderer가 실제 화면 단위로 소비하는 승인된 정규화 입력이다. | [database/tables](/Users/plusx/Documents/rnd-screen-generator/database/tables) |
 
 우선순위는 소비 데이터 강화다. 공급 데이터는 소비 데이터를 만들기 위한 근거와 어휘로 쓰되, workbench가 직접 공급 원본을 해석하도록 만들지 않는다.
-`apps/web` workbench는 `database/client-imports`, `database/ai-imports`, `@cx/layout/catalog`를 화면 데이터처럼 직접 해석하지 않고, `database/tables` 계약 또는 동일 shape의 loader 결과만 소비한다.
+`apps/web` workbench는 `database/client-imports`, `@cx/layout/catalog`를 화면 데이터처럼 직접 해석하지 않고, API read model 또는 `database/tables`와 동일한 shape의 loader 결과만 소비한다.
 
 생명 주기 강제 규칙:
 
 - `database/client-imports`는 업로드 원본 보관소다. 원본을 수정해 정규화하지 않는다.
-- `database/ai-imports`는 생성/정규화/검수 후보 산출물 보관소다. 여기의 `*.materialized.json`은 table 후보일 뿐이며 앱 소비 데이터가 아니다.
 - `database/tables`는 승인된 소비 데이터만 둔다. AI 생성 API나 parser가 이 디렉토리를 직접 덮어쓰지 않는다.
+- 생성 후보와 검수 산출물은 `@cx/inference` artifact store 또는 로컬 실행 저장소에 둔다.
 - `@cx/layout/catalog`는 reference catalog다. 소비 데이터는 pattern 전체를 복사하지 않고 `pattern.id`, `pattern.variant`만 참조한다.
 - 후보 산출물을 소비 데이터로 반영하려면 별도 promote/import 단계를 거쳐 참조 무결성, renderer validation, 변경 이력 기록을 통과해야 한다.
 
@@ -41,14 +40,10 @@
 parser / normalizer / resolver
         |
         v
-AI import 데이터
-  ├─ agent-assets.json             (GeneratedNodeTree, Claude SDK 원본)
-  ├─ agent-assets.registered.json  (RegisteredNodeTree, Register 결과)
-  ├─ agent-assets.composed.json    (ComposedNodeTree, Composer 결과)
-  ├─ agent-assets.decorated.json   (DecoratedNodeTree, Decorator 결과)
-  ├─ agent-assets.design-review.json   (DesignReview patch/report)
-  ├─ agent-assets.reviewed.json   (DesignReview patch 적용 DecoratedNodeTree)
-  └─ agent-assets.materialized.json   (MaterializedNodeTree, DB 변환 결과)
+@cx/inference artifact store
+  ├─ step inputs / references / prompt refs
+  ├─ generated raw responses
+  └─ validated output artifacts
         |
         v
 promote / import
@@ -83,16 +78,16 @@ apps/web
 
 | 공급원 | 책임 | 소비 데이터 반영 방식 |
 |---|---|---|
-| `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | AI import 후보를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
-| `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | AI import 후보를 거쳐 `areas`, `components`, area/component metadata |
+| `database/client-imports/{importId}` screen markdown | 화면 ID, 화면명, 화면 구성, 화면 전환, 케이스 분기, 정책/기능 참조 | SourceSpec과 inference artifact를 거쳐 `screenRoutes`, `screenVariants`, `screens.screen.regions`, `sourceRef` |
+| `database/client-imports/{importId}` area markdown | OGN ID, OGN명, 노출 조건, 상태 분기, 컴포넌트 상세, 정책/기능 참조 | SourceSpec과 inference artifact를 거쳐 `areas`, `components`, area/component metadata |
 | `@cx/components/catalog` | leaf component prop, variant, AI 작성 가능 surface 계약 | component type/props/hook 후보 검증 |
 | `@cx/layout/catalog` | screen/region/area/composite children layout preset, pageStack/divider 규칙 | `screens[].pattern`, `areas[].pattern`, composite wrapper `components[].pattern` |
-
-PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 `database/client-imports/PRDD/variants/`에 보관하며, 명시적 variant/retry 생성 또는 edge-case 검증 때만 입력으로 승격한다.
 | `packages/component` | 실제 leaf component 구현 어휘 | `components[].type`, renderer mapping |
 | `packages/layout` | `Screen.*`, `Layout.*`, chrome/primitive 구현, layout pattern component, catalog/resolver | `screens[].screen.regions[*].type`, layout props, pattern refs |
 | `packages/token` | Tailwind v4 `@theme` spacing token | layout spacing props, style token 값 |
 | `packages/renderer/src/component-catalog.ts` | compose/AI/editor가 참조하는 component prop/variant 계약 | `components[].props`, `components[].hooks`, AI gap 판정 |
+
+PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-imports/PRDD/screen/*.md`에는 `*-0.md` base 화면만 둔다. `*-1.md`, `*-2.md`, `*-E1.md` 같은 비-base 화면은 `database/client-imports/PRDD/variants/`에 보관하며, 명시적 variant/retry 생성 또는 edge-case 검증 때만 입력으로 승격한다.
 
 공급 데이터 원칙:
 
@@ -104,7 +99,7 @@ PRDD 원천 import는 기본 생성 비용을 낮추기 위해 `database/client-
 - layout catalog가 주입할 수 있는 값은 `layoutProps`다. Leaf component의 텍스트, 상태, variant, hook, binding props는 `database/tables/components.json`이 소유한다.
 - `packages/component`, `packages/layout`, `packages/token`은 런타임 구현 어휘다. 소비 데이터의 `type`, `pattern`, `props`는 이 어휘로 해석 가능해야 한다.
 
-Design Review 단계는 DecoratedNodeTree 이후 디자인 품질을 보정하는 patch 단계다. `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` 같은 제한된 operation만 제안할 수 있으며, 각 finding/operation은 반드시 [packages/agent/docs/skills/references/design](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design)의 책임 문서를 `designReferences`로 인용해야 한다. AI는 tree 전체를 재생성하지 않고 Design Review patch만 제안하며, deterministic code가 patch를 적용하고 검증한다.
+생성 결과 검수는 `@cx/agent`의 `quality-review` task와 `@cx/inference` step artifact로 다룬다. 검수 결과는 bounded finding과 score 중심이며, 직접 table dump나 RenderTree 파일을 mutate하지 않는다. 반영이 필요하면 별도 apply 단계에서 검증된 RenderTree를 screen, area, component 레이어로 분해한다.
 
 ## 4. 소비 데이터
 
@@ -294,7 +289,7 @@ region child entry는 두 종류만 허용한다.
 | `sourceRef` | 첨부 area markdown의 컴포넌트 상세 row 추적 정보 |
 
 component row의 `type`은 `@cx/renderer` mapping 또는 fallback renderer로 해석 가능해야 한다.
-AI import 단계에서 첨부 표의 "이벤트" / "액션" / "액션 파라미터" 셀은 문자열 `events`로 저장하지 않고 `raw.hooks: NodeHook[]`로 구조화한다. Compose 이후에는 `component.hooks`로 승격하고 `raw`는 산출물에서 제거한다.
+첨부 표의 "이벤트" / "액션" / "액션 파라미터" 셀은 문자열 `events`로 저장하지 않고 `raw.hooks: NodeHook[]`로 구조화한다. RenderTree 또는 table apply 단계에서는 이를 `component.hooks`로 승격하고 `raw`는 최종 소비 산출물에서 제거한다.
 
 ## 6. 첨부 명세 변환 규칙
 
