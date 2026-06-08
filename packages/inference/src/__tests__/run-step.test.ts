@@ -82,6 +82,56 @@ describe("runStep", () => {
 		expect(execution.contextWrites).toBeUndefined();
 	});
 
+	it("returns failed (not throw) after retrying when the engine always throws", async () => {
+		let calls = 0;
+		const engine: Engine = {
+			async execute() {
+				calls += 1;
+				throw new Error("model returned non-JSON");
+			},
+		};
+		const knowledgeBase = createInferenceKnowledgeBase();
+
+		const execution = await runStep(makeStep(), {
+			engines: { claude: engine, function: engine },
+			resolveInput: async () => ({ screenCode: "SAMPLE" }),
+			resolveReference: async () => {
+				throw new Error("no references expected");
+			},
+			resolveOutputContract: (ref) => knowledgeBase.resolveOutputContract(ref),
+		});
+
+		expect(execution.status).toBe("failed");
+		expect(execution.error?.code).toBe("engine_execution_failed");
+		expect(calls).toBe(2);
+	});
+
+	it("succeeds on the second attempt after a transient throw", async () => {
+		let calls = 0;
+		const engine: Engine = {
+			async execute() {
+				calls += 1;
+				if (calls === 1) {
+					throw new Error("transient model failure");
+				}
+				return { raw: validSourceSpec };
+			},
+		};
+		const knowledgeBase = createInferenceKnowledgeBase();
+
+		const execution = await runStep(makeStep(), {
+			engines: { claude: engine, function: engine },
+			resolveInput: async () => ({ screenCode: "SAMPLE" }),
+			resolveReference: async () => {
+				throw new Error("no references expected");
+			},
+			resolveOutputContract: (ref) => knowledgeBase.resolveOutputContract(ref),
+		});
+
+		expect(execution.status).toBe("succeeded");
+		expect(calls).toBe(2);
+	});
+
 	it("passes the step.prompt ref through to the engine unchanged", async () => {
 		let captured: unknown;
 		const step = {
