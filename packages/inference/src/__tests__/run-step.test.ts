@@ -26,7 +26,7 @@ function makeStep(): InferenceStepDefinition {
 		id: "analyze",
 		engine: "function",
 		inputs: {
-			source: { kind: "value", value: { screenCode: "SAMPLE" } },
+			source: { kind: "context", key: "source" },
 		},
 		run: { id: "fake" },
 		output: {
@@ -48,7 +48,7 @@ describe("runStep", () => {
 
 		const execution = await runStep(makeStep(), {
 			engines: { claude: engine, function: engine },
-			resolveInput: async (ref) => (ref.kind === "value" ? ref.value : null),
+			resolveInput: async () => ({ screenCode: "SAMPLE" }),
 			resolveReference: async () => {
 				throw new Error("no references expected");
 			},
@@ -70,7 +70,7 @@ describe("runStep", () => {
 
 		const execution = await runStep(makeStep(), {
 			engines: { claude: engine, function: engine },
-			resolveInput: async (ref) => (ref.kind === "value" ? ref.value : null),
+			resolveInput: async () => ({ screenCode: "SAMPLE" }),
 			resolveReference: async () => {
 				throw new Error("no references expected");
 			},

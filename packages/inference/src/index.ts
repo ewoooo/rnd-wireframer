@@ -3,7 +3,6 @@ export type * from "./contracts";
 export { createClaudeEngine, createFunctionEngine, type InferenceFunction } from "./engine";
 export { createInferenceKnowledgeBase } from "./knowledge/knowledge-base";
 export {
-	artifact,
 	context,
 	createPipelineRegistry,
 	defineStep,
@@ -12,8 +11,6 @@ export {
 	knowledge,
 	outputContractRef,
 	runStep,
-	stepOutput,
-	value,
 } from "./pipeline";
 export { FileArtifactStore } from "./stores/file-artifact-store";
 export { createJobStore } from "./stores/job-store";

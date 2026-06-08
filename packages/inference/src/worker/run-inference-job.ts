@@ -24,7 +24,7 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 
 			const execution = await runStep(step, {
 				engines: runtime.engines,
-				resolveInput: (ref) => resolveInput(jobId, job.input, ref, runtime, contextStore),
+				resolveInput: (ref) => resolveInput(job.input, ref, contextStore),
 				resolveReference: (ref) => runtime.knowledgeBase.resolve(ref),
 				resolveOutputContract: (ref) => runtime.knowledgeBase.resolveOutputContract(ref),
 			});
