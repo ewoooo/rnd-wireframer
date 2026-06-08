@@ -16,6 +16,8 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 		});
 
 		for (const step of pipeline.steps) {
+			if (!(await shouldRunStep(step.runWhen, contextStore))) continue;
+
 			await runtime.jobStore.createStep(jobId, step.id);
 			await runtime.jobStore.updateJob(jobId, { currentStepId: step.id });
 			await runtime.jobStore.updateStep(jobId, step.id, {
@@ -52,6 +54,9 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 				await runtime.artifactStore.writeJson(jobId, `${stepRoot}/prompt.json`, execution.prompt);
 			}
 			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/raw-response.json`, execution.raw);
+			for (const [key, value] of Object.entries(execution.contextWrites ?? {})) {
+				await contextStore.writeJson(key, value);
+			}
 
 			if (execution.status === "failed") {
 				await runtime.jobStore.updateStep(jobId, step.id, {
@@ -70,9 +75,6 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 			}
 
 			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/output.json`, execution.raw);
-			for (const [key, value] of Object.entries(execution.contextWrites ?? {})) {
-				await contextStore.writeJson(key, value);
-			}
 			await runtime.jobStore.updateStep(jobId, step.id, {
 				status: "succeeded",
 				completedAt: runtime.now(),
@@ -105,6 +107,23 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 			// best-effort: store itself is broken, nothing more to record
 		}
 	}
+}
+
+async function shouldRunStep(
+	runWhen: { contextValidationReportHasErrors: string } | undefined,
+	contextStore: ReturnType<InferenceRuntime["createContextStore"]>,
+): Promise<boolean> {
+	if (!runWhen) return true;
+	const report = await contextStore.readJson<unknown>(runWhen.contextValidationReportHasErrors);
+	return readValidationErrorCount(report) > 0;
+}
+
+function readValidationErrorCount(input: unknown): number {
+	if (!input || typeof input !== "object" || Array.isArray(input)) return 0;
+	const summary = (input as Record<string, unknown>).summary;
+	if (!summary || typeof summary !== "object" || Array.isArray(summary)) return 0;
+	const errorCount = (summary as Record<string, unknown>).errorCount;
+	return typeof errorCount === "number" ? errorCount : 0;
 }
 
 function normalizeError(error: unknown): { code: string; message: string } {

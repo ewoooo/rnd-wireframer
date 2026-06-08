@@ -337,6 +337,8 @@ function stubBrowserApis() {
 	}));
 }
 
+type RunStatus = "queued" | "running" | "waiting-review";
+
 function stubScreenFetch(
 	options: {
 		inferenceStatus?: RunStatus;
@@ -421,7 +423,11 @@ function stubScreenFetch(
 						stepId: "04-render-tree",
 						status: inferenceStatus === "running" ? "running" : "succeeded",
 					},
-					{ stepId: "05-quality", status: inferenceStatus === "waiting-review" ? "succeeded" : "pending" },
+					{ stepId: "05-validation", status: "succeeded" },
+					{
+						stepId: "08-quality",
+						status: inferenceStatus === "waiting-review" ? "succeeded" : "pending",
+					},
 				],
 			});
 		}
@@ -433,13 +439,25 @@ function stubScreenFetch(
 		}
 		if (
 			url.pathname ===
-			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/steps/04-render-tree/output.json"
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/context/render-tree.json"
 		) {
 			return Response.json(createRenderTreeArtifact("generated"));
 		}
 		if (
 			url.pathname ===
-			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/steps/05-quality/output.json"
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/context/validation-report.json"
+		) {
+			return Response.json({
+				issues: [],
+				ok: true,
+				schemaVersion: "validation-report.v0.1",
+				summary: { errorCount: 0, warningCount: 0 },
+				target: "render-tree",
+			});
+		}
+		if (
+			url.pathname ===
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/steps/08-quality/output.json"
 		) {
 			return Response.json({
 				findings: [],
@@ -457,51 +475,6 @@ function stubScreenFetch(
 		return Response.json({ error: `Unexpected request: ${url.pathname}` }, { status: 404 });
 	});
 	vi.stubGlobal("fetch", Object.assign(fetchMock, { runRequests }));
-}
-
-type RunStatus = "queued" | "running" | "waiting-review";
-
-function createRunStatus(status: RunStatus) {
-	return {
-		createdAt: "2026-06-04T12:00:00.000Z",
-		currentLayer: status === "running" ? "understand" : undefined,
-		layers: [
-			{
-				artifacts: [],
-				label: "Understand",
-				layer: "understand",
-				stages: ["read-source"],
-				status: readLayerStatus(status, "understand"),
-			},
-			{
-				artifacts: [],
-				label: "Compose",
-				layer: "compose",
-				stages: ["generate-render-tree"],
-				status: readLayerStatus(status, "compose"),
-			},
-			{
-				artifacts: [],
-				label: "Revise",
-				layer: "revise",
-				stages: ["write-artifacts"],
-				status: readLayerStatus(status, "revise"),
-			},
-		],
-		runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-		schemaVersion: "screen-inference-run-status.v0.1",
-		status,
-		updatedAt: "2026-06-04T12:00:00.000Z",
-	};
-}
-
-function readLayerStatus(
-	status: RunStatus,
-	layer: "compose" | "revise" | "understand",
-): "completed" | "pending" | "running" {
-	if (status === "waiting-review") return "completed";
-	if (status === "running" && layer === "understand") return "running";
-	return "pending";
 }
 
 function readRunRequests(): unknown[] {

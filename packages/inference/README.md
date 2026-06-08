@@ -128,10 +128,11 @@ defineStep({
 `screen-generation`, `screen-intent`, `screen-revision`
 
 **output contract id** (`outputContractRef(...)`, `@cx/schema`):
-`source-spec`, `screen-intent`, `composition-plan`, `render-tree`, `quality-inspection`
+`source-spec`, `screen-intent`, `composition-plan`, `render-tree`, `validation-report`,
+`quality-inspection`
 
 **function id** (`run.id`, 앱 `functions` 맵 — 현재):
-`source-spec-mvp`
+`source-spec-mvp`, `deterministic-validation`
 
 **knowledge source** (`references`로 주입 가능, `src/knowledge/knowledge-base.ts`):
 `component-catalog`, `layout-catalog`, `skill`(+id), `prompt-catalog`(+id), `token-catalog`
@@ -226,8 +227,10 @@ job 데이터 디렉터리(`dataRoot/inference-jobs/<jobId>/`) 안의 파일을 
 GET /api/inference/{jobId}/artifacts/job.json
 GET /api/inference/{jobId}/artifacts/events.ndjson
 GET /api/inference/{jobId}/artifacts/context/render-tree.json      # step이 writeToContext 한 결과
+GET /api/inference/{jobId}/artifacts/context/validation-report.json
 GET /api/inference/{jobId}/artifacts/context/source.raw.md         # source file snapshot
 GET /api/inference/{jobId}/artifacts/steps/04-render-tree/output.json
+GET /api/inference/{jobId}/artifacts/steps/08-quality/output.json
 GET /api/inference/{jobId}/artifacts/steps/04-render-tree/inputs.json
 #   steps/<stepId>/ 아래: inputs, references, output-contract, prompt, raw-response, output (.json)
 ```

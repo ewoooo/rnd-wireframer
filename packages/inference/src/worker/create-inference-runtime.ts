@@ -3,6 +3,7 @@ import { createContextStore } from "../context/context-store";
 import type { InferenceRuntime, KnowledgeBase, PipelineDefinition } from "../contracts";
 import { createClaudeEngine } from "../engine/claude-engine";
 import { createFunctionEngine, type InferenceFunction } from "../engine/function-engine";
+import { runDeterministicValidation } from "../functions/deterministic-validation";
 import { createInferenceKnowledgeBase } from "../knowledge/knowledge-base";
 import { createPipelineRegistry } from "../pipeline/registry";
 import { FileArtifactStore } from "../stores/file-artifact-store";
@@ -24,6 +25,10 @@ export function createInferenceRuntime(config: {
 	const newId =
 		config.newId ?? (() => `job-${Date.now().toString(36)}-${(counter++).toString(36)}`);
 	const jobStore = createJobStore(artifactStore, { now, newId });
+	const functions = {
+		"deterministic-validation": runDeterministicValidation,
+		...(config.functions ?? {}),
+	};
 	const agentRuntime = createAgentRuntime({ runner: config.claudeRunner });
 	const pipelineRegistry = createPipelineRegistry();
 	for (const definition of config.pipelines ?? []) {
@@ -34,7 +39,7 @@ export function createInferenceRuntime(config: {
 		artifactStore,
 		createContextStore: (jobId) => createContextStore(jobId, artifactStore),
 		engines: {
-			function: createFunctionEngine(config.functions ?? {}),
+			function: createFunctionEngine(functions),
 			claude: createClaudeEngine(agentRuntime),
 		},
 		jobStore,

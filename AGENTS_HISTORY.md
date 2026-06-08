@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Inference Deterministic Validation Scaffold
+
+- 변경: `screen-generation@v1`에 `05-validation`, 조건부 `06-revision`, `07-validation-after-revision`, `08-quality` 순서를 추가하고 deterministic validation report를 `context/validation-report.json`에 저장하도록 함
+- 변경: validation error가 있으면 revision을 1회만 실행하고, 재검증에도 error가 남으면 validation step 실패로 job을 닫는 최소 제어 필드를 `@cx/inference` step 계약에 추가함
+- 변경: Web artifact/read/apply 경로를 최종 RenderTree 기준 `context/render-tree.json`, validation report 기준 `context/validation-report.json`, quality output 기준 `steps/08-quality/output.json`으로 갱신함
+- 이유: Claude compose/revision 앞뒤에 deterministic guardrail을 넣되, 파이프라인과 worker 복잡도는 조건부 step과 built-in function scaffold 수준으로 제한하기 위함
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm lint`, `pnpm test`, `graphify update .`
+
 ## 2026-06-08 - Inference API Source File MVP
 
 - 변경: deprecated screen-inference API route를 제거하고 source upload/list/run/status/events/artifacts/apply 호출을 `/api/inference/*`로 단일화함

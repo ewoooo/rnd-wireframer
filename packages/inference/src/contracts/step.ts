@@ -21,6 +21,7 @@ export type FunctionRef = { id: string };
 
 export type OutputContract = {
 	contractRef: OutputContractRef;
+	failJobWhenValidationReportHasErrors?: boolean;
 	writeToContext?: string;
 };
 
@@ -33,5 +34,8 @@ export type InferenceStepDefinition = {
 	references?: Record<string, KnowledgeRef>;
 	prompt?: PromptTemplateRef;
 	run?: FunctionRef;
+	runWhen?: {
+		contextValidationReportHasErrors: string;
+	};
 	output: OutputContract;
 };

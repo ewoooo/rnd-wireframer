@@ -22,15 +22,13 @@ The output must be JSON only and match the revision step output contract declare
 8. Use available layer candidates and upstream pattern selection as the allowed pattern evidence. Do not invent layout ids.
 9. Fix invented source refs by replacing them with refs from the provided source reference catalog or `SourceSpec`.
 10. Fix invented component props or layout ids by using the component contract catalog.
-11. Keep `CompositionPlan` source refs visible in the revised `tableGenerationResult` whenever possible.
-12. Preserve or fix `tableGenerationResult` so every screen, region, area, and component record has a real layout id.
-13. Keep top-level RenderTree `version`, `metadata`, and `children`. Do not use `contractVersion`, `schemaVersion`, `root`, `tree`, `nodeId`, or `componentId`.
-14. Top-level children must contain a `Screen` root node. Put `Screen.Header`, `Screen.Contents`, and `Screen.Bottom` under that Screen node when source regions exist.
-15. Use the final RenderTree handoff shape as the primary result contract: top-level `version`, `minRendererVersion`, `metadata`, `theme`, and `children` containing a `Screen` root.
-16. Screen region containers may omit `props`. When region props are present, keep them valid and renderer-oriented.
-17. Use `props.position` values only from `fixed`, `sticky`, or `static`. Prefer `static` when unsure.
-18. Use layout props as objects, for example `{ "direction": "column" }`. Do not use layout strings such as `stack`.
-19. Fix required-field-missing and invalid-render-node errors before addressing warnings.
-20. When quality inspection is present, fix bounded P0 quality findings without rewriting unrelated valid structure.
-21. When selected design skill guidance is present, keep the selected skill gates satisfied during revision.
-22. Return one JSON object only with `tableGenerationResult` and `renderTree`, matching the provided output contract.
+11. Keep top-level RenderTree `version`, `metadata`, and `children`. Do not use `contractVersion`, `schemaVersion`, `root`, `tree`, `nodeId`, or `componentId`.
+12. Top-level children must contain a `Screen` root node. Put `Screen.Header`, `Screen.Contents`, and `Screen.Bottom` under that Screen node when source regions exist.
+13. Use the final RenderTree handoff shape as the primary result contract: top-level `version`, `minRendererVersion`, `metadata`, `theme`, and `children` containing a `Screen` root.
+14. Screen region containers may omit `props`. When region props are present, keep them valid and renderer-oriented.
+15. Use `props.position` values only from `fixed`, `sticky`, or `static`. Prefer `static` when unsure.
+16. Use layout props as objects, for example `{ "direction": "column" }`. Do not use layout strings such as `stack`.
+17. Fix required-field-missing and invalid-render-node errors before addressing warnings.
+18. When quality inspection is present, fix bounded P0 quality findings without rewriting unrelated valid structure.
+19. When selected design skill guidance is present, keep the selected skill gates satisfied during revision.
+20. Return one RenderTree JSON object only, matching the provided output contract.

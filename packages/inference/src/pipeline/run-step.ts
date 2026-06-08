@@ -1,6 +1,25 @@
 import { validateJsonSchema } from "@cx/validation";
 import type { InferenceStepDefinition, StepExecution, StepRunContext } from "../contracts";
 
+const MAX_ATTEMPTS = 2; // initial attempt + one retry
+
+type StepResolvedContext = Pick<
+	StepExecution,
+	"inputs" | "references" | "outputContract" | "prompt"
+>;
+
+type StepFailure = {
+	code: string;
+	message: string;
+	raw?: unknown;
+	contextWrites?: Record<string, unknown>;
+};
+
+type AttemptResult =
+	| { kind: "succeeded"; execution: StepExecution }
+	| { kind: "failed"; execution: StepExecution }
+	| { kind: "retry"; failure: StepFailure };
+
 export async function runStep(
 	step: InferenceStepDefinition,
 	context: StepRunContext,
@@ -10,84 +29,123 @@ export async function runStep(
 	const outputContract = await context.resolveOutputContract(step.output.contractRef);
 	const engine = context.engines[step.engine];
 	const prompt = step.prompt;
-	const MAX_ATTEMPTS = 2; // 1 retry
-
-	let lastError: { code: string; message: string } = {
-		code: "engine_execution_failed",
-		message: "engine did not run",
-	};
-	let lastRaw: unknown;
+	const resolved = { inputs, references, outputContract, prompt };
+	let lastFailure: StepFailure = createInitialFailure();
 
 	for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-		try {
-			const result = await engine.execute({
-				prompt,
-				run: step.run,
-				inputs,
-				references,
-				outputContract,
-			});
-			lastRaw = result.raw;
-
-			const report = validateJsonSchema(outputContract.data.jsonSchema, result.raw);
-			if (!report.ok) {
-				lastError = {
-					code: "output_contract_validation_failed",
-					message: report.issues.map((issue) => issue.message).join("; "),
-				};
-				continue;
-			}
-
-			if (
-				step.output.failJobWhenValidationReportHasErrors &&
-				readValidationErrorCount(result.raw) > 0
-			) {
-				return {
-					status: "failed",
-					inputs,
-					references,
-					outputContract,
-					prompt,
-					raw: result.raw,
-					contextWrites: step.output.writeToContext
-						? { [step.output.writeToContext]: result.raw }
-						: undefined,
-					error: {
-						code: "deterministic_validation_failed",
-						message: "Deterministic validation still has errors after one revision attempt.",
-					},
-				};
-			}
-
-			return {
-				status: "succeeded",
-				inputs,
-				references,
-				outputContract,
-				prompt,
-				raw: result.raw,
-				contextWrites: step.output.writeToContext
-					? { [step.output.writeToContext]: result.raw }
-					: undefined,
-			};
-		} catch (error: unknown) {
-			lastRaw = undefined;
-			lastError = normalizeEngineError(error);
-		}
+		const result = await runAttempt(step, engine, resolved);
+		if (result.kind !== "retry") return result.execution;
+		lastFailure = result.failure;
 	}
 
+	return createFailedExecution(resolved, lastFailure);
+}
+
+async function runAttempt(
+	step: InferenceStepDefinition,
+	engine: StepRunContext["engines"][InferenceStepDefinition["engine"]],
+	resolved: StepResolvedContext,
+): Promise<AttemptResult> {
+	try {
+		const result = await engine.execute({
+			prompt: resolved.prompt,
+			run: step.run,
+			inputs: resolved.inputs,
+			references: resolved.references,
+			outputContract: resolved.outputContract,
+		});
+		const raw = result.raw;
+		const contextWrites = createContextWrites(step, raw);
+		const contractFailure = validateOutputContract(resolved, raw);
+
+		if (contractFailure) {
+			return { kind: "retry", failure: contractFailure };
+		}
+
+		if (shouldFailForValidationErrors(step, raw)) {
+			return {
+				kind: "failed",
+				execution: createFailedExecution(resolved, {
+					code: "deterministic_validation_failed",
+					message: "Deterministic validation still has errors after one revision attempt.",
+					contextWrites,
+					raw,
+				}),
+			};
+		}
+
+		return {
+			kind: "succeeded",
+			execution: createSucceededExecution(resolved, raw, contextWrites),
+		};
+	} catch (error: unknown) {
+		return {
+			kind: "retry",
+			failure: normalizeEngineError(error),
+		};
+	}
+}
+
+function validateOutputContract(
+	resolved: StepResolvedContext,
+	raw: unknown,
+): StepFailure | undefined {
+	const report = validateJsonSchema(resolved.outputContract.data.jsonSchema, raw);
+	if (report.ok) return undefined;
 	return {
-		status: "failed",
-		inputs,
-		references,
-		outputContract,
-		prompt,
-		raw: lastRaw,
-		error: lastError,
+		code: "output_contract_validation_failed",
+		message: report.issues.map((issue) => issue.message).join("; "),
+		raw,
 	};
 }
 
-function normalizeEngineError(error: unknown): { code: string; message: string } {
+function shouldFailForValidationErrors(step: InferenceStepDefinition, raw: unknown): boolean {
+	return (
+		step.output.failJobWhenValidationReportHasErrors === true && readValidationErrorCount(raw) > 0
+	);
+}
+
+function createSucceededExecution(
+	resolved: StepResolvedContext,
+	raw: unknown,
+	contextWrites: Record<string, unknown> | undefined,
+): StepExecution {
+	return {
+		status: "succeeded",
+		...resolved,
+		raw,
+		contextWrites,
+	};
+}
+
+function createFailedExecution(resolved: StepResolvedContext, failure: StepFailure): StepExecution {
+	return {
+		status: "failed",
+		...resolved,
+		raw: failure.raw,
+		contextWrites: failure.contextWrites,
+		error: {
+			code: failure.code,
+			message: failure.message,
+		},
+	};
+}
+
+function createContextWrites(
+	step: InferenceStepDefinition,
+	raw: unknown,
+): Record<string, unknown> | undefined {
+	return step.output.writeToContext ? { [step.output.writeToContext]: raw } : undefined;
+}
+
+function createInitialFailure(): StepFailure {
+	return {
+		code: "engine_execution_failed",
+		message: "engine did not run",
+	};
+}
+
+function normalizeEngineError(error: unknown): StepFailure {
 	if (error && typeof error === "object" && "code" in error && "message" in error) {
 		return error as { code: string; message: string };
 	}

@@ -44,9 +44,59 @@ export const screenGenerationPipelineV1 = definePipeline({
 			output: { contractRef: outputContractRef("render-tree"), writeToContext: "render-tree" },
 		}),
 		defineStep({
-			id: "05-quality",
+			id: "05-validation",
+			engine: "function",
+			inputs: {
+				compositionPlan: context("composition-plan"),
+				renderTree: context("render-tree"),
+				screenIntent: context("screen-intent"),
+				sourceSpec: context("source-spec"),
+			},
+			run: { id: "deterministic-validation" },
+			output: {
+				contractRef: outputContractRef("validation-report"),
+				writeToContext: "validation-report",
+			},
+		}),
+		defineStep({
+			id: "06-revision",
 			engine: "claude",
-			inputs: { renderTree: context("render-tree"), compositionPlan: context("composition-plan") },
+			inputs: {
+				compositionPlan: context("composition-plan"),
+				renderTree: context("render-tree"),
+				screenIntent: context("screen-intent"),
+				sourceSpec: context("source-spec"),
+				validationReport: context("validation-report"),
+			},
+			prompt: { id: "screen-revision" },
+			runWhen: { contextValidationReportHasErrors: "validation-report" },
+			output: { contractRef: outputContractRef("render-tree"), writeToContext: "render-tree" },
+		}),
+		defineStep({
+			id: "07-validation-after-revision",
+			engine: "function",
+			inputs: {
+				compositionPlan: context("composition-plan"),
+				renderTree: context("render-tree"),
+				screenIntent: context("screen-intent"),
+				sourceSpec: context("source-spec"),
+			},
+			run: { id: "deterministic-validation" },
+			runWhen: { contextValidationReportHasErrors: "validation-report" },
+			output: {
+				contractRef: outputContractRef("validation-report"),
+				failJobWhenValidationReportHasErrors: true,
+				writeToContext: "validation-report",
+			},
+		}),
+		defineStep({
+			id: "08-quality",
+			engine: "claude",
+			inputs: {
+				compositionPlan: context("composition-plan"),
+				renderTree: context("render-tree"),
+				validationReport: context("validation-report"),
+			},
 			prompt: { id: "quality-review" },
 			output: {
 				contractRef: outputContractRef("quality-inspection"),

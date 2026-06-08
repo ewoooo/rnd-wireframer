@@ -1,4 +1,8 @@
-import { type RenderTreeScreenNodeContract, SCHEMA_VERSION } from "@cx/schema";
+import {
+	type RenderTreeContract,
+	type RenderTreeScreenNodeContract,
+	SCHEMA_VERSION,
+} from "@cx/schema";
 import { NextResponse } from "next/server";
 import { readErrorMessage } from "@/lib/api-error";
 import { applyScreenInferenceFinalResult } from "@/lib/screen-inference-apply";
@@ -15,11 +19,12 @@ type InferenceApplyRouteContext = {
 export async function POST(_request: Request, context: InferenceApplyRouteContext) {
 	try {
 		const { jobId } = await context.params;
-		const finalResult = await inferenceRuntime.artifactStore.readJson<RenderTreeScreenNodeContract>(
-			jobId,
-			"steps/04-render-tree/output.json",
-		);
-		const result = await applyScreenInferenceFinalResult({ node: finalResult });
+		const finalResult = await inferenceRuntime.artifactStore.readJson<
+			RenderTreeContract | RenderTreeScreenNodeContract
+		>(jobId, "context/render-tree.json");
+		const result = await applyScreenInferenceFinalResult({
+			node: readScreenNode(finalResult),
+		});
 		const body = {
 			appliedArtifacts: result.written
 				? [
@@ -43,6 +48,19 @@ export async function POST(_request: Request, context: InferenceApplyRouteContex
 			{ status: readErrorStatus(error) },
 		);
 	}
+}
+
+function readScreenNode(
+	input: RenderTreeContract | RenderTreeScreenNodeContract,
+): RenderTreeScreenNodeContract {
+	if (isScreenNode(input)) return input;
+	const screenNode = input.children.find(isScreenNode);
+	if (!screenNode) throw new Error("Inference final RenderTree does not include a Screen root.");
+	return screenNode;
+}
+
+function isScreenNode(input: unknown): input is RenderTreeScreenNodeContract {
+	return Boolean(input && typeof input === "object" && "type" in input && input.type === "Screen");
 }
 
 function readErrorStatus(error: unknown): number {

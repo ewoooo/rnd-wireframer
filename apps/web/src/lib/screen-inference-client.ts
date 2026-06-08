@@ -25,7 +25,10 @@ const STAGE_BY_STEP_ID: Record<string, PipelineStageId> = {
 	"02-screen-intent": "derive-screen-intent",
 	"03-composition": "plan-composition",
 	"04-render-tree": "generate-render-tree",
-	"05-quality": "review-quality",
+	"05-validation": "validate-render-tree",
+	"06-revision": "review-quality",
+	"07-validation-after-revision": "validate-render-tree",
+	"08-quality": "review-quality",
 };
 
 export async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
@@ -102,22 +105,6 @@ export async function fetchScreenInferenceArtifact<T>(
 	runId: string,
 	artifactName: string,
 ): Promise<T> {
-	if (artifactName === "validation-report.json") {
-		const job = await fetchInferenceJob(runId);
-		return {
-			issues: job.error
-				? [{ code: job.error.code, message: job.error.message, severity: "error" }]
-				: [],
-			ok: !job.error,
-			schemaVersion: "validation-report.v0.1",
-			summary: {
-				errorCount: job.error ? 1 : 0,
-				warningCount: 0,
-			},
-			target: "steps/04-render-tree/output.json",
-		} as T;
-	}
-
 	const artifactPath = readArtifactPath(artifactName);
 	return fetchInferenceArtifact<T>(runId, artifactPath);
 }
@@ -291,8 +278,9 @@ function toScreenInferenceStatus(
 }
 
 function readArtifactPath(artifactName: string): string {
-	if (artifactName === "final-result.json") return "steps/04-render-tree/output.json";
-	if (artifactName === "quality-review.json") return "steps/05-quality/output.json";
+	if (artifactName === "final-result.json") return "context/render-tree.json";
+	if (artifactName === "quality-review.json") return "steps/08-quality/output.json";
+	if (artifactName === "validation-report.json") return "context/validation-report.json";
 	if (artifactName === "pipeline-result.json") return "job.json";
 	if (artifactName === "agent-result.json") return "steps/04-render-tree/raw-response.json";
 	return artifactName;
