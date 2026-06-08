@@ -1,5 +1,5 @@
 import type { PipelineDefinition } from "../contracts";
 
-export function definePipeline<const T extends PipelineDefinition>(pipeline: T): T {
+export function definePipeline(pipeline: PipelineDefinition): PipelineDefinition {
 	return pipeline;
 }

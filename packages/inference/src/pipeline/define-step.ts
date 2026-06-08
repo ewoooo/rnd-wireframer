@@ -1,5 +1,5 @@
 import type { InferenceStepDefinition } from "../contracts";
 
-export function defineStep<const T extends InferenceStepDefinition>(step: T): T {
+export function defineStep(step: InferenceStepDefinition): InferenceStepDefinition {
 	return step;
 }
