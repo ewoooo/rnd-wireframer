@@ -1,8 +1,71 @@
-# 파이프라인 선언화 Plan — 5축 defineStep + descriptor 제거
+# 파이프라인 선언화 Plan
 
-> 목표: 파이프라인 정의를 self-contained `defineStep({ id, layer, input, run, output })` 호출만으로 남기고, 별도 `descriptor.ts`(stage 메타 배열) + `screenGenerationStageRuntimes`(run 맵) + 명령형 `runXAiStep` 오케스트레이션을 제거한다.
+> **확정 타깃은 아래 “# 최소 엔진 재설계 (2026-06-08, 확정)” 섹션.** 그 아래의 5축/S4 분석은 배경 이력으로 보존.
 >
 > 브랜치: `codex/pipeline-declarative-steps`
+
+---
+
+# 최소 엔진 재설계 (2026-06-08, 확정)
+
+엔진이 제공할 기능은 **딱 6가지**다. 그 이상(피드백 루프·skip 정책·제어 상태·롤백)은 과하므로 제거한다.
+
+1. 단계를 정의한다
+2. 단계별로 파일을 참조한다
+3. 단계별로 별도 프롬프트가 들어간다
+4. 단계별로 원하는 아웃풋 형태가 있다
+5. 단계 순서는 변동될 수 있다(배열 재배열)
+6. 다음 단계에서 이전 단계 결과물을 참조한다
+
+## 확정 API
+
+```ts
+type Step =
+  | { id; kind: "ai";  prompt; inputs?: Record<string, Ref>; output }   // 프롬프트 단계
+  | { id; kind: "run"; run;     inputs?: Record<string, Ref>; output }   // 비-AI 단계(파싱/검증/쓰기)
+type Ref = stepOutput(id) | file(ref) | value(v)   // (2) 파일 / (6) 이전 출력
+type Pipeline = { id; steps: Step[] }              // (1)(5) 배열 순서 = 실행, 재배열 자유
+runPipeline(pipeline, { agent, resolveFile }) → { outputs: Record<stepId, output> }
+```
+
+런타임 = **위상검증 1회 → 순서대로 (inputs 해석 → ai면 agent / run이면 run → output 검증 → `outputs[id]` 저장).** 끝.
+
+## 결정 사항 (확정)
+
+- **비-AI 단계:** 엔진에 `kind: "run"`(순수 함수) 1종 추가. parse/validate/write가 그대로 단계로 남아 `reads`/순서 규칙을 동일하게 따름. (프롬프트 대신 함수 한 갈래일 뿐 — 과하지 않음.)
+- **revision 루프:** 제거. revise/validate-after-revision + feedback rule + `generationNextAction`/`preRevision*`/롤백 전부 삭제. revise는 (남긴다면) review 결과를 `reads`로 받는 1회 forward 단계.
+
+## 핵심 효과 — 블랙보드 소멸
+
+skip·feedback를 없애면 “skip된 step 출력 참조 시 throw” 제약이 사라진다 → 모든 참조 대상 step이 항상 실행되므로:
+- `write-artifacts`가 **모든 이전 step을 `stepOutput` input으로 선언**해 조립 가능.
+- 제어 상태(롤백·nextAction)가 없으니 cross-iteration 상태도 불필요.
+- → `ScreenGenerationPipelineState` **블랙보드 완전 삭제**, 남는 건 `outputs[id]` 맵뿐.
+
+(이전 S4c/S4d 보류의 두 근거 — 엔진 throw + revision 무테스트 — 가 둘 다 해소됨: 전자는 skip 제거로, 후자는 revision 제거로.)
+
+## 제거 대상 (현재 엔진)
+
+`PipelineFeedbackRule` · `evaluateFeedback` · `afterStep` · `retryCounts` · `skipWhen` · `skipPolicy`(+술어) · `generationNextAction` · `preRevision*` · 롤백 · 블랙보드. run-status/persistence/side-effect conveyor는 최소화 또는 호스트로.
+
+## 구현 순서 (확정)
+
+| 단계 | 내용 | 게이트 |
+|---|---|---|
+| **M1 엔진 축소** | `runStepPipeline`에서 feedback/skip/retry/afterStep 제거 + 정의시점 위상검증 추가. `defineStep`은 ai/run 2종 유지. input 해석부(S0)는 재사용. | tsc + 기존 엔진 테스트(피드백/skip 테스트는 삭제) |
+| **M2 screen-gen 재표현** | revise·validate-after-revision·feedback·skipPolicy·블랙보드 제거. 모든 step이 `inputs`로 읽고 rich output 반환, `write-artifacts`는 모든 이전 step을 `stepOutput`으로 선언해 조립, projection도 `outputs`에서. | tsc + 신 golden 재캡처 |
+| **M3 golden 재캡처** | 신동작(revision 없는 1패스)으로 게이트 golden 1회 재캡처 후 고정. | gate(신 golden) green |
+| **M4 정리·검증** | 죽은 코드/타입 제거, import 정리. | tsc·vitest·biome·gate 전부 green. 완료 시 본 문서에 ✅ 표시. |
+
+## 동작 변경 (수용됨)
+
+revision 루프 제거로 검증 실패해도 재시도/롤백 없이 1패스. `createScreenGenerationStageLayers` 공개 stage 목록에서 revision 단계 빠짐(apps/web 진행률 UI 반영).
+
+---
+
+# (배경 이력) 5축 defineStep + descriptor 제거
+
+> 아래는 2026-06-05까지의 분석/진행 이력. 위 “최소 엔진 재설계”가 이를 대체한다. descriptor/stageRuntimes/factory collapse(✅ `464e254c`)와 rich AI output(✅ `a960f9d0`)은 최소 엔진에서도 그대로 활용된다.
 
 ## 5축 모델 (합의됨)
 
