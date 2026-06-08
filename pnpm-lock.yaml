@@ -102,6 +102,9 @@ importers:
       '@cx/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
+      '@cx/agent':
+        specifier: workspace:*
+        version: link:../../packages/agent
       '@cx/components':
         specifier: workspace:*
         version: link:../../packages/component

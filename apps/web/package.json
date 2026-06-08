@@ -9,6 +9,7 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@cx/agent": "workspace:*",
 		"@cx/adapters": "workspace:*",
 		"@cx/components": "workspace:*",
 		"@cx/inference": "workspace:*",

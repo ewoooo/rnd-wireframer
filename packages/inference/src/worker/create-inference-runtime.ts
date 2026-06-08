@@ -1,6 +1,6 @@
 import { type AgentRunner, createAgentRuntime } from "@cx/agent";
 import { createContextStore } from "../context/context-store";
-import type { InferenceRuntime, KnowledgeBase, PipelineRegistry } from "../contracts";
+import type { InferenceRuntime, KnowledgeBase, PipelineDefinition } from "../contracts";
 import { createClaudeEngine } from "../engine/claude-engine";
 import { createFunctionEngine, type InferenceFunction } from "../engine/function-engine";
 import { createInferenceKnowledgeBase } from "../knowledge/knowledge-base";
@@ -11,7 +11,7 @@ import { createJobStore } from "../stores/job-store";
 let counter = 0;
 
 export function createInferenceRuntime(config: {
-	pipelines?: PipelineRegistry;
+	pipelines?: PipelineDefinition[];
 	dataRoot?: string;
 	functions?: Record<string, InferenceFunction>;
 	knowledgeBase?: KnowledgeBase;
@@ -25,6 +25,10 @@ export function createInferenceRuntime(config: {
 		config.newId ?? (() => `job-${Date.now().toString(36)}-${(counter++).toString(36)}`);
 	const jobStore = createJobStore(artifactStore, { now, newId });
 	const agentRuntime = createAgentRuntime({ runner: config.claudeRunner });
+	const pipelineRegistry = createPipelineRegistry();
+	for (const definition of config.pipelines ?? []) {
+		pipelineRegistry.register(definition);
+	}
 
 	return {
 		artifactStore,
@@ -35,7 +39,7 @@ export function createInferenceRuntime(config: {
 		},
 		jobStore,
 		knowledgeBase: config.knowledgeBase ?? createInferenceKnowledgeBase(),
-		pipelines: config.pipelines ?? createPipelineRegistry(),
+		pipelines: pipelineRegistry,
 		now,
 		newId,
 	};

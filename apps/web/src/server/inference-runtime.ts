@@ -1,15 +1,12 @@
 import path from "node:path";
+import { createClaudeRunner } from "@cx/agent/claude";
 import {
 	createInferenceRuntime,
-	createPipelineRegistry,
-	definePipeline,
-	defineStep,
 	type EngineRequest,
 	type InferenceRuntime,
-	jobInput,
-	outputContractRef,
 	runInferenceJob,
 } from "@cx/inference";
+import { screenGenerationPipelineV1 } from "@cx/inference/pipelines/screen-generation-v1";
 
 const cwd = process.cwd();
 const dataRoot = cwd.endsWith(`${path.sep}apps${path.sep}web`)
@@ -21,7 +18,8 @@ function buildSourceSpec(request: EngineRequest) {
 		request.inputs.job && typeof request.inputs.job === "object"
 			? (request.inputs.job as Record<string, unknown>)
 			: {};
-	const screenCode = typeof jobInputValue.screenCode === "string" ? jobInputValue.screenCode : "MVP-SCREEN";
+	const screenCode =
+		typeof jobInputValue.screenCode === "string" ? jobInputValue.screenCode : "MVP-SCREEN";
 	return {
 		schemaVersion: "source-spec.v0.1",
 		sourceImport: {
@@ -41,27 +39,11 @@ function buildSourceSpec(request: EngineRequest) {
 	};
 }
 
-const pipelines = createPipelineRegistry();
-pipelines.register(
-	definePipeline({
-		id: "screen-generation",
-		version: "v1",
-		steps: [
-			defineStep({
-				id: "01-analyze",
-				engine: "function",
-				inputs: { job: jobInput() },
-				run: { id: "source-spec-mvp" },
-				output: { contractRef: outputContractRef("source-spec"), writeToContext: "source-spec" },
-			}),
-		],
-	}),
-);
-
 export const inferenceRuntime: InferenceRuntime = createInferenceRuntime({
 	dataRoot,
-	pipelines,
+	pipelines: [screenGenerationPipelineV1],
 	functions: { "source-spec-mvp": buildSourceSpec },
+	claudeRunner: createClaudeRunner({ localFirst: true }),
 });
 
 export async function createInferenceJob(input: unknown) {
