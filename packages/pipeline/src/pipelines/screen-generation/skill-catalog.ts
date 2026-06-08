@@ -4,8 +4,7 @@ import path from "node:path";
 export type GenerationSkillStage =
 	| "pattern-selection"
 	| "quality-inspection"
-	| "render-tree-generation"
-	| "revision";
+	| "render-tree-generation";
 
 export type GenerationSkill = {
 	body: string;

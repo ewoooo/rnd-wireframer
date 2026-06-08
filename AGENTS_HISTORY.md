@@ -36,6 +36,34 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Pipeline Declarative Completion Contract Cleanup
+
+- 변경: `@cx/pipeline` public `PipelineStageId`와 `PipelineRunResult`, `ScreenGenerationSkillBundleRef.stage`에서 제거된 revision 단계/필드를 정리해 현재 11-step screen-generation 계약과 일치시킴
+- 변경: `apps/web/src/lib/screen-inference-run-store.ts`가 hardcoded stage allowlist 대신 `getScreenGenerationStageOrder()`를 사용하도록 바꿔 Web 진행률 SSOT가 pipeline metadata와 드리프트하지 않게 함
+- 변경: `packages/pipeline/src/__tests__/step-definition.test.ts`의 예시 step 순서를 현재 단일 패스 screen-generation 흐름에 맞게 갱신함
+- 이유: `PIPELINE_DECLARATIVE_PLAN.md`는 revision 제거와 public stage 목록 반영 완료를 선언했지만, 실제 public 타입/웹 진행률 경계에는 이전 revision surface가 남아 있었기 때문
+- 검증: `pnpm -s vitest run packages/pipeline/src/__tests__/public-api.test.ts packages/pipeline/src/__tests__/step-definition.test.ts packages/pipeline/src/__tests__/step-runner.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts apps/web/src/lib/screen-inference-run.test.ts`, `pnpm -s tsc --noEmit --pretty false`, `pnpm -s biome lint packages/pipeline/src/public/types.ts packages/pipeline/src/pipelines/screen-generation/skill-catalog.ts packages/pipeline/src/__tests__/step-definition.test.ts apps/web/src/lib/screen-inference-run-store.ts`
+- 후속: 남아 있는 revision 관련 설명 자산(`packages/agent/docs/*`)은 현재 호환 문맥인지 target inference 문서로 이관할지 별도 정리한다.
+
+## 2026-06-08 - Screen Inference Architecture Reset
+
+- 변경: `docs/development/SCREEN_INFERENCE_ARCHITECTURE.md`를 추가해 Job Store, Worker, Inference Pipeline, Pipeline Context, Execution Engines, Knowledge Base 중심의 새 screen inference 실행 구조를 정본화함
+- 변경: 기존 `AGENT_RUNTIME_PROTOCOL.md`, `PIPELINE_STAGE_PROTOCOL.md`, `PIPELINE_STEP_REFERENCE_MANIFEST_PLAN.md`, 빈 `INFERENCE_SERVICE_STRUCTURE.md`를 제거하고 관련 링크를 새 정본 문서로 통합함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `API_ENDPOINTS.md`, `docs/development/README.md`, `packages/pipeline/README.md`, `packages/agent/README.md`를 새 target package 구조와 compatibility/deprecated 상태 기준으로 갱신함
+- 이유: 기존 `@cx/inference-nodes` 및 `@cx/pipeline` screen-generation 경계가 복잡해져 새 inference contract/store/runtime/screen-inference 구조로 재설계하기 위함
+- 검증: 문서 링크 `rg` 확인. 구현 변경은 수행하지 않음
+- 후속: `@cx/inference-contracts`, `@cx/inference-store`, `@cx/inference-runtime`, `@cx/screen-inference` 패키지를 순서대로 추가하고 `/api/inference/*` target route로 이관한다.
+
+## 2026-06-05 - Contract Branch Audit
+
+- 변경: `docs/development/CONTRACT_BRANCH_AUDIT_2026-06-05.md`를 추가해 pipeline 외 패키지의 schema/contract 부족성 도메인 분기를 코드 청크 단위로 점검함
+- 변경: `@cx/renderer` renderer kind 선택, `@cx/inference-nodes` decoration role projection, table/read model area type 매핑, region contract 중복, layout matcher, Web Puck scope adapter를 위험도별로 분류함
+- 변경: 2차 AST 스캔으로 운영 소스 439개에서 후보 349개를 추출하고, `packages/figma-screen-sync`, `@cx/types/node-types`, markdown kind 추론, renderer coercion, RenderTree->Figma mapping까지 추가 위험으로 반영함
+- 변경: 선언적 데이터 구조 후보 86개를 추가 스캔해 local policy table, coverage type 부족, 병렬 vocabulary, JSON/문서 catalog validation 취약성을 별도 섹션으로 정리함
+- 이유: 옆 세션에서 확인된 "스키마 부족으로 인한 명령형 분기 과다" 문제가 다른 패키지에도 남아 있는지 후속 정리 순서를 잡기 위함
+- 검증: `rg` 기반 운영 TypeScript 소스 분기 스캔, TypeScript AST 기반 `if`/삼항/`switch`/contract lookup 후보 수집, 선언적 상수/registry/catalog 후보 수집, 주요 후보 파일 주변 코드 수동 확인. 구현 변경은 수행하지 않음
+- 후속: renderer kind contract, Figma sync 운영 여부, schema region contract, table area row type mapping, `@cx/types/node-types` legacy 정리부터 순서대로 SSOT를 확정해야 한다.
+
 ## 2026-06-05 - Screen Generation Descriptor SSOT
 
 - 변경: `screen-generation` stage id/order/input/output/AI task/layer/message/artifact metadata를 `packages/pipeline/src/pipelines/screen-generation/descriptor.ts`의 `SCREEN_GENERATION_STAGE_DESCRIPTORS` 기준으로 모음

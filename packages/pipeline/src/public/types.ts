@@ -21,10 +21,8 @@ export type PipelineStageId =
 	| "propose-components"
 	| "read-source"
 	| "review-quality"
-	| "revise-render-tree-if-invalid"
 	| "select-pattern"
 	| "validate-render-tree"
-	| "validate-render-tree-after-revision"
 	| "write-artifacts";
 
 export type StepInputRef =
@@ -301,7 +299,7 @@ export type ScreenGenerationSkillBundleRef = {
 		content: string;
 		path: string;
 	}>;
-	stage: "pattern-selection" | "quality-inspection" | "render-tree-generation" | "revision";
+	stage: "pattern-selection" | "quality-inspection" | "render-tree-generation";
 };
 
 export type ScreenGenerationReferences = {
@@ -394,9 +392,6 @@ export type PipelineRunResult = {
 	qualityReviewAgentInput?: unknown;
 	qualityReviewAgentResult?: unknown;
 	qualityReviewRunnerRequest?: unknown;
-	revisionAgentInput?: unknown;
-	revisionAgentResult?: unknown;
-	revisionRunnerRequest?: unknown;
 	screenIntentAgentInput?: unknown;
 	screenIntentAgentResult?: unknown;
 	screenIntentRunnerRequest?: unknown;
@@ -409,7 +404,6 @@ export type PipelineRunResult = {
 	parseCommandResult?: unknown;
 	patternLayerCandidates?: unknown;
 	renderTreeGenerationSkill?: unknown;
-	revisionDecision?: unknown;
 	sourceSpec?: unknown;
 	validationReport?: unknown;
 };
