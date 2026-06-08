@@ -1,7 +1,7 @@
 import { isRecord } from "@cx/types/guards";
-import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/types";
-import { componentSignals, scorePatternSignals } from "../internal/matcher";
-import { findPattern, listPatterns } from "../internal/store";
+import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/patterns/types";
+import { componentSignals, scorePatternSignals } from "../pattern-internal/matcher";
+import { findPattern, listPatterns } from "../pattern-internal/store";
 import type {
 	DatabasePatternRef,
 	LayoutPatternCatalogEntry,
@@ -36,7 +36,7 @@ export function resolvePatternComponent(
 	input: ResolvePatternComponentInput,
 ): ResolvedPatternComponent | undefined {
 	throw new Error(
-		`resolvePatternComponent requires @cx/layout-pattern-store/components. Use the components subpath for render-time layout resolution. Received ${input.layoutId ?? input.patternId ?? "missing layout id"}.`,
+		`resolvePatternComponent requires @cx/layout/components. Use the components subpath for render-time layout resolution. Received ${input.layoutId ?? input.patternId ?? "missing layout id"}.`,
 	);
 }
 

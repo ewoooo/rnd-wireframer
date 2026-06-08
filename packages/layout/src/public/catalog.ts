@@ -1,11 +1,11 @@
-import { patternCatalogSets } from "../internal/data";
-import { layoutPatternCatalogSchema, patternStoreSchema } from "../internal/schema";
+import { patternCatalogSets } from "../pattern-internal/data";
+import { layoutPatternCatalogSchema, patternStoreSchema } from "../pattern-internal/schema";
 import {
 	findPattern,
 	listPatternSummaries,
 	listPatterns,
 	loadPatternStore,
-} from "../internal/store";
+} from "../pattern-internal/store";
 import type {
 	ChildrenLayoutPreset,
 	CreateLayoutCandidateInput,
@@ -17,7 +17,7 @@ import type {
 	PatternStoreTarget,
 } from "./types";
 
-export type { PatternSummary } from "../internal/store";
+export type { PatternSummary } from "../pattern-internal/store";
 export type {
 	CreateLayoutCandidateInput,
 	LayoutCatalogListOptions,

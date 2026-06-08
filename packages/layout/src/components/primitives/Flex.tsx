@@ -1,6 +1,6 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../internal/style";
-import { type FlexLayoutProps, LAYOUT_NODE_TYPES, type LayoutFlexNode } from "../types";
+import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../../internal/style";
+import { type FlexLayoutProps, LAYOUT_NODE_TYPES, type LayoutFlexNode } from "../../types";
 
 export type FlexProps = {
 	as?: ElementType;

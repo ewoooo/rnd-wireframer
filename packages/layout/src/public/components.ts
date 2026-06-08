@@ -2,11 +2,11 @@ import {
 	findRegisteredLayoutPatternComponent,
 	findRegisteredLayoutPatternComponentByLayoutId,
 	listRegisteredLayoutPatternComponents,
-} from "../components/registry";
-import type { LayoutPatternComponentEntry } from "../components/types";
+} from "../components/patterns/registry";
+import type { LayoutPatternComponentEntry } from "../components/patterns/types";
 import type { PatternStoreTarget } from "./types";
 
-export type { LayoutPatternComponentEntry } from "../components/types";
+export type { LayoutPatternComponentEntry } from "../components/patterns/types";
 
 export function findLayoutPatternComponentByLayoutId(
 	layoutId: string,

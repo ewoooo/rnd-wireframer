@@ -4,12 +4,12 @@ import {
 	listPatternSummaries,
 	listPatterns,
 	loadPatternStore,
-} from "@cx/layout-pattern-store/catalog";
+} from "@cx/layout/catalog";
 import { isRecord } from "@cx/types/guards";
 import { describe, expect, it } from "vitest";
-import { patternSchema, patternStoreSchema } from "../internal/schema";
+import { patternSchema, patternStoreSchema } from "../pattern-internal/schema";
 
-describe("@cx/layout-pattern-store", () => {
+describe("@cx/layout", () => {
 	it("loads normalized pattern store data", () => {
 		const store = loadPatternStore();
 		expect(store.patterns.length).toBeGreaterThan(0);

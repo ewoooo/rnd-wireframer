@@ -4,11 +4,11 @@ import {
 	readLayoutPattern,
 	updateLayoutPattern,
 	upsertLayoutPattern,
-} from "@cx/layout-pattern-store/mutations";
-import type { PatternStore, PatternStorePattern } from "@cx/layout-pattern-store/types";
+} from "@cx/layout/mutations";
+import type { PatternStore, PatternStorePattern } from "@cx/layout/types";
 import { describe, expect, it } from "vitest";
 
-describe("@cx/layout-pattern-store mutations", () => {
+describe("@cx/layout mutations", () => {
 	it("creates, reads, updates, upserts, and deletes patterns without mutating input store", () => {
 		const emptyStore: PatternStore = { patterns: [] };
 		const pattern = testPattern("test-area");

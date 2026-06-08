@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
 		"@cx/components",
 		"@cx/inference-nodes",
 		"@cx/layout",
-		"@cx/layout-pattern-store",
 		"@cx/pipeline",
 		"@cx/renderer",
 		"@cx/schema",

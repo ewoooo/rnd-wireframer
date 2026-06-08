@@ -7,7 +7,7 @@
 패키지 간 관계망과 public surface 요약은 루트 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md)를 따른다.
 Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
 
-현재 생성 과정은 재설계된 패키지 경계 기준으로 운영한다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 둔다. `layout-pattern-store`는 내부 타입과 schema를 소유한 reference catalog와 layout component registry 패키지로 운영한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
+현재 생성 과정은 재설계된 패키지 경계 기준으로 운영한다. old `importer/types/workflow` 패키지 경계는 제거했고, `agent`는 Claude Agent SDK 실행 adapter로만 둔다. `@cx/layout`은 layout primitive, layout pattern component, layout catalog/resolver를 함께 소유한다. pipeline 전반 DTO/schema 계약과 예시 계약은 `@cx/schema`와 관련 테스트/문서가 소유한다.
 
 ## 2. 패키지 기준
 
@@ -20,7 +20,7 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 | `@cx/components` | leaf component 구현과 catalog 값/계약 |
 | `@cx/layout` | 화면 chrome과 layout primitive |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
-| `@cx/layout-pattern-store` | screen/region/area/composite layout pattern reference catalog, local schema/type |
+| `@cx/layout` | screen/region/area/composite layout pattern reference catalog, local schema/type |
 | `@cx/inference` | target MVP: inference stores, context, engine, pipeline, worker, in-memory test fakes |
 | `@cx/inference-nodes` | deprecated compatibility: 기존 screen-generation node/planning helper |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |

@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Layout Catalog Consolidation
+
+- 변경: `@cx/layout-pattern-store` 패키지를 제거하고 catalog, resolver, mutation helper, layout pattern component를 `@cx/layout`의 공개 subpath(`./catalog`, `./resolver`, `./mutations`, `./components`)로 통합함
+- 변경: 기존 `@cx/layout` primitive 구현을 `packages/layout/src/components/primitives/`로 이동하고 layout pattern component를 `packages/layout/src/components/patterns/`로 이동함
+- 변경: renderer, validation, pipeline의 layout catalog import를 `@cx/layout` 공개 API로 전환하고 관련 package dependency와 문서를 갱신함
+- 이유: layout knowledge base의 SSOT를 `@cx/layout`으로 단일화하고 `@cx/layout-pattern-store` compatibility 패키지를 완전히 제거하기 위함
+- 검증: `pnpm -s exec tsc --noEmit --pretty false --incremental false`, `pnpm -s exec vitest run packages/layout/src/__tests__/public-api.test.ts packages/layout/src/__tests__/layout-public-api.test.ts packages/layout/src/__tests__/layout-catalog.test.ts packages/layout/src/__tests__/layout-schema.test.ts packages/layout/src/__tests__/layout-mutations.test.ts packages/renderer/src/__tests__/layout-pattern-render.test.tsx packages/validation/src/__tests__/validators.test.ts packages/pipeline/src/__tests__/screen-generation-tags.test.ts`, `git diff --check`
+
 ## 2026-06-08 - Inference MVP Package Direction
 
 - 변경: `SCREEN_INFERENCE_ARCHITECTURE.md`의 target package 방향을 여러 inference package가 아니라 단일 `@cx/inference` MVP 패키지로 조정함

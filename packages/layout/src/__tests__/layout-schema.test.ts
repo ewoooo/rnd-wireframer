@@ -5,9 +5,9 @@ import {
 	normalizedPatternStoreSchema,
 	patternSchema,
 	patternStoreSchema,
-} from "../internal/schema";
+} from "../pattern-internal/schema";
 
-describe("@cx/layout-pattern-store schema", () => {
+describe("@cx/layout schema", () => {
 	it("normalizes layout component catalog records into normalized pattern store shape", () => {
 		const store = patternStoreSchema.parse({
 			patterns: [

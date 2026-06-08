@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { LayoutPatternCatalogEntry, PatternStoreTarget } from "../public/types";
+import type { LayoutPatternCatalogEntry, PatternStoreTarget } from "../../public/types";
 
 export type LayoutPatternComponentProps = {
 	children?: ReactNode;

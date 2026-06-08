@@ -7,7 +7,7 @@ import {
 import {
 	resolveCompositeLayoutByComponentType,
 	resolveRegionLayoutFromScreenLayout,
-} from "@cx/layout-pattern-store/resolver";
+} from "@cx/layout/resolver";
 
 import type {
 	ScreenGenerationReferences,

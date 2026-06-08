@@ -161,7 +161,7 @@ function createAreaLayerCandidate(input: {
 		constraints: [
 			"Keep components from the same source area grouped together.",
 			`Materialize this source area as a ${renderNodeType} RenderTree wrapper before leaf components.`,
-			"Use PageStack or layout wrappers inside the area only when the selected pattern-store candidate needs section/list grouping.",
+			"Use PageStack or layout wrappers inside the area only when the selected layout catalog candidate needs section/list grouping.",
 			"Preserve component order from SourceSpec unless validation requires a structural wrapper.",
 		],
 		id: `layer.area.${input.sourceAreaId}`,

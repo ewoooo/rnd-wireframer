@@ -4,15 +4,15 @@ import {
 	listCatalog,
 	listCatalogIds,
 	listPatterns,
-} from "@cx/layout-pattern-store/catalog";
-import { listLayoutPatternComponents } from "@cx/layout-pattern-store/components";
-import { createLayoutPattern } from "@cx/layout-pattern-store/mutations";
-import { resolveCompositePatternByComponentType } from "@cx/layout-pattern-store/resolver";
-import type { PatternStore } from "@cx/layout-pattern-store/types";
+} from "@cx/layout/catalog";
+import { listLayoutPatternComponents } from "@cx/layout/components";
+import { createLayoutPattern } from "@cx/layout/mutations";
+import { resolveCompositePatternByComponentType } from "@cx/layout/resolver";
+import type { PatternStore } from "@cx/layout/types";
 import { describe, expect, it } from "vitest";
 import packageJson from "../../package.json";
 
-describe("@cx/layout-pattern-store public API", () => {
+describe("@cx/layout public API", () => {
 	it("keeps catalog, resolver, mutations, and types on explicit public subpaths", () => {
 		expect(Object.keys(packageJson.exports)).toContain("./catalog");
 		expect(listPatterns("screen").length).toBeGreaterThan(0);

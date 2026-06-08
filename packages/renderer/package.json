@@ -12,7 +12,6 @@
 	"dependencies": {
 		"@cx/components": "workspace:*",
 		"@cx/layout": "workspace:*",
-		"@cx/layout-pattern-store": "workspace:*",
 		"@cx/schema": "workspace:*"
 	},
 	"peerDependencies": {

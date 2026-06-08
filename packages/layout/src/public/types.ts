@@ -14,3 +14,4 @@ export type {
 	ScreenRegionNode,
 } from "../types";
 export { LAYOUT_NODE_TYPES, LAYOUT_PROP_CONTRACTS } from "../types";
+export type * from "./pattern-types";

@@ -1,5 +1,5 @@
 import type { CSSProperties, ElementType, ReactNode } from "react";
-import type { FlexLayoutProps, LayoutFlexNode } from "../types";
+import type { FlexLayoutProps, LayoutFlexNode } from "../../types";
 import { Flex } from "./Flex";
 
 export type StackProps = {

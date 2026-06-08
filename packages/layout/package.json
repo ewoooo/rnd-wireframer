@@ -5,15 +5,21 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
+		"./catalog": "./src/public/catalog.ts",
 		"./chrome": "./src/public/chrome.ts",
+		"./components": "./src/public/components.ts",
 		"./contract": "./src/public/contract.ts",
+		"./mutations": "./src/public/mutations.ts",
 		"./primitives": "./src/public/primitives.ts",
+		"./resolver": "./src/public/resolver.ts",
 		"./style": "./src/public/style.ts",
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
+		"@cx/components": "workspace:*",
 		"@cx/schema": "workspace:*",
-		"@cx/types": "workspace:*"
+		"@cx/types": "workspace:*",
+		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

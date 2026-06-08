@@ -4,4 +4,4 @@ export {
 	readPattern as readLayoutPattern,
 	updatePattern as updateLayoutPattern,
 	upsertPattern as upsertLayoutPattern,
-} from "../internal/mutations";
+} from "../pattern-internal/mutations";

@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
-import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "../internal/style";
-import type { LayoutNode } from "../types";
+import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "../../internal/style";
+import type { LayoutNode } from "../../types";
 import type { StackProps } from "./Stack";
 
 export type PageStackItemTemplate = "card-0" | "default-20" | "plain";

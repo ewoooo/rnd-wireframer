@@ -201,7 +201,7 @@ MVP starts with one new package:
 | `@cx/agent` | Claude Agent SDK local-first execution engine adapter; also owns skills as SSOT and exposes `resolveSkill(id) → { content, version, … }` |
 | `@cx/schema` | SourceSpec, RenderTree, validation DTO/schema contracts |
 | `@cx/validation` | Pure validation reports |
-| `@cx/components`, `@cx/layout-pattern-store`, `@cx/tokens` | Knowledge base catalogs and design contracts |
+| `@cx/components`, `@cx/layout`, `@cx/tokens` | Knowledge base catalogs and design contracts |
 
 `@cx/inference` internal modules:
 

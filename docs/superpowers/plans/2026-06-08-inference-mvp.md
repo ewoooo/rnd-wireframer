@@ -924,7 +924,7 @@ describe("runStep", () => {
 
 		const envelope: ReferenceEnvelope = {
 			id: "layout-catalog",
-			source: "@cx/layout-pattern-store",
+			source: "@cx/layout",
 			sourceRef: "catalog",
 			format: "json",
 			data: [],
