@@ -1,6 +1,5 @@
 import type { EngineRequest } from "@cx/inference";
 import { describe, expect, it } from "vitest";
-import { createClaudeEngine } from "../engine/claude-engine";
 import { createFunctionEngine } from "../engine/function-engine";
 
 const baseRequest: EngineRequest = {
@@ -20,11 +19,5 @@ describe("function engine", () => {
 		const engine = createFunctionEngine({});
 		await expect(engine.execute(baseRequest)).rejects.toThrow();
 		await expect(engine.execute({ ...baseRequest, run: { id: "nope" } })).rejects.toThrow();
-	});
-});
-
-describe("claude engine (stub)", () => {
-	it("throws not-implemented", async () => {
-		await expect(createClaudeEngine().execute(baseRequest)).rejects.toThrow(/not implemented/i);
 	});
 });
