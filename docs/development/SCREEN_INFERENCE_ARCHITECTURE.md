@@ -728,7 +728,7 @@ Target product-facing endpoints:
 | `GET` | `/api/inference/:jobId/events` | SSE event stream |
 | `GET` | `/api/inference/:jobId/artifacts/:artifactName` | Read allowed artifact |
 
-Existing `/api/screen-inference/*` routes remain compatibility routes until the Web client migration is complete.
+Deprecated compatibility routes are removed. Web and CLI entrypoints should use `/api/inference/*`; source files are materialized before the pure inference pipeline consumes `SourceSpec`.
 
 MVP starts with these API routes:
 

@@ -15,7 +15,7 @@ export async function readStepSnapshots(runtime: InferenceRuntime, jobId: string
 }
 
 const ALLOWED_ARTIFACT =
-	/^(job\.json|events\.ndjson|steps\/[a-z0-9-]+\/[a-z-]+\.json|context\/[a-z0-9-]+\.json)$/;
+	/^(job\.json|events\.ndjson|steps\/[a-z0-9-]+\/[a-z-]+\.json|context\/[a-z0-9-]+\.json|context\/source\.raw\.md)$/;
 
 export async function readArtifact(runtime: InferenceRuntime, jobId: string, artifactPath: string): Promise<string> {
 	if (!ALLOWED_ARTIFACT.test(artifactPath)) throw new Error(`Artifact not allowed: ${artifactPath}`);

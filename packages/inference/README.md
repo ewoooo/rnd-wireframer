@@ -226,6 +226,7 @@ job 데이터 디렉터리(`dataRoot/inference-jobs/<jobId>/`) 안의 파일을 
 GET /api/inference/{jobId}/artifacts/job.json
 GET /api/inference/{jobId}/artifacts/events.ndjson
 GET /api/inference/{jobId}/artifacts/context/render-tree.json      # step이 writeToContext 한 결과
+GET /api/inference/{jobId}/artifacts/context/source.raw.md         # source file snapshot
 GET /api/inference/{jobId}/artifacts/steps/04-render-tree/output.json
 GET /api/inference/{jobId}/artifacts/steps/04-render-tree/inputs.json
 #   steps/<stepId>/ 아래: inputs, references, output-contract, prompt, raw-response, output (.json)
@@ -238,7 +239,7 @@ curl -s localhost:3000/api/inference/$JOB/artifacts/context/render-tree.json | j
 
 경로 이탈/미존재 시 `404 — { "error": "artifact not found or not allowed" }`.
 
-> 참고: `/api/screen-inference/*`는 별개(이전) 계열 라우트로, 위 `/api/inference/*` 엔진과 다르다.
+Compatibility route는 사용하지 않는다. Web upload/list/run/apply 흐름도 `/api/inference/*` 아래에서 처리한다.
 
 ## 참고
 

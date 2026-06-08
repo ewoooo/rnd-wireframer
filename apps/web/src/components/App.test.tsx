@@ -60,7 +60,10 @@ describe("App workbench navigation", () => {
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 		expect(readRunRequests()).toContainEqual(
 			expect.objectContaining({
-				screenId: "NOVA-UPLOAD-PG-001-0",
+				screenCode: "NOVA-UPLOAD-PG-001-0",
+				source: {
+					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+				},
 				useAI: true,
 			}),
 		);
@@ -106,7 +109,10 @@ describe("App workbench navigation", () => {
 		expect(await screen.findAllByText("0 errors · 0 warnings")).toHaveLength(2);
 		expect(readRunRequests()).toContainEqual(
 			expect.objectContaining({
-				screenId: "NOVA-UPLOAD-PG-001-0",
+				screenCode: "NOVA-UPLOAD-PG-001-0",
+				source: {
+					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+				},
 				useAI: true,
 			}),
 		);
@@ -361,10 +367,10 @@ function stubScreenFetch(
 				],
 			});
 		}
-		if (url.pathname === "/api/screen-inference/sources" && init?.method !== "POST") {
+		if (url.pathname === "/api/inference/sources" && init?.method !== "POST") {
 			return Response.json({ sources: serverSources });
 		}
-		if (url.pathname === "/api/screen-inference/sources" && init?.method === "POST") {
+		if (url.pathname === "/api/inference/sources" && init?.method === "POST") {
 			return Response.json({
 				source: {
 					batchId: "20260604",
@@ -375,40 +381,65 @@ function stubScreenFetch(
 				},
 			});
 		}
-		if (url.pathname === "/api/screen-inference/runs") {
+		if (url.pathname === "/api/inference") {
 			runRequests.push(JSON.parse(String(init?.body ?? "{}")));
 			return Response.json(
 				{
-					runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-					status: createRunStatus(inferenceStatus),
-					statusUrl: "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
 				},
 				{ status: 202 },
 			);
 		}
-		if (url.pathname === "/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
+		if (url.pathname === "/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000") {
 			return Response.json({
-				status: createRunStatus(inferenceStatus),
+				createdAt: "2026-06-04T12:00:00.000Z",
+				currentStepId: inferenceStatus === "running" ? "04-render-tree" : undefined,
+				input: {
+					source: {
+						path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					},
+				},
+				jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+				pipelineId: "screen-generation",
+				pipelineVersion: "v1",
+				status:
+					inferenceStatus === "queued"
+						? "queued"
+						: inferenceStatus === "running"
+							? "running"
+							: "succeeded",
+				updatedAt: "2026-06-04T12:00:01.000Z",
+			});
+		}
+		if (url.pathname === "/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/steps") {
+			return Response.json({
+				steps: [
+					{ stepId: "01-source-spec", status: "succeeded" },
+					{ stepId: "02-screen-intent", status: "succeeded" },
+					{ stepId: "03-composition", status: "succeeded" },
+					{
+						stepId: "04-render-tree",
+						status: inferenceStatus === "running" ? "running" : "succeeded",
+					},
+					{ stepId: "05-quality", status: inferenceStatus === "waiting-review" ? "succeeded" : "pending" },
+				],
 			});
 		}
 		if (
 			url.pathname ===
-			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/final-result.json"
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/context/apply-result.json"
+		) {
+			return Response.json({ error: "missing" }, { status: 404 });
+		}
+		if (
+			url.pathname ===
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/steps/04-render-tree/output.json"
 		) {
 			return Response.json(createRenderTreeArtifact("generated"));
 		}
 		if (
 			url.pathname ===
-			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/validation-report.json"
-		) {
-			return Response.json({
-				ok: true,
-				summary: { errorCount: 0, warningCount: 0 },
-			});
-		}
-		if (
-			url.pathname ===
-			"/api/screen-inference/runs/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/quality-review.json"
+			"/api/inference/web-NOVA-UPLOAD-PG-001-0-20260604120000/artifacts/steps/05-quality/output.json"
 		) {
 			return Response.json({
 				findings: [],

@@ -38,7 +38,7 @@ The target architecture has five first-class boundaries, implemented first insid
 | Screen-specific pipeline | `@cx/inference` pipeline |
 | Claude execution | `@cx/agent` |
 
-Legacy `/api/screen-inference/*` routes are thin web compatibility facades over `@cx/inference`.
+Product-facing screen inference routes use `/api/inference/*` only. Deprecated compatibility routes are not active.
 
 ## 3. Active And Target Packages
 
@@ -92,8 +92,7 @@ External packages must not import `src/internal/*`, implementation directories, 
 | Workbench shell | `components/App.tsx`, `components/layout/*`, `model/workbench-view-model.ts` | selected state, rail/tab/canvas/panel composition | DB fetch implementation, Puck conversion, RenderTree materialize rules |
 | Screen DB facade | `lib/screen-db-loader.ts`, `lib/screen-db-save.ts`, `app/api/screens/*` | Supabase REST row read/write and screen tree API | React UI, Puck editor shape |
 | Puck editor UI | `components/puck/*`, `@cx/adapters/puck` | Puck editor UI and RenderTree/Puck adapter consumption | DB row shape, Supabase calls |
-| Smoke explorer | `lib/smoke-runs.ts`, `components/smoke/*`, `app/smoke/page.tsx` | smoke artifact exploration and preview comparison | accepted result DB apply |
-| Screen inference API | `app/api/screen-inference/*`, target `app/api/inference/*` | job creation, snapshot, artifact read, SSE | pipeline internals, Claude implementation |
+| Screen inference API | `app/api/inference/*` | source upload/list, job creation, snapshot, artifact read, SSE, apply | pipeline internals, Claude implementation |
 
 ## 7. Migration Rule
 
@@ -107,4 +106,4 @@ Implementation order:
 4. Add Pipeline Context and Pipeline Step format.
 5. Add minimal Worker entrypoint.
 6. Add thin `POST /api/inference` and `GET /api/inference/:jobId/events` routes.
-7. Keep legacy `/api/screen-inference/*` as a thin adapter only while UI callers migrate to `/api/inference/*`.
+7. Keep browser-facing screen inference calls on `/api/inference/*`; do not reintroduce compatibility routes.

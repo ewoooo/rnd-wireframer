@@ -32,32 +32,24 @@ Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실
 
 ## Screen Inference Endpoints
 
-현재 endpoint는 compatibility surface다. 신규 구현의 target surface는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)의 `/api/inference/*`를 따른다.
-
-신규 `/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다.
-
-MVP 구현 상태: `POST /api/inference`와 `GET /api/inference/:jobId/events`는 `@cx/inference` local file runtime을 호출하는 thin route로 연결되어 있다. `GET /api/inference/:jobId/steps`는 후속 구현 대상이다.
-
-Target MVP endpoint:
+`/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다.
 
 | Method | Path | 목적 | 입력 | 출력 |
 |---|---|---|---|---|
+| `GET` | `/api/inference/sources` | 업로드된 inference source 목록 조회 | 없음 | `{ sources }` |
+| `POST` | `/api/inference/sources` | Markdown source 업로드 | multipart `file`, optional `batchId`, `importId` | `{ source: { batchId, importId, path, screenId, type } }` |
 | `POST` | `/api/inference` | job 생성, worker 실행, jobId 반환 | JSON create job input | `{ jobId }` |
+| `GET` | `/api/inference/:jobId` | job 상태 조회 | `jobId` path param | `Job` 또는 `404` |
+| `GET` | `/api/inference/:jobId/steps` | step snapshot 조회 | `jobId` path param | `{ steps }` |
 | `GET` | `/api/inference/:jobId/events` | `events.ndjson`를 SSE로 stream | `jobId` path param, optional `Last-Event-ID`/`after` | `text/event-stream`, SSE id는 event `seq` |
+| `GET` | `/api/inference/:jobId/artifacts/:path*` | allowed job artifact 원본 조회 | `jobId`, artifact path params | artifact body 또는 `404` |
+| `POST` | `/api/inference/:jobId/apply` | `steps/04-render-tree/output.json`을 DB read model에 적용 | `jobId` path param | `{ ok, result, schemaVersion, appliedArtifacts? }` |
 
-| Method | Path | 목적 | 입력 | 출력 |
-|---|---|---|---|---|
-| `GET` | `/api/screen-inference/sources` | 업로드된 screen source 목록 조회 | 없음 | `{ sources }` |
-| `POST` | `/api/screen-inference/sources` | Markdown source 업로드 | multipart `file`, optional `batchId`, `importId` | `{ source: { batchId, importId, path, screenId, type } }` |
-| `POST` | `/api/screen-inference/runs` | screen-generation run 생성 및 background 실행 시작 | JSON `{ source: { path }, runId?, previousRunId?, screenId?, tags?, useAI? }` | `202` + run snapshot |
-| `GET` | `/api/screen-inference/runs/:runId` | run status/manifest/artifact pointer snapshot 조회 | `runId` path param | run snapshot 또는 `404` |
-| `GET` | `/api/screen-inference/runs/:runId/events` | run event SSE stream | `runId` path param, optional `Last-Event-ID` header | `text/event-stream` |
-| `GET` | `/api/screen-inference/runs/:runId/artifacts/:artifactName` | review UI가 허용된 run artifact 조회 | `runId`, `artifactName` path params | artifact JSON 또는 `404`/`400` |
-| `POST` | `/api/screen-inference/runs/:runId/apply` | `final-result.json`을 DB read model에 적용 | `runId` path param | `{ ok, result, schemaVersion, appliedArtifacts? }` |
+Source file input MVP는 `source.path` 하나를 기준으로 한다. Web upload와 CLI 모두 `data/client-imports/**.md` 경로를 `/api/inference` job input에 전달한다. API layer는 job 생성 전 source file을 읽어 `preparedSource.sourceSpec`을 job input에 넣고, `context/source.raw.md`, `context/source-input.json`, `context/source-spec.json` artifact를 남긴다. Pipeline step은 prepared `SourceSpec`만 소비한다.
 
-SSE endpoint는 `pipeline-events.ndjson`를 replay/tail하고, `failed`, `waiting-review`, `applied` 상태에서 stream을 종료한다. UI model의 정본은 SSE event 자체가 아니라 `/api/screen-inference/runs/:runId` snapshot이다.
+SSE endpoint는 inference events를 stream하고, `job_completed` 또는 `job_failed`에서 stream을 종료한다.
 
-Artifact endpoint는 allowlist 방식으로 운영한다. 현재 review UI가 쓰는 artifact는 `final-result.json`, `validation-report.json`, `quality-review.json`이다.
+Artifact endpoint는 allowlist 방식으로 운영한다. 현재 review UI가 쓰는 artifact는 `steps/04-render-tree/output.json`, `steps/05-quality/output.json`, 합성 validation report다.
 
 ## Screen DB Endpoints
 

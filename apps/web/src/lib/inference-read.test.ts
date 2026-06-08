@@ -67,8 +67,10 @@ describe("readStepSnapshots", () => {
 describe("readArtifact", () => {
 	it("reads allowed artifacts incl. output-contract.json; rejects traversal", async () => {
 		const { runtime, jobId } = await runDemo();
+		await runtime.artifactStore.writeText(jobId, "context/source.raw.md", "# raw");
 		expect(JSON.parse(await readArtifact(runtime, jobId, "steps/01-analyze/output.json"))).toEqual(validSourceSpec);
 		await expect(readArtifact(runtime, jobId, "steps/01-analyze/output-contract.json")).resolves.toBeTruthy();
+		await expect(readArtifact(runtime, jobId, "context/source.raw.md")).resolves.toBe("# raw");
 		await expect(readArtifact(runtime, jobId, "../secret")).rejects.toThrow();
 	});
 });

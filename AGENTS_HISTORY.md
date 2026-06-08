@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-08 - Inference API Source File MVP
+
+- 변경: deprecated screen-inference API route를 제거하고 source upload/list/run/status/events/artifacts/apply 호출을 `/api/inference/*`로 단일화함
+- 변경: Web server boundary에 source file preparer를 추가해 `data/client-imports/**.md`를 읽고 `preparedSource.sourceSpec`, `context/source.raw.md`, `context/source-input.json`, `context/source-spec.json`을 생성하도록 함
+- 이유: inference pipeline 순수성을 유지하면서 Web upload와 CLI source path 입력이 같은 `source.path` 계약을 쓰게 하기 위함
+- 검증: `rg -n "/api/screen-inference|app/api/screen-inference|screen-inference/" apps packages docs AGENTS.md PACKAGE_MAP.md -S`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm test`
+
 ## 2026-06-08 - Orphan Artifact Cleanup
 
 - 변경: deprecated compose/decorate 기반 `database/ai-imports`, generated deck, table backup, `AI-COMPOSITION-SPEC.md`를 제거하고 database/readme/development 문서를 `@cx/inference` artifact 기준으로 갱신함
