@@ -48,6 +48,9 @@ export const screenGenerationPipelineV1 = definePipeline({
 				sourceSpec: context("source-spec"),
 				screenIntent: context("screen-intent"),
 			},
+			references: {
+				layoutCatalog: knowledge("layout-catalog"),
+			},
 			prompt: { id: "composition-planning" },
 			output: {
 				contractRef: outputContractRef("composition-plan"),
@@ -60,6 +63,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 			inputs: {
 				compositionPlan: context("composition-plan"),
 				screenIntent: context("screen-intent"),
+			},
+			references: {
+				componentCatalog: knowledge("component-catalog"),
+				layoutCatalog: knowledge("layout-catalog"),
 			},
 			prompt: { id: "screen-generation" },
 			output: {
@@ -91,6 +98,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 				screenIntent: context("screen-intent"),
 				sourceSpec: context("source-spec"),
 				validationReport: context("validation-report"),
+			},
+			references: {
+				componentCatalog: knowledge("component-catalog"),
+				layoutCatalog: knowledge("layout-catalog"),
 			},
 			prompt: { id: "screen-revision" },
 			runWhen: onValidationReportErrors("validation-report"),

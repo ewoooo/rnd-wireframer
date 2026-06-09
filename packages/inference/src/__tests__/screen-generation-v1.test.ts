@@ -41,9 +41,23 @@ describe("screenGenerationPipelineV1", () => {
 				version: undefined,
 			},
 		});
-		expect(
-			screenGenerationPipelineV1.steps.slice(2).every((step) => step.references === undefined),
-		).toBe(true);
+		// Composition gets the layout catalog; render-tree and revision also get the
+		// component catalog so claude builds nodes from real layout/component ids.
+		const layoutCatalog = { source: "layout-catalog", id: undefined, version: undefined };
+		const componentCatalog = { source: "component-catalog", id: undefined, version: undefined };
+		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({ layoutCatalog });
+		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
+			componentCatalog,
+			layoutCatalog,
+		});
+		expect(screenGenerationPipelineV1.steps[5]?.references).toEqual({
+			componentCatalog,
+			layoutCatalog,
+		});
+		// Function/quality steps carry no knowledge references.
+		expect(screenGenerationPipelineV1.steps[4]?.references).toBeUndefined();
+		expect(screenGenerationPipelineV1.steps[6]?.references).toBeUndefined();
+		expect(screenGenerationPipelineV1.steps[7]?.references).toBeUndefined();
 	});
 
 	it("every step output contract resolves", () => {
