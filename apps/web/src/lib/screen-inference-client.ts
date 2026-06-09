@@ -159,11 +159,18 @@ export function subscribeScreenInferenceRunEvents(
 
 async function fetchInferenceJob(runId: string): Promise<Job> {
 	const response = await fetch(`/api/inference/${encodeURIComponent(runId)}`);
-	const body = (await response.json()) as Job & { error?: string };
-	if (!response.ok || body.error) {
-		throw new Error(body.error ?? `새 화면 inference 상태 요청 실패 ${response.status}`);
+	// A failed job is a valid 200 response whose own `error` is { code, message }.
+	// Only a transport-level failure (e.g. 404 envelope) should throw here; the
+	// job's recorded failure flows through as status "failed".
+	const body = (await response.json()) as Job & { error?: unknown };
+	if (!response.ok) {
+		const envelopeError =
+			typeof body.error === "string"
+				? body.error
+				: `새 화면 inference 상태 요청 실패 ${response.status}`;
+		throw new Error(envelopeError);
 	}
-	return body;
+	return body as Job;
 }
 
 async function fetchInferenceSteps(runId: string): Promise<Step[]> {
