@@ -69,6 +69,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "child-1", title: "Child 1" },
+							props: { title: "Child 1" },
 						},
 					],
 				}}
@@ -84,16 +85,14 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(getPageStackItems(child)).toHaveStyle({ gap: "8px", paddingInline: "20px" });
 	});
 
-	// TODO(external-migration): kiki 미대응 capability — task #21에서 재노출 vs 드롭 결정.
-	// kiki.Radio has no registry component (catalog-only) and no composite mapping → "Unknown component type 'Radio'".
-	it.skip("renders a Radio node as a selectable list row without crashing", () => {
+	it("renders a Radio node as a selectable list row without crashing", () => {
 		render(
 			<RenderNodeView
 				node={{
 					type: "kiki.Radio",
 					componentVersion: "0.1.0",
 					metadata: { id: "radio-1", title: "휴대폰 본인인증" },
-					props: { checked: true },
+					props: { checked: true, label: "휴대폰 본인인증" },
 				}}
 			/>,
 		);
@@ -101,9 +100,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
 	});
 
-	// TODO(external-migration): kiki 미대응 capability — task #21에서 재노출 vs 드롭 결정.
-	// RadioGroup is not a kiki catalog/registry component at all (no kiki.RadioGroup) — multi-option fan-out has no host.
-	it.skip("renders a RadioGroup node as one selectable row per option", () => {
+	it("renders a RadioGroup node as one selectable row per option", () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -123,9 +120,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(screen.getByText("공동인증서")).toBeInTheDocument();
 	});
 
-	// TODO(external-migration): kiki 미대응 capability — task #21에서 재노출 vs 드롭 결정.
-	// RadioGroup is not a kiki catalog/registry component at all (no kiki.RadioGroup) — {value,label} option fan-out has no host.
-	it.skip("renders RadioGroup options given as {value,label} objects", () => {
+	it("renders RadioGroup options given as {value,label} objects", () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -145,23 +140,6 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
 		expect(screen.getByText("PASS")).toBeInTheDocument();
-	});
-
-	// TODO(external-migration): kiki 미대응 capability — task #21에서 재노출 vs 드롭 결정.
-	// kiki.TextField has no field-side button (only `label`) — button/buttonLabel props render nothing.
-	it.skip("renders a TextField field-side button from button/buttonLabel props", () => {
-		render(
-			<RenderNodeView
-				node={{
-					type: "kiki.TextField",
-					componentVersion: "0.1.0",
-					metadata: { id: "tf-1", title: "인증번호" },
-					props: { button: true, buttonLabel: "인증번호 요청", placeholder: "숫자만 입력" },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("인증번호 요청")).toBeInTheDocument();
 	});
 
 	it("drops AI-written readonly props (rightElement object) without crashing", () => {
@@ -202,6 +180,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "list-child", title: "List child" },
+								props: { title: "List child" },
 							},
 						],
 					}}
@@ -217,6 +196,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "field-child", title: "Field child" },
+								props: { title: "Field child" },
 							},
 						],
 					}}
@@ -232,6 +212,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "checkbox-child", title: "Checkbox child" },
+								props: { title: "Checkbox child" },
 							},
 						],
 					}}
@@ -247,6 +228,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "accordion-child", title: "Accordion child" },
+								props: { title: "Accordion child" },
 							},
 						],
 					}}
@@ -262,6 +244,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "message-child", title: "Message child" },
+								props: { title: "Message child" },
 							},
 						],
 					}}
@@ -301,6 +284,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "legacy-field-child", title: "Legacy field child" },
+							props: { title: "Legacy field child" },
 						},
 					],
 				}}
@@ -330,6 +314,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "search-child", title: "Search child" },
+							props: { title: "Search child" },
 						},
 					],
 				}}
@@ -387,6 +372,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 									type: "kiki.TitleSection",
 									componentVersion: "0.1.0",
 									metadata: { id: "contents-child", title: "Contents child" },
+									props: { title: "Contents child" },
 								},
 							],
 						},
@@ -427,6 +413,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 										type: "kiki.TitleSection",
 										componentVersion: "0.1.0",
 										metadata: { id: "contents-child", title: "Contents child" },
+										props: { title: "Contents child" },
 									},
 								],
 							},
@@ -496,6 +483,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "bottom-child", title: "Bottom child" },
+							props: { title: "Bottom child" },
 						},
 					],
 				}}
@@ -509,9 +497,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toHaveStyle({ bottom: "0px", position: "sticky" });
 	});
 
-	// TODO(external-migration): kiki 미대응 capability — task #21에서 재노출 vs 드롭 결정.
-	// kiki.ActionButton is a different commerce CTA widget (text/buttonText/primaryText, no label/size/variant) — no accessible "인증 확인" button renders.
-	it.skip("lets bottom action area own CTA rail spacing", () => {
+	it("lets bottom action area own CTA rail spacing", () => {
 		render(
 			<RenderNodeView
 				node={{
@@ -522,11 +508,11 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: {},
 					children: [
 						{
-							type: "kiki.ActionButton",
+							type: "kiki.Button",
 							componentVersion: "0.1.0",
 							layout: "layout.composite.componentActionButton",
 							metadata: { id: "confirm-action", title: "Confirm action" },
-							props: { label: "인증 확인", size: "xlarge", variant: "primary" },
+							props: { children: "인증 확인", size: "xlarge", variant: "primary" },
 						},
 					],
 				}}
@@ -556,6 +542,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "option-child", title: "Option child" },
+							props: { title: "Option child" },
 						},
 					],
 				}}
@@ -584,6 +571,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "card-child", title: "Card child" },
+							props: { title: "Card child" },
 						},
 					],
 				}}
@@ -612,6 +600,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "row-card-child", title: "Row card child" },
+							props: { title: "Row card child" },
 						},
 					],
 				}}
@@ -640,6 +629,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "text-row-child", title: "Text row child" },
+							props: { title: "Text row child" },
 						},
 					],
 				}}
@@ -669,6 +659,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "product-info-child", title: "Product info child" },
+							props: { title: "Product info child" },
 						},
 					],
 				}}
@@ -696,16 +687,19 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-3", title: "Price row 3" },
+							props: { title: "Price row 3" },
 						},
 					],
 				}}
@@ -733,11 +727,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -759,11 +755,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -787,11 +785,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -818,6 +818,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "terms-row-1", title: "약관 1" },
+							props: { title: "약관 1" },
 						},
 					],
 				}}
@@ -842,6 +843,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "terms-row-a", title: "약관 1" },
+							props: { title: "약관 1" },
 						},
 					],
 				}}
@@ -864,11 +866,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-1", title: "List row 1" },
+							props: { title: "List row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-2", title: "List row 2" },
+							props: { title: "List row 2" },
 						},
 					],
 				}}
@@ -893,11 +897,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-1", title: "Accordion row 1" },
+							props: { title: "Accordion row 1" },
 						},
 						{
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-2", title: "Accordion row 2" },
+							props: { title: "Accordion row 2" },
 						},
 					],
 				}}
@@ -928,6 +934,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "hero-child", title: "Hero child" },
+							props: { title: "Hero child" },
 						},
 					],
 				}}
@@ -960,6 +967,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "auth-method-child", title: "Auth method child" },
+							props: { title: "Auth method child" },
 						},
 					],
 				}}
