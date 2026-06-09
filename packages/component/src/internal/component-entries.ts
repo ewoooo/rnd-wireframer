@@ -604,16 +604,6 @@ export const componentCatalogEntries = {
 			status: { type: "string", role: "state" },
 		},
 	},
-	SectionHeader: {
-		type: "SectionHeader",
-		kind: "section-header",
-		source: "renderer-composite",
-		version: "1.0.0",
-		props: {
-			title: { type: "string", role: "title", required: true },
-			description: { type: "string", role: "description" },
-		},
-	},
 	SectionMessage: {
 		type: "SectionMessage",
 		kind: "section-message",

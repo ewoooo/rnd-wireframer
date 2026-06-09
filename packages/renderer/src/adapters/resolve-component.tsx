@@ -102,22 +102,6 @@ const COMPONENT_RENDERERS: Record<string, ComponentRenderer> = {
 			/>
 		);
 	},
-	SectionHeader: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			title: node.metadata.title,
-			description: node.metadata.description,
-		});
-		return (
-			<section key={node.metadata.id} className="flex flex-col gap-1">
-				<h2 className="text-title-20 font-semibold text-foreground">
-					{toText(props.title, node.metadata.title)}
-				</h2>
-				{props.description !== undefined && (
-					<p className="text-body-14 text-muted-foreground">{toText(props.description, "")}</p>
-				)}
-			</section>
-		);
-	},
 };
 
 function renderRadioRow({

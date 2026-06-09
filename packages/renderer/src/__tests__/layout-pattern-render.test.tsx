@@ -66,7 +66,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 8 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "child-1", title: "Child 1" },
 						},
@@ -191,7 +191,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "list-area", title: "List area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "list-child", title: "List child" },
 							},
@@ -206,7 +206,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "field-area", title: "Field area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "field-child", title: "Field child" },
 							},
@@ -221,7 +221,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "checkbox-area", title: "Checkbox area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "checkbox-child", title: "Checkbox child" },
 							},
@@ -236,7 +236,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "accordion-area", title: "Accordion area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "accordion-child", title: "Accordion child" },
 							},
@@ -251,7 +251,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "message-area", title: "Message area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "message-child", title: "Message child" },
 							},
@@ -290,7 +290,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "legacy-field-child", title: "Legacy field child" },
 						},
@@ -319,7 +319,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { height: 44 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "search-child", title: "Search child" },
 						},
@@ -376,7 +376,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 							metadata: { id: "screen.contents", title: "Contents" },
 							children: [
 								{
-									type: "SectionHeader",
+									type: "TitleSection",
 									componentVersion: "0.1.0",
 									metadata: { id: "contents-child", title: "Contents child" },
 								},
@@ -416,7 +416,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 								metadata: { id: "screen.contents", title: "Contents" },
 								children: [
 									{
-										type: "SectionHeader",
+										type: "TitleSection",
 										componentVersion: "0.1.0",
 										metadata: { id: "contents-child", title: "Contents child" },
 									},
@@ -485,7 +485,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { paddingY: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "bottom-child", title: "Bottom child" },
 						},
@@ -543,7 +543,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { columns: 2, gap: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "option-child", title: "Option child" },
 						},
@@ -571,7 +571,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 10 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "card-child", title: "Card child" },
 						},
@@ -599,7 +599,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 14 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "row-card-child", title: "Row card child" },
 						},
@@ -627,7 +627,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 6 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "text-row-child", title: "Text row child" },
 						},
@@ -656,7 +656,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 20 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "product-info-child", title: "Product info child" },
 						},
@@ -683,17 +683,17 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-3", title: "Price row 3" },
 						},
@@ -720,12 +720,12 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "none" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 						},
@@ -746,12 +746,12 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "section" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 						},
@@ -774,12 +774,12 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 						},
@@ -851,12 +851,12 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "list-stack", title: "List stack" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-1", title: "List row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-2", title: "List row 2" },
 						},
@@ -880,12 +880,12 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-1", title: "Accordion row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-2", title: "Accordion row 2" },
 						},
@@ -915,7 +915,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "hero-child", title: "Hero child" },
 						},
@@ -947,7 +947,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "auth-method-child", title: "Auth method child" },
 						},
