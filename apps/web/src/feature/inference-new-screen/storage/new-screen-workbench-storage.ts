@@ -1,4 +1,4 @@
-import type { NewScreenRunItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type { NewScreenRunItem } from "@/feature/inference-new-screen/types";
 
 const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
 

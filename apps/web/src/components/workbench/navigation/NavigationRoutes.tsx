@@ -4,10 +4,8 @@ import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
-import {
-	type NewScreenRunItem,
-	NewScreenSourcePanel,
-} from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import { NewScreenSourcePanel } from "@/feature/inference-new-screen/components/NewScreenSourcePanel";
+import type { NewScreenRunItem } from "@/feature/inference-new-screen/types";
 import type {
 	NavigationNodeItem,
 	NavigatorTab,

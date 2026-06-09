@@ -93,6 +93,7 @@ External packages must not import `src/internal/*`, implementation directories, 
 | Workbench shell | `components/App.tsx`, `components/layout/*`, `model/workbench-view-model.ts` | selected state, rail/tab/canvas/panel composition | DB fetch implementation, Puck conversion, RenderTree materialize rules |
 | Screen DB facade | `lib/screen-db-loader.ts`, `lib/screen-db-save.ts`, `app/api/screens/*` | Supabase REST row read/write and screen tree API | React UI, Puck editor shape |
 | Puck editor UI | `components/puck/*`, `@cx/adapters/puck` | Puck editor UI and RenderTree/Puck adapter consumption | DB row shape, Supabase calls |
+| Screen inference frontend | `feature/inference-new-screen/*` | new-screen upload/run/review UI, browser API client, UI-local run selection state | API route implementation, pipeline internals, Claude implementation |
 | Screen inference API | `app/api/inference/*` | source upload/list, job creation, snapshot, artifact read, SSE, apply; official headless generation server surface | pipeline internals, Claude implementation, standalone server ownership |
 
 ## 7. Migration Rule

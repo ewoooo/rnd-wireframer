@@ -1,5 +1,5 @@
 import type { InferenceEvent, Job, Step } from "@cx/inference/contracts";
-import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type { NewScreenSourceItem } from "@/feature/inference-new-screen/types";
 import type {
 	ScreenInferenceRunCreateResponse,
 	ScreenInferenceRunStatus,

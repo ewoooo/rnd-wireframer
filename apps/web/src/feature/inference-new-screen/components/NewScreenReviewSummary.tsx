@@ -1,7 +1,6 @@
 "use client";
 
 import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
-import { CheckCircle2, CircleAlert, CircleDashed } from "lucide-react";
 import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
 
 export type NewScreenReviewData = {
@@ -45,9 +44,6 @@ export function NewScreenReviewSummary({ review }: NewScreenReviewSummaryProps) 
 					</div>
 				</div>
 			) : null}
-			<p className="text-[11px] leading-4 text-muted-foreground">
-				{review.status?.status ?? "run을 시작하면 검수 요약이 표시됩니다."}
-			</p>
 		</div>
 	);
 }
@@ -61,14 +57,9 @@ function ReviewBlock({
 	state: "issue" | "ok" | "pending";
 	title: string;
 }) {
-	const Icon = state === "ok" ? CheckCircle2 : state === "issue" ? CircleAlert : CircleDashed;
-
 	return (
-		<div className="grid gap-1 rounded-md border border-sidebar-border p-3">
-			<div className="flex min-w-0 items-center gap-2">
-				<Icon className="size-4 text-muted-foreground" data-icon="inline-start" />
-				<p className="truncate text-sm font-semibold">{title}</p>
-			</div>
+		<div className="grid gap-1 rounded-md border border-sidebar-border p-3" data-state={state}>
+			<p className="truncate text-sm font-semibold">{title}</p>
 			<p className="text-xs leading-5 text-muted-foreground">{description}</p>
 		</div>
 	);

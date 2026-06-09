@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import {
 	type NewScreenReviewData,
 	NewScreenReviewSummary,
-} from "@/components/workbench/new-screen/NewScreenReviewSummary";
+} from "@/feature/inference-new-screen/components/NewScreenReviewSummary";
 import type { EditScope } from "@/model/puck-edit-scope";
 import { EditSidebarHeader } from "./EditSidebarHeader";
 import { EditSidebarPane } from "./EditSidebarPane";

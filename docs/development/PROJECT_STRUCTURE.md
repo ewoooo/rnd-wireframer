@@ -131,13 +131,15 @@ packages/layout/src/
 
 ## 6. 앱 구조 규칙
 
-`apps/web`은 단일 제품 앱이자 현재 screen generation 서버 entrypoint다. 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, screen inference UI, workbench shell, headless inference API의 책임은 파일 위치와 import 방향으로 구분한다.
+`apps/web`은 단일 제품 앱이자 현재 screen generation 서버 entrypoint다. 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, screen inference UI, workbench shell, headless inference API의 책임은 파일 위치와 import 방향으로 구분한다. 새 화면 생성 UI처럼 upload/run/review 상태가 한 흐름으로 강하게 묶인 경우에만 좁은 feature namespace를 허용한다.
 
 ```text
 apps/web/src/
   app/             Next.js route와 API route
     api/inference/ screen generation headless/server API
     api/screens/   screen DB facade
+  feature/
+    inference-new-screen/ 새 화면 생성 frontend UI, hook, browser API client, local UI storage
   components/      RenderTree 소비 UI
     layout/        workbench shell
     puck/          Puck editor UI only
@@ -147,11 +149,12 @@ apps/web/src/
   model/           workbench view model
 ```
 
-재설계 기간에 앱은 product feature namespace를 깊게 만들지 않는다. 대신 `lib/*` helper의 책임 이름을 명확히 하고, 다음 import 방향을 지킨다.
+재설계 기간에 앱은 product feature namespace를 깊게 만들지 않는다. 대신 `lib/*` helper의 책임 이름을 명확히 하고, 다음 import 방향을 지킨다. 예외적으로 `feature/inference-new-screen`은 새 화면 생성 frontend 흐름만 소유하며, Next route, server service, `@cx/inference` worker 책임을 갖지 않는다.
 
 - Puck UI는 `@cx/adapters/puck`만 알고 DB row나 Supabase를 모른다.
 - screen DB loader/save는 Puck 타입을 모르고 RenderTree candidate와 DB row만 다룬다.
 - workbench shell은 screen summary, candidate state, tab routing만 조립한다.
+- `feature/inference-new-screen`은 `/api/inference/*` browser client와 UI-local state만 소유하고, API route implementation과 inference runtime을 import하지 않는다.
 
 생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. `apps/web` API route는 얇은 adapter로만 둔다.
 

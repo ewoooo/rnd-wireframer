@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
-import type { NewScreenRunItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type { NewScreenRunItem } from "@/feature/inference-new-screen/types";
 import {
 	mergeNewScreenRuns,
 	readNewScreenWorkbenchState,
 	writeNewScreenWorkbenchState,
-} from "@/lib/new-screen-workbench-storage";
+} from "./new-screen-workbench-storage";
 
 const baseRun: NewScreenRunItem = {
 	id: "job-1",

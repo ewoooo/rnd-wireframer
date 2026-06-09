@@ -36,6 +36,20 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-09 - New Screen Hook Split
+
+- 변경: `use-new-screen-inference.ts`를 AppShell용 facade로 축소하고, run 목록/선택/localStorage는 `use-new-screen-runs.ts`, status polling/SSE/review artifact/action은 `use-new-screen-run-lifecycle.ts`로 분리함
+- 변경: RenderTree artifact 판정과 run/source/status item 변환을 `model/new-screen-mappers.ts` 순수 helper로 이동함
+- 이유: 새 화면 생성 feature hook 하나에 목록 관리, 실행 lifecycle, artifact 로드, 액션, mapper가 모두 섞여 있어 변경 단위와 테스트 가능성이 나빴기 때문
+- 검증: `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm exec vitest run apps/web/src/feature/inference-new-screen/storage/new-screen-workbench-storage.test.ts apps/web/src/components/App.test.tsx`, `pnpm lint`, `git diff --check`, `graphify update .`
+
+## 2026-06-09 - Inference New Screen Feature Move
+
+- 변경: 새 화면 생성 프론트엔드 UI, hook, browser API client, local UI storage를 `apps/web/src/feature/inference-new-screen/` 아래로 이동함
+- 변경: `NewScreenSourceItem`/`NewScreenRunItem` 타입을 feature-local `types.ts`로 분리해 API client가 UI component 파일을 import하지 않도록 정리함
+- 이유: `/api/inference/*` 서버 표면은 유지하면서 새 화면 생성 UI 흐름을 workbench 공용 component/model/lib에서 분리하기 위함
+- 검증: `rg`로 이전 import 경로 제거 확인, `pnpm exec vitest run apps/web/src/feature/inference-new-screen/storage/new-screen-workbench-storage.test.ts`, `pnpm exec vitest run apps/web/src/components/App.test.tsx`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm lint`, `graphify update .`
+
 ## 2026-06-09 - Headless Inference Server Surface
 
 - 변경: 별도 생성 서버 앱을 새로 만들지 않고 `apps/web`의 `/api/inference/*`를 Web UI 없이 호출 가능한 공식 headless screen-generation 서버 표면으로 문서화함
