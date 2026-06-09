@@ -36,6 +36,12 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-09 - RenderTree Table Layout Fallback Removal
+
+- 변경: `renderTreeToTableGenerationResult()`가 area/component layout 누락 시 `layout.area.productHeroSummary`, `layout.composite.componentSectionMessage`로 의미 fallback하지 않고 projection 전에 layout 누락 에러를 내도록 변경함
+- 이유: `@cx/adapters/table`이 layout 선택 책임을 갖거나 특정 의미 패턴을 임의 주입하지 않도록 패키지 경계를 지키기 위함
+- 검증: `pnpm exec vitest run packages/adapters/src/__tests__/render-tree-to-table.test.ts`, `graphify update . --force`; 전체 `pnpm exec tsc --noEmit --pretty false --incremental false`는 기존 `packages/external` StaticImageData 타입 오류와 dirty `packages/renderer/src/adapters/resolve-component.tsx` 타입 오류로 실패함
+
 ## 2026-06-09 - New Screen Hook Split
 
 - 변경: `use-new-screen-inference.ts`를 AppShell용 facade로 축소하고, run 목록/선택/localStorage는 `use-new-screen-runs.ts`, status polling/SSE/review artifact/action은 `use-new-screen-run-lifecycle.ts`로 분리함

@@ -153,7 +153,7 @@ function nodeToArea(
 	return {
 		children: extractChildren(node.children ?? [], areasById, componentsById, warnings),
 		id: node.metadata.id,
-		layout: readLayout(node, "layout.area.productHeroSummary", warnings),
+		layout: requireLayout(node),
 		metadata: metadataWithTitle(node.metadata),
 		props: node.props,
 		type: node.type as TableGenerationArea["type"],
@@ -173,7 +173,7 @@ function nodeToComponent(node: RenderTreeNodeContract): TableGenerationComponent
 		],
 		hooks,
 		id: node.metadata.id,
-		layout: node.layout ?? "layout.composite.componentSectionMessage",
+		layout: requireLayout(node),
 		metadata: metadataWithTitle(node.metadata),
 		type: node.type,
 		version: node.componentVersion,
@@ -194,6 +194,11 @@ function readLayout(node: RenderTreeNodeContract, fallback: string, warnings: st
 	if (node.layout) return node.layout;
 	warnings.push(`Node ${node.metadata.id} is missing layout; used ${fallback}.`);
 	return fallback;
+}
+
+function requireLayout(node: RenderTreeNodeContract): string {
+	if (node.layout) return node.layout;
+	throw new Error(`Node ${node.metadata.id} must include layout before table projection.`);
 }
 
 function isGeneratedWrapper(node: RenderTreeNodeContract) {

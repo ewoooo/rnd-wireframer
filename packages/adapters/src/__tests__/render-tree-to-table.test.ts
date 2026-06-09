@@ -151,7 +151,53 @@ describe("@cx/adapters/table render-tree-to-table", () => {
 			"Dropped non-base state node from default table projection: cta-disabled",
 		);
 	});
+
+	it("rejects area nodes without layout instead of applying a semantic fallback", () => {
+		const renderTree = renderTreeWithContentsChild({
+			children: [],
+			componentVersion: "0.1.0",
+			metadata: { id: "missing-area-layout", title: "Missing area layout" },
+			type: "area.dynamic",
+		});
+
+		expect(() => renderTreeToTableGenerationResult(renderTree)).toThrow(
+			"Node missing-area-layout must include layout before table projection.",
+		);
+	});
+
+	it("rejects component nodes without layout instead of applying a semantic fallback", () => {
+		const renderTree = renderTreeWithContentsChild({
+			componentVersion: "0.1.0",
+			metadata: { id: "missing-component-layout", title: "Missing component layout" },
+			props: { text: "No fallback" },
+			type: "Text",
+		});
+
+		expect(() => renderTreeToTableGenerationResult(renderTree)).toThrow(
+			"Node missing-component-layout must include layout before table projection.",
+		);
+	});
 });
+
+function renderTreeWithContentsChild(child: RenderTreeNodeContract): RenderTreeContract {
+	return {
+		children: [
+			{
+				children: [
+					screenRegionNode("Screen.Header", "layout.region.header", []),
+					screenRegionNode("Screen.Contents", "layout.region.contents", [child]),
+					screenRegionNode("Screen.Bottom", "layout.region.bottom", []),
+				],
+				componentVersion: "0.1.0",
+				layout: "layout.screen.mobileScreen",
+				metadata: { id: "screen", title: "Screen" },
+				type: "Screen",
+			},
+		],
+		metadata: { id: "screen" },
+		version: "render-tree.v0.1",
+	};
+}
 
 function screenRegionNode(
 	type: "Screen.Bottom" | "Screen.Contents" | "Screen.Header",
