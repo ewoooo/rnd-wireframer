@@ -5,16 +5,14 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./catalog": "./src/public/catalog.ts",
+		"./catalog": "./src/catalog.generated.ts",
+		"./registry": "./src/registry.generated.ts",
+		"./resolver": "./src/resolver.ts",
+		"./canonicalize": "./src/canonicalize-catalog.ts",
+		"./primitives": "./src/components/primitives/index.ts",
 		"./chrome": "./src/components/chromes/index.ts",
-		"./components": "./src/public/components.ts",
-		"./contract": "./src/public/contract.ts",
-		"./mutations": "./src/public/mutations.ts",
-		"./primitives": "./src/public/primitives.ts",
-		"./resolver": "./src/public/resolver.ts",
-		"./style": "./src/public/style.ts",
-		"./canonical": "./src/canonical/canonicalize-layout.ts",
-		"./types": "./src/public/types.ts"
+		"./style": "./src/internal/style.ts",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
 		"@cx/external": "workspace:*",

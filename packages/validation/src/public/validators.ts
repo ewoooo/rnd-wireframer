@@ -5,7 +5,7 @@ import type {
 	ComponentPropContract,
 	ComponentPropType,
 } from "@cx/schema";
-import { findPattern } from "@cx/layout/catalog";
+import { getLayoutCatalogEntry } from "@cx/layout/resolver";
 import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
 import type {
 	GenerationArtifactKind,
@@ -667,7 +667,7 @@ function validateLayoutRef(
 }
 
 function findLayoutPatternComponentByLayoutId(layoutId: string) {
-	return findPattern(layoutId);
+	return getLayoutCatalogEntry(layoutId);
 }
 
 export function validateLayoutProps(input: unknown): ValidationReport {
