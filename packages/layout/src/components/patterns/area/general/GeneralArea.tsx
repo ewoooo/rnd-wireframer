@@ -10,11 +10,7 @@ import type { LayoutPatternComponentProps } from "../../types";
 // 비-PageStack area만 이 파일이 소유한다. PageStack 기반 area는 PageStackArea.tsx.
 export const AreaVerticalArea = createPlainStack({ gap: 0 });
 export const BottomActionArea = createBottomActionArea({
-	gap: 12,
-	paddingBottom: 24,
-	paddingTop: 22,
-	paddingX: 20,
-	safeArea: true,
+	gap: 0
 });
 export const ProductHeroSummaryArea = createHeroArea({
 	gap: 12,
