@@ -14,9 +14,6 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:packages/agent
-      '@cx/components':
-        specifier: workspace:*
-        version: link:packages/component
       '@cx/external':
         specifier: workspace:*
         version: link:packages/external
@@ -153,18 +150,6 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-
-  packages/component:
-    dependencies:
-      '@cx/schema':
-        specifier: workspace:*
-        version: link:../schema
-      '@cx/tokens':
-        specifier: workspace:*
-        version: link:../token
-      react:
-        specifier: ^19.2.0
-        version: 19.2.7
 
   packages/external:
     dependencies:

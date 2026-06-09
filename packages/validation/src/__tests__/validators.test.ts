@@ -15,7 +15,8 @@ import { describe, expect, it } from "vitest";
 const testCatalog = {
 	ActionButton: {
 		type: "ActionButton",
-		source: "react-component",
+		source: "kiki-barrel",
+		label: "ActionButton",
 		version: "1.0.0",
 		kind: "action",
 		props: {
