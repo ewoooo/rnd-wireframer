@@ -2,14 +2,9 @@ import type { ComponentPropContract, ComponentPropType } from "@cx/schema";
 import { getComponentCatalogEntry } from "@cx/external/resolver";
 import { toText } from "../runtime/text";
 
-export interface CatalogPropFallbacks {
-	[propName: string]: unknown;
-}
-
 export function buildComponentProps(
 	type: string,
 	rawProps: Record<string, unknown> | undefined,
-	fallbacks: CatalogPropFallbacks = {},
 ): Record<string, unknown> {
 	const entry = getComponentCatalogEntry(type);
 	if (!entry) return { ...(rawProps ?? {}) };
@@ -21,8 +16,7 @@ export function buildComponentProps(
 		// value — an illegally-written render-node object would otherwise reach React as a
 		// child and crash the page.
 		if (contract.aiWritable === false) continue;
-		const rawFromProps = readCatalogPropValue(props, key);
-		const raw = rawFromProps !== undefined ? rawFromProps : fallbacks[key];
+		const raw = readCatalogPropValue(props, key);
 		if (raw === undefined) {
 			if (contract.defaultValue !== undefined) out[key] = contract.defaultValue;
 			continue;

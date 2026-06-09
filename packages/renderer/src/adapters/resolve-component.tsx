@@ -1,129 +1,23 @@
 import * as ComponentsModule from "@cx/external/registry";
-import { AppBar, Callout, ListSelected, ListText } from "@cx/external/registry";
-import { getComponentCatalogEntry } from "@cx/external/resolver";
 import { type ComponentType, createElement, type ReactNode } from "react";
-import { toText } from "../runtime/text";
 import type { RenderTreeNode } from "../tree/types";
 import { buildComponentProps } from "./build-component-props";
 
 export function resolveComponent({
 	node,
-	props: resolvedProps,
+	props,
 }: {
 	node: RenderTreeNode;
 	props: Record<string, unknown>;
 }): ReactNode | undefined {
+	// RadioGroup: kiki 대응 컴포넌트가 없는 유일한 composite (options fan-out).
+	if (node.type === "RadioGroup") return renderRadioGroup(node, props);
+
 	const Component = resolveComponentByType(node.type);
-	if (!Component) {
-		const compositeRenderer = resolveCompositeRenderer(node.type);
-		if (compositeRenderer) return compositeRenderer({ node, props: resolvedProps });
-		return undefined;
-	}
+	if (!Component) return undefined;
 
-	const componentProps = buildComponentProps(node.type, resolvedProps, {
-		title: node.metadata.title,
-		description: node.metadata.description,
-	});
+	const componentProps = buildComponentProps(node.type, props);
 	return createElement(Component, { key: node.metadata.id, ...componentProps });
-}
-
-function resolveCompositeRenderer(type: string): ComponentRenderer | undefined {
-	const canonicalType = getComponentCatalogEntry(type)?.type ?? type;
-	return COMPONENT_RENDERERS[canonicalType] ?? COMPONENT_RENDERERS[type];
-}
-
-type ComponentRenderer = (input: {
-	node: RenderTreeNode;
-	props: Record<string, unknown>;
-}) => ReactNode;
-
-const COMPONENT_RENDERERS: Record<string, ComponentRenderer> = {
-	Accordion: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			title: node.metadata.title,
-			description: node.metadata.description,
-		});
-		return (
-			<Callout key={node.metadata.id} title={toText(props.title, node.metadata.title)}>
-				{toText(props.description, "")}
-			</Callout>
-		);
-	},
-	SectionMessage: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			title: node.metadata.title,
-			description: node.metadata.description,
-		});
-		return (
-			<Callout key={node.metadata.id} title={toText(props.title, node.metadata.title)}>
-				{toText(props.description, "")}
-			</Callout>
-		);
-	},
-	ListCell: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			title: node.metadata.title,
-			subText: node.metadata.description,
-		});
-		return (
-			<ListText
-				key={node.metadata.id}
-				title={toText(props.title, node.metadata.title)}
-				subText={toText(props.subText, "")}
-			/>
-		);
-	},
-	Checkbox: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			label: node.metadata.title,
-		});
-		return (
-			<ListSelected
-				key={node.metadata.id}
-				type="checkbox"
-				label={toText(props.label, node.metadata.title)}
-				checked={resolvedProps.checked !== undefined ? Boolean(resolvedProps.checked) : undefined}
-				showButton={false}
-				showPrice={false}
-			/>
-		);
-	},
-	RadioText: renderRadioRow,
-	HeaderBase: ({ node, props: resolvedProps }) => {
-		const props = buildComponentProps(node.type, resolvedProps, {
-			titleContent: node.metadata.title,
-		});
-		return (
-			<AppBar
-				key={node.metadata.id}
-				title={toText(props.titleContent, node.metadata.title)}
-				showBack={Boolean(props.showBackButton)}
-				showLogo={Boolean(props.showLogo)}
-			/>
-		);
-	},
-};
-
-function renderRadioRow({
-	node,
-	props: resolvedProps,
-}: {
-	node: RenderTreeNode;
-	props: Record<string, unknown>;
-}): ReactNode {
-	const props = buildComponentProps(node.type, resolvedProps, {
-		label: node.metadata.title,
-	});
-	return (
-		<ListSelected
-			key={node.metadata.id}
-			type="radio"
-			label={toText(props.label, node.metadata.title)}
-			checked={resolvedProps.checked !== undefined ? Boolean(resolvedProps.checked) : undefined}
-			showButton={false}
-			showPrice={false}
-		/>
-	);
 }
 
 const componentsByType: Record<string, ComponentType<unknown>> = {};
@@ -134,6 +28,34 @@ for (const [name, value] of Object.entries(ComponentsModule)) {
 	}
 }
 
+// canonical kiki.X → registry export (kiki. 접두사 strip 단일 규칙). alias 해석 아님.
 function resolveComponentByType(type: string): ComponentType<unknown> | undefined {
 	return componentsByType[type] ?? componentsByType[type.replace(/^kiki\./, "")];
+}
+
+// 단일 예외 composite: options(string[] | {value,label}[])를 실제 kiki Radio 행으로 펼친다.
+function renderRadioGroup(
+	node: RenderTreeNode,
+	props: Record<string, unknown>,
+): ReactNode | undefined {
+	const Radio = resolveComponentByType("kiki.Radio");
+	if (!Radio) return undefined;
+
+	const options = Array.isArray(props.options) ? props.options : [];
+	const selectedValue = props.selectedValue;
+
+	return createElement(
+		"div",
+		{ key: node.metadata.id },
+		options.map((option, index) => {
+			const isObject = typeof option === "object" && option !== null;
+			const value = isObject ? (option as { value?: unknown }).value : option;
+			const label = isObject ? (option as { label?: unknown }).label : option;
+			return createElement(Radio, {
+				key: `${node.metadata.id}.${index}`,
+				label: typeof label === "string" ? label : String(label ?? ""),
+				checked: value === selectedValue,
+			});
+		}),
+	);
 }

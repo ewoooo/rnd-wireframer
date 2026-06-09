@@ -141,4 +141,12 @@ export const catalogAlias: Record<string, string> = {
 	TitleContents: "kiki.TitleSection",
 	ContentsTitle: "kiki.TitleSection",
 	TextListGroupTitle: "kiki.TitleSection",
+
+	// 레거시 composite 타입 → 실제 kiki 컴포넌트 (구 renderer COMPONENT_RENDERERS 대체)
+	HeaderBase: "kiki.AppBar",
+	ListCell: "kiki.ListText",
+	Accordion: "kiki.Callout",
+	SectionMessage: "kiki.Callout",
+	RadioText: "kiki.Radio",
+	Checkbox: "kiki.Checkbox",
 };
