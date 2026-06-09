@@ -63,6 +63,7 @@ async function main(): Promise<void> {
 		return;
 	}
 
+	let committed = 0;
 	for (const change of changes) {
 		await updateRow({
 			id: change.id,
@@ -70,25 +71,62 @@ async function main(): Promise<void> {
 			serviceRoleKey,
 			supabaseUrl,
 		});
+		committed += 1;
+		// 중간 실패 시 어디까지 커밋됐는지 복구 가능하도록 진행 상황을 남긴다.
+		if (committed % 100 === 0 || committed === changes.length) {
+			console.log(`[apply] ${committed}/${changes.length}`);
+		}
 	}
-	console.log(`[apply] ${changes.length} 행을 업데이트했습니다.`);
+	console.log(`[apply] ${committed} 행을 업데이트했습니다.`);
 }
+
+const PAGE_SIZE = 1000;
 
 async function readRows(input: {
 	serviceRoleKey: string;
 	supabaseUrl: string;
 }): Promise<ComponentChildRow[]> {
-	const url = new URL(`/rest/v1/${TABLE}`, input.supabaseUrl);
-	url.searchParams.set("select", `id,${TYPE_COLUMN}`);
-	const response = await fetch(url, {
-		cache: "no-store",
-		headers: restHeaders(input.serviceRoleKey),
-	});
-	if (!response.ok) {
-		const message = await response.text();
-		throw new Error(`Read ${TABLE} failed: ${response.status} ${message}`);
+	// PostgREST/Supabase는 응답을 db-max-rows(기본 1000)로 캡한다. 단일 GET은
+	// 큰 테이블에서 일부만 읽어 마이그레이션을 조용히 누락시킨다. Range 헤더로
+	// 페이지를 끝까지 순회하며 누적한다.
+	const rows: ComponentChildRow[] = [];
+	for (let start = 0; ; start += PAGE_SIZE) {
+		const end = start + PAGE_SIZE - 1;
+		const url = new URL(`/rest/v1/${TABLE}`, input.supabaseUrl);
+		url.searchParams.set("select", `id,${TYPE_COLUMN}`);
+		const response = await fetch(url, {
+			cache: "no-store",
+			headers: {
+				...restHeaders(input.serviceRoleKey),
+				"Range-Unit": "items",
+				Range: `${start}-${end}`,
+			},
+		});
+		if (!response.ok) {
+			const message = await response.text();
+			throw new Error(`Read ${TABLE} failed: ${response.status} ${message}`);
+		}
+		const page = (await response.json()) as ComponentChildRow[];
+		rows.push(...page);
+
+		// Content-Range: "start-end/total" 또는 "start-end/*" (total 미상).
+		const total = parseContentRangeTotal(response.headers.get("Content-Range"));
+		const reachedEnd = total !== null && start + page.length >= total;
+		// 짧은/빈 페이지면 더 읽을 게 없다. total을 알 경우 그것으로도 종료.
+		if (page.length < PAGE_SIZE || reachedEnd) break;
 	}
-	return (await response.json()) as ComponentChildRow[];
+	return rows;
+}
+
+/** "0-999/12345" → 12345, "0-999/*" 또는 파싱 불가 → null. */
+function parseContentRangeTotal(header: string | null): number | null {
+	if (!header) return null;
+	const slashIndex = header.lastIndexOf("/");
+	if (slashIndex < 0) return null;
+	const totalPart = header.slice(slashIndex + 1).trim();
+	if (totalPart === "*") return null;
+	const total = Number.parseInt(totalPart, 10);
+	return Number.isFinite(total) ? total : null;
 }
 
 async function updateRow(input: {
