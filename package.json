@@ -31,6 +31,7 @@
 	"dependencies": {
 		"@cx/agent": "workspace:*",
 		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"@radix-ui/react-scroll-area": "^1.2.10",

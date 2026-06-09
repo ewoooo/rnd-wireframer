@@ -1,3 +1,4 @@
+import { canonicalizeRenderTree } from "@cx/external/canonicalize";
 import {
 	type RenderTreeContract,
 	type RenderTreeScreenNodeContract,
@@ -23,7 +24,7 @@ export async function POST(_request: Request, context: InferenceApplyRouteContex
 			RenderTreeContract | RenderTreeScreenNodeContract
 		>(jobId, "context/render-tree.json");
 		const result = await applyScreenInferenceFinalResult({
-			node: readScreenNode(finalResult),
+			node: canonicalizeRenderTree(readScreenNode(finalResult)),
 		});
 		const body = {
 			appliedArtifacts: result.written

@@ -12,6 +12,7 @@
 		"@cx/agent": "workspace:*",
 		"@cx/adapters": "workspace:*",
 		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/renderer": "workspace:*",

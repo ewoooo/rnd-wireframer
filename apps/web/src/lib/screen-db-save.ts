@@ -4,6 +4,7 @@ import type {
 	RenderReadModelRows,
 	RenderScreenRegionChildRow,
 } from "@cx/adapters/table";
+import { canonicalizeRenderTree } from "@cx/external/canonicalize";
 import {
 	isRenderTreeAreaNode,
 	isRenderTreeScreenRegionNode,
@@ -50,9 +51,10 @@ export async function saveScreenTreeOrder(input: {
 	node: RenderTreeScreenNodeContract;
 	screenId: string;
 }): Promise<SaveScreenTreeOrderResult> {
+	const node = canonicalizeRenderTree(input.node);
 	const rows = await loadScreenRows(input.screenId);
 	const projection = projectScreenTreeOrder({
-		node: input.node,
+		node,
 		rows,
 		screenId: input.screenId,
 	});
