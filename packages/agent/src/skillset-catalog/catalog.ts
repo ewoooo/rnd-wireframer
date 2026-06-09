@@ -30,6 +30,24 @@ export const AGENT_STAGE_SKILLSET_CATALOG = {
 			},
 		],
 	},
+	"compose.composition-planning": {
+		stage: "compose",
+		task: "composition-planning",
+		documents: [
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/compose-skills/pagestack-section-unit/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/pattern-fit-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/visual-hierarchy-review/README.md",
+			},
+		],
+	},
 	"revise.quality-review": {
 		stage: "revise",
 		task: "quality-review",

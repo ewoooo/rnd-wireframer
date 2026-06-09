@@ -50,6 +50,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 			},
 			references: {
 				layoutCatalog: knowledge("layout-catalog"),
+				skillset: knowledge("stage-skillset", "compose.composition-planning"),
 			},
 			prompt: { id: "composition-planning" },
 			output: {

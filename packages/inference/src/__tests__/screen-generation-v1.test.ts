@@ -45,7 +45,15 @@ describe("screenGenerationPipelineV1", () => {
 		// component catalog so claude builds nodes from real layout/component ids.
 		const layoutCatalog = { source: "layout-catalog", id: undefined, version: undefined };
 		const componentCatalog = { source: "component-catalog", id: undefined, version: undefined };
-		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({ layoutCatalog });
+		// Composition gets the layout catalog plus the compose-stage skillset.
+		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({
+			layoutCatalog,
+			skillset: {
+				source: "stage-skillset",
+				id: "compose.composition-planning",
+				version: undefined,
+			},
+		});
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
