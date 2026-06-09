@@ -1,6 +1,5 @@
-import { componentCatalog } from "@cx/components/catalog";
-import type { ComponentCatalog } from "@cx/components/types";
-import type { SourceSpec } from "@cx/schema";
+import { componentCatalog } from "@cx/external/resolver";
+import type { ComponentCatalog, SourceSpec } from "@cx/schema";
 import {
 	validateAgentResult,
 	validateComponentProposal,
@@ -48,10 +47,11 @@ describe("@cx/validation validators", () => {
 							props: { layout: { direction: "column", gap: 12 }, scroll: true },
 							children: [
 								{
-									type: "RadioGroup",
+									type: "kiki.ActionButton",
 									componentVersion: "1.0.0",
-									metadata: { id: "auth-method", title: "인증수단" },
-									props: { options: ["휴대폰 본인인증", "PASS"], selectedValue: "휴대폰 본인인증" },
+									metadata: { id: "auth-method", title: "candidate-cta" },
+									layout: "layout.composite.componentActionButton",
+									props: { text: "candidate", left: 0 },
 								},
 							],
 						},
@@ -768,7 +768,7 @@ function finalScreenRenderTreeExample() {
 						},
 						children: [
 							{
-								type: "AppBar",
+								type: "kiki.AppBar",
 								componentVersion: "1.0.0",
 								metadata: {
 									id: "mbr-appbar-nova-mbr-fp-001-0",
@@ -803,16 +803,16 @@ function finalScreenRenderTreeExample() {
 								props: { name: "약관 목록 조회" },
 								children: [
 									{
-										type: "list-cell",
+										type: "kiki.ListText",
 										componentVersion: "1.0.0",
 										metadata: {
-											id: "list-cell-term-required",
-											title: "list-cell-term-required",
+											id: "list-text-term-required",
+											title: "list-text-term-required",
 										},
-										layout: "layout.composite.componentListCell",
+										layout: "layout.composite.componentListText",
 										props: {
 											title: "[필수] 서비스 이용약관 동의",
-											description: "회원 가입을 위해 반드시 동의가 필요합니다.",
+											subText: "회원 가입을 위해 반드시 동의가 필요합니다.",
 										},
 									},
 								],

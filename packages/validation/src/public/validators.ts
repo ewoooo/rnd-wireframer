@@ -1,10 +1,10 @@
-import { getComponentCatalogStatus } from "@cx/components/catalog";
+import { getComponentCatalogStatus } from "@cx/external/resolver";
 import type {
 	ComponentCatalog,
 	ComponentCatalogEntry,
 	ComponentPropContract,
 	ComponentPropType,
-} from "@cx/components/types";
+} from "@cx/schema";
 import { findPattern } from "@cx/layout/catalog";
 import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
 import type {
@@ -1208,9 +1208,7 @@ function findCatalogEntry(
 	type: string,
 	catalog?: ComponentCatalog,
 ): ComponentCatalogEntry | undefined {
-	if (!catalog) return undefined;
-	if (catalog[type]) return catalog[type];
-	return Object.values(catalog).find((entry) => entry.aliases?.includes(type));
+	return catalog?.[type];
 }
 
 function readProps(
