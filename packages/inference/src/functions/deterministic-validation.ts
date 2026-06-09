@@ -1,4 +1,4 @@
-import { componentCatalog } from "@cx/components/catalog";
+import { componentCatalog } from "@cx/external/resolver";
 import {
 	SCHEMA_VERSION,
 	type SchemaValidationIssue,

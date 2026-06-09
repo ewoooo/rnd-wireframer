@@ -180,9 +180,9 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:../agent
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout

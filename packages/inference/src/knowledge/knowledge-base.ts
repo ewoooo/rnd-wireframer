@@ -3,7 +3,7 @@ import {
 	resolveSkillForInference,
 	resolveStageSkillsetForInference,
 } from "@cx/agent";
-import { resolveComponentCatalogForInference } from "@cx/components/catalog";
+import { resolveComponentCatalogForInference } from "@cx/external/resolver";
 import { resolveLayoutCatalogForInference } from "@cx/layout/catalog";
 import { resolveOutputContractForInference } from "@cx/schema";
 import { resolveTokenCatalogForInference } from "@cx/tokens";

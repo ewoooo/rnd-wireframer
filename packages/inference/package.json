@@ -13,7 +13,7 @@
 	},
 	"dependencies": {
 		"@cx/agent": "workspace:*",
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"@cx/tokens": "workspace:*",
