@@ -1,5 +1,6 @@
 import { validateJsonSchema } from "@cx/validation";
 import type { InferenceStepDefinition, StepExecution, StepRunContext } from "../contracts";
+import { evaluateStepOutputPolicy } from "../policies/step-output-policy";
 
 const MAX_ATTEMPTS = 2; // initial attempt + one retry
 
@@ -62,12 +63,13 @@ async function runAttempt(
 			return { kind: "retry", failure: contractFailure };
 		}
 
-		if (shouldFailForValidationErrors(step, raw)) {
+		const policyFailure = evaluateStepOutputPolicy(step, raw);
+		if (policyFailure) {
 			return {
 				kind: "failed",
 				execution: createFailedExecution(resolved, {
-					code: "deterministic_validation_failed",
-					message: "Deterministic validation still has errors after one revision attempt.",
+					code: policyFailure.code,
+					message: policyFailure.message,
 					contextWrites,
 					raw,
 				}),
@@ -97,12 +99,6 @@ function validateOutputContract(
 		message: report.issues.map((issue) => issue.message).join("; "),
 		raw,
 	};
-}
-
-function shouldFailForValidationErrors(step: InferenceStepDefinition, raw: unknown): boolean {
-	return (
-		step.output.failJobWhenValidationReportHasErrors === true && readValidationErrorCount(raw) > 0
-	);
 }
 
 function createSucceededExecution(
@@ -153,14 +149,6 @@ function normalizeEngineError(error: unknown): StepFailure {
 		code: "engine_execution_failed",
 		message: error instanceof Error ? error.message : String(error),
 	};
-}
-
-function readValidationErrorCount(input: unknown): number {
-	if (!input || typeof input !== "object" || Array.isArray(input)) return 0;
-	const summary = (input as Record<string, unknown>).summary;
-	if (!summary || typeof summary !== "object" || Array.isArray(summary)) return 0;
-	const errorCount = (summary as Record<string, unknown>).errorCount;
-	return typeof errorCount === "number" ? errorCount : 0;
 }
 
 async function resolveInputs(step: InferenceStepDefinition, context: StepRunContext) {

@@ -47,7 +47,11 @@ function screenDbRestHeaders(extra?: Record<string, string>): HeadersInit {
 }
 
 export function inFilter(values: string[]): string {
-	return `in.(${values.join(",")})`;
+	return `in.(${values.map(encodePostgrestInValue).join(",")})`;
+}
+
+function encodePostgrestInValue(value: string): string {
+	return `"${value.replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"`;
 }
 
 export function uniqueIds(values: string[]): string[] {

@@ -109,6 +109,39 @@ describe("@cx/agent runtime", () => {
 		});
 	});
 
+	it("does not resume screen revision unless a session id is explicitly provided", async () => {
+		let seenRequest: AgentRunnerRequest | undefined;
+		const runtime = createAgentRuntime({
+			runner: async (request) => {
+				seenRequest = request;
+				return {
+					taskKind: request.taskKind,
+					session: {
+						mode: request.session?.mode ?? "new",
+						sessionId: request.session?.sessionId,
+					},
+					payload: { ok: true },
+				};
+			},
+		});
+
+		await expect(
+			runAgentTask(runtime, {
+				taskKind: "screen-revision",
+				input: { query: "수정해줘" },
+				session: { mode: "resume" },
+			}),
+		).rejects.toThrow("Claude resume requires a session id.");
+
+		const result = await runAgentTask(runtime, {
+			taskKind: "screen-revision",
+			input: { query: "수정해줘" },
+		});
+
+		expect(result.session.mode).toBe("new");
+		expect(seenRequest?.session?.mode).toBe("new");
+	});
+
 	it("resolves skills and prompt catalogs as inference SSOT objects", () => {
 		const skill = resolveSkillForInference("screen-generation");
 		const prompt = resolvePromptCatalogForInference("screen-generation");
@@ -117,7 +150,6 @@ describe("@cx/agent runtime", () => {
 			kind: "skill",
 			id: "screen-generation",
 			owner: "@cx/agent",
-			sourceRef: "../docs/skills/screen-generation",
 			schemaVersion: "ssot-object.v1",
 			data: {
 				format: "json",
@@ -168,7 +200,6 @@ describe("@cx/agent runtime", () => {
 			kind: "skill",
 			id: "detail-confirmation-screen",
 			owner: "@cx/agent",
-			sourceRef: "../docs/skills/detail-confirmation-screen",
 			schemaVersion: "ssot-object.v1",
 			data: {
 				format: "json",

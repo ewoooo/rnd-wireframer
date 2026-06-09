@@ -1,35 +1,39 @@
 import type { InferenceRuntime } from "../contracts";
 import { runStep } from "../pipeline/run-step";
+import { shouldRunInferenceStep } from "../policies/step-run-policy";
+import { recordJobFailed, recordJobStarted, recordJobSucceeded } from "./job-lifecycle";
 import { resolveInput } from "./resolve-input";
+import { writeStepExecutionArtifacts, writeStepOutputArtifact } from "./step-artifacts";
+import { recordStepFailed, recordStepStarted, recordStepSucceeded } from "./step-lifecycle";
 
-export async function runInferenceJob(runtime: InferenceRuntime, jobId: string): Promise<void> {
+export async function runInferenceJob(
+	runtime: InferenceRuntime,
+	jobId: string,
+	options: { startFromStepId?: string } = {},
+): Promise<void> {
 	try {
 		const job = await runtime.jobStore.getJob(jobId);
 		const pipeline = runtime.pipelines.get(job.pipelineId, job.pipelineVersion);
 		const contextStore = runtime.createContextStore(jobId);
 
-		await runtime.jobStore.updateJob(jobId, { status: "running" });
-		await runtime.jobStore.appendEvent(jobId, {
-			jobId,
-			type: "job_started",
-			timestamp: runtime.now(),
-		});
+		const { startFromStepId } = options;
+		if (startFromStepId && !pipeline.steps.some((step) => step.id === startFromStepId)) {
+			throw new Error(`Unknown startFromStepId: ${startFromStepId}`);
+		}
 
+		await recordJobStarted({ jobId, runtime });
+
+		// Steps before startFromStepId are skipped; their context outputs from a prior
+		// run stay on disk under the same jobId, so downstream context reads still resolve.
+		let reached = !startFromStepId;
 		for (const step of pipeline.steps) {
-			if (!(await shouldRunStep(step.runWhen, contextStore))) continue;
+			if (!reached) {
+				if (step.id !== startFromStepId) continue;
+				reached = true;
+			}
+			if (!(await shouldRunInferenceStep(step.runWhen, contextStore))) continue;
 
-			await runtime.jobStore.createStep(jobId, step.id);
-			await runtime.jobStore.updateJob(jobId, { currentStepId: step.id });
-			await runtime.jobStore.updateStep(jobId, step.id, {
-				status: "running",
-				startedAt: runtime.now(),
-			});
-			await runtime.jobStore.appendEvent(jobId, {
-				jobId,
-				stepId: step.id,
-				type: "step_started",
-				timestamp: runtime.now(),
-			});
+			await recordStepStarted({ jobId, runtime, stepId: step.id });
 
 			const execution = await runStep(step, {
 				engines: runtime.engines,
@@ -38,100 +42,36 @@ export async function runInferenceJob(runtime: InferenceRuntime, jobId: string):
 				resolveOutputContract: (ref) => runtime.knowledgeBase.resolveOutputContract(ref),
 			});
 
-			const stepRoot = `steps/${step.id}`;
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/inputs.json`, execution.inputs);
-			await runtime.artifactStore.writeJson(
+			await writeStepExecutionArtifacts({
+				artifactStore: runtime.artifactStore,
+				execution,
 				jobId,
-				`${stepRoot}/references.json`,
-				execution.references,
-			);
-			await runtime.artifactStore.writeJson(
-				jobId,
-				`${stepRoot}/output-contract.json`,
-				execution.outputContract,
-			);
-			if (execution.prompt) {
-				await runtime.artifactStore.writeJson(jobId, `${stepRoot}/prompt.json`, execution.prompt);
-			}
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/raw-response.json`, execution.raw);
+				stepId: step.id,
+			});
 			for (const [key, value] of Object.entries(execution.contextWrites ?? {})) {
 				await contextStore.writeJson(key, value);
 			}
 
 			if (execution.status === "failed") {
-				await runtime.jobStore.updateStep(jobId, step.id, {
-					status: "failed",
-					completedAt: runtime.now(),
-					error: execution.error,
-				});
-				await runtime.jobStore.appendEvent(jobId, {
-					jobId,
-					stepId: step.id,
-					type: "step_failed",
-					timestamp: runtime.now(),
-					payload: execution.error,
-				});
+				await recordStepFailed({ execution, jobId, runtime, stepId: step.id });
 				throw execution.error ?? new Error(`Step failed: ${step.id}`);
 			}
 
-			await runtime.artifactStore.writeJson(jobId, `${stepRoot}/output.json`, execution.raw);
-			await runtime.jobStore.updateStep(jobId, step.id, {
-				status: "succeeded",
-				completedAt: runtime.now(),
-			});
-			await runtime.jobStore.appendEvent(jobId, {
+			await writeStepOutputArtifact({
+				artifactStore: runtime.artifactStore,
+				execution,
 				jobId,
 				stepId: step.id,
-				type: "step_completed",
-				timestamp: runtime.now(),
 			});
+			await recordStepSucceeded({ jobId, runtime, stepId: step.id });
 		}
 
-		await runtime.jobStore.updateJob(jobId, { status: "succeeded", currentStepId: undefined });
-		await runtime.jobStore.appendEvent(jobId, {
-			jobId,
-			type: "job_completed",
-			timestamp: runtime.now(),
-		});
+		await recordJobSucceeded({ jobId, runtime });
 	} catch (error) {
-		const normalized = normalizeError(error);
 		try {
-			await runtime.jobStore.updateJob(jobId, { status: "failed", error: normalized });
-			await runtime.jobStore.appendEvent(jobId, {
-				jobId,
-				type: "job_failed",
-				timestamp: runtime.now(),
-				payload: normalized,
-			});
+			await recordJobFailed({ error, jobId, runtime });
 		} catch {
 			// best-effort: store itself is broken, nothing more to record
 		}
 	}
-}
-
-async function shouldRunStep(
-	runWhen: { contextValidationReportHasErrors: string } | undefined,
-	contextStore: ReturnType<InferenceRuntime["createContextStore"]>,
-): Promise<boolean> {
-	if (!runWhen) return true;
-	const report = await contextStore.readJson<unknown>(runWhen.contextValidationReportHasErrors);
-	return readValidationErrorCount(report) > 0;
-}
-
-function readValidationErrorCount(input: unknown): number {
-	if (!input || typeof input !== "object" || Array.isArray(input)) return 0;
-	const summary = (input as Record<string, unknown>).summary;
-	if (!summary || typeof summary !== "object" || Array.isArray(summary)) return 0;
-	const errorCount = (summary as Record<string, unknown>).errorCount;
-	return typeof errorCount === "number" ? errorCount : 0;
-}
-
-function normalizeError(error: unknown): { code: string; message: string } {
-	if (error && typeof error === "object" && "code" in error && "message" in error) {
-		return error as { code: string; message: string };
-	}
-	return {
-		code: "inference_job_failed",
-		message: error instanceof Error ? error.message : String(error),
-	};
 }

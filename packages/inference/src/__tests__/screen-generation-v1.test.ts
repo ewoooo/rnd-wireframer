@@ -17,11 +17,12 @@ describe("screenGenerationPipelineV1", () => {
 			["08-quality", "claude"],
 		]);
 		expect(screenGenerationPipelineV1.steps[5]?.runWhen).toEqual({
-			contextValidationReportHasErrors: "validation-report",
+			contextKey: "validation-report",
+			kind: "context-validation-report-has-errors",
 		});
-		expect(screenGenerationPipelineV1.steps[6]?.output.failJobWhenValidationReportHasErrors).toBe(
-			true,
-		);
+		expect(screenGenerationPipelineV1.steps[6]?.output.failWhen).toEqual({
+			kind: "validation-report-has-errors",
+		});
 	});
 
 	it("uses prompt.id as the taskKind for every claude step", () => {

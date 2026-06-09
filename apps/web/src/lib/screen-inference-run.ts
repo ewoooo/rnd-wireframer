@@ -1,18 +1,5 @@
 import { randomUUID } from "node:crypto";
 
-export type PipelineStageId =
-	| "derive-screen-intent"
-	| "derive-decoration-plan"
-	| "generate-render-tree"
-	| "parse-source"
-	| "plan-composition"
-	| "propose-components"
-	| "read-source"
-	| "review-quality"
-	| "select-pattern"
-	| "validate-render-tree"
-	| "write-artifacts";
-
 export type ScreenGenerationLayer = "compose" | "revise" | "understand";
 
 export type ScreenInferenceLayer = ScreenGenerationLayer;
@@ -89,7 +76,7 @@ export type ScreenInferenceRunCreateResponse = ScreenInferenceRunResponse & {
 	statusUrl: string;
 };
 
-const SCREEN_GENERATION_STAGE_META = {
+const stageMeta = {
 	"derive-decoration-plan": { layer: "compose", message: "Decorating sections…" },
 	"derive-screen-intent": { layer: "understand", message: "Understanding screen intent…" },
 	"generate-render-tree": { layer: "compose", message: "Generating UI draft…" },
@@ -101,9 +88,11 @@ const SCREEN_GENERATION_STAGE_META = {
 	"select-pattern": { layer: "compose", message: "Selecting layout patterns…" },
 	"validate-render-tree": { layer: "revise", message: "Validating render tree…" },
 	"write-artifacts": { layer: "revise", message: "Writing review artifacts…" },
-} as const satisfies Record<PipelineStageId, { layer: ScreenGenerationLayer; message: string }>;
+} as const satisfies Record<string, { layer: ScreenGenerationLayer; message: string }>;
 
-const SCREEN_GENERATION_LAYER_DEFINITIONS = [
+export type PipelineStageId = keyof typeof stageMeta;
+
+const layerDefinitions = [
 	{
 		artifacts: ["source-spec.json", "screen-intent.json"],
 		label: "Understand",
@@ -143,15 +132,16 @@ const SCREEN_GENERATION_LAYER_DEFINITIONS = [
 	},
 ] as const;
 
-export const SCREEN_INFERENCE_LAYERS: ScreenInferenceStatusLayer[] =
-	SCREEN_GENERATION_LAYER_DEFINITIONS.map((layer) => ({
+export const SCREEN_INFERENCE_LAYERS: ScreenInferenceStatusLayer[] = layerDefinitions.map(
+	(layer) => ({
 		artifacts: [...layer.artifacts],
 		label: layer.label,
 		layer: layer.layer,
 		previewArtifact: layer.previewArtifact,
 		stages: [...layer.stages],
 		status: "pending",
-	}));
+	}),
+);
 
 export function createScreenInferenceRunId(screenId: string, date = new Date()): string {
 	const timestamp = date.toISOString().replace(/\D/g, "").slice(0, 17);
@@ -341,9 +331,9 @@ function createLayersForStage(stage: PipelineStageId, now: string): ScreenInfere
 }
 
 function readLayerForStage(stage: PipelineStageId): ScreenInferenceLayer {
-	return SCREEN_GENERATION_STAGE_META[stage].layer;
+	return stageMeta[stage].layer;
 }
 
 function readMessageForStage(stage: PipelineStageId): string {
-	return SCREEN_GENERATION_STAGE_META[stage].message;
+	return stageMeta[stage].message;
 }

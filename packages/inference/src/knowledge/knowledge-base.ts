@@ -7,36 +7,55 @@ import { resolveComponentCatalogForInference } from "@cx/components/catalog";
 import { resolveLayoutCatalogForInference } from "@cx/layout/catalog";
 import { resolveOutputContractForInference } from "@cx/schema";
 import { resolveTokenCatalogForInference } from "@cx/tokens";
-import type { KnowledgeBase } from "../contracts";
+import type { KnowledgeBase, KnowledgeRef, KnowledgeValue } from "../contracts";
+
+type KnowledgeResolver = {
+	requiresId?: boolean;
+	resolve: (ref: KnowledgeRef) => KnowledgeValue | Promise<KnowledgeValue>;
+};
+
+const KNOWLEDGE_RESOLVERS = {
+	"component-catalog": {
+		requiresId: false,
+		resolve: () => resolveComponentCatalogForInference(),
+	},
+	"layout-catalog": {
+		requiresId: false,
+		resolve: () => resolveLayoutCatalogForInference(),
+	},
+	"prompt-catalog": {
+		requiresId: true,
+		resolve: (ref) => resolvePromptCatalogForInference(readRequiredKnowledgeId(ref)),
+	},
+	skill: {
+		requiresId: true,
+		resolve: (ref) => resolveSkillForInference(readRequiredKnowledgeId(ref)),
+	},
+	"stage-skillset": {
+		requiresId: true,
+		resolve: (ref) => resolveStageSkillsetForInference(readRequiredKnowledgeId(ref)),
+	},
+	"token-catalog": {
+		requiresId: false,
+		resolve: () => resolveTokenCatalogForInference(),
+	},
+} as const satisfies Record<KnowledgeRef["source"], KnowledgeResolver>;
 
 export function createInferenceKnowledgeBase(): KnowledgeBase {
 	return {
 		async resolve(ref) {
-			if (ref.source === "component-catalog") {
-				return resolveComponentCatalogForInference();
-			}
-			if (ref.source === "layout-catalog") {
-				return resolveLayoutCatalogForInference();
-			}
-			if (ref.source === "skill" && ref.id) {
-				return resolveSkillForInference(ref.id);
-			}
-			if (ref.source === "prompt-catalog" && ref.id) {
-				return resolvePromptCatalogForInference(ref.id);
-			}
-			if (ref.source === "stage-skillset" && ref.id) {
-				return resolveStageSkillsetForInference(ref.id);
-			}
-			if (ref.source === "token-catalog") {
-				return resolveTokenCatalogForInference();
-			}
-			throw new Error(
-				`Unsupported knowledge reference for MVP: ${ref.source}:${ref.id ?? "missing-id"}`,
-			);
+			const resolver = KNOWLEDGE_RESOLVERS[ref.source];
+			if (resolver.requiresId) readRequiredKnowledgeId(ref);
+			return resolver.resolve(ref);
 		},
 
 		async resolveOutputContract(ref) {
 			return resolveOutputContractForInference(ref.id);
 		},
 	};
+}
+
+function readRequiredKnowledgeId(ref: KnowledgeRef): string {
+	if (ref.id) return ref.id;
+	throw new Error(`Unsupported knowledge reference for MVP: ${ref.source}:missing-id`);
 }

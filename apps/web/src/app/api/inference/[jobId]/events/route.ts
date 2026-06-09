@@ -1,3 +1,4 @@
+import { isInferenceTerminalEventType } from "@cx/inference";
 import { inferenceRuntime } from "@/server/inference-runtime";
 
 export const runtime = "nodejs";
@@ -38,7 +39,7 @@ export async function GET(request: Request, context: RouteContext) {
 						);
 					}
 					const last = events.at(-1);
-					if (last && (last.type === "job_completed" || last.type === "job_failed")) break;
+					if (last && isInferenceTerminalEventType(last.type)) break;
 					if (events.length === 0) controller.enqueue(encoder.encode(": keep-alive\n\n"));
 					await new Promise((resolve) => setTimeout(resolve, 200));
 				}

@@ -1,4 +1,10 @@
-import type { KnowledgeRef, OutputContractRef, StepInputRef } from "../contracts";
+import type {
+	KnowledgeRef,
+	OutputContractRef,
+	StepInputRef,
+	StepOutputFailurePolicy,
+	StepRunCondition,
+} from "../contracts";
 
 export const jobInput = (path?: string): StepInputRef => ({ kind: "job-input", path });
 export const context = (key: string): StepInputRef => ({ kind: "context", key });
@@ -17,4 +23,13 @@ export const outputContractRef = (id: string, version?: string): OutputContractR
 	source: "output-contract",
 	id,
 	version,
+});
+
+export const whenContextValidationReportHasErrors = (contextKey: string): StepRunCondition => ({
+	contextKey,
+	kind: "context-validation-report-has-errors",
+});
+
+export const failWhenValidationReportHasErrors = (): StepOutputFailurePolicy => ({
+	kind: "validation-report-has-errors",
 });

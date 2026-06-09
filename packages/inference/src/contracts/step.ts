@@ -25,13 +25,22 @@ export type OutputContractRef = {
 export type PromptTemplateRef = { id: string; version?: string };
 export type FunctionRef = { id: string };
 
+export type StepOutputFailurePolicy = {
+	kind: "validation-report-has-errors";
+};
+
 export type OutputContract = {
 	contractRef: OutputContractRef;
-	failJobWhenValidationReportHasErrors?: boolean;
+	failWhen?: StepOutputFailurePolicy;
 	writeToContext?: string;
 };
 
 export type OutputContractValue = OutputContractObject;
+
+export type StepRunCondition = {
+	contextKey: string;
+	kind: "context-validation-report-has-errors";
+};
 
 export type InferenceStepDefinition = {
 	id: string;
@@ -40,8 +49,6 @@ export type InferenceStepDefinition = {
 	references?: Record<string, KnowledgeRef>;
 	prompt?: PromptTemplateRef;
 	run?: FunctionRef;
-	runWhen?: {
-		contextValidationReportHasErrors: string;
-	};
+	runWhen?: StepRunCondition;
 	output: OutputContract;
 };

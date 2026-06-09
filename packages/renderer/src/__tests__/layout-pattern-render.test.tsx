@@ -217,7 +217,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					node={{
 						type: "area.checks",
 						componentVersion: "0.1.0",
-						layout: "layout.area.checkboxStack",
+						layout: "layout.area.fieldStack",
 						metadata: { id: "checkbox-area", title: "Checkbox area" },
 						children: [
 							{
@@ -247,7 +247,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					node={{
 						type: "area.message",
 						componentVersion: "0.1.0",
-						layout: "layout.area.messageStack",
+						layout: "layout.area.fieldStack",
 						metadata: { id: "message-area", title: "Message area" },
 						children: [
 							{
@@ -679,7 +679,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 				node={{
 					type: "area.detail",
 					componentVersion: "0.1.0",
-					layout: "layout.area.priceAccordionStackArea",
+					layout: "layout.area.productDisclosureAccordion",
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					children: [
 						{
@@ -715,7 +715,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 				node={{
 					type: "area.detail",
 					componentVersion: "0.1.0",
-					layout: "layout.area.priceAccordionStackArea",
+					layout: "layout.area.productDisclosureAccordion",
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					props: { divider: "none" },
 					children: [
@@ -741,7 +741,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 				node={{
 					type: "area.detail",
 					componentVersion: "0.1.0",
-					layout: "layout.area.priceAccordionStackArea",
+					layout: "layout.area.productDisclosureAccordion",
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					props: { divider: "section" },
 					children: [
@@ -769,7 +769,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 				node={{
 					type: "area.detail",
 					componentVersion: "0.1.0",
-					layout: "layout.area.priceAccordionStackArea",
+					layout: "layout.area.productDisclosureAccordion",
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					props: { divider: "contents" },
 					children: [

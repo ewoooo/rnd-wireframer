@@ -13,3 +13,12 @@ export function assertClaudeResumeAllowed(request: AgentRunRequest): void {
 		throw new Error("Claude resume requires a session id.");
 	}
 }
+
+export function assertResolvedClaudeResumeAllowed(
+	request: AgentRunRequest,
+	sessionMode: AgentSessionMode,
+): void {
+	if (sessionMode === "resume" && !request.session?.sessionId) {
+		throw new Error("Claude resume requires a session id.");
+	}
+}

@@ -1,4 +1,4 @@
-import type { InferenceEvent, Job, Step } from "@cx/inference";
+import { INFERENCE_EVENT_TYPES, type InferenceEvent, type Job, type Step } from "@cx/inference";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import {
 	createFailedScreenInferenceStatus,
@@ -20,7 +20,15 @@ type InferenceSourceListResponse = {
 	sources?: NewScreenSourceItem[];
 };
 
-const STAGE_BY_STEP_ID: Record<string, PipelineStageId> = {
+const artifactPathByAlias = {
+	"agent-result.json": "steps/04-render-tree/raw-response.json",
+	"final-result.json": "context/render-tree.json",
+	"pipeline-result.json": "job.json",
+	"quality-review.json": "steps/08-quality/output.json",
+	"validation-report.json": "context/validation-report.json",
+} as const;
+
+const stageByStepId = {
 	"01-source-spec": "parse-source",
 	"02-screen-intent": "derive-screen-intent",
 	"03-composition": "plan-composition",
@@ -29,7 +37,7 @@ const STAGE_BY_STEP_ID: Record<string, PipelineStageId> = {
 	"06-revision": "review-quality",
 	"07-validation-after-revision": "validate-render-tree",
 	"08-quality": "review-quality",
-};
+} as const satisfies Record<string, PipelineStageId>;
 
 export async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
 	const formData = new FormData();
@@ -141,27 +149,13 @@ export function subscribeScreenInferenceRunEvents(
 		handlers.onError?.();
 	};
 
-	for (const type of [
-		"job_started",
-		"job_completed",
-		"job_failed",
-		"step_started",
-		"step_completed",
-		"step_failed",
-	]) {
+	for (const type of INFERENCE_EVENT_TYPES) {
 		source.addEventListener(type, handleEvent);
 	}
 	source.addEventListener("error", handleError);
 
 	return () => {
-		for (const type of [
-			"job_started",
-			"job_completed",
-			"job_failed",
-			"step_started",
-			"step_completed",
-			"step_failed",
-		]) {
+		for (const type of INFERENCE_EVENT_TYPES) {
 			source.removeEventListener(type, handleEvent);
 		}
 		source.removeEventListener("error", handleError);
@@ -278,16 +272,11 @@ function toScreenInferenceStatus(
 }
 
 function readArtifactPath(artifactName: string): string {
-	if (artifactName === "final-result.json") return "context/render-tree.json";
-	if (artifactName === "quality-review.json") return "steps/08-quality/output.json";
-	if (artifactName === "validation-report.json") return "context/validation-report.json";
-	if (artifactName === "pipeline-result.json") return "job.json";
-	if (artifactName === "agent-result.json") return "steps/04-render-tree/raw-response.json";
-	return artifactName;
+	return artifactPathByAlias[artifactName as keyof typeof artifactPathByAlias] ?? artifactName;
 }
 
 function readStageForStep(stepId?: string): PipelineStageId | undefined {
-	return stepId ? STAGE_BY_STEP_ID[stepId] : undefined;
+	return stepId ? stageByStepId[stepId as keyof typeof stageByStepId] : undefined;
 }
 
 function readFailedStage(steps: Step[]): PipelineStageId | undefined {

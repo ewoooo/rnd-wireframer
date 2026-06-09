@@ -1,4 +1,13 @@
-import { context, definePipeline, defineStep, jobInput, knowledge, outputContractRef } from "../pipeline";
+import {
+	context,
+	definePipeline,
+	defineStep,
+	failWhenValidationReportHasErrors,
+	jobInput,
+	knowledge,
+	outputContractRef,
+	whenContextValidationReportHasErrors,
+} from "../pipeline";
 
 /**
  * screen-generation@v1 — declarative only.
@@ -14,7 +23,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 			engine: "function",
 			inputs: { job: jobInput() },
 			run: { id: "source-spec-mvp" },
-			output: { contractRef: outputContractRef("source-spec"), writeToContext: "source-spec" },
+			output: {
+				contractRef: outputContractRef("source-spec"),
+				writeToContext: "source-spec",
+			},
 		}),
 		defineStep({
 			id: "02-screen-intent",
@@ -24,12 +36,18 @@ export const screenGenerationPipelineV1 = definePipeline({
 				skillset: knowledge("stage-skillset", "understand.screen-intent"),
 			},
 			prompt: { id: "screen-intent" },
-			output: { contractRef: outputContractRef("screen-intent"), writeToContext: "screen-intent" },
+			output: {
+				contractRef: outputContractRef("screen-intent"),
+				writeToContext: "screen-intent",
+			},
 		}),
 		defineStep({
 			id: "03-composition",
 			engine: "claude",
-			inputs: { sourceSpec: context("source-spec"), screenIntent: context("screen-intent") },
+			inputs: {
+				sourceSpec: context("source-spec"),
+				screenIntent: context("screen-intent"),
+			},
 			prompt: { id: "composition-planning" },
 			output: {
 				contractRef: outputContractRef("composition-plan"),
@@ -44,7 +62,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 				screenIntent: context("screen-intent"),
 			},
 			prompt: { id: "screen-generation" },
-			output: { contractRef: outputContractRef("render-tree"), writeToContext: "render-tree" },
+			output: {
+				contractRef: outputContractRef("render-tree"),
+				writeToContext: "render-tree",
+			},
 		}),
 		defineStep({
 			id: "05-validation",
@@ -72,8 +93,11 @@ export const screenGenerationPipelineV1 = definePipeline({
 				validationReport: context("validation-report"),
 			},
 			prompt: { id: "screen-revision" },
-			runWhen: { contextValidationReportHasErrors: "validation-report" },
-			output: { contractRef: outputContractRef("render-tree"), writeToContext: "render-tree" },
+			runWhen: whenContextValidationReportHasErrors("validation-report"),
+			output: {
+				contractRef: outputContractRef("render-tree"),
+				writeToContext: "render-tree",
+			},
 		}),
 		defineStep({
 			id: "07-validation-after-revision",
@@ -85,10 +109,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 				sourceSpec: context("source-spec"),
 			},
 			run: { id: "deterministic-validation" },
-			runWhen: { contextValidationReportHasErrors: "validation-report" },
+			runWhen: whenContextValidationReportHasErrors("validation-report"),
 			output: {
 				contractRef: outputContractRef("validation-report"),
-				failJobWhenValidationReportHasErrors: true,
+				failWhen: failWhenValidationReportHasErrors(),
 				writeToContext: "validation-report",
 			},
 		}),

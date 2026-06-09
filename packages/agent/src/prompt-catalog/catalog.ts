@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { PromptCatalogObject } from "@cx/schema";
 import { SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
+import { readAgentPackageMarkdown } from "../docs/package-markdown";
 
 export const AGENT_PROMPT_CATALOG = {
 	"component-proposal": "../docs/prompts/component-proposal.md",
@@ -28,13 +26,8 @@ export function resolvePromptCatalogForInference(id: string): PromptCatalogObjec
 		version: "v1",
 		schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
 		data: {
-			template: readPackageMarkdown(sourceRef),
+			template: readAgentPackageMarkdown(sourceRef),
 			variables: {},
 		},
 	};
-}
-
-function readPackageMarkdown(sourceRef: string): string {
-	const currentDir = path.dirname(fileURLToPath(import.meta.url));
-	return readFileSync(path.resolve(currentDir, "..", sourceRef), "utf8");
 }

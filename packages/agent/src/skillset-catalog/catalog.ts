@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { StageSkillsetDocument, StageSkillsetObject } from "@cx/schema";
 import { SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
+import { readAgentMarkdownDocument } from "../docs/package-markdown";
 
 type StageSkillsetCatalogEntry = {
 	stage: StageSkillsetDocument["stage"];
@@ -67,11 +65,11 @@ function readStageSkillsetDocument(document: {
 	stage: StageSkillsetDocument["stage"];
 	task: string;
 }): StageSkillsetDocument {
-	const body = readPackageMarkdown(document.sourceRef);
-	const frontmatter = parseFrontmatter(body);
+	const markdown = readAgentMarkdownDocument(document.sourceRef);
+	const frontmatter = markdown.frontmatter;
 	const id = readString(frontmatter.id) ?? inferIdFromSourceRef(document.sourceRef);
 	return {
-		body,
+		body: markdown.body,
 		frontmatter,
 		id,
 		kind: document.kind,
@@ -81,44 +79,6 @@ function readStageSkillsetDocument(document: {
 		stage: readStage(frontmatter.stage) ?? document.stage,
 		task: readString(frontmatter.task) ?? document.task,
 	};
-}
-
-function readPackageMarkdown(sourceRef: string): string {
-	const currentDir = path.dirname(fileURLToPath(import.meta.url));
-	return readFileSync(path.resolve(currentDir, "..", sourceRef), "utf8");
-}
-
-function parseFrontmatter(body: string): Record<string, unknown> {
-	if (!body.startsWith("---\n")) return {};
-	const end = body.indexOf("\n---", 4);
-	if (end < 0) return {};
-
-	const frontmatter: Record<string, unknown> = {};
-	let currentListKey: string | undefined;
-	for (const rawLine of body.slice(4, end).split("\n")) {
-		const line = rawLine.trimEnd();
-		if (!line.trim()) continue;
-		if (line.trimStart().startsWith("- ") && currentListKey) {
-			const items = Array.isArray(frontmatter[currentListKey])
-				? (frontmatter[currentListKey] as string[])
-				: [];
-			items.push(line.trimStart().slice(2).trim());
-			frontmatter[currentListKey] = items;
-			continue;
-		}
-
-		currentListKey = undefined;
-		const match = /^([A-Za-z0-9_-]+):\s*(.*)$/.exec(line);
-		if (!match) continue;
-		const [, key, value] = match;
-		if (value.length === 0) {
-			frontmatter[key] = [];
-			currentListKey = key;
-			continue;
-		}
-		frontmatter[key] = value.replace(/^["']|["']$/g, "");
-	}
-	return frontmatter;
 }
 
 function inferIdFromSourceRef(sourceRef: string): string {

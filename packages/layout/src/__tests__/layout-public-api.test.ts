@@ -83,7 +83,6 @@ describe("@cx/layout public API", () => {
 			"layout.area.authCodeEntry",
 			"layout.area.actionStack",
 			"layout.area.productDisclosureAccordion",
-			"layout.area.priceAccordionStackArea",
 			"layout.area.plainInfoTextListArea",
 		] as const;
 		const entriesByLayoutId = new Map(

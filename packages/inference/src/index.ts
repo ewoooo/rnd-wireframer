@@ -1,5 +1,5 @@
 export { createContextStore } from "./context/context-store";
-export type * from "./contracts";
+export * from "./contracts";
 export { createClaudeEngine, createFunctionEngine, type InferenceFunction } from "./engine";
 export { runDeterministicValidation } from "./functions/deterministic-validation";
 export { createInferenceKnowledgeBase } from "./knowledge/knowledge-base";
