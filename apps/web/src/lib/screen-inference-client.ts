@@ -1,14 +1,10 @@
 import { INFERENCE_EVENT_TYPES, type InferenceEvent, type Job, type Step } from "@cx/inference";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
-import {
-	createFailedScreenInferenceStatus,
-	createScreenInferenceProgressStatus,
-	createScreenInferenceStatus,
-	createWaitingReviewStatus,
-	type PipelineStageId,
-	type ScreenInferenceRunCreateResponse,
-	type ScreenInferenceRunStatus,
+import type {
+	ScreenInferenceRunCreateResponse,
+	ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
+import { toScreenInferenceStatus } from "@/lib/screen-inference-status-adapter";
 
 type InferenceSourceUploadResponse = {
 	error?: string;
@@ -27,17 +23,6 @@ const artifactPathByAlias = {
 	"quality-review.json": "steps/08-quality/output.json",
 	"validation-report.json": "context/validation-report.json",
 } as const;
-
-const stageByStepId = {
-	"01-source-spec": "parse-source",
-	"02-screen-intent": "derive-screen-intent",
-	"03-composition": "plan-composition",
-	"04-render-tree": "generate-render-tree",
-	"05-validation": "validate-render-tree",
-	"06-revision": "review-quality",
-	"07-validation-after-revision": "validate-render-tree",
-	"08-quality": "review-quality",
-} as const satisfies Record<string, PipelineStageId>;
 
 export async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
 	const formData = new FormData();
@@ -106,7 +91,7 @@ export async function fetchScreenInferenceRunStatus(
 		fetchInferenceSteps(runId),
 		fetchOptionalInferenceArtifact<{ ok?: boolean }>(runId, "context/apply-result.json"),
 	]);
-	return toScreenInferenceStatus(job, steps, !!applyResult?.ok);
+	return toScreenInferenceStatus({ isApplied: !!applyResult?.ok, job, steps });
 }
 
 export async function fetchScreenInferenceArtifact<T>(
@@ -208,85 +193,6 @@ async function fetchOptionalInferenceArtifact<T>(
 	}
 }
 
-function toScreenInferenceStatus(
-	job: Job,
-	steps: Step[],
-	isApplied: boolean,
-): ScreenInferenceRunStatus {
-	if (isApplied) {
-		return createScreenInferenceStatus({
-			createdAt: job.createdAt,
-			now: job.updatedAt,
-			runId: job.jobId,
-			status: "applied",
-		});
-	}
-	if (job.status === "queued") {
-		return createScreenInferenceStatus({
-			createdAt: job.createdAt,
-			now: job.updatedAt,
-			runId: job.jobId,
-			status: "queued",
-		});
-	}
-	if (job.status === "running") {
-		const stage = readStageForStep(job.currentStepId);
-		return stage
-			? createScreenInferenceProgressStatus({
-					createdAt: job.createdAt,
-					now: job.updatedAt,
-					runId: job.jobId,
-					stage,
-				})
-			: createScreenInferenceStatus({
-					createdAt: job.createdAt,
-					now: job.updatedAt,
-					runId: job.jobId,
-					status: "running",
-				});
-	}
-	if (job.status === "failed") {
-		return createFailedScreenInferenceStatus({
-			createdAt: job.createdAt,
-			error: job.error,
-			now: job.updatedAt,
-			runId: job.jobId,
-			stage: readStageForStep(job.currentStepId) ?? readFailedStage(steps),
-		});
-	}
-	return createWaitingReviewStatus({
-		createdAt: job.createdAt,
-		manifest: {
-			runId: job.jobId,
-			sourcePath: readSourcePath(job.input),
-			summary: {
-				errorCount: 0,
-				ok: true,
-				validationOk: true,
-				warningCount: 0,
-			},
-		},
-		now: job.updatedAt,
-		runId: job.jobId,
-	});
-}
-
 function readArtifactPath(artifactName: string): string {
 	return artifactPathByAlias[artifactName as keyof typeof artifactPathByAlias] ?? artifactName;
-}
-
-function readStageForStep(stepId?: string): PipelineStageId | undefined {
-	return stepId ? stageByStepId[stepId as keyof typeof stageByStepId] : undefined;
-}
-
-function readFailedStage(steps: Step[]): PipelineStageId | undefined {
-	return readStageForStep(steps.find((step) => step.status === "failed")?.stepId);
-}
-
-function readSourcePath(input: unknown): string | undefined {
-	if (!input || typeof input !== "object" || Array.isArray(input)) return undefined;
-	const source = (input as Record<string, unknown>).source;
-	if (!source || typeof source !== "object" || Array.isArray(source)) return undefined;
-	const sourcePath = (source as Record<string, unknown>).path;
-	return typeof sourcePath === "string" ? sourcePath : undefined;
 }

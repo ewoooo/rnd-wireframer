@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	hasValidationReportErrors,
 	readValidationReportErrorCount,
-} from "../policies/validation-report-policy";
+} from "../policies/inference-policy";
 
 describe("validation report policy", () => {
 	it("reads validation error counts from report summaries", () => {

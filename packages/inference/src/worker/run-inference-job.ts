@@ -1,10 +1,16 @@
 import type { InferenceRuntime } from "../contracts";
 import { runStep } from "../pipeline/run-step";
-import { shouldRunInferenceStep } from "../policies/step-run-policy";
-import { recordJobFailed, recordJobStarted, recordJobSucceeded } from "./job-lifecycle";
+import { shouldRunInferenceStep } from "../policies/inference-policy";
+import {
+	recordJobFailed,
+	recordJobStarted,
+	recordJobSucceeded,
+	recordStepFailed,
+	recordStepStarted,
+	recordStepSucceeded,
+} from "./lifecycle";
 import { resolveInput } from "./resolve-input";
 import { writeStepExecutionArtifacts, writeStepOutputArtifact } from "./step-artifacts";
-import { recordStepFailed, recordStepStarted, recordStepSucceeded } from "./step-lifecycle";
 
 export async function runInferenceJob(
 	runtime: InferenceRuntime,

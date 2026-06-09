@@ -1,7 +1,6 @@
 import type { InferenceStepDefinition } from "@cx/inference";
 import { describe, expect, it } from "vitest";
-import { evaluateStepOutputPolicy } from "../policies/step-output-policy";
-import { shouldRunInferenceStep } from "../policies/step-run-policy";
+import { evaluateStepOutputPolicy, shouldRunInferenceStep } from "../policies/inference-policy";
 
 describe("step policies", () => {
 	it("fails output only when the step opts into validation-report failure", () => {

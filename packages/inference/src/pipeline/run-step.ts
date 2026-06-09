@@ -1,6 +1,6 @@
 import { validateJsonSchema } from "@cx/validation";
 import type { InferenceStepDefinition, StepExecution, StepRunContext } from "../contracts";
-import { evaluateStepOutputPolicy } from "../policies/step-output-policy";
+import { evaluateStepOutputPolicy } from "../policies/inference-policy";
 
 const MAX_ATTEMPTS = 2; // initial attempt + one retry
 
