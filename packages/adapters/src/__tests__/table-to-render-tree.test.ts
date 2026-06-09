@@ -12,7 +12,7 @@ describe("@cx/adapters/table", () => {
 
 		expect(result.diagnostics).toEqual([]);
 		expect(renderable?.type).toBe("Screen");
-		expect(renderable?.layout).toBe("layout.screen.screenShell");
+		expect(renderable?.layout).toBe("layout.screen.mobileScreen");
 		expect(renderable?.children.map((child) => child.type)).toEqual([
 			"Screen.Header",
 			"Screen.Contents",
@@ -159,7 +159,7 @@ const renderRowsFixture = {
 	screens: [
 		{
 			id: "screen-1",
-			layout_id: "layout.screen.screenShell",
+			layout_id: "layout.screen.mobileScreen",
 			name: "테이블 화면",
 			screen_variant_id: "variant-1",
 			type: "page",

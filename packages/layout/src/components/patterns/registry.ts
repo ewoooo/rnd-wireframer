@@ -35,12 +35,7 @@ import {
 	createCompositeWrapper,
 } from "./composite/CompositeWrapper";
 import { PlainStackRegion } from "./region/RegionStack";
-import {
-	CardListScreen,
-	CommerceDetailScreen,
-	ScreenShell,
-	TextListScreen,
-} from "./screen/ScreenShell";
+import { MobileScreen } from "./screen/ScreenShell";
 import type { LayoutPatternComponentEntry } from "./types";
 
 const compositePropContractByKey = {
@@ -848,32 +843,11 @@ const screenShellLayouts: Array<{
 	props: LayoutPatternComponentEntry["pattern"]["props"];
 }> = [
 	{
-		component: ScreenShell,
-		componentID: "ScreenShell",
-		layoutId: "layout.screen.screenShell",
-		name: "Screen Shell",
-		props: screenShellProps(["gap"]),
-	},
-	{
-		component: CommerceDetailScreen,
-		componentID: "CommerceDetailScreen",
-		layoutId: "layout.screen.commerceDetailScreen",
-		name: "Commerce Detail Screen",
-		props: screenShellProps(["contentWidth", "gap", "safeArea"]),
-	},
-	{
-		component: TextListScreen,
-		componentID: "TextListScreen",
-		layoutId: "layout.screen.textListScreen",
-		name: "Text List Screen",
-		props: screenShellProps(["contentWidth", "gap", "height", "headerHeight"]),
-	},
-	{
-		component: CardListScreen,
-		componentID: "CardListScreen",
-		layoutId: "layout.screen.cardListScreen",
-		name: "Card List Screen",
-		props: screenShellProps(["contentWidth", "gap"]),
+		component: MobileScreen,
+		componentID: "MobileScreen",
+		layoutId: "layout.screen.mobileScreen",
+		name: "Mobile Screen",
+		props: screenShellProps(["contentWidth", "gap", "safeArea", "height", "headerHeight"]),
 	},
 ];
 

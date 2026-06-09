@@ -38,7 +38,7 @@ describe("@cx/validation validators", () => {
 					type: "Screen",
 					componentVersion: "0.1.0",
 					metadata: { id: "screen", title: "Screen" },
-					layout: "layout.screen.screenShell",
+					layout: "layout.screen.mobileScreen",
 					children: [
 						screenRegion("Screen.Header", "header"),
 						{
@@ -120,7 +120,7 @@ describe("@cx/validation validators", () => {
 			primaryUserAction: "x",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "x",
 			sections: [
 				{
@@ -537,7 +537,7 @@ it("validates composition plan source refs against SourceSpec", () => {
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -575,7 +575,7 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -604,7 +604,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -635,7 +635,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 
 it("warns when RenderTree layout refs are outside pattern candidates", () => {
 	const report = validateRenderTree(validRenderTree(), {
-		allowedLayoutIds: ["layout.screen.screenShell", "layout.region.header"],
+		allowedLayoutIds: ["layout.screen.mobileScreen", "layout.region.header"],
 		componentCatalog: testCatalog,
 	});
 
@@ -706,7 +706,7 @@ function validRenderTree() {
 				type: "Screen",
 				componentVersion: "0.1.0",
 				metadata: { id: "screen", title: "Screen" },
-				layout: "layout.screen.screenShell",
+				layout: "layout.screen.mobileScreen",
 				children: [
 					screenRegion("Screen.Header", "header"),
 					{
@@ -756,7 +756,7 @@ function finalScreenRenderTreeExample() {
 					id: "NOVA-MBR-FP-001-0",
 					title: "약관 동의",
 				},
-				layout: "layout.screen.screenShell",
+				layout: "layout.screen.mobileScreen",
 				children: [
 					{
 						type: "Screen.Header",
@@ -912,7 +912,7 @@ function validTableGenerationResult() {
 			version: "0.1.0",
 			metadata: { title: "Screen 1" },
 			screenVariantId: "screen-1",
-			layout: "layout.screen.commerceDetailScreen",
+			layout: "layout.screen.mobileScreen",
 			screen: {
 				type: "screen.page",
 				regions: {

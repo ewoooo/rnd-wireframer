@@ -9,10 +9,7 @@ type ScreenShellDefaults = {
 
 const defaultScreenWidth = 393;
 
-export const ScreenShell = createScreenShell({ gap: 0 });
-export const CommerceDetailScreen = createScreenShell({ contentWidth: defaultScreenWidth, gap: 0 });
-export const TextListScreen = createScreenShell({ contentWidth: defaultScreenWidth, gap: 0 });
-export const CardListScreen = createScreenShell({ contentWidth: defaultScreenWidth, gap: 0 });
+export const MobileScreen = createScreenShell({ contentWidth: defaultScreenWidth, gap: 0 });
 
 function createScreenShell(defaults: ScreenShellDefaults) {
 	return function ScreenLayout({

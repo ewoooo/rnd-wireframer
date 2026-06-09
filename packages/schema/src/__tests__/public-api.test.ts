@@ -300,7 +300,7 @@ describe("@cx/schema public API", () => {
 				},
 			],
 			schemaVersion: SCHEMA_VERSION.compositionPlan,
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Header, content summary, and bottom action.",
 			sections: [
 				{

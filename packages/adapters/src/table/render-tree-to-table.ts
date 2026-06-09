@@ -51,7 +51,7 @@ export function renderTreeToTableGenerationResult(
 			schemaVersion: SCHEMA_VERSION.tableGenerationResult,
 			screen: {
 				id: screenId,
-				layout: readLayout(screenNode, "layout.screen.commerceDetailScreen", warnings),
+				layout: readLayout(screenNode, "layout.screen.mobileScreen", warnings),
 				metadata: metadataWithTitle(screenNode.metadata),
 				minRendererVersion: renderTree.minRendererVersion,
 				screen: {
