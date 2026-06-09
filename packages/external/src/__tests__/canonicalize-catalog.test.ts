@@ -24,4 +24,25 @@ describe("@cx/external canonicalize-catalog", () => {
 		expect(result.children[0].type).toBe(canonical);
 		expect(result.type).toBe("Screen");
 	});
+
+	it("canonicalizeRenderTree는 type 외 필드(props/metadata)를 보존하고 입력을 변형하지 않는다", () => {
+		const [alias, canonical] = Object.entries(catalogAlias)[0];
+		const input = {
+			type: "Screen",
+			metadata: { id: "root-1", title: "Root" },
+			props: { a: 1 },
+			children: [{ type: alias, metadata: { id: "child-1" }, props: { b: 2 }, children: [] }],
+		};
+		const out = canonicalizeRenderTree(input);
+		// type 치환
+		expect(out.children[0].type).toBe(canonical);
+		// 필드 보존 (root + child)
+		expect(out.metadata).toEqual({ id: "root-1", title: "Root" });
+		expect(out.props).toEqual({ a: 1 });
+		expect(out.children[0].metadata).toEqual({ id: "child-1" });
+		expect(out.children[0].props).toEqual({ b: 2 });
+		// 입력 비변형
+		expect(out).not.toBe(input);
+		expect(input.children[0].type).toBe(alias);
+	});
 });
