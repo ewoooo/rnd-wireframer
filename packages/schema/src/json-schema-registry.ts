@@ -171,7 +171,7 @@ function createDecorationPlanJsonSchema(): JsonSchemaDocument {
 					},
 					sourceAreaId: { type: "string", minLength: 1 },
 					splitFrom: { type: "string", minLength: 1 },
-					targetRegion: { enum: ["bottom", "contents", "header", "overlay"] },
+					targetRegion: { enum: ["bottom", "contents", "header"] },
 				},
 			},
 			diagnostic: {
@@ -354,7 +354,7 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 						items: { type: "string", minLength: 1 },
 					},
 					strategy: { type: "string", minLength: 1 },
-					targetRegion: { enum: ["bottom", "contents", "header", "overlay"] },
+					targetRegion: { enum: ["bottom", "contents", "header"] },
 				},
 			},
 		},

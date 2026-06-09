@@ -58,7 +58,7 @@ These rules are migrated from the removed compatibility inference nodes and are 
 16. Use layout wrappers when the selected region/area pattern describes section grouping, list rails, or divider-separated sections.
 17. Render separation through area stack `props.divider`, not standalone Divider leaf nodes.
 18. Use only `props.divider: "contents" | "section" | "none"`.
-19. Use `contents` only for 1px dividers between repeated row children inside a list, checkbox, or field stack. It must not create a trailing divider after the last row.
+19. Use `contents` for 1px dividers between repeated row children inside a list, checkbox, or field stack. It must not create a trailing divider after the last row. Decide from the source's visual row separation, not from the layout name: some area layouts already render `contents` dividers by default while gap-separated area layouts default to `none`. When the source shows hairline-separated rows but the chosen area layout does not divide rows by default, set `props.divider: "contents"` explicitly. Do not restate `props.divider` when the layout's catalog default already matches the intended separation.
 20. Use `section` only for a trailing area break between two `Screen.Contents` areas. Omit it on the last area and when cards/groups already separate sections.
 21. For a field-side action button such as verify, request, resend, or use-all, use catalog-supported TextField button props. Do not write renderer-owned slot objects such as `rightElement`.
 22. Use source reference catalog entries, props, description, and raw notes as source text evidence for visible labels and descriptions.

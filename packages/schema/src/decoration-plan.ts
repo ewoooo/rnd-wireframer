@@ -40,7 +40,7 @@ export type DecorationArea = {
 	role: DecorationAreaRole;
 	sourceAreaId: string;
 	splitFrom?: string;
-	targetRegion: "bottom" | "contents" | "header" | "overlay";
+	targetRegion: "bottom" | "contents" | "header";
 };
 
 export type DecorationDiagnostic = {

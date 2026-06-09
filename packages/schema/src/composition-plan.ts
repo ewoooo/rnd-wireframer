@@ -5,7 +5,7 @@ export type CompositionPlanSection = {
 	role: "bottom-action" | "content" | "feedback" | "form" | "header" | "summary";
 	sourceRefs: string[];
 	strategy: string;
-	targetRegion: "bottom" | "contents" | "header" | "overlay";
+	targetRegion: "bottom" | "contents" | "header";
 };
 
 export type CompositionPlanDensity = "high" | "low" | "medium";
