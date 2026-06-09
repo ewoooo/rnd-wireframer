@@ -1,6 +1,6 @@
 import { listCatalog } from "@cx/layout/catalog";
 import { describe, expect, it } from "vitest";
-import { compositeDefaults } from "../components/patterns/composite/presets";
+import { compositeDefaults } from "../components/composites/presets";
 
 describe("composite presets ↔ catalog 완전성", () => {
 	it("모든 composite catalog entry는 defaults preset을 가진다", () => {

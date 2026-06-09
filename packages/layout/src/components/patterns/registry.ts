@@ -31,6 +31,7 @@ import {
 	TabChipSearchAccordionArea,
 	TextListGroupArea,
 } from "../areas";
+import { MobileScreen } from "../chromes/MobileScreen";
 import {
 	ComponentAccordionComposite,
 	ComponentAccordionNoticeInfoComposite,
@@ -81,9 +82,8 @@ import {
 	CompositeSummarySectionedInfoListComposite,
 	CompositeTabChipSearchAccordionListComposite,
 	CompositeTitleInfoTextListComposite,
-} from "./composite";
+} from "../composites";
 import { PlainStackRegion } from "../regions/RegionStack";
-import { MobileScreen } from "../chromes/MobileScreen";
 import type { LayoutPatternComponent, LayoutPatternComponentEntry } from "./types";
 
 // layoutId → 실제 렌더 named component. 계약 데이터(props/name/children/status)는 catalog가 소유한다.
@@ -169,8 +169,7 @@ const COMPONENTS_BY_LAYOUT_ID: Record<string, LayoutPatternComponent> = {
 	"layout.composite.compositeListProductHorizontalCardSet":
 		CompositeListProductHorizontalCardSetComposite,
 	"layout.composite.compositeListProductRowCardSet": CompositeListProductRowCardSetComposite,
-	"layout.composite.compositePagestackProductCardList":
-		CompositePagestackProductCardListComposite,
+	"layout.composite.compositePagestackProductCardList": CompositePagestackProductCardListComposite,
 	"layout.composite.componentActionButton": ComponentActionButtonComposite,
 	"layout.composite.componentActionButtonWithTooltip": ComponentActionButtonWithTooltipComposite,
 	"layout.composite.compositePriceAccordionSelectedList":
