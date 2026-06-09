@@ -9,6 +9,7 @@
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages && node scripts/check-inference-boundaries.mjs",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
+		"sync:layout": "tsx scripts/sync-layout-catalog/index.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
