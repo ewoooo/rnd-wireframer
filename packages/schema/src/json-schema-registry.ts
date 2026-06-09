@@ -1,6 +1,10 @@
 import type { GenerationArtifactKind } from "./artifact-kind";
 import { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
-import { RENDER_TREE_AREA_NODE_TYPES } from "./render-tree";
+import {
+	RENDER_TREE_AREA_NODE_TYPES,
+	RENDER_TREE_NODE_TYPE,
+	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
+} from "./render-tree";
 import { SCHEMA_VERSION } from "./versions";
 
 export type JsonSchemaDocument = Record<string, unknown> & {
@@ -462,7 +466,7 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 			data: { type: "object" },
 			children: {
 				type: "array",
-				items: { $ref: "#/$defs/renderTreeNode" },
+				items: { $ref: "#/$defs/screenNode" },
 			},
 		},
 		$defs: {
@@ -532,7 +536,75 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 					},
 				},
 			},
-			renderTreeNode: {
+			nodeStyle: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					background: { type: "string" },
+					opacity: { type: "number" },
+				},
+			},
+			// Layered node defs mirror the structural skeleton so the model is told
+			// the exact allowed `type` per level (derived from RENDER_TREE_NODE_TYPE)
+			// instead of an "any string" type. Recursion is confined to componentNode.
+			screenNode: {
+				type: "object",
+				additionalProperties: false,
+				required: ["type", "componentVersion", "metadata", "layout", "children"],
+				properties: {
+					type: { const: RENDER_TREE_NODE_TYPE.screen },
+					componentVersion: { type: "string", minLength: 1 },
+					metadata: { $ref: "#/$defs/renderTreeNodeMetadata" },
+					layout: layoutIdSchema("screen"),
+					props: { $ref: "#/$defs/props" },
+					className: { type: "string" },
+					style: { $ref: "#/$defs/nodeStyle" },
+					display: { $ref: "#/$defs/display" },
+					children: {
+						type: "array",
+						items: { $ref: "#/$defs/regionNode" },
+					},
+				},
+			},
+			regionNode: {
+				type: "object",
+				additionalProperties: false,
+				required: ["type", "componentVersion", "metadata", "layout", "children"],
+				properties: {
+					type: { enum: [...RENDER_TREE_SCREEN_REGION_NODE_TYPES] },
+					componentVersion: { type: "string", minLength: 1 },
+					metadata: { $ref: "#/$defs/renderTreeNodeMetadata" },
+					layout: layoutIdSchema("region"),
+					props: { $ref: "#/$defs/props" },
+					className: { type: "string" },
+					style: { $ref: "#/$defs/nodeStyle" },
+					display: { $ref: "#/$defs/display" },
+					children: {
+						type: "array",
+						items: { $ref: "#/$defs/areaNode" },
+					},
+				},
+			},
+			areaNode: {
+				type: "object",
+				additionalProperties: false,
+				required: ["type", "componentVersion", "metadata", "layout", "children"],
+				properties: {
+					type: { enum: [...RENDER_TREE_AREA_NODE_TYPES] },
+					componentVersion: { type: "string", minLength: 1 },
+					metadata: { $ref: "#/$defs/renderTreeNodeMetadata" },
+					layout: layoutIdSchema("area"),
+					props: { $ref: "#/$defs/props" },
+					className: { type: "string" },
+					style: { $ref: "#/$defs/nodeStyle" },
+					display: { $ref: "#/$defs/display" },
+					children: {
+						type: "array",
+						items: { $ref: "#/$defs/componentNode" },
+					},
+				},
+			},
+			componentNode: {
 				type: "object",
 				additionalProperties: false,
 				required: ["type", "componentVersion", "metadata"],
@@ -540,23 +612,14 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 					type: { type: "string", minLength: 1 },
 					componentVersion: { type: "string", minLength: 1 },
 					metadata: { $ref: "#/$defs/renderTreeNodeMetadata" },
-					layout: {
-						...layoutIdSchema(),
-					},
+					layout: layoutIdSchema(),
 					props: { $ref: "#/$defs/props" },
 					className: { type: "string" },
-					style: {
-						type: "object",
-						additionalProperties: false,
-						properties: {
-							background: { type: "string" },
-							opacity: { type: "number" },
-						},
-					},
+					style: { $ref: "#/$defs/nodeStyle" },
 					display: { $ref: "#/$defs/display" },
 					children: {
 						type: "array",
-						items: { $ref: "#/$defs/renderTreeNode" },
+						items: { $ref: "#/$defs/componentNode" },
 					},
 				},
 			},
