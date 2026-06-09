@@ -4,7 +4,7 @@
 
 **Goal:** `@cx/external`(vendored kiki)을 컴포넌트 SSOT로 승격하고 `@cx/components`의 resolver를 이식한 뒤 `@cx/components`를 삭제한다.
 
-**Architecture:** 카탈로그 contract 타입은 `@cx/schema`로 편입한다. `@cx/external`은 자동생성 `catalog`(데이터) + `registry`(렌더러 표면) + 새 `resolver`(alias 제거, source→status 유도) + `puck` 표면을 제공한다. type 네임스페이스는 `kiki.X`로 일관 유지하고, `kiki.X`→React export(`X`) 변환은 renderer의 컴포넌트 조회 경계 한 곳에서 접두사 strip 단일 규칙으로 처리한다. 모든 소비자(renderer/layout/validation/inference/apps-web/scripts)는 import를 재배선한다.
+**Architecture:** 카탈로그 contract 타입은 `@cx/schema`로 편입한다. `@cx/external`은 5-파일 lookup 표면을 제공한다: `catalog.generated.ts`(자동생성 데이터) + `registry.generated.ts`(renderer-private 컴포넌트 표면) + `catalog.alias.ts`(손저작 alias→canonical) + `canonicalize-catalog.ts`(alias 무결성 검증 + `canonicalizeNodeType`/`canonicalizeRenderTree` write-back helper) + `resolver.ts`(외부 소비자 데이터 lookup, source→status 유도). type 네임스페이스는 `kiki.X`로 일관 유지하고, `kiki.X`→React export(`X`) 변환은 renderer의 컴포넌트 조회 경계 한 곳에서 접두사 strip 단일 규칙으로 처리한다. **alias 캐논화는 persist 경계(write-back)에서 1회 적용** — 생성 파이프라인에 깔끔한 Register 단계가 없으므로(LLM이 node.type을 직접 생성), render-tree가 DB로 굳는 지점에서 트리를 canonical로 치환한다. 그 결과 DB-load 트리만 보는 하류(renderer/matcher/validator)는 canonical만 보며 alias 처리 코드를 전부 삭제한다. 모든 소비자는 import를 재배선한다.
 
 **Tech Stack:** pnpm workspace(글롭 `packages/*`), TypeScript(moduleResolution: Bundler, noEmit), Vitest, React 19, Next.js.
 
@@ -20,21 +20,27 @@
 - `packages/schema/src/component-catalog.ts` — 카탈로그 contract 타입 SSOT
 - `packages/schema/src/__tests__/component-catalog.test.ts` — contract 타입 shape 테스트
 - `packages/external/**` — Desktop의 `@cx/external` 패키지 land(복사)
-- `packages/external/src/public/resolver.ts` — 이식된 resolver(alias 제거)
-- `packages/external/src/public/puck.ts` — 이식된 puck 표면
-- `packages/external/src/public/__tests__/resolver.test.ts` — resolver 테스트
+- `packages/external/src/resolver.ts` — 외부 소비자 데이터 lookup API(alias 제거, getComponentPropContract 드롭)
+- `packages/external/src/puck.ts` — 이식된 puck 표면
+- `packages/external/src/catalog.alias.ts` — 손저작 alias→canonical 맵
+- `packages/external/src/canonicalize-catalog.ts` — alias 무결성 검증 + `canonicalizeNodeType`/`canonicalizeRenderTree`
+- `packages/external/src/__tests__/canonicalize-catalog.test.ts` — alias 무결성 + write-back 테스트
+- `packages/external/src/__tests__/resolver.test.ts` — resolver 테스트
+- `scripts/migrate-canonicalize-node-types.ts` — 기존 DB rows 1회성 canonical write-back(dry-run 지원)
 
 수정:
 - `packages/schema/src/index.ts` — 새 contract 타입 재노출, `ComponentCatalogData.entries` 타입드화
 - `packages/schema/src/inference-reference.ts` — `ComponentCatalogData.entries: ComponentCatalogEntry[]`
-- `packages/external/package.json` — dep `@cx/types`→`@cx/schema`, exports에 `./resolver`·`./puck` 추가
-- `packages/external/src/catalog.ts` — import `@cx/types/component-catalog`→`@cx/schema`
-- `packages/renderer/src/adapters/resolve-component.tsx` — 재배선 + 접두사 strip 규칙
+- `packages/external/package.json` — dep `@cx/types`→`@cx/schema`, exports에 `./resolver`·`./puck`·`./canonicalize` 추가, `./catalog`→`catalog.generated.ts`
+- `packages/external/src/catalog.ts` → `catalog.generated.ts`로 리네임 + import `@cx/types/component-catalog`→`@cx/schema`
+- `apps/web/src/app/api/inference/[jobId]/apply/route.ts` — render-tree.json 읽은 직후 `canonicalizeRenderTree` 적용(write-back chokepoint)
+- `apps/web/src/lib/screen-db-save.ts` — `saveScreenTreeOrder` projecting 전 `canonicalizeRenderTree` 적용(방어적 write-back)
+- `packages/renderer/src/adapters/resolve-component.tsx` — 재배선 + 접두사 strip 규칙 + alias fallback 삭제
 - `packages/renderer/src/adapters/build-component-props.ts` — 재배선
-- `packages/layout/src/pattern-internal/matcher.ts` — 재배선
+- `packages/layout/src/pattern-internal/matcher.ts` — 재배선 + **alias/kind 신호 루프 삭제**
 - `packages/layout/src/components/patterns/shared/divider.tsx` — 재배선
-- `packages/layout/src/__tests__/layout-catalog.test.ts` — 재배선
-- `packages/validation/src/public/validators.ts` — 재배선(타입→schema)
+- `packages/layout/src/__tests__/layout-catalog.test.ts` — 재배선 + alias/kind 단언 삭제
+- `packages/validation/src/public/validators.ts` — 재배선(타입→schema) + **alias 역해석 삭제**
 - `packages/validation/src/__tests__/validators.test.ts` — 재배선
 - `packages/inference/src/knowledge/knowledge-base.ts` — 재배선
 - `packages/inference/src/functions/deterministic-validation.ts` — 재배선
@@ -238,7 +244,7 @@ git commit -m "feat(schema): 컴포넌트 카탈로그 contract 타입 편입 (k
 
 **Files:**
 - Create: `packages/external/**` (복사)
-- Modify: `packages/external/package.json`, `packages/external/src/catalog.ts`, `tsconfig.json`, `apps/web/next.config.ts`
+- Modify: `packages/external/package.json`, `packages/external/src/catalog.generated.ts`(리네임), `tsconfig.json`, `apps/web/next.config.ts`
 
 - [ ] **Step 1: Desktop 패키지를 packages/external로 복사**
 
@@ -249,9 +255,10 @@ cp -R /Users/plusx/Desktop/component-v2/src packages/external/src
 cp /Users/plusx/Desktop/component-v2/package.json packages/external/package.json
 cp /Users/plusx/Desktop/component-v2/external.lock.json packages/external/external.lock.json
 cp /Users/plusx/Desktop/component-v2/KIKI-SHIM.md packages/external/KIKI-SHIM.md
-ls packages/external/src/catalog.ts packages/external/src/registry.generated.ts packages/external/src/index.ts
+git -C packages/external mv src/catalog.ts src/catalog.generated.ts 2>/dev/null || mv packages/external/src/catalog.ts packages/external/src/catalog.generated.ts
+ls packages/external/src/catalog.generated.ts packages/external/src/registry.generated.ts packages/external/src/index.ts
 ```
-Expected: 세 파일 경로 출력(존재).
+Expected: 세 파일 경로 출력(존재). `catalog.ts`는 `catalog.generated.ts`로 리네임됨(auto-generated 신호, registry.generated와 일관).
 
 - [ ] **Step 2: package.json 의존/exports 수정**
 
@@ -265,10 +272,11 @@ Expected: 세 파일 경로 출력(존재).
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./catalog": "./src/catalog.ts",
+		"./catalog": "./src/catalog.generated.ts",
 		"./registry": "./src/registry.generated.ts",
-		"./resolver": "./src/public/resolver.ts",
-		"./puck": "./src/public/puck.ts"
+		"./resolver": "./src/resolver.ts",
+		"./puck": "./src/puck.ts",
+		"./canonicalize": "./src/canonicalize-catalog.ts"
 	},
 	"dependencies": {
 		"@cx/schema": "workspace:*"
@@ -279,9 +287,9 @@ Expected: 세 파일 경로 출력(존재).
 }
 ```
 
-- [ ] **Step 3: vendored catalog.ts의 type import 재배선**
+- [ ] **Step 3: catalog.generated.ts type import 재배선 + 내부 참조 갱신**
 
-`packages/external/src/catalog.ts` 1줄 변경:
+`packages/external/src/catalog.generated.ts` 1줄 변경:
 
 ```ts
 // 기존
@@ -289,6 +297,13 @@ import type { ComponentCatalog } from "@cx/types/component-catalog";
 // 변경
 import type { ComponentCatalog } from "@cx/schema";
 ```
+
+리네임으로 끊긴 내부 import를 갱신한다(registry.generated/index 등이 `./catalog`를 참조할 수 있음):
+
+```bash
+grep -rn "\"\./catalog\"\|'\./catalog'\|/catalog\"" packages/external/src --include="*.ts" | grep -v catalog.generated
+```
+Expected: `./catalog`를 참조하는 줄 목록. 각 줄을 `./catalog.generated`로 수정(없으면 스킵).
 
 - [ ] **Step 4: tsconfig에 vendored 컴포넌트 exclude 추가 (KIKI-SHIM 지침)**
 
@@ -318,14 +333,14 @@ Expected: `@cx/external`이 `@cx/schema`를 workspace로 링크, 에러 없음.
 - [ ] **Step 7: external 카탈로그 타입 해석 확인**
 
 Run: `pnpm vitest run packages/schema/src/__tests__/component-catalog.test.ts`
-(catalog.ts가 @cx/schema의 `ComponentCatalog`로 타입드되는지는 다음 Task의 resolver 테스트에서 실증)
+(catalog.generated.ts가 @cx/schema의 `ComponentCatalog`로 타입드되는지는 다음 Task의 resolver 테스트에서 실증)
 Expected: PASS
 
 - [ ] **Step 8: 커밋**
 
 ```bash
-git add packages/external packages/external/package.json tsconfig.json apps/web/next.config.ts pnpm-lock.yaml
-git commit -m "chore(external): @cx/external land + @cx/schema 배선"
+git add packages/external packages/external/package.json packages/external/src/catalog.generated.ts tsconfig.json apps/web/next.config.ts pnpm-lock.yaml
+git commit -m "chore(external): @cx/external land + catalog.generated 리네임 + @cx/schema 배선"
 ```
 
 ---
@@ -335,12 +350,12 @@ git commit -m "chore(external): @cx/external land + @cx/schema 배선"
 ### Task C1: resolver 이식 (alias 제거, source→status 유도)
 
 **Files:**
-- Create: `packages/external/src/public/resolver.ts`
-- Test: `packages/external/src/public/__tests__/resolver.test.ts`
+- Create: `packages/external/src/resolver.ts`
+- Test: `packages/external/src/__tests__/resolver.test.ts`
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`packages/external/src/public/__tests__/resolver.test.ts`:
+`packages/external/src/__tests__/resolver.test.ts`:
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -349,7 +364,6 @@ import {
 	getComponentCatalogEntry,
 	getComponentCatalogStatus,
 	getComponentCatalogTypes,
-	getComponentPropContract,
 	listCandidateComponentEntries,
 	resolveComponentCatalogForInference,
 } from "../resolver";
@@ -370,11 +384,6 @@ describe("@cx/external resolver", () => {
 		const candidates = listCandidateComponentEntries();
 		expect(candidates.length).toBeGreaterThan(0);
 		expect(candidates.every((e) => e.source === "kiki-draft")).toBe(true);
-	});
-
-	it("getComponentPropContract는 prop contract를 반환한다", () => {
-		expect(getComponentPropContract("kiki.AppBar", "title")?.type).toBe("string");
-		expect(getComponentPropContract("kiki.AppBar", "nope")).toBeUndefined();
 	});
 
 	it("getComponentCatalogTypes는 정렬된 키 목록", () => {
@@ -398,22 +407,21 @@ describe("@cx/external resolver", () => {
 
 - [ ] **Step 2: 테스트 실패 확인**
 
-Run: `pnpm vitest run packages/external/src/public/__tests__/resolver.test.ts`
+Run: `pnpm vitest run packages/external/src/__tests__/resolver.test.ts`
 Expected: FAIL — `../resolver` 모듈 없음.
 
 - [ ] **Step 3: resolver 작성**
 
-`packages/external/src/public/resolver.ts`:
+`packages/external/src/resolver.ts`:
 
 ```ts
 import {
 	type ComponentCatalogEntry,
 	type ComponentCatalogObject,
 	type ComponentCatalogStatus,
-	type ComponentPropContract,
 	SSOT_OBJECT_SCHEMA_VERSION,
 } from "@cx/schema";
-import { externalCatalog } from "../catalog";
+import { externalCatalog } from "./catalog.generated";
 
 export const componentCatalog = externalCatalog;
 
@@ -423,13 +431,6 @@ const entries = Object.entries(externalCatalog) as Array<[string, ComponentCatal
 
 export function getComponentCatalogEntry(type: string): ComponentCatalogEntry | undefined {
 	return externalCatalog[type];
-}
-
-export function getComponentPropContract(
-	type: string,
-	propName: string,
-): ComponentPropContract | undefined {
-	return getComponentCatalogEntry(type)?.props[propName];
 }
 
 export function getComponentCatalogTypes(): string[] {
@@ -467,26 +468,26 @@ export function resolveComponentCatalogForInference(): ComponentCatalogObject {
 
 - [ ] **Step 4: 테스트 통과 확인**
 
-Run: `pnpm vitest run packages/external/src/public/__tests__/resolver.test.ts`
-Expected: PASS (7 tests)
+Run: `pnpm vitest run packages/external/src/__tests__/resolver.test.ts`
+Expected: PASS (6 tests)
 
-만약 `kiki.AppBar`가 catalog에 없으면(테스트 1 실패) `packages/external/src/catalog.ts`에서 실제 barrel 컴포넌트 키 하나를 골라 테스트 픽스처를 교체(예: `kiki.Button`). barrel 컴포넌트는 `external.lock.json`의 `barrelExports`로 확인 가능.
+만약 `kiki.AppBar`가 catalog에 없으면(테스트 1 실패) `packages/external/src/catalog.generated.ts`에서 실제 barrel 컴포넌트 키 하나를 골라 테스트 픽스처를 교체(예: `kiki.Button`). barrel 컴포넌트는 `external.lock.json`의 `barrelExports`로 확인 가능.
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add packages/external/src/public/resolver.ts packages/external/src/public/__tests__/resolver.test.ts
+git add packages/external/src/resolver.ts packages/external/src/__tests__/resolver.test.ts
 git commit -m "feat(external): resolver 이식 (alias 제거, source→status 유도)"
 ```
 
 ### Task C2: puck 표면 이식
 
 **Files:**
-- Create: `packages/external/src/public/puck.ts`
+- Create: `packages/external/src/puck.ts`
 
 - [ ] **Step 1: 구 puck.ts를 external로 이식**
 
-`packages/component/src/public/puck.ts` 전체를 `packages/external/src/public/puck.ts`로 복사하되 import 2줄을 변경:
+`packages/component/src/public/puck.ts` 전체를 `packages/external/src/puck.ts`로 복사하되 import 2줄을 변경:
 
 ```ts
 // 기존
@@ -502,15 +503,142 @@ import type { ComponentCatalogEntry } from "@cx/schema";
 
 - [ ] **Step 2: puck 표면 타입체크(스모크)**
 
-Run: `pnpm vitest run packages/external/src/public/__tests__/resolver.test.ts`
+Run: `pnpm vitest run packages/external/src/__tests__/resolver.test.ts`
 (puck 전용 테스트는 apps/web 통합에서 검증되므로 여기선 모듈이 깨지지 않는지만 확인. 별도 실패 테스트 불요 — 순수 이식.)
 Expected: PASS (기존 resolver 테스트 유지)
 
 - [ ] **Step 3: 커밋**
 
 ```bash
-git add packages/external/src/public/puck.ts
+git add packages/external/src/puck.ts
 git commit -m "feat(external): puck 표면 이식"
+```
+
+### Task C3: alias 맵(`catalog.alias.ts`) + 캐논화 helper(`canonicalize-catalog.ts`)
+
+**Files:**
+- Create: `packages/external/src/catalog.alias.ts`, `packages/external/src/canonicalize-catalog.ts`, `packages/external/src/__tests__/canonicalize-catalog.test.ts`
+
+- [ ] **Step 1: 구 @cx/components의 alias를 canonical kiki.X로 번역해 추출**
+
+구 alias는 `packages/component/src/internal/component-entries.ts`·`candidate-entries.ts`의 각 엔트리 `aliases`에 있다. 각 alias 문자열 → 그 엔트리의 새 canonical(`kiki.<엔트리이름>`)로 매핑한다. 예: AppBar 엔트리의 `["app-bar","appbar","AppBarHeaderTopNav"]` → 모두 `"kiki.AppBar"`.
+
+Run(추출 보조):
+```bash
+grep -rn "aliases:" packages/component/src/internal/component-entries.ts packages/component/src/internal/candidate-entries.ts
+```
+Expected: 각 엔트리의 alias 배열 목록. 이를 보고 아래 맵을 채운다.
+
+- [ ] **Step 2: 실패하는 무결성 + write-back 테스트 작성**
+
+`packages/external/src/__tests__/canonicalize-catalog.test.ts`:
+
+```ts
+import { describe, expect, it } from "vitest";
+import { externalCatalog } from "../catalog.generated";
+import { catalogAlias } from "../catalog.alias";
+import { canonicalizeNodeType, canonicalizeRenderTree } from "../canonicalize-catalog";
+
+describe("@cx/external canonicalize-catalog", () => {
+	it("모든 alias 값은 실제 catalog 키(canonical)다", () => {
+		for (const canonical of Object.values(catalogAlias)) {
+			expect(externalCatalog[canonical], `alias→${canonical} 미존재`).toBeDefined();
+		}
+	});
+
+	it("canonicalizeNodeType은 alias를 canonical로, 미등록은 그대로 반환", () => {
+		const [alias, canonical] = Object.entries(catalogAlias)[0] ?? ["app-bar", "kiki.AppBar"];
+		expect(canonicalizeNodeType(alias)).toBe(canonical);
+		expect(canonicalizeNodeType("kiki.AppBar")).toBe("kiki.AppBar");
+		expect(canonicalizeNodeType("unknown.Thing")).toBe("unknown.Thing");
+	});
+
+	it("canonicalizeRenderTree는 트리 전체 node.type을 canonical로 치환한다", () => {
+		const [alias, canonical] = Object.entries(catalogAlias)[0] ?? ["app-bar", "kiki.AppBar"];
+		const tree = { type: "Screen", children: [{ type: alias, children: [] }] };
+		const result = canonicalizeRenderTree(tree);
+		expect(result.children[0].type).toBe(canonical);
+		expect(result.type).toBe("Screen"); // 구조 노드는 불변
+	});
+});
+```
+
+- [ ] **Step 3: 테스트 실패 확인**
+
+Run: `pnpm vitest run packages/external/src/__tests__/canonicalize-catalog.test.ts`
+Expected: FAIL — `../catalog.alias`/`../canonicalize-catalog` 모듈 없음.
+
+- [ ] **Step 4: catalog.alias.ts 작성**
+
+`packages/external/src/catalog.alias.ts` (Step 1에서 번역한 매핑으로 채움 — 아래는 형태 예시):
+
+```ts
+// 손으로 유지하는 alias → canonical(kiki.X) 매핑.
+// canonicalize-catalog.ts에서만 소비된다. 값은 반드시 catalog의 실제 키여야 한다(무결성 검증이 강제).
+export const catalogAlias: Record<string, string> = {
+	"app-bar": "kiki.AppBar",
+	appbar: "kiki.AppBar",
+	AppBarHeaderTopNav: "kiki.AppBar",
+	badge: "kiki.Badge",
+	BadgeProductStatus: "kiki.Badge",
+	button: "kiki.Button",
+	accordion: "kiki.AccordionPriceInfo",
+	// ... Step 1에서 추출한 나머지 전부
+};
+```
+
+주의: 구 alias가 가리키던 컴포넌트가 새 kiki 카탈로그에 없으면(이름 변경/미존재) 그 alias는 제외하거나 가장 가까운 canonical로 보정한다. 무결성 검증이 미존재 canonical을 잡아낸다.
+
+- [ ] **Step 5: canonicalize-catalog.ts 작성**
+
+`packages/external/src/canonicalize-catalog.ts`:
+
+```ts
+import { externalCatalog } from "./catalog.generated";
+import { catalogAlias } from "./catalog.alias";
+
+// alias 맵의 모든 값이 실제 catalog 키인지 모듈 로드 시 검증한다.
+// (write-back은 persist 경계에서만 호출되므로, 잘못된 alias는 가능한 한 빨리 깨야 한다.)
+export function assertAliasIntegrity(): void {
+	const missing = Object.entries(catalogAlias).filter(([, canonical]) => !externalCatalog[canonical]);
+	if (missing.length > 0) {
+		throw new Error(
+			`catalog.alias.ts: 다음 alias가 미존재 canonical을 가리킴 → ${missing
+				.map(([alias, canonical]) => `${alias}→${canonical}`)
+				.join(", ")}`,
+		);
+	}
+}
+
+assertAliasIntegrity();
+
+/** alias면 canonical로, 아니면 입력 그대로. */
+export function canonicalizeNodeType(type: string): string {
+	return catalogAlias[type] ?? type;
+}
+
+type CanonicalizableNode = { type: string; children?: CanonicalizableNode[] };
+
+/** 트리 깊이우선 워크: 각 node.type을 canonicalizeNodeType으로 치환한 새 트리를 반환(write-back). */
+export function canonicalizeRenderTree<T extends CanonicalizableNode>(node: T): T {
+	return {
+		...node,
+		type: canonicalizeNodeType(node.type),
+		...(node.children ? { children: node.children.map((child) => canonicalizeRenderTree(child)) } : {}),
+	};
+}
+```
+
+- [ ] **Step 6: 테스트 통과 확인**
+
+Run: `pnpm vitest run packages/external/src/__tests__/canonicalize-catalog.test.ts`
+Expected: PASS (3 tests)
+
+- [ ] **Step 7: 커밋**
+
+```bash
+git add packages/external/src/catalog.alias.ts packages/external/src/canonicalize-catalog.ts packages/external/src/__tests__/canonicalize-catalog.test.ts
+git commit -m "feat(external): catalog.alias 맵 + canonicalize-catalog write-back helper"
 ```
 
 ---
@@ -518,6 +646,117 @@ git commit -m "feat(external): puck 표면 이식"
 ## Phase D — 소비자 재배선
 
 각 Task는 import 경로만 바꾸고 해당 패키지 테스트로 검증한다. 타입은 `@cx/schema`, resolver/catalog 값은 `@cx/external/*`.
+
+### Task D0: persist 경계 write-back 캐논화 + 마이그레이션 스크립트
+
+**Files:**
+- Modify: `apps/web/src/app/api/inference/[jobId]/apply/route.ts`, `apps/web/src/lib/screen-db-save.ts`, `apps/web/package.json`
+- Create: `scripts/migrate-canonicalize-node-types.ts`
+
+**배경:** 생성 파이프라인엔 깔끔한 단일 Register 단계가 없다 — LLM이 `04-render-tree` 스텝에서 node.type을 raw로 직접 만들고 `run-step.ts`는 그대로 context에 기록한다. 대신 **render-tree가 DB로 materialize되는 persist 경계**가 코드에 실재하는 단일 chokepoint다(`apply/route.ts` → `applyScreenInferenceFinalResult`, `screen-db-save.ts` → `saveScreenTreeOrder`). 이 지점에서 `canonicalizeRenderTree`로 트리를 canonical로 굳히면 DB엔 canonical만 저장되고, DB-load 트리만 보는 renderer/matcher/validator는 canonical만 본다. in-pipeline validation(05/07)은 raw 트리에 작동하나 catalog knowledge가 canonical만 노출하므로 그 트리도 이미 canonical이라 alias 처리가 불필요하다.
+
+- [ ] **Step 1: apps/web에 @cx/external dep 추가**
+
+`apps/web/package.json`에 `"@cx/external": "workspace:*"`가 없으면 추가(D5에서 다른 import도 재배선되며, 여기서 먼저 dep을 건다). 후 `pnpm install`.
+
+- [ ] **Step 2: 실패하는 write-back 통합 테스트 작성**
+
+`apps/web/src/lib/__tests__/canonicalize-apply.test.ts` 신설:
+
+```ts
+import { describe, expect, it } from "vitest";
+import { canonicalizeRenderTree } from "@cx/external/canonicalize";
+
+describe("apply write-back: render-tree 캐논화", () => {
+	it("alias node.type을 가진 트리가 canonical로 치환된다", () => {
+		const tree = {
+			type: "Screen",
+			children: [{ type: "app-bar", children: [] }],
+		};
+		const canonical = canonicalizeRenderTree(tree);
+		expect(canonical.children[0].type).toBe("kiki.AppBar");
+	});
+});
+```
+(실제 alias 키는 C3에서 확정된 값으로 맞춘다. 핵심은 apply 경로가 `canonicalizeRenderTree`를 경유함을 고정하는 것.)
+
+- [ ] **Step 3: 테스트 실패 확인**
+
+Run: `pnpm vitest run apps/web/src/lib/__tests__/canonicalize-apply.test.ts`
+Expected: FAIL — import 또는 alias 매핑 불일치(모듈 배선 전).
+
+- [ ] **Step 4: apply route에 write-back 적용**
+
+`apps/web/src/app/api/inference/[jobId]/apply/route.ts` — `applyScreenInferenceFinalResult`에 넘기기 전 캐논화:
+
+```ts
+// 상단 import 추가
+import { canonicalizeRenderTree } from "@cx/external/canonicalize";
+// ...
+// 기존
+const result = await applyScreenInferenceFinalResult({
+	node: readScreenNode(finalResult),
+});
+// 변경
+const result = await applyScreenInferenceFinalResult({
+	node: canonicalizeRenderTree(readScreenNode(finalResult)),
+});
+```
+
+- [ ] **Step 5: save route에 방어적 write-back 적용**
+
+`apps/web/src/lib/screen-db-save.ts`의 `saveScreenTreeOrder` 진입부 — projecting 전 `input.node`를 캐논화:
+
+```ts
+// 상단 import 추가
+import { canonicalizeRenderTree } from "@cx/external/canonicalize";
+// 함수 본문 첫 줄에서 node를 캐논화한 값으로 교체(이후 로직은 canonical node를 사용)
+const node = canonicalizeRenderTree(input.node);
+```
+(editor는 보통 canonical을 로드/저장하므로 방어적이지만, 임포트·외부 주입 대비 안전망.)
+
+- [ ] **Step 6: 마이그레이션 스크립트 작성 (기존 DB rows write-back)**
+
+먼저 DB row의 type 컬럼/접근 경로를 핀포인트:
+```bash
+grep -rn "catalog_component_type\|from(\|render_screens\|supabase" apps/web/src/lib/screen-db-loader.ts apps/web/src/lib/screen-inference-persistence.ts | head -20
+```
+Expected: 컴포넌트 row의 type 컬럼명(`catalog_component_type` 등)과 supabase 테이블/클라이언트 접근 코드.
+
+`scripts/migrate-canonicalize-node-types.ts` 작성 — 위 핀포인트로 확인한 테이블의 type 컬럼을 읽어 `canonicalizeNodeType`을 적용, 변경분만 write-back. `--dry-run`(기본)은 변경 후보만 출력하고, `--apply`일 때만 기록:
+
+```ts
+import { canonicalizeNodeType } from "@cx/external/canonicalize";
+// supabase 클라이언트는 screen-db-loader가 쓰는 것과 동일 경로에서 import(Step6 grep으로 확인).
+
+const APPLY = process.argv.includes("--apply");
+
+async function main() {
+	// 1) 컴포넌트 type을 보유한 모든 row 조회(catalog_component_type 등).
+	// 2) 각 row: const next = canonicalizeNodeType(row.<typeCol>);
+	// 3) next !== 현재값인 row만 후보. 출력: `${id}: ${현재} → ${next}`.
+	// 4) APPLY면 해당 컬럼을 next로 update. 아니면 건수만 보고.
+	// (정확한 테이블/컬럼/클라이언트는 Step6 grep 결과로 채운다.)
+}
+
+main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
+```
+
+- [ ] **Step 7: 테스트 통과 + dry-run 스모크**
+
+Run:
+```bash
+pnpm vitest run apps/web/src/lib/__tests__/canonicalize-apply.test.ts
+pnpm exec tsx scripts/migrate-canonicalize-node-types.ts   # dry-run, 후보 건수 출력(DB 미연결이면 연결 에러는 허용 — 코드 컴파일/배선만 확인)
+```
+Expected: 테스트 PASS. 스크립트가 컴파일되고 dry-run 모드로 동작(또는 DB 연결 가이드 출력).
+
+- [ ] **Step 8: 커밋**
+
+```bash
+git add apps/web/src/app/api/inference apps/web/src/lib/screen-db-save.ts apps/web/src/lib/__tests__/canonicalize-apply.test.ts apps/web/package.json scripts/migrate-canonicalize-node-types.ts pnpm-lock.yaml
+git commit -m "feat(web): persist 경계 node.type write-back 캐논화 + 마이그레이션 스크립트"
+```
 
 ### Task D1: renderer 재배선 + 접두사 strip 규칙
 
@@ -594,15 +833,42 @@ git commit -m "refactor(renderer): @cx/external 재배선 + kiki. 접두사 stri
 
 `packages/layout/package.json`의 `@cx/components`→`@cx/external`(+ 필요시 `@cx/schema`).
 
-- [ ] **Step 2: import 재배선**
+- [ ] **Step 2: matcher.ts — alias/kind 신호 루프 삭제 (catalog 의존 제거)**
 
-`matcher.ts`:
+node.type이 Register에서 canonical로 확정되므로 matcher는 canonical 문자열만으로 신호를 만든다. `entry.type`은 canonical type과 동일(중복), `entry.kind`·`entry.aliases`는 없음 → `getComponentCatalogEntry` 조회 전체가 dead. import와 entry 블록을 통째 제거하고 `componentSignals`를 type 파생 신호만 남긴다:
+
 ```ts
 // 기존
 import { getComponentCatalogEntry } from "@cx/components/catalog";
-// 변경
-import { getComponentCatalogEntry } from "@cx/external/resolver";
+import type { PatternResolutionSignals } from "../public/types";
+
+export function componentSignals(type: string): Set<string> {
+	const entry = getComponentCatalogEntry(type);
+	const signals = new Set<string>([type, type.toLowerCase(), toKebabCase(type)]);
+
+	if (entry) {
+		signals.add(entry.type);
+		signals.add(entry.type.toLowerCase());
+		signals.add(toKebabCase(entry.type));
+		if (entry.kind) signals.add(entry.kind);
+		for (const alias of entry.aliases ?? []) {
+			signals.add(alias);
+			signals.add(alias.toLowerCase());
+			signals.add(toKebabCase(alias));
+		}
+	}
+
+	return signals;
+}
+// 변경 (catalog import 삭제, canonical 문자열만)
+import type { PatternResolutionSignals } from "../public/types";
+
+export function componentSignals(type: string): Set<string> {
+	return new Set<string>([type, type.toLowerCase(), toKebabCase(type)]);
+}
 ```
+
+→ matcher.ts는 더 이상 `@cx/external`/catalog를 import하지 않는다(경계 모델대로 Matcher는 canonical type만 소비).
 
 `divider.tsx`:
 ```ts
@@ -621,6 +887,9 @@ import { componentCatalog } from "@cx/components/catalog";
 import type { ComponentCatalogEntry } from "@cx/schema";
 import { componentCatalog } from "@cx/external/resolver";
 ```
+또한 이 테스트가 직접 신호를 만들며 `entry.kind`/`entry.aliases`를 읽는 줄(현재 ~103-104행
+`if (entry.kind) catalogSignals.add(entry.kind);` / `for (const alias of entry.aliases ?? [])`)을
+**삭제**한다(필드가 사라짐 — matcher와 동일하게 canonical type 신호만 남김).
 
 - [ ] **Step 3: layout 테스트**
 
@@ -673,6 +942,29 @@ import type { ComponentCatalog } from "@cx/components/types";
 // 변경
 import { componentCatalog } from "@cx/external/resolver";
 import type { ComponentCatalog } from "@cx/schema";
+```
+
+- [ ] **Step 2b: alias 역해석 삭제 (`findCatalogEntry`)**
+
+node.type이 canonical로 들어오므로 alias fallback이 불필요(그리고 `entry.aliases` 필드도 사라짐). `findCatalogEntry`를 직접 조회로 축소:
+
+```ts
+// 기존
+function findCatalogEntry(
+	type: string,
+	catalog?: ComponentCatalog,
+): ComponentCatalogEntry | undefined {
+	if (!catalog) return undefined;
+	if (catalog[type]) return catalog[type];
+	return Object.values(catalog).find((entry) => entry.aliases?.includes(type));
+}
+// 변경
+function findCatalogEntry(
+	type: string,
+	catalog?: ComponentCatalog,
+): ComponentCatalogEntry | undefined {
+	return catalog?.[type];
+}
 ```
 
 - [ ] **Step 3: validation 테스트**
@@ -839,10 +1131,14 @@ git rm -r packages/component
 Run: `pnpm install`
 Expected: 에러 없음. `@cx/components` 링크 사라짐.
 
-- [ ] **Step 4: 잔여 참조 0건 확인**
+- [ ] **Step 4: 잔여 참조 0건 확인 (@cx/components + alias 누수)**
 
-Run: `grep -rn "@cx/components" --exclude-dir=node_modules --exclude-dir=.git .`
-Expected: **0건.** (docs/spec·plan의 설명 텍스트 매치는 무시 가능하나, 코드/설정에서 0건이어야 함.)
+Run:
+```bash
+grep -rn "@cx/components" --exclude-dir=node_modules --exclude-dir=.git .
+grep -rnE "entry\.aliases|\.aliases\?\.|entry\.kind" packages/layout/src packages/validation/src --include="*.ts" --include="*.tsx"
+```
+Expected: 첫 grep **0건**(docs 설명 텍스트 제외, 코드/설정 0건). 둘째 grep도 **0건** — 경계 모델대로 Matcher/Validator에 alias·kind 참조가 남지 않아야 함(figma-export의 자체 REGISTRY는 대상 아님).
 
 - [ ] **Step 5: 전체 타입체크**
 
@@ -877,6 +1173,8 @@ Expected: 200 부팅, 캔버스에 kiki 컴포넌트 렌더, 콘솔 에러 없�
 
 ## Self-Review 메모
 
-- **Spec 커버리지:** 결정 1(은퇴/삭제)=Phase E, 2(alias/usage 폐기)=Task A1·C1, 3(source→status)=C1, 4(contract→schema)=A1, 5(resolver 소유)=C1, 6(mutation 폐기/promote 후속)=D6, 7(kiki.X 일관 + strip)=D1. 모두 태스크 존재.
-- **Placeholder:** 모든 코드 변경 스텝에 실제 before→after 코드/명령 명시. promote-component 본문만 "현 파일 내용에 따라 조정"으로 남김 — 이유: 폐기된 mutation 호출 라인 삭제는 현 파일 구조에 의존하며, 본 계획은 import 재배선 + mutation 호출 제거로 한정(sync 재작성은 명시적 후속).
-- **타입 일관성:** `ComponentCatalogEntry`/`ComponentCatalogStatus`/`ComponentPropContract`는 A1에서 정의 → C1·puck·validators에서 동일 시그니처로 소비. `componentCatalog`/`getComponentCatalogEntry`/`getComponentCatalogStatus`/`listCandidateComponentEntries`/`getComponentPropContract`/`getComponentCatalogTypes`/`resolveComponentCatalogForInference` 이름은 구 `@cx/components` 표면과 동일 — 소비자 호출부 무변경.
+- **Spec 커버리지:** 결정 1(은퇴/삭제)=Phase E, 2(usage 폐기·alias는 `catalog.alias`+write-back)=A1·C3·D0, 3(source→status)=C1, 4(contract→schema)=A1, 5(resolver 얇은 helper·getComponentPropContract 드롭)=C1, 6(mutation 폐기/promote 후속)=D6, 7(kiki.X 일관+strip)=D1, 8(persist write-back·matcher/validators/renderer alias 삭제)=D0·D1·D2·D3. 모두 태스크 존재.
+- **경계 모델 반영:** alias 캐논화→persist 경계 write-back(D0, apply/save/마이그레이션 3 site) 단일 소비, Registry→Renderer-only(D1), Catalog→공유 read-only(D1/D3/D4/D5). Matcher는 canonical만 소비해 catalog 의존 제거(D2). E1 Step4가 alias/kind 누수 0건을 검증.
+- **Placeholder:** 코드 변경 스텝은 실제 before→after 명시. 핀포인트가 남는 2곳: (a) D0 마이그레이션 스크립트의 DB 테이블/컬럼/supabase 클라이언트 — Step6 grep으로 특정. (b) D6 promote-component 본문 — mutation 호출 라인 삭제는 현 파일 구조 의존. 둘 다 명시적 locate-step 포함.
+- **타입 일관성:** `ComponentCatalogEntry`/`ComponentCatalogStatus`/`ComponentPropContract`는 A1(@cx/schema)에서 정의 → C1/C2/validators에서 동일 시그니처 소비. resolver 표면 6개(`componentCatalog`/`getComponentCatalogEntry`/`getComponentCatalogStatus`/`listCandidateComponentEntries`/`getComponentCatalogTypes`/`resolveComponentCatalogForInference`)는 구 표면과 동일 이름 — 소비자 호출부 무변경. `getComponentPropContract`만 드롭(외부 소비자 0건, 확인 완료). `@cx/external/canonicalize`는 `canonicalizeNodeType`/`canonicalizeRenderTree`/`assertAliasIntegrity` 신규 표면(C3 정의 → D0 소비), `catalog.alias.ts`는 `catalogAlias` 맵(C3).
+- **파일 구조:** external 5-파일(`catalog.generated`/`catalog.alias`/`registry.generated`/`canonicalize-catalog`/`resolver`) flat in `src/`. consumer import specifier(`@cx/external/resolver`·`/catalog`·`/puck`·`/canonicalize`)는 exports map이 흡수 → D1~D6 import 경로 무변경.
