@@ -30,7 +30,7 @@ import {
 	RowCardListArea,
 	TabChipSearchAccordionArea,
 	TextListGroupArea,
-} from "./area";
+} from "../areas";
 import {
 	ComponentAccordionComposite,
 	ComponentAccordionNoticeInfoComposite,

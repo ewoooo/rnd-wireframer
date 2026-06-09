@@ -1,5 +1,5 @@
-import type { AreaPageStackDefaults } from "./frame";
-import { pageStackBaseDefaults } from "./frame";
+import type { AreaPageStackDefaults } from "./PageStackFrame";
+import { pageStackBaseDefaults } from "./PageStackFrame";
 
 export type AreaPageStackPreset = {
 	defaults: AreaPageStackDefaults;

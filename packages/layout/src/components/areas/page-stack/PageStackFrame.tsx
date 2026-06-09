@@ -4,9 +4,9 @@ import {
 	renderChildrenWithDividers,
 	resolveDivider,
 	withTrailingSectionDivider,
-} from "../../shared/divider";
-import { toNumber, toPageStackItemTemplate } from "../../shared/props";
-import type { LayoutPatternComponentProps } from "../../types";
+} from "../../patterns/shared/divider";
+import { toNumber, toPageStackItemTemplate } from "../../patterns/shared/props";
+import type { LayoutPatternComponentProps } from "../../patterns/types";
 
 export type AreaPageStackDefaults = {
 	divider?: LayoutDivider;
@@ -32,6 +32,12 @@ export const pageStackBaseDefaults = {
 	sectionPaddingX: 12,
 	titleGap: 8,
 } as const satisfies Omit<AreaPageStackDefaults, "gap">;
+
+export function createPageStackArea(defaults: AreaPageStackDefaults) {
+	return function PageStackArea(props: LayoutPatternComponentProps) {
+		return <AreaPageStackFrame {...props} defaults={defaults} />;
+	};
+}
 
 export function AreaPageStackFrame({
 	children,

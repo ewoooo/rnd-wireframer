@@ -7,19 +7,20 @@ import {
 	type VStackProps,
 } from "@cx/layout/primitives";
 import { Children, type ReactNode } from "react";
-import { toNumber } from "../../shared/props";
-import type { LayoutPatternComponentProps } from "../../types";
-import { type AreaPageStackDefaults, AreaPageStackFrame } from "../page-stack/frame";
+import { toNumber } from "../../patterns/shared/props";
+import type { LayoutPatternComponentProps } from "../../patterns/types";
+import { type AreaPageStackDefaults, AreaPageStackFrame } from "../page-stack/PageStackFrame";
 
 type CollectionFlow = "grid" | "horizontal" | "stack";
 
-type CollectionAreaDefaults = AreaPageStackDefaults & {
+export type CollectionAreaDefaults = AreaPageStackDefaults & {
 	columns?: number;
 	flow: CollectionFlow;
 	mapHeight?: number;
 };
 
-const sectionDefaults = {
+// 모든 collection canonical 컴포넌트가 공유하는 section 기본값.
+export const collectionSectionDefaults = {
 	itemPaddingX: 20,
 	itemTemplate: "default-20",
 	paddingY: 28,
@@ -29,87 +30,7 @@ const sectionDefaults = {
 	"itemPaddingX" | "itemTemplate" | "paddingY" | "sectionPaddingX"
 >;
 
-export const ProductOptionGridArea = createCollectionArea({
-	...sectionDefaults,
-	columns: 2,
-	flow: "grid",
-	gap: 8,
-	titleGap: 12,
-});
-export const BenefitBrandListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 12,
-	titleGap: 16,
-});
-export const NearbyStoreListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 8,
-	mapHeight: 172,
-	titleGap: 16,
-});
-export const OptionListSectionArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 8,
-	titleGap: 12,
-});
-export const MapCardInfoListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 8,
-	mapHeight: 172,
-});
-export const CardInfoBrandListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 12,
-});
-export const ListSummaryCardArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 0,
-	paddingY: 0,
-});
-export const FilterChipTextListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 16,
-	titleGap: 12,
-});
-export const ProductListGroupArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 16,
-	titleGap: 12,
-});
-export const ProductListChipSortArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "horizontal",
-	gap: 8,
-	paddingY: 0,
-});
-export const HorizontalCardListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "horizontal",
-	gap: 12,
-	paddingY: 0,
-});
-export const RowCardListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 0,
-	paddingY: 0,
-});
-export const HiddenTitlePagestackCardListArea = createCollectionArea({
-	...sectionDefaults,
-	flow: "stack",
-	gap: 12,
-	itemTemplate: "card-0",
-});
-
-function createCollectionArea(defaults: CollectionAreaDefaults) {
+export function createCollectionArea(defaults: CollectionAreaDefaults) {
 	return function CollectionArea({
 		children,
 		className,

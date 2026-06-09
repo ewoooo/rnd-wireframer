@@ -5,29 +5,10 @@ import {
 	VStack,
 	type VStackProps,
 } from "@cx/layout/primitives";
-import type { LayoutPatternComponentProps } from "../../types";
+import type { LayoutPatternComponentProps } from "../../patterns/types";
 
-// 비-PageStack area만 이 파일이 소유한다. PageStack 기반 area는 PageStackArea.tsx.
-export const AreaVerticalArea = createPlainStack({ gap: 0 });
-export const BottomActionArea = createBottomActionArea({
-	gap: 0
-});
-export const ProductHeroSummaryArea = createHeroArea({
-	gap: 12,
-	infoPaddingBottom: 16,
-	infoPaddingTop: 32,
-	infoPaddingX: 32,
-	thumbnailHeight: 480,
-});
-export const ProductFooterLegalArea = createPlainStack({
-	bottomPadding: 120,
-	gap: 30,
-	paddingX: 32,
-	paddingY: 32,
-});
-export const AreaAppBarArea = createAppBarArea({ gap: 0 });
-
-function createBottomActionArea(defaults: {
+// 비-PageStack area 엔진. canonical 컴포넌트(.tsx)들이 이 factory들을 호출한다.
+export function createBottomActionArea(defaults: {
 	gap: number;
 	paddingBottom?: number;
 	paddingTop?: number;
@@ -58,7 +39,7 @@ function createBottomActionArea(defaults: {
 	};
 }
 
-function createHeroArea(defaults: {
+export function createHeroArea(defaults: {
 	gap: number;
 	infoPaddingBottom: number;
 	infoPaddingTop: number;
@@ -92,7 +73,7 @@ function createHeroArea(defaults: {
 	};
 }
 
-function createPlainStack(defaults: {
+export function createPlainStack(defaults: {
 	bottomPadding?: number;
 	gap: number;
 	paddingX?: number;
@@ -121,7 +102,7 @@ function createPlainStack(defaults: {
 	};
 }
 
-function createAppBarArea(defaults: { gap: number }) {
+export function createAppBarArea(defaults: { gap: number }) {
 	return function AppBarArea({
 		children,
 		className,
