@@ -1,7 +1,6 @@
 import { isRecord } from "@cx/schema";
 import type { LayoutPatternComponent, LayoutPatternComponentProps } from "../components/patterns/types";
-import { componentSignals, scorePatternSignals } from "../pattern-internal/matcher";
-import { findPattern, listPatterns } from "../pattern-internal/store";
+import { findPattern } from "../pattern-internal/store";
 import type {
 	DatabasePatternRef,
 	LayoutPatternCatalogEntry,
@@ -38,26 +37,6 @@ export function resolvePatternComponent(
 	throw new Error(
 		`resolvePatternComponent requires @cx/layout/components. Use the components subpath for render-time layout resolution. Received ${input.layoutId ?? input.patternId ?? "missing layout id"}.`,
 	);
-}
-
-export function resolveCompositePatternByComponentType(
-	type: string,
-): DatabasePatternRef | undefined {
-	const signals = componentSignals(type);
-	const scored = listPatterns("composite")
-		.map((pattern) => ({
-			pattern,
-			score: scorePatternSignals(pattern.resolution, signals),
-		}))
-		.filter((entry) => entry.score > 0)
-		.sort((a, b) => b.score - a.score || a.pattern.id.localeCompare(b.pattern.id));
-	const selected = scored[0]?.pattern;
-	return selected ? { id: selected.id, variant: selected.defaultVariant } : undefined;
-}
-
-export function resolveCompositeLayoutByComponentType(type: string): string | undefined {
-	const pattern = resolveCompositePatternByComponentType(type);
-	return pattern ? `layout.composite.${pattern.id}` : undefined;
 }
 
 export function resolveContentsRegionPatternFromScreenPattern(args: {

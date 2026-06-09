@@ -9,7 +9,6 @@ import type {
 	LayoutPatternChildrenContract,
 	LayoutPatternPropContract,
 	Pattern,
-	PatternResolutionSignals,
 	PatternStore,
 	PropValue,
 	RegionPattern,
@@ -28,7 +27,6 @@ export type {
 	LayoutPatternChildrenContract,
 	LayoutPatternPropContract,
 	Pattern,
-	PatternResolutionSignals,
 	RegionPattern,
 	RegionVariant,
 	ScreenPattern,
@@ -160,31 +158,6 @@ const areaVariantSchema = childrenLayoutSchema;
 const compositeVariantSchema = childrenLayoutSchema;
 const screenVariantSchema = childrenLayoutSchema;
 
-const setMatcherSchema = z
-	.object({
-		anyOf: nonEmptyStringArraySchema.optional(),
-		allOf: nonEmptyStringArraySchema.optional(),
-		noneOf: nonEmptyStringArraySchema.optional(),
-	})
-	.refine((value) => Object.keys(value).length > 0, {
-		message: "matcher must include at least one of anyOf, allOf, or noneOf",
-	})
-	.optional();
-
-const resolutionSchema = z
-	.object({
-		areaPatterns: setMatcherSchema,
-		compositePatterns: setMatcherSchema,
-		componentTypes: setMatcherSchema,
-		nameKeywords: nonEmptyStringArraySchema.optional(),
-		idPatterns: nonEmptyStringArraySchema.optional(),
-		priority: z.number().optional(),
-	})
-	.refine((value) => Object.values(value).some((entry) => entry !== undefined), {
-		message: "resolution must include at least one signal",
-	})
-	.optional();
-
 const baseFields = {
 	id: patternIdSchema,
 	name: z.string().min(1),
@@ -194,7 +167,6 @@ const baseFields = {
 	props: z.record(z.string(), layoutPatternPropContractSchema).optional(),
 	children: layoutPatternChildrenContractSchema.optional(),
 	defaultVariant: variantIdSchema,
-	resolution: resolutionSchema,
 };
 
 const variantRecord = <T extends z.ZodType<ChildrenLayoutPreset>>(schema: T) =>

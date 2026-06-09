@@ -6,7 +6,6 @@ import type {
 	CompositePattern,
 	CompositeVariant,
 	Pattern,
-	PatternResolutionSignals,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -26,7 +25,6 @@ export type {
 	CompositePattern,
 	CompositeVariant,
 	Pattern,
-	PatternResolutionSignals,
 	PatternStore,
 	PatternStorePattern,
 	PatternStoreTarget,
@@ -109,12 +107,4 @@ export function isCompositePattern(pattern: Pattern): pattern is CompositePatter
 
 export function isScreenPattern(pattern: Pattern): pattern is ScreenPattern {
 	return pattern.target === "screen";
-}
-
-export function normalizePatternId(value: string): string {
-	return value
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-+|-+$/g, "");
 }

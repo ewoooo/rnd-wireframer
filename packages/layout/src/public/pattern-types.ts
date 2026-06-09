@@ -48,21 +48,6 @@ export type AreaVariant = ChildrenLayoutPreset;
 export type CompositeVariant = ChildrenLayoutPreset;
 export type ScreenVariant = ChildrenLayoutPreset;
 
-export type SetMatcher = {
-	anyOf?: string[];
-	allOf?: string[];
-	noneOf?: string[];
-};
-
-export type PatternResolutionSignals = {
-	areaPatterns?: SetMatcher;
-	compositePatterns?: SetMatcher;
-	componentTypes?: SetMatcher;
-	nameKeywords?: string[];
-	idPatterns?: string[];
-	priority?: number;
-};
-
 export type PatternStoreTarget = "screen" | "region" | "area" | "composite";
 export type LayoutPatternTarget = PatternStoreTarget;
 
@@ -125,7 +110,6 @@ export type PatternStorePattern = {
 	props?: Record<string, LayoutPatternPropContract>;
 	children?: LayoutPatternChildrenContract;
 	defaultVariant: string;
-	resolution?: PatternResolutionSignals;
 	variants: Record<string, ChildrenLayoutPreset>;
 };
 

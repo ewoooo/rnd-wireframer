@@ -9,7 +9,7 @@ import {
 } from "@cx/layout/catalog";
 import { listLayoutPatternComponents } from "@cx/layout/components";
 import { createLayoutPattern } from "@cx/layout/mutations";
-import { resolveCompositePatternByComponentType } from "@cx/layout/resolver";
+import { resolveRegionPatternFromScreenPattern } from "@cx/layout/resolver";
 import type { PatternStore } from "@cx/layout/types";
 import { describe, expect, it } from "vitest";
 import packageJson from "../../package.json";
@@ -18,7 +18,7 @@ describe("@cx/layout public API", () => {
 	it("keeps catalog, resolver, mutations, and types on explicit public subpaths", () => {
 		expect(Object.keys(packageJson.exports)).toContain("./catalog");
 		expect(listPatterns("screen").length).toBeGreaterThan(0);
-		expect(resolveCompositePatternByComponentType).toBeTypeOf("function");
+		expect(resolveRegionPatternFromScreenPattern).toBeTypeOf("function");
 
 		const store: PatternStore = { patterns: [] };
 		const created = createLayoutPattern(store, {
