@@ -1,4 +1,5 @@
 import type { GenerationArtifactKind } from "./artifact-kind";
+import type { ComponentCatalogEntry } from "./component-catalog";
 import {
 	getJsonSchema,
 	JSON_SCHEMA_BY_ARTIFACT_KIND,
@@ -67,7 +68,7 @@ export type StageSkillsetData = {
 export type StageSkillsetObject = SsotObject<"stage-skillset", StageSkillsetData>;
 
 export type ComponentCatalogData = {
-	entries: unknown[];
+	entries: ComponentCatalogEntry[];
 };
 
 export type ComponentCatalogObject = SsotObject<"component-catalog", ComponentCatalogData>;

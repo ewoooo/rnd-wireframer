@@ -3,6 +3,19 @@ export type { AgentResultContract } from "./agent-result";
 export type { ApplyResultContract } from "./apply-result";
 export type { GenerationArtifactKind } from "./artifact-kind";
 export { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
+export type {
+	ComponentCatalog,
+	ComponentCatalogEntry,
+	ComponentCatalogSource,
+	ComponentCatalogStatus,
+	ComponentPropContract,
+	ComponentPropRole,
+	ComponentPropType,
+	RenderTreeNodeKind,
+	TokenRole,
+	TokenSlot,
+} from "./component-catalog";
+export { isTokenRole, TOKEN_ROLES } from "./component-catalog";
 export type { ComponentProposal, ComponentProposalContract } from "./component-proposal";
 export type {
 	CompositionPlanContract,
