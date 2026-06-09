@@ -33,6 +33,12 @@
 	--color-destructive-foreground: hsl(210 40% 98%);
 
 	/* ── Color · line / control ─────────────────── */
+	/* 이 사이트의 모든 border는 단 하나의 색을 쓴다.
+	   --color-border가 유일한 border 색이며, 전역 `* { border-color }`(globals.css)가
+	   이를 모든 요소에 강제한다. input·sidebar-border는 동일 값을 미러링한다
+	   (Tailwind v4 @theme는 var() 참조를 :root로 안전하게 emit하지 못해 리터럴로 맞춤).
+	   값을 바꿀 땐 이 세 줄을 함께 수정할 것.
+	   (--color-ring은 border가 아니라 focus 표시용 브랜드 색이라 제외.) */
 	--color-border: hsl(214.3 31.8% 91.4%);
 	--color-input: hsl(214.3 31.8% 91.4%);
 	--color-ring: hsl(245 75% 45%);
@@ -42,7 +48,7 @@
 	--color-sidebar-foreground: hsl(240 5.3% 26.1%);
 	--color-sidebar-accent: hsl(240 4.8% 95.9%);
 	--color-sidebar-accent-foreground: hsl(240 5.9% 10%);
-	--color-sidebar-border: hsl(220 13% 91%);
+	--color-sidebar-border: hsl(214.3 31.8% 91.4%); /* = --color-border (단일 border 색) */
 	--color-sidebar-ring: hsl(217.2 91.2% 59.8%);
 
 	/* ── Radius ─────────────────────────────────── */

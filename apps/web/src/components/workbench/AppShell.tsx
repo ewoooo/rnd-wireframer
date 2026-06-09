@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { buildPuckConfigForScope } from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { DoubleBorder } from "@/components/layout/DoubleBorder";
 import { Rail } from "@/components/layout/Rail";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
@@ -32,11 +33,13 @@ export function AppShell() {
 
 	const workbenchLayout = (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
+			{/* body: rail · double border · main(=SidebarProvider) 3형제 */}
+			<Rail activeTab={activeTab} onSelectTab={setActiveTab} />
+			<DoubleBorder />
 			<SidebarProvider
 				className="min-h-0 flex-1 overflow-hidden"
 				style={{ "--sidebar-width": ASIDE_WIDTH } as CSSProperties}
 			>
-				<Rail activeTab={activeTab} onSelectTab={setActiveTab} />
 				<NavigationRoutes
 					activeTab={activeTab}
 					activeRouteId={screen.activeRoute?.id}
@@ -60,6 +63,7 @@ export function AppShell() {
 					selectedScreenId={screen.visibleScreen?.id}
 					isUploadingNewScreenSource={newScreen.isUploading || newScreen.isStarting}
 				/>
+				<DoubleBorder />
 				<Canvas
 					activeTab={activeTab}
 					loadState={screen.loadState}
@@ -73,6 +77,7 @@ export function AppShell() {
 					newScreenRunStatus={newScreen.runStatus}
 					showStatusBar={showStatusBar}
 				/>
+				<DoubleBorder />
 				<EditSidebar
 					scope={puck.editScope}
 					newScreenReview={
