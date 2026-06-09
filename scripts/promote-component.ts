@@ -1,40 +1,36 @@
-import { getComponentCatalogStatus, listCandidateComponentEntries } from "@cx/components/catalog";
+// NOTE: 카탈로그 mutation/promote는 자동생성 + source 유도 status 체제로 전환되며 폐기되었다.
+// candidate→stable promote의 진짜 재작성(kiki 소스 draft→barrel, sync 레이어)은
+// scripts/sync-catalog 생성기 도입 후 별도 계획에서 수행한다. (spec 2·3·10절)
+// 현재 이 스크립트는 read-only candidate 리스터로만 유지한다.
+
+import { getComponentCatalogStatus, listCandidateComponentEntries } from "@cx/external/resolver";
 
 /**
- * Promotion helper (candidate -> stable). Candidate metadata lives in code
- * (`candidate-entries.ts`), so the actual move is a human-reviewed code edit.
- * This command validates the transition is legal and prints what to move.
+ * Read-only candidate (kiki-draft) lister.
+ * Promotion (candidate -> stable) now happens at the sync layer (deferred);
+ * this command no longer mutates the catalog.
  */
 function main() {
 	const type = process.argv[2];
-	if (!type) {
-		console.error("Usage: tsx scripts/promote-component.ts <ComponentType>");
+	if (type) {
+		const status = getComponentCatalogStatus(type);
+		if (status === undefined) {
+			console.error(`'${type}' is not in the catalog.`);
+		} else {
+			console.error(
+				`'${type}' status: ${status}. Promotion is no longer performed here — ` +
+					"it happens at the sync layer (kiki draft -> barrel), which is deferred.",
+			);
+		}
 		process.exitCode = 1;
 		return;
 	}
 
-	const status = getComponentCatalogStatus(type);
-	if (status === undefined) {
-		console.error(`'${type}' is not in the catalog.`);
-		process.exitCode = 1;
-		return;
+	const candidates = listCandidateComponentEntries();
+	console.log(`Candidate (kiki-draft) components: ${candidates.length}`);
+	for (const entry of candidates) {
+		console.log(`- ${entry.type}\t${getComponentCatalogStatus(entry.type)}\t${entry.label}`);
 	}
-	if (status !== "candidate") {
-		console.error(`'${type}' is not a candidate (status: ${status}). Nothing to promote.`);
-		process.exitCode = 1;
-		return;
-	}
-
-	const entry = listCandidateComponentEntries().find((candidate) => candidate.type === type);
-
-	console.log(`Promote '${type}' (candidate -> stable):`);
-	console.log(`1. Move the component: src/candidates/${type}/ -> src/components/${type}/`);
-	console.log(`2. Update its export path in packages/component/src/index.ts`);
-	console.log(
-		"3. Move the catalog entry: candidate-entries.ts -> component-entries.ts (status becomes stable)",
-	);
-	console.log("\nEntry to move:");
-	console.log(JSON.stringify(entry, null, 2));
 }
 
 main();
