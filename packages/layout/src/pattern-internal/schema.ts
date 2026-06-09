@@ -189,6 +189,10 @@ const baseFields = {
 	id: patternIdSchema,
 	name: z.string().min(1),
 	description: z.string().optional(),
+	componentID: z.string().min(1).optional(),
+	status: z.enum(["deprecated", "draft", "ready"]).optional(),
+	props: z.record(z.string(), layoutPatternPropContractSchema).optional(),
+	children: layoutPatternChildrenContractSchema.optional(),
 	defaultVariant: variantIdSchema,
 	resolution: resolutionSchema,
 };
@@ -276,6 +280,10 @@ function normalizeLayoutPatternCatalogEntry(
 		target: pattern.target,
 		name: pattern.name,
 		description: pattern.description,
+		componentID: pattern.componentID,
+		status: pattern.status,
+		props: pattern.props,
+		children: pattern.children,
 		defaultVariant: "default",
 		variants: {
 			default: {},

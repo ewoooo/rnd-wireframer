@@ -1,5 +1,6 @@
 import {
 	createCandidate,
+	findPattern,
 	getEntry,
 	listCatalog,
 	listCatalogIds,
@@ -74,6 +75,14 @@ describe("@cx/layout public API", () => {
 		expect(resolved.data.region.length).toBeGreaterThan(0);
 		expect(resolved.data.area.length).toBeGreaterThan(0);
 		expect(resolved.data.composite.length).toBeGreaterThan(0);
+	});
+
+	it("preserves prop contract, status, and componentID on the canonical store entry", () => {
+		// store는 아직 bare 키(qualified 전환은 별도 보류 task). 현재 키로 조회.
+		const pattern = findPattern("accordion-list");
+		expect(pattern?.status).toBe("draft");
+		expect(pattern?.componentID).toBe("AccordionListArea");
+		expect(pattern?.props?.divider?.type).toBe("enum");
 	});
 
 	it("exposes shared divider contracts for PageStack-backed area layouts", () => {

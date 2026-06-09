@@ -120,6 +120,10 @@ export type PatternStorePattern = {
 	target: PatternStoreTarget;
 	name: string;
 	description?: string;
+	componentID?: string;
+	status?: LayoutPatternStatus;
+	props?: Record<string, LayoutPatternPropContract>;
+	children?: LayoutPatternChildrenContract;
 	defaultVariant: string;
 	resolution?: PatternResolutionSignals;
 	variants: Record<string, ChildrenLayoutPreset>;

@@ -33,6 +33,13 @@ describe("@cx/layout schema", () => {
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
+			componentID: "CommerceDetailBottomActionRegion",
+			props: {
+				gap: { type: "number" },
+				paddingX: { type: "number" },
+			},
+			children: { accepts: "area-or-component" },
+			status: "draft",
 			defaultVariant: "default",
 			variants: {
 				default: {},
