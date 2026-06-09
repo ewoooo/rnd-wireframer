@@ -1,0 +1,68 @@
+/**
+ * Design tokens — 이 웹 앱 테마의 단일 출처(single source of truth).
+ *
+ * Tailwind v4 `@theme`: 여기서 정의한 변수가 곧 유틸리티가 된다.
+ *   --color-primary  → bg-primary / text-primary / border-primary ...
+ *   --text-body      → text-body (font-size + line-height)
+ *
+ * 깊게 파지 말 것. 색·반경은 기존 값을 옮긴 것이고,
+ * 타이포그래피는 제목/바디/캡션/버튼 4단만 둔다. 필요하면 나중에 확장.
+ */
+@theme {
+	/* ── Font family ────────────────────────────── */
+	--font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+	/* ── Color · surface ────────────────────────── */
+	--color-background: hsl(0 0% 100%);
+	--color-foreground: hsl(222.2 84% 4.9%);
+	--color-card: hsl(0 0% 100%);
+	--color-card-foreground: hsl(222.2 84% 4.9%);
+	--color-popover: hsl(0 0% 100%);
+	--color-popover-foreground: hsl(222.2 84% 4.9%);
+
+	/* ── Color · brand / state ──────────────────── */
+	--color-primary: hsl(245 75% 45%);
+	--color-primary-foreground: hsl(210 40% 98%);
+	--color-secondary: hsl(210 40% 96.1%);
+	--color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+	--color-muted: hsl(210 40% 96.1%);
+	--color-muted-foreground: hsl(215.4 16.3% 46.9%);
+	--color-accent: hsl(210 40% 96.1%);
+	--color-accent-foreground: hsl(222.2 47.4% 11.2%);
+	--color-destructive: hsl(0 84.2% 60.2%);
+	--color-destructive-foreground: hsl(210 40% 98%);
+
+	/* ── Color · line / control ─────────────────── */
+	--color-border: hsl(214.3 31.8% 91.4%);
+	--color-input: hsl(214.3 31.8% 91.4%);
+	--color-ring: hsl(245 75% 45%);
+
+	/* ── Color · sidebar / rail ─────────────────── */
+	--color-sidebar: hsl(0 0% 98%);
+	--color-sidebar-foreground: hsl(240 5.3% 26.1%);
+	--color-sidebar-accent: hsl(240 4.8% 95.9%);
+	--color-sidebar-accent-foreground: hsl(240 5.9% 10%);
+	--color-sidebar-border: hsl(220 13% 91%);
+	--color-sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+	/* ── Radius ─────────────────────────────────── */
+	--radius-lg: 0.5rem;
+	--radius-md: calc(var(--radius-lg) - 2px);
+	--radius-sm: calc(var(--radius-lg) - 4px);
+
+	/* ── Typography scale ───────────────────────── */
+	/* 제목: 패널/섹션 헤더, 강조 라벨 */
+	--text-title: 0.875rem; /* 14px */
+	--text-title--line-height: 1.4;
+	--text-title--font-weight: 600;
+	/* 바디: 기본 본문, 리스트 행 */
+	--text-body: 0.8125rem; /* 13px */
+	--text-body--line-height: 1.45;
+	/* 캡션: 메타 정보, 보조 라벨 */
+	--text-caption: 0.6875rem; /* 11px */
+	--text-caption--line-height: 1.4;
+	/* 버튼/내비: 버튼·탭·내비 항목 */
+	--text-button: 0.8125rem; /* 13px */
+	--text-button--line-height: 1.25;
+	--text-button--font-weight: 500;
+}

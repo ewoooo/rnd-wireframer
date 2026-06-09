@@ -5,10 +5,10 @@ import type { CSSProperties } from "react";
 import { useState } from "react";
 import { buildPuckConfigForScope } from "@/components/puck/workbench/workbench-puck";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { Rail } from "@/components/layout/Rail";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
 import { NavigationRoutes } from "@/components/workbench/navigation/NavigationRoutes";
-import { NavigationSidebar } from "@/components/workbench/navigation/NavigationSidebar";
 import { useNewScreenInference } from "@/feature/inference-new-screen/hooks/use-new-screen-inference";
 import { buildPuckDataForScope } from "@/lib/workbench-puck/puck-scope";
 import { usePuckEditing } from "@/model/workbench/use-puck-editing";
@@ -36,7 +36,7 @@ export function AppShell() {
 				className="min-h-0 flex-1 overflow-hidden"
 				style={{ "--sidebar-width": ASIDE_WIDTH } as CSSProperties}
 			>
-				<NavigationSidebar activeTab={activeTab} onSelectTab={setActiveTab} />
+				<Rail activeTab={activeTab} onSelectTab={setActiveTab} />
 				<NavigationRoutes
 					activeTab={activeTab}
 					activeRouteId={screen.activeRoute?.id}
