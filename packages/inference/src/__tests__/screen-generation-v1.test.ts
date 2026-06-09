@@ -61,6 +61,11 @@ describe("screenGenerationPipelineV1", () => {
 		expect(screenGenerationPipelineV1.steps[5]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
+			skillset: {
+				source: "stage-skillset",
+				id: "revise.screen-revision",
+				version: undefined,
+			},
 		});
 		// Quality review pulls the review skillset (checklist + per-axis review skills).
 		expect(screenGenerationPipelineV1.steps[7]?.references).toEqual({

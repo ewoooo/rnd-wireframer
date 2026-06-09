@@ -103,6 +103,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 			references: {
 				componentCatalog: knowledge("component-catalog"),
 				layoutCatalog: knowledge("layout-catalog"),
+				skillset: knowledge("stage-skillset", "revise.screen-revision"),
 			},
 			prompt: { id: "screen-revision" },
 			runWhen: onValidationReportErrors("validation-report"),
