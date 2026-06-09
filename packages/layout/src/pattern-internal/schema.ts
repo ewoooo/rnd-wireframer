@@ -54,7 +54,10 @@ const patternTargetSchema = z.enum(["screen", "region", "area", "composite"]);
 const patternIdSchema = z
 	.string()
 	.min(1)
-	.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "pattern id must be lowercase kebab-case");
+	.regex(
+		/^layout\.(screen|region|area|composite)\.[A-Za-z0-9][A-Za-z0-9.-]*$/,
+		"pattern id must be a qualified layout id (layout.<target>.<name>)",
+	);
 
 const variantIdSchema = z.string().min(1);
 const nonEmptyStringArraySchema = z.array(z.string().min(1)).min(1);
@@ -245,10 +248,8 @@ export const patternStoreSchema = z
 function normalizeLayoutPatternCatalogEntry(
 	pattern: z.infer<typeof layoutPatternCatalogEntrySchema>,
 ): Pattern {
-	const id = layoutPatternIdToPatternId(pattern.id);
-
 	return {
-		id,
+		id: pattern.id,
 		target: pattern.target,
 		name: pattern.name,
 		description: pattern.description,
@@ -269,9 +270,7 @@ function refineUniqueCatalogPatternIds<T extends { patterns: Array<{ id?: string
 ) {
 	const seen = new Set<string>();
 	for (const [index, pattern] of store.patterns.entries()) {
-		const id = pattern.id?.startsWith("layout.")
-			? layoutPatternIdToPatternId(pattern.id)
-			: pattern.id;
+		const id = pattern.id;
 		if (!id) continue;
 		if (!seen.has(id)) {
 			seen.add(id);
@@ -283,13 +282,6 @@ function refineUniqueCatalogPatternIds<T extends { patterns: Array<{ id?: string
 			path: ["patterns", index, "id"],
 		});
 	}
-}
-
-function layoutPatternIdToPatternId(id: string): string {
-	return id
-		.replace(/^layout\.(screen|region|area|composite)\./, "")
-		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-		.toLowerCase();
 }
 
 export const patternCatalogSchema = z.object({

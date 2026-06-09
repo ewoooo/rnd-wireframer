@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 describe("@cx/layout mutations", () => {
 	it("creates, reads, updates, upserts, and deletes patterns without mutating input store", () => {
 		const emptyStore: PatternStore = { patterns: [] };
-		const pattern = testPattern("test-area");
+		const pattern = testPattern("layout.area.testArea");
 
 		const created = createLayoutPattern(emptyStore, pattern);
 		expect(created.ok).toBe(true);
@@ -19,15 +19,15 @@ describe("@cx/layout mutations", () => {
 		expect(emptyStore.patterns).toHaveLength(0);
 		expect(created.store.patterns).toHaveLength(1);
 		expect(created.changes).toHaveLength(1);
-		expect(created.changes[0]).toMatchObject({ type: "create", id: "test-area" });
+		expect(created.changes[0]).toMatchObject({ type: "create", id: "layout.area.testArea" });
 
-		const read = readLayoutPattern(created.store, { id: "test-area", target: "area" });
+		const read = readLayoutPattern(created.store, { id: "layout.area.testArea", target: "area" });
 		expect(read.ok).toBe(true);
 		if (!read.ok) throw new Error("read failed");
 		expect(read.pattern.name).toBe("Test area");
 
 		const updated = updateLayoutPattern(created.store, {
-			id: "test-area",
+			id: "layout.area.testArea",
 			patch: {
 				name: "Updated test area",
 				variants: {
@@ -42,7 +42,7 @@ describe("@cx/layout mutations", () => {
 		if (!updated.ok) throw new Error("update failed");
 		expect(updated.store.patterns[0]?.name).toBe("Updated test area");
 		expect(created.store.patterns[0]?.name).toBe("Test area");
-		expect(updated.changes[0]).toMatchObject({ type: "update", id: "test-area" });
+		expect(updated.changes[0]).toMatchObject({ type: "update", id: "layout.area.testArea" });
 
 		const upserted = upsertLayoutPattern(updated.store, {
 			...pattern,
@@ -51,18 +51,18 @@ describe("@cx/layout mutations", () => {
 		expect(upserted.ok).toBe(true);
 		if (!upserted.ok) throw new Error("upsert failed");
 		expect(upserted.pattern?.name).toBe("Upserted test area");
-		expect(upserted.changes[0]).toMatchObject({ type: "upsert", id: "test-area" });
+		expect(upserted.changes[0]).toMatchObject({ type: "upsert", id: "layout.area.testArea" });
 
-		const deleted = deleteLayoutPattern(upserted.store, { id: "test-area" });
+		const deleted = deleteLayoutPattern(upserted.store, { id: "layout.area.testArea" });
 		expect(deleted.ok).toBe(true);
 		if (!deleted.ok) throw new Error("delete failed");
 		expect(deleted.store.patterns).toHaveLength(0);
 		expect(upserted.store.patterns).toHaveLength(1);
-		expect(deleted.changes[0]).toMatchObject({ type: "delete", id: "test-area" });
+		expect(deleted.changes[0]).toMatchObject({ type: "delete", id: "layout.area.testArea" });
 	});
 
 	it("returns typed issues for duplicate, missing, and schema-invalid mutations", () => {
-		const pattern = testPattern("test-area");
+		const pattern = testPattern("layout.area.testArea");
 		const store: PatternStore = { patterns: [pattern] };
 
 		const duplicate = createLayoutPattern(store, pattern);
@@ -71,7 +71,7 @@ describe("@cx/layout mutations", () => {
 		expect(duplicate.issues[0]?.code).toBe("duplicate-pattern-id");
 
 		const missing = updateLayoutPattern(store, {
-			id: "missing-area",
+			id: "layout.area.missingArea",
 			patch: { name: "Missing" },
 		});
 		expect(missing.ok).toBe(false);
@@ -81,7 +81,7 @@ describe("@cx/layout mutations", () => {
 		const invalid = createLayoutPattern(
 			{ patterns: [] },
 			{
-				...testPattern("bad-area"),
+				...testPattern("layout.area.badArea"),
 				defaultVariant: "compact",
 			},
 		);

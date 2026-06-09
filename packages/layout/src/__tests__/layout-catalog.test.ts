@@ -36,7 +36,7 @@ describe("@cx/layout", () => {
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "bottom",
+			id: "layout.region.bottom",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
@@ -54,7 +54,7 @@ describe("@cx/layout", () => {
 	it("rejects normalized patterns when defaultVariant does not exist in variants", () => {
 		expect(() =>
 			patternSchema.parse({
-				id: "bad-pattern",
+				id: "layout.area.badPattern",
 				target: "area",
 				name: "Bad pattern",
 				defaultVariant: "compact",

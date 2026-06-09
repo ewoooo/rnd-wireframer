@@ -29,7 +29,7 @@ describe("@cx/layout schema", () => {
 		});
 
 		expect(store.patterns[0]).toEqual({
-			id: "bottom",
+			id: "layout.region.bottom",
 			target: "region",
 			name: "Bottom action region",
 			description: "Pinned bottom CTA layout.",
@@ -52,7 +52,7 @@ describe("@cx/layout schema", () => {
 			patternStoreSchema.parse({
 				patterns: [
 					{
-						id: "bottom-action-region",
+						id: "layout.region.bottomActionRegion",
 						target: "region",
 						name: "Bottom action region",
 						layout: {
@@ -79,11 +79,11 @@ describe("@cx/layout schema", () => {
 				defaultVariant: "default",
 				variants: { default: {} },
 			}),
-		).toThrow(/kebab-case/);
+		).toThrow(/qualified layout id/);
 
 		expect(() =>
 			patternSchema.parse({
-				id: "empty-variants",
+				id: "layout.area.emptyVariants",
 				target: "area",
 				name: "Empty variants",
 				defaultVariant: "default",
@@ -93,7 +93,7 @@ describe("@cx/layout schema", () => {
 
 		expect(() =>
 			patternSchema.parse({
-				id: "missing-default",
+				id: "layout.area.missingDefault",
 				target: "area",
 				name: "Missing default",
 				defaultVariant: "compact",
@@ -107,7 +107,7 @@ describe("@cx/layout schema", () => {
 			patternStoreSchema.parse({
 				patterns: [
 					{
-						id: "empty-matcher",
+						id: "layout.area.emptyMatcher",
 						target: "area",
 						name: "Empty matcher",
 						match: { componentTypes: { anyOf: [] } },
@@ -121,14 +121,14 @@ describe("@cx/layout schema", () => {
 			normalizedPatternStoreSchema.parse({
 				patterns: [
 					{
-						id: "duplicate-area",
+						id: "layout.area.duplicateArea",
 						target: "area",
 						name: "Duplicate area",
 						defaultVariant: "default",
 						variants: { default: {} },
 					},
 					{
-						id: "duplicate-area",
+						id: "layout.area.duplicateArea",
 						target: "area",
 						name: "Duplicate area again",
 						defaultVariant: "default",

@@ -22,7 +22,7 @@ describe("@cx/layout public API", () => {
 
 		const store: PatternStore = { patterns: [] };
 		const created = createLayoutPattern(store, {
-			id: "api-test-area",
+			id: "layout.area.apiTestArea",
 			target: "area",
 			name: "API test area",
 			defaultVariant: "default",
@@ -57,7 +57,7 @@ describe("@cx/layout public API", () => {
 		});
 		expect(created.ok).toBe(true);
 		if (!created.ok) throw new Error("layout candidate create failed");
-		expect(created.pattern?.id).toBe("generated-facade-list");
+		expect(created.pattern?.id).toBe("layout.area.generatedFacadeList");
 		expect(getEntry("layout.area.generatedFacadeList")).toBeUndefined();
 	});
 
@@ -77,9 +77,14 @@ describe("@cx/layout public API", () => {
 		expect(resolved.data.composite.length).toBeGreaterThan(0);
 	});
 
+	it("keys the pattern store by qualified layout id", () => {
+		const pattern = findPattern("layout.area.listStack");
+		expect(pattern?.id).toBe("layout.area.listStack");
+		expect(findPattern("list-stack")).toBeUndefined();
+	});
+
 	it("preserves prop contract, status, and componentID on the canonical store entry", () => {
-		// store는 아직 bare 키(qualified 전환은 별도 보류 task). 현재 키로 조회.
-		const pattern = findPattern("accordion-list");
+		const pattern = findPattern("layout.area.accordionList");
 		expect(pattern?.status).toBe("draft");
 		expect(pattern?.componentID).toBe("AccordionListArea");
 		expect(pattern?.props?.divider?.type).toBe("enum");

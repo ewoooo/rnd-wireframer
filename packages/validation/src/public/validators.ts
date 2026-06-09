@@ -667,14 +667,7 @@ function validateLayoutRef(
 }
 
 function findLayoutPatternComponentByLayoutId(layoutId: string) {
-	return findPattern(layoutPatternIdToPatternId(layoutId));
-}
-
-function layoutPatternIdToPatternId(id: string): string {
-	return id
-		.replace(/^layout\.(screen|region|area|composite)\./, "")
-		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-		.toLowerCase();
+	return findPattern(layoutId);
 }
 
 export function validateLayoutProps(input: unknown): ValidationReport {
