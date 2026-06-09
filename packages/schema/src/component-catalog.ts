@@ -27,7 +27,7 @@ export type ComponentPropRole =
 	| "content" | "data" | "description" | "event" | "label" | "layout"
 	| "slot" | "state" | "styleVariant" | "title" | "value" | "visibility";
 
-export interface ComponentPropContract {
+export type ComponentPropContract = {
 	type: ComponentPropType;
 	role?: ComponentPropRole;
 	required?: boolean;
@@ -37,14 +37,14 @@ export interface ComponentPropContract {
 	aiWritable?: boolean;
 	tokenRole?: TokenRole;
 	variantTokens?: Record<string, Partial<Record<TokenSlot, TokenRole>>>;
-}
+};
 
 export type RenderTreeNodeKind = string;
 
 /** kiki barrel(공식 export, stable) | kiki draft(WIP, candidate) */
 export type ComponentCatalogSource = "kiki-barrel" | "kiki-draft";
 
-export interface ComponentCatalogEntry {
+export type ComponentCatalogEntry = {
 	type: string;
 	source: ComponentCatalogSource;
 	label: string;
@@ -53,7 +53,7 @@ export interface ComponentCatalogEntry {
 	kind?: RenderTreeNodeKind;
 	props: Record<string, ComponentPropContract>;
 	tokens?: Partial<Record<TokenSlot, TokenRole>>;
-}
+};
 
 export type ComponentCatalog = Record<string, ComponentCatalogEntry>;
 
