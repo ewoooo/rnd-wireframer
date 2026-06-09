@@ -2,11 +2,11 @@ import {
 	context,
 	definePipeline,
 	defineStep,
-	failWhenValidationReportHasErrors,
+	failOnValidationReportErrors,
 	jobInput,
 	knowledge,
+	onValidationReportErrors,
 	outputContractRef,
-	whenContextValidationReportHasErrors,
 } from "../pipeline";
 
 /**
@@ -93,7 +93,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 				validationReport: context("validation-report"),
 			},
 			prompt: { id: "screen-revision" },
-			runWhen: whenContextValidationReportHasErrors("validation-report"),
+			runWhen: onValidationReportErrors("validation-report"),
 			output: {
 				contractRef: outputContractRef("render-tree"),
 				writeToContext: "render-tree",
@@ -109,10 +109,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 				sourceSpec: context("source-spec"),
 			},
 			run: { id: "deterministic-validation" },
-			runWhen: whenContextValidationReportHasErrors("validation-report"),
+			runWhen: onValidationReportErrors("validation-report"),
 			output: {
 				contractRef: outputContractRef("validation-report"),
-				failWhen: failWhenValidationReportHasErrors(),
+				failWhen: failOnValidationReportErrors,
 				writeToContext: "validation-report",
 			},
 		}),

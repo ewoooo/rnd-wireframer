@@ -2,11 +2,11 @@ export { definePipeline } from "./define-pipeline";
 export { defineStep } from "./define-step";
 export {
 	context,
-	failWhenValidationReportHasErrors,
+	failOnValidationReportErrors,
 	jobInput,
 	knowledge,
+	onValidationReportErrors,
 	outputContractRef,
-	whenContextValidationReportHasErrors,
 } from "./refs";
 export { createPipelineRegistry } from "./registry";
 export { runStep } from "./run-step";

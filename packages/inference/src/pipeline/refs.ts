@@ -25,11 +25,11 @@ export const outputContractRef = (id: string, version?: string): OutputContractR
 	version,
 });
 
-export const whenContextValidationReportHasErrors = (contextKey: string): StepRunCondition => ({
+export const onValidationReportErrors = (contextKey: string): StepRunCondition => ({
 	contextKey,
 	kind: "context-validation-report-has-errors",
 });
 
-export const failWhenValidationReportHasErrors = (): StepOutputFailurePolicy => ({
+export const failOnValidationReportErrors: StepOutputFailurePolicy = {
 	kind: "validation-report-has-errors",
-});
+};
