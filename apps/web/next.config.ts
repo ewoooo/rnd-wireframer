@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
 		"@cx/adapters",
 		"@cx/agent",
 		"@cx/components",
+		"@cx/external",
 		"@cx/inference",
 		"@cx/layout",
 		"@cx/renderer",

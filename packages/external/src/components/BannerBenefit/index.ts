@@ -1,0 +1,1 @@
+export { BannerBenefit } from './BannerBenefit';

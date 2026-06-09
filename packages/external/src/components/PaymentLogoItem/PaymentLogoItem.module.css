@@ -1,0 +1,26 @@
+/* Figma: .PaymentLogoItem — 20×20 circle, 3 types */
+.circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 11페이: gradient #FF4E30 → #FF0738 → #FF01D4 (~135deg) */
+.elevenPay {
+  background: linear-gradient(135deg, #FF4E30 0%, #FF0738 50%, #FF01D4 100%);
+}
+
+/* 카카오페이: yellow #FFEB00 */
+.kakaoPay {
+  background: #FFEB00;
+}
+
+/* 네이버페이: green #00DE5A */
+.naverPay {
+  background: #00DE5A;
+}

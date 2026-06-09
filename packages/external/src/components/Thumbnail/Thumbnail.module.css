@@ -1,0 +1,154 @@
+/* Figma: Thumbnail — node 9743:55035, 393×480px */
+.wrap {
+  position: relative;
+  width: 393px;
+  height: 480px;
+  overflow: hidden;
+}
+
+.wrapProduct {
+  background: #f4f5fa;
+}
+
+.wrapBrand {
+  background: #502470;
+}
+
+.image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ── Product: dots indicator ── */
+.indicator {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Brand: info overlay ── */
+.brandInfo {
+  position: absolute;
+  left: 32px;
+  top: 303px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.brandNameBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: #ffffff;
+}
+
+.brandSub {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+}
+
+.brandName {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -1px;
+}
+
+.brandDesc {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #ffffff;
+  white-space: pre;
+}
+
+.brandMetaRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.subTextRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subText {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+.subDivider {
+  width: 1px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.likeRow {
+  display: flex;
+  align-items: center;
+}
+
+.heartIcon {
+  width: 12px;
+  height: 11px;
+  flex-shrink: 0;
+}
+
+.likeCount {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+}
+
+/* Brand badges */
+.badgeList {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  background: #f4f5fa;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+  white-space: nowrap;
+}

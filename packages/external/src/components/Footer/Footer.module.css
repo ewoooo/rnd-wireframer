@@ -1,0 +1,127 @@
+/* Figma: Footer — node 9729:30506, 393px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px 32px 120px;
+  width: 393px;
+  box-sizing: border-box;
+  background: #f4f5fa;
+}
+
+.wrap01 {
+  gap: 30px;
+}
+
+.wrap02 {
+  height: 368px;
+}
+
+/* ── Type 01: links row ── */
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.linkText {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: rgba(6, 12, 31, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.linkDivider {
+  width: 1px;
+  height: 10px;
+  background: rgba(6, 12, 31, 0.2);
+  flex-shrink: 0;
+}
+
+/* ── Type 01: info group ── */
+.infoGroup01 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.infoRow01 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.infoRowDivider {
+  width: 1px;
+  height: 10px;
+  background: rgba(6, 12, 31, 0.6);
+  flex-shrink: 0;
+}
+
+.infoText01 {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: rgba(6, 12, 31, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Type 01: copyright ── */
+.copyright {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: rgba(6, 12, 31, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Type 02: info group ── */
+.infoGroup02 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-start;
+  color: rgba(6, 12, 31, 0.6);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.infoSection02 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.infoTitle02 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: rgba(6, 12, 31, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.infoBody02 {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: rgba(6, 12, 31, 0.6);
+  width: 100%;
+}

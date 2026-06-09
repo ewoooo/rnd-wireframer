@@ -160,6 +160,15 @@ importers:
         specifier: ^19.2.0
         version: 19.2.7
 
+  packages/external:
+    dependencies:
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
+      react:
+        specifier: ^19.2.0
+        version: 19.2.7
+
   packages/inference:
     dependencies:
       '@cx/agent':

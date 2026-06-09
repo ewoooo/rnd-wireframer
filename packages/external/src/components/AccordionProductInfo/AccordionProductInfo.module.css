@@ -1,0 +1,154 @@
+/* Figma: AccordionProductInfo — node 9793:43094, 369px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  width: 369px;
+  box-sizing: border-box;
+  background: #f4f5fa;
+  border-radius: 20px;
+}
+
+.wrapOpen {
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.leftItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoImg {
+  width: 30px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: rgba(6, 12, 31, 0.6);
+  white-space: nowrap;
+}
+
+.productName {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.64px;
+  color: #05001a;
+  white-space: nowrap;
+}
+
+/* ── Chevron ── */
+.chevronWrap {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 6px;
+  height: 11px;
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* ── Open content ── */
+.spacing {
+  height: 16px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #e2e6f1;
+  flex-shrink: 0;
+}
+
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* ── Default slot content ── */
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #05001a;
+  padding-bottom: 4px;
+  width: 100%;
+}
+
+.sectionSpacing {
+  height: 12px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.list {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #05001a;
+  padding-left: 21px;
+  padding-bottom: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.list li {
+  list-style: disc;
+  margin-bottom: 8px;
+}
+
+.list li:last-child {
+  margin-bottom: 0;
+}

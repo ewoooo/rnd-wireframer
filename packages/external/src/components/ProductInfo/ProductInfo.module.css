@@ -1,0 +1,190 @@
+/* Figma: ProductInfo — node 9641:25662, 393px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 32px 32px 16px;
+  width: 393px;
+  box-sizing: border-box;
+}
+
+/* ── Product text ── */
+.textProduct {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 269px;
+  flex-shrink: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.48px;
+  color: #05001a;
+  white-space: nowrap;
+}
+
+.productName {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.64px;
+  color: #05001a;
+  width: 100%;
+}
+
+/* ── Spacing ── */
+.spacing12 {
+  height: 12px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* ── Price row ── */
+.priceRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.priceLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 146px;
+  flex-shrink: 0;
+}
+
+.textPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.3;
+  width: 100%;
+}
+
+.originalPrice {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.64px;
+  color: rgba(6, 12, 31, 0.5);
+  width: 100%;
+}
+
+.currentPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.discountPercent {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.9px;
+  color: #3617ce;
+  flex-shrink: 0;
+}
+
+.currentPrice {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.9px;
+  color: #05001a;
+  flex-shrink: 0;
+}
+
+.priceUnit {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: #05001a;
+  flex-shrink: 0;
+}
+
+/* ── Badge ── */
+.badgeList {
+  display: flex;
+  gap: 3px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  background: #ebeef6;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: #3617ce;
+  white-space: nowrap;
+}
+
+/* ── Coupon button ── */
+.couponBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  background: #05001a;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.couponBtnText {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.couponBtnIcon {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Usage row ── */
+.usageRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.usageDivider {
+  width: 1px;
+  height: 10px;
+  background: rgba(6, 12, 31, 0.5);
+  flex-shrink: 0;
+}
+
+.usageText {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.48px;
+  color: rgba(6, 12, 31, 0.5);
+  white-space: nowrap;
+}

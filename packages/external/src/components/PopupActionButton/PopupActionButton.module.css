@@ -1,0 +1,61 @@
+/* Figma: 2Buttons=152.5×48 each + gap 8, 1Button=313×48, radius 16, pad 24/12 */
+.container {
+  display: flex;
+  gap: 8px;
+  padding: 24px 12px;
+  width: 337px;
+  box-sizing: border-box;
+}
+
+.twoButton {
+  align-items: center;
+}
+
+.oneButton {
+  justify-content: center;
+}
+
+.btn {
+  height: 48px;
+  border: none;
+  border-radius: 16px;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.secondary {
+  height: 48px;
+  flex: 1;
+  border: none;
+  border-radius: 16px;
+  background: #E2E6F1;
+  color: rgba(6, 12, 31, 0.60);
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryHalf {
+  flex: 1;
+  background: #3617CE;
+  color: #ffffff;
+  box-shadow: 0px 8px 16px 0px rgba(27, 11, 102, 0.16);
+}
+
+.primaryFull {
+  width: 313px;
+  background: #3617CE;
+  color: #ffffff;
+  box-shadow: 0px 8px 16px 0px rgba(27, 11, 102, 0.16);
+}
