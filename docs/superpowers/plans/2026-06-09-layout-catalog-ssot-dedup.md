@@ -1,336 +1,167 @@
-# @cx/layout 계약 SOT 정합 — registry 중복 제거 Implementation Plan
+# @cx/layout external-thin 재구성 Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`).
 
-**Goal:** `components/patterns/registry.ts`가 catalog와 중복 선언하던 layout pattern 계약(props·name·children·status·defaults)을 제거하고, catalog/*.json을 단일 SOT로, registry는 `layoutId → 실제 React pattern component` 결속으로 정본화한다.
+**Goal:** `@cx/layout`을 `@cx/external`과 동일한 스캐폴딩(generated catalog/registry + 손작성 alias + canonicalize + 얇은 resolver + 1컴포넌트1파일 components/)으로 재구성한다.
 
-**Architecture:** registry는 계약 데이터를 자체 선언하지 않고 `getEntry(layoutId)`(JSON catalog)에서 `pattern`을 소싱한다. composite defaults는 catalog로 이관해 `createCompositeWrapper(getEntry(id).defaults)`로 빌드한다. validation/inference/renderer 흐름·렌더 동작 불변.
+**Architecture:** 컴포넌트 콜로케이션(`*.meta.ts`) → sync 스크립트가 `catalog.generated.ts`(entry) + `registry.generated.ts`(canonical component) 생성. 손작성 `catalog.alias.ts`가 layoutId→canonical componentKey. renderer는 registry+canonicalize로 직접 해석. `pattern-internal/*`·`public/*`·`catalog/*.json` 폐기.
 
-**Tech Stack:** TypeScript (moduleResolution Bundler, noEmit), zod v4, Vitest, React 19, pnpm monorepo.
+**설계:** `docs/superpowers/specs/2026-06-09-layout-catalog-ssot-dedup-design.md`
 
-설계 근거: `docs/superpowers/specs/2026-06-09-layout-catalog-ssot-dedup-design.md`
+**시작점:** 현재 브랜치 HEAD(`d3567d86`). 기존 정합된 `catalog/*.json`(L2)과 `composite/presets.ts`(L3)를 seed로 재사용한다.
 
----
-
-## Task 1: parity 테스트 = 정합 worklist (RED)
-
-registry-derived 계약과 catalog 계약의 layoutId별 diff를 가시화한다. 이 테스트가 정합 worklist이자 최종 회귀 가드다.
-
-**Files:**
-- Create: `packages/layout/src/__tests__/layout-catalog-registry-parity.test.ts`
-
-- [ ] **Step 1: 테스트 작성**
-
-```ts
-import { getEntry } from "@cx/layout/catalog";
-import { listLayoutPatternComponents } from "@cx/layout/components";
-import { describe, expect, it } from "vitest";
-
-const entries = listLayoutPatternComponents();
-
-describe("layout registry ↔ catalog parity", () => {
-	it("모든 등록 layoutId는 catalog entry를 가진다", () => {
-		const orphans = entries.filter((e) => getEntry(e.layoutId) === undefined).map((e) => e.layoutId);
-		expect(orphans).toEqual([]);
-	});
-
-	it("모든 등록 layoutId는 실제 렌더 가능한 함수형 component를 가진다", () => {
-		const nonRenderable = entries.filter((e) => typeof e.component !== "function").map((e) => e.layoutId);
-		expect(nonRenderable).toEqual([]);
-	});
-
-	it("모든 catalog entry는 registry에 component를 가진다", () => {
-		const registered = new Set(entries.map((e) => e.layoutId));
-		const targets = ["screen", "region", "area", "composite"] as const;
-		const dangling: string[] = [];
-		for (const target of targets) {
-			// getEntry는 단건 조회이므로 listCatalog로 전수 확인
-		}
-		// listCatalog import 후 전수 비교 (Step 2에서 보강)
-		expect(dangling).toEqual([]);
-	});
-
-	it("registry-derived props가 catalog props와 일치한다", () => {
-		const mismatches = entries
-			.map((e) => {
-				const catalogProps = Object.keys(getEntry(e.layoutId)?.props ?? {}).sort();
-				const registryProps = Object.keys(e.pattern.props ?? {}).sort();
-				return {
-					layoutId: e.layoutId,
-					registryOnly: registryProps.filter((p) => !catalogProps.includes(p)),
-					catalogOnly: catalogProps.filter((p) => !registryProps.includes(p)),
-				};
-			})
-			.filter((m) => m.registryOnly.length > 0 || m.catalogOnly.length > 0);
-		expect(mismatches).toEqual([]);
-	});
-});
-```
-
-세 번째 it의 전수 비교는 `listCatalog`를 import해 `listCatalog().filter((c) => !registered.has(c.id)).map((c) => c.id)`로 완성한다(`import { listCatalog } from "@cx/layout/catalog"`).
-
-- [ ] **Step 2: 실행 → 발산 worklist 확보**
-
-Run: `node_modules/.bin/vitest run packages/layout/src/__tests__/layout-catalog-registry-parity.test.ts`
-Expected: "registry-derived props가 catalog props와 일치한다" FAIL. mismatches 출력에 layoutId별 `registryOnly`/`catalogOnly` 목록이 나온다(예: `layout.area.listStack` registryOnly=["paddingX","sectionGap","slotInsetX"]). 이 출력을 Task 2의 작업 목록으로 사용.
-
-- [ ] **Step 3: 커밋 (RED 가드 + worklist)**
-
-```bash
-git add packages/layout/src/__tests__/layout-catalog-registry-parity.test.ts
-git commit -m "test(layout): add registry↔catalog parity guard (red, reconciliation worklist)"
-```
+**확정 결정:**
+- alias = 손작성(B). composite = **behavior dedup**(registry ~15 canonical: CompositeGap0/Gap8/Gap12 + 고유 12; 49 entry는 alias→canonical, 의미는 entry.name 보존).
+- public subpath = external 미러: `.`, `./catalog`, `./registry`, `./resolver`, `./canonicalize` + layout 고유 `./primitives`, `./chrome`, `./style`.
+- catalog entry는 모든 layoutId 유지(83개), defaults는 entry에 없음(presets).
 
 ---
 
-## Task 2: JSON catalog 계약 정합 (props 진실원화) → parity GREEN
+## Task 1: catalog 타입 + meta 헬퍼
 
-Task 1이 출력한 layoutId별 diff를 해소한다. **registry-only prop은 실제 component 구현 소비 여부로 판정**한다.
+**Files:** Create `packages/layout/src/catalog-types.ts`
 
-**Files:**
-- Modify: `packages/layout/src/catalog/area-patterns.json`, `composite-patterns.json`, `region-patterns.json`, `screen-patterns.json` (해당 layoutId만)
-- Modify: `packages/layout/src/components/patterns/registry.ts` (인라인 prop 헬퍼 호출에서 가짜 prop 제거 — 임시; Task 4에서 테이블 전체 삭제)
-
-- [ ] **Step 1: registry-only prop 소비 검증**
-
-worklist의 각 `registryOnly` prop에 대해 해당 pattern component 구현에서 실제 소비되는지 grep으로 확인한다. 매핑:
-- area/pageStack → `packages/layout/src/components/patterns/area/page-stack/*.tsx` (`presets.ts`, `frame.tsx`, `index.tsx`)
-- area/collection → `area/collection/CollectionArea.tsx`
-- area/general → `area/general/GeneralArea.tsx`
-- composite → `composite/CompositeWrapper.tsx`(읽는 키: `gap`,`componentGap`,`paddingX`,`paddingY`,`buttonHeight`,`height`,`minHeight`,`paddingTop`,`paddingBottom`,`width`,`flow`)
-- screen → `screen/ScreenShell.tsx`
-- region → `region/RegionStack.tsx`
-
-판정:
-- 구현이 소비 → 해당 JSON 파일의 그 entry `props`에 계약 추가(`{ "type": "<type>" }`, enum이면 `values` 포함). type은 registry 인라인 테이블의 동일 prop 정의를 따른다.
-- 구현이 소비하지 않음/잔재 → JSON 추가하지 않음. 대신 registry 인라인 호출에서 그 prop을 제거(예: `pageStackProps()` 기본 키에서 제거, 또는 `compositeProps([...])` 인자에서 제거)해 registry도 더 이상 선언하지 않게 한다.
-
-- [ ] **Step 2: catalogOnly prop 처리**
-
-`catalogOnly`(JSON엔 있으나 registry가 빠뜨린 prop)는 JSON이 SOT이므로 유지. parity를 위해 registry 인라인 호출에 동일 prop을 임시 추가(Task 4에서 어차피 삭제됨). 발산이 registry-과잉(11 vs 8) 위주라 대개 비어 있음.
-
-- [ ] **Step 3: parity GREEN 확인**
-
-Run: `node_modules/.bin/vitest run packages/layout/src/__tests__/layout-catalog-registry-parity.test.ts`
-Expected: 4 it 전부 PASS.
-
-- [ ] **Step 4: 폐기/추가 내역 기록 + 커밋**
-
-폐기한 registry-only prop과 JSON에 추가한 prop을 커밋 메시지에 layoutId별로 명시.
-
-```bash
-git add packages/layout/src/catalog/*.json packages/layout/src/components/patterns/registry.ts
-git commit -m "refactor(layout): reconcile catalog props as the supported-prop SOT
-
-- add component-consumed registry-only props to JSON catalog
-- drop non-consumed registry-only props (listed per layoutId)
-- catalog now the accurate prop contract; parity guard green"
-```
-
----
-
-## Task 3: composite named component + presets 신설 (area와 대칭)
-
-composite를 area처럼 component-land의 named component로 만든다. defaults는 `composite/presets.ts`에 둔다(catalog 아님). 결과: 모든 target이 균일하게 named component.
-
-**Files:**
-- Create: `packages/layout/src/components/patterns/composite/presets.ts`
-- Create: `packages/layout/src/components/patterns/composite/index.ts`
-- Create: `packages/layout/src/__tests__/layout-composite-presets.test.ts`
-
-- [ ] **Step 1: presets.ts — defaults 이관**
-
-`registry.ts`의 `compositeLayouts` 배열(line 201~551) 각 entry의 `defaults`를 layoutId suffix(camelCase) 키로 옮긴다. `CompositeWrapperDefaults`는 `./CompositeWrapper`에 이미 존재.
+- [ ] **Step 1: 타입 정의** — external `ComponentCatalogEntry`와 평행.
 ```ts
-import type { CompositeWrapperDefaults } from "./CompositeWrapper";
-
-// composite defaults는 component-land에 둔다(area presets와 동일 정책). catalog는 계약만 소유.
-export const compositeDefaults = {
-	componentAppBar: { gap: 0 },
-	componentThumbnailLarge: { gap: 0 },
-	componentTextField: { gap: 0 },
-	componentSectionMessage: { gap: 0 },
-	componentButton: { gap: 0 },
-	// …compositeLayouts의 layoutId suffix → defaults 49개 전부 1:1 복사…
-	componentProductInfo: { gap: 8, paddingX: 32 },
-	componentOptionCard: { gap: 4, minHeight: 74 },
-	componentBannerIndicator: { gap: 10, height: 112, width: 369 },
-	componentChipFilter: { flow: "horizontal", gap: 8, height: 57, paddingX: 32 },
-	componentTab: { flow: "horizontal", gap: 0, height: 47 },
-	componentSearchBar: { gap: 0, height: 61 },
-	// …나머지…
-} as const satisfies Record<string, CompositeWrapperDefaults>;
-```
-값은 registry 인라인과 정확히 동일(렌더 불변).
-
-- [ ] **Step 2: index.ts — named composite component 49개**
-
-이름은 catalog `componentID`와 일치(예: `layout.composite.componentAppBar`의 componentID = `ComponentAppBarComposite`). area의 `createPageStackArea` 패턴과 동형.
-```ts
-import { createCompositeWrapper } from "./CompositeWrapper";
-import { compositeDefaults } from "./presets";
-
-export const ComponentAppBarComposite = createCompositeWrapper(compositeDefaults.componentAppBar);
-export const ComponentThumbnailLargeComposite = createCompositeWrapper(compositeDefaults.componentThumbnailLarge);
-// …49개 전부. registry compositeLayouts의 componentID를 export 이름으로, defaults 키를 인자로…
-export const ComponentProductInfoComposite = createCompositeWrapper(compositeDefaults.componentProductInfo);
-```
-
-- [ ] **Step 3: 완전성 테스트 작성 + 통과**
-
-```ts
-import { listCatalog } from "@cx/layout/catalog";
-import { describe, expect, it } from "vitest";
-import { compositeDefaults } from "../components/patterns/composite/presets";
-
-describe("composite presets ↔ catalog 완전성", () => {
-	it("모든 composite catalog entry는 defaults preset을 가진다", () => {
-		const missing = listCatalog({ target: "composite" })
-			.map((e) => e.id.replace("layout.composite.", ""))
-			.filter((key) => !(key in compositeDefaults));
-		expect(missing).toEqual([]);
-	});
-
-	it("preset 키는 catalog에 없는 잉여가 없다", () => {
-		const ids = new Set(
-			listCatalog({ target: "composite" }).map((e) => e.id.replace("layout.composite.", "")),
-		);
-		const extra = Object.keys(compositeDefaults).filter((k) => !ids.has(k));
-		expect(extra).toEqual([]);
-	});
-});
-```
-
-Run: `node_modules/.bin/vitest run packages/layout/src/__tests__/layout-composite-presets.test.ts`
-Expected: PASS (49 키 ↔ 49 composite entry 정합).
-
-- [ ] **Step 4: 커밋**
-
-```bash
-git add packages/layout/src/components/patterns/composite/presets.ts packages/layout/src/components/patterns/composite/index.ts packages/layout/src/__tests__/layout-composite-presets.test.ts
-git commit -m "feat(layout): add named composite components + presets (symmetric with area patterns)"
-```
-
----
-
-## Task 4: registry 붕괴 — named component 균일 매핑 + 인라인 테이블 삭제
-
-registry를 `layoutId → named component` 결속만 남기고, `pattern`(props/name/children/status)을 `getEntry`에서 소싱한다. 모든 target이 named component를 직접 참조(composite도 Task 3의 named component 사용 — registry 안 익명 조립 제거).
-
-**Files:**
-- Modify: `packages/layout/src/components/patterns/registry.ts` (대폭 축소)
-
-- [ ] **Step 1: registry 재작성**
-
-`registry.ts`를 다음 구조로 교체. `layoutId → component` 쌍은 기존 `areaPageStackLayouts`/`areaCollectionLayouts`/`areaGeneralLayouts`/`regionStackLayouts`/`screenShellLayouts`의 `(layoutId, component)`와, composite는 기존 `compositeLayouts`의 `(layoutId, componentID)`를 Task 3의 named export로 매핑해 옮긴다.
-
-```ts
-import { getEntry } from "../../public/catalog";
-import {
-	AccordionListArea, ActionStackArea, /* …기존 area imports 전부… */ TextListGroupArea,
-} from "./area";
-import {
-	ComponentAppBarComposite, /* …Task 3 named composite exports 49개 전부… */ ComponentProductInfoComposite,
-} from "./composite";
-import { PlainStackRegion } from "./region/RegionStack";
-import { MobileScreen } from "./screen/ScreenShell";
-import type { LayoutPatternComponent, LayoutPatternComponentEntry } from "./types";
-
-// layoutId → 실제 렌더 named component. 계약 데이터(props/name/children/status)는 catalog가 소유한다.
-const COMPONENTS_BY_LAYOUT_ID: Record<string, LayoutPatternComponent> = {
-	// area (기존 areaPageStackLayouts/areaCollectionLayouts/areaGeneralLayouts의 layoutId→component)
-	"layout.area.accordionList": AccordionListArea,
-	// …area 전부…
-	// region
-	"layout.region.header": PlainStackRegion,
-	"layout.region.contents": PlainStackRegion,
-	"layout.region.bottom": PlainStackRegion,
-	// screen
-	"layout.screen.mobileScreen": MobileScreen,
-	// composite (기존 compositeLayouts의 layoutId → Task 3 named export)
-	"layout.composite.componentAppBar": ComponentAppBarComposite,
-	// …composite 49개 전부…
-	"layout.composite.componentProductInfo": ComponentProductInfoComposite,
+export type LayoutPatternTarget = "screen" | "region" | "area" | "composite";
+export type LayoutPatternPropType = "array" | "boolean" | "enum" | "node" | "number" | "object" | "string";
+export type LayoutPatternPropContract = { type: LayoutPatternPropType; aiWritable?: boolean; description?: string; required?: boolean; values?: string[]; };
+export type LayoutPatternChildrenContract = { accepts: "any" | "area" | "area-or-component" | "component" | "none" | "region"; max?: number; min?: number; };
+export type LayoutCatalogStatus = "stable" | "draft" | "deprecated";
+export type LayoutCatalogEntry = {
+  id: `layout.${LayoutPatternTarget}.${string}`;
+  target: LayoutPatternTarget;
+  name: string;
+  props?: Record<string, LayoutPatternPropContract>;
+  children?: LayoutPatternChildrenContract;
+  description?: string;
+  status?: LayoutCatalogStatus;
 };
-
-function buildEntry(layoutId: string, component: LayoutPatternComponent): LayoutPatternComponentEntry | undefined {
-	const pattern = getEntry(layoutId);
-	if (!pattern) return undefined; // parity 테스트가 orphan을 잡는다
-	return { component, layoutId: pattern.id, pattern, target: pattern.target };
-}
-
-const layoutPatternComponents: LayoutPatternComponentEntry[] = Object.entries(COMPONENTS_BY_LAYOUT_ID)
-	.map(([id, component]) => buildEntry(id, component))
-	.filter((e): e is LayoutPatternComponentEntry => e !== undefined);
-
-export function listRegisteredLayoutPatternComponents(): LayoutPatternComponentEntry[] {
-	return layoutPatternComponents;
-}
-
-export function findRegisteredLayoutPatternComponentByLayoutId(layoutId: string): LayoutPatternComponentEntry | undefined {
-	return layoutPatternComponents.find((entry) => entry.layoutId === layoutId);
-}
-
-export function findRegisteredLayoutPatternComponent(patternId: string): LayoutPatternComponentEntry | undefined {
-	return layoutPatternComponents.find((entry) => entry.pattern.id === patternId);
-}
+export type LayoutCatalogMeta = LayoutCatalogEntry; // meta = entry 계약 (defaults 미포함)
 ```
-
-삭제 대상: `compositePropContractByKey`/`screenPropContractByKey`/`collectionPropContractByKey`/`generalAreaPropContractByKey`/`pageStackPropContractByKey` 5개 테이블, `compositeProps`/`pageStackProps`/`collectionProps`/`generalAreaProps`/`screenShellProps` 5개 헬퍼, `compositeLayouts`(defaults 포함 — Task 3 presets로 이관됨)/`areaPageStackLayouts`/`areaCollectionLayouts`/`areaGeneralLayouts`/`regionStackLayouts`/`screenShellLayouts` 배열 및 `*PatternComponents` `.map()` 빌더 전부, registry 내 `createCompositeWrapper` import 및 인라인 호출 전부.
-
-- [ ] **Step 2: parity + 전체 layout 테스트**
-
-Run: `node_modules/.bin/vitest run packages/layout`
-Expected: parity 4 it PASS(이제 `pattern`이 catalog 소싱이라 자명), defaults 테스트 PASS, 기존 layout 테스트 PASS.
-
-- [ ] **Step 3: 중복 잔재 grep 가드**
-
-Run: `grep -nE "PropContractByKey|compositeProps|pageStackProps|collectionProps|generalAreaProps|screenShellProps" packages/layout/src/components/patterns/registry.ts`
-Expected: 0건.
-
-- [ ] **Step 4: 커밋**
-
-```bash
-git add packages/layout/src/components/patterns/registry.ts
-git commit -m "refactor(layout): collapse registry to layoutId→component; source pattern+defaults from catalog"
-```
+- [ ] **Step 2: 커밋** `feat(layout): add external-parallel catalog entry types`
 
 ---
 
-## Task 5: 의존 테스트 정리 + 전체 검증 + graphify
+## Task 2: sync 스크립트 골격 + zod 검증 이관
 
-**Files:**
-- Modify (필요 시): `packages/layout/src/__tests__/layout-public-api.test.ts` (line 103~107 `entry.pattern.props` 단언이 catalog 소싱과 일치하는지 확인; 중복 검증이면 parity 테스트로 대체/축소)
+**Files:** Create `scripts/sync-layout-catalog/index.ts`, `scripts/sync-layout-catalog/schema.ts`; package.json `"sync:layout"` script.
 
-- [ ] **Step 1: layout 패키지 전체**
-
-Run: `node_modules/.bin/vitest run packages/layout`
-Expected: 0 fail. 깨지면 catalog 소싱 결과에 맞춰 fixture 단언 수정(값 변경이 아니라 출처 변경이므로 의미 동일해야 함).
-
-- [ ] **Step 2: 소비자 패키지 회귀**
-
-Run: `node_modules/.bin/vitest run packages/renderer packages/validation packages/inference`
-Expected: 0 새 실패(렌더 동작 불변, validation/inference는 JSON catalog만 소비). 기존 known-fail(App.test 1건) 제외.
-
-- [ ] **Step 3: 전체 스위트**
-
-Run: `node_modules/.bin/vitest run`
-Expected: 리팩터 여파로 새로 깨지는 테스트 없음.
-
-- [ ] **Step 4: graphify 갱신 + 커밋**
-
-```bash
-graphify update .
-git add -A
-git commit -m "test(layout): align public-api fixture with catalog-sourced pattern; refresh graphify"
-```
+- [ ] **Step 1: zod 스키마 이관** — 기존 `packages/layout/src/pattern-internal/schema.ts`의 `layoutPatternCatalogEntrySchema`/prop/children 스키마를 `scripts/sync-layout-catalog/schema.ts`로 옮긴다(런타임 패키지에서 제거). `defaults` 없이 entry 계약만 검증.
+- [ ] **Step 2: 생성기 작성** — `components/**/*.meta.ts` glob 수집 → 각 `export const meta` 읽어 zod 검증 → 정렬·중복 id 검사:
+  - `catalog.generated.ts` emit: `export const layoutCatalog: Record<string, LayoutCatalogEntry> = { [id]: entry, … }`
+  - `registry.generated.ts` emit: `catalog.alias.ts`의 canonical componentKey 집합을 모아, 각 컴포넌트 파일에서 `export { <Key> } from "./components/.../<Key>"` 생성. (componentKey→파일경로 매핑은 컴포넌트 파일이 그 이름으로 export하는 것을 스캔하거나, alias 값 집합 기준.)
+- [ ] **Step 3: 멱등성 테스트** — `node_modules/.bin/tsx scripts/sync-layout-catalog` 두 번 실행 시 산출물 byte 동일.
+- [ ] **Step 4: 커밋** `feat(layout): add sync-layout-catalog generator (zod validation moved from runtime)`
 
 ---
 
-## 최종 검토 (전체 구현 후)
+## Task 3: primitives 정리
 
-- catalog/*.json = props·name·children·status 계약 SOT, registry = layoutId→실제 named component (계약 데이터 0) — spec End State 충족.
-- 모든 target(area/region/screen/composite)이 균일하게 named component. composite도 component-land named component(`composite/presets.ts` defaults).
-- catalog ↔ component 전단사 불변식(parity 테스트) 그린.
-- 렌더 동작·validation·inference 불변. composite defaults 값 1:1 보존 확인.
-- 폐기한 registry-only prop이 실제 미사용임을 component 구현으로 확인했는지 재검토.
+**Files:** `packages/layout/src/components/primitives/*` (이미 Flex/Grid/Stack/PageStack/BottomFixedArea 개별 파일 존재 — 확인·index 정리만)
+
+- [ ] **Step 1** primitives/index.ts가 5개 primitive를 export하는지 확인, 누락 보강. (구조 변경 거의 없음)
+- [ ] **Step 2: 커밋** (변경 있으면) `refactor(layout): tidy primitives barrel`
+
+---
+
+## Task 4: regions + chromes 1파일화 + meta
+
+**Files:** `packages/layout/src/components/regions/*`, `packages/layout/src/components/chromes/*` (기존 `chrome/`, `components/patterns/region/` 이동)
+
+- [ ] **Step 1: regions** — `RegionStack.tsx`(엔진, 기존 region/RegionStack.tsx 이동). region 3개(header/contents/bottom)는 모두 `PlainStackRegion` behavior → canonical 1개. 각 entry meta 작성: `regions/header.meta.ts`, `contents.meta.ts`, `bottom.meta.ts` (target:"region", props:{}, children:{accepts:"area-or-component"}, status). componentKey = `PlainStackRegion`.
+- [ ] **Step 2: chromes** — 기존 `chrome/`(AppScreen/AppScreenRoot/ScreenRegion/SystemHeader/icons)를 `components/chromes/`로 이동. screen entry meta: `chromes/mobileScreen.meta.ts` (target:"screen", componentKey=`MobileScreen`). `@cx/layout/chrome` subpath는 `components/chromes/index.ts`로 재지정.
+- [ ] **Step 3: 커밋** `refactor(layout): move regions/chromes to components/, add meta`
+
+---
+
+## Task 5: areas 1파일화 + 등가류 계산 + meta
+
+**Files:** `packages/layout/src/components/areas/{general,page-stack,collection}/*`
+
+- [ ] **Step 1: 엔진 유지** — `general/GeneralArea.tsx`, `page-stack/PageStackFrame.tsx`(기존 frame.tsx), `collection/CollectionArea.tsx`, 각 `presets.ts` 유지/이동.
+- [ ] **Step 2: 등가류 계산** — page-stack(12)·collection(13)·general(5) 각 preset defaults를 정규화해 동일 defaults끼리 묶는다(L3에서 composite에 쓴 방식). canonical = behavior별 1개. 이미 확인된 동일쌍: `noticeAccordionStackArea ≡ plainInfoTextListArea`, `fieldStack ≡ tabChipSearchAccordionArea`.
+- [ ] **Step 3: canonical 컴포넌트 파일** — behavior별 canonical 컴포넌트를 named .tsx로(예: `page-stack/ListStackArea.tsx` 등 대표 1개씩). general 5개는 각 distinct(AreaVertical/BottomActionArea/ProductHeroSummaryArea/ProductFooterLegalArea/AreaAppBarArea).
+- [ ] **Step 4: entry meta** — area entry 30개 각각 `<id>.meta.ts`(props는 기존 정합된 area-patterns.json에서 seed, target/name/children/status). 동일 폴더 colocation.
+- [ ] **Step 5: 커밋** `refactor(layout): split areas into per-file canonical components + entry meta`
+
+---
+
+## Task 6: composites behavior dedup + meta
+
+**Files:** `packages/layout/src/components/composites/*`
+
+- [ ] **Step 1: canonical 컴포넌트** — `CompositeWrapper.tsx`(엔진) 유지. 등가류 15개를 named .tsx로: `CompositeGap0.tsx`(`createCompositeWrapper({gap:0})`), `CompositeGap8.tsx`, `CompositeGap12.tsx`, + 고유 12개(`ComponentBannerIndicatorComposite.tsx` 등, presets 값 1:1). presets.ts(L3)에서 값 재사용.
+- [ ] **Step 2: entry meta** — composite entry 49개 각각 `<id>.meta.ts`(props는 기존 정합 composite-patterns.json seed, name 보존). `composites/` 폴더 colocation.
+- [ ] **Step 3: 커밋** `refactor(layout): dedup composites to 15 canonical + 49 entry meta`
+
+---
+
+## Task 7: catalog.alias.ts 손작성
+
+**Files:** Create `packages/layout/src/catalog.alias.ts`
+
+- [ ] **Step 1** — 모든 layoutId(83) → canonical componentKey 매핑. composite 49→15(behavior), area 30→canonical, region 3→PlainStackRegion, screen 1→MobileScreen. 등가류 계산 결과 사용.
+- [ ] **Step 2: 커밋** `feat(layout): hand-authored catalog.alias (layoutId -> canonical componentKey)`
+
+---
+
+## Task 8: catalog.generated / registry.generated 생성
+
+- [ ] **Step 1** `pnpm sync:layout` 실행 → `catalog.generated.ts`(83 entry) + `registry.generated.ts`(canonical export) 생성.
+- [ ] **Step 2: diff 가드** — 생성된 catalog의 (id·target·props 키·status) 집합이 기존 `catalog/*.json` 집합과 일치하는지 비교 테스트. 불일치 시 meta 누락/오타 수정.
+- [ ] **Step 3: 커밋** `feat(layout): generate catalog.generated + registry.generated`
+
+---
+
+## Task 9: resolver.ts + canonicalize-catalog.ts
+
+**Files:** Create `packages/layout/src/resolver.ts`, `packages/layout/src/canonicalize-catalog.ts`
+
+- [ ] **Step 1: resolver** (external 미러)
+```ts
+import { layoutCatalog } from "./catalog.generated";
+export { layoutCatalog };
+export function getLayoutCatalogEntry(id: string) { return layoutCatalog[id]; }
+export function getLayoutCatalogIds() { return Object.keys(layoutCatalog).sort(); }
+export function getLayoutCatalogStatus(id: string) { return layoutCatalog[id]?.status; }
+export function listLayoutCatalog(opts: { target?: LayoutPatternTarget; status?: LayoutCatalogStatus } = {}) {
+  return Object.values(layoutCatalog).filter((e) => (!opts.target || e.target === opts.target) && (!opts.status || e.status === opts.status));
+}
+export function resolveLayoutCatalogForInference(): LayoutCatalogObject { /* 기존 catalog.ts 형태 유지: kind/owner/sourceRef/version/schemaVersion + data{screen,region,area,composite} */ }
+```
+- [ ] **Step 2: canonicalize** — `assertAliasIntegrity()`(모든 catalog id∈alias, 모든 alias값∈registry export; 모듈 로드 throw) + `canonicalizeLayout(id)=layoutAlias[id]`.
+- [ ] **Step 3: 가드 테스트** — alias 무결성 + 모든 catalog id가 canonicalize→registry component(함수형)로 해석.
+- [ ] **Step 4: 커밋** `feat(layout): resolver (catalog read) + canonicalize-catalog (alias integrity)`
+
+---
+
+## Task 10: 폐기 + package.json exports 정렬
+
+- [ ] **Step 1: 삭제** — `pattern-internal/*`, `public/*`, `catalog/*.json`, `canonical/*`, 기존 `components/patterns/registry.ts`, `components/patterns/` 잔재, `types.ts`(LAYOUT_PROP_CONTRACTS는 `components/primitives/` 또는 신규 `layout-node-contracts.ts`로 보존). 기존 `__tests__` 중 폐기 API 의존분 정리.
+- [ ] **Step 2: index.ts + exports** — `package.json` exports를 external 미러로 교체: `.`, `./catalog`, `./registry`, `./resolver`, `./canonicalize`, `./primitives`, `./chrome`, `./style`. `./components`/`./contract`/`./mutations`/`./catalog`(구)·`./resolver`(구) 제거.
+- [ ] **Step 3: 커밋** `refactor(layout): drop pattern-internal/public/json, align exports with external`
+
+---
+
+## Task 11: 소비자 재배선 + 전체 검증
+
+**Files:** renderer `resolve-layout.tsx`, inference `knowledge-base.ts`, validation `validators.ts`
+
+- [ ] **Step 1: renderer** — `@cx/layout/components` `findLayoutPatternComponentByLayoutId` 제거. `@cx/layout/registry`(전체 import) + `@cx/layout/canonicalize` `canonicalizeLayout`로 `registry[canonicalizeLayout(node.layout)]` 해석(external resolve-component.tsx와 동형). pattern 메타가 필요하면 `@cx/layout/resolver` `getLayoutCatalogEntry`.
+- [ ] **Step 2: inference** — `@cx/layout/catalog` → `@cx/layout/resolver` `resolveLayoutCatalogForInference`.
+- [ ] **Step 3: validation** — `@cx/layout/catalog` `findPattern` → `@cx/layout/resolver` `getLayoutCatalogEntry`. `LAYOUT_PROP_CONTRACTS` import 경로를 Task 10의 새 위치로.
+- [ ] **Step 4: 전체 검증**
+  - `node_modules/.bin/vitest run packages/layout packages/renderer packages/validation packages/inference` — pre-existing 2건(App.test, bottomActionArea CTA) 외 새 실패 0.
+  - `node_modules/.bin/vitest run` 전체.
+  - `grep -rn "@cx/layout/\(catalog\|components\|mutations\|contract\)" packages apps --include=*.ts --include=*.tsx | grep -v packages/layout` → 0.
+  - `ls packages/layout/src/{pattern-internal,public,catalog,canonical} 2>/dev/null` → 없음.
+- [ ] **Step 5: graphify + 커밋** `graphify update .`; `refactor(layout): rewire consumers to resolver/registry/canonicalize; external-thin complete`
+
+---
+
+## 최종 검토
+- layout 디렉터리 = external 미러(generated catalog/registry, 손 alias, canonicalize, 얇은 resolver, 1컴포넌트1파일 components/).
+- entry 데이터 모델·resolver API external 동형. renderer가 registry+canonicalize로 직접 해석.
+- 생성 catalog == 기존 entry 집합(diff 가드), alias 무결성, 렌더 동작 불변, 새 테스트 실패 0.
+- composite 49→15 canonical(behavior), 의미는 entry.name 보존.
