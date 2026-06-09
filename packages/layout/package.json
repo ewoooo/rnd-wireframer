@@ -13,6 +13,7 @@
 		"./primitives": "./src/public/primitives.ts",
 		"./resolver": "./src/public/resolver.ts",
 		"./style": "./src/public/style.ts",
+		"./canonical": "./src/canonical/canonicalize-layout.ts",
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
