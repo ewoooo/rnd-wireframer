@@ -1,8 +1,13 @@
-import type { InferenceEvent } from "@cx/inference";
+import type { InferenceEvent } from "@cx/inference/contracts";
 import { describe, expect, it } from "vitest";
 import { initialInferenceStreamState, reduceInferenceEvent } from "./inference-events-reducer";
 
-const ev = (seq: number, type: InferenceEvent["type"]): InferenceEvent => ({ seq, jobId: "j", type, timestamp: "t" });
+const ev = (seq: number, type: InferenceEvent["type"]): InferenceEvent => ({
+	seq,
+	jobId: "j",
+	type,
+	timestamp: "t",
+});
 
 describe("reduceInferenceEvent", () => {
 	it("accumulates and tracks terminal status", () => {

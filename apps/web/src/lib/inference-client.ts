@@ -1,4 +1,4 @@
-import type { InferenceEvent } from "@cx/inference";
+import type { InferenceEvent } from "@cx/inference/contracts";
 
 const INFERENCE_EVENT_TYPES = [
 	"job_started",

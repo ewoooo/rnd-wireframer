@@ -1,4 +1,4 @@
-import type { Job, Step } from "@cx/inference";
+import type { Job, Step } from "@cx/inference/contracts";
 import {
 	createFailedScreenInferenceStatus,
 	createScreenInferenceProgressStatus,

@@ -1,4 +1,4 @@
-import { INFERENCE_EVENT_TYPES, type InferenceEvent, type Job, type Step } from "@cx/inference";
+import type { InferenceEvent, Job, Step } from "@cx/inference/contracts";
 import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import type {
 	ScreenInferenceRunCreateResponse,
@@ -23,6 +23,15 @@ const artifactPathByAlias = {
 	"quality-review.json": "steps/08-quality/output.json",
 	"validation-report.json": "context/validation-report.json",
 } as const;
+
+const inferenceEventTypes = [
+	"job_started",
+	"job_completed",
+	"job_failed",
+	"step_started",
+	"step_completed",
+	"step_failed",
+] as const;
 
 export async function uploadScreenInferenceSource(file: File): Promise<NewScreenSourceItem> {
 	const formData = new FormData();
@@ -134,13 +143,13 @@ export function subscribeScreenInferenceRunEvents(
 		handlers.onError?.();
 	};
 
-	for (const type of INFERENCE_EVENT_TYPES) {
+	for (const type of inferenceEventTypes) {
 		source.addEventListener(type, handleEvent);
 	}
 	source.addEventListener("error", handleError);
 
 	return () => {
-		for (const type of INFERENCE_EVENT_TYPES) {
+		for (const type of inferenceEventTypes) {
 			source.removeEventListener(type, handleEvent);
 		}
 		source.removeEventListener("error", handleError);
