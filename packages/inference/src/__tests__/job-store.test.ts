@@ -34,6 +34,26 @@ describe("JobStore", () => {
 		expect((await jobStore.getJob("job-1")).status).toBe("running");
 	});
 
+	it("lists jobs from stored job snapshots ordered by updatedAt descending", async () => {
+		const { jobStore } = makeStore();
+		await jobStore.createJob({
+			pipelineId: "demo",
+			pipelineVersion: "v1",
+			input: { screenCode: "first" },
+		});
+		await jobStore.createJob({
+			pipelineId: "demo",
+			pipelineVersion: "v1",
+			input: { screenCode: "second" },
+		});
+		await jobStore.updateJob("job-1", { status: "running" });
+
+		expect((await jobStore.listJobs()).map((job) => [job.jobId, job.status])).toEqual([
+			["job-1", "running"],
+			["job-2", "queued"],
+		]);
+	});
+
 	it("appendEvent assigns a monotonic seq and listEvents filters by after", async () => {
 		const { jobStore } = makeStore();
 		await jobStore.createJob({ pipelineId: "demo", pipelineVersion: "v1", input: {} });

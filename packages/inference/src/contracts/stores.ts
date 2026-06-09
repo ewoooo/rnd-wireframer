@@ -7,6 +7,7 @@ export interface ArtifactStore {
 	readText(jobId: string, path: string): Promise<string>;
 	readJson<T>(jobId: string, path: string): Promise<T>;
 	exists(jobId: string, path: string): Promise<boolean>;
+	listJobIds(): Promise<string[]>;
 }
 
 export interface JobStore {
@@ -17,6 +18,7 @@ export interface JobStore {
 	updateStep(jobId: string, stepId: string, patch: Partial<Step>): Promise<void>;
 	appendEvent(jobId: string, event: Omit<InferenceEvent, "seq">): Promise<InferenceEvent>;
 	listEvents(jobId: string, after?: number): Promise<InferenceEvent[]>;
+	listJobs(): Promise<Job[]>;
 }
 
 export interface ContextStore {

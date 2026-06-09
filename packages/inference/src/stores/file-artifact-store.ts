@@ -1,4 +1,4 @@
-import { access, appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, appendFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ArtifactStore } from "../contracts";
 
@@ -49,6 +49,20 @@ export class FileArtifactStore implements ArtifactStore {
 			return true;
 		} catch {
 			return false;
+		}
+	}
+
+	async listJobIds(): Promise<string[]> {
+		const root = path.resolve(this.dataRoot, "inference-jobs");
+		try {
+			const entries = await readdir(root, { withFileTypes: true });
+			return entries
+				.filter((entry) => entry.isDirectory() && SAFE_JOB_ID.test(entry.name))
+				.map((entry) => entry.name)
+				.sort();
+		} catch (error) {
+			if (error instanceof Error && "code" in error && error.code === "ENOENT") return [];
+			throw error;
 		}
 	}
 }

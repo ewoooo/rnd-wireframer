@@ -35,6 +35,14 @@ function artifactStoreContract(name: string, make: () => ArtifactStore) {
 			expect(await s.exists("job1", "x.txt")).toBe(true);
 		});
 
+		it("lists job ids that have artifacts", async () => {
+			const s = make();
+			await s.writeJson("job-b", "job.json", { jobId: "job-b" });
+			await s.writeJson("job-a", "job.json", { jobId: "job-a" });
+
+			expect(await s.listJobIds()).toEqual(["job-a", "job-b"]);
+		});
+
 		it("rejects ../ path escape", async () => {
 			const s = make();
 			await expect(s.writeText("job1", "../evil.txt", "x")).rejects.toThrow();

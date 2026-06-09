@@ -4,6 +4,7 @@ import type {
 	ScreenInferenceRunCreateResponse,
 	ScreenInferenceRunStatus,
 } from "@/lib/screen-inference-run";
+import type { ScreenInferenceRunRow } from "@/lib/screen-inference-runs";
 import { toScreenInferenceStatus } from "@/lib/screen-inference-status-adapter";
 
 type InferenceSourceUploadResponse = {
@@ -14,6 +15,11 @@ type InferenceSourceUploadResponse = {
 type InferenceSourceListResponse = {
 	error?: string;
 	sources?: NewScreenSourceItem[];
+};
+
+type InferenceRunListResponse = {
+	error?: string;
+	runs?: ScreenInferenceRunRow[];
 };
 
 const artifactPathByAlias = {
@@ -60,6 +66,17 @@ export async function fetchScreenInferenceSources(): Promise<NewScreenSourceItem
 	}
 
 	return body.sources ?? [];
+}
+
+export async function fetchScreenInferenceRuns(): Promise<ScreenInferenceRunRow[]> {
+	const response = await fetch("/api/inference/runs");
+	const body = (await response.json()) as InferenceRunListResponse;
+
+	if (!response.ok || body.error) {
+		throw new Error(body.error ?? `새 화면 inference run 목록 요청 실패 ${response.status}`);
+	}
+
+	return body.runs ?? [];
 }
 
 export async function createScreenInferenceRunFromSource(

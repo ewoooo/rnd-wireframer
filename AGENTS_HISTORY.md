@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-09 - Inference JobId Run List
+
+- 변경: `@cx/inference` artifact/job store에 job 목록 조회 계약을 추가하고 Web `/api/inference/runs`가 `job.json`과 기존 context artifacts를 조합해 jobId 기준 run row를 반환하도록 함
+- 변경: run row는 별도 manifest 없이 `context/source-input.json`, `context/source-spec.json`, RenderTree/validation/quality/apply artifacts에서 화면명, source path, 산출물 존재 여부, applied 상태를 materialize한다.
+- 이유: 새 화면 workbench의 선택/렌더 단위를 source path가 아니라 `jobId`로 통일하기 위한 데이터 라이프사이클 기반을 먼저 고정하기 위함
+- 검증: `pnpm exec vitest run packages/inference/src/__tests__/artifact-store.test.ts packages/inference/src/__tests__/job-store.test.ts apps/web/src/lib/screen-inference-runs.test.ts apps/web/src/server/inference-runs.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm build`, `graphify update .`
+
 ## 2026-06-08 - Inference Deterministic Validation Scaffold
 
 - 변경: `screen-generation@v1`에 `05-validation`, 조건부 `06-revision`, `07-validation-after-revision`, `08-quality` 순서를 추가하고 deterministic validation report를 `context/validation-report.json`에 저장하도록 함

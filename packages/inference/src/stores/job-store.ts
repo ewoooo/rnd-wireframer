@@ -32,6 +32,21 @@ export function createJobStore(
 			return store.readJson<Job>(jobId, INFERENCE_ARTIFACT_PATH.job);
 		},
 
+		async listJobs(): Promise<Job[]> {
+			const jobs = await Promise.all(
+				(await store.listJobIds()).map(async (jobId) => {
+					try {
+						return await store.readJson<Job>(jobId, INFERENCE_ARTIFACT_PATH.job);
+					} catch {
+						return undefined;
+					}
+				}),
+			);
+			return jobs
+				.filter((job): job is Job => Boolean(job))
+				.sort((first, second) => second.updatedAt.localeCompare(first.updatedAt));
+		},
+
 		async updateJob(jobId: string, patch: Partial<Job>): Promise<void> {
 			const current = await store.readJson<Job>(jobId, INFERENCE_ARTIFACT_PATH.job);
 			await store.writeJson(jobId, INFERENCE_ARTIFACT_PATH.job, {

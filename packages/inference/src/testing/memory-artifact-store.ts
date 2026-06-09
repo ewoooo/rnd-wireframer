@@ -34,4 +34,10 @@ export class MemoryArtifactStore implements ArtifactStore {
 	async exists(jobId: string, rel: string): Promise<boolean> {
 		return this.files.has(this.key(jobId, rel));
 	}
+
+	async listJobIds(): Promise<string[]> {
+		return Array.from(
+			new Set(Array.from(this.files.keys()).map((key) => key.slice(0, key.indexOf("/")))),
+		).sort();
+	}
 }
