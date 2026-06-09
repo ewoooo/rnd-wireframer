@@ -131,11 +131,12 @@ packages/layout/src/
 
 ## 6. 앱 구조 규칙
 
-`apps/web`은 단일 제품 앱이므로 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, screen inference UI, workbench shell의 책임은 파일 위치와 import 방향으로 구분한다.
+`apps/web`은 단일 제품 앱이자 현재 screen generation 서버 entrypoint다. 기능별 제품 namespace를 과하게 만들지 않는다. 다만 screen DB, Puck editor, screen inference UI, workbench shell, headless inference API의 책임은 파일 위치와 import 방향으로 구분한다.
 
 ```text
 apps/web/src/
   app/             Next.js route와 API route
+    api/inference/ screen generation headless/server API
     api/screens/   screen DB facade
   components/      RenderTree 소비 UI
     layout/        workbench shell
@@ -153,6 +154,8 @@ apps/web/src/
 - workbench shell은 screen summary, candidate state, tab routing만 조립한다.
 
 생성, 검수, Claude 실행, inference orchestration은 앱 책임이 아니며 `@cx/inference`/`@cx/agent`/`@cx/validation` 경계를 따른다. `apps/web` API route는 얇은 adapter로만 둔다.
+
+Headless screen generation은 별도 앱을 새로 만들지 않고 `apps/web/src/app/api/inference/*`를 공식 서버 표면으로 사용한다. Web UI를 사용하지 않는 CLI, curl, 외부 자동화도 `/api/inference/*`만 호출하고, `apps/web/src/server/*` 또는 package 내부 worker를 직접 import하지 않는다. 독립 서버 앱은 배포 단위, 프로세스 격리, queue scaling 요구가 생길 때 별도 결정으로 추가한다.
 
 ## 7. `packages/token`
 

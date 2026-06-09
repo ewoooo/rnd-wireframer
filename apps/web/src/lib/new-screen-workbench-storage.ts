@@ -1,80 +1,69 @@
-import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type { NewScreenRunItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 
 const NEW_SCREEN_WORKBENCH_STORAGE_KEY = "cx.new-screen.workbench.v0.1";
-const NEW_SCREEN_SOURCE_IMPORT_ID = "web-upload";
 
-export function mergeNewScreenSources(
-	currentSources: NewScreenSourceItem[],
-	serverSources: NewScreenSourceItem[],
-): NewScreenSourceItem[] {
-	const mergedByPath = new Map<string, NewScreenSourceItem>();
-	for (const source of currentSources.filter(isWebUploadedNewScreenSource)) {
-		mergedByPath.set(source.path, source);
+export function mergeNewScreenRuns(
+	currentRuns: NewScreenRunItem[],
+	serverRuns: NewScreenRunItem[],
+): NewScreenRunItem[] {
+	const mergedById = new Map<string, NewScreenRunItem>();
+	for (const run of serverRuns) {
+		mergedById.set(run.id, run);
 	}
-	for (const source of serverSources.filter(isWebUploadedNewScreenSource)) {
-		const current = mergedByPath.get(source.path);
-		mergedByPath.set(source.path, {
-			...source,
-			latestRunId: source.latestRunId ?? current?.latestRunId,
-		});
+	for (const run of currentRuns) {
+		if (!run.runId) mergedById.set(run.id, run);
 	}
-	return Array.from(mergedByPath.values());
+	return Array.from(mergedById.values());
 }
 
 export function readNewScreenWorkbenchState(): {
-	selectedSourcePath: string;
-	sources: NewScreenSourceItem[];
+	runs: NewScreenRunItem[];
+	selectedRunId: string;
 } {
-	if (typeof window === "undefined") return { selectedSourcePath: "", sources: [] };
+	if (typeof window === "undefined") return { runs: [], selectedRunId: "" };
 	try {
 		const rawValue = window.localStorage.getItem(NEW_SCREEN_WORKBENCH_STORAGE_KEY);
-		if (!rawValue) return { selectedSourcePath: "", sources: [] };
+		if (!rawValue) return { runs: [], selectedRunId: "" };
 		const value = JSON.parse(rawValue) as {
-			selectedSourcePath?: unknown;
-			sources?: unknown;
+			runs?: unknown;
+			selectedRunId?: unknown;
 		};
-		const sources = Array.isArray(value.sources)
-			? value.sources.filter(isNewScreenSourceItem).filter(isWebUploadedNewScreenSource)
-			: [];
-		const selectedSourcePath =
-			typeof value.selectedSourcePath === "string" &&
-			sources.some((source) => source.path === value.selectedSourcePath)
-				? value.selectedSourcePath
-				: (sources[0]?.path ?? "");
+		const runs = Array.isArray(value.runs) ? value.runs.filter(isNewScreenRunItem) : [];
+		const selectedRunId =
+			typeof value.selectedRunId === "string" && runs.some((run) => run.id === value.selectedRunId)
+				? value.selectedRunId
+				: (runs[0]?.id ?? "");
 
-		return { selectedSourcePath, sources };
+		return { runs, selectedRunId };
 	} catch {
-		return { selectedSourcePath: "", sources: [] };
+		return { runs: [], selectedRunId: "" };
 	}
 }
 
 export function writeNewScreenWorkbenchState(input: {
-	selectedSourcePath: string;
-	sources: NewScreenSourceItem[];
+	runs: NewScreenRunItem[];
+	selectedRunId: string;
 }) {
 	if (typeof window === "undefined") return;
-	const sources = input.sources.filter(isWebUploadedNewScreenSource);
-	const selectedSourcePath = sources.some((source) => source.path === input.selectedSourcePath)
-		? input.selectedSourcePath
-		: (sources[0]?.path ?? "");
+	const runs = input.runs.filter(isNewScreenRunItem);
+	const selectedRunId = runs.some((run) => run.id === input.selectedRunId)
+		? input.selectedRunId
+		: (runs[0]?.id ?? "");
 	window.localStorage.setItem(
 		NEW_SCREEN_WORKBENCH_STORAGE_KEY,
-		JSON.stringify({ selectedSourcePath, sources }),
+		JSON.stringify({ runs, selectedRunId }),
 	);
 }
 
-function isNewScreenSourceItem(value: unknown): value is NewScreenSourceItem {
-	if (!value || typeof value !== "object") return false;
-	const item = value as Partial<Record<keyof NewScreenSourceItem, unknown>>;
+function isNewScreenRunItem(value: unknown): value is NewScreenRunItem {
+	if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+	const item = value as Partial<Record<keyof NewScreenRunItem, unknown>>;
 	return (
-		typeof item.batchId === "string" &&
-		typeof item.importId === "string" &&
-		typeof item.path === "string" &&
+		typeof item.id === "string" &&
 		typeof item.screenId === "string" &&
-		(typeof item.latestRunId === "string" || item.latestRunId === undefined)
+		(typeof item.runId === "string" || item.runId === undefined) &&
+		(typeof item.sourcePath === "string" || item.sourcePath === undefined) &&
+		(typeof item.status === "string" || item.status === undefined) &&
+		(typeof item.title === "string" || item.title === undefined)
 	);
-}
-
-function isWebUploadedNewScreenSource(source: NewScreenSourceItem): boolean {
-	return source.importId === NEW_SCREEN_SOURCE_IMPORT_ID;
 }

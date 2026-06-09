@@ -13,15 +13,24 @@ export type NewScreenSourceItem = {
 	screenId: string;
 };
 
+export type NewScreenRunItem = {
+	id: string;
+	runId?: string;
+	screenId: string;
+	sourcePath?: string;
+	status?: string;
+	title?: string;
+};
+
 type NewScreenSourcePanelProps = {
 	errorMessage?: string;
 	isUploading?: boolean;
 	onRerunSelectedSource?: () => void;
 	onRunSelectedSource?: () => void;
-	onSelectSource: (path: string) => void;
+	onSelectSource: (id: string) => void;
 	onUploadSource: (file: File) => void | Promise<void>;
-	selectedSourcePath?: string;
-	sources: NewScreenSourceItem[];
+	runs: NewScreenRunItem[];
+	selectedRunId?: string;
 };
 
 export function NewScreenSourcePanel({
@@ -31,11 +40,11 @@ export function NewScreenSourcePanel({
 	onRunSelectedSource,
 	onSelectSource,
 	onUploadSource,
-	selectedSourcePath,
-	sources,
+	runs,
+	selectedRunId,
 }: NewScreenSourcePanelProps) {
 	const [isDragActive, setIsDragActive] = useState(false);
-	const selectedSource = sources.find((source) => source.path === selectedSourcePath);
+	const selectedRun = runs.find((run) => run.id === selectedRunId);
 
 	async function handleDroppedFile(file: File | null) {
 		setIsDragActive(false);
@@ -51,7 +60,7 @@ export function NewScreenSourcePanel({
 					<p className="truncate text-xs font-semibold text-sidebar-foreground">새 화면</p>
 				</div>
 				<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-					{sources.length}
+					{runs.length}
 				</span>
 			</div>
 			<div className="grid gap-3 border-b border-sidebar-border p-3">
@@ -97,7 +106,7 @@ export function NewScreenSourcePanel({
 				<div className="grid grid-cols-2 gap-2">
 					<Button
 						className="h-8 justify-center gap-1 text-xs"
-						disabled={!selectedSource || isUploading || !onRunSelectedSource}
+						disabled={!selectedRun?.sourcePath || isUploading || !onRunSelectedSource}
 						onClick={() => onRunSelectedSource?.()}
 						size="sm"
 						type="button"
@@ -108,7 +117,7 @@ export function NewScreenSourcePanel({
 					</Button>
 					<Button
 						className="h-8 justify-center gap-1 text-xs"
-						disabled={!selectedSource?.latestRunId || isUploading || !onRerunSelectedSource}
+						disabled={!selectedRun?.runId || isUploading || !onRerunSelectedSource}
 						onClick={() => onRerunSelectedSource?.()}
 						size="sm"
 						type="button"
@@ -121,14 +130,14 @@ export function NewScreenSourcePanel({
 				{errorMessage ? <p className="text-xs text-destructive">{errorMessage}</p> : null}
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto py-1">
-				{sources.length ? (
+				{runs.length ? (
 					<div className="flex flex-col">
-						{sources.map((source) => (
-							<SourceListItem
-								isSelected={source.path === selectedSourcePath}
-								key={source.path}
-								onSelect={() => onSelectSource(source.path)}
-								source={source}
+						{runs.map((run) => (
+							<RunListItem
+								isSelected={run.id === selectedRunId}
+								key={run.id}
+								onSelect={() => onSelectSource(run.id)}
+								run={run}
 							/>
 						))}
 					</div>
@@ -146,14 +155,14 @@ function readFirstFile(files: FileList | null): File | null {
 	return files?.item?.(0) ?? files?.[0] ?? null;
 }
 
-function SourceListItem({
+function RunListItem({
 	isSelected,
 	onSelect,
-	source,
+	run,
 }: {
 	isSelected: boolean;
 	onSelect: () => void;
-	source: NewScreenSourceItem;
+	run: NewScreenRunItem;
 }) {
 	return (
 		<button
@@ -163,14 +172,16 @@ function SourceListItem({
 				isSelected && "bg-primary/[0.08] text-primary hover:bg-primary/[0.08]",
 			)}
 			onClick={onSelect}
-			title={`${source.screenId} · ${source.path}`}
+			title={`${run.screenId} · ${run.runId ?? "not-run"}`}
 		>
 			<span className={cn("truncate text-[13px]", isSelected ? "font-semibold" : "font-medium")}>
-				{source.screenId}
+				{run.title ?? run.screenId}
 			</span>
-			<span className="truncate text-[10px] leading-3 text-muted-foreground">{source.path}</span>
+			<span className="truncate text-[10px] leading-3 text-muted-foreground">
+				{run.runId ?? "not-run"}
+			</span>
 			<span className="truncate text-[10px] leading-3 text-muted-foreground/70">
-				{source.importId}/{source.batchId}
+				{run.status ?? "source-ready"}
 			</span>
 		</button>
 	);

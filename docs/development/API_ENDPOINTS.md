@@ -11,7 +11,7 @@ Endpoint 문서는 다음 항목만 기록한다.
 | 항목 | 기준 |
 |---|---|
 | Method + path | 실제 `apps/web/src/app/api/**/route.ts`에 존재하는 route만 기록한다. |
-| 목적 | Browser-facing API가 어떤 UI/흐름을 지원하는지 적는다. |
+| 목적 | Browser UI와 headless client가 어떤 흐름을 지원하는지 적는다. |
 | 입력 | path params, query params, JSON body, multipart form body를 구분한다. |
 | 출력 | 최상위 response shape와 중요한 status code만 적는다. |
 | 책임 경계 | route가 어떤 server service/repo/package를 호출하며 무엇을 소유하지 않는지 적는다. |
@@ -21,18 +21,18 @@ Endpoint 문서는 다음 항목만 기록한다.
 
 ## 책임 경계
 
-Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실행은 Next API route와 `server/*` service/repo 뒤에 둔다.
+Browser-facing UI는 `/api/*` endpoint만 소비한다. Headless generation client는 `/api/inference/*` endpoint만 소비한다. Pipeline, DB, Claude 실행은 Next API route와 `server/*` service/repo 뒤에 둔다.
 
 | 영역 | Endpoint 책임 | 두지 않는 책임 |
 |---|---|---|
-| Screen inference | source upload/list, job/run 생성, status 조회, SSE event stream, final result apply | pipeline step 순서, Claude 실행 구현, validation rule 소유 |
+| Screen inference | source upload/list, job/run 생성, status 조회, SSE event stream, artifact 조회, final result apply; headless screen-generation server surface | pipeline step 순서, Claude 실행 구현, validation rule 소유, 별도 서버 앱 소유 |
 | Screen DB facade | screen route/list/tree/rows 조회, RenderTree candidate 저장 | React render, Puck data shape 소유, Supabase credential 노출 |
 | Puck catalog | editor block 선택용 catalog item 조회 | catalog mutation, Puck editor UI |
 | Figma introspection | dev-only Figma probe 결과 파일 저장 | product runtime, 인증, DB write |
 
 ## Screen Inference Endpoints
 
-`/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다.
+`/api/inference/*` route는 얇은 adapter다. Store, context, pipeline, worker 로직은 `@cx/inference` 패키지가 소유한다. 이 route 묶음은 Web UI 없이도 호출 가능한 공식 screen generation 서버 모드다.
 
 | Method | Path | 목적 | 입력 | 출력 |
 |---|---|---|---|---|
@@ -47,6 +47,15 @@ Browser-facing UI는 `/api/*` endpoint만 소비한다. Pipeline, DB, Claude 실
 | `POST` | `/api/inference/:jobId/apply` | `context/render-tree.json`의 최종 RenderTree를 DB read model에 적용 | `jobId` path param | `{ ok, result, schemaVersion, appliedArtifacts? }` |
 
 Source file input MVP는 `source.path` 하나를 기준으로 한다. Web upload와 CLI 모두 `data/client-imports/**.md` 경로를 `/api/inference` job input에 전달한다. API layer는 job 생성 전 source file을 읽어 `preparedSource.sourceSpec`을 job input에 넣고, `context/source.raw.md`, `context/source-input.json`, `context/source-spec.json` artifact를 남긴다. Pipeline step은 prepared `SourceSpec`만 소비한다.
+
+Headless 호출자는 다음 순서를 기본으로 사용한다.
+
+1. Markdown 파일을 이미 `data/client-imports/**.md` 아래에 둔 경우 `POST /api/inference`에 `{ "source": { "path": "..." } }` 형태의 job input을 전달한다.
+2. 파일 업로드가 필요하면 `POST /api/inference/sources`로 Markdown source를 업로드한 뒤 응답의 `source.path`를 `POST /api/inference`에 전달한다.
+3. 생성 진행은 `GET /api/inference/:jobId/events` 또는 `GET /api/inference/:jobId` + `GET /api/inference/:jobId/steps`로 관찰한다.
+4. 최종 RenderTree는 allowed artifact endpoint로 `context/render-tree.json`을 조회한다.
+
+이 방식은 현재의 공식 서버 모드이며, 별도 `apps/generator-server`나 독립 HTTP server를 active target으로 두지 않는다.
 
 Run 목록은 별도 manifest/index를 만들지 않고 `jobStore`의 `job.json` snapshot과 각 job artifact(`context/source-input.json`, `context/source-spec.json`, `context/render-tree.json`, `context/validation-report.json`, quality review artifact, `context/apply-result.json`)를 조합해 materialize한다. UI의 선택 단위는 source path가 아니라 `jobId`다.
 
@@ -81,6 +90,7 @@ Artifact endpoint는 allowlist 방식으로 운영한다. 현재 review UI가 �
 - `apps/web/src/app/api/**/route.ts`와 이 문서의 method/path가 일치한다.
 - Browser component가 `@cx/inference`, `@cx/agent`, Supabase service-role credential을 직접 import하지 않는다.
 - Browser-facing hook은 `apps/web/src/features/<domain>/api/*.client.ts`만 통해 `/api/*`를 호출하고, `server/*`를 직접 import하지 않는다.
+- Headless client 문서는 `/api/inference/*` 호출만 안내하고, package 내부 import나 `apps/web/src/server/*` 직접 호출을 안내하지 않는다.
 - route는 `server/*` service를 호출하고, UI shape 변환은 component 또는 feature model layer에 둔다.
 - error response는 `{ error: string }` 형태를 유지한다.
 - screen inference 진행 상태는 SSE만 믿지 않고 snapshot endpoint로 재조회할 수 있어야 한다.

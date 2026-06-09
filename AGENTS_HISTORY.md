@@ -36,6 +36,20 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-09 - Headless Inference Server Surface
+
+- 변경: 별도 생성 서버 앱을 새로 만들지 않고 `apps/web`의 `/api/inference/*`를 Web UI 없이 호출 가능한 공식 headless screen-generation 서버 표면으로 문서화함
+- 변경: `PACKAGE_MAP.md`, `PROJECT_STRUCTURE.md`, `API_ENDPOINTS.md`, `SCREEN_INFERENCE_ARCHITECTURE.md`에 headless client의 소비 경계와 standalone server 비목표를 반영함
+- 이유: 현재 Next API 기반 서버 모드가 이미 source upload, job 생성, status/steps/events, artifact 조회, apply를 제공하므로 새 모노리스 서버를 중복 생성하지 않기 위함
+- 검증: `rg -n "Headless|headless|standalone server|generator server|Browser-facing|Client App / Headless|/api/inference/\\*" PACKAGE_MAP.md docs/development/PROJECT_STRUCTURE.md docs/development/API_ENDPOINTS.md docs/development/SCREEN_INFERENCE_ARCHITECTURE.md AGENTS_HISTORY.md`, `graphify update .`
+
+## 2026-06-09 - New Screen Panel JobId Selection
+
+- 변경: 새 화면 좌측 패널이 `/api/inference/sources` source 목록이 아니라 `/api/inference/runs` run 목록을 사용하고, 선택 key와 표시 단위를 `jobId` 기준으로 변경함
+- 변경: 패널 목록에서 `data/client-imports/web-upload/**` source path를 직접 노출하지 않고 `screenId/title`, `jobId`, run status만 표시하도록 정리함
+- 이유: 업로드 source 목록과 jobId 단위 렌더/리뷰 상태가 불일치하던 문제를 제거하고, 운영 기준 선택 단위를 `jobId`로 통일하기 위함
+- 검증: `pnpm exec vitest run apps/web/src/lib/new-screen-workbench-storage.test.ts apps/web/src/components/App.test.tsx apps/web/src/lib/screen-inference-runs.test.ts apps/web/src/server/inference-runs.test.ts`, `pnpm exec tsc --noEmit --pretty false --incremental false`, `pnpm build`, Playwright DOM 확인
+
 ## 2026-06-09 - Inference JobId Run List
 
 - 변경: `@cx/inference` artifact/job store에 job 목록 조회 계약을 추가하고 Web `/api/inference/runs`가 `job.json`과 기존 context artifacts를 조합해 jobId 기준 run row를 반환하도록 함

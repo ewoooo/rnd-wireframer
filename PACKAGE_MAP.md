@@ -11,7 +11,7 @@ Package-specific API examples belong in each `packages/*/README.md`. This docume
 ## 2. Target Screen Inference Relationship
 
 ```text
-Client App
+Client App / Headless Client
 -> /api/inference
 -> Job Store
 -> Worker
@@ -38,7 +38,7 @@ The target architecture has five first-class boundaries, implemented first insid
 | Screen-specific pipeline | `@cx/inference` pipeline |
 | Claude execution | `@cx/agent` |
 
-Product-facing screen inference routes use `/api/inference/*` only. Deprecated compatibility routes are not active.
+Product-facing screen inference routes use `/api/inference/*` only. The same routes are the official headless screen-generation server surface; callers do not need to use the Web UI. Deprecated compatibility routes are not active.
 
 ## 3. Active And Target Packages
 
@@ -73,6 +73,7 @@ External packages must not import `src/internal/*`, implementation directories, 
 ## 5. Relationship Rules
 
 - Browser-facing UI consumes only `/api/*` endpoints.
+- Headless generation clients also consume only `/api/inference/*`; they must not import `apps/web/src/server/*`, `@cx/inference`, or `@cx/agent` directly.
 - API routes are thin adapters: create/read jobs, stream events, and call `@cx/inference` worker entrypoints.
 - API routes do not own store logic, pipeline execution logic, prompt assembly, or worker state transitions.
 - `@cx/inference` workers own pipeline execution and write job status, steps, artifacts, and events.
@@ -85,14 +86,14 @@ External packages must not import `src/internal/*`, implementation directories, 
 
 ## 6. Web Feature Boundary
 
-`apps/web` is the product runtime app. Feature boundaries are tracked by surface, not by package-style fragmentation.
+`apps/web` is the product runtime app and the current in-process screen-generation server. Feature boundaries are tracked by surface, not by package-style fragmentation.
 
 | Feature | Location | Responsibility | Does Not Own |
 |---|---|---|---|
 | Workbench shell | `components/App.tsx`, `components/layout/*`, `model/workbench-view-model.ts` | selected state, rail/tab/canvas/panel composition | DB fetch implementation, Puck conversion, RenderTree materialize rules |
 | Screen DB facade | `lib/screen-db-loader.ts`, `lib/screen-db-save.ts`, `app/api/screens/*` | Supabase REST row read/write and screen tree API | React UI, Puck editor shape |
 | Puck editor UI | `components/puck/*`, `@cx/adapters/puck` | Puck editor UI and RenderTree/Puck adapter consumption | DB row shape, Supabase calls |
-| Screen inference API | `app/api/inference/*` | source upload/list, job creation, snapshot, artifact read, SSE, apply | pipeline internals, Claude implementation |
+| Screen inference API | `app/api/inference/*` | source upload/list, job creation, snapshot, artifact read, SSE, apply; official headless generation server surface | pipeline internals, Claude implementation, standalone server ownership |
 
 ## 7. Migration Rule
 
@@ -106,4 +107,4 @@ Implementation order:
 4. Add Pipeline Context and Pipeline Step format.
 5. Add minimal Worker entrypoint.
 6. Add thin `POST /api/inference` and `GET /api/inference/:jobId/events` routes.
-7. Keep browser-facing screen inference calls on `/api/inference/*`; do not reintroduce compatibility routes.
+7. Keep browser-facing and headless screen inference calls on `/api/inference/*`; do not reintroduce compatibility routes or add a separate server app until deployment requirements force that split.

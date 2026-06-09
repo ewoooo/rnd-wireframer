@@ -17,7 +17,7 @@ Package responsibility still follows [PACKAGE_MAP.md](/Users/plusx/Documents/rnd
 
 ```mermaid
 flowchart TD
-  Client["Client App"]
+  Client["Client App / Headless Client"]
   POST["POST /api/inference"]
   SSE["GET /api/inference/:jobId/events"]
 
@@ -65,7 +65,7 @@ flowchart LR
   %% Client
   %% =========================
 
-  Client["Client App"]
+  Client["Client App / Headless Client"]
 
   subgraph API["API Endpoint"]
     POST["POST /api/inference"]
@@ -169,7 +169,7 @@ The model has five first-class boundaries:
 
 | Boundary | Responsibility |
 |---|---|
-| API Endpoint | Browser-facing job creation and SSE stream |
+| API Endpoint | Browser UI and headless client job creation, snapshot reads, artifact reads, and SSE stream |
 | Job Store | Durable jobs, steps, events (the step's artifact **files** live in `ArtifactStore`, not here) |
 | Worker | Owns one pipeline run and writes observable progress |
 | Inference Pipeline | Declarative step sequence and step execution contract |
@@ -216,7 +216,9 @@ packages/inference/src/
 
 The full file-level scaffold, dependency rules, and build order are in §15.
 
-`apps/web` API routes are thin adapters only. They create/read jobs, stream events, and call `@cx/inference` worker entrypoints. They do not own store logic, pipeline execution logic, prompt assembly, or worker state transitions. This keeps the worker testable with an in-memory fake store.
+`apps/web` API routes are thin adapters only. They create/read jobs, stream events, expose allowed artifacts, and call `@cx/inference` worker entrypoints. They do not own store logic, pipeline execution logic, prompt assembly, or worker state transitions. This keeps the worker testable with an in-memory fake store.
+
+The current official server mode is this `apps/web` `/api/inference/*` surface. Web UI clients and headless clients share the same routes. A separate generator server app is not part of the active target architecture unless deployment isolation, queue scaling, or process ownership requirements force that split.
 
 ## 4. Local MVP Storage Contract
 

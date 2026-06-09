@@ -56,7 +56,7 @@ export function AppShell() {
 					onUploadNewScreenSource={newScreen.onUpload}
 					selectedAreaId={screen.selectedArea?.metadata.id}
 					selectedComponentId={screen.selectedComponent?.metadata.id}
-					selectedNewScreenSourcePath={newScreen.selectedSourcePath}
+					selectedNewScreenRunId={newScreen.selectedRunId}
 					selectedScreenId={screen.visibleScreen?.id}
 					isUploadingNewScreenSource={newScreen.isUploading || newScreen.isStarting}
 				/>

@@ -53,8 +53,8 @@ describe("App workbench navigation", () => {
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		expect(
-			screen.getByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
-		).toBeInTheDocument();
+			screen.queryByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
+		).not.toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "Run" }));
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
@@ -71,7 +71,16 @@ describe("App workbench navigation", () => {
 
 	it("selects the first screen when a route is selected and switches variant chips", async () => {
 		stubBrowserApis();
-		stubScreenFetch();
+		stubScreenFetch({
+			serverRuns: [
+				{
+					jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					screenId: "NOVA-UPLOAD-PG-001-0",
+					sourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					status: "running",
+				},
+			],
+		});
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
@@ -122,44 +131,51 @@ describe("App workbench navigation", () => {
 		window.localStorage.setItem(
 			"cx.new-screen.workbench.v0.1",
 			JSON.stringify({
-				selectedSourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
-				sources: [
+				runs: [
 					{
-						batchId: "20260604",
-						importId: "web-upload",
-						latestRunId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-						path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+						id: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+						runId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
 						screenId: "NOVA-UPLOAD-PG-001-0",
-						type: "file",
+						sourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+						status: "running",
 					},
 				],
+				selectedRunId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
 			}),
 		);
 		stubBrowserApis();
-		stubScreenFetch();
+		stubScreenFetch({
+			serverRuns: [
+				{
+					jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
+					screenId: "NOVA-UPLOAD-PG-001-0",
+					sourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					status: "running",
+				},
+			],
+		});
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
 		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
 		expect(screen.getByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect(screen.getByText("web-NOVA-UPLOAD-PG-001-0-20260604120000")).toBeInTheDocument();
 		expect(
-			screen.getByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
-		).toBeInTheDocument();
+			screen.queryByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
+		).not.toBeInTheDocument();
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
 
 	it("loads uploaded new screen sources from the server when browser state is empty", async () => {
 		stubBrowserApis();
 		stubScreenFetch({
-			serverSources: [
+			serverRuns: [
 				{
-					batchId: "20260604",
-					importId: "web-upload",
-					latestRunId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
-					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
 					screenId: "NOVA-UPLOAD-PG-001-0",
-					type: "file",
+					sourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					status: "running",
 				},
 			],
 		});
@@ -169,34 +185,32 @@ describe("App workbench navigation", () => {
 		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
+		expect(screen.getByText("web-NOVA-UPLOAD-PG-001-0-20260604120000")).toBeInTheDocument();
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 	});
 
-	it("drops non web-upload sources restored from browser state", async () => {
+	it("drops invalid run rows restored from browser state", async () => {
 		window.localStorage.setItem(
 			"cx.new-screen.workbench.v0.1",
 			JSON.stringify({
-				selectedSourcePath: "data/client-imports/{id}/260528_mbr/NOVA-MBR-PU-003-E3.md",
-				sources: [
+				runs: [
 					{
-						batchId: "260528_mbr",
-						importId: "{id}",
-						path: "data/client-imports/{id}/260528_mbr/NOVA-MBR-PU-003-E3.md",
+						id: 1,
+						runId: "bad",
 						screenId: "NOVA-MBR-PU-003-E3",
-						type: "file",
 					},
 				],
+				selectedRunId: "bad",
 			}),
 		);
 		stubBrowserApis();
 		stubScreenFetch({
-			serverSources: [
+			serverRuns: [
 				{
-					batchId: "20260604",
-					importId: "web-upload",
-					path: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					jobId: "web-NOVA-UPLOAD-PG-001-0-20260604120000",
 					screenId: "NOVA-UPLOAD-PG-001-0",
-					type: "file",
+					sourcePath: "data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md",
+					status: "running",
 				},
 			],
 		});
@@ -343,12 +357,12 @@ function stubScreenFetch(
 	options: {
 		inferenceStatus?: RunStatus;
 		qualityHasSummary?: boolean;
-		serverSources?: unknown[];
+		serverRuns?: unknown[];
 	} = {},
 ) {
 	const inferenceStatus = options.inferenceStatus ?? "running";
 	const qualityHasSummary = options.qualityHasSummary ?? true;
-	const serverSources = options.serverSources ?? [];
+	const serverRuns = options.serverRuns ?? [];
 	const runRequests: unknown[] = [];
 	const screens = createScreens();
 	const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
@@ -369,8 +383,8 @@ function stubScreenFetch(
 				],
 			});
 		}
-		if (url.pathname === "/api/inference/sources" && init?.method !== "POST") {
-			return Response.json({ sources: serverSources });
+		if (url.pathname === "/api/inference/runs") {
+			return Response.json({ runs: serverRuns });
 		}
 		if (url.pathname === "/api/inference/sources" && init?.method === "POST") {
 			return Response.json({

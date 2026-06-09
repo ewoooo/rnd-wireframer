@@ -5,7 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import {
-	type NewScreenSourceItem,
+	type NewScreenRunItem,
 	NewScreenSourcePanel,
 } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import type {
@@ -24,17 +24,17 @@ type NavigationRoutesProps = {
 	onSelectScreen: (screenId: string) => void;
 	onSelectArea: (areaId: string) => void;
 	onSelectComponent: (componentId: string) => void;
-	onSelectNewScreenSource?: (path: string) => void;
+	onSelectNewScreenSource?: (id: string) => void;
 	screenModules: ScreenModuleGroup[];
 	screenRoute?: ScreenRouteGroup;
 	newScreenSourceError?: string;
-	newScreenSources?: NewScreenSourceItem[];
+	newScreenSources?: NewScreenRunItem[];
 	onRerunSelectedNewScreenSource?: () => void;
 	onRunSelectedNewScreenSource?: () => void;
 	onUploadNewScreenSource?: (file: File) => void | Promise<void>;
 	selectedAreaId?: string;
 	selectedComponentId?: string;
-	selectedNewScreenSourcePath?: string;
+	selectedNewScreenRunId?: string;
 	selectedScreenId?: string;
 	isUploadingNewScreenSource?: boolean;
 };
@@ -58,7 +58,7 @@ export function NavigationRoutes({
 	onUploadNewScreenSource,
 	selectedAreaId,
 	selectedComponentId,
-	selectedNewScreenSourcePath,
+	selectedNewScreenRunId,
 	selectedScreenId,
 	isUploadingNewScreenSource = false,
 }: NavigationRoutesProps) {
@@ -72,8 +72,8 @@ export function NavigationRoutes({
 					onRunSelectedSource={onRunSelectedNewScreenSource}
 					onSelectSource={onSelectNewScreenSource ?? (() => {})}
 					onUploadSource={onUploadNewScreenSource ?? (() => {})}
-					selectedSourcePath={selectedNewScreenSourcePath}
-					sources={newScreenSources}
+					runs={newScreenSources}
+					selectedRunId={selectedNewScreenRunId}
 				/>
 			) : activeTab === "scn" ? (
 				<ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1 overflow-hidden">

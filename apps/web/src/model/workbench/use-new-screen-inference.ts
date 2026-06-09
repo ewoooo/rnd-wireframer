@@ -4,10 +4,13 @@ import type { RenderTree, RenderTreeScreenNode } from "@cx/renderer";
 import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
 import { useEffect, useState } from "react";
 import type { SaveState } from "@/components/workbench/canvas/CanvasToolbar";
-import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type {
+	NewScreenRunItem,
+	NewScreenSourceItem,
+} from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import { readErrorMessage } from "@/lib/api-error";
 import {
-	mergeNewScreenSources,
+	mergeNewScreenRuns,
 	readNewScreenWorkbenchState,
 	writeNewScreenWorkbenchState,
 } from "@/lib/new-screen-workbench-storage";
@@ -16,11 +19,12 @@ import {
 	createScreenInferenceRunFromSource,
 	fetchScreenInferenceArtifact,
 	fetchScreenInferenceRunStatus,
-	fetchScreenInferenceSources,
+	fetchScreenInferenceRuns,
 	subscribeScreenInferenceRunEvents,
 	uploadScreenInferenceSource,
 } from "@/lib/screen-inference-client";
 import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
+import type { ScreenInferenceRunRow } from "@/lib/screen-inference-runs";
 import type { NavigatorTab } from "@/model/workbench-view-model";
 
 const TERMINAL_SCREEN_INFERENCE_STATUSES = new Set(["failed", "waiting-review", "applied"]);
@@ -44,8 +48,8 @@ export function useNewScreenInference(
 	setSaveState: (state: SaveState) => void,
 ) {
 	const [newScreenSourceError, setNewScreenSourceError] = useState("");
-	const [newScreenSources, setNewScreenSources] = useState<NewScreenSourceItem[]>(
-		() => readNewScreenWorkbenchState().sources,
+	const [newScreenRuns, setNewScreenRuns] = useState<NewScreenRunItem[]>(
+		() => readNewScreenWorkbenchState().runs,
 	);
 	const [newScreenPreviewNode, setNewScreenPreviewNode] = useState<RenderTreeScreenNode>();
 	const [newScreenQuality, setNewScreenQuality] = useState<QualityInspectionContract>();
@@ -53,32 +57,30 @@ export function useNewScreenInference(
 	const [newScreenValidation, setNewScreenValidation] = useState<ValidationReportContract>();
 	const [isUploadingNewScreenSource, setIsUploadingNewScreenSource] = useState(false);
 	const [isStartingNewScreenRun, setIsStartingNewScreenRun] = useState(false);
-	const [selectedNewScreenSourcePath, setSelectedNewScreenSourcePath] = useState(
-		() => readNewScreenWorkbenchState().selectedSourcePath,
+	const [selectedNewScreenRunId, setSelectedNewScreenRunId] = useState(
+		() => readNewScreenWorkbenchState().selectedRunId,
 	);
 
-	const selectedNewScreenSource = newScreenSources.find(
-		(source) => source.path === selectedNewScreenSourcePath,
-	);
-	const selectedNewScreenRunId = selectedNewScreenSource?.latestRunId;
+	const selectedNewScreenRun = newScreenRuns.find((run) => run.id === selectedNewScreenRunId);
+	const selectedNewScreenActiveRunId = selectedNewScreenRun?.runId;
 
-	// loadUploadedSources
+	// loadRunRows
 	useEffect(() => {
 		let isActive = true;
 
-		async function loadUploadedSources() {
+		async function loadRunRows() {
 			try {
-				const sources = await fetchScreenInferenceSources();
+				const runs = (await fetchScreenInferenceRuns()).map(screenInferenceRunRowToItem);
 				if (!isActive) return;
-				setNewScreenSources((current) => mergeNewScreenSources(current, sources));
-				setSelectedNewScreenSourcePath((current) => current || sources[0]?.path || "");
+				setNewScreenRuns((current) => mergeNewScreenRuns(current, runs));
+				setSelectedNewScreenRunId((current) => current || runs[0]?.id || "");
 			} catch (error) {
 				if (!isActive) return;
 				setNewScreenSourceError(readErrorMessage(error, NEW_SCREEN_ERROR_FALLBACK));
 			}
 		}
 
-		void loadUploadedSources();
+		void loadRunRows();
 
 		return () => {
 			isActive = false;
@@ -88,15 +90,15 @@ export function useNewScreenInference(
 	// persist
 	useEffect(() => {
 		writeNewScreenWorkbenchState({
-			selectedSourcePath: selectedNewScreenSourcePath,
-			sources: newScreenSources,
+			runs: newScreenRuns,
+			selectedRunId: selectedNewScreenRunId,
 		});
-	}, [newScreenSources, selectedNewScreenSourcePath]);
+	}, [newScreenRuns, selectedNewScreenRunId]);
 
 	// pollRunStatus
 	useEffect(() => {
-		if (!selectedNewScreenRunId || activeTab !== "agent") return;
-		const runId = selectedNewScreenRunId;
+		if (!selectedNewScreenActiveRunId || activeTab !== "agent") return;
+		const runId = selectedNewScreenActiveRunId;
 		let isActive = true;
 		let intervalId: ReturnType<typeof setInterval> | undefined;
 
@@ -123,12 +125,12 @@ export function useNewScreenInference(
 			isActive = false;
 			if (intervalId) clearInterval(intervalId);
 		};
-	}, [activeTab, selectedNewScreenRunId]);
+	}, [activeTab, selectedNewScreenActiveRunId]);
 
 	// streamRunStatus
 	useEffect(() => {
-		if (!selectedNewScreenRunId || activeTab !== "agent") return;
-		const runId = selectedNewScreenRunId;
+		if (!selectedNewScreenActiveRunId || activeTab !== "agent") return;
+		const runId = selectedNewScreenActiveRunId;
 		let isActive = true;
 
 		async function refreshRunStatus() {
@@ -153,7 +155,7 @@ export function useNewScreenInference(
 			isActive = false;
 			unsubscribe();
 		};
-	}, [activeTab, selectedNewScreenRunId]);
+	}, [activeTab, selectedNewScreenActiveRunId]);
 
 	// loadReviewArtifacts
 	useEffect(() => {
@@ -188,15 +190,15 @@ export function useNewScreenInference(
 		};
 	}, [newScreenRunStatus?.runId, newScreenRunStatus?.status]);
 
-	function handleSelectNewScreenSource(path: string) {
-		setSelectedNewScreenSourcePath(path);
-		const nextSource = newScreenSources.find((source) => source.path === path);
+	function handleSelectNewScreenRun(id: string) {
+		setSelectedNewScreenRunId(id);
+		const nextRun = newScreenRuns.find((run) => run.id === id);
 		setNewScreenPreviewNode(undefined);
 		setNewScreenValidation(undefined);
 		setNewScreenQuality(undefined);
 		setNewScreenRunStatus(undefined);
-		if (nextSource?.latestRunId) {
-			void fetchScreenInferenceRunStatus(nextSource.latestRunId)
+		if (nextRun?.runId) {
+			void fetchScreenInferenceRunStatus(nextRun.runId)
 				.then(setNewScreenRunStatus)
 				.catch((error) =>
 					setNewScreenSourceError(readErrorMessage(error, NEW_SCREEN_ERROR_FALLBACK)),
@@ -209,11 +211,12 @@ export function useNewScreenInference(
 		setNewScreenSourceError("");
 		try {
 			const source = await uploadScreenInferenceSource(file);
-			setNewScreenSources((current) => {
-				const withoutDuplicate = current.filter((item) => item.path !== source.path);
-				return [source, ...withoutDuplicate];
+			const pendingRun = sourceToPendingRunItem(source);
+			setNewScreenRuns((current) => {
+				const withoutDuplicate = current.filter((item) => item.id !== pendingRun.id);
+				return [pendingRun, ...withoutDuplicate];
 			});
-			setSelectedNewScreenSourcePath(source.path);
+			setSelectedNewScreenRunId(pendingRun.id);
 		} catch (error) {
 			setNewScreenSourceError(readErrorMessage(error, NEW_SCREEN_ERROR_FALLBACK));
 		} finally {
@@ -222,22 +225,19 @@ export function useNewScreenInference(
 	}
 
 	async function handleRunSelectedNewScreenSource() {
-		if (!selectedNewScreenSource) return;
+		const source = runItemToSource(selectedNewScreenRun);
+		if (!source) return;
 		setIsStartingNewScreenRun(true);
 		setNewScreenSourceError("");
 		setNewScreenPreviewNode(undefined);
 		setNewScreenValidation(undefined);
 		setNewScreenQuality(undefined);
 		try {
-			const run = await createScreenInferenceRunFromSource(selectedNewScreenSource);
+			const run = await createScreenInferenceRunFromSource(source);
 			setNewScreenRunStatus(run.status);
-			setNewScreenSources((current) =>
-				current.map((source) =>
-					source.path === selectedNewScreenSource.path
-						? { ...source, latestRunId: run.runId }
-						: source,
-				),
-			);
+			const nextRun = runStatusToItem(run.status, source);
+			setNewScreenRuns((current) => [nextRun, ...current.filter((item) => item.id !== nextRun.id)]);
+			setSelectedNewScreenRunId(nextRun.id);
 		} catch (error) {
 			setNewScreenSourceError(readErrorMessage(error, NEW_SCREEN_ERROR_FALLBACK));
 		} finally {
@@ -246,25 +246,19 @@ export function useNewScreenInference(
 	}
 
 	async function handleRerunSelectedNewScreenSource() {
-		if (!selectedNewScreenSource?.latestRunId) return;
+		const source = runItemToSource(selectedNewScreenRun);
+		if (!source || !selectedNewScreenRun?.runId) return;
 		setIsStartingNewScreenRun(true);
 		setNewScreenSourceError("");
 		setNewScreenPreviewNode(undefined);
 		setNewScreenValidation(undefined);
 		setNewScreenQuality(undefined);
 		try {
-			const run = await createScreenInferenceRunFromSource(
-				selectedNewScreenSource,
-				selectedNewScreenSource.latestRunId,
-			);
+			const run = await createScreenInferenceRunFromSource(source, selectedNewScreenRun.runId);
 			setNewScreenRunStatus(run.status);
-			setNewScreenSources((current) =>
-				current.map((source) =>
-					source.path === selectedNewScreenSource.path
-						? { ...source, latestRunId: run.runId }
-						: source,
-				),
-			);
+			const nextRun = runStatusToItem(run.status, source);
+			setNewScreenRuns((current) => [nextRun, ...current.filter((item) => item.id !== nextRun.id)]);
+			setSelectedNewScreenRunId(nextRun.id);
 		} catch (error) {
 			setNewScreenSourceError(readErrorMessage(error, NEW_SCREEN_ERROR_FALLBACK));
 		} finally {
@@ -288,8 +282,8 @@ export function useNewScreenInference(
 	}
 
 	return {
-		sources: newScreenSources,
-		selectedSourcePath: selectedNewScreenSourcePath,
+		sources: newScreenRuns,
+		selectedRunId: selectedNewScreenRunId,
 		error: newScreenSourceError,
 		runStatus: newScreenRunStatus,
 		previewNode: newScreenPreviewNode,
@@ -297,10 +291,53 @@ export function useNewScreenInference(
 		quality: newScreenQuality,
 		isUploading: isUploadingNewScreenSource,
 		isStarting: isStartingNewScreenRun,
-		onSelectSource: handleSelectNewScreenSource,
+		onSelectSource: handleSelectNewScreenRun,
 		onUpload: handleUploadNewScreenSource,
 		onRun: handleRunSelectedNewScreenSource,
 		onRerun: handleRerunSelectedNewScreenSource,
 		onApply: handleApplyNewScreenRun,
+	};
+}
+
+function screenInferenceRunRowToItem(row: ScreenInferenceRunRow): NewScreenRunItem {
+	return {
+		id: row.jobId,
+		runId: row.jobId,
+		screenId: row.screenId ?? row.jobId,
+		sourcePath: row.sourcePath,
+		status: row.status,
+		title: row.title,
+	};
+}
+
+function sourceToPendingRunItem(source: NewScreenSourceItem): NewScreenRunItem {
+	return {
+		id: `source:${source.path}`,
+		screenId: source.screenId,
+		sourcePath: source.path,
+		status: "source-ready",
+	};
+}
+
+function runStatusToItem(
+	status: ScreenInferenceRunStatus,
+	source: NewScreenSourceItem,
+): NewScreenRunItem {
+	return {
+		id: status.runId,
+		runId: status.runId,
+		screenId: source.screenId,
+		sourcePath: source.path,
+		status: status.status,
+	};
+}
+
+function runItemToSource(run: NewScreenRunItem | undefined): NewScreenSourceItem | undefined {
+	if (!run?.sourcePath) return undefined;
+	return {
+		batchId: "",
+		importId: "web-upload",
+		path: run.sourcePath,
+		screenId: run.screenId,
 	};
 }

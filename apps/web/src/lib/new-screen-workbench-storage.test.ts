@@ -1,42 +1,45 @@
 import { afterEach, describe, expect, it } from "vitest";
-import type { NewScreenSourceItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
+import type { NewScreenRunItem } from "@/components/workbench/new-screen/NewScreenSourcePanel";
 import {
-	mergeNewScreenSources,
+	mergeNewScreenRuns,
 	readNewScreenWorkbenchState,
 	writeNewScreenWorkbenchState,
 } from "@/lib/new-screen-workbench-storage";
 
-const baseSource: NewScreenSourceItem = {
-	batchId: "b1",
-	importId: "web-upload",
-	path: "a.md",
+const baseRun: NewScreenRunItem = {
+	id: "job-1",
+	runId: "job-1",
 	screenId: "S-1",
+	sourcePath: "a.md",
+	status: "running",
 };
 
 afterEach(() => window.localStorage.clear());
 
 describe("new-screen-workbench-storage", () => {
-	it("round-trips selectedSourcePath and sources through localStorage", () => {
-		writeNewScreenWorkbenchState({ selectedSourcePath: "a.md", sources: [baseSource] });
+	it("round-trips selectedRunId and runs through localStorage", () => {
+		writeNewScreenWorkbenchState({ runs: [baseRun], selectedRunId: "job-1" });
 		const state = readNewScreenWorkbenchState();
-		expect(state.selectedSourcePath).toBe("a.md");
-		expect(state.sources).toHaveLength(1);
-		expect(state.sources[0].path).toBe("a.md");
+		expect(state.selectedRunId).toBe("job-1");
+		expect(state.runs).toHaveLength(1);
+		expect(state.runs[0].runId).toBe("job-1");
 	});
 
-	it("drops non-web-upload sources on read", () => {
-		const foreign = { ...baseSource, importId: "cli", path: "b.md" };
+	it("drops invalid runs on read", () => {
 		window.localStorage.setItem(
 			"cx.new-screen.workbench.v0.1",
-			JSON.stringify({ selectedSourcePath: "b.md", sources: [foreign] }),
+			JSON.stringify({
+				runs: [{ id: 1, runId: "job-1", screenId: "S-1" }],
+				selectedRunId: "job-1",
+			}),
 		);
-		expect(readNewScreenWorkbenchState().sources).toHaveLength(0);
+		expect(readNewScreenWorkbenchState().runs).toHaveLength(0);
 	});
 
-	it("prefers latestRunId from current when server source lacks it", () => {
-		const current = [{ ...baseSource, latestRunId: "run-1" }];
-		const server = [{ ...baseSource }];
-		const merged = mergeNewScreenSources(current, server);
-		expect(merged[0].latestRunId).toBe("run-1");
+	it("keeps pending uploads when server runs are refreshed", () => {
+		const current = [{ ...baseRun, id: "source:a.md", runId: undefined }];
+		const server = [{ ...baseRun }];
+		const merged = mergeNewScreenRuns(current, server);
+		expect(merged.map((run) => run.id)).toEqual(["job-1", "source:a.md"]);
 	});
 });
