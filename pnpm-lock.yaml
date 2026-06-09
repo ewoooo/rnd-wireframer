@@ -114,9 +114,6 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:../../packages/agent
-      '@cx/components':
-        specifier: workspace:*
-        version: link:../../packages/component
       '@cx/external':
         specifier: workspace:*
         version: link:../../packages/external
@@ -132,6 +129,9 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@cx/tokens':
+        specifier: workspace:*
+        version: link:../../packages/token
       '@puckeditor/core':
         specifier: ^0.21.2
         version: 0.21.2(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))

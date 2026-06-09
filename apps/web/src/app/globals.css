@@ -1,6 +1,6 @@
 @import "tailwindcss";
-@import "@cx/components/tailwind.css";
-@import "@cx/components/styles.css";
+@import "@cx/tokens/tailwind.css";
+@import "@cx/tokens/variables.css";
 
 @theme {
 	--font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;

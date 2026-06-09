@@ -1,4 +1,4 @@
-import { getComponentCatalogEntry } from "@cx/components/catalog";
+import { getComponentCatalogEntry } from "@cx/external/resolver";
 import type { Config } from "@puckeditor/core";
 
 export function buildFieldsForNodeType(nodeType: string): Config["components"][string]["fields"] {
