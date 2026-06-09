@@ -45,8 +45,8 @@
 1. **컴파일러는 `@cx/renderer` 안에 산다** (`packages/renderer/src/compiler`, 신규 subpath `@cx/renderer/compiler`). `@cx/renderer`가 RenderTree 소비를 소유하므로 컴파일러도 여기 둔다.
 2. **컴파일러는 순수 문자열 생성 surface다.** 입력 RenderTree, 출력 TSX 문자열. React 렌더링 없음, 파일시스템 없음.
 3. **`@cx/layout` · `@cx/components`의 런타임 동작·구현은 불변.** 패턴 컴포넌트 재작성 금지, primitive 구조 변경 금지.
-4. **허용된 계약 추가 = composite 해석을 catalog 데이터로 끌어올림** (§6). 현재 `resolve-component.tsx`의 `COMPONENT_RENDERERS`는 임시 스캐폴딩이고 문자열 키→JSX 함수 맵이라 리터럴 금지 원칙 위반이다([[feedback_no_hardcoded_switch]]). 이를 catalog의 `renderTarget` 계약으로 재배선하는 것이 이 작업의 정식 산출물이다. layout/component **구현**은 여전히 불변 — 바뀌는 건 catalog 데이터와 `@cx/renderer` 어댑터뿐.
-5. **리터럴 금지**(원칙). 문자열 키 분기·매핑·고정 prop 값은 contract 테이블로 표현한다. 컴파일러도 런타임도 이 원칙을 따른다.
+4. **render registry는 `@cx/renderer` 내부 private contract table이다** (§6). node→구체 엘리먼트 해석(HOW)은 renderer가 소유한다. catalog(`@cx/components`/`@cx/layout`)는 *무엇이 있나*(컴포넌트·prop 계약·layout 패턴, WHAT)를 소유한다. 둘을 섞지 않는다. **이 테이블을 `@cx/layout` 리팩터로 만들지 않는다** — renderer 내부에 둔다. 현재 `resolve-component.tsx`의 `COMPONENT_RENDERERS` 등 renderer-local 임시 매핑을 이 registry로 정리하고, **런타임 렌더러와 TSX exporter가 같은 registry를 읽는다.**
+5. **리터럴 금지**(원칙, [[feedback_no_hardcoded_switch]]). 문자열 키 분기·매핑·고정 prop 값은 contract 테이블로 표현한다. 컴파일러도 런타임도 이 원칙을 따른다. **exporter는 현재 하드코딩을 복제하지 않는다** — registry를 읽는다.
 6. 브라우저 노출이 필요하면 `apps/web`는 `/api/*`만 호출한다. 컴파일러를 클라이언트에서 직접 import하지 않는다 (서버 라우트 경유).
 
 ## 6. 중심 설계 제약 — 해석 SSOT 하나
@@ -69,7 +69,9 @@
 
 **해결 방향 (스펙 수준 결정, 세부는 플랜에서):**
 
-node.type/layoutId → `{ tag, importFrom, propMapping }`를 **하나의 선언적 테이블**로 추출하고, **런타임 adapter와 컴파일러가 같은 테이블을 읽는다.** 이 테이블이 §5-4에서 허용한 "최소 계약 추가"다. 즉 `COMPONENT_RENDERERS`의 암묵 지식을 데이터로 끌어올려 SSOT화한다. 현재 `resolveComponentByType`/`resolve-layout`이 이미 catalog를 읽으므로, 테이블은 그 catalog를 확장하는 형태가 자연스럽다 (node 타입 단일 진실원 = `@cx/schema` 원칙 유지, [[node-types-single-source]]).
+`@cx/renderer` 내부에 **private render registry**를 둔다. node.type/composite → `{ target, importFrom, propWiring }`를 선언적으로 담고, **런타임 어댑터와 TSX exporter가 같은 registry를 읽는다.** node 타입 단일 진실원은 여전히 `@cx/schema`([[node-types-single-source]]); registry는 그 타입을 키로 *어떻게 렌더되나*만 선언한다. catalog 확장이 **아니다** — catalog는 WHAT, registry는 HOW. `@cx/layout` 리팩터도 아니다.
+
+런타임은 registry에서 실제 컴포넌트 참조를 얻어 `createElement`하고, exporter는 같은 registry에서 컴포넌트 **이름 + import 경로 + prop 직렬화 규칙**을 얻어 문자열을 만든다. 둘은 propWiring 규칙을 공유한다.
 
 ### 6.1 SectionHeader 제거 (완료) — 난점 1개 사전 제거
 
@@ -88,17 +90,29 @@ node.type/layoutId → `{ tag, importFrom, propMapping }`를 **하나의 선언�
 
 다행히 §6.1로 인라인 마크업 펼침(SectionHeader)이 사라져서, 남은 composite는 **전부 단일 컴포넌트 1:1** 매핑이다. 따라서 공유 테이블은 `{ tag, importFrom, propMapping }` 한 형태로 충분하고, 별도 "펼침 템플릿" 표현은 필요 없다.
 
-### 6.3 `renderTarget` 계약 형태 (재배선 대상)
+### 6.3 registry entry 형태 (composite)
 
-현재 `COMPONENT_RENDERERS` 함수가 품은 지식을 composite catalog 엔트리의 `renderTarget` 데이터로 옮긴다:
+`COMPONENT_RENDERERS` 함수가 품은 지식을 renderer-private registry entry로 옮긴다:
 
-- **타깃 컴포넌트**: `accordion`/`section-message`→`Callout`, `list-cell`→`ListText`, `checkbox`/`RadioText`→`ListSelected`, `header`→`AppBar`.
-- **prop 배선**: composite prop/metadata → 타깃 prop 매핑. 고정 리터럴 값도 데이터로 (`checkbox`: `type:"checkbox"`, `showButton:false`, `showPrice:false` / `RadioText`: `type:"radio"`).
-- **충실도 복구 기회**: 현재 렌더러는 `section-message`의 `variant`(info/negative/positive/cautionary)를 버린다. `renderTarget` prop 배선에 `variant`를 넣어 Callout으로 전달하면 충실도가 올라간다 (플랜에서 확정).
+- **target**: `accordion`/`section-message`→`Callout`, `list-cell`→`ListText`, `checkbox`/`RadioText`→`ListSelected`, `header`→`AppBar`. (런타임은 컴포넌트 참조, exporter는 이름+import 경로)
+- **propWiring**: composite prop/metadata → target prop 매핑. 고정 리터럴 값도 데이터로 (`checkbox`: `type:"checkbox"`, `showButton:false`, `showPrice:false` / `RadioText`: `type:"radio"`).
+- **충실도 복구 기회(보류)**: 현재 렌더러는 `section-message`의 `variant`를 버린다. registry propWiring에 넣으면 복구되나, Phase 1은 동작 보존이라 보류(§9).
 
-부차 리터럴: `build-component-props.ts`의 `CATALOG_TEXT_PROP_SOURCE_KEYS`(prop→source 키 별칭 맵)도 같은 성격의 리터럴이다. prop 계약에 `sourceKeys`로 흡수할 후보 — 이번 범위에 넣을지는 §9.
+> `PROP_VALUE_COERCERS`(build-component-props.ts)는 prop **타입**(string/boolean/number/...) 키라 컴포넌트 문자열 분기가 아니다. 리터럴 금지 대상 아님 — 유지.
 
-> `PROP_VALUE_COERCERS`는 prop **타입**(string/boolean/number/...) 키라 컴포넌트 문자열 분기가 아니다. 리터럴 금지 대상 아님 — 유지.
+### 6.4 renderer 하드코딩 전수 감사 (registry 정리 대상)
+
+renderer는 구조는 맞지만 완전히 catalog-driven은 아니다. layout pattern resolve(`resolve-layout.ts`)는 catalog를 잘 따르나, component/primitive/area 쪽에 renderer-local 임시 매핑이 남아있다. exporter는 이것들을 **복제하면 안 되고** registry를 읽어야 한다.
+
+| # | 위치 | 하드코딩 | 성격 | 우선순위 |
+|---|---|---|---|---|
+| 1 | `resolve-component.tsx:40` `COMPONENT_RENDERERS` | composite→컴포넌트 + prop 배선 | 가장 명확한 임시 매핑 | **Phase 1 핵심** |
+| 2 | `render-primitive.tsx:20` | `Layout.Flex`/`Layout.Grid` if 분기 | 작음(2개), 태그+`layout`/`node` 관례 | Phase 1 후보 (작아서 같이) |
+| 3 | `resolve-area.tsx:16` | `area.static`/`area.dynamic` 분기 | 디스패치는 테이블화 가능하나 dynamic은 **행위**(데이터 반복/displayWhen) | 디스패치만 registry화, 행위는 함수 유지 |
+| 4 | `build-component-props.ts:85` `CATALOG_TEXT_PROP_SOURCE_KEYS` | prop→source 키 별칭 맵 | 별도 파일의 prop alias 계약 | 후속 (Phase 1 비대화 방지) |
+| 5 | `nodes/area/layout.tsx:10` | selection-list presentation + border/padding 스타일 | renderer-local 시각 하드코딩 | 후속 |
+
+primitive(2)와 area(2)는 지금 작아서 `if`가 견딜 만하지만 늘면 계약 테이블로 빼야 한다. registry는 이 셋(component/primitive/area dispatch)을 한 곳에서 키로 해석하도록 설계해, 늘어날 때 분기가 아니라 데이터 추가가 되게 한다.
 
 ## 7. MVP 범위 (릴리스 1)
 
@@ -127,15 +141,17 @@ node.type/layoutId → `{ tag, importFrom, propMapping }`를 **하나의 선언�
 
 1. **시각 패리티**: 컴파일된 TSX를 렌더한 DOM이 `@cx/renderer` 프리뷰 DOM과 구조적으로 일치 (스냅샷/DOM 패리티 테스트로 강제).
 2. **계약 무흔들**: `@cx/layout`·`@cx/components`의 기존 public API·런타임 동작 테스트가 변경 없이 그대로 통과.
-3. **단일 SSOT + 리터럴 제거**: node→element 해석이 런타임과 컴파일러에서 같은 catalog `renderTarget` 테이블을 읽는다. `resolve-component.tsx`에 `COMPONENT_RENDERERS` 같은 문자열 키→렌더러 리터럴 맵이 남지 않는다. 컴파일러 안에도 독립 switch 없음 (no-hardcoded-switch 정책 + 테스트/리뷰로 강제).
+3. **단일 SSOT + 리터럴 제거**: node→element 해석이 런타임과 exporter에서 같은 **renderer-private registry**를 읽는다. `resolve-component.tsx`에 `COMPONENT_RENDERERS` 같은 문자열 키→렌더러 리터럴 맵이 남지 않는다. exporter 안에도 독립 switch 없음 (no-hardcoded-switch 정책 + 테스트/리뷰로 강제).
 4. **누락 가시성**: 해석 불가 surface는 출력에서 진단 주석으로 드러난다 (조용한 drop 금지).
-5. **범위 한계**: 변경 파일 수가 컴파일러 + 공유 테이블 + 테스트로 한정 (레이아웃 패키지 대규모 재작성 없음).
+5. **범위 한계**: 변경이 `@cx/renderer`(registry + 어댑터 + 컴파일러) + 테스트로 한정. `@cx/layout` 리팩터·대규모 재작성 없음.
 
 ## 9. 미해결 (플랜에서 확정)
 
-- 공유 해석 테이블의 정확한 위치: `@cx/components/catalog` 확장 vs `@cx/schema` 신규 vs `@cx/renderer` 내부 공유 모듈. (§6 방향은 catalog 확장 선호. composite→컴포넌트 매핑은 이미 catalog에 `kind`/`type`이 있으니 catalog 확장이 자연스럽다.)
-- `renderTarget` prop 배선의 표현 형식 (선언 매핑 데이터 vs 작은 변환 함수) + `section-message` variant 충실도 복구를 이번 범위에 넣을지.
-- `CATALOG_TEXT_PROP_SOURCE_KEYS`(build-component-props.ts)를 prop 계약 `sourceKeys`로 흡수할지 — Phase 1에 포함 vs 후속.
+- **(해결)** 테이블 위치 = `@cx/renderer` 내부 private render registry. catalog 확장/`@cx/schema` 신규/`@cx/layout` 리팩터 **아님** (§5-4, §6).
+- registry entry의 propWiring 표현 형식 (선언 매핑 데이터 vs 작은 변환 함수).
+- `section-message` variant 충실도 복구를 어느 시점에 (Phase 1은 동작 보존이라 보류 권장).
+- registry 정리 범위 (§6.4): Phase 1에 #1 COMPONENT_RENDERERS만 vs #2 primitive까지 vs #3 area dispatch까지. #4/#5는 후속.
+- `CATALOG_TEXT_PROP_SOURCE_KEYS`를 prop alias 계약으로 흡수할지 (#4) — 후속 권장.
 - props 직렬화 규칙 (`{ bind, default }`에서 `default`만, 문자열 이스케이프, 비-원시 props 처리).
 - 진단 주석의 형식/위치.
 - `apps/web` 노출 시점 (릴리스 1에 포함 여부, `/api/*` 라우트 형태).
