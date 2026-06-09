@@ -483,14 +483,14 @@ const compositeLayouts: Array<{
 		defaults: { gap: 0 },
 		layoutId: "layout.composite.componentActionButton",
 		name: "하단 액션 버튼",
-		props: compositeProps(["gap"]),
+		props: compositeProps(["buttonHeight", "gap", "paddingBottom", "paddingTop", "paddingX"]),
 	},
 	{
 		componentID: "ComponentActionButtonWithTooltipComposite",
 		defaults: { gap: 10 },
 		layoutId: "layout.composite.componentActionButtonWithTooltip",
 		name: "툴팁 포함 하단 액션 버튼",
-		props: compositeProps(["gap"]),
+		props: compositeProps(["buttonHeight", "gap", "paddingBottom", "paddingTop", "paddingX"]),
 	},
 	{
 		componentID: "CompositePriceAccordionSelectedListComposite",
@@ -781,7 +781,6 @@ const areaGeneralLayouts: Array<{
 		props: generalAreaProps([
 			"componentGap",
 			"gap",
-			"hideTitle",
 			"infoPaddingBottom",
 			"infoPaddingTop",
 			"infoPaddingX",
@@ -801,7 +800,7 @@ const areaGeneralLayouts: Array<{
 		componentID: "AreaAppBarArea",
 		layoutId: "layout.area.areaAppBar",
 		name: "Area App Bar Area",
-		props: generalAreaProps(["componentGap", "gap", "hideTitle"]),
+		props: generalAreaProps(["componentGap", "gap"]),
 	},
 ];
 

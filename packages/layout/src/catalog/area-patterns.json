@@ -35,6 +35,15 @@
 					"type": "number",
 					"description": "Contents slot child gap."
 				},
+				"paddingX": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
+				},
 				"itemPaddingX": {
 					"type": "number"
 				},
@@ -80,6 +89,25 @@
 				"titleGap": {
 					"type": "number"
 				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
+				},
 				"itemPaddingX": {
 					"type": "number"
 				},
@@ -122,6 +150,15 @@
 					"type": "number"
 				},
 				"gap": {
+					"type": "number"
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"slotInsetX": {
 					"type": "number"
 				},
 				"itemPaddingX": {
@@ -176,6 +213,32 @@
 				},
 				"secondaryActionPlacement": {
 					"type": "string"
+				},
+				"divider": {
+					"type": "enum",
+					"values": ["contents", "none", "section"]
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -195,6 +258,15 @@
 					"type": "number"
 				},
 				"gap": {
+					"type": "number"
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"slotInsetX": {
 					"type": "number"
 				},
 				"itemPaddingX": {
@@ -240,6 +312,32 @@
 				},
 				"titleGap": {
 					"type": "number"
+				},
+				"divider": {
+					"type": "enum",
+					"values": ["contents", "none", "section"]
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -266,6 +364,18 @@
 				},
 				"titleGap": {
 					"type": "number"
+				},
+				"paddingBottom": {
+					"type": "number"
+				},
+				"paddingTop": {
+					"type": "number"
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"safeArea": {
+					"type": "boolean"
 				}
 			},
 			"children": {
@@ -356,6 +466,32 @@
 				},
 				"titleGap": {
 					"type": "number"
+				},
+				"divider": {
+					"type": "enum",
+					"values": ["contents", "none", "section"]
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -394,6 +530,28 @@
 					"type": "enum",
 					"values": ["contents", "none", "section"],
 					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -601,6 +759,31 @@
 					"type": "enum",
 					"values": ["contents", "none", "section"],
 					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -692,6 +875,28 @@
 					"type": "enum",
 					"values": ["contents", "none", "section"],
 					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -720,6 +925,31 @@
 					"type": "enum",
 					"values": ["contents", "none", "section"],
 					"description": "Divider policy: \"contents\" renders 1px row dividers between children, \"section\" renders a trailing 4px area break, \"none\" disables dividers."
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
+				},
+				"titleGap": {
+					"type": "number"
 				}
 			},
 			"children": {
@@ -742,6 +972,35 @@
 					"type": "number"
 				},
 				"filterGap": {
+					"type": "number"
+				},
+				"divider": {
+					"type": "enum",
+					"values": ["contents", "none", "section"]
+				},
+				"itemPaddingX": {
+					"type": "number"
+				},
+				"itemTemplate": {
+					"type": "enum",
+					"values": ["card-0", "default-20", "plain"]
+				},
+				"paddingX": {
+					"type": "number"
+				},
+				"paddingY": {
+					"type": "number"
+				},
+				"sectionGap": {
+					"type": "number"
+				},
+				"sectionPaddingX": {
+					"type": "number"
+				},
+				"slotInsetX": {
+					"type": "number"
+				},
+				"titleGap": {
 					"type": "number"
 				}
 			},
