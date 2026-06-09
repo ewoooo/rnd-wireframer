@@ -664,6 +664,21 @@ it("warns when SourceSpec refs are not visible in a generated RenderTree", () =>
 	);
 });
 
+it("does not warn for purely numeric source refs (structural order sentinels)", () => {
+	const sourceSpec = validSourceSpec();
+	sourceSpec.sourceShape.screen.regions[0].children[0].sourceAreaId = "999";
+
+	const report = validateRenderTree(validRenderTree(), {
+		componentCatalog: testCatalog,
+		sourceSpec,
+	});
+
+	const notMaterialized = report.issues.filter(
+		(issue) => issue.code === "source-ref-not-materialized",
+	);
+	expect(notMaterialized.some((issue) => issue.message.includes("999"))).toBe(false);
+});
+
 it("warns when stateful source surfaces have no state coverage", () => {
 	const sourceSpec = validSourceSpec();
 	sourceSpec.sourceShape.screen.name = "검색 결과 목록";

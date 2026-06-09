@@ -524,7 +524,16 @@ function collectMaterializationSourceRefs(sourceSpec: SourceSpec): string[] {
 				]),
 			),
 		),
-	].filter((ref): ref is string => Boolean(ref));
+	].filter(isMaterializableRef);
+}
+
+/**
+ * Structural order tokens (e.g. the "999" bottom-area sentinel or a "2"
+ * sequence number) are not visible content, so they must not be checked for
+ * output materialization — doing so produces phantom "ref not visible" noise.
+ */
+function isMaterializableRef(ref: string | undefined): ref is string {
+	return typeof ref === "string" && ref.length > 0 && !/^\d+$/.test(ref);
 }
 
 function validateStateCoverage(
