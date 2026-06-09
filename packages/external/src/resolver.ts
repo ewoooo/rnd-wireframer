@@ -8,10 +8,6 @@ import { externalCatalog } from "./catalog.generated";
 
 export const componentCatalog = externalCatalog;
 
-export type ComponentCatalogType = keyof typeof externalCatalog;
-
-const entries = Object.entries(externalCatalog) as Array<[string, ComponentCatalogEntry]>;
-
 export function getComponentCatalogEntry(type: string): ComponentCatalogEntry | undefined {
 	return externalCatalog[type];
 }
@@ -29,7 +25,7 @@ export function getComponentCatalogStatus(type: string): ComponentCatalogStatus 
 
 /** candidate = kiki-draft 엔트리. */
 export function listCandidateComponentEntries(): ComponentCatalogEntry[] {
-	return entries.filter(([, entry]) => entry.source === "kiki-draft").map(([, entry]) => entry);
+	return Object.values(externalCatalog).filter((entry) => entry.source === "kiki-draft");
 }
 
 export function resolveComponentCatalogForInference(): ComponentCatalogObject {
