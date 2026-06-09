@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-09 - External Broken Image Asset Removal
+
+- 변경: `packages/external`의 손상된 `11pay-logo.png` import를 제거하고 11Pay 로고 표시는 텍스트 마크 fallback으로 대체함
+- 변경: PNG 확장자지만 실제 SVG 데이터였고 미사용 상태인 banner dot asset 4개를 제거함
+- 이유: Next/Turbopack 빌드가 손상 PNG의 `IDAT` CRC 오류로 이미지 처리 단계에서 실패했기 때문
+- 검증: PIL 기반 이미지 verify 스캔 `BAD_COUNT 0`, `pnpm build` 이미지 처리/컴파일 통과; 이후 TypeScript 단계는 기존 `StaticImageData` 타입 오류로 실패함
+
 ## 2026-06-09 - RenderTree Table Layout Fallback Removal
 
 - 변경: `renderTreeToTableGenerationResult()`가 area/component layout 누락 시 `layout.area.productHeroSummary`, `layout.composite.componentSectionMessage`로 의미 fallback하지 않고 projection 전에 layout 누락 에러를 내도록 변경함

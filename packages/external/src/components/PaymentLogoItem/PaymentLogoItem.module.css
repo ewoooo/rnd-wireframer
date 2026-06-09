@@ -24,3 +24,11 @@
 .naverPay {
   background: #00DE5A;
 }
+
+.logoText {
+  color: #ffffff;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
