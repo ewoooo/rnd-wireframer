@@ -1,6 +1,6 @@
-import * as ComponentsModule from "@cx/components";
-import { AppBar, Callout, ListSelected, ListText } from "@cx/components";
-import { componentCatalogAliases, getComponentCatalogEntry } from "@cx/components/catalog";
+import * as ComponentsModule from "@cx/external/registry";
+import { AppBar, Callout, ListSelected, ListText } from "@cx/external/registry";
+import { getComponentCatalogEntry } from "@cx/external/resolver";
 import { type ComponentType, createElement, type ReactNode } from "react";
 import { toText } from "../runtime/text";
 import type { RenderTreeNode } from "../tree/types";
@@ -135,9 +135,5 @@ for (const [name, value] of Object.entries(ComponentsModule)) {
 }
 
 function resolveComponentByType(type: string): ComponentType<unknown> | undefined {
-	const direct = componentsByType[type];
-	if (direct) return direct;
-	const aliased = componentCatalogAliases[type];
-	if (aliased) return componentsByType[aliased];
-	return undefined;
+	return componentsByType[type] ?? componentsByType[type.replace(/^kiki\./, "")];
 }

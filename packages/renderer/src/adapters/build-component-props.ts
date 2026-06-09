@@ -1,5 +1,5 @@
-import type { ComponentPropContract, ComponentPropType } from "@cx/components/catalog";
-import { getComponentCatalogEntry } from "@cx/components/catalog";
+import type { ComponentPropContract, ComponentPropType } from "@cx/schema";
+import { getComponentCatalogEntry } from "@cx/external/resolver";
 import { toText } from "../runtime/text";
 
 export interface CatalogPropFallbacks {

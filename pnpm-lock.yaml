@@ -213,9 +213,9 @@ importers:
 
   packages/renderer:
     dependencies:
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout

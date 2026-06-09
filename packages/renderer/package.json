@@ -10,7 +10,7 @@
 		"./renderer": "./src/render/index.ts"
 	},
 	"dependencies": {
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/schema": "workspace:*"
 	},
