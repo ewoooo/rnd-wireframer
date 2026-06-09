@@ -57,6 +57,11 @@ describe("screenGenerationPipelineV1", () => {
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
+			skillset: {
+				source: "stage-skillset",
+				id: "compose.screen-generation",
+				version: undefined,
+			},
 		});
 		expect(screenGenerationPipelineV1.steps[5]?.references).toEqual({
 			componentCatalog,
