@@ -30,6 +30,44 @@ export const AGENT_STAGE_SKILLSET_CATALOG = {
 			},
 		],
 	},
+	"revise.quality-review": {
+		stage: "revise",
+		task: "quality-review",
+		documents: [
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/quality-review/checklist.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/visual-hierarchy-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/pattern-fit-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/action-clarity-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/density-fit-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/anti-slop-review/README.md",
+			},
+		],
+	},
 } as const satisfies Record<string, StageSkillsetCatalogEntry>;
 
 export type AgentStageSkillsetId = keyof typeof AGENT_STAGE_SKILLSET_CATALOG;

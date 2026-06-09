@@ -54,10 +54,17 @@ describe("screenGenerationPipelineV1", () => {
 			componentCatalog,
 			layoutCatalog,
 		});
-		// Function/quality steps carry no knowledge references.
+		// Quality review pulls the review skillset (checklist + per-axis review skills).
+		expect(screenGenerationPipelineV1.steps[7]?.references).toEqual({
+			skillset: {
+				source: "stage-skillset",
+				id: "revise.quality-review",
+				version: undefined,
+			},
+		});
+		// Function steps carry no knowledge references.
 		expect(screenGenerationPipelineV1.steps[4]?.references).toBeUndefined();
 		expect(screenGenerationPipelineV1.steps[6]?.references).toBeUndefined();
-		expect(screenGenerationPipelineV1.steps[7]?.references).toBeUndefined();
 	});
 
 	it("every step output contract resolves", () => {

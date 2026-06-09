@@ -135,6 +135,9 @@ export const screenGenerationPipelineV1 = definePipeline({
 				renderTree: context("render-tree"),
 				validationReport: context("validation-report"),
 			},
+			references: {
+				skillset: knowledge("stage-skillset", "revise.quality-review"),
+			},
 			prompt: { id: "quality-review" },
 			output: {
 				contractRef: outputContractRef("quality-inspection"),
