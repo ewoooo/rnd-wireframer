@@ -1,23 +1,7 @@
-import { getComponentCatalogEntry } from "@cx/components/catalog";
 import type { PatternResolutionSignals } from "../public/types";
 
 export function componentSignals(type: string): Set<string> {
-	const entry = getComponentCatalogEntry(type);
-	const signals = new Set<string>([type, type.toLowerCase(), toKebabCase(type)]);
-
-	if (entry) {
-		signals.add(entry.type);
-		signals.add(entry.type.toLowerCase());
-		signals.add(toKebabCase(entry.type));
-		if (entry.kind) signals.add(entry.kind);
-		for (const alias of entry.aliases ?? []) {
-			signals.add(alias);
-			signals.add(alias.toLowerCase());
-			signals.add(toKebabCase(alias));
-		}
-	}
-
-	return signals;
+	return new Set<string>([type, type.toLowerCase(), toKebabCase(type)]);
 }
 
 export function scorePatternSignals(

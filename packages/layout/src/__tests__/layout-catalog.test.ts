@@ -1,5 +1,5 @@
-import type { ComponentCatalogEntry } from "@cx/components/catalog";
-import { componentCatalog } from "@cx/components/catalog";
+import { componentCatalog } from "@cx/external/resolver";
+import type { ComponentCatalogEntry } from "@cx/schema";
 import {
 	listPatternSummaries,
 	listPatterns,
@@ -100,11 +100,6 @@ describe("@cx/layout", () => {
 		for (const entry of Object.values(componentCatalog) as ComponentCatalogEntry[]) {
 			catalogSignals.add(entry.type);
 			catalogSignals.add(entry.type.toLowerCase());
-			if (entry.kind) catalogSignals.add(entry.kind);
-			for (const alias of entry.aliases ?? []) {
-				catalogSignals.add(alias);
-				catalogSignals.add(alias.toLowerCase());
-			}
 		}
 
 		const figmaOnlySignals = new Set(["price-text", "product-list-group"]);

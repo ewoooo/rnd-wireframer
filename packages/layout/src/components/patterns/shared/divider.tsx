@@ -1,4 +1,4 @@
-import { Divider } from "@cx/components";
+import { Divider } from "@cx/external/registry";
 import { Children, isValidElement, type ReactNode } from "react";
 
 export type LayoutDivider = "contents" | "none" | "section";

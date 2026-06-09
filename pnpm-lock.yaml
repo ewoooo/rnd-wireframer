@@ -198,9 +198,9 @@ importers:
 
   packages/layout:
     dependencies:
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema

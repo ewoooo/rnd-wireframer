@@ -16,7 +16,7 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"zod": "^4.4.3"
 	},
