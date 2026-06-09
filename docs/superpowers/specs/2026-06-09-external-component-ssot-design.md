@@ -38,6 +38,12 @@ brainstorming 과정에서 사용자가 확정한 사항:
 6. **카탈로그 mutation(create/update/delete/promote candidate)은 폐기.** 자동생성 + source 유도
    status 체제에서 런타임 쓰기 대상이 없다. 단 **`promote-component.ts`는 sync 레이어
    (kiki 소스 draft→barrel) 대상으로 재작성**해 promote 워크플로 자체는 유지한다.
+7. **type 네임스페이스는 `kiki.X`로 일관 유지(옵션3-변형).** 카탈로그 키와 node.type 모두 `kiki.X`.
+   resolver는 순수 직접 조회(정규화 없음). 유일한 bridge는 **renderer의 React 컴포넌트 조회 경계**에서
+   `kiki.AppBar` → registry export `AppBar`로 **접두사 strip 단일 규칙**(alias 아님). 이 규칙은
+   KIKI-SHIM이 영구 로직으로 명시한 `component-by-type.ts` 패턴에 해당하며, 현재 `resolveComponentByType`를
+   이것으로 교체한다. composite 노드 렌더러(Accordion·ListCell·HeaderBase 등 kiki 컴포넌트 아님)는
+   별도 맵으로 그대로 둔다.
 
 ## 3. 전제 / 의존
 
@@ -114,7 +120,11 @@ resolveComponentCatalogForInference()                                       // o
 대상:
 
 - **renderer**: `adapters/resolve-component.tsx`, `adapters/build-component-props.ts`
-  → resolver/catalog는 `@cx/external/*`, 컴포넌트는 `@cx/external/registry`
+  → resolver/catalog는 `@cx/external/*`, 컴포넌트는 `@cx/external/registry`.
+  `resolve-component.tsx`의 `componentCatalogAliases` 사용 제거, `resolveComponentByType`를
+  `kiki.` 접두사 strip 규칙(`componentsByType[type] ?? componentsByType[type.replace(/^kiki\./, "")]`)으로
+  교체. root barrel(`@cx/components`)에서 import하던 구체 컴포넌트(`AppBar`/`Callout`/`ListSelected`/`ListText`)는
+  `@cx/external` root barrel에서 import(모두 존재).
 - **layout**: `pattern-internal/matcher.ts`, `components/patterns/shared/divider.tsx`,
   `__tests__/layout-catalog.test.ts` → `@cx/external/*`
 - **validation**: `public/validators.ts`, 테스트 → 타입은 `@cx/schema`, 카탈로그는 `@cx/external/catalog`
