@@ -1,13 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
-import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../internal/style";
+import { cx, flexLayoutClassName, flexLayoutFallbackStyle } from "../../internal/style";
 import type {
 	FlexLayoutProps,
 	ScreenBottomNode,
 	ScreenContentsNode,
 	ScreenHeaderNode,
 	ScreenRegionNode,
-} from "../types";
-import { LAYOUT_NODE_TYPES } from "../types";
+} from "../../types";
+import { LAYOUT_NODE_TYPES } from "../../types";
 
 type ScreenRegionRenderContract = {
 	className: string;

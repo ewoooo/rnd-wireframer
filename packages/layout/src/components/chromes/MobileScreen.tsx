@@ -1,6 +1,6 @@
 import { VStack } from "@cx/layout/primitives";
 import type { CSSProperties } from "react";
-import type { LayoutPatternComponentProps } from "../types";
+import type { LayoutPatternComponentProps } from "../patterns/types";
 
 type ScreenShellDefaults = {
 	contentWidth?: number;

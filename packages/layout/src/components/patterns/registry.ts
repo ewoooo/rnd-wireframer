@@ -82,8 +82,8 @@ import {
 	CompositeTabChipSearchAccordionListComposite,
 	CompositeTitleInfoTextListComposite,
 } from "./composite";
-import { PlainStackRegion } from "./region/RegionStack";
-import { MobileScreen } from "./screen/ScreenShell";
+import { PlainStackRegion } from "../regions/RegionStack";
+import { MobileScreen } from "../chromes/MobileScreen";
 import type { LayoutPatternComponent, LayoutPatternComponentEntry } from "./types";
 
 // layoutId → 실제 렌더 named component. 계약 데이터(props/name/children/status)는 catalog가 소유한다.

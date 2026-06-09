@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ScreenBottomNode, ScreenContentsNode, ScreenHeaderNode, ScreenNode } from "../types";
+import type { ScreenBottomNode, ScreenContentsNode, ScreenHeaderNode, ScreenNode } from "../../types";
 
 import { AppScreenRoot } from "./AppScreenRoot";
 import { ScreenRegion } from "./ScreenRegion";

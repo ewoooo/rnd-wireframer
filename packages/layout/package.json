@@ -6,7 +6,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./catalog": "./src/public/catalog.ts",
-		"./chrome": "./src/public/chrome.ts",
+		"./chrome": "./src/components/chromes/index.ts",
 		"./components": "./src/public/components.ts",
 		"./contract": "./src/public/contract.ts",
 		"./mutations": "./src/public/mutations.ts",

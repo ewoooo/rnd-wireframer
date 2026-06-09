@@ -1,5 +1,5 @@
 import { VStack, type VStackProps } from "@cx/layout/primitives";
-import type { LayoutPatternComponentProps } from "../types";
+import type { LayoutPatternComponentProps } from "../patterns/types";
 
 type RegionStackDefaults = {
 	gap?: number;

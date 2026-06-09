@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
-import { cx } from "../internal/style";
-import type { ScreenNode } from "../types";
+import { cx } from "../../internal/style";
+import type { ScreenNode } from "../../types";
 
 export type AppScreenRootProps = {
 	children: ReactNode;
