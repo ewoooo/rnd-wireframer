@@ -17,6 +17,34 @@
 
 ---
 
+## Task 0: TDD 가드 하니스 (테스트 먼저, RED 스파인)
+
+리팩터 의도를 6개 축으로 테스트에 고정한다. **구현 전에 작성** → 초기 RED, 각 후속 task가 자기 슬라이스를 GREEN으로 전환.
+
+**Files (Create):**
+- `packages/layout/src/__tests__/external-thin/public-surface.test.ts` (축1: 데이터 export 표면)
+- `packages/layout/src/__tests__/external-thin/catalog-generated.test.ts` (축2: catalog.generated 무결성)
+- `packages/layout/src/__tests__/external-thin/registry-generated.test.ts` (축4: registry = 실제 React component surface)
+- `packages/layout/src/__tests__/external-thin/resolver-readonly.test.ts` (축5: resolver read-only)
+- `packages/layout/src/__tests__/external-thin/alias-registry-integrity.test.ts` (축3: alias/registry 무결성)
+- `packages/layout/src/__tests__/external-thin/consumer-boundary.test.ts` (consumer boundary 고정)
+- `packages/renderer/src/__tests__/layout-external-thin-connection.test.tsx` (축6: renderer 실제 렌더 연결)
+
+**green-after 매핑:** public-surface→T10, catalog-generated→T8, registry-generated→T8, resolver-readonly→T9, alias-registry-integrity→T7~9, consumer-boundary→T11, renderer-connection→T11.
+
+- [ ] **Step 1: 6개 축 테스트 작성** (내용은 design의 불변식 + 아래 사용자 지정)
+  - 축1 public surface: `package.json.exports`가 `.`/`./catalog`/`./registry`/`./resolver`/`./canonicalize` 보유, `./components`·`./contract`·`./mutations` 미보유. external과 동일 코어 surface(parity).
+  - 축2 catalog.generated: 모든 entry `key===id`, target ∈ {screen,region,area,composite}, props 계약 shape, status 유효. id 중복 없음.
+  - 축4 registry.generated: 모든 export가 함수형(React component).
+  - 축5 resolver: `getLayoutCatalogEntry`/`getLayoutCatalogIds`/`getLayoutCatalogStatus`/`listLayoutCatalog`/`resolveLayoutCatalogForInference` 노출, mutation·`resolveLayoutComponent` 미노출(read-only).
+  - 축3 alias/registry: 모든 catalog id ∈ alias 키, 모든 alias 값 ∈ registry export(함수형), 모든 catalog id → `canonicalizeLayout` → registry component.
+  - consumer boundary: 리포 내 `@cx/layout/{catalog,components,mutations,contract}` import 0(layout 패키지 제외).
+  - 축6 renderer: layoutId 노드 렌더 시 실제 component DOM 출력(registry+canonicalize 경로).
+- [ ] **Step 2: 실행 → RED 확인** `node_modules/.bin/vitest run packages/layout/src/__tests__/external-thin packages/renderer/src/__tests__/layout-external-thin-connection.test.tsx` — 대부분 RED(모듈 미존재). 이게 구현 목표 스파인.
+- [ ] **Step 3: 커밋** `test(layout): add external-thin TDD guard harness (6 axes, red spine)`
+
+---
+
 ## Task 1: catalog 타입 + meta 헬퍼
 
 **Files:** Create `packages/layout/src/catalog-types.ts`
