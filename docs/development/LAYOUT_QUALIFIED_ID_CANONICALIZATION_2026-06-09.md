@@ -59,11 +59,18 @@
 
 **지금 실행: Task 3 → Task 4 (서브에이전트, 메인 리뷰).**
 
+### 후속 (2026-06-09): 옆 세션 랜드 → Task 1·2 완료
+
+`spec/external-component-ssot` 세션이 main에 머지됨(`@cx/external` 승격, 하드코딩 composite 맵 제거, matcher alias/kind 신호 삭제, validators alias 역해석 삭제, persist 경계 `node.type` write-back). render-registry 브랜치를 main 위로 rebase 후 Task 1·2 실행.
+
+- **Task 1 — 완료** (`49b1b4e6`). 옆 세션은 matcher의 alias/kind 신호만 제거하고 파일·resolver 죽은 함수·resolution 체인은 남겨둠. 그 잔여 죽은 골조(matcher.ts, `*-ByComponentType`, `PatternResolutionSignals`/`SetMatcher`/`setMatcherSchema`/`resolutionSchema`, `normalizePatternId`)를 순수 삭제. 호출부 0 재확인 후 진행.
+- **Task 2 — 완료** (`9ea9f40e`). **보류 사유였던 `node.layout` write-back 의존성은 실제로 없었다.** 옆 세션 `canonicalizeRenderTree`는 `node.type`만 캐논화하지만, `node.layout`/`screenLayout`/`area.layout`은 catalog·fixture·렌더러 registry 전부 이미 qualified이고 bare 형태는 store-load+validator-lookup 경계에만 존재한다(노드에 새어나가지 않음). 따라서 store down-transform과 validator 변환을 함께 제거하면 qualified===qualified로 매칭되어 write-back 없이 안전. `validators.ts` 머지 마찰도 옆 세션 랜드로 해소.
+
 ---
 
-## Task 1: 죽은 component-type matcher + resolution 골조 제거 — ⏸ 보류
+## Task 1: 죽은 component-type matcher + resolution 골조 제거 — ✅ 완료 (`49b1b4e6`)
 
-> **보류 (2026-06-09):** `matcher.ts`가 옆 세션 D2와 하드 충돌. 조율/랜드 후 진행. 아래는 원안.
+> **완료 (2026-06-09):** 옆 세션 랜드 후 rebase하여 실행. 116 deletions/3 insertions, 죽은 코드만 제거, 77 테스트 green.
 
 순수 삭제(동작 보존). 프로덕션 호출부가 없는 코드만 제거해 베이스를 정리한다.
 
@@ -181,9 +188,9 @@ graphify update .
 
 ---
 
-## Task 2: pattern store id를 qualified 단일키로 보존 — ⏸ 보류
+## Task 2: pattern store id를 qualified 단일키로 보존 — ✅ 완료 (`9ea9f40e`)
 
-> **보류 (2026-06-09):** `validators.ts` 머지 마찰 + tolerance 제거가 옆 세션 write-back(`canonicalizeRenderTree`의 `node.layout` 캐논화 확장)에 의존. 그쪽 랜드 후 진행. 아래는 원안.
+> **완료 (2026-06-09):** node.layout은 이미 qualified라 write-back 의존성이 없었음(위 "후속" 참조). down-transform·변환 3사본 제거, layout/validation/adapters/inference 158 테스트 green. negative 테스트들은 실패 사유를 보존하며 bare→qualified로 갱신.
 
 down-transform을 제거해 store key를 qualified로 유지하고, validator도 변환 없이 exact 조회한다.
 
