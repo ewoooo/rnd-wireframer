@@ -155,7 +155,9 @@ describe("buildExportFileMap — @cx/* import resolvability guard", () => {
 			.map(([specifier]) => specifier);
 		expect(mainSpecifiers).toContain("@cx/external");
 		expect(mainSpecifiers).toContain("@cx/layout/primitives");
-		expect(mainSpecifiers).toContain("@cx/layout/registry");
+		// region 래퍼(PlainStackRegion)까지 primitive-target으로 unwrap돼 이 fixture의
+		// main.tsx에는 registry import가 없다 (named fallback 패밀리가 나오면 다시 생긴다).
+		expect(mainSpecifiers).not.toContain("@cx/layout/registry");
 	});
 
 	it("mirrors tsconfig paths in the vite config aliases", () => {

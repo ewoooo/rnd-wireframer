@@ -66,18 +66,39 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 
 	it("emits a clean root div and imports only the used modules", () => {
 		expect(result.code).toContain("export default function Screen()");
-		expect(result.code).toContain("<div style={{ minHeight: 852, width: 393 }}>");
+		// AppScreenRoot의 정적 거울 — flex column + overflow hidden + 고정 프레임(390×844, height).
+		expect(result.code).toContain('display: "flex"');
+		expect(result.code).toContain('flexDirection: "column"');
+		expect(result.code).toContain("height: 844");
+		expect(result.code).toContain('overflow: "hidden"');
+		expect(result.code).toContain("width: 390");
+		expect(result.code).toContain(
+			'backgroundColor: "var(--semantic-surface-page-normal, #ffffff)"',
+		);
 		expect(result.code).not.toContain("AppScreen");
 		expect(result.code).not.toContain("node={");
 		expect(result.code).toContain('from "@cx/external";');
 		expect(result.code).toContain('from "@cx/layout/primitives";');
-		expect(result.code).toContain('from "@cx/layout/registry";');
+		// region 래퍼(PlainStackRegion)까지 primitive로 unwrap — fixture에는 named fallback이 없다.
+		expect(result.code).not.toContain('from "@cx/layout/registry"');
 		expect(result.code).not.toContain('from "@cx/renderer"');
 	});
 
-	it("expresses regions with layout primitives (bottom via BottomFixedArea)", () => {
-		expect(result.code).toContain("<BottomFixedArea>");
-		expect(result.code).toContain('<Flex layout={{ direction: "column" }}>');
+	it("mirrors ScreenRegion semantics on region containers (inline style, no tailwind)", () => {
+		// header/bottom: shrink-0 거울.
+		expect(result.code).toContain(
+			'<Flex layout={{ direction: "column" }} style={{ flexShrink: 0 }}>',
+		);
+		// contents: flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] 거울.
+		expect(result.code).toContain(
+			'style={{ flex: 1, minHeight: 0, overflowY: "auto", scrollbarWidth: "none" }}',
+		);
+		// region layoutId(layout.region.* → PlainStackRegion)도 primitive(VStack)로 unwrap.
+		expect(result.code).toContain('<VStack as="section" gap={0}>');
+		expect(result.code).not.toContain("PlainStackRegion");
+		// BottomFixedArea는 region 컨테이너가 아니라 bottomActionArea(area layout)에서만 나온다.
+		expect(result.code).toContain("<BottomFixedArea gap={0}>");
+		expect(result.code).not.toContain("<BottomFixedArea>");
 	});
 
 	it("unwraps pattern layoutIds into primitives and drops divider props (no Divider leaf)", () => {

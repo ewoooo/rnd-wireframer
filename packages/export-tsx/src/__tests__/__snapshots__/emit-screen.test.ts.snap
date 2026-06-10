@@ -3,22 +3,33 @@
 exports[`emitScreenTsx — integration (cart-fail-recovery fixture) > matches the TSX snapshot 1`] = `
 "import { ActionButton, AppBar, Callout, ListSelected, ListText, TextButton, TitleSection } from "@cx/external";
 import { BottomFixedArea, Flex, HStack, PageStack, VStack } from "@cx/layout/primitives";
-import { PlainStackRegion } from "@cx/layout/registry";
 
 export default function Screen() {
 	return (
-		<div style={{ minHeight: 852, width: 393 }}>
-			<Flex layout={{ direction: "column" }}>
-				<PlainStackRegion>
+		<div
+			style={{
+				backgroundColor: "var(--semantic-surface-page-normal, #ffffff)",
+				display: "flex",
+				flexDirection: "column",
+				height: 844,
+				overflow: "hidden",
+				width: 390,
+			}}
+		>
+			<Flex layout={{ direction: "column" }} style={{ flexShrink: 0 }}>
+				<VStack as="section" gap={0}>
 					<HStack gap={0}>
 						<VStack gap={0}>
 							<AppBar showBack title="선택 불가·충돌 사유 안내" />
 						</VStack>
 					</HStack>
-				</PlainStackRegion>
+				</VStack>
 			</Flex>
-			<Flex layout={{ direction: "column" }}>
-				<PlainStackRegion>
+			<Flex
+				layout={{ direction: "column" }}
+				style={{ flex: 1, minHeight: 0, overflowY: "auto", scrollbarWidth: "none" }}
+			>
+				<VStack as="section" gap={0}>
 					<PageStack
 						gap={12}
 						itemPaddingX={20}
@@ -62,17 +73,17 @@ export default function Screen() {
 							/>
 						</VStack>
 					</PageStack>
-				</PlainStackRegion>
+				</VStack>
 			</Flex>
-			<BottomFixedArea>
-				<PlainStackRegion>
+			<Flex layout={{ direction: "column" }} style={{ flexShrink: 0 }}>
+				<VStack as="section" gap={0}>
 					<BottomFixedArea gap={0}>
 						<VStack gap={0}>
 							<ActionButton />
 						</VStack>
 					</BottomFixedArea>
-				</PlainStackRegion>
-			</BottomFixedArea>
+				</VStack>
+			</Flex>
 		</div>
 	);
 }

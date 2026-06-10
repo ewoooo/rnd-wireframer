@@ -83,52 +83,81 @@ function emitNamedLayout(layoutId: string, input: EmitNodeInput): string | undef
 		return emitNodeWithoutLayout(input);
 	}
 
-	const target = resolvePrimitiveTarget(layoutId, input.props);
-	if (target) return emitPrimitiveLayoutTarget(layoutId, target, input);
+	return emitLayoutWrapper({
+		children: emitLayoutChildren(input),
+		className: input.node.className,
+		componentKey,
+		ctx: input.ctx,
+		indent: input.indent,
+		layoutId,
+		nodeId: input.node.metadata.id,
+		props: input.props,
+	});
+}
 
-	input.ctx.addImport(GENERATED_IMPORT_PATHS.registry, componentKey);
+export type EmitLayoutWrapperInput = {
+	/** 래퍼 안에 들어갈, 이미 indent+탭으로 완성된 자식 블록들. */
+	children: string[];
+	className?: string;
+	/** canonicalizeLayout 통과가 끝난 canonical componentKey (named fallback용). */
+	componentKey: string;
+	ctx: EmitContext;
+	indent: string;
+	layoutId: string;
+	/** warning 메시지용 노드 id. */
+	nodeId: string;
+	props: Record<string, unknown>;
+};
 
-	const childIndent = `${input.indent}\t`;
+/**
+ * canonical layout 래퍼 1개를 emit한다 — emitNamedLayout과 emit-screen의 region 래퍼가
+ * 공유하는 단일 경로(중복 구현 금지).
+ * 1) primitive-target resolver가 해석하면 @cx/layout primitive로 unwrap.
+ * 2) 해석 불가(중첩/슬롯/bespoke 패밀리)면 @cx/layout/registry named 컴포넌트 fallback.
+ */
+export function emitLayoutWrapper(input: EmitLayoutWrapperInput): string {
+	const target = resolvePrimitiveTarget(input.layoutId, input.props);
+	if (target) return emitPrimitiveLayoutTarget(target, input);
+
+	input.ctx.addImport(GENERATED_IMPORT_PATHS.registry, input.componentKey);
+
+	const attrIndent = `${input.indent}\t`;
 	const attributes = [
-		serializeJsxAttribute("className", input.node.className, childIndent),
+		serializeJsxAttribute("className", input.className, attrIndent),
 		Object.keys(input.props).length > 0
-			? `props={${serializeJsExpression(input.props, childIndent)}}`
+			? `props={${serializeJsExpression(input.props, attrIndent)}}`
 			: undefined,
 	];
 
 	return formatJsxElement({
 		attributes,
-		children: emitLayoutChildren(input),
+		children: input.children,
 		indent: input.indent,
-		name: componentKey,
+		name: input.componentKey,
 	});
 }
 
 /** 해석된 PrimitiveTarget → primitive JSX. droppedProps(divider 등)는 warning 1줄로 남긴다. */
-function emitPrimitiveLayoutTarget(
-	layoutId: string,
-	target: PrimitiveTarget,
-	input: EmitNodeInput,
-): string {
+function emitPrimitiveLayoutTarget(target: PrimitiveTarget, input: EmitLayoutWrapperInput): string {
 	input.ctx.addImport(GENERATED_IMPORT_PATHS.primitives, target.primitive);
 
 	if (target.droppedProps !== undefined && target.droppedProps.length > 0) {
 		input.ctx.warnings.push(
-			`layout "${layoutId}" unwrap (node ${input.node.metadata.id}): primitive 미지원 prop 생략 — ${target.droppedProps.join(", ")}`,
+			`layout "${input.layoutId}" unwrap (node ${input.nodeId}): primitive 미지원 prop 생략 — ${target.droppedProps.join(", ")}`,
 		);
 	}
 
-	const childIndent = `${input.indent}\t`;
+	const attrIndent = `${input.indent}\t`;
 	const attributes = [
-		serializeJsxAttribute("className", input.node.className, childIndent),
+		serializeJsxAttribute("className", input.className, attrIndent),
 		...Object.entries(target.props)
 			.sort(([a], [b]) => a.localeCompare(b))
-			.map(([key, value]) => serializeJsxAttribute(key, value, childIndent)),
+			.map(([key, value]) => serializeJsxAttribute(key, value, attrIndent)),
 	];
 
 	return formatJsxElement({
 		attributes,
-		children: emitLayoutChildren(input),
+		children: input.children,
 		indent: input.indent,
 		name: target.primitive,
 	});

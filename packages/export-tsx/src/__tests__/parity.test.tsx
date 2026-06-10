@@ -120,8 +120,12 @@ function isAllowlisted(segment: string, allowlist: string[]): boolean {
 
 type ParitySnapshot = {
 	consoleErrors: string[];
+	/** 구조 단언용 deep clone — testing-library auto-cleanup 이후에도 유효하다. */
+	exportContainer: HTMLElement;
 	exportJoined: string;
 	exportSegments: string[];
+	/** 구조 단언용 deep clone — testing-library auto-cleanup 이후에도 유효하다. */
+	runtimeContainer: HTMLElement;
 	runtimeJoined: string;
 	runtimeSegments: string[];
 	warnings: string[];
@@ -141,16 +145,20 @@ beforeAll(async () => {
 
 		const runtime = render(<RenderTreeView data={{}} node={screenTree} />);
 		const runtimeSegments = collectTextSegments(runtime.container);
+		const runtimeContainer = runtime.container.cloneNode(true) as HTMLElement;
 		runtime.unmount();
 
 		const exported = render(<Screen />);
 		const exportSegments = collectTextSegments(exported.container);
+		const exportContainer = exported.container.cloneNode(true) as HTMLElement;
 		exported.unmount();
 
 		snapshot = {
 			consoleErrors,
+			exportContainer,
 			exportJoined: exportSegments.join(" "),
 			exportSegments,
+			runtimeContainer,
 			runtimeJoined: runtimeSegments.join(" "),
 			runtimeSegments,
 			warnings,
@@ -200,5 +208,89 @@ describe("TSX export ↔ runtime renderer text parity (cart-fail-recovery fixtur
 
 	it("renders both sides without console.error output", () => {
 		expect(snapshot.consoleErrors).toEqual([]);
+	});
+});
+
+/**
+ * 구조 parity — ScreenRegion 레이아웃 의미(스크롤/고정 영역)가 export에서 보존되는지.
+ *
+ * 아래 두 describe는 쌍이다:
+ * 1) "export DOM mirrors …": export 결과의 inline style이 emit-screen.ts의
+ *    SCREEN_FRAME_STYLE / REGION_CONTAINER_CONTRACT 미러를 실제 DOM에서 만족하는지.
+ * 2) "runtime DOM drift guard": 미러의 원본인 ScreenRegion/AppScreenRoot tailwind 계약이
+ *    아직 그대로인지. 런타임 계약이 바뀌면 (2)가 먼저 깨져서 export 스타일 테이블
+ *    (emit-screen.ts) 갱신을 강제한다 — 한쪽만 고치면 안 된다.
+ */
+describe("TSX export ↔ runtime structural parity (screen frame + region semantics)", () => {
+	function exportRegions() {
+		const root = snapshot.exportContainer.firstElementChild as HTMLElement;
+		expect(root).not.toBeNull();
+		const regions = [...root.children] as HTMLElement[];
+		return { regions, root };
+	}
+
+	describe("export DOM mirrors AppScreenRoot/ScreenRegion semantics with inline styles", () => {
+		it("renders the root as a fixed flex-column frame with overflow hidden", () => {
+			const { root } = exportRegions();
+			expect(root.style.display).toBe("flex");
+			expect(root.style.flexDirection).toBe("column");
+			expect(root.style.overflow).toBe("hidden");
+			// minHeight가 아니라 height — 고정 프레임이어야 contents 스크롤이 성립한다.
+			expect(root.style.height).toBe("844px");
+			expect(root.style.width).toBe("390px");
+			expect(root.style.minHeight).toBe("");
+		});
+
+		it("orders regions header → contents → bottom (text matches each runtime region)", () => {
+			const { regions } = exportRegions();
+			expect(regions).toHaveLength(3);
+			const runtimeRegionOrder = ["Screen.Header", "Screen.Contents", "Screen.Bottom"];
+			for (const [index, region] of runtimeRegionOrder.entries()) {
+				const runtimeText = normalizeWhitespace(
+					snapshot.runtimeContainer.querySelector(`[data-region="${region}"]`)?.textContent ?? "",
+				);
+				expect(runtimeText.length).toBeGreaterThan(0);
+				expect(normalizeWhitespace(regions[index].textContent ?? "")).toBe(runtimeText);
+			}
+		});
+
+		it("pins header/bottom with flexShrink:0 and scrolls contents via flex:1 + minHeight:0", () => {
+			const { regions } = exportRegions();
+			const [header, contents, bottom] = regions;
+			expect(header.style.flexShrink).toBe("0");
+			expect(bottom.style.flexShrink).toBe("0");
+			expect(contents.style.flexGrow).toBe("1");
+			expect(contents.style.minHeight).toBe("0px");
+			expect(contents.style.overflowY).toBe("auto");
+		});
+	});
+
+	describe("runtime DOM drift guard (ScreenRegion/AppScreenRoot tailwind contract)", () => {
+		function runtimeRegion(region: string): HTMLElement {
+			const element = snapshot.runtimeContainer.querySelector<HTMLElement>(
+				`[data-region="${region}"]`,
+			);
+			expect(element).not.toBeNull();
+			return element as HTMLElement;
+		}
+
+		it("keeps the AppScreenRoot flex-column overflow-hidden frame classes", () => {
+			const root = snapshot.runtimeContainer.querySelector<HTMLElement>(
+				'[data-node-type="Screen"]',
+			);
+			expect(root).not.toBeNull();
+			for (const className of ["flex", "flex-col", "overflow-hidden"]) {
+				expect(root?.classList.contains(className)).toBe(true);
+			}
+		});
+
+		it("keeps the ScreenRegion contract classes the export style table mirrors", () => {
+			// emit-screen.ts REGION_CONTAINER_CONTRACT와 1:1 — 여기가 깨지면 테이블을 같이 갱신할 것.
+			for (const className of ["flex-1", "min-h-0", "overflow-y-auto"]) {
+				expect(runtimeRegion("Screen.Contents").classList.contains(className)).toBe(true);
+			}
+			expect(runtimeRegion("Screen.Header").classList.contains("shrink-0")).toBe(true);
+			expect(runtimeRegion("Screen.Bottom").classList.contains("shrink-0")).toBe(true);
+		});
 	});
 });
