@@ -401,6 +401,10 @@ function validateCompositionPlanSourceRefs(
 				code: "unknown-source-ref",
 				message: `CompositionPlan sourceRef does not exist in SourceSpec: ${sourceRef}.`,
 				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
+				// sourceRef는 plan의 추적 메타데이터일 뿐 RenderTree 정합성이 아니다.
+				// 형식 변덕(짧은 ID ↔ JSONPath)으로 완성된 화면을 hard-fail시키지 않도록
+				// source-ref-not-materialized와 동일하게 warning으로 표시한다.
+				severity: "warning",
 			});
 		});
 	});

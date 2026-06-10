@@ -587,7 +587,7 @@ it("rejects table-shaped generation records with target/layout mismatches", () =
 	);
 });
 
-it("validates composition plan source refs against SourceSpec", () => {
+it("flags unknown composition plan source refs as a non-blocking warning", () => {
 	const sourceSpec = validSourceSpec();
 	const report = validateCompositionPlan(
 		{
@@ -613,12 +613,14 @@ it("validates composition plan source refs against SourceSpec", () => {
 		{ sourceSpec },
 	);
 
-	expect(report.ok).toBe(false);
+	// sourceRef는 추적 메타데이터일 뿐 렌더 결과물 정합성이 아니므로,
+	// 형식/매칭 실패는 hard-fail이 아니라 warning으로만 표시한다.
+	expect(report.ok).toBe(true);
 	expect(report.issues).toContainEqual(
 		expect.objectContaining({
 			code: "unknown-source-ref",
 			path: ["sections", 0, "sourceRefs", 1],
-			severity: "error",
+			severity: "warning",
 		}),
 	);
 });
