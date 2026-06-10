@@ -11,7 +11,7 @@ import {
 	renderTreeToPuckScreenData,
 	screenRegionSlotNames,
 } from "@cx/adapters/puck";
-import { getPrimitivePuckCatalogItems } from "@cx/components/puck";
+import { getPrimitivePuckCatalogItems } from "@cx/external/puck";
 import type { RenderTreeNode, RenderTreeScreenNode } from "@cx/renderer";
 import type { Data } from "@puckeditor/core";
 import type { EditScope } from "@/model/puck-edit-scope";

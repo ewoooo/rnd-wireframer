@@ -1,0 +1,54 @@
+/* Figma: UnderlineTab — node 9596:37541, 393×60px */
+/* 2탭 균등폭, active=검정 하단바, padL/R=12px, padT=24px */
+.tab {
+  display: flex;
+  align-items: flex-end;
+  width: 393px;
+  height: 60px;
+  border-bottom: 1px solid #ebeef6;
+}
+
+.tabItem {
+  flex: 1 0 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #05001A;
+}
+
+.tabItem:first-child {
+  padding-left: 12px;
+}
+
+.tabItem:last-child {
+  padding-right: 12px;
+}
+
+/* Active: 2px bar 표시 */
+.active::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #05001A;
+  border-radius: 2px 2px 0 0;
+}
+
+/* Inactive: bar 없음 (높이 유지용 빈 요소) */
+.inactive::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+}

@@ -199,7 +199,7 @@ Screen inference is implemented in one package:
 | `@cx/agent` | Claude Agent SDK local-first execution engine adapter; also owns skills as SSOT and exposes `resolveSkill(id) → { content, version, … }` |
 | `@cx/schema` | SourceSpec, RenderTree, validation DTO/schema contracts |
 | `@cx/validation` | Pure validation reports |
-| `@cx/components`, `@cx/layout`, `@cx/tokens` | Knowledge base catalogs and design contracts |
+| `@cx/external`, `@cx/layout`, `@cx/tokens` | Knowledge base catalogs and design contracts (via resolver read APIs) |
 
 `@cx/inference` internal modules:
 
@@ -452,7 +452,7 @@ type InferenceRuntime = WorkerDeps;
 declare function runInferenceJob(jobId: string, runtime: InferenceRuntime): Promise<void>;
 ```
 
-> **MVP implemented:** the resolution *contract* is defined in §9.1 — each Knowledge source's owner exposes a resolver API and `knowledgeBase` returns the owner `SsotObject` directly. `references.json` is already keyed by the step-local ref name, so no extra envelope wrapper is used. MVP resolver coverage is `@cx/schema.resolveOutputContractForInference`, `@cx/components/catalog.resolveComponentCatalogForInference`, `@cx/layout/catalog.resolveLayoutCatalogForInference`, `@cx/agent.resolveSkillForInference`, `@cx/agent.resolvePromptCatalogForInference`, and `@cx/tokens.resolveTokenCatalogForInference`.
+> **MVP implemented:** the resolution *contract* is defined in §9.1 — each Knowledge source's owner exposes a resolver API and `knowledgeBase` returns the owner `SsotObject` directly. `references.json` is already keyed by the step-local ref name, so no extra envelope wrapper is used. MVP resolver coverage is `@cx/schema.resolveOutputContractForInference`, `@cx/external/resolver.resolveComponentCatalogForInference`, `@cx/layout/resolver.resolveLayoutCatalogForInference`, `@cx/agent.resolveSkillForInference`, `@cx/agent.resolvePromptCatalogForInference`, and `@cx/tokens.resolveTokenCatalogForInference`.
 
 MVP execution model (no queue yet — `Queue Job` in the diagram is aspirational):
 
@@ -577,7 +577,7 @@ The two resolved buckets are snapshotted to **two separate JSON files**, both ke
   "componentCatalog": {
     "kind": "component-catalog",
     "id": "default",
-    "owner": "@cx/components",
+    "owner": "@cx/external",
     "sourceRef": "catalog",
     "version": "v1",
     "schemaVersion": "ssot-object.v1",
@@ -603,7 +603,7 @@ type SsotObject<TKind extends string, TData extends object> = {
 |---|---|
 | `kind` | Stable object kind such as `skill`, `component-catalog`, `layout-catalog`, `output-contract` |
 | `id` | Stable id of the referenced item within its source |
-| `owner` | The SSOT owner package, e.g. `@cx/agent`, `@cx/components` |
+| `owner` | The SSOT owner package, e.g. `@cx/agent`, `@cx/external` |
 | `sourceRef` | Logical ref inside the source (e.g. `skills/screen-composition`) — **not** a file path |
 | `version` | Version of the SSOT at resolution time, for later drift tracking |
 | `data` | The point-in-time **object snapshot**; Markdown lives inside data as `{ format: "markdown", body }` |
@@ -615,8 +615,8 @@ Owner resolver APIs:
 | SSOT | Owner resolver | `kind` |
 |---|---|---|
 | Output Contract | `@cx/schema.resolveOutputContractForInference(id)` | `output-contract` |
-| Component Catalog | `@cx/components/catalog.resolveComponentCatalogForInference()` | `component-catalog` |
-| Layout Catalog | `@cx/layout/catalog.resolveLayoutCatalogForInference()` | `layout-catalog` |
+| Component Catalog | `@cx/external/resolver.resolveComponentCatalogForInference()` | `component-catalog` |
+| Layout Catalog | `@cx/layout/resolver.resolveLayoutCatalogForInference()` | `layout-catalog` |
 | Skill | `@cx/agent.resolveSkillForInference(id)` | `skill` |
 | Prompt Catalog | `@cx/agent.resolvePromptCatalogForInference(id)` | `prompt-catalog` |
 | Token Catalog | `@cx/tokens.resolveTokenCatalogForInference()` | `token-catalog` |

@@ -2,7 +2,7 @@ import type {
 	RenderTreeContract,
 	RenderTreeNodeContract,
 	RenderTreeScreenNodeContract,
-	RenderTreeScreenRegionNodeType,
+	ScreenRegionKey,
 	TableChildRef,
 	TableGenerationArea,
 	TableGenerationComponent,
@@ -10,7 +10,12 @@ import type {
 	TableGenerationRegion,
 	TableGenerationResultContract,
 } from "@cx/schema";
-import { isRenderTreeAreaNode, RENDER_TREE_NODE_TYPE, SCHEMA_VERSION } from "@cx/schema";
+import {
+	isRenderTreeAreaNode,
+	RENDER_TREE_NODE_TYPE,
+	SCHEMA_VERSION,
+	SCREEN_REGION_TYPE_BY_NODE_TYPE,
+} from "@cx/schema";
 
 export type RenderTreeToTablesOptions = {
 	screenId?: string;
@@ -21,14 +26,6 @@ export type RenderTreeToTablesResult = {
 	tableGenerationResult: TableGenerationResultContract;
 	warnings: string[];
 };
-
-type RegionKey = "bottom" | "contents" | "header";
-
-const REGION_KEY_BY_TYPE = {
-	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
-	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
-	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
-} as const satisfies Record<RenderTreeScreenRegionNodeType, RegionKey>;
 
 export function renderTreeToTableGenerationResult(
 	renderTree: RenderTreeContract,
@@ -51,7 +48,7 @@ export function renderTreeToTableGenerationResult(
 			schemaVersion: SCHEMA_VERSION.tableGenerationResult,
 			screen: {
 				id: screenId,
-				layout: readLayout(screenNode, "layout.screen.commerceDetailScreen", warnings),
+				layout: readLayout(screenNode, "layout.screen.mobileScreen", warnings),
 				metadata: metadataWithTitle(screenNode.metadata),
 				minRendererVersion: renderTree.minRendererVersion,
 				screen: {
@@ -84,12 +81,14 @@ function getScreenNode(
 
 function extractRegion(
 	screenNode: RenderTreeScreenNodeContract,
-	regionKey: RegionKey,
+	regionKey: ScreenRegionKey,
 	areasById: Map<string, TableGenerationArea>,
 	componentsById: Map<string, TableGenerationComponent>,
 	warnings: string[],
 ): TableGenerationRegion {
-	const region = screenNode.children.find((child) => REGION_KEY_BY_TYPE[child.type] === regionKey);
+	const region = screenNode.children.find(
+		(child) => SCREEN_REGION_TYPE_BY_NODE_TYPE[child.type] === regionKey,
+	);
 	if (!region) {
 		throw new Error(`Screen node must include ${regionKey} region.`);
 	}
@@ -102,7 +101,7 @@ function extractRegion(
 	};
 }
 
-function defaultRegionLayout(regionKey: RegionKey): string {
+function defaultRegionLayout(regionKey: ScreenRegionKey): string {
 	if (regionKey === "header") return "layout.region.header";
 	if (regionKey === "contents") return "layout.region.contents";
 	return "layout.region.bottom";
@@ -153,7 +152,7 @@ function nodeToArea(
 	return {
 		children: extractChildren(node.children ?? [], areasById, componentsById, warnings),
 		id: node.metadata.id,
-		layout: readLayout(node, "layout.area.productHeroSummary", warnings),
+		layout: requireLayout(node),
 		metadata: metadataWithTitle(node.metadata),
 		props: node.props,
 		type: node.type as TableGenerationArea["type"],
@@ -173,7 +172,7 @@ function nodeToComponent(node: RenderTreeNodeContract): TableGenerationComponent
 		],
 		hooks,
 		id: node.metadata.id,
-		layout: node.layout ?? "layout.composite.componentSectionMessage",
+		layout: requireLayout(node),
 		metadata: metadataWithTitle(node.metadata),
 		type: node.type,
 		version: node.componentVersion,
@@ -194,6 +193,11 @@ function readLayout(node: RenderTreeNodeContract, fallback: string, warnings: st
 	if (node.layout) return node.layout;
 	warnings.push(`Node ${node.metadata.id} is missing layout; used ${fallback}.`);
 	return fallback;
+}
+
+function requireLayout(node: RenderTreeNodeContract): string {
+	if (node.layout) return node.layout;
+	throw new Error(`Node ${node.metadata.id} must include layout before table projection.`);
 }
 
 function isGeneratedWrapper(node: RenderTreeNodeContract) {

@@ -1,1 +1,0 @@
-export { LegalText } from "./LegalText";

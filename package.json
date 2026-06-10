@@ -9,6 +9,7 @@
 		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages && node scripts/check-inference-boundaries.mjs",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
+		"sync:layout": "tsx scripts/sync-layout-catalog/index.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
@@ -30,7 +31,7 @@
 	},
 	"dependencies": {
 		"@cx/agent": "workspace:*",
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"@radix-ui/react-scroll-area": "^1.2.10",

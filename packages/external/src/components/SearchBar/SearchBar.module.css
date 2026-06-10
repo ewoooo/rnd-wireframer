@@ -1,0 +1,73 @@
+/* Figma: SearchBar — node 9914:57887, 353px */
+
+/* LLM type */
+.llmWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 353px;
+  background: #f4f5fa;
+  border-radius: 9999px;
+  padding: 6px 6px 6px 20px;
+  box-sizing: border-box;
+}
+
+.llmPlaceholder {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1.4;
+  color: #05001a;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+.llmBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #3617ce;
+  border: none;
+  border-radius: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px 0 rgba(27, 11, 102, 0.24);
+}
+
+/* Search type */
+.searchWrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 353px;
+  padding: 8px 20px;
+  box-sizing: border-box;
+}
+
+.searchInner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex: 1;
+  background: #f4f5fa;
+  border-radius: 9999px;
+  padding: 12px 16px 12px 20px;
+  min-width: 0;
+}
+
+.searchPlaceholder {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1.4;
+  color: rgba(6, 12, 31, 0.4);
+  white-space: nowrap;
+}
+
+.searchIcon {
+  flex-shrink: 0;
+}

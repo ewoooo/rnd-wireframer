@@ -11,11 +11,12 @@
 	"dependencies": {
 		"@cx/agent": "workspace:*",
 		"@cx/adapters": "workspace:*",
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/renderer": "workspace:*",
 		"@cx/schema": "workspace:*",
+		"@cx/tokens": "workspace:*",
 		"@puckeditor/core": "^0.21.2",
 		"radix-ui": "^1.4.3",
 		"react-resizable-panels": "^4.11.2"

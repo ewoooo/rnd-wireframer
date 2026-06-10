@@ -36,6 +36,30 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-10 - SSOT Refactor Doc Sync
+
+- 변경: 최근 SSOT 리팩터 묶음을 반영해 `PACKAGE_MAP.md`, `AGENTS.md`, `docs/development/{PROJECT_STRUCTURE,DATA_MAP,DEVELOPMENT_ARCHITECTURE,SCREEN_INFERENCE_ARCHITECTURE,RENDER_TREE_TSX_EXPORT_SPEC,FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN}.md`를 갱신함
+- 변경: 구 `@cx/components`(`ewoooo/cx-components`) 참조를 컴포넌트 SSOT인 `@cx/external`(vendored kiki, `kiki.X` canonical)로 전면 교체. catalog 계약 타입은 `@cx/schema` 소유로 명시
+- 변경: `@cx/external`·`@cx/layout`을 동일 external-thin 스캐폴딩(자동생성 `catalog.generated`/`registry.generated` + 손작성 `catalog.alias` + `resolver` 읽기 API + `canonicalize-catalog`)으로 기술하고, public surface를 실제 exports에 맞춤. `catalog.generated`는 owner 내부 봉인 — 소비자는 `resolver`(읽기)와 `registry`(실행) 두 관문만 사용(registry는 renderer-private)
+- 변경: prop-contract 통합(layout node-type 계약 + component catalog 계약이 같은 모양·같은 validator로 수렴), node-type/region 어휘 단일 진실원 = `@cx/schema`, alias canonicalize의 persist 경계 write-back, 텍스트 prop source 키의 `@cx/external/catalog.text-sources.ts` 이전(커밋 `b9127ea4`)을 문서에 반영
+- 변경: inference resolver 표를 `@cx/external/resolver.resolveComponentCatalogForInference`, `@cx/layout/resolver.resolveLayoutCatalogForInference`로 갱신
+- 이유: 커밋 `b9127ea4`/`629a5f00`/`86d56028`/`1235678b` 등 SSOT 리팩터 이후 문서가 legacy 상태였음. 코드는 이미 `@cx/components` 참조 0건이나 문서가 구 명칭/구조를 기술하고 있었음
+- 검증: 갱신 대상 문서에서 `@cx/components`/`packages/component` 참조 0건(은퇴 사실을 설명하는 의도된 노트 제외) 확인. 패키지 exports(`package.json`)와 resolver/schema 실제 심볼로 사실 검증
+- 후속: `AGENTS_HISTORY.md`의 과거 엔트리는 당시 시점 기록이므로 구 명칭 그대로 보존(이 엔트리만 추가). kiki 앱 통합 SHIM(이미지 로더/팔레트/store 머지)은 코드·문서 모두 미완으로 남음
+
+## 2026-06-09 - External Broken Image Asset Removal
+
+- 변경: `packages/external`의 손상된 `11pay-logo.png` import를 제거하고 11Pay 로고 표시는 텍스트 마크 fallback으로 대체함
+- 변경: PNG 확장자지만 실제 SVG 데이터였고 미사용 상태인 banner dot asset 4개를 제거함
+- 이유: Next/Turbopack 빌드가 손상 PNG의 `IDAT` CRC 오류로 이미지 처리 단계에서 실패했기 때문
+- 검증: PIL 기반 이미지 verify 스캔 `BAD_COUNT 0`, `pnpm build` 이미지 처리/컴파일 통과; 이후 TypeScript 단계는 기존 `StaticImageData` 타입 오류로 실패함
+
+## 2026-06-09 - RenderTree Table Layout Fallback Removal
+
+- 변경: `renderTreeToTableGenerationResult()`가 area/component layout 누락 시 `layout.area.productHeroSummary`, `layout.composite.componentSectionMessage`로 의미 fallback하지 않고 projection 전에 layout 누락 에러를 내도록 변경함
+- 이유: `@cx/adapters/table`이 layout 선택 책임을 갖거나 특정 의미 패턴을 임의 주입하지 않도록 패키지 경계를 지키기 위함
+- 검증: `pnpm exec vitest run packages/adapters/src/__tests__/render-tree-to-table.test.ts`, `graphify update . --force`; 전체 `pnpm exec tsc --noEmit --pretty false --incremental false`는 기존 `packages/external` StaticImageData 타입 오류와 dirty `packages/renderer/src/adapters/resolve-component.tsx` 타입 오류로 실패함
+
 ## 2026-06-09 - New Screen Hook Split
 
 - 변경: `use-new-screen-inference.ts`를 AppShell용 facade로 축소하고, run 목록/선택/localStorage는 `use-new-screen-runs.ts`, status polling/SSE/review artifact/action은 `use-new-screen-run-lifecycle.ts`로 분리함

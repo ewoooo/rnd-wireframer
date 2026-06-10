@@ -48,6 +48,58 @@ export const AGENT_STAGE_SKILLSET_CATALOG = {
 			},
 		],
 	},
+	"compose.screen-generation": {
+		stage: "compose",
+		task: "screen-generation",
+		documents: [
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/generate-skills/section-divider-rhythm/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/generate-skills/bottom-fixed-cta/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/generate-skills/text-field-states/README.md",
+			},
+		],
+	},
+	"revise.screen-revision": {
+		stage: "revise",
+		task: "screen-revision",
+		documents: [
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-invalid-layout-id/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-source-ref-loss/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-state-coverage-gap/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-section-rhythm/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-bottom-cta-gating/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-component-contract-violation/README.md",
+			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/revision-skills/fix-density-overload/README.md",
+			},
+		],
+	},
 	"revise.quality-review": {
 		stage: "revise",
 		task: "quality-review",

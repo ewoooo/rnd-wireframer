@@ -1,0 +1,71 @@
+/* Figma: .CardSectionTitle */
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 313px;
+  height: 47px;
+}
+
+.leftArea {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.subtitle {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.4;
+  color: rgba(6, 12, 31, 0.60);
+}
+
+.titleRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.title {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
+  line-height: 1.4;
+  color: #05001A;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  background: #F4F5FA;
+  border-radius: 6px;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: rgba(6, 12, 31, 0.60);
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}

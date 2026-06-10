@@ -1,0 +1,40 @@
+/* Figma: 16×16, #F4F5FA bg, radius 8, image + logo slots */
+.container {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #F4F5FA;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.imageSlot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: #E2E6F1;
+}
+
+.logoSlot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

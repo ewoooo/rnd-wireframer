@@ -1,0 +1,32 @@
+/* Figma: BannerSearch — node 9861:48728, 393×310px */
+.wrap {
+  position: relative;
+  width: 393px;
+  height: 310px;
+  overflow: hidden;
+}
+
+.frame {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.masked {
+  position: relative;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.overflowWrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.imgOffset {
+  position: absolute;
+  max-width: none;
+}

@@ -32,7 +32,7 @@ describe("Inference KnowledgeBase", () => {
 
 		expect(componentCatalog).toMatchObject({
 			kind: "component-catalog",
-			owner: "@cx/components",
+			owner: "@cx/external",
 		});
 		expect(layoutCatalog).toMatchObject({
 			kind: "layout-catalog",

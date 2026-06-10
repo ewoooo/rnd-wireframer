@@ -1,0 +1,26 @@
+/* Figma: Pagestack — node 9945:46762, 393px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  padding: 28px 12px;
+  width: 393px;
+  box-sizing: border-box;
+}
+
+/* 타이틀 영역 */
+.contentsTitle {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 콘텐츠 슬롯 */
+.contentsSlot {
+  position: relative;
+  width: 100%;
+  min-height: 69px;
+}

@@ -1,15 +1,10 @@
-import type { ComponentPropContract, ComponentPropType } from "@cx/components/catalog";
-import { getComponentCatalogEntry } from "@cx/components/catalog";
+import { getComponentCatalogEntry, getTextPropSourceKeys } from "@cx/external/resolver";
+import type { ComponentPropContract, ComponentPropType } from "@cx/schema";
 import { toText } from "../runtime/text";
-
-export interface CatalogPropFallbacks {
-	[propName: string]: unknown;
-}
 
 export function buildComponentProps(
 	type: string,
 	rawProps: Record<string, unknown> | undefined,
-	fallbacks: CatalogPropFallbacks = {},
 ): Record<string, unknown> {
 	const entry = getComponentCatalogEntry(type);
 	if (!entry) return { ...(rawProps ?? {}) };
@@ -21,8 +16,7 @@ export function buildComponentProps(
 		// value — an illegally-written render-node object would otherwise reach React as a
 		// child and crash the page.
 		if (contract.aiWritable === false) continue;
-		const rawFromProps = readCatalogPropValue(props, key);
-		const raw = rawFromProps !== undefined ? rawFromProps : fallbacks[key];
+		const raw = readCatalogPropValue(props, key);
 		if (raw === undefined) {
 			if (contract.defaultValue !== undefined) out[key] = contract.defaultValue;
 			continue;
@@ -38,7 +32,7 @@ function readCatalogPropValue(props: Record<string, unknown>, key: string): unkn
 	const textValues = toRecord(props.texts);
 	if (!textValues) return undefined;
 
-	for (const sourceKey of CATALOG_TEXT_PROP_SOURCE_KEYS[key] ?? [key]) {
+	for (const sourceKey of getTextPropSourceKeys(key)) {
 		if (textValues[sourceKey] !== undefined) return textValues[sourceKey];
 	}
 	return undefined;
@@ -80,14 +74,4 @@ const PROP_VALUE_COERCERS = {
 const BOOLEAN_TEXT_VALUE: Record<string, boolean> = {
 	false: false,
 	true: true,
-};
-
-const CATALOG_TEXT_PROP_SOURCE_KEYS: Record<string, readonly string[]> = {
-	description: ["description", "descriptionText", "body", "bodyText", "slot"],
-	label: ["label", "labelText", "text", "main"],
-	priceText: ["priceText", "price", "value"],
-	rightText: ["rightText", "value"],
-	subText: ["subText", "subtitle", "description"],
-	title: ["title", "titleText", "titleLabel", "main"],
-	titleContent: ["titleContent", "title", "titleText", "titleLabel", "main"],
 };

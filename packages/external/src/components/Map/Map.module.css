@@ -1,0 +1,58 @@
+/* Figma: Map — node 10040:51445, 369px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: flex-start;
+  width: 369px;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mapImage {
+  position: absolute;
+  width: 454px;
+  height: 271px;
+  top: calc(50% - 29.5px);
+  left: calc(50% + 0.5px);
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.pin {
+  position: absolute;
+  width: 22px;
+  height: 27px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px 6px;
+  box-sizing: border-box;
+}
+
+.pinShape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pinNumber {
+  position: relative;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  color: #ffffff;
+  z-index: 1;
+}

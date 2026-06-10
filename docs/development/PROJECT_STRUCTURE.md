@@ -17,10 +17,9 @@ Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plus
 | `@cx/adapters` | 외부 표현과 내부 계약 사이의 순수 변환 |
 | `@cx/renderer` | RenderTree JSON -> React render |
 | `@cx/agent` | Claude Agent SDK local-first 실행 adapter |
-| `@cx/components` | leaf component 구현과 catalog 값/계약 |
-| `@cx/layout` | 화면 chrome과 layout primitive |
+| `@cx/external` | vendored kiki leaf component 구현, 자동생성 component catalog(`kiki.X`)/registry, resolver 읽기 API, alias canonicalize (계약 타입은 `@cx/schema` 소유) |
 | `@cx/tokens` | foundation/semantic token SSOT, CSS variables, Tailwind v4 `@theme` 산출물 |
-| `@cx/layout` | screen/region/area/composite layout pattern reference catalog, local schema/type |
+| `@cx/layout` | 화면 chrome, layout primitive, 자동생성 screen/region/area/composite layout catalog/registry, resolver 읽기 API, alias canonicalize |
 | `@cx/inference` | inference stores, context, engine, pipeline, worker, in-memory test fakes |
 | `@cx/validation` | DTO/reference/rule 검증과 validation report 생성 |
 
@@ -52,8 +51,8 @@ packages/renderer/src/
 - schema/runtime validation
 - PRDD parser/register/materializer
 - AI runner/session adapter
-- component catalog CRUD
-- layout pattern CRUD/selection
+- component catalog 값 소유 (`@cx/external` SSOT)
+- layout pattern catalog 값 소유/selection (`@cx/layout` SSOT)
 - fallback UI로 unknown node/component/layout을 성공 렌더처럼 숨기는 책임
 
 ## 3-1. `packages/adapters`
@@ -98,36 +97,44 @@ import { renderTreeToPuckScreenData } from "@cx/adapters/puck";
 - DB/REST 호출
 - table 파일 읽기/쓰기
 
-## 4. `packages/component`
+## 4. `packages/external`
 
-`@cx/components`는 외부에 하나의 component vocabulary만 공개한다. 정본 component와 candidate component의 status는 패키지 내부에서만 관리하고, 외부 catalog shape에는 노출하지 않는다.
+`@cx/external`은 kiki 원본 컴포넌트를 vendoring 하고, 컴포넌트 SSOT(구현 + 자동생성 catalog + resolver + registry)를 소유한다. catalog는 `kiki.X` canonical 키만 노출하고, status(`stable`/`candidate`)는 `source`에서 유도한다(`kiki-barrel`→stable, `kiki-draft`→candidate). 런타임 catalog mutation은 두지 않는다.
 
 ```text
-packages/component/src/
-  index.ts       public React component barrel
-  public/        catalog read API, resolver API, CRUD mutation API, public types
-  internal/      registry assembly, audit, mutation implementation
-  components/    stable component implementations
-  candidates/    candidate component implementations
-  tokens/        component token aliases
+packages/external/src/
+  index.ts                  public ".": stable component barrel
+  catalog.generated.ts      public "./catalog": kiki.X canonical 카탈로그 (자동생성, 공유 데이터)
+  registry.generated.ts     public "./registry": kiki.X → React 컴포넌트 surface (renderer-private)
+  catalog.alias.ts          손작성 alias → canonical kiki.X (canonicalize만 소비)
+  catalog.text-sources.ts   텍스트 prop → source 키 계약 테이블 (resolver 경유 소비)
+  canonicalize-catalog.ts   public "./canonicalize": alias 무결성 검증 + canonicalizeNodeType/canonicalizeRenderTree
+  resolver.ts               public "./resolver": 외부 소비자 읽기 전용 catalog lookup API
+  puck.ts                   public "./puck": Puck surface
+  tokens/                   --skt-component-* alias CSS
 ```
 
-공개 TypeScript export는 `@cx/components`, `@cx/components/catalog`, `@cx/components/mutations`, `@cx/components/resolver`, `@cx/components/types`를 기준으로 사용한다. `src/internal/*`, `src/components/*`, `src/candidates/*` 직접 import는 패키지 내부 구현으로 본다. Catalog CRUD 함수는 순수 함수로 registry를 입력받아 새 registry와 public catalog를 반환하며, 파일 쓰기와 승인 workflow는 이 패키지 밖에서 처리한다.
+공개 TypeScript export는 `@cx/external`, `@cx/external/catalog`, `@cx/external/registry`, `@cx/external/resolver`, `@cx/external/canonicalize`, `@cx/external/puck`를 기준으로 사용한다. catalog 계약 **타입**은 `@cx/schema`(`component-catalog.ts`)가 소유한다. `catalog.generated.ts`는 owner 내부에 봉인되어 있고, 외부 소비자는 `./resolver`(읽기 API)와 `./registry`(렌더러 실행물) 두 관문으로만 접근한다. `registry`는 renderer만 import한다.
 
 ## 5. `packages/layout`
 
-`@cx/layout`은 화면 chrome과 layout primitive를 제공한다. 외부에는 component, type, contract guard, style helper 계약만 공개하고 구현 디렉토리는 직접 import하지 않는다.
+`@cx/layout`은 `@cx/external`과 동일한 external-thin 스캐폴딩으로 화면 chrome, layout primitive, layout pattern component를 제공한다. catalog entry = `id`/`target`/`props`/`status`/`name` 계약, registry = canonical componentKey → 실제 React 컴포넌트, alias = `layoutId` → canonical componentKey 해석.
 
 ```text
 packages/layout/src/
-  index.ts       public barrel
-  public/        chrome, primitives, style, types, contract public API
-  chrome/        screen chrome component implementations
-  primitives/    Flex/Grid component implementations
-  internal/      className, spacing, fallback style implementation
+  index.ts                  public "."
+  catalog.generated.ts      public "./catalog": 모든 layoutId entry meta (자동생성)
+  registry.generated.ts     public "./registry": canonical componentKey → 컴포넌트 (자동생성)
+  catalog.alias.ts          손작성 layoutId → canonical componentKey
+  canonicalize-catalog.ts   public "./canonicalize": assertAliasIntegrity + canonicalizeLayout(id)→componentKey
+  resolver.ts               public "./resolver": catalog 읽기 전용 API + node-type 계약(getLayoutNodeTypeContract)
+  types.ts                  public "./types"
+  internal/style.ts         public "./style"
+  components/               primitives(public "./primitives") / composites / areas / regions / chromes(public "./chrome")
+scripts/sync-layout-catalog/  components/ 순회 → *.meta.ts 수집 → catalog.generated/registry.generated 생성
 ```
 
-공개 TypeScript export는 `@cx/layout`, `@cx/layout/chrome`, `@cx/layout/primitives`, `@cx/layout/style`, `@cx/layout/types`, `@cx/layout/contract`를 기준으로 사용한다. `src/internal/*`, `src/chrome/*`, `src/primitives/*` 직접 import는 패키지 내부 구현으로 본다.
+공개 TypeScript export는 `@cx/layout`, `@cx/layout/catalog`, `@cx/layout/registry`, `@cx/layout/resolver`, `@cx/layout/canonicalize`, `@cx/layout/primitives`, `@cx/layout/chrome`, `@cx/layout/style`, `@cx/layout/types`를 기준으로 사용한다. 구 `./components`, `./contract`, `./mutations`와 `catalog/*.json`, `pattern-internal/*`, `public/*`는 폐기했다. renderer는 `@cx/layout/registry` + `@cx/layout/canonicalize`로 컴포넌트를 직접 해석하고, resolver에는 컴포넌트 해석 함수를 두지 않는다(external과 동형).
 
 ## 6. 앱 구조 규칙
 
@@ -175,7 +182,7 @@ packages/token/src/
 
 공개 export는 `@cx/tokens`, `@cx/tokens/variables.css`, `@cx/tokens/tailwind.css`만 사용한다. `src/generated/*`와 `src/internal/*`는 패키지 내부 구현이다.
 
-`@cx/components`의 token 파일은 `--skt-component-*` alias만 소유하고, palette/semantic/spacing/radius/typography 값은 `@cx/tokens`를 참조한다.
+`@cx/external`의 token 파일은 `--skt-component-*` alias만 소유하고, palette/semantic/spacing/radius/typography 값은 `@cx/tokens`를 참조한다.
 
 ## 8. `packages/schema`
 
@@ -206,7 +213,7 @@ import type { SourceSpec } from "@cx/schema";
 
 `@cx/schema/src/*`, `@cx/schema/*` 직접 import는 금지한다. 필요한 계약은 `@cx/schema` root export에 먼저 추가한다. JSON Schema의 정본은 정적 JSON 파일이 아니라 `getJsonSchema()`와 `json-schema-registry.ts`다.
 
-RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `metadata.title`만 허용한다. JSON Schema 구조 검증은 `@cx/schema`가 제공하고, 컴포넌트별 prop 검증은 `@cx/validation`이 `@cx/components/catalog`를 주입받아 수행한다.
+RenderTree 계약은 top-level `metadata.title`을 허용하지 않고, node `metadata.title`만 허용한다. JSON Schema 구조 검증은 `@cx/schema`가 제공하고, 컴포넌트별 prop 검증은 `@cx/validation`이 `@cx/external/resolver`(컴포넌트 catalog)와 `@cx/layout/resolver`(layout node-type 계약)의 통합 prop-contract를 단건 조회해 수행한다.
 
 두지 않는 책임:
 

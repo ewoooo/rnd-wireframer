@@ -1,1 +1,0 @@
-export { InfoTextList } from "./InfoTextList";

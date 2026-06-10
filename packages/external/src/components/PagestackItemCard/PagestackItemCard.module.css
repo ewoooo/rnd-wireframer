@@ -1,0 +1,14 @@
+/* Figma: Card 0/PagestackItemTemplate — node 9945:47622, 369px */
+.wrap {
+  display: flex;
+  align-items: center;
+  width: 369px;
+  box-sizing: border-box;
+}
+
+.slot {
+  flex: 1 0 0;
+  min-width: 1px;
+  min-height: 28px;
+  position: relative;
+}
