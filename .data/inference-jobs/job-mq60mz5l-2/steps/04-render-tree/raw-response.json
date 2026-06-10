@@ -1,0 +1,258 @@
+{
+  "version": "render-tree.v0.1",
+  "metadata": {
+    "id": "screen.cartFailFeedback",
+    "description": "상품 담기 실패 사유 안내 및 선택 구성 검증 결과 복구 화면"
+  },
+  "children": [
+    {
+      "type": "Screen",
+      "componentVersion": "1.0.0",
+      "metadata": {
+        "id": "screen.root",
+        "title": "담기 실패 사유 안내"
+      },
+      "layout": "layout.screen.screenShell",
+      "children": [
+        {
+          "type": "Screen.Header",
+          "componentVersion": "1.0.0",
+          "metadata": {
+            "id": "region.header",
+            "title": "헤더"
+          },
+          "layout": "layout.region.header",
+          "children": [
+            {
+              "type": "area.static",
+              "componentVersion": "1.0.0",
+              "metadata": {
+                "id": "area.appbar",
+                "title": "앱바 영역"
+              },
+              "layout": "layout.area.areaAppBar",
+              "children": [
+                {
+                  "type": "AppBar",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.appbarHeader",
+                    "title": "AppBar 헤더"
+                  },
+                  "layout": "layout.composite.componentAppBar",
+                  "props": {
+                    "title": "선택 불가·충돌 사유 안내",
+                    "showBack": true,
+                    "showLogo": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Screen.Contents",
+          "componentVersion": "1.0.0",
+          "metadata": {
+            "id": "region.contents",
+            "title": "콘텐츠"
+          },
+          "layout": "layout.region.contents",
+          "children": [
+            {
+              "type": "area.dynamic",
+              "componentVersion": "1.0.0",
+              "metadata": {
+                "id": "area.failReason",
+                "title": "실패 사유 안내 영역",
+                "description": "errorPolicy: 영역 전체 숨김"
+              },
+              "layout": "layout.area.areaVertical",
+              "display": {
+                "when": {
+                  "bind": "state.failReason.visible",
+                  "default": true
+                },
+                "stateRole": "base"
+              },
+              "children": [
+                {
+                  "type": "TitleSection",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.titleFailReason",
+                    "title": "실패 사유 섹션 제목"
+                  },
+                  "layout": "layout.composite.componentTitleSection",
+                  "props": {
+                    "title": {
+                      "bind": "data.failReason.sectionTitle",
+                      "default": "담기 실패 사유"
+                    }
+                  }
+                },
+                {
+                  "type": "Callout",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.calloutFailReason",
+                    "title": "실패 사유 콜아웃",
+                    "description": "1차 강조 피드백 메시지"
+                  },
+                  "props": {
+                    "title": {
+                      "bind": "data.failReason.axisTitle",
+                      "default": "실패축 안내"
+                    },
+                    "children": {
+                      "bind": "data.failReason.resolutionMessage",
+                      "default": "선택하신 구성에서 조합·중복가입·정책 충돌이 발생했습니다. 아래 해결 방법을 확인해 주세요."
+                    }
+                  }
+                },
+                {
+                  "type": "TextButton",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.textButtonViewLater",
+                    "title": "나중에 다시 보기"
+                  },
+                  "layout": "layout.composite.componentTextButton",
+                  "props": {
+                    "label": "나중에 다시 보기",
+                    "underline": true
+                  }
+                }
+              ]
+            },
+            {
+              "type": "area.dynamic",
+              "componentVersion": "1.0.0",
+              "metadata": {
+                "id": "area.comboResult",
+                "title": "선택 구성 검증 결과 영역",
+                "description": "errorPolicy: 오류 항목 미노출"
+              },
+              "layout": "layout.area.listStack",
+              "props": {
+                "divider": "contents"
+              },
+              "display": {
+                "stateRole": "base"
+              },
+              "children": [
+                {
+                  "type": "TitleSection",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.titleComboResult",
+                    "title": "선택 구성 검증 결과 제목"
+                  },
+                  "layout": "layout.composite.componentTitleSection",
+                  "props": {
+                    "title": {
+                      "bind": "data.comboResult.sectionTitle",
+                      "default": "선택 구성 검증 결과"
+                    }
+                  }
+                },
+                {
+                  "type": "ListText",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.listTextDuplicateCheck",
+                    "title": "중복가입 판정 결과"
+                  },
+                  "layout": "layout.composite.componentListText",
+                  "display": {
+                    "when": {
+                      "bind": "state.duplicateCheck.visible",
+                      "default": true
+                    },
+                    "stateRole": "base"
+                  },
+                  "props": {
+                    "table": "firstTitle",
+                    "title": {
+                      "bind": "data.duplicateCheck.title",
+                      "default": "중복가입 판정"
+                    },
+                    "subText": {
+                      "bind": "data.duplicateCheck.result",
+                      "default": "가입 가능"
+                    },
+                    "showRightItem": false
+                  }
+                },
+                {
+                  "type": "ListSelected",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.listSelectedGroupProduct",
+                    "title": "그룹상품 선택"
+                  },
+                  "display": {
+                    "when": {
+                      "bind": "state.groupProduct.visible",
+                      "default": true
+                    },
+                    "stateRole": "base"
+                  },
+                  "props": {
+                    "type": "radio",
+                    "label": {
+                      "bind": "data.groupProduct.label",
+                      "default": "그룹상품 선택"
+                    },
+                    "checked": {
+                      "bind": "state.groupProduct.checked",
+                      "default": false
+                    },
+                    "showPrice": false,
+                    "showButton": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Screen.Bottom",
+          "componentVersion": "1.0.0",
+          "metadata": {
+            "id": "region.bottom",
+            "title": "하단"
+          },
+          "layout": "layout.region.bottom",
+          "children": [
+            {
+              "type": "area.static",
+              "componentVersion": "1.0.0",
+              "metadata": {
+                "id": "area.bottomAction",
+                "title": "하단 액션 영역"
+              },
+              "layout": "layout.area.bottomActionArea",
+              "children": [
+                {
+                  "type": "ActionButton",
+                  "componentVersion": "1.0.0",
+                  "metadata": {
+                    "id": "cmp.actionButtonRecover",
+                    "title": "복구 CTA"
+                  },
+                  "layout": "layout.composite.componentActionButton",
+                  "props": {
+                    "type": "Default",
+                    "button": "1",
+                    "primaryText": "계속하기"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
