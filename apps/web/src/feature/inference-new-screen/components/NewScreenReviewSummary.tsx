@@ -1,7 +1,16 @@
 "use client";
 
 import type { QualityInspectionContract, ValidationReportContract } from "@cx/schema";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ScreenInferenceRunStatus } from "@/lib/screen-inference-run";
+
+const EXPORT_READY_RUN_STATUSES = new Set<ScreenInferenceRunStatus["status"]>([
+	"applied",
+	"applying",
+	"approved",
+	"waiting-review",
+]);
 
 export type NewScreenReviewData = {
 	quality?: QualityInspectionContract;
@@ -44,7 +53,37 @@ export function NewScreenReviewSummary({ review }: NewScreenReviewSummaryProps) 
 					</div>
 				</div>
 			) : null}
+			<TsxExportButton status={review.status} />
 		</div>
+	);
+}
+
+function TsxExportButton({ status }: { status?: ScreenInferenceRunStatus }) {
+	const jobId = status?.runId;
+	const isExportReady = !!jobId && EXPORT_READY_RUN_STATUSES.has(status.status);
+
+	if (!isExportReady) {
+		return (
+			<Button
+				className="h-8 justify-center gap-1 text-xs"
+				disabled
+				size="sm"
+				type="button"
+				variant="outline"
+			>
+				<Download className="size-3.5" />
+				TSX Export
+			</Button>
+		);
+	}
+
+	return (
+		<Button asChild className="h-8 justify-center gap-1 text-xs" size="sm" variant="outline">
+			<a download href={`/api/inference/${encodeURIComponent(jobId)}/export`}>
+				<Download className="size-3.5" />
+				TSX Export
+			</a>
+		</Button>
 	);
 }
 

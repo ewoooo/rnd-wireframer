@@ -9,8 +9,9 @@
 		"start": "next start"
 	},
 	"dependencies": {
-		"@cx/agent": "workspace:*",
 		"@cx/adapters": "workspace:*",
+		"@cx/agent": "workspace:*",
+		"@cx/export-tsx": "workspace:*",
 		"@cx/external": "workspace:*",
 		"@cx/inference": "workspace:*",
 		"@cx/layout": "workspace:*",
@@ -18,6 +19,7 @@
 		"@cx/schema": "workspace:*",
 		"@cx/tokens": "workspace:*",
 		"@puckeditor/core": "^0.21.2",
+		"fflate": "^0.8.3",
 		"radix-ui": "^1.4.3",
 		"react-resizable-panels": "^4.11.2"
 	}
