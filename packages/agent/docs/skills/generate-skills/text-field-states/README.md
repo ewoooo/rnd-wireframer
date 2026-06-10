@@ -19,7 +19,7 @@ priority: recommended
 
 ## Composition hint
 
-- 주소 입력은 단일 field가 아니라 `우편번호(disabled) + 주소 찾기 button + 기본 주소(disabled) + 상세 주소(typed)` 조합 패턴으로 본다.
+- 주소 입력은 단일 field가 아니라 `우편번호(disabled, rightElement: 주소 찾기 button) + 기본 주소(disabled) + 상세 주소(typed)` 조합 패턴으로 본다. field 종속 액션의 배치는 text-field-inline-action 스킬을 따른다.
 - validation/error placement는 해당 field 근처에 둔다.
 
 ## Anti-pattern

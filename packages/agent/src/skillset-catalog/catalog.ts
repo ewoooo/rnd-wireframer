@@ -64,6 +64,10 @@ export const AGENT_STAGE_SKILLSET_CATALOG = {
 				kind: "skill",
 				sourceRef: "../docs/skills/generate-skills/text-field-states/README.md",
 			},
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/generate-skills/text-field-inline-action/README.md",
+			},
 		],
 	},
 	"revise.screen-revision": {
