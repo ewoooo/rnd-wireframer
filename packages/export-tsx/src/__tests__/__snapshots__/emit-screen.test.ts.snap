@@ -32,7 +32,7 @@ export default function Screen() {
 							<Callout title="{실패축} 문제로 담지 못했어요">상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요</Callout>
 						</CompositeGap0>
 						<CompositeGap0 props={{ label: "나중에 다시 보기", underline: true }}>
-							<TextButton label="나중에 다시 보기" underline />
+							<TextButton label="나중에 다시 보기" />
 						</CompositeGap0>
 					</FieldStackArea>
 					<ListStackArea props={{ divider: "contents" }}>
@@ -75,7 +75,7 @@ export default function Screen() {
 				<PlainStackRegion>
 					<BottomActionArea>
 						<CompositeGap0 props={{ fullWidth: true, label: "계속하기", size: "xlarge", variant: "primary" }}>
-							<ActionButton fullWidth label="계속하기" size="xlarge" variant="primary" />
+							<ActionButton />
 						</CompositeGap0>
 					</BottomActionArea>
 				</PlainStackRegion>

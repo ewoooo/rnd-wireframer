@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { textPropSourceKeys } from "../catalog.text-sources";
 import {
+	canonicalizeComponentType,
 	componentCatalog,
+	componentExportNameOf,
 	getComponentCatalogEntry,
 	getComponentCatalogStatus,
 	getComponentCatalogTypes,
@@ -17,6 +19,26 @@ describe("@cx/external resolver", () => {
 	it("kiki.X 키로 엔트리를 직접 조회한다", () => {
 		expect(getComponentCatalogEntry(BARREL_KEY)?.type).toBe(BARREL_KEY);
 		expect(getComponentCatalogEntry("does.not.exist")).toBeUndefined();
+	});
+
+	it("canonicalizeComponentType: exact 키는 그대로, bare 이름은 kiki. 접두사로 캐논화한다", () => {
+		expect(canonicalizeComponentType(BARREL_KEY)).toBe(BARREL_KEY);
+		expect(canonicalizeComponentType("AppBar")).toBe(BARREL_KEY);
+		expect(canonicalizeComponentType("DoesNotExist")).toBeUndefined();
+		expect(canonicalizeComponentType("does.not.exist")).toBeUndefined();
+	});
+
+	it("canonicalizeComponentType: 주입 catalog에도 같은 규칙을 적용한다", () => {
+		const injected = { "kiki.Custom": { type: "kiki.Custom" }, Plain: { type: "Plain" } };
+		expect(canonicalizeComponentType("Custom", injected)).toBe("kiki.Custom");
+		expect(canonicalizeComponentType("kiki.Custom", injected)).toBe("kiki.Custom");
+		expect(canonicalizeComponentType("Plain", injected)).toBe("Plain");
+		expect(canonicalizeComponentType("AppBar", injected)).toBeUndefined();
+	});
+
+	it("componentExportNameOf: kiki. 접두사만 strip한다", () => {
+		expect(componentExportNameOf("kiki.AppBar")).toBe("AppBar");
+		expect(componentExportNameOf("AppBar")).toBe("AppBar");
 	});
 
 	it("barrel은 stable, draft는 candidate로 status를 유도한다", () => {

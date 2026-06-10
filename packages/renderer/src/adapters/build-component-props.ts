@@ -1,4 +1,8 @@
-import { getComponentCatalogEntry, getTextPropSourceKeys } from "@cx/external/resolver";
+import {
+	canonicalizeComponentType,
+	getComponentCatalogEntry,
+	getTextPropSourceKeys,
+} from "@cx/external/resolver";
 import type { ComponentPropContract, ComponentPropType } from "@cx/schema";
 import { toText } from "../runtime/text";
 
@@ -6,7 +10,8 @@ export function buildComponentProps(
 	type: string,
 	rawProps: Record<string, unknown> | undefined,
 ): Record<string, unknown> {
-	const entry = getComponentCatalogEntry(type);
+	const canonicalType = canonicalizeComponentType(type);
+	const entry = canonicalType ? getComponentCatalogEntry(canonicalType) : undefined;
 	if (!entry) return { ...(rawProps ?? {}) };
 
 	const props = rawProps ?? {};

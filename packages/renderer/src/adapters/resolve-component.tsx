@@ -1,4 +1,5 @@
 import * as ComponentsModule from "@cx/external/registry";
+import { canonicalizeComponentType, componentExportNameOf } from "@cx/external/resolver";
 import { type ComponentType, createElement, type ReactNode } from "react";
 import type { RenderTreeNode } from "../tree/types";
 import { buildComponentProps } from "./build-component-props";
@@ -25,7 +26,7 @@ for (const [name, value] of Object.entries(ComponentsModule)) {
 	}
 }
 
-// canonical kiki.X → registry export (kiki. 접두사 strip 단일 규칙). alias 해석 아님.
+// 캐논화(@cx/external/resolver) → registry export 이름. canonical 실패 시 raw type으로 fallback.
 function resolveComponentByType(type: string): ComponentType<unknown> | undefined {
-	return componentsByType[type] ?? componentsByType[type.replace(/^kiki\./, "")];
+	return componentsByType[componentExportNameOf(canonicalizeComponentType(type) ?? type)];
 }

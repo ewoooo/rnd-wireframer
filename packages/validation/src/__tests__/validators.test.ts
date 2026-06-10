@@ -156,6 +156,60 @@ describe("@cx/validation validators", () => {
 		});
 	});
 
+	it("canonicalizes bare node types to kiki. catalog keys for prop-level validation", () => {
+		// validRenderTree의 leaf는 bare "ActionButton" + props { label, variant } —
+		// 실제 카탈로그(kiki.ActionButton)로 캐논화되어 prop 단위 검증이 수행된다.
+		const report = validateRenderTree(validRenderTree(), { componentCatalog });
+
+		// canRenderNodeType 통과: bare type이라도 unknown-component-type이 아니다.
+		expect(report.issues.some((issue) => issue.code === "unknown-component-type")).toBe(false);
+
+		const leafPropsPath = ["children", 0, "children", 1, "children", 0, "props"];
+		// 계약에 없는 prop은 unknown-prop 경고.
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: [...leafPropsPath, "label"],
+				severity: "warning",
+			}),
+		);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: [...leafPropsPath, "variant"],
+				severity: "warning",
+			}),
+		);
+		// 계약 required(text, left) 누락은 에러.
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "required-field-missing",
+				path: [...leafPropsPath, "text"],
+				severity: "error",
+			}),
+		);
+	});
+
+	it("canonicalizes bare types against an injected kiki.-keyed catalog", () => {
+		const kikiCatalog = {
+			"kiki.ActionButton": { ...testCatalog.ActionButton, type: "kiki.ActionButton" },
+		} satisfies ComponentCatalog;
+
+		const report = validateComponentUsage(
+			{ type: "ActionButton", props: { label: "가입하기", trackingId: "cta-1" } },
+			{ componentCatalog: kikiCatalog },
+		);
+
+		expect(report.issues.some((issue) => issue.code === "unknown-component-type")).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: ["props", "trackingId"],
+				severity: "warning",
+			}),
+		);
+	});
+
 	it("reports missing required props as errors", () => {
 		const report = validateComponentUsage(
 			{ type: "ActionButton", props: { variant: "primary" } },
@@ -254,14 +308,19 @@ describe("@cx/validation validators", () => {
 	it("accepts a valid RenderTree", () => {
 		const report = validateRenderTree(validRenderTree(), { componentCatalog: testCatalog });
 
+		// bare "ActionButton"이 전역 카탈로그의 kiki.ActionButton(draft)으로 캐논화되어
+		// candidate 경고 1건이 의도적으로 표면화된다 (오류는 0).
 		expect(report).toMatchObject({
 			ok: true,
 			summary: {
 				errorCount: 0,
-				warningCount: 0,
+				warningCount: 1,
 			},
 			target: "render-tree",
 		});
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({ code: "uses-candidate-component", severity: "warning" }),
+		);
 	});
 
 	it("accepts RenderTree nodes with registered layout pattern ids", () => {

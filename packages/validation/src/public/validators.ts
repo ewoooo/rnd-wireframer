@@ -1,4 +1,4 @@
-import { getComponentCatalogStatus } from "@cx/external/resolver";
+import { canonicalizeComponentType, getComponentCatalogStatus } from "@cx/external/resolver";
 import {
 	getLayoutCatalogEntry,
 	getLayoutNodeTypeContract,
@@ -732,7 +732,9 @@ function validateNode(
 		});
 	}
 
-	if (getComponentCatalogStatus(input.type) === "candidate") {
+	if (
+		getComponentCatalogStatus(canonicalizeComponentType(input.type) ?? input.type) === "candidate"
+	) {
 		addIssue(issues, {
 			code: "uses-candidate-component",
 			message: `Component '${input.type}' is a catalog candidate, not yet promoted to stable.`,
@@ -1173,7 +1175,9 @@ function findCatalogEntry(
 	type: string,
 	catalog?: ComponentCatalog,
 ): ComponentCatalogEntry | undefined {
-	return catalog?.[type];
+	if (!catalog) return undefined;
+	const canonicalType = canonicalizeComponentType(type, catalog);
+	return canonicalType ? catalog[canonicalType] : undefined;
 }
 
 function readProps(

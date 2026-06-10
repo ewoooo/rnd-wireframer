@@ -1,5 +1,9 @@
 import * as ExternalRegistry from "@cx/external";
-import { getComponentCatalogEntry } from "@cx/external/resolver";
+import {
+	canonicalizeComponentType,
+	componentExportNameOf,
+	getComponentCatalogEntry,
+} from "@cx/external/resolver";
 import { canonicalizeLayout } from "@cx/layout/canonicalize";
 import {
 	buildComponentProps,
@@ -193,10 +197,11 @@ const EMPTY_AREA_FALLBACK_EMITTERS: Record<string, (input: EmitNodeInput) => str
 
 /**
  * external(kiki.X) 컴포넌트 — buildComponentProps로 props를 확정한 뒤 `<AppBar title="…" />` emit.
- * import 명칭은 registry export 규칙(kiki. 접두사 strip)과 동일.
+ * 캐논화/strip 규칙은 @cx/external/resolver가 단일 진실원. canonical 실패 시 raw type fallback.
  */
 function emitComponentNode(input: EmitNodeInput): string | undefined {
-	const exportName = input.node.type.replace(/^kiki\./, "");
+	const canonicalType = canonicalizeComponentType(input.node.type) ?? input.node.type;
+	const exportName = componentExportNameOf(canonicalType);
 	const component = (ExternalRegistry as Record<string, unknown>)[exportName];
 	if (typeof component !== "function") {
 		input.ctx.warnings.push(
@@ -208,7 +213,7 @@ function emitComponentNode(input: EmitNodeInput): string | undefined {
 	input.ctx.addImport(GENERATED_IMPORT_PATHS.external, exportName);
 
 	const finalProps = buildComponentProps(input.node.type, input.props);
-	const entry = getComponentCatalogEntry(input.node.type);
+	const entry = getComponentCatalogEntry(canonicalType);
 	const childIndent = `${input.indent}\t`;
 	const { attributes, textChild } = collectComponentAttributes(finalProps, entry, childIndent);
 

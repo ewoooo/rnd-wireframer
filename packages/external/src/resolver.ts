@@ -29,6 +29,22 @@ export function getTextPropSourceKeys(key: string): readonly string[] {
 	return textPropSourceKeys[key] ?? [key];
 }
 
+/** 노드 type → canonical catalog key("kiki.X"). 미등록이면 undefined.
+ *  렌더 평면(resolve-component)의 관용 lookup과 같은 규칙을 메타데이터 평면에 제공한다. */
+export function canonicalizeComponentType(
+	type: string,
+	catalog: Record<string, unknown> = externalCatalog,
+): string | undefined {
+	if (catalog[type]) return type;
+	const prefixed = `kiki.${type}`;
+	return catalog[prefixed] ? prefixed : undefined;
+}
+
+/** canonical key → registry export 이름("kiki.AppBar" → "AppBar"). strip 규칙의 단일 진실원. */
+export function componentExportNameOf(canonicalType: string): string {
+	return canonicalType.replace(/^kiki\./, "");
+}
+
 export function getComponentCatalogEntry(type: string): ComponentCatalogEntry | undefined {
 	return externalCatalog[type];
 }
