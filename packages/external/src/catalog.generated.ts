@@ -52,6 +52,7 @@ export const externalCatalog: ComponentCatalog = {
 		label: "[kiki/draft] ActionButton",
 		version: "0.0.0",
 		props: {
+			disabled: { type: "boolean", role: "state", required: false },
 			text: { type: "string", required: true },
 			left: { type: "number", required: true },
 			tailAlign: { type: "enum", values: ["start", "center"], required: false },

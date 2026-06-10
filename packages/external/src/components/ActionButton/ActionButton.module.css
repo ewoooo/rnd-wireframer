@@ -188,3 +188,9 @@
   padding: 0 20px;
   box-sizing: border-box;
 }
+
+/* 비활성 상태: 흐리게 표시하고 포인터 입력을 차단한다(핸들러 제거는 컴포넌트가 담당). */
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}

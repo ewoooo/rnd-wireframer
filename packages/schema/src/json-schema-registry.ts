@@ -4,6 +4,7 @@ import {
 	RENDER_TREE_AREA_NODE_TYPES,
 	RENDER_TREE_NODE_TYPE,
 	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
+	RENDER_TREE_STATE_ROLE_BEHAVIOR,
 } from "./render-tree";
 import { SCHEMA_VERSION } from "./versions";
 
@@ -532,7 +533,7 @@ function createRenderTreeJsonSchema(): JsonSchemaDocument {
 						anyOf: [{ type: "boolean" }, { $ref: "#/$defs/propBinding" }],
 					},
 					stateRole: {
-						enum: ["base", "loading", "empty", "error", "success", "disabled", "expanded"],
+						enum: Object.keys(RENDER_TREE_STATE_ROLE_BEHAVIOR),
 					},
 				},
 			},

@@ -62,6 +62,30 @@ export const SCREEN_REGION_NODE_TYPE_BY_REGION_KEY = {
 	header: RENDER_TREE_NODE_TYPE.screenHeader,
 } as const satisfies Record<ScreenRegionKey, RenderTreeScreenRegionNodeType>;
 
+type StateRoleBehavior =
+	| { kind: "visibility" }
+	| { kind: "state"; prop: string; source: "when" | "notWhen" };
+
+/**
+ * display.stateRole의 런타임 의미를 정의하는 단일 진실원.
+ * - visibility: when이 거짓이면 노드 자체를 렌더 트리에서 제거한다.
+ * - state: 노드는 항상 유지하고, when 평가 결과를 상태 prop으로 주입한다.
+ *   source="notWhen"이면 prop = !when (정상/충족 조건 미달 시 상태 on: disabled/loading/error),
+ *   source="when"이면 prop = when (조건 충족 시 상태 on: success/expanded).
+ * resolveRenderNode가 이 테이블만 참조한다(문자열 키 switch 금지).
+ */
+export const RENDER_TREE_STATE_ROLE_BEHAVIOR = {
+	base: { kind: "visibility" },
+	empty: { kind: "visibility" },
+	loading: { kind: "state", prop: "loading", source: "notWhen" },
+	error: { kind: "state", prop: "error", source: "notWhen" },
+	disabled: { kind: "state", prop: "disabled", source: "notWhen" },
+	success: { kind: "state", prop: "success", source: "when" },
+	expanded: { kind: "state", prop: "expanded", source: "when" },
+} as const satisfies Record<string, StateRoleBehavior>;
+
+export type RenderTreeStateRole = keyof typeof RENDER_TREE_STATE_ROLE_BEHAVIOR;
+
 export type SchemaPropBinding = {
 	bind: string;
 	default?: string | number | boolean | null;
@@ -92,7 +116,7 @@ export type RenderTreeNodeContract = {
 	children?: RenderTreeNodeContract[];
 	componentVersion: string;
 	display?: {
-		stateRole?: "base" | "disabled" | "empty" | "error" | "expanded" | "loading" | "success";
+		stateRole?: RenderTreeStateRole;
 		when?: SchemaPropBinding | boolean;
 	};
 	layout?: string;

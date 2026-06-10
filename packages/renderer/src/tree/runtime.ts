@@ -1,5 +1,6 @@
 import {
 	RENDER_TREE_NODE_TYPE,
+	RENDER_TREE_STATE_ROLE_BEHAVIOR,
 	type RenderTreeScreenRegionNodeType,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "@cx/schema";
@@ -45,11 +46,21 @@ export function resolveRenderNode(
 	node: RenderTreeNode,
 	data: Record<string, unknown>,
 ): ResolvedRenderNode | undefined {
-	if (!resolveDisplayWhen(node.display?.when, data)) return undefined;
+	const behavior = RENDER_TREE_STATE_ROLE_BEHAVIOR[node.display?.stateRole ?? "base"];
+	const whenValue = resolveDisplayWhen(node.display?.when, data);
 
+	// 가시성류(base/empty): when이 거짓이면 노드를 통째로 제거한다.
+	if (behavior.kind === "visibility") {
+		if (!whenValue) return undefined;
+		return { node, props: resolveProps(node.props, data) };
+	}
+
+	// 상태류(disabled/loading/error/success/expanded): 노드는 항상 유지하고
+	// when 평가 결과를 상태 prop으로 주입한다. resolveProps가 명시한 값보다 우선한다.
+	const stateValue = behavior.source === "notWhen" ? !whenValue : whenValue;
 	return {
 		node,
-		props: resolveProps(node.props, data),
+		props: { ...resolveProps(node.props, data), [behavior.prop]: stateValue },
 	};
 }
 

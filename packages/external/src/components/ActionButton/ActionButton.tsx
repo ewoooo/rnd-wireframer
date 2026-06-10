@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { LeftItem } from "../LeftItem/LeftItem";
 import { TextButton } from "../TextButton/TextButton";
 import styles from "./ActionButton.module.css";
@@ -99,6 +100,8 @@ export interface ActionButtonProps {
 	button?: "1" | "2";
 	showText?: boolean;
 	showTooltip?: boolean;
+	// 비활성 상태. true면 클릭 핸들러를 차단하고 흐린 비활성 표시로 감싼다.
+	disabled?: boolean;
 	// TODO(catalog): text/left/tailAlign are currently exposed as required ActionButton
 	// catalog props even though they belong to the internal Tooltip surface.
 	text?: string;
@@ -265,11 +268,35 @@ function Gift1({
 }
 
 /* ── 컴포넌트 (type × button 분기) ───────────────────────────────────────── */
-export function ActionButton({ type = "Ai", button = "2", ...props }: ActionButtonProps) {
-	if (type === "Ai" && button === "2") return <Ai2 {...props} />;
-	if (type === "Ai" && button === "1") return <Ai1 {...props} />;
-	if (type === "Default" && button === "1") return <Default1 {...props} />;
-	if (type === "Default" && button === "2") return <Default2 {...props} />;
-	if (type === "Gift" && button === "1") return <Gift1 {...props} />;
-	return null; // Gift + 2: 미정의 조합
+export function ActionButton({
+	type = "Ai",
+	button = "2",
+	disabled = false,
+	...rest
+}: ActionButtonProps) {
+	// 비활성 시 클릭 의도를 제거한다(시각 흐림은 .disabled 래퍼가 담당).
+	const props: ActionButtonProps = disabled
+		? {
+				...rest,
+				onPrimaryClick: undefined,
+				onSecondaryClick: undefined,
+				onAiClick: undefined,
+				onGiftClick: undefined,
+			}
+		: rest;
+
+	let variant: ReactNode = null;
+	if (type === "Ai" && button === "2") variant = <Ai2 {...props} />;
+	else if (type === "Ai" && button === "1") variant = <Ai1 {...props} />;
+	else if (type === "Default" && button === "1") variant = <Default1 {...props} />;
+	else if (type === "Default" && button === "2") variant = <Default2 {...props} />;
+	else if (type === "Gift" && button === "1") variant = <Gift1 {...props} />;
+	// 그 외(Gift + 2 등)는 미정의 조합 → null
+
+	if (variant === null || !disabled) return variant;
+	return (
+		<div aria-disabled="true" className={styles.disabled}>
+			{variant}
+		</div>
+	);
 }
