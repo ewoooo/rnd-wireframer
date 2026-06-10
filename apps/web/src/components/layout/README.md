@@ -4,6 +4,11 @@
 캔버스 *안*에 렌더되는 폰 와이어프레임의 레이아웃은 별개다
 (그건 `@cx/components` / `packages/agent`의 `LAYOUT_SPACING_CONTRACT.md` 소관 — 혼동 금지).
 
+> **참고 기준(reference):** UI는 커밋 `d75e8d2`(PR #7, "render_* 스키마 이전·Run 페이지 추가", main 복원 시점)의
+> `components/layout/*` · `ui/resizable.tsx`를 레퍼런스로 참고해 현재 main 방언으로 재구현했다.
+> 이 커밋은 main 히스토리의 **영구 앵커**다(임시 워크트리·스냅샷 브랜치에 의존하지 않음).
+> 아래 "good-ui"라는 표현은 모두 이 커밋 시점의 UI를 가리킨다.
+
 ## 전체 구조 (모든 페이지 공통)
 
 Screen / Area / Component / Run 등 **모든 페이지가 동일한 구조를 공유한다.**
