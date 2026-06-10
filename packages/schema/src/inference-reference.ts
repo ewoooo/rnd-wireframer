@@ -5,6 +5,7 @@ import {
 	JSON_SCHEMA_BY_ARTIFACT_KIND,
 	type JsonSchemaDocument,
 } from "./json-schema-registry";
+import type { ReferenceCatalogObject } from "./reference-catalog";
 
 export const SSOT_OBJECT_SCHEMA_VERSION = "ssot-object.v1" as const;
 
@@ -97,7 +98,8 @@ export type InferenceReference =
 	| StageSkillsetObject
 	| ComponentCatalogObject
 	| LayoutCatalogObject
-	| PromptCatalogObject;
+	| PromptCatalogObject
+	| ReferenceCatalogObject;
 
 const DTO_NAME_BY_ARTIFACT_KIND: Record<GenerationArtifactKind, string> = {
 	"agent-request": "AgentRequestContract",
