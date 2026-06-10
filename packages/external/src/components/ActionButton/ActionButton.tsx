@@ -1,11 +1,18 @@
-import styles from './ActionButton.module.css';
-import { LeftItem } from '../LeftItem/LeftItem';
-import { TextButton } from '../TextButton/TextButton';
+import { LeftItem } from "../LeftItem/LeftItem";
+import { TextButton } from "../TextButton/TextButton";
+import styles from "./ActionButton.module.css";
 
 /* ── 아이콘 (LeftItem과 동일한 SVG) ─────────────────────────────────────── */
 function AiIcon() {
 	return (
-		<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg
+			aria-hidden="true"
+			width="22"
+			height="22"
+			viewBox="0 0 22 22"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
 			<path
 				fillRule="evenodd"
 				clipRule="evenodd"
@@ -18,16 +25,38 @@ function AiIcon() {
 
 function GiftIcon() {
 	return (
-		<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg
+			aria-hidden="true"
+			width="22"
+			height="22"
+			viewBox="0 0 22 22"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
 			<mask id="ab-gift-mask-1" fill="white">
 				<path d="M4 11H18V17C18 17.5523 17.5523 18 17 18H5C4.44772 18 4 17.5523 4 17V11Z" />
 			</mask>
-			<path d="M4 11H18V17C18 17.5523 17.5523 18 17 18H5C4.44772 18 4 17.5523 4 17V11Z" fill="currentColor" stroke="currentColor" strokeWidth="2.44444" mask="url(#ab-gift-mask-1)" />
+			<path
+				d="M4 11H18V17C18 17.5523 17.5523 18 17 18H5C4.44772 18 4 17.5523 4 17V11Z"
+				fill="currentColor"
+				stroke="currentColor"
+				strokeWidth="2.44444"
+				mask="url(#ab-gift-mask-1)"
+			/>
 			<mask id="ab-gift-mask-2" fill="white">
 				<path d="M3 8C3 7.44772 3.44772 7 4 7H18C18.5523 7 19 7.44772 19 8V10H3V8Z" />
 			</mask>
-			<path d="M3 8C3 7.44772 3.44772 7 4 7H18C18.5523 7 19 7.44772 19 8V10H3V8Z" fill="currentColor" stroke="currentColor" strokeWidth="2.44444" mask="url(#ab-gift-mask-2)" />
-			<path d="M13.5078 3.41597C14.2187 3.07907 15.1549 2.88406 15.9639 3.07515C16.3816 3.17385 16.7801 3.37984 17.0693 3.73531C17.3575 4.08954 17.4999 4.54529 17.5 5.08003C17.5 6.33089 16.3853 7.0543 15.2285 7.44527C14.1142 7.82179 12.7347 7.9759 11.498 7.99507L11.5 7.99995H10.5L10.501 7.99507C9.26453 7.97583 7.88549 7.82169 6.77148 7.44527C5.61467 7.0543 4.5 6.33089 4.5 5.08003C4.50008 4.54529 4.64248 4.08954 4.93066 3.73531C5.21989 3.37984 5.6184 3.17385 6.03613 3.07515C6.84508 2.88406 7.78129 3.07907 8.49219 3.41597C9.26411 3.78181 9.87904 4.47957 10.333 5.18648C10.5986 5.60015 10.8226 6.03926 11 6.45991C11.1774 6.03926 11.4014 5.60015 11.667 5.18648C12.121 4.47957 12.7359 3.78181 13.5078 3.41597ZM7.97266 4.35249C7.4198 4.09057 6.77465 3.98703 6.31836 4.09468C6.10359 4.14541 5.94708 4.23764 5.84082 4.36812C5.73368 4.49984 5.63973 4.7178 5.63965 5.08003C5.63965 5.62336 6.10624 6.09787 7.16309 6.45503C7.96865 6.72722 8.97915 6.87508 9.97363 6.92574C9.81337 6.53203 9.60471 6.11324 9.35449 5.72359C8.9445 5.08519 8.46496 4.58581 7.97266 4.35249ZM15.6816 4.09468C15.2253 3.98703 14.5802 4.09057 14.0273 4.35249C13.535 4.58581 13.0555 5.08519 12.6455 5.72359C12.3953 6.11324 12.1866 6.53203 12.0264 6.92574C13.0209 6.87508 14.0313 6.72722 14.8369 6.45503C15.8938 6.09787 16.3604 5.62336 16.3604 5.08003C16.3603 4.7178 16.2663 4.49984 16.1592 4.36812C16.0529 4.23764 15.8964 4.14541 15.6816 4.09468Z" fill="currentColor" />
+			<path
+				d="M3 8C3 7.44772 3.44772 7 4 7H18C18.5523 7 19 7.44772 19 8V10H3V8Z"
+				fill="currentColor"
+				stroke="currentColor"
+				strokeWidth="2.44444"
+				mask="url(#ab-gift-mask-2)"
+			/>
+			<path
+				d="M13.5078 3.41597C14.2187 3.07907 15.1549 2.88406 15.9639 3.07515C16.3816 3.17385 16.7801 3.37984 17.0693 3.73531C17.3575 4.08954 17.4999 4.54529 17.5 5.08003C17.5 6.33089 16.3853 7.0543 15.2285 7.44527C14.1142 7.82179 12.7347 7.9759 11.498 7.99507L11.5 7.99995H10.5L10.501 7.99507C9.26453 7.97583 7.88549 7.82169 6.77148 7.44527C5.61467 7.0543 4.5 6.33089 4.5 5.08003C4.50008 4.54529 4.64248 4.08954 4.93066 3.73531C5.21989 3.37984 5.6184 3.17385 6.03613 3.07515C6.84508 2.88406 7.78129 3.07907 8.49219 3.41597C9.26411 3.78181 9.87904 4.47957 10.333 5.18648C10.5986 5.60015 10.8226 6.03926 11 6.45991C11.1774 6.03926 11.4014 5.60015 11.667 5.18648C12.121 4.47957 12.7359 3.78181 13.5078 3.41597ZM7.97266 4.35249C7.4198 4.09057 6.77465 3.98703 6.31836 4.09468C6.10359 4.14541 5.94708 4.23764 5.84082 4.36812C5.73368 4.49984 5.63973 4.7178 5.63965 5.08003C5.63965 5.62336 6.10624 6.09787 7.16309 6.45503C7.96865 6.72722 8.97915 6.87508 9.97363 6.92574C9.81337 6.53203 9.60471 6.11324 9.35449 5.72359C8.9445 5.08519 8.46496 4.58581 7.97266 4.35249ZM15.6816 4.09468C15.2253 3.98703 14.5802 4.09057 14.0273 4.35249C13.535 4.58581 13.0555 5.08519 12.6455 5.72359C12.3953 6.11324 12.1866 6.53203 12.0264 6.92574C13.0209 6.87508 14.0313 6.72722 14.8369 6.45503C15.8938 6.09787 16.3604 5.62336 16.3604 5.08003C16.3603 4.7178 16.2663 4.49984 16.1592 4.36812C16.0529 4.23764 15.8964 4.14541 15.6816 4.09468Z"
+				fill="currentColor"
+			/>
 		</svg>
 	);
 }
@@ -36,17 +65,27 @@ function GiftIcon() {
 interface TooltipProps {
 	text: string;
 	left: number;
-	tailAlign?: 'start' | 'center';
+	tailAlign?: "start" | "center";
 }
 
-function Tooltip({ text, left, tailAlign = 'start' }: TooltipProps) {
+function Tooltip({ text, left, tailAlign = "start" }: TooltipProps) {
 	return (
 		<div className={styles.tooltip} style={{ left }}>
 			<div className={styles.tooltipBubble}>
 				<span className={styles.tooltipText}>{text}</span>
 			</div>
-			<div className={styles.tooltipTailWrap} style={{ justifyContent: tailAlign === 'center' ? 'center' : 'flex-start' }}>
-				<svg width="11" height="5" viewBox="0 0 11 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<div
+				className={styles.tooltipTailWrap}
+				style={{ justifyContent: tailAlign === "center" ? "center" : "flex-start" }}
+			>
+				<svg
+					aria-hidden="true"
+					width="11"
+					height="5"
+					viewBox="0 0 11 5"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
 					<path d="M5.5 5L0 0H11L5.5 5Z" fill="white" />
 				</svg>
 			</div>
@@ -56,10 +95,15 @@ function Tooltip({ text, left, tailAlign = 'start' }: TooltipProps) {
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 export interface ActionButtonProps {
-	type?: 'Default' | 'AI' | 'Gift';
-	button?: 1 | 2;
+	type?: "Default" | "Ai" | "Gift";
+	button?: "1" | "2";
 	showText?: boolean;
 	showTooltip?: boolean;
+	// TODO(catalog): text/left/tailAlign are currently exposed as required ActionButton
+	// catalog props even though they belong to the internal Tooltip surface.
+	text?: string;
+	left?: number;
+	tailAlign?: "start" | "center";
 	// Ai+2: 상단 텍스트
 	topText?: string;
 	// Ai+2 / Gift+1: 버튼 내 좌/우 텍스트
@@ -86,9 +130,9 @@ export interface ActionButtonProps {
 /* ── variant별 렌더 ──────────────────────────────────────────────────────── */
 function Ai2({
 	showText = true,
-	topText = '텍스트',
-	leftText = '텍스트',
-	rightText = '텍스트',
+	topText = "텍스트",
+	leftText = "텍스트",
+	rightText = "텍스트",
 	onAiClick,
 	onPrimaryClick,
 }: ActionButtonProps) {
@@ -101,7 +145,9 @@ function Ai2({
 			)}
 			<div className={styles.btnPrimary}>
 				<div className={styles.iconArea}>
-					<span className={styles.iconColor}><AiIcon /></span>
+					<span className={styles.iconColor}>
+						<AiIcon />
+					</span>
 				</div>
 				{/* TextButton type="double" 활용 */}
 				<TextButton
@@ -120,7 +166,7 @@ function Ai2({
 function Ai1({
 	showTooltip = true,
 	tooltipText,
-	buttonText = '맞춤 옵션 바로 선택하기',
+	buttonText = "맞춤 옵션 바로 선택하기",
 	onAiClick,
 	onPrimaryClick,
 }: ActionButtonProps) {
@@ -128,12 +174,12 @@ function Ai1({
 		<div className={styles.wrap}>
 			{showTooltip && (
 				<Tooltip
-					text={tooltipText ?? '56만원의 T 안심보상가 적용이 대기 중이에요!'}
+					text={tooltipText ?? "56만원의 T 안심보상가 적용이 대기 중이에요!"}
 					left={29}
 					tailAlign="start"
 				/>
 			)}
-			<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
+			<div className={styles.btnPrimary} style={{ justifyContent: "space-between" }}>
 				{/* LeftItem 활용 — Ai 아이콘 + 구분선 */}
 				<LeftItem type="ai" color="#ffffff" onAiClick={onAiClick} />
 				{/* TextButton type="single" 활용 */}
@@ -143,10 +189,10 @@ function Ai1({
 	);
 }
 
-function Default1({ primaryText = '버튼', onPrimaryClick }: ActionButtonProps) {
+function Default1({ primaryText = "버튼", onPrimaryClick }: ActionButtonProps) {
 	return (
 		<div className={styles.wrap}>
-			<div className={styles.btnPrimary} style={{ justifyContent: 'center' }}>
+			<div className={styles.btnPrimary} style={{ justifyContent: "center" }}>
 				{/* TextButton type="single" 활용 */}
 				<TextButton type="single" label={primaryText} color="#ffffff" onClick={onPrimaryClick} />
 			</div>
@@ -156,11 +202,11 @@ function Default1({ primaryText = '버튼', onPrimaryClick }: ActionButtonProps)
 
 function Default2({
 	showText = true,
-	priceLabel = '이용 금액',
-	period = '1개월/',
-	price = '7,900원',
-	secondaryText = '버튼',
-	primaryText = '버튼',
+	priceLabel = "이용 금액",
+	period = "1개월/",
+	price = "7,900원",
+	secondaryText = "버튼",
+	primaryText = "버튼",
 	onSecondaryClick,
 	onPrimaryClick,
 }: ActionButtonProps) {
@@ -176,10 +222,10 @@ function Default2({
 				</div>
 			)}
 			<div className={styles.btnGroup}>
-				<button className={styles.btnSecondary} onClick={onSecondaryClick}>
+				<button type="button" className={styles.btnSecondary} onClick={onSecondaryClick}>
 					{secondaryText}
 				</button>
-				<button className={styles.btnPrimaryBlock} onClick={onPrimaryClick}>
+				<button type="button" className={styles.btnPrimaryBlock} onClick={onPrimaryClick}>
 					{primaryText}
 				</button>
 			</div>
@@ -190,25 +236,25 @@ function Default2({
 function Gift1({
 	showTooltip = true,
 	tooltipText,
-	leftText = '텍스트',
-	rightText = '텍스트',
+	leftText = "텍스트",
+	rightText = "텍스트",
 	onGiftClick,
 	onPrimaryClick,
 }: ActionButtonProps) {
 	return (
 		<div className={styles.wrap}>
-			{showTooltip && (
-				<Tooltip text={tooltipText ?? '비어 있음'} left={169} tailAlign="center" />
-			)}
-			<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
+			{showTooltip && <Tooltip text={tooltipText ?? "비어 있음"} left={169} tailAlign="center" />}
+			<div className={styles.btnPrimary} style={{ justifyContent: "space-between" }}>
 				<div className={styles.iconArea}>
-					<span className={styles.iconColor}><GiftIcon /></span>
+					<span className={styles.iconColor}>
+						<GiftIcon />
+					</span>
 				</div>
 				{/* TextButton type="double" 활용 */}
 				<TextButton
 					type="double"
-					leftLabel={leftText === '텍스트' ? '선물하기' : leftText}
-					rightLabel={rightText === '텍스트' ? '구독하기' : rightText}
+					leftLabel={leftText === "텍스트" ? "선물하기" : leftText}
+					rightLabel={rightText === "텍스트" ? "구독하기" : rightText}
 					color="#ffffff"
 					onLeftClick={onGiftClick}
 					onRightClick={onPrimaryClick}
@@ -219,11 +265,11 @@ function Gift1({
 }
 
 /* ── 컴포넌트 (type × button 분기) ───────────────────────────────────────── */
-export function ActionButton({ type = 'AI', button = 2, ...props }: ActionButtonProps) {
-	if (type === 'AI' && button === 2) return <Ai2 {...props} />;
-	if (type === 'AI' && button === 1) return <Ai1 {...props} />;
-	if (type === 'Default' && button === 1) return <Default1 {...props} />;
-	if (type === 'Default' && button === 2) return <Default2 {...props} />;
-	if (type === 'Gift' && button === 1) return <Gift1 {...props} />;
+export function ActionButton({ type = "Ai", button = "2", ...props }: ActionButtonProps) {
+	if (type === "Ai" && button === "2") return <Ai2 {...props} />;
+	if (type === "Ai" && button === "1") return <Ai1 {...props} />;
+	if (type === "Default" && button === "1") return <Default1 {...props} />;
+	if (type === "Default" && button === "2") return <Default2 {...props} />;
+	if (type === "Gift" && button === "1") return <Gift1 {...props} />;
 	return null; // Gift + 2: 미정의 조합
 }

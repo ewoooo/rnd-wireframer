@@ -16,14 +16,8 @@ const VISIBLE_TEXTS = [
 	"중복가입 가능여부",
 	"중복가입 불가",
 	"그룹상품 선택",
+	"계속하기",
 ];
-
-/**
- * 계약 defaultValue로 렌더되는 텍스트 — 소스 문자열에는 없어도 화면에는 보인다.
- * (ActionButton label 기본값. 과거에는 named 래퍼의 props 에코로 소스에 남았지만
- * primitive unwrap 이후 소스에서 사라졌다. 렌더 수준 보존은 parity.test.tsx가 보장.)
- */
-const DEFAULT_VALUE_TEXTS = ["계속하기"];
 
 /** display.when 기본값이 false인 상태 노드의 텍스트 — export물에 나오면 안 된다. */
 const STATE_GATED_TEXTS = [
@@ -42,12 +36,6 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 	it("includes every visible text content", () => {
 		for (const text of VISIBLE_TEXTS) {
 			expect(result.code).toContain(text);
-		}
-	});
-
-	it("relies on contract defaults (not source text) only for the known allowlist", () => {
-		for (const text of DEFAULT_VALUE_TEXTS) {
-			expect(result.code).not.toContain(text);
 		}
 	});
 

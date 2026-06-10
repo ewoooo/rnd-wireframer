@@ -291,7 +291,7 @@ function createRenderTree(idPrefix: string) {
 								componentVersion: "1.0.0",
 								layout: "layout.composite.componentActionButton",
 								metadata: { id: `${idPrefix}-cta`, title: readCtaTitle(idPrefix) },
-								props: { label: "Next" },
+								props: { button: "1", primaryText: "Next", type: "Default" },
 								type: "ActionButton",
 							},
 						],

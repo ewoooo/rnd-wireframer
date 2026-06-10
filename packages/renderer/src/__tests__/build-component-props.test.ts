@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildComponentProps } from "../adapters/build-component-props";
 
 describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
-	it("bare type 'ActionButton'도 kiki.ActionButton 계약을 찾아 비계약 props를 떨군다", () => {
+	it("bare type 'ActionButton'은 legacy label을 primaryText 후보로 읽고 비계약 props를 떨군다", () => {
 		const out = buildComponentProps("ActionButton", {
 			label: "계속하기",
 			variant: "primary",
@@ -10,8 +10,21 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 			fullWidth: true,
 		});
 
-		// kiki.ActionButton 계약에는 label/variant/size/fullWidth가 없다 → 모두 제거.
-		expect(out).toEqual({});
+		expect(out).toEqual({ primaryText: "계속하기" });
+	});
+
+	it("ActionButton canonical props는 catalog 계약대로 유지한다", () => {
+		const out = buildComponentProps("ActionButton", {
+			button: "1",
+			primaryText: "계속하기",
+			type: "Default",
+		});
+
+		expect(out).toEqual({
+			button: "1",
+			primaryText: "계속하기",
+			type: "Default",
+		});
 	});
 
 	it("bare type 'TextButton'은 계약 텍스트 prop(label)은 유지하고 비계약 prop은 떨군다", () => {

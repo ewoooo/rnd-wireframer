@@ -115,7 +115,7 @@ describe("@cx/adapters/table render-tree-to-table", () => {
 										display: { stateRole: "disabled" },
 										layout: "layout.composite.componentActionButton",
 										metadata: { id: "cta-disabled", title: "Disabled CTA" },
-										props: { label: "다음" },
+										props: { button: "1", primaryText: "다음", type: "Default" },
 										type: "ActionButton",
 									},
 								],

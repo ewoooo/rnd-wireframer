@@ -950,6 +950,7 @@
 - **Validation First Implementation** — `@cx/validation`에 `validateAgentResult`, `validateComponentUsage`, `validateRenderTree`, `validateLayoutProps` public API를 추가함
 - **Renderer Naming Cleanup** — renderer public component/function 이름을 `RenderTreeView`, `RenderNodeView`, `renderJsonNode`로 정리하고 registry 타입을 `NodeRenderer`, `NodeRenderContext`, `NodeRendererDefinition`, `NodeRendererRegistry`로 변경함
 - **TitleSection Legacy Subtitle Prop Compatibility** — `TitleSection`이 subtitle 부재 시 placeholder 서브텍스트를 숨기도록 조정하고, renderer prop builder가 catalog text-source 계약을 통해 legacy `subText`를 `subtitle`로 읽되 동일 컴포넌트가 `subText`를 별도 prop으로 소유한 경우에는 alias하지 않도록 보강함
+- **ActionButton Catalog Prop Alignment** — `ActionButton` 컴포넌트가 catalog의 `type: "Ai"` 및 `button: "1" | "2"` 계약을 따르도록 조정하고, RenderTree fixture의 하단 CTA props를 legacy `label/variant/size/fullWidth`에서 canonical `type/button/primaryText`로 교체함
 - **Renderer Functional Directory Split** — `@cx/renderer` 내부를 `tree/`, `registry/`, `render/`, `nodes/`로 재배치해 RenderTree JSON 해석, renderer 연결표, 재귀 렌더 실행, 구조 node 렌더 정의의 책임을 분리함
 - **Master Plan Direction Document Restore** — `MASTER_PLAN.md`를 제품 방향성, 핵심 원칙, 목표 흐름, 고도화 순서 중심의 루트 전역 문서로 다시 추가함
 - **Orchestration Validation Pipeline Boundary Allocation** — `packages/orchestration`의 `@cx/orchestration` 패키지를 추가하고 root, `./contract`, `./types` public subpath를 할당함

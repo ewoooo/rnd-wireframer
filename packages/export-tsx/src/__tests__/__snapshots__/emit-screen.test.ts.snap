@@ -79,7 +79,7 @@ export default function Screen() {
 				<VStack as="section" gap={0}>
 					<BottomFixedArea gap={0}>
 						<VStack gap={0}>
-							<ActionButton />
+							<ActionButton button="1" primaryText="계속하기" type="Default" />
 						</VStack>
 					</BottomFixedArea>
 				</VStack>
