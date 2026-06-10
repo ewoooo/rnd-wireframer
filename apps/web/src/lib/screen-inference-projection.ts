@@ -84,7 +84,7 @@ export function projectScreenInferenceFinalResult(
 
 			areasById.set(areaNode.metadata.id, {
 				author: areaNode.metadata.author ?? null,
-				description: areaNode.metadata.description ?? null,
+				description: null,
 				id: areaNode.metadata.id,
 				layout_id: readLayoutId(areaNode),
 				name: areaNode.metadata.title ?? areaNode.metadata.id,
@@ -137,7 +137,7 @@ export function projectScreenInferenceFinalResult(
 		screens: [
 			{
 				author: node.metadata.author ?? null,
-				description: node.metadata.description ?? null,
+				description: null,
 				id: screenId,
 				layout_id: readLayoutId(node),
 				name: node.metadata.title ?? screenId,
@@ -186,7 +186,7 @@ function projectAreaChildren(input: {
 
 		input.componentsById.set(componentNode.metadata.id, {
 			author: componentNode.metadata.author ?? null,
-			description: componentNode.metadata.description ?? null,
+			description: null,
 			display: componentNode.display ?? null,
 			hooks: null,
 			id: componentNode.metadata.id,

@@ -76,7 +76,6 @@ export function materializeRenderScreenFromRows({
 			layout: screen.layout_id ?? undefined,
 			metadata: {
 				author: screen.author ?? undefined,
-				description: screen.description ?? undefined,
 				id: screen.id,
 				title: screen.name,
 			},
@@ -287,7 +286,6 @@ function materializeArea(
 		layout: area.layout_id ?? undefined,
 		metadata: {
 			author: area.author ?? undefined,
-			description: area.description ?? undefined,
 			id: area.id,
 			title: area.name,
 		},

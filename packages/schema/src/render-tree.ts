@@ -104,7 +104,6 @@ export type RenderTreeMetadata = {
 	id: string;
 	author?: string;
 	createdAt?: string;
-	description?: string;
 	updatedAt?: string;
 };
 

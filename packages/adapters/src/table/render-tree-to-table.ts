@@ -183,7 +183,6 @@ function metadataWithTitle(metadata: RenderTreeNodeContract["metadata"]): TableG
 	return {
 		author: metadata.author,
 		createdAt: metadata.createdAt,
-		description: metadata.description,
 		title: metadata.title,
 		updatedAt: metadata.updatedAt,
 	};
