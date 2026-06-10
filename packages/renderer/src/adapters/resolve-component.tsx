@@ -7,14 +7,16 @@ import { buildComponentProps } from "./build-component-props";
 export function resolveComponent({
 	node,
 	props,
+	renderNode,
 }: {
 	node: RenderTreeNode;
 	props: Record<string, unknown>;
+	renderNode?: (node: RenderTreeNode) => ReactNode;
 }): ReactNode | undefined {
 	const Component = resolveComponentByType(node.type);
 	if (!Component) return undefined;
 
-	const componentProps = buildComponentProps(node.type, props);
+	const componentProps = buildComponentProps(node.type, props, { renderNode });
 	return createElement(Component, { key: node.metadata.id, ...componentProps });
 }
 

@@ -956,7 +956,13 @@ export const externalCatalog: ComponentCatalog = {
 			type: { type: "string", role: "styleVariant", required: false },
 			state: { type: "string", role: "state", required: false },
 			error: { type: "boolean", role: "state", required: false },
-			rightElement: { type: "string", role: "slot", required: false },
+			rightElement: {
+				type: "node",
+				role: "slot",
+				required: false,
+				description:
+					"입력칸 우측 슬롯. render-node(예: kiki.Button)를 넣으면 입력칸과 같은 행 우측에 렌더된다. 휴대폰 인증요청처럼 입력과 짝이 되는 인라인 액션에 쓴다.",
+			},
 			onChange: { type: "string", role: "event", required: false },
 		},
 	},

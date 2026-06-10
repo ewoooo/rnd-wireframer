@@ -76,5 +76,11 @@ function renderNodeWithoutLayout({
 
 	if (node.children && node.children.length > 0) return renderChildren();
 
-	return renderComponent({ node, props, runtime });
+	return renderComponent({
+		node,
+		props,
+		// 계약이 node인 prop(슬롯)에 적힌 render-node도 동일한 해석 경로를 보장한다.
+		renderNode: (slotNode) => renderJsonNode(slotNode, data, runtime),
+		runtime,
+	});
 }

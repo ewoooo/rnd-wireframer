@@ -19,6 +19,7 @@ export interface RendererRuntime {
 	resolveComponent: (input: {
 		node: RenderTreeNode;
 		props: Record<string, unknown>;
+		renderNode?: (node: RenderTreeNode) => ReactNode;
 	}) => ReactNode | undefined;
 	renderPrimitive: (input: {
 		node: RenderTreeNode;
