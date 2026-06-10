@@ -1,5 +1,5 @@
+import { getComponentCatalogEntry, getTextPropSourceKeys } from "@cx/external/resolver";
 import type { ComponentPropContract, ComponentPropType } from "@cx/schema";
-import { getComponentCatalogEntry } from "@cx/external/resolver";
 import { toText } from "../runtime/text";
 
 export function buildComponentProps(
@@ -32,7 +32,7 @@ function readCatalogPropValue(props: Record<string, unknown>, key: string): unkn
 	const textValues = toRecord(props.texts);
 	if (!textValues) return undefined;
 
-	for (const sourceKey of CATALOG_TEXT_PROP_SOURCE_KEYS[key] ?? [key]) {
+	for (const sourceKey of getTextPropSourceKeys(key)) {
 		if (textValues[sourceKey] !== undefined) return textValues[sourceKey];
 	}
 	return undefined;
@@ -74,14 +74,4 @@ const PROP_VALUE_COERCERS = {
 const BOOLEAN_TEXT_VALUE: Record<string, boolean> = {
 	false: false,
 	true: true,
-};
-
-const CATALOG_TEXT_PROP_SOURCE_KEYS: Record<string, readonly string[]> = {
-	description: ["description", "descriptionText", "body", "bodyText", "slot"],
-	label: ["label", "labelText", "text", "main"],
-	priceText: ["priceText", "price", "value"],
-	rightText: ["rightText", "value"],
-	subText: ["subText", "subtitle", "description"],
-	title: ["title", "titleText", "titleLabel", "main"],
-	titleContent: ["titleContent", "title", "titleText", "titleLabel", "main"],
 };
