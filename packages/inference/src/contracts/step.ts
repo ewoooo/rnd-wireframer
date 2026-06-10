@@ -11,7 +11,8 @@ export type KnowledgeRef = {
 		| "prompt-catalog"
 		| "skill"
 		| "stage-skillset"
-		| "token-catalog";
+		| "token-catalog"
+		| `reference-${string}`;
 	id?: string;
 	version?: string;
 };

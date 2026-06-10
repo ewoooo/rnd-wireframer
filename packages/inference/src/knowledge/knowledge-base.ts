@@ -1,5 +1,6 @@
 import {
 	resolvePromptCatalogForInference,
+	resolveReferenceForInference,
 	resolveSkillForInference,
 	resolveStageSkillsetForInference,
 } from "@cx/agent";
@@ -39,12 +40,20 @@ const KNOWLEDGE_RESOLVERS = {
 		requiresId: false,
 		resolve: () => resolveTokenCatalogForInference(),
 	},
-} as const satisfies Record<KnowledgeRef["source"], KnowledgeResolver>;
+} as const satisfies Record<
+	Exclude<KnowledgeRef["source"], `reference-${string}`>,
+	KnowledgeResolver
+>;
 
 export function createInferenceKnowledgeBase(): KnowledgeBase {
 	return {
 		async resolve(ref) {
-			const resolver = KNOWLEDGE_RESOLVERS[ref.source];
+			const reference = parseReferenceSource(ref.source);
+			if (reference) {
+				return resolveReferenceForInference(reference.category, reference.mode);
+			}
+			const resolver = KNOWLEDGE_RESOLVERS[ref.source as keyof typeof KNOWLEDGE_RESOLVERS];
+			if (!resolver) throw new Error(`Unknown knowledge source: ${ref.source}`);
 			if (resolver.requiresId) readRequiredKnowledgeId(ref);
 			return resolver.resolve(ref);
 		},
@@ -58,4 +67,12 @@ export function createInferenceKnowledgeBase(): KnowledgeBase {
 function readRequiredKnowledgeId(ref: KnowledgeRef): string {
 	if (ref.id) return ref.id;
 	throw new Error(`Unsupported knowledge reference for MVP: ${ref.source}:missing-id`);
+}
+
+function parseReferenceSource(
+	source: string,
+): { category: string; mode: "catalog" | "index" } | undefined {
+	const m = /^reference-(.+)-(index|catalog)$/.exec(source);
+	if (!m) return undefined;
+	return { category: m[1], mode: m[2] as "catalog" | "index" };
 }
