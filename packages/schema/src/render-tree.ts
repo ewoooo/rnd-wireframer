@@ -53,6 +53,15 @@ export const SCREEN_REGION_TYPE_BY_NODE_TYPE = {
 	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
 } as const satisfies Record<RenderTreeScreenRegionNodeType, "bottom" | "contents" | "header">;
 
+export type ScreenRegionKey =
+	(typeof SCREEN_REGION_TYPE_BY_NODE_TYPE)[RenderTreeScreenRegionNodeType];
+
+export const SCREEN_REGION_NODE_TYPE_BY_REGION_KEY = {
+	bottom: RENDER_TREE_NODE_TYPE.screenBottom,
+	contents: RENDER_TREE_NODE_TYPE.screenContents,
+	header: RENDER_TREE_NODE_TYPE.screenHeader,
+} as const satisfies Record<ScreenRegionKey, RenderTreeScreenRegionNodeType>;
+
 export type SchemaPropBinding = {
 	bind: string;
 	default?: string | number | boolean | null;

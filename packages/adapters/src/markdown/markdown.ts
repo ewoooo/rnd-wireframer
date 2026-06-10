@@ -1,4 +1,4 @@
-import { SCHEMA_VERSION } from "@cx/schema";
+import { RENDER_TREE_NODE_TYPE, type RenderTreeAreaNodeType, SCHEMA_VERSION } from "@cx/schema";
 import type {
 	MarkdownSourceFileInput,
 	ParseMarkdownSourceBundleInput,
@@ -57,7 +57,7 @@ type SourceAreaDraft = {
 	layout?: string;
 	maxCount?: string;
 	minCount?: string;
-	renderNodeType?: "area.dynamic" | "area.static";
+	renderNodeType?: RenderTreeAreaNodeType;
 	sourceAreaId: string;
 	sourceAreaName?: string;
 	visibility?: string;
@@ -603,8 +603,10 @@ function normalizeAreaType(value: string | undefined): "dynamic" | "static" | un
 	return undefined;
 }
 
-function toAreaRenderNodeType(areaType: "dynamic" | "static"): "area.dynamic" | "area.static" {
-	return areaType === "dynamic" ? "area.dynamic" : "area.static";
+function toAreaRenderNodeType(areaType: "dynamic" | "static"): RenderTreeAreaNodeType {
+	return areaType === "dynamic"
+		? RENDER_TREE_NODE_TYPE.areaDynamic
+		: RENDER_TREE_NODE_TYPE.areaStatic;
 }
 
 function parsePropsCell(

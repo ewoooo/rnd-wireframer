@@ -94,6 +94,7 @@ export type {
 	RenderTreeScreenRegionNodeType,
 	SchemaPropBinding,
 	SchemaPropValue,
+	ScreenRegionKey,
 } from "./render-tree";
 export {
 	isRenderTreeAreaNode,
@@ -107,6 +108,7 @@ export {
 	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
 	RENDER_TREE_SCREEN_ROOT_NODE_TYPES,
 	RENDER_TREE_WRAPPER_NODE_TYPES,
+	SCREEN_REGION_NODE_TYPE_BY_REGION_KEY,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "./render-tree";
 export type { ScreenIntentContract, UsedSkillRef } from "./screen-intent";

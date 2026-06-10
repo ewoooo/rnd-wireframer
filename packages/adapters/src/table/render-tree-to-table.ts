@@ -2,7 +2,7 @@ import type {
 	RenderTreeContract,
 	RenderTreeNodeContract,
 	RenderTreeScreenNodeContract,
-	RenderTreeScreenRegionNodeType,
+	ScreenRegionKey,
 	TableChildRef,
 	TableGenerationArea,
 	TableGenerationComponent,
@@ -10,7 +10,12 @@ import type {
 	TableGenerationRegion,
 	TableGenerationResultContract,
 } from "@cx/schema";
-import { isRenderTreeAreaNode, RENDER_TREE_NODE_TYPE, SCHEMA_VERSION } from "@cx/schema";
+import {
+	isRenderTreeAreaNode,
+	RENDER_TREE_NODE_TYPE,
+	SCHEMA_VERSION,
+	SCREEN_REGION_TYPE_BY_NODE_TYPE,
+} from "@cx/schema";
 
 export type RenderTreeToTablesOptions = {
 	screenId?: string;
@@ -21,14 +26,6 @@ export type RenderTreeToTablesResult = {
 	tableGenerationResult: TableGenerationResultContract;
 	warnings: string[];
 };
-
-type RegionKey = "bottom" | "contents" | "header";
-
-const REGION_KEY_BY_TYPE = {
-	[RENDER_TREE_NODE_TYPE.screenBottom]: "bottom",
-	[RENDER_TREE_NODE_TYPE.screenContents]: "contents",
-	[RENDER_TREE_NODE_TYPE.screenHeader]: "header",
-} as const satisfies Record<RenderTreeScreenRegionNodeType, RegionKey>;
 
 export function renderTreeToTableGenerationResult(
 	renderTree: RenderTreeContract,
@@ -84,12 +81,14 @@ function getScreenNode(
 
 function extractRegion(
 	screenNode: RenderTreeScreenNodeContract,
-	regionKey: RegionKey,
+	regionKey: ScreenRegionKey,
 	areasById: Map<string, TableGenerationArea>,
 	componentsById: Map<string, TableGenerationComponent>,
 	warnings: string[],
 ): TableGenerationRegion {
-	const region = screenNode.children.find((child) => REGION_KEY_BY_TYPE[child.type] === regionKey);
+	const region = screenNode.children.find(
+		(child) => SCREEN_REGION_TYPE_BY_NODE_TYPE[child.type] === regionKey,
+	);
 	if (!region) {
 		throw new Error(`Screen node must include ${regionKey} region.`);
 	}
@@ -102,7 +101,7 @@ function extractRegion(
 	};
 }
 
-function defaultRegionLayout(regionKey: RegionKey): string {
+function defaultRegionLayout(regionKey: ScreenRegionKey): string {
 	if (regionKey === "header") return "layout.region.header";
 	if (regionKey === "contents") return "layout.region.contents";
 	return "layout.region.bottom";
