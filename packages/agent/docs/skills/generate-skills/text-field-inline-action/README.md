@@ -12,9 +12,11 @@ priority: recommended
 
 ## Rule
 
-- "입력 후 즉시 실행하는 1개 액션"이 필드에 종속될 때 = `props.rightElement`에 render-node(주로 `kiki.Button`, size: medium 이하)를 넣는다.
+- "입력 후 즉시 실행하는 1개 액션"이 필드에 종속될 때 = `props.rightElement`에 render-node(주로 `kiki.Button`)를 넣는다.
 - 슬롯 값은 일반 노드와 같은 모양이다: `type` + `metadata.id`(+`metadata.title`) 필수, `props`/`display` 사용 가능.
 - 슬롯 노드 안에서도 `{bind}`, `display.when`, `display.stateRole`이 전부 동작한다. 입력 유효성에 묶인 비활성화는 슬롯 버튼에 `display: { stateRole: "disabled", when: { bind: "<유효성 신호>" } }`로 표현한다.
+- 버튼 높이는 입력칸 높이(48px)와 일치시킨다: `kiki.Button`은 `size: "large"`(h=48). medium(36px) 이하는 입력칸 옆에서 짧아 보인다.
+- 라벨은 2~4자 동사형 단축어로 쓴다: "요청"·"인증"·"확인"·"중복확인". 대상 설명("법정대리인 동의 요청")은 필드 label/title의 몫이지 버튼 라벨이 아니다.
 
 ## Shape
 
@@ -29,7 +31,7 @@ priority: recommended
       "type": "kiki.Button",
       "metadata": { "id": "ButtonGuardianConsentRequest", "title": "법정대리인 동의 요청" },
       "display": { "stateRole": "disabled", "when": { "bind": "guardian.phoneValid" } },
-      "props": { "variant": "secondary", "size": "medium", "children": "동의 요청" }
+      "props": { "variant": "secondary", "size": "large", "children": "요청" }
     }
   }
 }
@@ -40,3 +42,4 @@ priority: recommended
 - 필드에 종속된 단일 액션을 필드 아래 fullWidth 형제 Button으로 평탄화하지 않는다 — 입력과 액션의 종속 관계가 시각적으로 끊긴다.
 - 화면 전체를 진행시키는 주 CTA(다음/제출)는 슬롯이 아니라 bottom-fixed-cta 패턴이다. rightElement는 필드 단위 보조 액션 전용.
 - `rightElement`에 문자열이나 여러 노드를 넣지 않는다 — 단일 render-node 1개만.
+- 슬롯 버튼에 긴 서술형 라벨("법정대리인 동의 요청")이나 `fullWidth`를 쓰지 않는다 — 입력칸이 밀려 한 줄 리듬이 깨진다.
