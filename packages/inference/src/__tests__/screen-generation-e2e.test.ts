@@ -73,7 +73,9 @@ const invalidRenderTree = {
 const payloadByTaskKind: Record<string, unknown> = {
 	"screen-intent": {
 		schemaVersion: SCHEMA_VERSION.screenIntent,
-		screenPurpose: "x",
+		coreJudgment: "x",
+		firstUnderstanding: "x",
+		ctaPromise: "x",
 		contentPriority: [],
 		sourceInterpretation: { defer: [], preserve: [], summarize: [] },
 	},

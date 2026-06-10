@@ -9,15 +9,22 @@ export type UsedSkillRef = {
 	task: string;
 };
 
+export type ReferenceMatch = {
+	referenceIds: string[];
+	matchedPattern: string;
+};
+
 export type ScreenIntentContract = {
 	audience?: string;
 	contentPriority: string[];
+	coreJudgment: string;
+	ctaPromise: string;
+	firstUnderstanding: string;
 	missingDecisions?: string[];
-	primaryUserAction?: string;
 	primaryTask?: string;
 	rationale?: string;
+	referenceMatch?: ReferenceMatch;
 	schemaVersion: typeof SCHEMA_VERSION.screenIntent;
-	screenPurpose: string;
 	sourceInterpretation: {
 		defer: string[];
 		preserve: string[];

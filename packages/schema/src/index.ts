@@ -113,7 +113,7 @@ export {
 	SCREEN_REGION_NODE_TYPE_BY_REGION_KEY,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "./render-tree";
-export type { ScreenIntentContract, UsedSkillRef } from "./screen-intent";
+export type { ReferenceMatch, ScreenIntentContract, UsedSkillRef } from "./screen-intent";
 export type {
 	SourceFileKind,
 	SourceSpec,

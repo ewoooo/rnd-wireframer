@@ -68,7 +68,7 @@ describe("@cx/schema public API", () => {
 			required: ["schemaVersion", "screen", "areas", "components"],
 		});
 		expect(getJsonSchema("screen-intent")).toMatchObject({
-			$id: "screen-intent.v0.1",
+			$id: "screen-intent.v0.2",
 			additionalProperties: false,
 			properties: {
 				missingDecisions: {
@@ -81,7 +81,14 @@ describe("@cx/schema public API", () => {
 					type: "array",
 				},
 			},
-			required: ["schemaVersion", "screenPurpose", "contentPriority", "sourceInterpretation"],
+			required: [
+				"schemaVersion",
+				"coreJudgment",
+				"firstUnderstanding",
+				"ctaPromise",
+				"contentPriority",
+				"sourceInterpretation",
+			],
 		});
 		expect(getJsonSchema("composition-plan")).toMatchObject({
 			$id: "composition-plan.v0.1",

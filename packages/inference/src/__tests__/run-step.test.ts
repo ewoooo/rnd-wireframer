@@ -152,7 +152,9 @@ describe("runStep", () => {
 						return {
 							raw: {
 								schemaVersion: SCHEMA_VERSION.screenIntent,
-								screenPurpose: "x",
+								coreJudgment: "x",
+								firstUnderstanding: "x",
+								ctaPromise: "x",
 								contentPriority: [],
 								sourceInterpretation: { defer: [], preserve: [], summarize: [] },
 							},
