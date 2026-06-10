@@ -37,6 +37,21 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 		expect(out).not.toHaveProperty("underline");
 	});
 
+	it("serialized event props are not forwarded as React listener props", () => {
+		const out = buildComponentProps("ListText", {
+			onClick: "navigate",
+			showRightItem: true,
+			table: "dot",
+			title: "서비스 이용약관",
+		});
+
+		expect(out).toEqual({
+			showRightItem: true,
+			table: "dot",
+			title: "서비스 이용약관",
+		});
+	});
+
 	it("canonical 키('kiki.TextButton')와 bare 키('TextButton')는 같은 결과를 낸다", () => {
 		const props = { label: "보기", underline: true };
 		expect(buildComponentProps("TextButton", props)).toEqual(
