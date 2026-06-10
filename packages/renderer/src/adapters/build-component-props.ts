@@ -15,13 +15,14 @@ export function buildComponentProps(
 	if (!entry) return { ...(rawProps ?? {}) };
 
 	const props = rawProps ?? {};
+	const propKeys = new Set(Object.keys(entry.props));
 	const out: Record<string, unknown> = {};
 	for (const [key, contract] of Object.entries(entry.props)) {
 		// Renderer owns non-AI-writable props (e.g. node slots). Ignore any AI-provided
 		// value — an illegally-written render-node object would otherwise reach React as a
 		// child and crash the page.
 		if (contract.aiWritable === false) continue;
-		const raw = readCatalogPropValue(props, key);
+		const raw = readCatalogPropValue(props, key, propKeys);
 		if (raw === undefined) {
 			if (contract.defaultValue !== undefined) out[key] = contract.defaultValue;
 			continue;
@@ -31,13 +32,23 @@ export function buildComponentProps(
 	return out;
 }
 
-function readCatalogPropValue(props: Record<string, unknown>, key: string): unknown {
+function readCatalogPropValue(
+	props: Record<string, unknown>,
+	key: string,
+	propKeys: ReadonlySet<string>,
+): unknown {
 	if (props[key] !== undefined) return props[key];
+
+	for (const sourceKey of getTextPropSourceKeys(key)) {
+		if (sourceKey !== key && propKeys.has(sourceKey)) continue;
+		if (props[sourceKey] !== undefined) return props[sourceKey];
+	}
 
 	const textValues = toRecord(props.texts);
 	if (!textValues) return undefined;
 
 	for (const sourceKey of getTextPropSourceKeys(key)) {
+		if (sourceKey !== key && propKeys.has(sourceKey)) continue;
 		if (textValues[sourceKey] !== undefined) return textValues[sourceKey];
 	}
 	return undefined;

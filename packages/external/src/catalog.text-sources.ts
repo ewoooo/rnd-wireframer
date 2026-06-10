@@ -5,5 +5,6 @@ export const textPropSourceKeys: Record<string, readonly string[]> = {
 	label: ["label", "labelText", "text", "main"],
 	rightText: ["rightText", "value"],
 	subText: ["subText", "subtitle", "description"],
+	subtitle: ["subtitle", "subText", "description"],
 	title: ["title", "titleText", "titleLabel", "main"],
 };
