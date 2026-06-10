@@ -73,6 +73,12 @@ export type { JsonSchemaDocument } from "./json-schema-registry";
 export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-registry";
 export type { PreviewContract } from "./preview";
 export type {
+	ReferenceCatalogData,
+	ReferenceCatalogDocument,
+	ReferenceCatalogEntry,
+	ReferenceCatalogObject,
+} from "./reference-catalog";
+export type {
 	QualityInspectionContract,
 	QualityInspectionLayer,
 	QualityInspectionScores,
