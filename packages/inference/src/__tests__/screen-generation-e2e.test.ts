@@ -82,6 +82,8 @@ const payloadByTaskKind: Record<string, unknown> = {
 	"composition-planning": {
 		schemaVersion: SCHEMA_VERSION.compositionPlan,
 		screenLayout: "layout.screen.Default",
+		currentFitAssessment: { supportsJudgment: true, problems: [] },
+		compositionProposal: { shouldChangeAreaComposite: false, recommendedAreas: [] },
 		layoutStrategy: "x",
 		sections: [
 			{ targetRegion: "contents", role: "content", priority: 1, sourceRefs: ["T"], strategy: "x" },
@@ -249,7 +251,11 @@ function readSkillsetFromReferences(references: unknown) {
 }
 
 function readSkillsetReference(context: unknown) {
-	if (!isRecord(context) || !isRecord(context.references) || !isRecord(context.references.skillset)) {
+	if (
+		!isRecord(context) ||
+		!isRecord(context.references) ||
+		!isRecord(context.references.skillset)
+	) {
 		throw new Error("screen-intent runner expected a skillset reference");
 	}
 	const skillset = context.references.skillset;
