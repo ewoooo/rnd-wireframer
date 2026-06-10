@@ -1,20 +1,24 @@
-import { getComponentCatalogStatus } from "@cx/components/catalog";
+import { canonicalizeComponentType, getComponentCatalogStatus } from "@cx/external/resolver";
+import {
+	getLayoutCatalogEntry,
+	getLayoutNodeTypeContract,
+	isLayoutNodeType,
+} from "@cx/layout/resolver";
 import type {
 	ComponentCatalog,
 	ComponentCatalogEntry,
-	ComponentPropContract,
 	ComponentPropType,
-} from "@cx/components/types";
-import { findPattern } from "@cx/layout/catalog";
-import { LAYOUT_PROP_CONTRACTS } from "@cx/layout/types";
-import type {
 	GenerationArtifactKind,
 	JsonSchemaDocument,
 	SchemaPropBinding,
 	SourceSpec,
 } from "@cx/schema";
-import { getJsonSchema, RENDER_TREE_NODE_TYPE, RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
-import { isRecord } from "@cx/schema";
+import {
+	getJsonSchema,
+	isRecord,
+	RENDER_TREE_NODE_TYPE,
+	RENDER_TREE_NODE_TYPE_GROUPS,
+} from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type {
@@ -524,7 +528,16 @@ function collectMaterializationSourceRefs(sourceSpec: SourceSpec): string[] {
 				]),
 			),
 		),
-	].filter((ref): ref is string => Boolean(ref));
+	].filter(isMaterializableRef);
+}
+
+/**
+ * Structural order tokens (e.g. the "999" bottom-area sentinel or a "2"
+ * sequence number) are not visible content, so they must not be checked for
+ * output materialization — doing so produces phantom "ref not visible" noise.
+ */
+function isMaterializableRef(ref: string | undefined): ref is string {
+	return typeof ref === "string" && ref.length > 0 && !/^\d+$/.test(ref);
 }
 
 function validateStateCoverage(
@@ -658,14 +671,7 @@ function validateLayoutRef(
 }
 
 function findLayoutPatternComponentByLayoutId(layoutId: string) {
-	return findPattern(layoutPatternIdToPatternId(layoutId));
-}
-
-function layoutPatternIdToPatternId(id: string): string {
-	return id
-		.replace(/^layout\.(screen|region|area|composite)\./, "")
-		.replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-		.toLowerCase();
+	return getLayoutCatalogEntry(layoutId);
 }
 
 export function validateLayoutProps(input: unknown): ValidationReport {
@@ -726,7 +732,9 @@ function validateNode(
 		});
 	}
 
-	if (getComponentCatalogStatus(input.type) === "candidate") {
+	if (
+		getComponentCatalogStatus(canonicalizeComponentType(input.type) ?? input.type) === "candidate"
+	) {
 		addIssue(issues, {
 			code: "uses-candidate-component",
 			message: `Component '${input.type}' is a catalog candidate, not yet promoted to stable.`,
@@ -964,42 +972,61 @@ function validateDisplay(input: unknown, path: Path, issues: ValidationIssue[]) 
 	}
 }
 
-function validatePropsAgainstCatalog(
-	entry: ComponentCatalogEntry,
+// 컴포넌트 catalog·layout 노드 타입·layout 패턴이 공유하는 단일 prop-contract 모양.
+type PropTypeContract = {
+	type: string;
+	values?: readonly string[];
+	aiWritable?: boolean;
+	required?: boolean;
+};
+
+// external/layout 어느 catalog에서 왔든 prop 계약은 이 한 함수로 검증한다.
+function validatePropsAgainstContract(
+	label: string,
+	contract: Record<string, PropTypeContract>,
 	props: Record<string, unknown>,
 	path: Path,
 	issues: ValidationIssue[],
 ) {
-	for (const [propName, contract] of Object.entries(entry.props)) {
-		if (contract.required && !(propName in props)) {
+	for (const [propName, propContract] of Object.entries(contract)) {
+		if (propContract.required && !(propName in props)) {
 			addIssue(issues, {
 				code: "required-field-missing",
-				message: `${entry.type}.${propName} is required.`,
+				message: `${label}.${propName} is required.`,
 				path: [...path, propName],
 			});
 		}
 	}
 
 	for (const [propName, value] of Object.entries(props)) {
-		const contract = entry.props[propName];
-		if (!contract) {
+		const propContract = contract[propName];
+		if (!propContract) {
 			addIssue(issues, {
 				code: "unknown-prop",
-				message: `${entry.type}.${propName} is not declared in the component catalog.`,
+				message: `${label}.${propName} is not declared in the catalog.`,
 				path: [...path, propName],
 				severity: "warning",
 			});
 			continue;
 		}
 
-		validateComponentPropValue(entry, propName, contract, value, [...path, propName], issues);
+		validatePropValue(label, propName, propContract, value, [...path, propName], issues);
 	}
 }
 
-function validateComponentPropValue(
+function validatePropsAgainstCatalog(
 	entry: ComponentCatalogEntry,
+	props: Record<string, unknown>,
+	path: Path,
+	issues: ValidationIssue[],
+) {
+	validatePropsAgainstContract(entry.type, entry.props, props, path, issues);
+}
+
+function validatePropValue(
+	label: string,
 	propName: string,
-	contract: ComponentPropContract,
+	contract: PropTypeContract,
 	value: unknown,
 	path: Path,
 	issues: ValidationIssue[],
@@ -1007,7 +1034,7 @@ function validateComponentPropValue(
 	if (contract.aiWritable === false) {
 		addIssue(issues, {
 			code: "readonly-prop-written",
-			message: `${entry.type}.${propName} is not AI-writable.`,
+			message: `${label}.${propName} is not AI-writable.`,
 			path,
 		});
 	}
@@ -1017,10 +1044,11 @@ function validateComponentPropValue(
 		return;
 	}
 
-	if (!COMPONENT_PROP_TYPE_CHECKS[contract.type](value)) {
+	const check = COMPONENT_PROP_TYPE_CHECKS[contract.type as ComponentPropType];
+	if (check && !check(value)) {
 		addIssue(issues, {
 			code: "invalid-prop-type",
-			message: `${entry.type}.${propName} must be ${contract.type}.`,
+			message: `${label}.${propName} must be ${contract.type}.`,
 			path,
 		});
 		return;
@@ -1033,7 +1061,7 @@ function validateComponentPropValue(
 	) {
 		addIssue(issues, {
 			code: "invalid-enum-value",
-			message: `${entry.type}.${propName} must be one of: ${contract.values.join(", ")}.`,
+			message: `${label}.${propName} must be one of: ${contract.values.join(", ")}.`,
 			path,
 		});
 	}
@@ -1054,7 +1082,7 @@ function validateLayoutPropsForType(
 		return;
 	}
 
-	const contract = LAYOUT_PROP_CONTRACTS[type as keyof typeof LAYOUT_PROP_CONTRACTS];
+	const contract = getLayoutNodeTypeContract(type);
 	if (!contract) {
 		addIssue(issues, {
 			code: "invalid-layout-prop",
@@ -1064,69 +1092,17 @@ function validateLayoutPropsForType(
 		return;
 	}
 
-	for (const propName of contract.requiredProps) {
-		if (!(propName in props)) {
-			addIssue(issues, {
-				code: "required-field-missing",
-				message: `${type}.${propName} is required.`,
-				path: [...path, propName],
-			});
-		}
-	}
-
-	validateEnumProps(type, props, contract.enumProps, path, issues);
-	validateTypedProps(type, props, contract.numberProps, "number", path, issues);
-	validateTypedProps(type, props, contract.stringProps, "string", path, issues);
-	validateTypedProps(type, props, contract.booleanProps, "boolean", path, issues);
+	// 중첩 layout(Flex) prop은 구조 prop이라 catalog 계약 밖이다 → unknown-prop 제외 후 별도 검증.
+	const { layout: nestedLayout, ...declaredProps } = props;
+	validatePropsAgainstContract(type, contract, declaredProps, path, issues);
 
 	if ("layout" in props) {
 		validateLayoutPropsForType(
 			RENDER_TREE_NODE_TYPE.layoutFlex,
-			props.layout as Record<string, unknown>,
+			nestedLayout as Record<string, unknown>,
 			[...path, "layout"],
 			issues,
 		);
-	}
-}
-
-function validateEnumProps(
-	type: string,
-	props: Record<string, unknown>,
-	enumProps: Record<string, readonly string[]>,
-	path: Path,
-	issues: ValidationIssue[],
-) {
-	for (const [propName, values] of Object.entries(enumProps)) {
-		const value = props[propName];
-		if (value === undefined) continue;
-		if (typeof value !== "string" || !values.includes(value)) {
-			addIssue(issues, {
-				code: "invalid-enum-value",
-				message: `${type}.${propName} must be one of: ${values.join(", ")}.`,
-				path: [...path, propName],
-			});
-		}
-	}
-}
-
-function validateTypedProps(
-	type: string,
-	props: Record<string, unknown>,
-	propNames: readonly string[],
-	expectedType: "boolean" | "number" | "string",
-	path: Path,
-	issues: ValidationIssue[],
-) {
-	for (const propName of propNames) {
-		const value = props[propName];
-		if (value === undefined) continue;
-		if (typeof value !== expectedType || (expectedType === "number" && !Number.isFinite(value))) {
-			addIssue(issues, {
-				code: "invalid-layout-prop",
-				message: `${type}.${propName} must be a ${expectedType}.`,
-				path: [...path, propName],
-			});
-		}
 	}
 }
 
@@ -1200,8 +1176,8 @@ function findCatalogEntry(
 	catalog?: ComponentCatalog,
 ): ComponentCatalogEntry | undefined {
 	if (!catalog) return undefined;
-	if (catalog[type]) return catalog[type];
-	return Object.values(catalog).find((entry) => entry.aliases?.includes(type));
+	const canonicalType = canonicalizeComponentType(type, catalog);
+	return canonicalType ? catalog[canonicalType] : undefined;
 }
 
 function readProps(
@@ -1220,7 +1196,7 @@ function readProps(
 }
 
 function isLayoutType(type: string) {
-	return type in LAYOUT_PROP_CONTRACTS;
+	return isLayoutNodeType(type);
 }
 
 function isBindingCandidate(input: unknown): input is SchemaPropBinding {

@@ -2,6 +2,8 @@ import {
 	RENDER_TREE_NODE_TYPE,
 	type RenderTreeAreaNodeType,
 	type RenderTreeScreenRegionNodeType,
+	SCREEN_REGION_NODE_TYPE_BY_REGION_KEY,
+	type ScreenRegionKey,
 } from "@cx/schema";
 import type {
 	MaterializeDiagnostic,
@@ -35,14 +37,6 @@ export type MaterializeRenderComponentFromRowsInput = {
 	componentId: string;
 	rows: RenderReadModelRows;
 };
-
-type ScreenRegionRowType = "bottom" | "contents" | "header";
-
-const SCREEN_REGION_NODE_TYPE_BY_ROW_TYPE = {
-	bottom: RENDER_TREE_NODE_TYPE.screenBottom,
-	contents: RENDER_TREE_NODE_TYPE.screenContents,
-	header: RENDER_TREE_NODE_TYPE.screenHeader,
-} as const satisfies Record<ScreenRegionRowType, RenderTreeScreenRegionNodeType>;
 
 const AREA_NODE_TYPE_BY_ROW_TYPE = {
 	area_dynamic: RENDER_TREE_NODE_TYPE.areaDynamic,
@@ -169,7 +163,7 @@ function materializeHeaderRegion(
 	const region = readRegion("header", screen, screenRegions, diagnostics);
 	return {
 		...materializeRegionBase("header", screen, region, indexes, diagnostics),
-		type: SCREEN_REGION_NODE_TYPE_BY_ROW_TYPE.header,
+		type: SCREEN_REGION_NODE_TYPE_BY_REGION_KEY.header,
 	};
 }
 
@@ -182,7 +176,7 @@ function materializeContentsRegion(
 	const region = readRegion("contents", screen, screenRegions, diagnostics);
 	return {
 		...materializeRegionBase("contents", screen, region, indexes, diagnostics),
-		type: SCREEN_REGION_NODE_TYPE_BY_ROW_TYPE.contents,
+		type: SCREEN_REGION_NODE_TYPE_BY_REGION_KEY.contents,
 	};
 }
 
@@ -195,12 +189,12 @@ function materializeBottomRegion(
 	const region = readRegion("bottom", screen, screenRegions, diagnostics);
 	return {
 		...materializeRegionBase("bottom", screen, region, indexes, diagnostics),
-		type: SCREEN_REGION_NODE_TYPE_BY_ROW_TYPE.bottom,
+		type: SCREEN_REGION_NODE_TYPE_BY_REGION_KEY.bottom,
 	};
 }
 
 function readRegion(
-	type: ScreenRegionRowType,
+	type: ScreenRegionKey,
 	screen: RenderScreenRow,
 	screenRegions: RenderScreenRegionRow[],
 	diagnostics: MaterializeDiagnostic[],
@@ -227,7 +221,7 @@ function readRegion(
 }
 
 function materializeRegionBase(
-	type: ScreenRegionRowType,
+	type: ScreenRegionKey,
 	screen: RenderScreenRow,
 	region: RenderScreenRegionRow | undefined,
 	indexes: RowIndexes,
@@ -395,6 +389,6 @@ function readAreaNodeType(type: string): RenderTreeAreaNodeType {
 	return RENDER_TREE_NODE_TYPE.areaStatic;
 }
 
-function readRegionNodeType(type: ScreenRegionRowType): RenderTreeScreenRegionNodeType {
-	return SCREEN_REGION_NODE_TYPE_BY_ROW_TYPE[type];
+function readRegionNodeType(type: ScreenRegionKey): RenderTreeScreenRegionNodeType {
+	return SCREEN_REGION_NODE_TYPE_BY_REGION_KEY[type];
 }

@@ -1,8 +1,8 @@
 import { cx, spacingFallbackStyleValue, spacingUtilityClass } from "@cx/layout/style";
+import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
 import type { ReactNode } from "react";
 import { toNumber } from "../../tree/coerce";
 import type { RenderTreeNode } from "../../tree/types";
-import { NODE_TYPES } from "../../tree/types";
 import { renderErrorPolicyFallback } from "./error-policy";
 import { resolveHasData } from "./has-data";
 import { renderAreaChildren } from "./layout";
@@ -42,7 +42,7 @@ export function renderDynamicAreaNode({
 			key={node.metadata.id}
 			className={cx("flex w-full min-w-0 flex-col", spacingUtilityClass("gap", titleGap))}
 			style={{ gap: spacingFallbackStyleValue(titleGap) }}
-			data-area-kind={NODE_TYPES.area[1]}
+			data-area-kind={RENDER_TREE_NODE_TYPE.areaDynamic}
 		>
 			{renderAreaChildren(renderChildren(), areaProps)}
 		</section>

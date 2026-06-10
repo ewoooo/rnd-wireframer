@@ -13,7 +13,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { name: "Structural Area Name" },
 					children: [
 						{
-							type: "TitleSection",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "title-section", title: "Visible Section Title" },
 							props: { title: "Visible Section Title" },
@@ -38,7 +38,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "area-layout-structural", title: "Structural Layout Area Title" },
 					children: [
 						{
-							type: "TitleSection",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "layout-title-section", title: "Visible Layout Section Title" },
 							props: { title: "Visible Layout Section Title" },
@@ -66,9 +66,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 8 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "child-1", title: "Child 1" },
+							props: { title: "Child 1" },
 						},
 					],
 				}}
@@ -88,85 +89,28 @@ describe("@cx/renderer layout pattern rendering", () => {
 		render(
 			<RenderNodeView
 				node={{
-					type: "Radio",
+					type: "kiki.Radio",
 					componentVersion: "0.1.0",
 					metadata: { id: "radio-1", title: "휴대폰 본인인증" },
-					props: { checked: true },
+					props: { checked: true, label: "휴대폰 본인인증" },
 				}}
 			/>,
 		);
 
 		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
-	});
-
-	it("renders a RadioGroup node as one selectable row per option", () => {
-		render(
-			<RenderNodeView
-				node={{
-					type: "RadioGroup",
-					componentVersion: "0.1.0",
-					metadata: { id: "rg-1", title: "인증수단" },
-					props: {
-						options: ["휴대폰 본인인증", "PASS", "공동인증서"],
-						selectedValue: "휴대폰 본인인증",
-					},
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
-		expect(screen.getByText("PASS")).toBeInTheDocument();
-		expect(screen.getByText("공동인증서")).toBeInTheDocument();
-	});
-
-	it("renders RadioGroup options given as {value,label} objects", () => {
-		render(
-			<RenderNodeView
-				node={{
-					type: "RadioGroup",
-					componentVersion: "0.1.0",
-					metadata: { id: "rg-2", title: "인증수단" },
-					props: {
-						options: [
-							{ value: "phone", label: "휴대폰 본인인증" },
-							{ value: "pass", label: "PASS" },
-						],
-						selectedValue: "phone",
-					},
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("휴대폰 본인인증")).toBeInTheDocument();
-		expect(screen.getByText("PASS")).toBeInTheDocument();
-	});
-
-	it("renders a TextField field-side button from button/buttonLabel props", () => {
-		render(
-			<RenderNodeView
-				node={{
-					type: "TextField",
-					componentVersion: "0.1.0",
-					metadata: { id: "tf-1", title: "인증번호" },
-					props: { button: true, buttonLabel: "인증번호 요청", placeholder: "숫자만 입력" },
-				}}
-			/>,
-		);
-
-		expect(screen.getByText("인증번호 요청")).toBeInTheDocument();
 	});
 
 	it("drops AI-written readonly props (rightElement object) without crashing", () => {
 		render(
 			<RenderNodeView
 				node={{
-					type: "TextField",
+					type: "kiki.TextField",
 					componentVersion: "0.1.0",
 					metadata: { id: "tf-2", title: "휴대폰번호" },
 					props: {
 						placeholder: "숫자만 입력",
 						rightElement: {
-							type: "Button",
+							type: "kiki.Button",
 							componentVersion: "0.1.0",
 							metadata: { id: "btn", title: "인증요청" },
 							props: { label: "인증요청" },
@@ -191,9 +135,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "list-area", title: "List area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "list-child", title: "List child" },
+								props: { title: "List child" },
 							},
 						],
 					}}
@@ -206,9 +151,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "field-area", title: "Field area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "field-child", title: "Field child" },
+								props: { title: "Field child" },
 							},
 						],
 					}}
@@ -221,9 +167,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "checkbox-area", title: "Checkbox area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "checkbox-child", title: "Checkbox child" },
+								props: { title: "Checkbox child" },
 							},
 						],
 					}}
@@ -236,9 +183,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "accordion-area", title: "Accordion area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "accordion-child", title: "Accordion child" },
+								props: { title: "Accordion child" },
 							},
 						],
 					}}
@@ -251,9 +199,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 						metadata: { id: "message-area", title: "Message area" },
 						children: [
 							{
-								type: "SectionHeader",
+								type: "kiki.TitleSection",
 								componentVersion: "0.1.0",
 								metadata: { id: "message-child", title: "Message child" },
+								props: { title: "Message child" },
 							},
 						],
 					}}
@@ -290,9 +239,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "legacy-field-child", title: "Legacy field child" },
+							props: { title: "Legacy field child" },
 						},
 					],
 				}}
@@ -319,9 +269,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { height: 44 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "search-child", title: "Search child" },
+							props: { title: "Search child" },
 						},
 					],
 				}}
@@ -339,7 +290,7 @@ describe("@cx/renderer layout pattern rendering", () => {
 		render(
 			<RenderNodeView
 				node={{
-					type: "AppBar",
+					type: "kiki.AppBar",
 					componentVersion: "1.0.0",
 					layout: "layout.composite.componentAppBar",
 					metadata: { id: "appbar-leaf", title: "App bar" },
@@ -376,9 +327,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 							metadata: { id: "screen.contents", title: "Contents" },
 							children: [
 								{
-									type: "SectionHeader",
+									type: "kiki.TitleSection",
 									componentVersion: "0.1.0",
 									metadata: { id: "contents-child", title: "Contents child" },
+									props: { title: "Contents child" },
 								},
 							],
 						},
@@ -416,9 +368,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 								metadata: { id: "screen.contents", title: "Contents" },
 								children: [
 									{
-										type: "SectionHeader",
+										type: "kiki.TitleSection",
 										componentVersion: "0.1.0",
 										metadata: { id: "contents-child", title: "Contents child" },
+										props: { title: "Contents child" },
 									},
 								],
 							},
@@ -485,9 +438,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { paddingY: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "bottom-child", title: "Bottom child" },
+							props: { title: "Bottom child" },
 						},
 					],
 				}}
@@ -512,11 +466,11 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: {},
 					children: [
 						{
-							type: "ActionButton",
+							type: "kiki.Button",
 							componentVersion: "0.1.0",
 							layout: "layout.composite.componentActionButton",
 							metadata: { id: "confirm-action", title: "Confirm action" },
-							props: { label: "인증 확인", size: "xlarge", variant: "primary" },
+							props: { children: "인증 확인", size: "xlarge", variant: "primary" },
 						},
 					],
 				}}
@@ -543,9 +497,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { columns: 2, gap: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "option-child", title: "Option child" },
+							props: { title: "Option child" },
 						},
 					],
 				}}
@@ -571,9 +526,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 10 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "card-child", title: "Card child" },
+							props: { title: "Card child" },
 						},
 					],
 				}}
@@ -599,9 +555,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 14 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "row-card-child", title: "Row card child" },
+							props: { title: "Row card child" },
 						},
 					],
 				}}
@@ -627,9 +584,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 6 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "text-row-child", title: "Text row child" },
+							props: { title: "Text row child" },
 						},
 					],
 				}}
@@ -656,9 +614,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 20 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "product-info-child", title: "Product info child" },
+							props: { title: "Product info child" },
 						},
 					],
 				}}
@@ -683,19 +642,22 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-3", title: "Price row 3" },
+							props: { title: "Price row 3" },
 						},
 					],
 				}}
@@ -720,14 +682,16 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "none" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -746,14 +710,16 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "section" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -774,14 +740,16 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
+							props: { title: "Price row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
+							props: { title: "Price row 2" },
 						},
 					],
 				}}
@@ -805,9 +773,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "section" },
 					children: [
 						{
-							type: "ListText",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "terms-row-1", title: "약관 1" },
+							props: { title: "약관 1" },
 						},
 					],
 				}}
@@ -829,9 +798,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "terms-list-2", title: "약관 목록" },
 					children: [
 						{
-							type: "ListText",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "terms-row-a", title: "약관 1" },
+							props: { title: "약관 1" },
 						},
 					],
 				}}
@@ -851,14 +821,16 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "list-stack", title: "List stack" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-1", title: "List row 1" },
+							props: { title: "List row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "list-row-2", title: "List row 2" },
+							props: { title: "List row 2" },
 						},
 					],
 				}}
@@ -880,14 +852,16 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-1", title: "Accordion row 1" },
+							props: { title: "Accordion row 1" },
 						},
 						{
-							type: "SectionHeader",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-2", title: "Accordion row 2" },
+							props: { title: "Accordion row 2" },
 						},
 					],
 				}}
@@ -896,6 +870,86 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(screen.getAllByRole("separator")).toHaveLength(1);
 		expect(getPageStackItems(screen.getByText("Accordion row 1")).children).toHaveLength(3);
+	});
+
+	it("does not insert contents dividers around heading rows (TitleSection exempt)", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.list",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "headed-list", title: "Headed list" },
+					props: { divider: "contents" },
+					children: [
+						{
+							type: "kiki.TitleSection",
+							componentVersion: "0.1.0",
+							layout: "layout.composite.componentTitleSection",
+							metadata: { id: "headed-title", title: "Headed title" },
+							props: { title: "Headed title" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "headed-row-1", title: "Headed row 1" },
+							props: { title: "Headed row 1" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "headed-row-2", title: "Headed row 2" },
+							props: { title: "Headed row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		// 제목 바로 아래 경계는 미삽입 — 행(ListText) 사이 1개만 남는다.
+		expect(screen.getAllByRole("separator")).toHaveLength(1);
+		expect(getPageStackItems(screen.getByText("Headed row 1")).children).toHaveLength(4);
+	});
+
+	it("renders selection-list row boundaries as shared contents dividers (no border-t)", () => {
+		const { container } = render(
+			<RenderNodeView
+				node={{
+					type: "area.static",
+					componentVersion: "0.1.0",
+					metadata: { id: "selection-area", title: "Selection area" },
+					props: { listPresentation: "selection-list" },
+					children: [
+						{
+							type: "kiki.TitleSection",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-title", title: "Selection title" },
+							props: { title: "Selection title" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-row-1", title: "Selection row 1" },
+							props: { title: "Selection row 1" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-row-2", title: "Selection row 2" },
+							props: { title: "Selection row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const dividers = screen.getAllByRole("separator");
+		expect(dividers).toHaveLength(1);
+		expect(dividers[0].className).toContain("contents");
+		expect(
+			container.querySelector("[data-area-list-presentation='selection-list']"),
+		).not.toBeNull();
+		expect(container.querySelector(".border-t")).toBeNull();
 	});
 
 	it("maps commerce detail padding aliases onto primitive layout props", () => {
@@ -915,9 +969,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					},
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "hero-child", title: "Hero child" },
+							props: { title: "Hero child" },
 						},
 					],
 				}}
@@ -947,9 +1002,10 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { gap: 12 },
 					children: [
 						{
-							type: "SectionHeader",
+							type: "kiki.TitleSection",
 							componentVersion: "0.1.0",
 							metadata: { id: "auth-method-child", title: "Auth method child" },
+							props: { title: "Auth method child" },
 						},
 					],
 				}}

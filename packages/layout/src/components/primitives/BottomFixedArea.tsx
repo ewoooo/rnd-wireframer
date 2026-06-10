@@ -12,24 +12,20 @@ export function BottomFixedArea({
 	as = "section",
 	children,
 	gap = 10,
-	paddingX = 12,
 	paddingBottom,
 	paddingTop,
-	paddingY = 10,
 	safeArea = false,
 	style,
 	...props
 }: BottomFixedAreaProps) {
 	const hasAsymmetricPadding = paddingTop !== undefined || paddingBottom !== undefined;
-	const resolvedPaddingTop = paddingTop ?? paddingY;
-	const resolvedPaddingBottom = paddingBottom ?? paddingY;
+	const resolvedPaddingTop = paddingTop ?? 0;
+	const resolvedPaddingBottom = paddingBottom ?? 0;
 
 	return (
 		<VStack
 			as={as}
 			gap={gap}
-			paddingX={paddingX}
-			paddingY={hasAsymmetricPadding ? undefined : paddingY}
 			style={{
 				bottom: 0,
 				paddingBottom: formatBottomPadding(resolvedPaddingBottom, safeArea),

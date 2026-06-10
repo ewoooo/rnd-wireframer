@@ -1,0 +1,27 @@
+{
+  "source": {
+    "id": "kiki",
+    "repo": "https://github.com/sovorovvang-cyber/kiki.git",
+    "ref": "main"
+  },
+  "sha": "local",
+  "syncedAt": "2026-06-08T01:56:43.965Z",
+  "barrelExports": [
+    "AppBar",
+    "Badge",
+    "BottomNavItem",
+    "BottomNavigation",
+    "Button",
+    "Callout",
+    "Chip",
+    "Divider",
+    "InfoTextList",
+    "ListSelected",
+    "ListText",
+    "ListTextTable",
+    "Tab",
+    "TabItem",
+    "TextField"
+  ],
+  "fileCount": 437
+}

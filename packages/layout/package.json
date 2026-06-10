@@ -5,18 +5,18 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./catalog": "./src/public/catalog.ts",
-		"./chrome": "./src/public/chrome.ts",
-		"./components": "./src/public/components.ts",
-		"./contract": "./src/public/contract.ts",
-		"./mutations": "./src/public/mutations.ts",
-		"./primitives": "./src/public/primitives.ts",
-		"./resolver": "./src/public/resolver.ts",
-		"./style": "./src/public/style.ts",
-		"./types": "./src/public/types.ts"
+		"./catalog": "./src/catalog.generated.ts",
+		"./registry": "./src/registry.generated.ts",
+		"./resolver": "./src/resolver.ts",
+		"./canonicalize": "./src/canonicalize-catalog.ts",
+		"./primitive-target": "./src/primitive-target.ts",
+		"./primitives": "./src/components/primitives/index.ts",
+		"./chrome": "./src/components/chromes/index.ts",
+		"./style": "./src/internal/style.ts",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"zod": "^4.4.3"
 	},

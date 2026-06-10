@@ -1,6 +1,5 @@
-import { componentCatalog } from "@cx/components/catalog";
-import type { ComponentCatalog } from "@cx/components/types";
-import type { SourceSpec } from "@cx/schema";
+import { componentCatalog } from "@cx/external/resolver";
+import type { ComponentCatalog, SourceSpec } from "@cx/schema";
 import {
 	validateAgentResult,
 	validateComponentProposal,
@@ -16,7 +15,8 @@ import { describe, expect, it } from "vitest";
 const testCatalog = {
 	ActionButton: {
 		type: "ActionButton",
-		source: "react-component",
+		source: "kiki-barrel",
+		label: "ActionButton",
 		version: "1.0.0",
 		kind: "action",
 		props: {
@@ -38,7 +38,7 @@ describe("@cx/validation validators", () => {
 					type: "Screen",
 					componentVersion: "0.1.0",
 					metadata: { id: "screen", title: "Screen" },
-					layout: "layout.screen.screenShell",
+					layout: "layout.screen.mobileScreen",
 					children: [
 						screenRegion("Screen.Header", "header"),
 						{
@@ -48,10 +48,11 @@ describe("@cx/validation validators", () => {
 							props: { layout: { direction: "column", gap: 12 }, scroll: true },
 							children: [
 								{
-									type: "RadioGroup",
+									type: "kiki.ActionButton",
 									componentVersion: "1.0.0",
-									metadata: { id: "auth-method", title: "인증수단" },
-									props: { options: ["휴대폰 본인인증", "PASS"], selectedValue: "휴대폰 본인인증" },
+									metadata: { id: "auth-method", title: "candidate-cta" },
+									layout: "layout.composite.componentActionButton",
+									props: { text: "candidate", left: 0 },
 								},
 							],
 						},
@@ -120,7 +121,7 @@ describe("@cx/validation validators", () => {
 			primaryUserAction: "x",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "x",
 			sections: [
 				{
@@ -153,6 +154,60 @@ describe("@cx/validation validators", () => {
 			code: "unknown-component-type",
 			severity: "error",
 		});
+	});
+
+	it("canonicalizes bare node types to kiki. catalog keys for prop-level validation", () => {
+		// validRenderTree의 leaf는 bare "ActionButton" + props { label, variant } —
+		// 실제 카탈로그(kiki.ActionButton)로 캐논화되어 prop 단위 검증이 수행된다.
+		const report = validateRenderTree(validRenderTree(), { componentCatalog });
+
+		// canRenderNodeType 통과: bare type이라도 unknown-component-type이 아니다.
+		expect(report.issues.some((issue) => issue.code === "unknown-component-type")).toBe(false);
+
+		const leafPropsPath = ["children", 0, "children", 1, "children", 0, "props"];
+		// 계약에 없는 prop은 unknown-prop 경고.
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: [...leafPropsPath, "label"],
+				severity: "warning",
+			}),
+		);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: [...leafPropsPath, "variant"],
+				severity: "warning",
+			}),
+		);
+		// 계약 required(text, left) 누락은 에러.
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "required-field-missing",
+				path: [...leafPropsPath, "text"],
+				severity: "error",
+			}),
+		);
+	});
+
+	it("canonicalizes bare types against an injected kiki.-keyed catalog", () => {
+		const kikiCatalog = {
+			"kiki.ActionButton": { ...testCatalog.ActionButton, type: "kiki.ActionButton" },
+		} satisfies ComponentCatalog;
+
+		const report = validateComponentUsage(
+			{ type: "ActionButton", props: { label: "가입하기", trackingId: "cta-1" } },
+			{ componentCatalog: kikiCatalog },
+		);
+
+		expect(report.issues.some((issue) => issue.code === "unknown-component-type")).toBe(false);
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "unknown-prop",
+				path: ["props", "trackingId"],
+				severity: "warning",
+			}),
+		);
 	});
 
 	it("reports missing required props as errors", () => {
@@ -253,14 +308,19 @@ describe("@cx/validation validators", () => {
 	it("accepts a valid RenderTree", () => {
 		const report = validateRenderTree(validRenderTree(), { componentCatalog: testCatalog });
 
+		// bare "ActionButton"이 전역 카탈로그의 kiki.ActionButton(draft)으로 캐논화되어
+		// candidate 경고 1건이 의도적으로 표면화된다 (오류는 0).
 		expect(report).toMatchObject({
 			ok: true,
 			summary: {
 				errorCount: 0,
-				warningCount: 0,
+				warningCount: 1,
 			},
 			target: "render-tree",
 		});
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({ code: "uses-candidate-component", severity: "warning" }),
+		);
 	});
 
 	it("accepts RenderTree nodes with registered layout pattern ids", () => {
@@ -456,7 +516,7 @@ describe("@cx/validation validators", () => {
 		);
 		expect(report.issues).toContainEqual(
 			expect.objectContaining({
-				code: "invalid-layout-prop",
+				code: "invalid-prop-type",
 				path: ["props", "gap"],
 			}),
 		);
@@ -537,7 +597,7 @@ it("validates composition plan source refs against SourceSpec", () => {
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -575,7 +635,7 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -604,7 +664,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 			primaryUserAction: "continue",
 			rejectedPatterns: [],
 			schemaVersion: "composition-plan.v0.1",
-			screenLayout: "layout.screen.commerceDetailScreen",
+			screenLayout: "layout.screen.mobileScreen",
 			sectionRhythm: "Single content section with no extra divider cadence.",
 			sections: [
 				{
@@ -635,7 +695,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 
 it("warns when RenderTree layout refs are outside pattern candidates", () => {
 	const report = validateRenderTree(validRenderTree(), {
-		allowedLayoutIds: ["layout.screen.screenShell", "layout.region.header"],
+		allowedLayoutIds: ["layout.screen.mobileScreen", "layout.region.header"],
 		componentCatalog: testCatalog,
 	});
 
@@ -662,6 +722,21 @@ it("warns when SourceSpec refs are not visible in a generated RenderTree", () =>
 			severity: "warning",
 		}),
 	);
+});
+
+it("does not warn for purely numeric source refs (structural order sentinels)", () => {
+	const sourceSpec = validSourceSpec();
+	sourceSpec.sourceShape.screen.regions[0].children[0].sourceAreaId = "999";
+
+	const report = validateRenderTree(validRenderTree(), {
+		componentCatalog: testCatalog,
+		sourceSpec,
+	});
+
+	const notMaterialized = report.issues.filter(
+		(issue) => issue.code === "source-ref-not-materialized",
+	);
+	expect(notMaterialized.some((issue) => issue.message.includes("999"))).toBe(false);
 });
 
 it("warns when stateful source surfaces have no state coverage", () => {
@@ -691,7 +766,7 @@ function validRenderTree() {
 				type: "Screen",
 				componentVersion: "0.1.0",
 				metadata: { id: "screen", title: "Screen" },
-				layout: "layout.screen.screenShell",
+				layout: "layout.screen.mobileScreen",
 				children: [
 					screenRegion("Screen.Header", "header"),
 					{
@@ -741,7 +816,7 @@ function finalScreenRenderTreeExample() {
 					id: "NOVA-MBR-FP-001-0",
 					title: "약관 동의",
 				},
-				layout: "layout.screen.screenShell",
+				layout: "layout.screen.mobileScreen",
 				children: [
 					{
 						type: "Screen.Header",
@@ -753,7 +828,7 @@ function finalScreenRenderTreeExample() {
 						},
 						children: [
 							{
-								type: "AppBar",
+								type: "kiki.AppBar",
 								componentVersion: "1.0.0",
 								metadata: {
 									id: "mbr-appbar-nova-mbr-fp-001-0",
@@ -788,16 +863,16 @@ function finalScreenRenderTreeExample() {
 								props: { name: "약관 목록 조회" },
 								children: [
 									{
-										type: "list-cell",
+										type: "kiki.ListText",
 										componentVersion: "1.0.0",
 										metadata: {
-											id: "list-cell-term-required",
-											title: "list-cell-term-required",
+											id: "list-text-term-required",
+											title: "list-text-term-required",
 										},
-										layout: "layout.composite.componentListCell",
+										layout: "layout.composite.componentListText",
 										props: {
 											title: "[필수] 서비스 이용약관 동의",
-											description: "회원 가입을 위해 반드시 동의가 필요합니다.",
+											subText: "회원 가입을 위해 반드시 동의가 필요합니다.",
 										},
 									},
 								],
@@ -897,7 +972,7 @@ function validTableGenerationResult() {
 			version: "0.1.0",
 			metadata: { title: "Screen 1" },
 			screenVariantId: "screen-1",
-			layout: "layout.screen.commerceDetailScreen",
+			layout: "layout.screen.mobileScreen",
 			screen: {
 				type: "screen.page",
 				regions: {

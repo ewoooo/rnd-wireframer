@@ -1,0 +1,260 @@
+{
+  "version": "render-tree.v0.1",
+  "metadata": {
+    "id": "screen.failReasonRecover",
+    "description": "담기 실패 사유 진단 및 복구 진입 화면"
+  },
+  "children": [
+    {
+      "type": "Screen",
+      "componentVersion": "1.0.0",
+      "layout": "layout.screen.screenShell",
+      "metadata": {
+        "id": "screen.root",
+        "title": "담기 실패 사유 안내"
+      },
+      "children": [
+        {
+          "type": "Screen.Header",
+          "componentVersion": "1.0.0",
+          "layout": "layout.region.header",
+          "metadata": {
+            "id": "region.header",
+            "title": "헤더"
+          },
+          "children": [
+            {
+              "type": "area.static",
+              "componentVersion": "1.0.0",
+              "layout": "layout.area.areaAppBar",
+              "metadata": {
+                "id": "area.header.appbar",
+                "title": "앱바 영역"
+              },
+              "children": [
+                {
+                  "type": "AppBar",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentAppBar",
+                  "metadata": {
+                    "id": "cmp.appbar",
+                    "title": "앱바",
+                    "description": "AppBarHeader: 화면 식별 및 뒤로가기"
+                  },
+                  "props": {
+                    "title": {
+                      "bind": "screen.title",
+                      "default": "담기 실패"
+                    },
+                    "showBack": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Screen.Contents",
+          "componentVersion": "1.0.0",
+          "layout": "layout.region.contents",
+          "metadata": {
+            "id": "region.contents",
+            "title": "콘텐츠"
+          },
+          "children": [
+            {
+              "type": "area.dynamic",
+              "componentVersion": "1.0.0",
+              "layout": "layout.area.areaVertical",
+              "metadata": {
+                "id": "area.feedback",
+                "title": "실패 사유 안내 영역",
+                "description": "errorPolicy=영역 전체 숨김"
+              },
+              "display": {
+                "when": {
+                  "bind": "failReason.visible",
+                  "default": true
+                },
+                "stateRole": "base"
+              },
+              "children": [
+                {
+                  "type": "TitleSection",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentTitleSection",
+                  "metadata": {
+                    "id": "cmp.title.failReason",
+                    "title": "실패 사유 섹션 제목"
+                  },
+                  "props": {
+                    "title": {
+                      "bind": "failReason.sectionTitle",
+                      "default": "담기 실패 사유"
+                    }
+                  }
+                },
+                {
+                  "type": "Callout",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentSectionMessage",
+                  "metadata": {
+                    "id": "cmp.callout.failReason",
+                    "title": "실패 축/해결 방법 Callout",
+                    "description": "CalloutFailReason"
+                  },
+                  "props": {
+                    "title": {
+                      "bind": "failReason.title",
+                      "default": "선택하신 조합으로는 담을 수 없어요"
+                    },
+                    "children": {
+                      "bind": "failReason.body",
+                      "default": "{실패축} 사유로 담기가 어려워요. 해결 방법을 확인해 주세요."
+                    }
+                  }
+                },
+                {
+                  "type": "TextButton",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentTextButton",
+                  "metadata": {
+                    "id": "cmp.textbtn.viewLater",
+                    "title": "나중에 다시 보기",
+                    "description": "TextButtonViewLater: 안전 이탈 보조 행동"
+                  },
+                  "props": {
+                    "label": "나중에 다시 보기",
+                    "underline": true
+                  }
+                }
+              ]
+            },
+            {
+              "type": "area.dynamic",
+              "componentVersion": "1.0.0",
+              "layout": "layout.area.listStack",
+              "metadata": {
+                "id": "area.comboResult",
+                "title": "검증 결과 리스트 영역",
+                "description": "minCount=0일 때 영역 숨김"
+              },
+              "display": {
+                "when": {
+                  "bind": "comboResult.hasItems",
+                  "default": true
+                },
+                "stateRole": "base"
+              },
+              "props": {
+                "divider": "contents"
+              },
+              "children": [
+                {
+                  "type": "TitleSection",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentTitleSection",
+                  "metadata": {
+                    "id": "cmp.title.comboResult",
+                    "title": "검증 결과 섹션 제목"
+                  },
+                  "props": {
+                    "title": {
+                      "bind": "comboResult.sectionTitle",
+                      "default": "선택 조합 검증 결과"
+                    }
+                  }
+                },
+                {
+                  "type": "ListText",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentListText",
+                  "metadata": {
+                    "id": "cmp.listtext.duplicate",
+                    "title": "중복가입 가능여부",
+                    "description": "ListTextDuplicateCheck"
+                  },
+                  "props": {
+                    "table": "firstTitle",
+                    "title": "중복가입 가능여부",
+                    "subText": {
+                      "bind": "duplicate.result",
+                      "default": "확인 중"
+                    }
+                  }
+                },
+                {
+                  "type": "ListSelected",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentListCell",
+                  "metadata": {
+                    "id": "cmp.listselected.groupProduct",
+                    "title": "그룹상품 선택",
+                    "description": "ListSelectedGroupProduct (radio)"
+                  },
+                  "props": {
+                    "type": "radio",
+                    "label": {
+                      "bind": "groupProduct.name",
+                      "default": "{그룹상품명}"
+                    },
+                    "checked": {
+                      "bind": "groupProduct.checked",
+                      "default": false
+                    },
+                    "showPrice": false,
+                    "showButton": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Screen.Bottom",
+          "componentVersion": "1.0.0",
+          "layout": "layout.region.bottom",
+          "metadata": {
+            "id": "region.bottom",
+            "title": "하단"
+          },
+          "children": [
+            {
+              "type": "area.static",
+              "componentVersion": "1.0.0",
+              "layout": "layout.area.bottomActionArea",
+              "metadata": {
+                "id": "area.bottom.cta",
+                "title": "하단 액션 영역"
+              },
+              "children": [
+                {
+                  "type": "ActionButton",
+                  "componentVersion": "1.0.0",
+                  "layout": "layout.composite.componentActionButton",
+                  "metadata": {
+                    "id": "cmp.action.recover",
+                    "title": "계속하기",
+                    "description": "ActionButtonRecover: 복구 흐름 진입 CTA"
+                  },
+                  "props": {
+                    "type": "Default",
+                    "button": "1",
+                    "primaryText": "계속하기"
+                  },
+                  "display": {
+                    "when": {
+                      "bind": "recover.enabled",
+                      "default": true
+                    },
+                    "stateRole": "base"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

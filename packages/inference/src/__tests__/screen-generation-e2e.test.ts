@@ -32,7 +32,7 @@ const validRenderTree = {
 		{
 			type: "Screen",
 			componentVersion: "0.1.0",
-			layout: "layout.screen.screenShell",
+			layout: "layout.screen.mobileScreen",
 			metadata: { id: "T", title: "Screen" },
 			children: [
 				{

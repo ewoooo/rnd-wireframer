@@ -1,3 +1,4 @@
+import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
 import type { ReactNode } from "react";
 import { renderDynamicAreaNode, renderStaticAreaNode } from "../nodes/area";
 import type { RenderTreeNode } from "../tree/types";
@@ -13,7 +14,7 @@ export function resolveArea({
 	props: Record<string, unknown>;
 	renderChildren: () => ReactNode;
 }): ReactNode | undefined {
-	if (node.type === "area.static") {
+	if (node.type === RENDER_TREE_NODE_TYPE.areaStatic) {
 		return renderStaticAreaNode({
 			node,
 			props,
@@ -21,7 +22,7 @@ export function resolveArea({
 		});
 	}
 
-	if (node.type === "area.dynamic") {
+	if (node.type === RENDER_TREE_NODE_TYPE.areaDynamic) {
 		return renderDynamicAreaNode({
 			data,
 			node,

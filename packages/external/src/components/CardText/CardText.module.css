@@ -1,0 +1,48 @@
+/* Figma: .CardText */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 93px;
+}
+
+.category {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.4;
+  color: rgba(6, 12, 31, 0.60);
+}
+
+.name {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.4;
+  color: #05001A;
+}
+
+.badgeList {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 3px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 17px;
+  padding: 2px 6px;
+  background: #F4F5FA;
+  border-radius: 4px;
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: rgba(6, 12, 31, 0.60);
+}

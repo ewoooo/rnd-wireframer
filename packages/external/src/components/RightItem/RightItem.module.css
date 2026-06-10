@@ -1,0 +1,37 @@
+/* Figma: .RightItem */
+.text {
+  font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.4;
+  color: rgba(6, 12, 31, 0.60);
+}
+
+.textBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.badgeLevel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

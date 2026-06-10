@@ -18,7 +18,7 @@ Next.js
 @cx/agent / @cx/renderer
   |
   v
-@cx/layout / @cx/components / @cx/tokens
+@cx/layout / @cx/external / @cx/tokens
 
 후속 연결:
 Next.js API routes
@@ -35,8 +35,8 @@ Next.js API routes
 | Next.js | 사용자 흐름, 화면 조회, 생성 요청, `@cx/renderer` 기반 모바일 미리보기, Puck 기반 Screen/OGN 편집 |
 | `@cx/schema` | SourceSpec, RenderTree, validation report 같은 저장/전달 DTO와 JSON schema 계약 |
 | `@cx/tokens` | 색상, 타이포그래피, radius, spacing token SSOT와 Tailwind v4 `@theme` generated CSS |
-| `@cx/components` | GitHub `ewoooo/cx-components` 기반의 모바일 미리보기와 Puck preview 기초 UI 컴포넌트 어휘 |
-| `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive, layout catalog/resolver |
+| `@cx/external` | kiki vendored 모바일 미리보기/Puck preview UI 컴포넌트 어휘, 자동생성 catalog(`kiki.X`)/registry, resolver 읽기 API |
+| `@cx/layout` | 기존 `cx-layout`을 흡수한 화면 chrome, rail, section, overlay layout primitive, 자동생성 layout catalog/registry, resolver 읽기 API |
 | `@cx/renderer` | SDUI renderer에서 흡수한 schema, binding, registry, validation, `tablesToRenderTree` projection, React 렌더링 패키지 |
 | `@cx/agent` | screen/area/component read model 등록, decorator, database table import, AI 실행 전후 deterministic 처리 |
 | Puck | 생성된 Screen composition과 OGN 내부 컴포넌트를 제한된 구조/prop 단위로 후편집 |
@@ -73,7 +73,7 @@ apps/
       agent/
 packages/
   token/
-  component/
+  external/
   layout/
   renderer/
   agent/
@@ -84,7 +84,7 @@ docs/
   design/
 ```
 
-`packages/component`는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 기준 컴포넌트 라이브러리로 흡수한 `@cx/components` 패키지다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `@cx/components/tailwind.css`는 호환용으로 `@cx/tokens/tailwind.css`를 import한다. 현재 앱은 component token variables를 위해 `@cx/components/styles.css`를 import하고, `@cx/layout`은 별도 `styles.css` export 없이 Tailwind class와 runtime fallback만 공개한다. JavaScript config export는 운영하지 않는다. `packages/layout`은 기존 `cx-layout`의 화면 chrome, primitive, layout pattern component, layout catalog/resolver를 흡수한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. Layout catalog 타입과 runtime schema는 `@cx/layout` 내부 공개 API가 관리한다. `packages/renderer`는 RenderTree DTO를 해석해 `@cx/layout` chrome/primitive/layout pattern component와 `@cx/components` leaf component로 렌더링한다. Renderer는 `@cx/layout` 공개 subpath만 소비하고 layout catalog 내부 JSON을 직접 import하지 않는다.
+`packages/external`은 kiki(`github.com/sovorovvang-cyber/kiki`) 원본 컴포넌트를 vendoring 해 컴포넌트 SSOT(구현 + 자동생성 `catalog.generated`(`kiki.X`) + `registry.generated` + `resolver` + `canonicalize`)를 소유한 `@cx/external` 패키지다. catalog 계약 타입은 `@cx/schema`(`component-catalog.ts`)가 소유한다. Tailwind v4 `@theme`로 `--skt-spacing-*` 토큰을 spacing utility에 매핑하는 generated CSS는 `packages/token/src/generated/tailwind-theme.css`에 둔다. `--skt-component-*` component token alias는 `@cx/external` 내부 token CSS가 소유한다. (kiki 라이브러리 빌드 통합 SHIM — 이미지 로더/팔레트/store 머지 등 — 은 후속 작업으로 남아 있다.) `packages/layout`은 `@cx/external`과 동일한 external-thin 스캐폴딩(자동생성 `catalog.generated`/`registry.generated` + 손작성 `catalog.alias` + `resolver` + `canonicalize`)으로 화면 chrome, primitive, layout pattern component를 소유한 `@cx/layout` 패키지로 둔다. `@cx/layout` 컴포넌트의 spacing prop은 Tailwind v4 `@theme` spacing key인 `cx-*` utility class로 우선 매핑하고, 런타임 값이 필요한 높이, z-index, grid template, 미등록 spacing만 inline fallback으로 둔다. Layout catalog 값은 자동생성 `catalog.generated`가, 계약 타입과 node-type 계약은 resolver(`getLayoutNodeTypeContract`)가 노출한다. `packages/renderer`는 RenderTree DTO를 해석해 `@cx/layout`/`@cx/external`의 `registry` + `canonicalize`로 컴포넌트를 직접 해석하고, chrome/primitive로 렌더링한다. Renderer는 `catalog.generated`를 직접 import하지 않고 resolver/registry 두 관문만 소비한다.
 
 `packages/agent/src`는 Claude Agent SDK 실행 adapter, task catalog, prompt/skill catalog resolver만 소유한다. Register/compose/decorate/materialize 같은 과거 생성 단계는 활성 패키지 책임으로 두지 않는다. 생성 파이프라인 실행과 artifact 저장은 `@cx/inference`가 소유하고, prompt/checklist/output 규칙 정본은 `packages/agent/docs/`에 둔다.
 
@@ -115,7 +115,7 @@ apps/web/
     server/
 ```
 
-`apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/`, `server/` 책임 디렉토리로 나눈다. `src/app/api/**/route.ts`는 HTTP request/response glue만 담당하고, 파일 시스템 접근과 Agent SDK/Claude orchestration은 `src/server/**`에 둔다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/components`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
+`apps/web`은 단일 제품 앱이므로 `features/`, `widgets/`, 제품명 하위 namespace를 두지 않는다. `app/`은 Next.js route와 API route만 소유하고, 제품 코드는 `components/`, `model/`, `data/`, `adapters/`, `agent/`, `server/` 책임 디렉토리로 나눈다. `src/app/api/**/route.ts`는 HTTP request/response glue만 담당하고, 파일 시스템 접근과 Agent SDK/Claude orchestration은 `src/server/**`에 둔다. 화면 chrome과 section rail은 `@cx/layout`, leaf component는 `@cx/external`, 스타일 값은 `@cx/tokens`와 `@cx/tokens/tailwind.css` spacing mapping을 우선 사용한다. 앱 작업면은 렌더링 구현을 소유하지 않고, 화면 조회/탐색/검증 정보 표시를 담당한다.
 
 Pattern은 앱 소비 데이터가 아니라 `@cx/layout/catalog` reference로 운영한다. Layout catalog는 screen/region/area/composite의 flow, spacing, child ordering 같은 레이아웃 레시피를 소유한다. `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 `@cx/layout` 공개 API를 통해 layout recipe를 materialize한다. React render 단계는 layout catalog JSON을 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/renderer` 입력 DTO로만 취급한다.
 
@@ -170,7 +170,7 @@ Claude 생성과 Codex 검수는 Agent SDK를 통해 실행한다. Claude는 로
 
 현재 render tree 입력 스키마의 구현 기준은 `@cx/schema`의 RenderTree DTO와 `@cx/validation` 검증이다. 공식 저장 계약은 `database/tables` shape로 유지하고, render tree validation은 preview/read model 검증 단계에 둔다.
 
-생성 JSON의 `component.type`, `pattern.id`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/components`, `@cx/layout`, `@cx/layout/catalog`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
+생성 JSON의 `component.type`, `pattern.id`, `spacing`, `color`, `typography` 값은 가능한 한 `@cx/external/catalog`(`kiki.X`), `@cx/layout`, `@cx/layout/catalog`, `@cx/tokens`의 공개 어휘에 매핑한다. spacing 값은 `@cx/tokens/tailwind.css`의 Tailwind v4 `@theme` spacing key로도 해석 가능해야 한다. Claude가 새 컴포넌트명을 임의로 만들기보다, 기존 패키지 어휘에 맞는 후보를 선택하도록 prompt contract를 구성한다.
 
 ## 9. Puck Screen/OGN 편집 정책
 
@@ -204,7 +204,7 @@ Puck 편집 원칙:
 - 간격 값은 자유 숫자가 아니라 `none`, `xs`, `sm`, `md`, `lg`, `xl` 같은 디자인 토큰으로 제한한다.
 - Puck Screen block은 `generated_areas` 또는 공유 OGN edit version을 참조한다.
 - Puck OGN block 내부 props/children은 `database/tables` shape의 area/component draft와 매핑한다.
-- Puck preview는 `@cx/components`, `@cx/layout`, `@cx/tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
+- Puck preview는 `@cx/external`, `@cx/layout`, `@cx/tokens`를 사용하는 실제 모바일 미리보기 렌더러와 같은 component mapping을 사용한다.
 
 렌더링 우선순위:
 

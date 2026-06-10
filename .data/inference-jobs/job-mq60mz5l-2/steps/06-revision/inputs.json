@@ -1,0 +1,804 @@
+{
+  "compositionPlan": {
+    "schemaVersion": "composition-plan.v0.1",
+    "screenLayout": "layout.screen.screenShell",
+    "layoutStrategy": "ScreenShell 위에 Header(AppBar) → Contents(실패 사유 안내 → 선택 구성 검증 결과) → Bottom(복구 CTA) 3-region 구조로 배치. Contents는 두 개의 dynamic area를 수직 스택으로 쌓아 '원인 인지 → 증빙 확인 → 복구 행동' 순서를 강제한다.",
+    "sections": [
+      {
+        "targetRegion": "header",
+        "role": "header",
+        "priority": 1,
+        "sourceRefs": [
+          "AppBarHeader"
+        ],
+        "strategy": "layout.area.areaAppBar에 AppBar(WithBack, title='선택 불가·충돌 사유 안내')를 단일 자식으로 배치하여 화면 chrome 고정"
+      },
+      {
+        "targetRegion": "contents",
+        "role": "feedback",
+        "priority": 2,
+        "sourceRefs": [
+          "TitleSectionFailReason",
+          "CalloutFailReason",
+          "TextButtonViewLater"
+        ],
+        "strategy": "layout.area.areaVertical 안에 TitleSection → Callout(WithTitle, 실패축/해결방법 강조) → TextButton(나중에 다시 보기) 순으로 세로 스택. errorPolicy '영역 전체 숨김'에 대비해 단일 dynamic area로 묶어 통째로 토글 가능하게 구성."
+      },
+      {
+        "targetRegion": "contents",
+        "role": "content",
+        "priority": 3,
+        "sourceRefs": [
+          "TitleSectionComboResult",
+          "ListTextDuplicateCheck",
+          "ListSelectedGroupProduct"
+        ],
+        "strategy": "layout.area.listStack(divider=contents)에 TitleSection 헤더 후 ListText(중복가입 판정), ListSelected(그룹상품 radio)를 리스트 row로 배치. errorPolicy '오류 항목 미노출'에 따라 row-level 숨김이 가능한 list 구조 사용."
+      },
+      {
+        "targetRegion": "bottom",
+        "role": "bottom-action",
+        "priority": 4,
+        "sourceRefs": [
+          "ActionButtonRecover"
+        ],
+        "strategy": "layout.area.bottomActionArea에 ActionButton(main='계속하기') 단일 CTA를 sticky하게 고정하여 primary user action을 항상 노출"
+      }
+    ],
+    "visualHierarchy": "1차 강조: CalloutFailReason(실패 원인 메시지) — 사용자가 가장 먼저 인지해야 할 핵심 피드백. 2차: ListText/ListSelected 검증 결과 row(증빙). 3차: AppBar 타이틀과 섹션 제목(맥락). 4차: TextButton 보조 행동. 상시 노출: Bottom의 ActionButtonRecover로 복구 경로 항상 가시화.",
+    "primaryUserAction": "사용자가 CalloutFailReason에서 실패 사유를 인지한 뒤 Bottom의 ActionButtonRecover('계속하기')를 눌러 복구 흐름으로 진입한다.",
+    "sectionRhythm": "Header(고정 chrome) → Contents 상단 feedback 블록(원인+해결+보조 액션) → Contents 하단 content 리스트(검증 증빙, divider 구분) → Bottom sticky CTA. 두 contents area는 area 간 vertical gap으로 분리되어 '안내 vs. 데이터' 시각적 리듬을 만든다.",
+    "density": "medium",
+    "patternRationale": "ScreenShell은 Header/Contents/Bottom 3-region을 자연스럽게 수용하는 가장 일반적인 shell이며, 본 화면은 상품 상세도 리스트도 아닌 '피드백+검증+복구' 혼합 흐름이라 commerceDetailScreen·textListScreen·cardListScreen 같은 특화 shell이 부적합. Contents는 errorPolicy가 다른 두 dynamic area를 분리해야 하므로 areaVertical(통째 숨김 가능)과 listStack(row-level 숨김·divider 지원)을 조합. Bottom은 단일 primary CTA이므로 bottomActionArea가 최적.",
+    "rationale": "screenIntent의 contentPriority 순서(TitleSectionFailReason → Callout → TitleSectionComboResult → ListText → ListSelected → TextButton → ActionButton)와 sourceShape의 region 분할(header/contents×2/bottom)이 정확히 일치하므로, ScreenShell + 두 개의 contents area + bottom action area 구조가 의사결정 흐름('원인 인지 → 검증 확인 → 복구 행동')과 1:1 매핑된다. stateCoverageHints의 async loading/error, detail empty/error, form disabled/validation 상태는 각 area의 errorPolicy와 dynamic min/maxCount 정의에 의해 통째 숨김 또는 row-level 숨김으로 처리 가능.",
+    "rejectedPatterns": [
+      {
+        "pattern": "layout.screen.commerceDetailScreen",
+        "reason": "상품 상세 hero/scroll 구조 가정. 본 화면은 hero media·옵션 grid 없이 피드백+검증 흐름이라 부적합."
+      },
+      {
+        "pattern": "layout.screen.textListScreen",
+        "reason": "이용내역/공지처럼 동질적 텍스트 리스트 화면용. 본 화면 contents는 Callout(피드백) + List(증빙) 이질 조합이라 맞지 않음."
+      },
+      {
+        "pattern": "layout.screen.cardListScreen",
+        "reason": "상품군 카드 리스트 전용. 본 화면에는 ProductList/카드 항목이 없음."
+      },
+      {
+        "pattern": "layout.area.actionStack (for feedback area)",
+        "reason": "actionStack은 일반 액션 묶음 전용. Callout+TextButton 혼합 피드백 블록에는 areaVertical이 더 적합."
+      },
+      {
+        "pattern": "layout.area.fieldStack (for combo result area)",
+        "reason": "입력 필드 묶음용. 검증 결과 표시 list에는 listStack(divider=contents)이 더 자연스러움."
+      }
+    ]
+  },
+  "renderTree": {
+    "version": "render-tree.v0.1",
+    "metadata": {
+      "id": "screen.cartFailFeedback",
+      "description": "상품 담기 실패 사유 안내 및 선택 구성 검증 결과 복구 화면"
+    },
+    "children": [
+      {
+        "type": "Screen",
+        "componentVersion": "1.0.0",
+        "metadata": {
+          "id": "screen.root",
+          "title": "담기 실패 사유 안내"
+        },
+        "layout": "layout.screen.screenShell",
+        "children": [
+          {
+            "type": "Screen.Header",
+            "componentVersion": "1.0.0",
+            "metadata": {
+              "id": "region.header",
+              "title": "헤더"
+            },
+            "layout": "layout.region.header",
+            "children": [
+              {
+                "type": "area.static",
+                "componentVersion": "1.0.0",
+                "metadata": {
+                  "id": "area.appbar",
+                  "title": "앱바 영역"
+                },
+                "layout": "layout.area.areaAppBar",
+                "children": [
+                  {
+                    "type": "AppBar",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.appbarHeader",
+                      "title": "AppBar 헤더"
+                    },
+                    "layout": "layout.composite.componentAppBar",
+                    "props": {
+                      "title": "선택 불가·충돌 사유 안내",
+                      "showBack": true,
+                      "showLogo": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Screen.Contents",
+            "componentVersion": "1.0.0",
+            "metadata": {
+              "id": "region.contents",
+              "title": "콘텐츠"
+            },
+            "layout": "layout.region.contents",
+            "children": [
+              {
+                "type": "area.dynamic",
+                "componentVersion": "1.0.0",
+                "metadata": {
+                  "id": "area.failReason",
+                  "title": "실패 사유 안내 영역",
+                  "description": "errorPolicy: 영역 전체 숨김"
+                },
+                "layout": "layout.area.areaVertical",
+                "display": {
+                  "when": {
+                    "bind": "state.failReason.visible",
+                    "default": true
+                  },
+                  "stateRole": "base"
+                },
+                "children": [
+                  {
+                    "type": "TitleSection",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.titleFailReason",
+                      "title": "실패 사유 섹션 제목"
+                    },
+                    "layout": "layout.composite.componentTitleSection",
+                    "props": {
+                      "title": {
+                        "bind": "data.failReason.sectionTitle",
+                        "default": "담기 실패 사유"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Callout",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.calloutFailReason",
+                      "title": "실패 사유 콜아웃",
+                      "description": "1차 강조 피드백 메시지"
+                    },
+                    "props": {
+                      "title": {
+                        "bind": "data.failReason.axisTitle",
+                        "default": "실패축 안내"
+                      },
+                      "children": {
+                        "bind": "data.failReason.resolutionMessage",
+                        "default": "선택하신 구성에서 조합·중복가입·정책 충돌이 발생했습니다. 아래 해결 방법을 확인해 주세요."
+                      }
+                    }
+                  },
+                  {
+                    "type": "TextButton",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.textButtonViewLater",
+                      "title": "나중에 다시 보기"
+                    },
+                    "layout": "layout.composite.componentTextButton",
+                    "props": {
+                      "label": "나중에 다시 보기",
+                      "underline": true
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "area.dynamic",
+                "componentVersion": "1.0.0",
+                "metadata": {
+                  "id": "area.comboResult",
+                  "title": "선택 구성 검증 결과 영역",
+                  "description": "errorPolicy: 오류 항목 미노출"
+                },
+                "layout": "layout.area.listStack",
+                "props": {
+                  "divider": "contents"
+                },
+                "display": {
+                  "stateRole": "base"
+                },
+                "children": [
+                  {
+                    "type": "TitleSection",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.titleComboResult",
+                      "title": "선택 구성 검증 결과 제목"
+                    },
+                    "layout": "layout.composite.componentTitleSection",
+                    "props": {
+                      "title": {
+                        "bind": "data.comboResult.sectionTitle",
+                        "default": "선택 구성 검증 결과"
+                      }
+                    }
+                  },
+                  {
+                    "type": "ListText",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.listTextDuplicateCheck",
+                      "title": "중복가입 판정 결과"
+                    },
+                    "layout": "layout.composite.componentListText",
+                    "display": {
+                      "when": {
+                        "bind": "state.duplicateCheck.visible",
+                        "default": true
+                      },
+                      "stateRole": "base"
+                    },
+                    "props": {
+                      "table": "firstTitle",
+                      "title": {
+                        "bind": "data.duplicateCheck.title",
+                        "default": "중복가입 판정"
+                      },
+                      "subText": {
+                        "bind": "data.duplicateCheck.result",
+                        "default": "가입 가능"
+                      },
+                      "showRightItem": false
+                    }
+                  },
+                  {
+                    "type": "ListSelected",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.listSelectedGroupProduct",
+                      "title": "그룹상품 선택"
+                    },
+                    "display": {
+                      "when": {
+                        "bind": "state.groupProduct.visible",
+                        "default": true
+                      },
+                      "stateRole": "base"
+                    },
+                    "props": {
+                      "type": "radio",
+                      "label": {
+                        "bind": "data.groupProduct.label",
+                        "default": "그룹상품 선택"
+                      },
+                      "checked": {
+                        "bind": "state.groupProduct.checked",
+                        "default": false
+                      },
+                      "showPrice": false,
+                      "showButton": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Screen.Bottom",
+            "componentVersion": "1.0.0",
+            "metadata": {
+              "id": "region.bottom",
+              "title": "하단"
+            },
+            "layout": "layout.region.bottom",
+            "children": [
+              {
+                "type": "area.static",
+                "componentVersion": "1.0.0",
+                "metadata": {
+                  "id": "area.bottomAction",
+                  "title": "하단 액션 영역"
+                },
+                "layout": "layout.area.bottomActionArea",
+                "children": [
+                  {
+                    "type": "ActionButton",
+                    "componentVersion": "1.0.0",
+                    "metadata": {
+                      "id": "cmp.actionButtonRecover",
+                      "title": "복구 CTA"
+                    },
+                    "layout": "layout.composite.componentActionButton",
+                    "props": {
+                      "type": "Default",
+                      "button": "1",
+                      "primaryText": "계속하기"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "screenIntent": {
+    "schemaVersion": "screen-intent.v0.1",
+    "screenPurpose": "사용자가 상품 담기에 실패한 이유(상품·옵션·조건·정책 충돌)를 명확히 이해하고, 선택 구성 검증 결과를 검토하여 복구 행동을 이어가도록 안내한다.",
+    "primaryUserAction": "CalloutFailReason에서 실패 사유를 확인한 뒤 ActionButtonRecover('계속하기')로 복구 흐름을 진행한다.",
+    "primaryTask": "담기 실패 사유 파악 및 선택 구성 복구",
+    "audience": "상품 담기를 시도했으나 조합·중복가입·정책 충돌로 실패한 가입 진행 중인 사용자",
+    "successMoment": "사용자가 실패 축과 해결 방법을 인지하고 '계속하기'로 복구 경로에 진입하는 순간",
+    "contentPriority": [
+      "TitleSectionFailReason",
+      "CalloutFailReason",
+      "TitleSectionComboResult",
+      "ListTextDuplicateCheck",
+      "ListSelectedGroupProduct",
+      "TextButtonViewLater",
+      "ActionButtonRecover"
+    ],
+    "sourceInterpretation": {
+      "preserve": [
+        "CalloutFailReason 실패축/해결방법 안내 문구",
+        "ListTextDuplicateCheck 중복가입 판정 결과",
+        "ListSelectedGroupProduct 그룹상품 선택 상태",
+        "ActionButtonRecover 복구 CTA",
+        "TextButtonViewLater 대체 경로"
+      ],
+      "summarize": [
+        "AppBarHeader 상단 타이틀",
+        "TitleSection 섹션 제목들"
+      ],
+      "defer": [
+        "정책 식별자(PI-PRDD-*) 상세 노출",
+        "api:FN-PRDD-* 바인딩 메타데이터"
+      ]
+    },
+    "rationale": "소스의 contents 영역 1은 실패 사유 안내(주 메시지), 영역 2는 충돌·중복가입 검증 결과(증빙), bottom은 복구 CTA로 구성되어 있어 '원인 인지 → 검증 확인 → 복구 행동' 순서가 사용자의 의사결정 흐름과 일치한다. errorPolicy('영역 전체 숨김','오류 항목 미노출')와 dynamic area maxCount 정의는 상태별 분기를 요구한다.",
+    "missingDecisions": [
+      "실패축({실패축}) 토큰의 구체 값 매핑 규칙",
+      "중복가입판정결과 텍스트 변형(가능/불가/제한) 처리",
+      "viewLaterSaved state의 토글 후 후속 화면 경로",
+      "ActionButtonRecover 후 복구 대상 화면 라우팅"
+    ],
+    "stateCoverageHints": [
+      {
+        "surface": "async",
+        "states": [
+          "loading",
+          "error",
+          "populated"
+        ],
+        "reason": "FN-PRDD-FAIL-001 및 FN-PRDD-COMBO-001 비동기 호출 결과에 따라 Callout과 검증 리스트가 채워진다."
+      },
+      {
+        "surface": "detail",
+        "states": [
+          "empty",
+          "populated",
+          "error"
+        ],
+        "reason": "area 1은 errorPolicy '영역 전체 숨김', area 2는 '오류 항목 미노출'로 데이터 부재/오류 시 분기 필요."
+      },
+      {
+        "surface": "form",
+        "states": [
+          "disabled",
+          "validation"
+        ],
+        "reason": "ListSelectedGroupProduct radio 선택과 ActionButtonRecover 활성화 여부가 검증 결과에 종속된다."
+      }
+    ],
+    "usedSkills": [
+      {
+        "id": "screen-intent",
+        "sourceRef": "../docs/prompts/screen-intent.md",
+        "stage": "understand",
+        "task": "screen-intent",
+        "role": "intent-extraction"
+      },
+      {
+        "id": "source-fidelity-review",
+        "sourceRef": "../docs/skills/review-skills/source-fidelity-review/README.md",
+        "stage": "understand",
+        "task": "screen-intent",
+        "role": "source-grounding"
+      },
+      {
+        "id": "state-coverage-review",
+        "sourceRef": "../docs/skills/review-skills/state-coverage-review/README.md",
+        "stage": "understand",
+        "task": "screen-intent",
+        "role": "state-hinting"
+      }
+    ]
+  },
+  "sourceSpec": {
+    "schemaVersion": "source-spec.v0.1",
+    "sourceImport": {
+      "importId": "web-upload",
+      "sourceKind": "prdd-markdown-bundle",
+      "receivedAt": "2026-06-09T02:23:39.894Z",
+      "files": [
+        {
+          "id": "source-screen-NOVA-PRDD-PG-015-1",
+          "kind": "screen",
+          "path": "data/client-imports/web-upload/20260604/NOVA-PRDD-PG-015-1.md",
+          "title": "선택 불가·충돌 사유 안내-선택 조합 충돌",
+          "checksum": "mvp-07a2da26",
+          "screenCode": "NOVA-PRDD-PG-015-1"
+        }
+      ]
+    },
+    "sourceShape": {
+      "screen": {
+        "screenCode": "NOVA-PRDD-PG-015-1",
+        "name": "선택 불가·충돌 사유 안내-선택 조합 충돌",
+        "route": "/nova/prdd/pg/015/1",
+        "regions": [
+          {
+            "slot": "header",
+            "children": [
+              {
+                "kind": "area",
+                "areaType": "static",
+                "description": "화면 상단 네비게이션",
+                "layout": "vertical",
+                "renderNodeType": "area.static",
+                "sourceAreaId": "0",
+                "visibility": "항상",
+                "children": [
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "AppBar",
+                    "componentType": "AppBar",
+                    "roleAlias": "AppBarHeader",
+                    "sourceId": "AppBarHeader",
+                    "description": "화면 상단 네비게이션",
+                    "label": "AppBarHeader",
+                    "props": {
+                      "title": "선택 불가·충돌 사유 안내"
+                    },
+                    "raw": {
+                      "bindingSource": "- (static)",
+                      "description": "화면 상단 네비게이션",
+                      "displayText": "title: 선택 불가·충돌 사유 안내"
+                    },
+                    "text": "title: 선택 불가·충돌 사유 안내",
+                    "variant": "WithBack"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "contents",
+            "children": [
+              {
+                "kind": "area",
+                "areaType": "dynamic",
+                "description": "선택 불가·충돌 복구 안내 영역",
+                "errorPolicy": "영역 전체 숨김",
+                "layout": "vertical",
+                "maxCount": "1",
+                "minCount": "1",
+                "renderNodeType": "area.dynamic",
+                "sourceAreaId": "1",
+                "visibility": "항상",
+                "children": [
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "TitleSection",
+                    "componentType": "TitleSection",
+                    "roleAlias": "TitleSectionFailReason",
+                    "sourceId": "TitleSectionFailReason",
+                    "description": "선택 불가·충돌 복구 안내 섹션 제목",
+                    "label": "TitleSectionFailReason",
+                    "props": {
+                      "title": "담기에 실패한 이유와 해결 방법"
+                    },
+                    "raw": {
+                      "bindingSource": "- (static)",
+                      "description": "선택 불가·충돌 복구 안내 섹션 제목",
+                      "displayText": "title: 담기에 실패한 이유와 해결 방법"
+                    },
+                    "text": "title: 담기에 실패한 이유와 해결 방법",
+                    "variant": "Default"
+                  },
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "Callout",
+                    "componentType": "Callout",
+                    "roleAlias": "CalloutFailReason",
+                    "sourceId": "CalloutFailReason",
+                    "description": "실패 사유 축 구분과 수정 방법 안내",
+                    "label": "CalloutFailReason",
+                    "props": {
+                      "title": "{실패축} 문제로 담지 못했어요 (예: 가입 조건)",
+                      "body": "상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요"
+                    },
+                    "raw": {
+                      "bindingSource": "실패 사유와 고객 안내 문구 (api:FN-PRDD-FAIL-001)",
+                      "description": "실패 사유 축 구분과 수정 방법 안내",
+                      "displayText": "title: {실패축} 문제로 담지 못했어요 (예: 가입 조건)\nbody: 상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요",
+                      "note": "[정책:PI-PRDD-FAIL-001-01] 불가 안내\n[정책:PI-PRDD-ELIG-001-02] 불가 사유"
+                    },
+                    "text": "title: {실패축} 문제로 담지 못했어요 (예: 가입 조건)\nbody: 상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요",
+                    "variant": "WithTitle"
+                  },
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "TextButton",
+                    "componentType": "TextButton",
+                    "roleAlias": "TextButtonViewLater",
+                    "sourceId": "TextButtonViewLater",
+                    "description": "나중에 다시 보기 보조 행동",
+                    "label": "TextButtonViewLater",
+                    "props": {
+                      "label": "나중에 다시 보기"
+                    },
+                    "raw": {
+                      "bindingSource": "viewLaterSaved (state)",
+                      "description": "나중에 다시 보기 보조 행동",
+                      "displayText": "label: 나중에 다시 보기",
+                      "note": "[정책:PI-PRDD-FAIL-001-04] 대체 경로"
+                    },
+                    "text": "label: 나중에 다시 보기",
+                    "variant": "single"
+                  }
+                ]
+              },
+              {
+                "kind": "area",
+                "areaType": "dynamic",
+                "description": "상품 조합·중복가입 검증 결과 영역",
+                "errorPolicy": "오류 항목 미노출",
+                "layout": "vertical",
+                "maxCount": "N",
+                "minCount": "0",
+                "renderNodeType": "area.dynamic",
+                "sourceAreaId": "2",
+                "visibility": "항상",
+                "children": [
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "TitleSection",
+                    "componentType": "TitleSection",
+                    "roleAlias": "TitleSectionComboResult",
+                    "sourceId": "TitleSectionComboResult",
+                    "description": "상품 조합·중복가입 검증 결과 섹션 제목",
+                    "label": "TitleSectionComboResult",
+                    "props": {
+                      "title": "선택 구성 검증 결과"
+                    },
+                    "raw": {
+                      "bindingSource": "- (static)",
+                      "description": "상품 조합·중복가입 검증 결과 섹션 제목",
+                      "displayText": "title: 선택 구성 검증 결과"
+                    },
+                    "text": "title: 선택 구성 검증 결과",
+                    "variant": "Default"
+                  },
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "ListText",
+                    "componentType": "ListText",
+                    "roleAlias": "ListTextDuplicateCheck",
+                    "sourceId": "ListTextDuplicateCheck",
+                    "description": "중복가입 가능여부 확인 결과 표시",
+                    "label": "ListTextDuplicateCheck",
+                    "props": {
+                      "title": "중복가입 가능여부",
+                      "subText": "{중복가입판정결과} (예: 중복 가입 불가)"
+                    },
+                    "raw": {
+                      "bindingSource": "수정 필요 옵션과 제한 사유 (api:FN-PRDD-COMBO-001)",
+                      "description": "중복가입 가능여부 확인 결과 표시",
+                      "displayText": "title: 중복가입 가능여부\nsubText: {중복가입판정결과} (예: 중복 가입 불가)",
+                      "note": "[정책:PI-PRDD-COMBO-001-02] 중복가입 가능여부 확인"
+                    },
+                    "text": "title: 중복가입 가능여부\nsubText: {중복가입판정결과} (예: 중복 가입 불가)",
+                    "variant": "on"
+                  },
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "ListSelected",
+                    "componentType": "ListSelected",
+                    "roleAlias": "ListSelectedGroupProduct",
+                    "sourceId": "ListSelectedGroupProduct",
+                    "description": "그룹상품 구성·구성원 조건 선택",
+                    "label": "ListSelectedGroupProduct",
+                    "props": {
+                      "RadioText": "{그룹상품명} (예: 가족 결합 그룹)"
+                    },
+                    "raw": {
+                      "bindingSource": "selectedGroupProduct (state)\n담기 가능 여부와 선택 구성 상태 (api:FN-PRDD-COMBO-001)",
+                      "description": "그룹상품 구성·구성원 조건 선택",
+                      "displayText": "RadioText: {그룹상품명} (예: 가족 결합 그룹)",
+                      "note": "[정책:PI-PRDD-OPTION-001-03] 그룹 상품\n[정책:PI-PRDD-COMBO-001-03] 필수 구성"
+                    },
+                    "text": "RadioText: {그룹상품명} (예: 가족 결합 그룹)",
+                    "variant": "radio"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "slot": "bottom",
+            "children": [
+              {
+                "kind": "area",
+                "areaType": "dynamic",
+                "description": "화면 하단 액션 영역",
+                "errorPolicy": "오류 항목 미노출",
+                "layout": "horizontal",
+                "maxCount": "1",
+                "minCount": "1",
+                "renderNodeType": "area.dynamic",
+                "sourceAreaId": "999",
+                "visibility": "항상",
+                "children": [
+                  {
+                    "kind": "component",
+                    "sourceComponentId": "ActionButton",
+                    "componentType": "ActionButton",
+                    "roleAlias": "ActionButtonRecover",
+                    "sourceId": "ActionButtonRecover",
+                    "description": "화면 하단 복구 진행 CTA",
+                    "label": "ActionButtonRecover",
+                    "props": {
+                      "main": "계속하기"
+                    },
+                    "raw": {
+                      "bindingSource": "원위치 복귀 정보 (api:FN-PRDD-FAIL-001)",
+                      "description": "화면 하단 복구 진행 CTA",
+                      "displayText": "main: 계속하기",
+                      "note": "[정책:PI-PRDD-FAIL-001-03] 인증 복귀"
+                    },
+                    "text": "main: 계속하기",
+                    "variant": "default"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "validationReport": {
+    "issues": [
+      {
+        "severity": "error",
+        "code": "required-field-missing",
+        "message": "Callout nodes must include a layout.composite.* ref.",
+        "path": [
+          "children",
+          0,
+          "children",
+          1,
+          "children",
+          0,
+          "children",
+          1,
+          "layout"
+        ]
+      },
+      {
+        "severity": "error",
+        "code": "required-field-missing",
+        "message": "ListSelected nodes must include a layout.composite.* ref.",
+        "path": [
+          "children",
+          0,
+          "children",
+          1,
+          "children",
+          1,
+          "children",
+          2,
+          "layout"
+        ]
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: TitleSectionFailReason.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: CalloutFailReason.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: 2.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: ListTextDuplicateCheck.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: ListSelectedGroupProduct.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "SourceSpec ref is not visible in generated artifact: 999.",
+        "path": []
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "CompositionPlan sourceRef is not visible in generated artifact: TitleSectionFailReason.",
+        "path": [
+          "sections",
+          1,
+          "sourceRefs",
+          0
+        ]
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "CompositionPlan sourceRef is not visible in generated artifact: CalloutFailReason.",
+        "path": [
+          "sections",
+          1,
+          "sourceRefs",
+          1
+        ]
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "CompositionPlan sourceRef is not visible in generated artifact: ListTextDuplicateCheck.",
+        "path": [
+          "sections",
+          2,
+          "sourceRefs",
+          1
+        ]
+      },
+      {
+        "severity": "warning",
+        "code": "source-ref-not-materialized",
+        "message": "CompositionPlan sourceRef is not visible in generated artifact: ListSelectedGroupProduct.",
+        "path": [
+          "sections",
+          2,
+          "sourceRefs",
+          2
+        ]
+      }
+    ],
+    "ok": false,
+    "schemaVersion": "validation-report.v0.1",
+    "summary": {
+      "errorCount": 2,
+      "warningCount": 10
+    },
+    "target": "render-tree"
+  }
+}

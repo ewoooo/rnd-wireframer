@@ -11,7 +11,7 @@
 		"./types": "./src/public/types.ts"
 	},
 	"dependencies": {
-		"@cx/components": "workspace:*",
+		"@cx/external": "workspace:*",
 		"@cx/layout": "workspace:*",
 		"@cx/schema": "workspace:*",
 		"ajv": "^8.20.0"

@@ -1,0 +1,76 @@
+/* Figma: HomeCardCarousel — node 9787:98694, 369px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  width: 369px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ffffff;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+/* ── Title area ── */
+.titleMain {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 28px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.titleText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.52px;
+  color: rgba(6, 12, 31, 0.6);
+  width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mainTitle {
+  width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: #05001a;
+}
+
+.titleLine1 {
+  display: block;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -1px;
+  margin-bottom: 0;
+}
+
+.titleLine2 {
+  display: block;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+}
+
+/* ── Slot ── */
+.slot {
+  position: relative;
+  height: 268px;
+  width: 100%;
+  flex-shrink: 0;
+}

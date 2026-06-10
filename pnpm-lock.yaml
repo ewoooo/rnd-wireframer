@@ -14,9 +14,9 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:packages/agent
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:packages/component
+        version: link:packages/external
       '@cx/inference':
         specifier: workspace:*
         version: link:packages/inference
@@ -111,9 +111,12 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:../../packages/agent
-      '@cx/components':
+      '@cx/export-tsx':
         specifier: workspace:*
-        version: link:../../packages/component
+        version: link:../../packages/export-tsx
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../../packages/external
       '@cx/inference':
         specifier: workspace:*
         version: link:../../packages/inference
@@ -126,9 +129,15 @@ importers:
       '@cx/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@cx/tokens':
+        specifier: workspace:*
+        version: link:../../packages/token
       '@puckeditor/core':
         specifier: ^0.21.2
         version: 0.21.2(@floating-ui/dom@1.7.6)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       radix-ui:
         specifier: ^1.4.3
         version: 1.5.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -148,14 +157,29 @@ importers:
         specifier: workspace:*
         version: link:../schema
 
-  packages/component:
+  packages/export-tsx:
+    dependencies:
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../external
+      '@cx/layout':
+        specifier: workspace:*
+        version: link:../layout
+      '@cx/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
+      react:
+        specifier: ^19.2.0
+        version: 19.2.7
+
+  packages/external:
     dependencies:
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
-      '@cx/tokens':
-        specifier: workspace:*
-        version: link:../token
       react:
         specifier: ^19.2.0
         version: 19.2.7
@@ -165,9 +189,9 @@ importers:
       '@cx/agent':
         specifier: workspace:*
         version: link:../agent
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout
@@ -183,9 +207,9 @@ importers:
 
   packages/layout:
     dependencies:
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/schema':
         specifier: workspace:*
         version: link:../schema
@@ -198,9 +222,9 @@ importers:
 
   packages/renderer:
     dependencies:
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout
@@ -221,9 +245,9 @@ importers:
 
   packages/validation:
     dependencies:
-      '@cx/components':
+      '@cx/external':
         specifier: workspace:*
-        version: link:../component
+        version: link:../external
       '@cx/layout':
         specifier: workspace:*
         version: link:../layout
@@ -2075,6 +2099,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   flat@5.0.2:
     resolution: {integrity: sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==}
@@ -4427,6 +4454,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fflate@0.8.3: {}
 
   flat@5.0.2: {}
 

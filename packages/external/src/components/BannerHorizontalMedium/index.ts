@@ -1,0 +1,1 @@
+export { BannerHorizontalMedium } from './BannerHorizontalMedium';

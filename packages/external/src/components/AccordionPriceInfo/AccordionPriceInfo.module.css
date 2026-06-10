@@ -1,0 +1,264 @@
+/* Figma: AccordionPriceInfo — node 10059:130989, 369px */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  width: 369px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1.5px solid #ebeef6;
+  border-radius: 20px;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* SelectedList header left */
+.priceText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 0 0;
+  min-width: 1px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.64px;
+  white-space: nowrap;
+}
+
+.percent {
+  color: #3617ce;
+  flex-shrink: 0;
+}
+
+.price {
+  color: #05001a;
+  flex-shrink: 0;
+}
+
+/* TextList header left */
+.titleText {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.64px;
+  color: #05001a;
+  flex: 1 0 0;
+  min-width: 1px;
+  white-space: nowrap;
+}
+
+/* Header right */
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.infoIcon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.priceLabel {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #05001a;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.chevronWrap {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chevron {
+  width: 6px;
+  height: 11px;
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* ── Slot ── */
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.spacing {
+  height: 16px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #ebeef6;
+  flex-shrink: 0;
+}
+
+/* ── Section ── */
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #05001a;
+  padding-bottom: 4px;
+  width: 100%;
+}
+
+/* ── SelectedList rows ── */
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  width: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.checkboxText {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 0 0;
+  min-width: 1px;
+}
+
+.checkboxTextTop {
+  align-items: flex-start;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.itemLabel {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: #05001a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.itemPrice {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+  color: rgba(6, 12, 31, 0.6);
+  text-align: right;
+  white-space: nowrap;
+  flex: 1 0 0;
+  min-width: 1px;
+  max-width: 100px;
+}
+
+/* ── Receive button (받기) ── */
+.btnReceive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 4px 7px;
+  background: #05001a;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.btnReceiveText {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.btnReceiveIcon {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Owned button (보유중) ── */
+.btnOwned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  background: rgba(6, 12, 31, 0.05);
+  border-radius: 9999px;
+  flex-shrink: 0;
+  border: none;
+}
+
+.btnOwnedText {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+  color: rgba(6, 12, 31, 0.2);
+  white-space: nowrap;
+}
+
+/* ── TextList rows ── */
+.textRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+  width: 100%;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.56px;
+}
+
+.textRowKey {
+  color: #05001a;
+  width: 85px;
+  flex-shrink: 0;
+}
+
+.textRowVal {
+  color: rgba(6, 12, 31, 0.6);
+  text-align: right;
+  white-space: nowrap;
+}

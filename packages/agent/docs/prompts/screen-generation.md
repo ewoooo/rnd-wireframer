@@ -73,3 +73,4 @@ These rules are migrated from the removed compatibility inference nodes and are 
 31. Top-level `metadata` must not include `title`. Every render node `metadata` must include `id` and `title`.
 32. RenderTree nodes use `node.layout` for layout pattern components.
 33. Put component-specific values inside `node.props`.
+34. When a source prop value is a dynamic slot written as `{token}` (often inside a template sentence with an `(예: example)` hint), express it as a bound prop `{ "bind": "<source>", "default": "<readable copy>" }`. The `default` must be human-readable display copy derived from the `(예: …)` example substituted into the template sentence, with the `(예: …)` marker stripped — never the raw `{token}`. Example: source `title: {실패축} 문제로 담지 못했어요 (예: 가입 조건)` becomes `"title": { "bind": "...failAxis", "default": "가입 조건 문제로 담지 못했어요" }`. Never emit a `default`, or any visible prop value, that is a bare unresolved `{token}`.

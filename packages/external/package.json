@@ -1,0 +1,20 @@
+{
+	"name": "@cx/external",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./catalog": "./src/catalog.generated.ts",
+		"./registry": "./src/registry.generated.ts",
+		"./resolver": "./src/resolver.ts",
+		"./puck": "./src/puck.ts",
+		"./canonicalize": "./src/canonicalize-catalog.ts"
+	},
+	"dependencies": {
+		"@cx/schema": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": "^19.2.0"
+	}
+}

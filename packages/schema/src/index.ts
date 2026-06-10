@@ -3,6 +3,19 @@ export type { AgentResultContract } from "./agent-result";
 export type { ApplyResultContract } from "./apply-result";
 export type { GenerationArtifactKind } from "./artifact-kind";
 export { SCHEMA_VERSION_BY_ARTIFACT_KIND } from "./artifact-kind";
+export type {
+	ComponentCatalog,
+	ComponentCatalogEntry,
+	ComponentCatalogSource,
+	ComponentCatalogStatus,
+	ComponentPropContract,
+	ComponentPropRole,
+	ComponentPropType,
+	RenderTreeNodeKind,
+	TokenRole,
+	TokenSlot,
+} from "./component-catalog";
+export { isTokenRole, TOKEN_ROLES } from "./component-catalog";
 export type { ComponentProposal, ComponentProposalContract } from "./component-proposal";
 export type {
 	CompositionPlanContract,
@@ -81,6 +94,7 @@ export type {
 	RenderTreeScreenRegionNodeType,
 	SchemaPropBinding,
 	SchemaPropValue,
+	ScreenRegionKey,
 } from "./render-tree";
 export {
 	isRenderTreeAreaNode,
@@ -94,6 +108,7 @@ export {
 	RENDER_TREE_SCREEN_REGION_NODE_TYPES,
 	RENDER_TREE_SCREEN_ROOT_NODE_TYPES,
 	RENDER_TREE_WRAPPER_NODE_TYPES,
+	SCREEN_REGION_NODE_TYPE_BY_REGION_KEY,
 	SCREEN_REGION_TYPE_BY_NODE_TYPE,
 } from "./render-tree";
 export type { ScreenIntentContract, UsedSkillRef } from "./screen-intent";

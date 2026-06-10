@@ -1,1 +1,0 @@
-export { ThumbnailLarge } from "./ThumbnailLarge";

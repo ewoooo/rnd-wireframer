@@ -1,0 +1,312 @@
+{
+	"version": "render-tree.v0.1",
+	"metadata": {
+		"id": "screen-cart-fail-recovery",
+		"description": "상품 담기 실패 사유 안내 및 복구 화면"
+	},
+	"children": [
+		{
+			"type": "Screen",
+			"componentVersion": "1.0.0",
+			"metadata": {
+				"id": "screen-root",
+				"title": "담기 실패 안내"
+			},
+			"layout": "layout.screen.screenShell",
+			"children": [
+				{
+					"type": "Screen.Header",
+					"componentVersion": "1.0.0",
+					"metadata": {
+						"id": "region-header",
+						"title": "헤더"
+					},
+					"layout": "layout.region.header",
+					"children": [
+						{
+							"type": "area.static",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "area-appbar",
+								"title": "앱바 영역"
+							},
+							"layout": "layout.area.areaAppBar",
+							"children": [
+								{
+									"type": "AppBar",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "appbar-header",
+										"title": "AppBar"
+									},
+									"layout": "layout.composite.componentAppBar",
+									"props": {
+										"title": "선택 불가·충돌 사유 안내",
+										"showBack": true
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"type": "Screen.Contents",
+					"componentVersion": "1.0.0",
+					"metadata": {
+						"id": "region-contents",
+						"title": "콘텐츠"
+					},
+					"layout": "layout.region.contents",
+					"children": [
+						{
+							"type": "area.dynamic",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "area-fail-reason",
+								"title": "실패 사유 메시지 스택"
+							},
+							"layout": "layout.area.fieldStack",
+							"display": {
+								"when": {
+									"bind": "failReason.visible",
+									"default": true
+								},
+								"stateRole": "base"
+							},
+							"props": {
+								"divider": "section"
+							},
+							"children": [
+								{
+									"type": "TitleSection",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "title-fail-reason",
+										"title": "실패 사유 제목"
+									},
+									"layout": "layout.composite.componentTitleSection",
+									"props": {
+										"title": "담기에 실패한 이유와 해결 방법"
+									}
+								},
+								{
+									"type": "Callout",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "callout-fail-reason",
+										"title": "실패 사유 콜아웃"
+									},
+									"layout": "layout.composite.componentSectionMessage",
+									"props": {
+										"title": {
+											"bind": "failReason.title",
+											"default": "{실패축} 문제로 담지 못했어요"
+										},
+										"children": {
+											"bind": "failReason.message",
+											"default": "상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요"
+										}
+									}
+								},
+								{
+									"type": "Callout",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "callout-fail-reason-loading",
+										"title": "실패 사유 로딩 상태"
+									},
+									"layout": "layout.composite.componentSectionMessage",
+									"display": {
+										"when": {
+											"bind": "failReason.loading",
+											"default": false
+										},
+										"stateRole": "loading"
+									},
+									"props": {
+										"title": "실패 사유를 확인하는 중입니다",
+										"children": "잠시만 기다려 주세요."
+									}
+								},
+								{
+									"type": "Callout",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "callout-fail-reason-error",
+										"title": "실패 사유 오류 상태"
+									},
+									"layout": "layout.composite.componentSectionMessage",
+									"display": {
+										"when": {
+											"bind": "failReason.error",
+											"default": false
+										},
+										"stateRole": "error"
+									},
+									"props": {
+										"title": "실패 사유를 불러오지 못했어요",
+										"children": "잠시 후 다시 시도해 주세요."
+									}
+								},
+								{
+									"type": "TextButton",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "textbtn-view-later",
+										"title": "나중에 다시 보기"
+									},
+									"layout": "layout.composite.componentTextButton",
+									"props": {
+										"label": "나중에 다시 보기",
+										"underline": true
+									}
+								}
+							]
+						},
+						{
+							"type": "area.dynamic",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "area-combo-result",
+								"title": "검증 결과 리스트 스택"
+							},
+							"layout": "layout.area.listStack",
+							"display": {
+								"when": {
+									"bind": "comboResult.visible",
+									"default": true
+								},
+								"stateRole": "base"
+							},
+							"props": {
+								"divider": "contents"
+							},
+							"children": [
+								{
+									"type": "TitleSection",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "title-combo-result",
+										"title": "검증 결과 제목"
+									},
+									"layout": "layout.composite.componentTitleSection",
+									"props": {
+										"title": "선택 구성 검증 결과"
+									}
+								},
+								{
+									"type": "ListText",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "list-duplicate-check",
+										"title": "중복가입 판정"
+									},
+									"layout": "layout.composite.componentListText",
+									"props": {
+										"table": "off",
+										"title": "중복가입 가능여부",
+										"subText": {
+											"bind": "duplicateCheck.statusText",
+											"default": "중복가입 불가"
+										},
+										"showRightItem": false
+									}
+								},
+								{
+									"type": "ListSelected",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "list-group-product",
+										"title": "그룹상품 선택"
+									},
+									"layout": "layout.composite.componentListCell",
+									"props": {
+										"type": "radio",
+										"label": {
+											"bind": "groupProduct.label",
+											"default": "그룹상품 선택"
+										},
+										"price": {
+											"bind": "groupProduct.price",
+											"default": ""
+										},
+										"checked": {
+											"bind": "groupProduct.checked",
+											"default": false
+										},
+										"showPrice": true,
+										"showButton": false
+									}
+								},
+								{
+									"type": "ListText",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "list-combo-empty",
+										"title": "검증 결과 비어있음"
+									},
+									"layout": "layout.composite.componentListText",
+									"display": {
+										"when": {
+											"bind": "comboResult.empty",
+											"default": false
+										},
+										"stateRole": "empty"
+									},
+									"props": {
+										"table": "off",
+										"title": "표시할 검증 결과가 없습니다",
+										"showRightItem": false
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"type": "Screen.Bottom",
+					"componentVersion": "1.0.0",
+					"metadata": {
+						"id": "region-bottom",
+						"title": "하단"
+					},
+					"layout": "layout.region.bottom",
+					"children": [
+						{
+							"type": "area.static",
+							"componentVersion": "1.0.0",
+							"metadata": {
+								"id": "area-bottom-action",
+								"title": "하단 액션 영역"
+							},
+							"layout": "layout.area.bottomActionArea",
+							"children": [
+								{
+									"type": "ActionButton",
+									"componentVersion": "1.0.0",
+									"metadata": {
+										"id": "action-recover",
+										"title": "계속하기"
+									},
+									"layout": "layout.composite.componentActionButton",
+									"display": {
+										"when": {
+											"bind": "recover.enabled",
+											"default": true
+										},
+										"stateRole": "base"
+									},
+									"props": {
+										"type": "Default",
+										"button": "1",
+										"primaryText": "계속하기"
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

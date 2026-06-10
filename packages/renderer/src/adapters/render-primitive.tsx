@@ -1,4 +1,5 @@
 import { Flex, Grid } from "@cx/layout/primitives";
+import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
 import type { ReactNode } from "react";
 import type {
 	RenderTreeFlexLayoutProps,
@@ -17,7 +18,7 @@ export function renderPrimitive({
 	node: RenderTreeNode;
 	props: Record<string, unknown>;
 }): ReactNode | undefined {
-	if (node.type === "Layout.Flex") {
+	if (node.type === RENDER_TREE_NODE_TYPE.layoutFlex) {
 		return (
 			<Flex
 				key={node.metadata.id}
@@ -29,7 +30,7 @@ export function renderPrimitive({
 		);
 	}
 
-	if (node.type === "Layout.Grid") {
+	if (node.type === RENDER_TREE_NODE_TYPE.layoutGrid) {
 		return (
 			<Grid
 				key={node.metadata.id}

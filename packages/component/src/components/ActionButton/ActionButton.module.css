@@ -1,6 +1,0 @@
-/* Figma: ActionButton - button wrapper. Bottom rail spacing is owned by BottomActionArea. */
-.root {
-	box-sizing: border-box;
-	display: flex;
-	width: 100%;
-}
