@@ -98,7 +98,7 @@ function emitCatalog(category: string, entries: ReferenceCatalogEntry[]): string
 		.join(",\n");
 	return [
 		GEN_HEADER,
-		'import type { ReferenceCatalogEntry } from "../../../../src/reference-catalog/types";',
+		'import type { ReferenceCatalogEntry } from "@cx/schema";',
 		"",
 		`export const ${constName}: ReferenceCatalogEntry[] = [`,
 		body,
