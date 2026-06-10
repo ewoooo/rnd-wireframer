@@ -45,6 +45,12 @@ export default function Screen() {
 							<Callout title="{실패축} 문제로 담지 못했어요">상품·옵션·조건·정책 중 어디서 막혔는지와 수정 방법을 확인하세요</Callout>
 						</VStack>
 						<VStack gap={0}>
+							<Callout title="실패 사유를 확인하는 중입니다">잠시만 기다려 주세요.</Callout>
+						</VStack>
+						<VStack gap={0}>
+							<Callout title="실패 사유를 불러오지 못했어요">잠시 후 다시 시도해 주세요.</Callout>
+						</VStack>
+						<VStack gap={0}>
 							<TextButton label="나중에 다시 보기" />
 						</VStack>
 					</PageStack>

@@ -19,12 +19,9 @@ const VISIBLE_TEXTS = [
 	"계속하기",
 ];
 
-/** display.when 기본값이 false인 상태 노드의 텍스트 — export물에 나오면 안 된다. */
-const STATE_GATED_TEXTS = [
-	"실패 사유를 확인하는 중입니다",
-	"실패 사유를 불러오지 못했어요",
-	"표시할 검증 결과가 없습니다",
-];
+/** display.when 기본값이 false인 visibility 역할(base/empty) 텍스트 — export물에 나오면 안 된다.
+ *  loading/error 등 state 역할은 when=false라도 disabled/loading 상태로 유지·렌더된다(5b5cdd8c). */
+const STATE_GATED_TEXTS = ["표시할 검증 결과가 없습니다"];
 
 describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 	const result = emitScreenTsx({ tree: screenTree });

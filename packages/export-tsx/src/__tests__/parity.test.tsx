@@ -8,12 +8,9 @@ import fixture from "./fixtures/cart-fail-recovery.render-tree.json";
 
 const screenTree = fixture.children[0] as unknown as RenderTreeScreenNode;
 
-/** display.when 기본값이 false인 상태 노드 텍스트 — 양쪽 DOM 모두에 없어야 한다. */
-const STATE_GATED_TEXTS = [
-	"실패 사유를 확인하는 중입니다",
-	"실패 사유를 불러오지 못했어요",
-	"표시할 검증 결과가 없습니다",
-];
+/** display.when 기본값이 false인 visibility 역할(base/empty) 텍스트 — 양쪽 DOM 모두에 없어야 한다.
+ *  loading/error 등 state 역할은 when=false라도 disabled/loading 상태로 양쪽에 유지된다(5b5cdd8c). */
+const STATE_GATED_TEXTS = ["표시할 검증 결과가 없습니다"];
 
 /**
  * export 결과물에만 나타나는 것이 허용된 텍스트(의도적 차이 allowlist).
