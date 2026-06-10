@@ -34,6 +34,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 			inputs: { sourceSpec: context("source-spec") },
 			references: {
 				skillset: knowledge("stage-skillset", "understand.screen-intent"),
+				referenceIndex: knowledge("reference-screen-index"),
 			},
 			prompt: { id: "screen-intent" },
 			output: {
@@ -51,6 +52,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 			references: {
 				layoutCatalog: knowledge("layout-catalog"),
 				skillset: knowledge("stage-skillset", "compose.composition-planning"),
+				referenceCatalog: knowledge("reference-screen-catalog"),
 			},
 			prompt: { id: "composition-planning" },
 			output: {
