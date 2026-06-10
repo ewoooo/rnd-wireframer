@@ -1,3 +1,4 @@
 import { createAppBarArea } from "./GeneralArea";
+import { generalAreaPresets } from "./presets";
 
-export const AreaAppBarArea = createAppBarArea({ gap: 0 });
+export const AreaAppBarArea = createAppBarArea(generalAreaPresets.areaAppBar);

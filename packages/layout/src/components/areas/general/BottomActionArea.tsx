@@ -1,5 +1,4 @@
 import { createBottomActionArea } from "./GeneralArea";
+import { generalAreaPresets } from "./presets";
 
-export const BottomActionArea = createBottomActionArea({
-	gap: 0,
-});
+export const BottomActionArea = createBottomActionArea(generalAreaPresets.bottomActionArea);

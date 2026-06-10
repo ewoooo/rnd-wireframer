@@ -191,8 +191,11 @@ describe("TSX export ↔ runtime renderer text parity (cart-fail-recovery fixtur
 		}
 	});
 
-	it("emits the fixture without warnings (drift guard)", () => {
-		expect(snapshot.warnings).toEqual([]);
+	it("emits only intentional divider-drop warnings (drift guard)", () => {
+		const unexpected = snapshot.warnings.filter(
+			(warning) => !warning.includes("primitive 미지원 prop 생략 — divider"),
+		);
+		expect(unexpected).toEqual([]);
 	});
 
 	it("renders both sides without console.error output", () => {

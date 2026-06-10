@@ -23,9 +23,9 @@ export function createCompositeWrapper(defaults: CompositeWrapperDefaults = {}) 
 		metadata,
 		props = {},
 	}: LayoutPatternComponentProps) {
-		const flow = toCompositeFlow(props.flow) ?? defaults.flow ?? "vertical";
+		const flow = resolveCompositeFlow(props, defaults);
 		const stackProps = toStackProps(props, defaults, metadata, flow);
-		const style = toCompositeStyle(props, defaults);
+		const style = resolveCompositeStyle(props, defaults);
 		const Component = flow === "horizontal" ? HStack : VStack;
 
 		return (
@@ -33,6 +33,26 @@ export function createCompositeWrapper(defaults: CompositeWrapperDefaults = {}) 
 				{children}
 			</Component>
 		);
+	};
+}
+
+/** props.flow → 스택 방향. primitive-target resolver와 공유하는 단일 진실원. */
+export function resolveCompositeFlow(
+	props: Record<string, unknown>,
+	defaults: CompositeWrapperDefaults,
+): CompositeFlow {
+	return toCompositeFlow(props.flow) ?? defaults.flow ?? "vertical";
+}
+
+/** node/metadata 배관을 제외한 직렬화 가능 스택 레이아웃 props. */
+export function resolveCompositeStackLayout(
+	props: Record<string, unknown>,
+	defaults: CompositeWrapperDefaults,
+): { gap?: number; paddingX?: number; paddingY?: number } {
+	return {
+		gap: toNumber(props.gap) ?? toNumber(props.componentGap) ?? defaults.gap,
+		paddingX: toNumber(props.paddingX) ?? defaults.paddingX,
+		paddingY: toNumber(props.paddingY) ?? defaults.paddingY,
 	};
 }
 
@@ -44,7 +64,7 @@ function toStackProps(
 ): HStackProps | VStackProps {
 	return {
 		as: "div",
-		gap: toNumber(props.gap) ?? toNumber(props.componentGap) ?? defaults.gap,
+		...resolveCompositeStackLayout(props, defaults),
 		node: {
 			type: "Layout.Flex",
 			metadata: {
@@ -55,12 +75,10 @@ function toStackProps(
 				direction: flow === "horizontal" ? "row" : "column",
 			},
 		},
-		paddingX: toNumber(props.paddingX) ?? defaults.paddingX,
-		paddingY: toNumber(props.paddingY) ?? defaults.paddingY,
 	};
 }
 
-function toCompositeStyle(
+export function resolveCompositeStyle(
 	props: Record<string, unknown>,
 	defaults: CompositeWrapperDefaults,
 ): CSSProperties | undefined {

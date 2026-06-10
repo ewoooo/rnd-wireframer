@@ -215,8 +215,8 @@ describe("emitNode — areas", () => {
 });
 
 describe("emitNode — named layout patterns", () => {
-	it("emits the canonical registry component without unwrapping and preserves props", () => {
-		const { ctx, imports } = createContext();
+	it("unwraps a resolvable layoutId into its primitive target with merged defaults", () => {
+		const { ctx, imports, warnings } = createContext();
 		const code = emitNode(
 			node({
 				children: [node({ props: { title: "약관 1" }, type: "kiki.ListText" })],
@@ -230,15 +230,25 @@ describe("emitNode — named layout patterns", () => {
 
 		expect(code).toBe(
 			[
-				'<ListStackArea props={{ divider: "contents" }}>',
+				"<PageStack",
+				"\tgap={8}",
+				"\titemPaddingX={20}",
+				'\titemTemplate="default-20"',
+				"\tpaddingY={28}",
+				"\tsectionGap={8}",
+				"\tsectionPaddingX={12}",
+				">",
 				'\t<ListText title="약관 1" />',
-				"</ListStackArea>",
+				"</PageStack>",
 			].join("\n"),
 		);
-		expect(imports.get("@cx/layout/registry")).toEqual(new Set(["ListStackArea"]));
+		expect(imports.get("@cx/layout/primitives")).toEqual(new Set(["PageStack"]));
+		expect(imports.get("@cx/layout/registry")).toBeUndefined();
+		expect(warnings).toHaveLength(1);
+		expect(warnings[0]).toContain("divider");
 	});
 
-	it("preserves className on layout wrappers", () => {
+	it("preserves className on unwrapped primitives", () => {
 		const { ctx } = createContext();
 		const code = emitNode(
 			node({
@@ -251,11 +261,12 @@ describe("emitNode — named layout patterns", () => {
 			"",
 		);
 
-		expect(code).toContain('<ListStackArea className="custom-class">');
+		expect(code).toContain('className="custom-class"');
+		expect(code).toContain("<PageStack");
 	});
 
 	it("wraps a leaf component render when the layout node has no children", () => {
-		const { ctx } = createContext();
+		const { ctx, imports } = createContext();
 		const code = emitNode(
 			node({
 				layout: "layout.composite.componentAppBar",
@@ -267,12 +278,28 @@ describe("emitNode — named layout patterns", () => {
 		);
 
 		expect(code).toBe(
-			[
-				'<CompositeGap0 props={{ showBack: true, title: "약관 동의" }}>',
-				'\t<AppBar showBack title="약관 동의" />',
-				"</CompositeGap0>",
-			].join("\n"),
+			["<VStack gap={0}>", '\t<AppBar showBack title="약관 동의" />', "</VStack>"].join("\n"),
 		);
+		expect(imports.get("@cx/layout/primitives")).toEqual(new Set(["VStack"]));
+	});
+
+	it("falls back to the canonical registry component for bespoke layoutIds (mixed output)", () => {
+		const { ctx, imports, warnings } = createContext();
+		const code = emitNode(
+			node({
+				children: [node({ props: { title: "카드" }, type: "kiki.ListText" })],
+				layout: "layout.area.rowCardListArea",
+				type: "area.dynamic",
+			}),
+			ctx,
+			"",
+		);
+
+		expect(code).toBe(
+			["<RowCardListArea>", '\t<ListText title="카드" />', "</RowCardListArea>"].join("\n"),
+		);
+		expect(imports.get("@cx/layout/registry")).toEqual(new Set(["RowCardListArea"]));
+		expect(warnings).toEqual([]);
 	});
 
 	it("warns on unresolved layoutIds and emits content unwrapped", () => {

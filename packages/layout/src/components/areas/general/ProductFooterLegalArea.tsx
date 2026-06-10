@@ -1,8 +1,4 @@
 import { createPlainStack } from "./GeneralArea";
+import { generalAreaPresets } from "./presets";
 
-export const ProductFooterLegalArea = createPlainStack({
-	bottomPadding: 120,
-	gap: 30,
-	paddingX: 32,
-	paddingY: 32,
-});
+export const ProductFooterLegalArea = createPlainStack(generalAreaPresets.productFooterLegal);

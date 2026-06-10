@@ -74,8 +74,28 @@ describe("buildExportFileMap", () => {
 		expect(heroPng).toBeInstanceOf(Uint8Array);
 	});
 
+	it("collects intentional divider-drop warnings from the fixture into EXPORT_WARNINGS.txt", () => {
+		// primitive unwrap(T5) 이후 fixture의 divider props는 의도적으로 생략·경고된다.
+		const warningsText = String(files.get(`${JOB_ID}/EXPORT_WARNINGS.txt`));
+		const lines = warningsText.trimEnd().split("\n");
+		expect(lines).toHaveLength(2);
+		for (const line of lines) {
+			expect(line).toContain("primitive 미지원 prop 생략 — divider");
+		}
+	});
+
 	it("omits EXPORT_WARNINGS.txt when the tree emits no warnings", () => {
-		expect(files.has(`${JOB_ID}/EXPORT_WARNINGS.txt`)).toBe(false);
+		const dividerFreeTree = cloneTree();
+		const stripDivider = (node: RenderTreeNode): void => {
+			if (node.props && "divider" in node.props) {
+				delete (node.props as Record<string, unknown>).divider;
+			}
+			for (const child of node.children ?? []) stripDivider(child);
+		};
+		stripDivider(dividerFreeTree);
+
+		const cleanFiles = buildExportFileMap({ jobId: JOB_ID, repoRoot, tree: dividerFreeTree });
+		expect(cleanFiles.has(`${JOB_ID}/EXPORT_WARNINGS.txt`)).toBe(false);
 	});
 
 	it("includes EXPORT_WARNINGS.txt (one warning per line) when warnings exist", () => {

@@ -9,6 +9,7 @@
 		"./registry": "./src/registry.generated.ts",
 		"./resolver": "./src/resolver.ts",
 		"./canonicalize": "./src/canonicalize-catalog.ts",
+		"./primitive-target": "./src/primitive-target.ts",
 		"./primitives": "./src/components/primitives/index.ts",
 		"./chrome": "./src/components/chromes/index.ts",
 		"./style": "./src/internal/style.ts",

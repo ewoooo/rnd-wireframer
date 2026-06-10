@@ -16,8 +16,14 @@ const VISIBLE_TEXTS = [
 	"중복가입 가능여부",
 	"중복가입 불가",
 	"그룹상품 선택",
-	"계속하기",
 ];
+
+/**
+ * 계약 defaultValue로 렌더되는 텍스트 — 소스 문자열에는 없어도 화면에는 보인다.
+ * (ActionButton label 기본값. 과거에는 named 래퍼의 props 에코로 소스에 남았지만
+ * primitive unwrap 이후 소스에서 사라졌다. 렌더 수준 보존은 parity.test.tsx가 보장.)
+ */
+const DEFAULT_VALUE_TEXTS = ["계속하기"];
 
 /** display.when 기본값이 false인 상태 노드의 텍스트 — export물에 나오면 안 된다. */
 const STATE_GATED_TEXTS = [
@@ -39,14 +45,23 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 		}
 	});
 
+	it("relies on contract defaults (not source text) only for the known allowlist", () => {
+		for (const text of DEFAULT_VALUE_TEXTS) {
+			expect(result.code).not.toContain(text);
+		}
+	});
+
 	it("excludes state-gated texts whose display.when defaults to false", () => {
 		for (const text of STATE_GATED_TEXTS) {
 			expect(result.code).not.toContain(text);
 		}
 	});
 
-	it("produces no warnings for a fully resolved tree", () => {
-		expect(result.warnings).toEqual([]);
+	it("warns only about intentionally dropped divider props (drift guard)", () => {
+		expect(result.warnings).toEqual([
+			'layout "layout.area.fieldStack" unwrap (node area-fail-reason): primitive 미지원 prop 생략 — divider',
+			'layout "layout.area.listStack" unwrap (node area-combo-result): primitive 미지원 prop 생략 — divider',
+		]);
 	});
 
 	it("emits a clean root div and imports only the used modules", () => {
@@ -65,9 +80,10 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 		expect(result.code).toContain('<Flex layout={{ direction: "column" }}>');
 	});
 
-	it("keeps the area divider as a stack prop instead of a Divider leaf", () => {
-		expect(result.code).toContain('props={{ divider: "section" }}');
-		expect(result.code).toContain('props={{ divider: "contents" }}');
+	it("unwraps pattern layoutIds into primitives and drops divider props (no Divider leaf)", () => {
+		expect(result.code).toContain("<PageStack");
+		expect(result.code).toContain("<HStack gap={0}>");
+		expect(result.code).not.toContain("divider");
 		expect(result.code).not.toContain("<Divider");
 	});
 });

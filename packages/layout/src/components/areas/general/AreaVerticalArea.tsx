@@ -1,3 +1,4 @@
 import { createPlainStack } from "./GeneralArea";
+import { generalAreaPresets } from "./presets";
 
-export const AreaVerticalArea = createPlainStack({ gap: 0 });
+export const AreaVerticalArea = createPlainStack(generalAreaPresets.areaVertical);
