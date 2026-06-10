@@ -592,6 +592,8 @@ it("flags unknown composition plan source refs as a non-blocking warning", () =>
 	const report = validateCompositionPlan(
 		{
 			density: "medium",
+			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",
 			primaryUserAction: "continue",
@@ -632,6 +634,8 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 	const report = validateCompositionPlan(
 		{
 			density: "medium",
+			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",
 			primaryUserAction: "continue",
@@ -661,6 +665,8 @@ it("warns when composition plan source refs are not visible in generated artifac
 	const report = validateCompositionPlan(
 		{
 			density: "medium",
+			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",
 			primaryUserAction: "continue",

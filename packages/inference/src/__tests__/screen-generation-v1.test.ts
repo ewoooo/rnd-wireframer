@@ -35,6 +35,11 @@ describe("screenGenerationPipelineV1", () => {
 			"quality-review",
 		]);
 		expect(screenGenerationPipelineV1.steps[1]?.references).toEqual({
+			referenceIndex: {
+				source: "reference-screen-index",
+				id: undefined,
+				version: undefined,
+			},
 			skillset: {
 				source: "stage-skillset",
 				id: "understand.screen-intent",
@@ -47,6 +52,11 @@ describe("screenGenerationPipelineV1", () => {
 		const componentCatalog = { source: "component-catalog", id: undefined, version: undefined };
 		// Composition gets the layout catalog plus the compose-stage skillset.
 		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({
+			referenceCatalog: {
+				source: "reference-screen-catalog",
+				id: undefined,
+				version: undefined,
+			},
 			layoutCatalog,
 			skillset: {
 				source: "stage-skillset",
