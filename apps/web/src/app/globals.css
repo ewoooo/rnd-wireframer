@@ -26,3 +26,12 @@ textarea,
 select {
 	font: inherit;
 }
+
+/*
+ * Puck를 Canvas+RightAside 영역에만 부분 적용(custom interface)하면서도,
+ * 그 root 박스가 레이아웃 flex 행을 끊지 않도록 display:contents로 투명화한다.
+ * → Canvas·DoubleBorder·RightAside가 부모(SidebarProvider) flex 행의 직접 자식처럼 배치됨.
+ */
+.Puck {
+	display: contents;
+}

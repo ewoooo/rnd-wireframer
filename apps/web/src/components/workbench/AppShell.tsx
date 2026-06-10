@@ -31,7 +31,64 @@ export function AppShell() {
 	});
 	const [showStatusBar, setShowStatusBar] = useState(true);
 
-	const workbenchLayout = (
+	// Puck context는 Canvas(Preview)·EditSidebar(Fields/Components)에만 필요하다.
+	// 이 영역만 <Puck>로 감싸고 Rail·LeftAside(네비)는 밖에 둔다 →
+	// 화면 전환 시 Puck remount가 무거운 네비 목록·Rail까지 재마운트하지 않는다.
+	const editorRegion = (
+		<>
+			<Canvas
+				activeTab={activeTab}
+				loadState={screen.loadState}
+				onApplyNewScreenRun={newScreen.onApply}
+				onSaveSelectedScreen={screen.onSaveSelectedScreen}
+				onToggleStatusBar={() => setShowStatusBar((current) => !current)}
+				renderPuckPreview={puck.isEditingWithPuck}
+				saveState={screen.saveState}
+				selectedScreen={screen.visibleScreen}
+				newScreenPreviewNode={newScreen.previewNode}
+				newScreenRunStatus={newScreen.runStatus}
+				showStatusBar={showStatusBar}
+			/>
+			<DoubleBorder />
+			<EditSidebar
+				scope={puck.editScope}
+				newScreenReview={
+					activeTab === "agent"
+						? {
+								quality: newScreen.quality,
+								status: newScreen.runStatus,
+								validation: newScreen.validation,
+							}
+						: undefined
+				}
+			/>
+		</>
+	);
+
+	const editorRegionWithPuck =
+		puck.isEditingWithPuck && puck.editScope && screen.visibleScreen ? (
+			<Puck
+				key={`${screen.visibleScreen.id}:${activeTab}:${puck.editScope.kind}:${puck.editScopeKey}`}
+				config={buildPuckConfigForScope(puck.editScope, puck.catalogItems)}
+				data={buildPuckDataForScope(puck.editScope) as Data}
+				headerTitle={screen.visibleScreen.title}
+				iframe={{ enabled: false }}
+				onChange={puck.handlePuckChange}
+				permissions={{
+					delete: true,
+					drag: true,
+					duplicate: false,
+					edit: true,
+					insert: true,
+				}}
+			>
+				{editorRegion}
+			</Puck>
+		) : (
+			editorRegion
+		);
+
+	return (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
 			{/* body: rail · double border · main(=SidebarProvider) 3형제 */}
 			<Rail activeTab={activeTab} onSelectTab={setActiveTab} />
@@ -64,55 +121,8 @@ export function AppShell() {
 					isUploadingNewScreenSource={newScreen.isUploading || newScreen.isStarting}
 				/>
 				<DoubleBorder />
-				<Canvas
-					activeTab={activeTab}
-					loadState={screen.loadState}
-					onApplyNewScreenRun={newScreen.onApply}
-					onSaveSelectedScreen={screen.onSaveSelectedScreen}
-					onToggleStatusBar={() => setShowStatusBar((current) => !current)}
-					renderPuckPreview={puck.isEditingWithPuck}
-					saveState={screen.saveState}
-					selectedScreen={screen.visibleScreen}
-					newScreenPreviewNode={newScreen.previewNode}
-					newScreenRunStatus={newScreen.runStatus}
-					showStatusBar={showStatusBar}
-				/>
-				<DoubleBorder />
-				<EditSidebar
-					scope={puck.editScope}
-					newScreenReview={
-						activeTab === "agent"
-							? {
-									quality: newScreen.quality,
-									status: newScreen.runStatus,
-									validation: newScreen.validation,
-								}
-							: undefined
-					}
-				/>
+				{editorRegionWithPuck}
 			</SidebarProvider>
 		</main>
-	);
-
-	if (!puck.isEditingWithPuck || !puck.editScope || !screen.visibleScreen) return workbenchLayout;
-
-	return (
-		<Puck
-			key={`${screen.visibleScreen.id}:${activeTab}:${puck.editScope.kind}:${puck.editScopeKey}`}
-			config={buildPuckConfigForScope(puck.editScope, puck.catalogItems)}
-			data={buildPuckDataForScope(puck.editScope) as Data}
-			headerTitle={screen.visibleScreen.title}
-			iframe={{ enabled: false }}
-			onChange={puck.handlePuckChange}
-			permissions={{
-				delete: true,
-				drag: true,
-				duplicate: false,
-				edit: true,
-				insert: true,
-			}}
-		>
-			{workbenchLayout}
-		</Puck>
 	);
 }
