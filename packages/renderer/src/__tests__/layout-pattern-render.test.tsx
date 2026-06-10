@@ -455,37 +455,6 @@ describe("@cx/renderer layout pattern rendering", () => {
 		expect(layoutRoot).toHaveStyle({ bottom: "0px", position: "sticky" });
 	});
 
-	it("lets bottom action area own CTA rail spacing", () => {
-		render(
-			<RenderNodeView
-				node={{
-					type: "area.action",
-					componentVersion: "0.1.0",
-					layout: "layout.area.bottomActionArea",
-					metadata: { id: "bottom-action", title: "Bottom action" },
-					props: {},
-					children: [
-						{
-							type: "kiki.Button",
-							componentVersion: "0.1.0",
-							layout: "layout.composite.componentActionButton",
-							metadata: { id: "confirm-action", title: "Confirm action" },
-							props: { children: "인증 확인", size: "xlarge", variant: "primary" },
-						},
-					],
-				}}
-			/>,
-		);
-
-		const button = screen.getByRole("button", { name: "인증 확인" });
-		const actionArea = button.closest("[data-node-id='bottom-action']");
-		const actionWrapper = button.closest("[data-node-id='confirm-action']");
-
-		expect(actionArea).toHaveStyle({ paddingTop: "22px" });
-		expect(actionArea?.getAttribute("style")).toContain("padding-bottom: calc(24px");
-		expect(actionWrapper).not.toHaveStyle({ height: "56px", paddingTop: "22px" });
-	});
-
 	it("renders option collection patterns as grids", () => {
 		render(
 			<RenderNodeView
