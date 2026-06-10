@@ -151,6 +151,24 @@ importers:
         specifier: workspace:*
         version: link:../schema
 
+  packages/export-tsx:
+    dependencies:
+      '@cx/external':
+        specifier: workspace:*
+        version: link:../external
+      '@cx/layout':
+        specifier: workspace:*
+        version: link:../layout
+      '@cx/renderer':
+        specifier: workspace:*
+        version: link:../renderer
+      '@cx/schema':
+        specifier: workspace:*
+        version: link:../schema
+      react:
+        specifier: ^19.2.0
+        version: 19.2.7
+
   packages/external:
     dependencies:
       '@cx/schema':
