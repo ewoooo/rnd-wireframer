@@ -163,7 +163,7 @@ Domain design skill은 화면 유형별 Compose 판단을 돕는 문서다. 정�
 적용 원칙:
 
 - Skill은 임의의 새 `node.type`을 만들지 않는다.
-- 실제 RenderTree는 `@cx/components/catalog`와 허용된 layout candidates 안에서만 생성한다.
+- 실제 RenderTree는 `@cx/external/catalog`(`kiki.X`)와 허용된 layout candidates 안에서만 생성한다.
 - catalog에 없는 domain pattern은 바로 node type으로 쓰지 않고 `component-proposal` 후보로 남긴다.
 - Scenario skill은 화면 전체 구조를 결정하고, domain skill은 area/composite grouping을 돕고, atomic skill은 component props/state와 rhythm을 보정한다.
 

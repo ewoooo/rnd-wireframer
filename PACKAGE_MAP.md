@@ -21,8 +21,8 @@ Client App / Headless Client
    -> @cx/agent Claude SDK adapter
    -> deterministic functions
 -> Knowledge Base
-   -> @cx/components catalog
-   -> @cx/layout catalog
+   -> @cx/external catalog (resolver read API)
+   -> @cx/layout catalog (resolver read API)
    -> @cx/agent prompt templates / skill docs
 -> Job Store artifacts/events
 -> @cx/renderer preview
@@ -49,8 +49,8 @@ Product-facing screen inference routes use `/api/inference/*` only. The same rou
 | `@cx/renderer` | Active | RenderTree JSON -> React render runtime | generation, validation, table projection, AI execution |
 | `@cx/agent` | Active | Claude Agent SDK local-first execution engine adapter and prompt assets | workflow orchestration, final output SSOT, persistence, render |
 | `@cx/validation` | Active | Pure validation reports for schema/catalog/layout contracts | retry policy, stage transition, file write |
-| `@cx/components` | Active | Component implementations, component catalog, component token aliases | workflow, foundation tokens, file approval |
-| `@cx/layout` | Active | Screen chrome, layout primitives, layout pattern components, layout catalog/resolver | component catalog, generation workflow |
+| `@cx/external` | Active | Vendored kiki component implementations, generated component catalog (`kiki.X`), resolver read API, renderer-private registry, alias canonicalization | catalog contract types (owned by `@cx/schema`), foundation tokens, runtime catalog mutation |
+| `@cx/layout` | Active | Screen chrome, layout primitives, layout pattern components, generated layout catalog/registry, resolver read API, alias canonicalization | component catalog, generation workflow |
 | `@cx/tokens` | Active | Foundation/semantic token SSOT and public CSS/Tailwind entrypoints | component alias tokens, workflow |
 | `@cx/inference` | Active | Job/artifact stores, pipeline context, execution engines, pipeline definitions, worker, in-memory fakes | React render, catalog ownership |
 
@@ -63,12 +63,14 @@ Product-facing screen inference routes use `/api/inference/*` only. The same rou
 | `@cx/renderer` | `.`, `./renderer` compatibility entrypoint |
 | `@cx/agent` | `.`, `./adapters`, `./claude`, `./contract`, `./tasks` |
 | `@cx/validation` | `.`, `./contract`, `./types` |
-| `@cx/components` | `.`, `./catalog`, `./mutations`, `./resolver`, `./types`, CSS/token subpaths |
-| `@cx/layout` | `.`, `./catalog`, `./chrome`, `./components`, `./contract`, `./mutations`, `./primitives`, `./resolver`, `./style`, `./types` |
+| `@cx/external` | `.`, `./catalog` (generated), `./registry` (renderer-private), `./resolver`, `./canonicalize`, `./puck` |
+| `@cx/layout` | `.`, `./catalog` (generated), `./registry`, `./resolver`, `./canonicalize`, `./primitives`, `./chrome`, `./style`, `./types` |
 | `@cx/tokens` | `.`, `./variables.css`, `./tailwind.css` |
 | `@cx/inference` | `.`, `./testing`, `./pipelines/screen-generation-v1` |
 
 External packages must not import `src/internal/*`, implementation directories, generated artifacts, or unpublished subpaths. `@cx/schema` remains root-export only.
+
+`@cx/external` and `@cx/layout` share one external-thin scaffolding: a generated `catalog.generated.ts`, a generated `registry.generated.ts`, a hand-authored `catalog.alias.ts`, a `resolver.ts` (read-only catalog lookup API), and a `canonicalize-catalog.ts` (alias↔registry integrity + write-back helper). `catalog.generated` is sealed inside its owner package — no consumer imports it directly. Consumers see only two gates: the resolver (read API) and the registry (execution surface). The registry is renderer-private. Catalog contract types live in `@cx/schema`, not in the owner packages.
 
 ## 5. Relationship Rules
 
@@ -81,6 +83,9 @@ External packages must not import `src/internal/*`, implementation directories, 
 - Inference events must include a per-job monotonic `seq`; SSE event id uses the same `seq`.
 - `@cx/agent` owns Claude execution and prompt asset packaging, not workflow decisions.
 - Knowledge base packages are read-only during a run.
+- Catalog-owning packages (`@cx/external`, `@cx/layout`) expose metadata only through their `resolver` and execution only through their `registry`; no consumer reaches `catalog.generated` directly. `@cx/validation` and `@cx/renderer` read the same prop-contract through the same resolver, so "validation passed ⇒ renderable" holds by shared data, not by type coincidence.
+- Node-type and region vocabulary has a single source in `@cx/schema` (`RENDER_TREE_NODE_TYPE`); `@cx/layout` and `@cx/renderer` re-expose it rather than hardcoding literals. Component catalog keys and `node.type` are namespaced `kiki.X`; the renderer strips the `kiki.` prefix to resolve a registry export (this is a prefix rule, not alias resolution).
+- Alias resolution (input → canonical) is centralized at the persist boundary via `canonicalizeRenderTree` write-back (apply route, tree save, one-shot migration), so DB-loaded trees are always canonical and downstream matcher/validator/renderer see canonical only.
 - Pipeline Context is run-local working memory; inspectable results must be written as artifacts or events.
 - Screen inference execution, state, event, artifact, and step orchestration logic belongs in `@cx/inference`.
 

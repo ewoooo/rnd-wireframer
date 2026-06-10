@@ -1,7 +1,8 @@
 # RenderTree → TSX Export — Spec
 
 > 상태: DRAFT (스펙 합의 단계). 구현 플랜이 아니다. 이 문서가 잠긴 뒤에 별도 플랜을 쓴다.
-> 작성 근거: 이전 시도(`git stash@{0}`, "abandon-rendertree-tsx-export-WIP")가 부채가 된 원인 분석 + 현재 패키지 계약(`@cx/renderer/adapters`, `@cx/layout/components`, `@cx/schema` RENDER_TREE_NODE_TYPE) 확인.
+> 작성 근거: 이전 시도(`git stash@{0}`, "abandon-rendertree-tsx-export-WIP")가 부채가 된 원인 분석 + 현재 패키지 계약(`@cx/renderer/adapters`, `@cx/layout/registry`+`/canonicalize`, `@cx/external/registry`, `@cx/schema` RENDER_TREE_NODE_TYPE) 확인.
+> 갱신(2026-06-09 external SSOT): 컴포넌트 어휘는 `@cx/external`(`kiki.X` canonical)로 이전됐고, renderer는 `registry` + `canonicalize`로 컴포넌트를 직접 해석한다. 이 문서의 구 `@cx/components`/`@cx/layout/components` 참조를 그 기준으로 갱신했다.
 
 ## 1. 한 줄 정의
 
@@ -18,7 +19,7 @@
 첫 릴리스는 **시각·구조만** 재현하는 정적 TSX다.
 
 재현 대상(동일해야 함):
-- 컴포넌트 선택 (어떤 `@cx/components` 컴포넌트인가)
+- 컴포넌트 선택 (어떤 `@cx/external` 컴포넌트인가, `kiki.X`)
 - 레이아웃·패턴 선택 (어떤 `@cx/layout` 패턴/primitive인가)
 - props (해석된 값)
 - region 순서 (Header / Contents / Bottom, 그 안의 자식 순서)
@@ -32,7 +33,7 @@
 ## 4. 출력 형태 (확정)
 
 - 화면당 **단일 `.tsx` 파일**.
-- `@cx/components` · `@cx/layout`을 **import해서** 쓴다 (인라인 마크업 아님).
+- `@cx/external` · `@cx/layout`을 **import해서** 쓴다 (인라인 마크업 아님).
 - 따라서 산출물은 이 모노레포 안에서 동작하는 코드다. 외부 휴대성은 목표 아님.
 - 루트 엘리먼트는 `div` (참고: [[render-tree-tsx-clean-export]] — AppScreen 배관 제거, layout은 primitive로 낮춤).
 
@@ -44,8 +45,8 @@
 
 1. **컴파일러는 `@cx/renderer` 안에 산다** (`packages/renderer/src/compiler`, 신규 subpath `@cx/renderer/compiler`). `@cx/renderer`가 RenderTree 소비를 소유하므로 컴파일러도 여기 둔다.
 2. **컴파일러는 순수 문자열 생성 surface다.** 입력 RenderTree, 출력 TSX 문자열. React 렌더링 없음, 파일시스템 없음.
-3. **`@cx/layout` · `@cx/components`의 런타임 동작·구현은 불변.** 패턴 컴포넌트 재작성 금지, primitive 구조 변경 금지.
-4. **render registry는 `@cx/renderer` 내부 private contract table이다** (§6). node→구체 엘리먼트 해석(HOW)은 renderer가 소유한다. catalog(`@cx/components`/`@cx/layout`)는 *무엇이 있나*(컴포넌트·prop 계약·layout 패턴, WHAT)를 소유한다. 둘을 섞지 않는다. **이 테이블을 `@cx/layout` 리팩터로 만들지 않는다** — renderer 내부에 둔다. 현재 `resolve-component.tsx`의 `COMPONENT_RENDERERS` 등 renderer-local 임시 매핑을 이 registry로 정리하고, **런타임 렌더러와 TSX exporter가 같은 registry를 읽는다.**
+3. **`@cx/layout` · `@cx/external`의 런타임 동작·구현은 불변.** 패턴 컴포넌트 재작성 금지, primitive 구조 변경 금지.
+4. **render registry는 `@cx/renderer` 내부 private contract table이다** (§6). node→구체 엘리먼트 해석(HOW)은 renderer가 소유한다. catalog(`@cx/external`/`@cx/layout`)는 *무엇이 있나*(컴포넌트·prop 계약·layout 패턴, WHAT)를 소유한다. 둘을 섞지 않는다. **이 테이블을 `@cx/layout` 리팩터로 만들지 않는다** — renderer 내부에 둔다. 현재 `resolve-component.tsx`의 `COMPONENT_RENDERERS` 등 renderer-local 임시 매핑을 이 registry로 정리하고, **런타임 렌더러와 TSX exporter가 같은 registry를 읽는다.**
 5. **리터럴 금지**(원칙, [[feedback_no_hardcoded_switch]]). 문자열 키 분기·매핑·고정 prop 값은 contract 테이블로 표현한다. 컴파일러도 런타임도 이 원칙을 따른다. **exporter는 현재 하드코딩을 복제하지 않는다** — registry를 읽는다.
 6. 브라우저 노출이 필요하면 `apps/web`는 `/api/*`만 호출한다. 컴파일러를 클라이언트에서 직접 import하지 않는다 (서버 라우트 경유).
 
@@ -53,9 +54,9 @@
 
 런타임 해석(`@cx/renderer/src/adapters`)의 현재 모양:
 
-- `resolve-layout.ts`: `layoutId` → `findLayoutPatternComponentByLayoutId` (`@cx/layout/components`, catalog 기반). **깨끗함** — 컴파일러가 그대로 미러 가능.
+- `resolve-layout.ts`: `layoutId` → `@cx/layout/registry`[`canonicalizeLayout(id)`] (canonical componentKey 직접 해석). **깨끗함** — 컴파일러가 그대로 미러 가능.
 - `resolve-component.tsx`:
-  - `resolveComponentByType` — `@cx/components` export 이름 + `componentCatalogAliases` 폴백. **깨끗함**.
+  - `resolveComponentByType` — `@cx/external/registry` export 조회 + `kiki.` 접두사 strip 규칙(`componentsByType[type] ?? componentsByType[type.replace(/^kiki\./, "")]`). DB-load 트리는 canonical이므로 구 `componentCatalogAliases` 폴백은 제거됨. **깨끗함**.
   - `COMPONENT_RENDERERS` — **하드코딩 맵**. composite를 1:1 아닌 형태로 펼침:
     - `Accordion`, `SectionMessage` → `<Callout>`
     - `ListCell` → `<ListText>`
@@ -65,7 +66,7 @@
 
 문제: 컴파일러가 충실한 태그를 뽑으려면 이 해석을 알아야 한다. 두 가지 안티패턴을 둘 다 피해야 한다.
 - ❌ 컴파일러 안에 두 번째 switch를 복제한다 → [[feedback_no_hardcoded_switch]] 위반, 런타임과 영구 drift.
-- ❌ `@cx/layout`/`@cx/components`를 갈아엎어 컴파일러에 맞춘다 → 이전 부채 재발.
+- ❌ `@cx/layout`/`@cx/external`를 갈아엎어 컴파일러에 맞춘다 → 이전 부채 재발.
 
 **해결 방향 (스펙 수준 결정, 세부는 플랜에서):**
 
@@ -84,7 +85,7 @@
 
 ### 6.2 남은 composite는 살아있다 (확인 완료) — 그래서 §6 SSOT가 필수
 
-처음엔 `COMPONENT_RENDERERS` 전체가 죽었을 가능성을 의심했다(5잡 산출물에 0회). 그러나 모델 노출 경로를 확인한 결과 **반대였다.** `resolveComponentCatalogForInference()` → `listCatalog()` → `filterRegistry({})`는 `internalComponentCatalog`를 **source 필터 없이 전부** 반환한다(`packages/component/src/public/catalog.ts`). 따라서 남은 5개 renderer-composite(`accordion`, `checkbox`, `header`(HeaderBase), `list-cell`, `section-message`)는 **모델에게 그대로 노출되며 정당하게 선택 가능하다.** 5잡에서 안 골랐을 뿐 죽은 게 아니다. 특히 `section-message`는 `variant`(info/negative/positive/cautionary) 고유 prop 계약을 가진다.
+처음엔 `COMPONENT_RENDERERS` 전체가 죽었을 가능성을 의심했다(5잡 산출물에 0회). 그러나 모델 노출 경로를 확인한 결과 **반대였다.** `@cx/external/resolver`의 `resolveComponentCatalogForInference()`는 `catalog.generated`(`externalCatalog`)를 **source 필터 없이 전부** 반환한다. 따라서 남은 renderer-composite(`accordion`, `checkbox`, `header`(HeaderBase), `list-cell`, `section-message`)는 **모델에게 그대로 노출되며 정당하게 선택 가능하다.** 5잡에서 안 골랐을 뿐 죽은 게 아니다. 특히 `section-message`는 `variant`(info/negative/positive/cautionary) 고유 prop 계약을 가진다.
 
 함의: 컴파일러는 composite를 무시할 수 없다. 그 매핑(`accordion`/`section-message`→`Callout`, `list-cell`→`ListText`, `checkbox`→`ListSelected`, `header`→`AppBar`)은 현재 `COMPONENT_RENDERERS` 하드코딩 맵에만 존재하므로, **컴파일러가 충실한 태그를 뽑으려면 이 매핑을 공유 테이블로 끌어올려야 한다(§6 option 1 확정).**
 
@@ -109,7 +110,7 @@ renderer는 구조는 맞지만 완전히 catalog-driven은 아니다. layout pa
 | 1 | `resolve-component.tsx:40` `COMPONENT_RENDERERS` | composite→컴포넌트 + prop 배선 | 가장 명확한 임시 매핑 | **Phase 1 핵심** |
 | 2 | `render-primitive.tsx:20` | `Layout.Flex`/`Layout.Grid` if 분기 | 작음(2개), 태그+`layout`/`node` 관례 | Phase 1 후보 (작아서 같이) |
 | 3 | `resolve-area.tsx:16` | `area.static`/`area.dynamic` 분기 | 디스패치는 테이블화 가능하나 dynamic은 **행위**(데이터 반복/displayWhen) | 디스패치만 registry화, 행위는 함수 유지 |
-| 4 | `build-component-props.ts:85` `CATALOG_TEXT_PROP_SOURCE_KEYS` | prop→source 키 별칭 맵 | 별도 파일의 prop alias 계약 | 후속 (Phase 1 비대화 방지) |
+| 4 | `build-component-props.ts` 텍스트 prop source 키 | prop→source 키 별칭 맵 | **이전 완료**: `@cx/external/catalog.text-sources.ts`로 이동, `@cx/external/resolver` 경유 소비(커밋 `b9127ea4`) | 완료 |
 | 5 | `nodes/area/layout.tsx:10` | selection-list presentation + border/padding 스타일 | renderer-local 시각 하드코딩 | 후속 |
 
 primitive(2)와 area(2)는 지금 작아서 `if`가 견딜 만하지만 늘면 계약 테이블로 빼야 한다. registry는 이 셋(component/primitive/area dispatch)을 한 곳에서 키로 해석하도록 설계해, 늘어날 때 분기가 아니라 데이터 추가가 되게 한다.
@@ -128,7 +129,7 @@ primitive(2)와 area(2)는 지금 작아서 `if`가 견딜 만하지만 늘면 �
 - Screen/Header/Contents/Bottom region 골격.
 - catalog 직접 해석 컴포넌트 + composite `renderTarget` (Phase 1의 같은 테이블 소비).
 - catalog로 해석되는 layout 패턴.
-- import 문 자동 수집 (사용한 `@cx/components`/`@cx/layout` 심볼만).
+- import 문 자동 수집 (사용한 `@cx/external`/`@cx/layout` 심볼만).
 - 해석 불가 node는 **조용히 누락하지 않고** 진단 주석으로 표시.
 
 제외 (명시적 비목표):
@@ -140,7 +141,7 @@ primitive(2)와 area(2)는 지금 작아서 `if`가 견딜 만하지만 늘면 �
 ## 8. 성공 기준
 
 1. **시각 패리티**: 컴파일된 TSX를 렌더한 DOM이 `@cx/renderer` 프리뷰 DOM과 구조적으로 일치 (스냅샷/DOM 패리티 테스트로 강제).
-2. **계약 무흔들**: `@cx/layout`·`@cx/components`의 기존 public API·런타임 동작 테스트가 변경 없이 그대로 통과.
+2. **계약 무흔들**: `@cx/layout`·`@cx/external`의 기존 public API·런타임 동작 테스트가 변경 없이 그대로 통과.
 3. **단일 SSOT + 리터럴 제거**: node→element 해석이 런타임과 exporter에서 같은 **renderer-private registry**를 읽는다. `resolve-component.tsx`에 `COMPONENT_RENDERERS` 같은 문자열 키→렌더러 리터럴 맵이 남지 않는다. exporter 안에도 독립 switch 없음 (no-hardcoded-switch 정책 + 테스트/리뷰로 강제).
 4. **누락 가시성**: 해석 불가 surface는 출력에서 진단 주석으로 드러난다 (조용한 drop 금지).
 5. **범위 한계**: 변경이 `@cx/renderer`(registry + 어댑터 + 컴파일러) + 테스트로 한정. `@cx/layout` 리팩터·대규모 재작성 없음.
@@ -151,7 +152,7 @@ primitive(2)와 area(2)는 지금 작아서 `if`가 견딜 만하지만 늘면 �
 - registry entry의 propWiring 표현 형식 (선언 매핑 데이터 vs 작은 변환 함수).
 - `section-message` variant 충실도 복구를 어느 시점에 (Phase 1은 동작 보존이라 보류 권장).
 - registry 정리 범위 (§6.4): Phase 1에 #1 COMPONENT_RENDERERS만 vs #2 primitive까지 vs #3 area dispatch까지. #4/#5는 후속.
-- `CATALOG_TEXT_PROP_SOURCE_KEYS`를 prop alias 계약으로 흡수할지 (#4) — 후속 권장.
+- ~~`CATALOG_TEXT_PROP_SOURCE_KEYS`를 prop alias 계약으로 흡수할지 (#4)~~ — **해결**: `@cx/external/catalog.text-sources.ts`로 이전 완료(커밋 `b9127ea4`).
 - props 직렬화 규칙 (`{ bind, default }`에서 `default`만, 문자열 이스케이프, 비-원시 props 처리).
 - 진단 주석의 형식/위치.
 - `apps/web` 노출 시점 (릴리스 1에 포함 여부, `/api/*` 라우트 형태).
