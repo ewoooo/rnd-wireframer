@@ -108,6 +108,8 @@ describe("@cx/schema public API", () => {
 				"density",
 				"patternRationale",
 				"rejectedPatterns",
+				"currentFitAssessment",
+				"compositionProposal",
 			],
 		});
 		expect(getJsonSchema("decoration-plan")).toMatchObject({
@@ -296,6 +298,14 @@ describe("@cx/schema public API", () => {
 
 	it("exposes composition plan design decisions as schema-owned fields", () => {
 		const plan: CompositionPlanContract = {
+			compositionProposal: {
+				recommendedAreas: ["summary", "options"],
+				shouldChangeAreaComposite: false,
+			},
+			currentFitAssessment: {
+				problems: [],
+				supportsJudgment: true,
+			},
 			density: "medium",
 			layoutStrategy: "Use a detail screen with a stable content rail.",
 			patternRationale: "Detail composition keeps the primary facts ahead of the action slot.",

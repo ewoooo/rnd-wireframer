@@ -15,7 +15,19 @@ export type CompositionPlanRejectedPattern = {
 	reason: string;
 };
 
+export type CompositionCurrentFit = {
+	problems: string[];
+	supportsJudgment: boolean;
+};
+
+export type CompositionProposal = {
+	recommendedAreas: string[];
+	shouldChangeAreaComposite: boolean;
+};
+
 export type CompositionPlanContract = {
+	compositionProposal: CompositionProposal;
+	currentFitAssessment: CompositionCurrentFit;
 	density: CompositionPlanDensity;
 	layoutStrategy: string;
 	patternRationale: string;

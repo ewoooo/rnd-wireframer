@@ -318,6 +318,24 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 		$id: SCHEMA_VERSION.compositionPlan,
 		additionalProperties: false,
 		properties: {
+			compositionProposal: {
+				type: "object",
+				additionalProperties: false,
+				required: ["shouldChangeAreaComposite", "recommendedAreas"],
+				properties: {
+					recommendedAreas: { type: "array", items: { type: "string", minLength: 1 } },
+					shouldChangeAreaComposite: { type: "boolean" },
+				},
+			},
+			currentFitAssessment: {
+				type: "object",
+				additionalProperties: false,
+				required: ["supportsJudgment", "problems"],
+				properties: {
+					problems: { type: "array", items: { type: "string", minLength: 1 } },
+					supportsJudgment: { type: "boolean" },
+				},
+			},
 			density: { enum: ["low", "medium", "high"] },
 			layoutStrategy: { type: "string", minLength: 1 },
 			patternRationale: { type: "string", minLength: 1 },
@@ -348,6 +366,8 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 			"density",
 			"patternRationale",
 			"rejectedPatterns",
+			"currentFitAssessment",
+			"compositionProposal",
 		],
 		title: "composition-plan",
 		type: "object",
