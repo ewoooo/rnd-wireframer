@@ -56,8 +56,8 @@ function Tooltip({ text, left, tailAlign = 'start' }: TooltipProps) {
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 export interface ActionButtonProps {
-	type?: 'Default' | 'Ai' | 'Gift';
-	button?: '1' | '2';
+	type?: 'Default' | 'AI' | 'Gift';
+	button?: 1 | 2;
 	showText?: boolean;
 	showTooltip?: boolean;
 	// Ai+2: 상단 텍스트
@@ -83,86 +83,90 @@ export interface ActionButtonProps {
 	onGiftClick?: () => void;
 }
 
-/* ── 컴포넌트 ────────────────────────────────────────────────────────────── */
-export function ActionButton({
-	type = 'Default',
-	button = '1',
+/* ── variant별 렌더 ──────────────────────────────────────────────────────── */
+function Ai2({
 	showText = true,
-	showTooltip = true,
 	topText = '텍스트',
 	leftText = '텍스트',
 	rightText = '텍스트',
-	buttonText = '맞춤 옵션 바로 선택하기',
-	primaryText = '버튼',
-	secondaryText = '버튼',
-	priceLabel = '이용 금액',
-	period = '1개월/',
-	price = '7,900원',
-	tooltipText,
-	onPrimaryClick,
-	onSecondaryClick,
 	onAiClick,
-	onGiftClick,
+	onPrimaryClick,
 }: ActionButtonProps) {
-	const isAi2 = type === 'Ai' && button === '2';
-	const isAi1 = type === 'Ai' && button === '1';
-	const isDefault1 = type === 'Default' && button === '1';
-	const isDefault2 = type === 'Default' && button === '2';
-	const isGift1 = type === 'Gift' && button === '1';
-
 	return (
 		<div className={styles.wrap}>
-
-			{/* ── Ai + button=2 ────────────────────────────────────────────────── */}
-			{isAi2 && showText && (
+			{showText && (
 				<div className={styles.topRow}>
 					<span className={styles.topLabel}>{topText}</span>
 				</div>
 			)}
-			{isAi2 && (
-				<div className={styles.btnPrimary}>
-					<div className={styles.iconArea}>
-						<span className={styles.iconColor}><AiIcon /></span>
-					</div>
-					{/* TextButton type="double" 활용 */}
-					<TextButton
-						type="double"
-						leftLabel={leftText}
-						rightLabel={rightText}
-						color="#ffffff"
-						onLeftClick={onAiClick}
-						onRightClick={onPrimaryClick}
-					/>
+			<div className={styles.btnPrimary}>
+				<div className={styles.iconArea}>
+					<span className={styles.iconColor}><AiIcon /></span>
 				</div>
-			)}
+				{/* TextButton type="double" 활용 */}
+				<TextButton
+					type="double"
+					leftLabel={leftText}
+					rightLabel={rightText}
+					color="#ffffff"
+					onLeftClick={onAiClick}
+					onRightClick={onPrimaryClick}
+				/>
+			</div>
+		</div>
+	);
+}
 
-			{/* ── Ai + button=1 ────────────────────────────────────────────────── */}
-			{isAi1 && showTooltip && (
+function Ai1({
+	showTooltip = true,
+	tooltipText,
+	buttonText = '맞춤 옵션 바로 선택하기',
+	onAiClick,
+	onPrimaryClick,
+}: ActionButtonProps) {
+	return (
+		<div className={styles.wrap}>
+			{showTooltip && (
 				<Tooltip
 					text={tooltipText ?? '56만원의 T 안심보상가 적용이 대기 중이에요!'}
 					left={29}
 					tailAlign="start"
 				/>
 			)}
-			{isAi1 && (
-				<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
-					{/* LeftItem 활용 — Ai 아이콘 + 구분선 */}
-					<LeftItem type="ai" color="#ffffff" onAiClick={onAiClick} />
-					{/* TextButton type="single" 활용 */}
-					<TextButton type="single" label={buttonText} color="#ffffff" onClick={onPrimaryClick} />
-				</div>
-			)}
+			<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
+				{/* LeftItem 활용 — Ai 아이콘 + 구분선 */}
+				<LeftItem type="ai" color="#ffffff" onAiClick={onAiClick} />
+				{/* TextButton type="single" 활용 */}
+				<TextButton type="single" label={buttonText} color="#ffffff" onClick={onPrimaryClick} />
+			</div>
+		</div>
+	);
+}
 
-			{/* ── Default + button=1 ───────────────────────────────────────────── */}
-			{isDefault1 && (
-				<div className={styles.btnPrimary} style={{ justifyContent: 'center' }}>
-					{/* TextButton type="single" 활용 */}
-					<TextButton type="single" label={primaryText} color="#ffffff" onClick={onPrimaryClick} />
-				</div>
-			)}
+function Default1({ primaryText = '버튼', onPrimaryClick }: ActionButtonProps) {
+	return (
+		<div className={styles.wrap}>
+			<div className={styles.btnPrimary} style={{ justifyContent: 'center' }}>
+				{/* TextButton type="single" 활용 */}
+				<TextButton type="single" label={primaryText} color="#ffffff" onClick={onPrimaryClick} />
+			</div>
+		</div>
+	);
+}
 
-			{/* ── Default + button=2 ───────────────────────────────────────────── */}
-			{isDefault2 && showText && (
+function Default2({
+	showText = true,
+	priceLabel = '이용 금액',
+	period = '1개월/',
+	price = '7,900원',
+	secondaryText = '버튼',
+	primaryText = '버튼',
+	onSecondaryClick,
+	onPrimaryClick,
+}: ActionButtonProps) {
+	return (
+		<div className={styles.wrap}>
+			{showText && (
 				<div className={styles.priceRow}>
 					<span className={styles.priceLabel}>{priceLabel}</span>
 					<div className={styles.priceRight}>
@@ -171,42 +175,55 @@ export function ActionButton({
 					</div>
 				</div>
 			)}
-			{isDefault2 && (
-				<div className={styles.btnGroup}>
-					<button className={styles.btnSecondary} onClick={onSecondaryClick}>
-						{secondaryText}
-					</button>
-					<button className={styles.btnPrimaryBlock} onClick={onPrimaryClick}>
-						{primaryText}
-					</button>
-				</div>
-			)}
-
-			{/* ── Gift + button=1 ──────────────────────────────────────────────── */}
-			{isGift1 && showTooltip && (
-				<Tooltip
-					text={tooltipText ?? '비어 있음'}
-					left={169}
-					tailAlign="center"
-				/>
-			)}
-			{isGift1 && (
-				<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
-					<div className={styles.iconArea}>
-						<span className={styles.iconColor}><GiftIcon /></span>
-					</div>
-					{/* TextButton type="double" 활용 */}
-					<TextButton
-						type="double"
-						leftLabel={leftText === '텍스트' ? '선물하기' : leftText}
-						rightLabel={rightText === '텍스트' ? '구독하기' : rightText}
-						color="#ffffff"
-						onLeftClick={onGiftClick}
-						onRightClick={onPrimaryClick}
-					/>
-				</div>
-			)}
-
+			<div className={styles.btnGroup}>
+				<button className={styles.btnSecondary} onClick={onSecondaryClick}>
+					{secondaryText}
+				</button>
+				<button className={styles.btnPrimaryBlock} onClick={onPrimaryClick}>
+					{primaryText}
+				</button>
+			</div>
 		</div>
 	);
+}
+
+function Gift1({
+	showTooltip = true,
+	tooltipText,
+	leftText = '텍스트',
+	rightText = '텍스트',
+	onGiftClick,
+	onPrimaryClick,
+}: ActionButtonProps) {
+	return (
+		<div className={styles.wrap}>
+			{showTooltip && (
+				<Tooltip text={tooltipText ?? '비어 있음'} left={169} tailAlign="center" />
+			)}
+			<div className={styles.btnPrimary} style={{ justifyContent: 'space-between' }}>
+				<div className={styles.iconArea}>
+					<span className={styles.iconColor}><GiftIcon /></span>
+				</div>
+				{/* TextButton type="double" 활용 */}
+				<TextButton
+					type="double"
+					leftLabel={leftText === '텍스트' ? '선물하기' : leftText}
+					rightLabel={rightText === '텍스트' ? '구독하기' : rightText}
+					color="#ffffff"
+					onLeftClick={onGiftClick}
+					onRightClick={onPrimaryClick}
+				/>
+			</div>
+		</div>
+	);
+}
+
+/* ── 컴포넌트 (type × button 분기) ───────────────────────────────────────── */
+export function ActionButton({ type = 'AI', button = 2, ...props }: ActionButtonProps) {
+	if (type === 'AI' && button === 2) return <Ai2 {...props} />;
+	if (type === 'AI' && button === 1) return <Ai1 {...props} />;
+	if (type === 'Default' && button === 1) return <Default1 {...props} />;
+	if (type === 'Default' && button === 2) return <Default2 {...props} />;
+	if (type === 'Gift' && button === 1) return <Gift1 {...props} />;
+	return null; // Gift + 2: 미정의 조합
 }
