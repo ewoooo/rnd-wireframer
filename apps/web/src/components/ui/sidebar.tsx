@@ -27,8 +27,7 @@ export function Sidebar({
 			data-slot="sidebar"
 			className={cn(
 				"flex h-svh min-h-0 w-[var(--sidebar-width,380px)] shrink-0 flex-col overflow-hidden bg-sidebar text-sidebar-foreground",
-				side === "left" && "border-r border-sidebar-border",
-				side === "right" && "border-l border-sidebar-border",
+				// 가장자리 border는 DoubleBorder가 담당하므로 Sidebar 자체 border 제거
 				className,
 			)}
 			{...props}
