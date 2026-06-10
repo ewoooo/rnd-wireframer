@@ -642,19 +642,19 @@ describe("@cx/renderer layout pattern rendering", () => {
 					metadata: { id: "price-accordion", title: "Price accordion" },
 					children: [
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 							props: { title: "Price row 1" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 							props: { title: "Price row 2" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-3", title: "Price row 3" },
 							props: { title: "Price row 3" },
@@ -682,13 +682,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "none" },
 					children: [
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 							props: { title: "Price row 1" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 							props: { title: "Price row 2" },
@@ -710,13 +710,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "section" },
 					children: [
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 							props: { title: "Price row 1" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 							props: { title: "Price row 2" },
@@ -740,13 +740,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-1", title: "Price row 1" },
 							props: { title: "Price row 1" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "price-row-2", title: "Price row 2" },
 							props: { title: "Price row 2" },
@@ -852,13 +852,13 @@ describe("@cx/renderer layout pattern rendering", () => {
 					props: { divider: "contents" },
 					children: [
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-1", title: "Accordion row 1" },
 							props: { title: "Accordion row 1" },
 						},
 						{
-							type: "kiki.TitleSection",
+							type: "kiki.ListText",
 							componentVersion: "0.1.0",
 							metadata: { id: "accordion-row-2", title: "Accordion row 2" },
 							props: { title: "Accordion row 2" },
@@ -870,6 +870,86 @@ describe("@cx/renderer layout pattern rendering", () => {
 
 		expect(screen.getAllByRole("separator")).toHaveLength(1);
 		expect(getPageStackItems(screen.getByText("Accordion row 1")).children).toHaveLength(3);
+	});
+
+	it("does not insert contents dividers around heading rows (TitleSection exempt)", () => {
+		render(
+			<RenderNodeView
+				node={{
+					type: "area.list",
+					componentVersion: "0.1.0",
+					layout: "layout.area.listStack",
+					metadata: { id: "headed-list", title: "Headed list" },
+					props: { divider: "contents" },
+					children: [
+						{
+							type: "kiki.TitleSection",
+							componentVersion: "0.1.0",
+							layout: "layout.composite.componentTitleSection",
+							metadata: { id: "headed-title", title: "Headed title" },
+							props: { title: "Headed title" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "headed-row-1", title: "Headed row 1" },
+							props: { title: "Headed row 1" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "headed-row-2", title: "Headed row 2" },
+							props: { title: "Headed row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		// 제목 바로 아래 경계는 미삽입 — 행(ListText) 사이 1개만 남는다.
+		expect(screen.getAllByRole("separator")).toHaveLength(1);
+		expect(getPageStackItems(screen.getByText("Headed row 1")).children).toHaveLength(4);
+	});
+
+	it("renders selection-list row boundaries as shared contents dividers (no border-t)", () => {
+		const { container } = render(
+			<RenderNodeView
+				node={{
+					type: "area.static",
+					componentVersion: "0.1.0",
+					metadata: { id: "selection-area", title: "Selection area" },
+					props: { listPresentation: "selection-list" },
+					children: [
+						{
+							type: "kiki.TitleSection",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-title", title: "Selection title" },
+							props: { title: "Selection title" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-row-1", title: "Selection row 1" },
+							props: { title: "Selection row 1" },
+						},
+						{
+							type: "kiki.ListText",
+							componentVersion: "0.1.0",
+							metadata: { id: "selection-row-2", title: "Selection row 2" },
+							props: { title: "Selection row 2" },
+						},
+					],
+				}}
+			/>,
+		);
+
+		const dividers = screen.getAllByRole("separator");
+		expect(dividers).toHaveLength(1);
+		expect(dividers[0].className).toContain("contents");
+		expect(
+			container.querySelector("[data-area-list-presentation='selection-list']"),
+		).not.toBeNull();
+		expect(container.querySelector(".border-t")).toBeNull();
 	});
 
 	it("maps commerce detail padding aliases onto primitive layout props", () => {

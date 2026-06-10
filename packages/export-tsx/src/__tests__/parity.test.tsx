@@ -199,15 +199,21 @@ describe("TSX export ↔ runtime renderer text parity (cart-fail-recovery fixtur
 		}
 	});
 
-	it("emits only intentional divider-drop warnings (drift guard)", () => {
-		const unexpected = snapshot.warnings.filter(
-			(warning) => !warning.includes("primitive 미지원 prop 생략 — divider"),
-		);
-		expect(unexpected).toEqual([]);
+	it("emits no warnings (divider contracts are expressed, drift guard)", () => {
+		expect(snapshot.warnings).toEqual([]);
 	});
 
 	it("renders both sides without console.error output", () => {
 		expect(snapshot.consoleErrors).toEqual([]);
+	});
+
+	it("renders the same divider(hr) count on both sides", () => {
+		const runtimeDividers = snapshot.runtimeContainer.querySelectorAll("hr");
+		const exportDividers = snapshot.exportContainer.querySelectorAll("hr");
+		// fixture 기준: area-combo-result 행 사이 contents 1 + area-fail-reason 뒤 section 1.
+		// (TitleSection 직후에는 양쪽 모두 divider가 없어야 한다 — heading exempt 계약.)
+		expect(runtimeDividers).toHaveLength(2);
+		expect(exportDividers).toHaveLength(runtimeDividers.length);
 	});
 });
 

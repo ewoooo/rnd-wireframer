@@ -2,7 +2,7 @@ import { PageStack, type PageStackProps } from "@cx/layout/primitives";
 import {
 	type LayoutDivider,
 	renderChildrenWithDividers,
-	resolveDivider,
+	resolveDividerContract,
 	withTrailingSectionDivider,
 } from "../../patterns/shared/divider";
 import { toNumber, toPageStackItemTemplate } from "../../patterns/shared/props";
@@ -48,11 +48,9 @@ export function AreaPageStackFrame({
 	metadata,
 	props = {},
 }: AreaPageStackFrameProps) {
-	const divider = resolveDivider(props.divider, defaults.divider);
-	const trailingDivider =
-		divider === "section" || props.sectionDivider === true ? "section" : "none";
+	const { rows, trailingSection } = resolveDividerContract(props, defaults);
 	const framedChildren =
-		content === "nested-stack" ? children : renderChildrenWithDividers(children, divider);
+		content === "nested-stack" ? children : renderChildrenWithDividers(children, rows);
 
 	return withTrailingSectionDivider(
 		<PageStack
@@ -68,7 +66,7 @@ export function AreaPageStackFrame({
 		>
 			{framedChildren}
 		</PageStack>,
-		trailingDivider,
+		trailingSection,
 	);
 }
 

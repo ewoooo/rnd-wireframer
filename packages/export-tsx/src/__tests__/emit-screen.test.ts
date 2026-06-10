@@ -45,11 +45,8 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 		}
 	});
 
-	it("warns only about intentionally dropped divider props (drift guard)", () => {
-		expect(result.warnings).toEqual([
-			'layout "layout.area.fieldStack" unwrap (node area-fail-reason): primitive 미지원 prop 생략 — divider',
-			'layout "layout.area.listStack" unwrap (node area-combo-result): primitive 미지원 prop 생략 — divider',
-		]);
+	it("emits no warnings — divider props are expressed, not dropped (drift guard)", () => {
+		expect(result.warnings).toEqual([]);
 	});
 
 	it("emits a clean root div and imports only the used modules", () => {
@@ -89,11 +86,28 @@ describe("emitScreenTsx — integration (cart-fail-recovery fixture)", () => {
 		expect(result.code).not.toContain("<BottomFixedArea>");
 	});
 
-	it("unwraps pattern layoutIds into primitives and drops divider props (no Divider leaf)", () => {
+	it("unwraps pattern layoutIds into primitives and expresses divider contracts as Divider leaves", () => {
 		expect(result.code).toContain("<PageStack");
 		expect(result.code).toContain("<HStack gap={0}>");
-		expect(result.code).not.toContain("divider");
-		expect(result.code).not.toContain("<Divider");
+		// raw divider/sectionDivider prop은 primitive에 남지 않는다.
+		expect(result.code).not.toContain("divider=");
+		expect(result.code).not.toContain("sectionDivider");
+		// area-fail-reason(divider:"section") → PageStack 닫은 뒤 형제 section divider 1개.
+		expect(result.code.match(/<Divider type="section" \/>/g)).toHaveLength(1);
+	});
+
+	it("inserts a contents divider only between rows, never below the heading (area-combo-result)", () => {
+		// 행 경계 1곳(ListText↔ListSelected)에만 삽입 — TitleSection(exempt) 직후에는 없다.
+		expect(result.code.match(/<Divider type="contents" \/>/g)).toHaveLength(1);
+
+		const headingIndex = result.code.indexOf('title="선택 구성 검증 결과"');
+		const firstRowIndex = result.code.indexOf('title="중복가입 가능여부"');
+		const dividerIndex = result.code.indexOf('<Divider type="contents" />');
+		const secondRowIndex = result.code.indexOf("<ListSelected");
+		expect(headingIndex).toBeGreaterThan(-1);
+		expect(firstRowIndex).toBeGreaterThan(headingIndex);
+		expect(dividerIndex).toBeGreaterThan(firstRowIndex);
+		expect(secondRowIndex).toBeGreaterThan(dividerIndex);
 	});
 });
 

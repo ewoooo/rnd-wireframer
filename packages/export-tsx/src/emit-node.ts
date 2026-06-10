@@ -4,6 +4,7 @@ import {
 	componentExportNameOf,
 	getComponentCatalogEntry,
 } from "@cx/external/resolver";
+import { contentsDividerBoundaries, dividerKindOfCanonicalType } from "@cx/layout";
 import { canonicalizeLayout } from "@cx/layout/canonicalize";
 import { type PrimitiveTarget, resolvePrimitiveTarget } from "@cx/layout/primitive-target";
 import {
@@ -83,8 +84,10 @@ function emitNamedLayout(layoutId: string, input: EmitNodeInput): string | undef
 		return emitNodeWithoutLayout(input);
 	}
 
+	const { childNodes, children } = emitLayoutChildEntries(input);
 	return emitLayoutWrapper({
-		children: emitLayoutChildren(input),
+		childNodes,
+		children,
 		className: input.node.className,
 		componentKey,
 		ctx: input.ctx,
@@ -96,6 +99,8 @@ function emitNamedLayout(layoutId: string, input: EmitNodeInput): string | undef
 }
 
 export type EmitLayoutWrapperInput = {
+	/** children과 1:1 정렬된 원본 render-tree 노드 — rowDivider 경계(kinds) 계산용. */
+	childNodes: RenderTreeNode[];
 	/** 래퍼 안에 들어갈, 이미 indent+탭으로 완성된 자식 블록들. */
 	children: string[];
 	className?: string;
@@ -137,7 +142,7 @@ export function emitLayoutWrapper(input: EmitLayoutWrapperInput): string {
 	});
 }
 
-/** 해석된 PrimitiveTarget → primitive JSX. droppedProps(divider 등)는 warning 1줄로 남긴다. */
+/** 해석된 PrimitiveTarget → primitive JSX. droppedProps는 warning 1줄로 남긴다. */
 function emitPrimitiveLayoutTarget(target: PrimitiveTarget, input: EmitLayoutWrapperInput): string {
 	input.ctx.addImport(GENERATED_IMPORT_PATHS.primitives, target.primitive);
 
@@ -155,22 +160,65 @@ function emitPrimitiveLayoutTarget(target: PrimitiveTarget, input: EmitLayoutWra
 			.map(([key, value]) => serializeJsxAttribute(key, value, attrIndent)),
 	];
 
-	return formatJsxElement({
+	const element = formatJsxElement({
 		attributes,
-		children: input.children,
+		children: target.rowDivider === true ? withRowDividers(input) : input.children,
 		indent: input.indent,
 		name: target.primitive,
 	});
+
+	if (target.trailingSectionDivider !== true) return element;
+	// 영역 끝 4px 구분선 — primitive의 형제로 emit. 호출부가 children 블록 문자열로 합류하므로
+	// fragment 래핑은 불필요하다(루트는 항상 screen frame div 안이다).
+	input.ctx.addImport(GENERATED_IMPORT_PATHS.external, "Divider");
+	return `${element}\n${input.indent}<Divider type="section" />`;
+}
+
+/**
+ * rowDivider — 자식 노드 type을 캐논화해 kinds를 만들고, 런타임과 공유하는
+ * contentsDividerBoundaries(@cx/layout) 결과가 true인 경계에만 contents Divider를 삽입한다.
+ */
+function withRowDividers(input: EmitLayoutWrapperInput): string[] {
+	if (input.childNodes.length !== input.children.length) {
+		input.ctx.warnings.push(
+			`layout "${input.layoutId}" unwrap (node ${input.nodeId}): childNodes/children 정렬 불일치 — rowDivider 생략`,
+		);
+		return input.children;
+	}
+
+	const kinds = input.childNodes.map((node) =>
+		dividerKindOfCanonicalType(canonicalizeComponentType(node.type) ?? node.type),
+	);
+	const boundaries = contentsDividerBoundaries(kinds);
+	if (!boundaries.some(Boolean)) return input.children;
+
+	input.ctx.addImport(GENERATED_IMPORT_PATHS.external, "Divider");
+	const childIndent = `${input.indent}\t`;
+	return input.children.flatMap((child, index) =>
+		index > 0 && boundaries[index - 1]
+			? [`${childIndent}<Divider type="contents" />`, child]
+			: [child],
+	);
 }
 
 /** layout 래퍼의 children — 없으면 노드 자신의 내용을 한 단계 안에서 emit(leaf 케이스). */
-function emitLayoutChildren(input: EmitNodeInput): string[] {
+function emitLayoutChildEntries(input: EmitNodeInput): {
+	childNodes: RenderTreeNode[];
+	children: string[];
+} {
 	const childIndent = `${input.indent}\t`;
-	const children = input.emitChildren(childIndent);
-	if (children.length > 0) return children;
+	const entries = (input.node.children ?? []).flatMap((child) => {
+		const code = emitNode(child, input.ctx, childIndent);
+		return code === undefined ? [] : [{ child, code }];
+	});
+	if (entries.length > 0) {
+		return { childNodes: entries.map((e) => e.child), children: entries.map((e) => e.code) };
+	}
 
 	const inner = emitNodeWithoutLayout({ ...input, indent: childIndent });
-	return inner === undefined ? [] : [inner];
+	return inner === undefined
+		? { childNodes: [], children: [] }
+		: { childNodes: [input.node], children: [inner] };
 }
 
 /**

@@ -244,8 +244,56 @@ describe("emitNode — named layout patterns", () => {
 		);
 		expect(imports.get("@cx/layout/primitives")).toEqual(new Set(["PageStack"]));
 		expect(imports.get("@cx/layout/registry")).toBeUndefined();
-		expect(warnings).toHaveLength(1);
-		expect(warnings[0]).toContain("divider");
+		expect(warnings).toEqual([]);
+	});
+
+	it('divider:"contents"는 행 사이에만 Divider를 emit한다 (heading exempt)', () => {
+		const { ctx, imports, warnings } = createContext();
+		const code = emitNode(
+			node({
+				children: [
+					node({ props: { title: "제목" }, type: "kiki.TitleSection" }),
+					node({ props: { title: "약관 1" }, type: "kiki.ListText" }),
+					node({ props: { title: "약관 2" }, type: "kiki.ListText" }),
+				],
+				layout: "layout.area.listStack",
+				props: { divider: "contents" },
+				type: "area.dynamic",
+			}),
+			ctx,
+			"",
+		);
+
+		// TitleSection 직후에는 없고, ListText 행 사이 경계 1곳에만 삽입된다.
+		expect(code).toContain(
+			[
+				'\t<TitleSection title="제목" />',
+				'\t<ListText title="약관 1" />',
+				'\t<Divider type="contents" />',
+				'\t<ListText title="약관 2" />',
+			].join("\n"),
+		);
+		expect([...(imports.get("@cx/external") ?? [])]).toContain("Divider");
+		expect(warnings).toEqual([]);
+	});
+
+	it('divider:"section"은 primitive 닫는 태그 뒤 형제 section Divider로 emit한다', () => {
+		const { ctx, imports, warnings } = createContext();
+		const code = emitNode(
+			node({
+				children: [node({ props: { title: "약관 1" }, type: "kiki.ListText" })],
+				layout: "layout.area.fieldStack",
+				props: { divider: "section" },
+				type: "area.dynamic",
+			}),
+			ctx,
+			"",
+		);
+
+		expect(code).toContain('</PageStack>\n<Divider type="section" />');
+		expect(code).not.toContain('<Divider type="contents" />');
+		expect([...(imports.get("@cx/external") ?? [])]).toContain("Divider");
+		expect(warnings).toEqual([]);
 	});
 
 	it("preserves className on unwrapped primitives", () => {

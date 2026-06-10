@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`emitScreenTsx — integration (cart-fail-recovery fixture) > matches the TSX snapshot 1`] = `
-"import { ActionButton, AppBar, Callout, ListSelected, ListText, TextButton, TitleSection } from "@cx/external";
+"import { ActionButton, AppBar, Callout, Divider, ListSelected, ListText, TextButton, TitleSection } from "@cx/external";
 import { BottomFixedArea, Flex, HStack, PageStack, VStack } from "@cx/layout/primitives";
 
 export default function Screen() {
@@ -48,6 +48,7 @@ export default function Screen() {
 							<TextButton label="나중에 다시 보기" />
 						</VStack>
 					</PageStack>
+					<Divider type="section" />
 					<PageStack
 						gap={8}
 						itemPaddingX={20}
@@ -62,6 +63,7 @@ export default function Screen() {
 						<VStack gap={0}>
 							<ListText showRightItem={false} subText="중복가입 불가" table="off" title="중복가입 가능여부" />
 						</VStack>
+						<Divider type="contents" />
 						<VStack gap={0}>
 							<ListSelected
 								checked={false}

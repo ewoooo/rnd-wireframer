@@ -170,14 +170,18 @@ function emitRegionContent(node: RenderTreeNode, ctx: EmitContext, indent: strin
 	}
 
 	const childIndent = wrapperKey ? `${indent}\t` : indent;
-	const children = (node.children ?? [])
-		.map((child) => emitNode(child, ctx, childIndent))
-		.filter((child): child is string => child !== undefined);
+	// childNodes는 children 문자열과 1:1 정렬 — emitLayoutWrapper의 rowDivider kinds 계산용.
+	const entries = (node.children ?? []).flatMap((child) => {
+		const code = emitNode(child, ctx, childIndent);
+		return code === undefined ? [] : [{ child, code }];
+	});
+	const children = entries.map((entry) => entry.code);
 
 	if (!wrapperKey || node.layout === undefined || children.length === 0) return children;
 
 	return [
 		emitLayoutWrapper({
+			childNodes: entries.map((entry) => entry.child),
 			children,
 			componentKey: wrapperKey,
 			ctx,

@@ -67,23 +67,33 @@ describe("resolvePrimitiveTarget — page-stack 패밀리", () => {
 		});
 	});
 
-	it("divider prop은 생략하되 droppedProps로 보고한다", () => {
+	it('divider:"section"은 trailingSectionDivider 계약 필드로 환원한다 (drop 없음)', () => {
 		const target = resolvePrimitiveTarget("layout.area.fieldStack", { divider: "section" });
 		expect(target?.primitive).toBe("PageStack");
-		expect(target?.droppedProps).toEqual(["divider"]);
+		expect(target?.trailingSectionDivider).toBe(true);
+		expect(target?.rowDivider).toBeUndefined();
+		expect(target?.droppedProps).toBeUndefined();
 		expect(target?.props).not.toHaveProperty("divider");
 	});
 
-	it("divider가 none으로 해석되면 droppedProps가 없다", () => {
-		expect(
-			resolvePrimitiveTarget("layout.area.listStack", { divider: false })?.droppedProps,
-		).toBeUndefined();
+	it("divider가 none으로 해석되면 divider 계약 필드가 없다", () => {
+		const target = resolvePrimitiveTarget("layout.area.listStack", { divider: false });
+		expect(target?.rowDivider).toBeUndefined();
+		expect(target?.trailingSectionDivider).toBeUndefined();
+		expect(target?.droppedProps).toBeUndefined();
 	});
 
-	it("preset divider 기본값(contents)도 생략 보고 대상이다", () => {
-		expect(resolvePrimitiveTarget("layout.area.plainInfoTextListArea", {})?.droppedProps).toEqual([
-			"divider",
-		]);
+	it("preset divider 기본값(contents)은 rowDivider로 환원한다", () => {
+		const target = resolvePrimitiveTarget("layout.area.plainInfoTextListArea", {});
+		expect(target?.rowDivider).toBe(true);
+		expect(target?.droppedProps).toBeUndefined();
+	});
+
+	it("레거시 sectionDivider:true도 trailingSectionDivider로 흡수한다", () => {
+		expect(
+			resolvePrimitiveTarget("layout.area.listStack", { sectionDivider: true })
+				?.trailingSectionDivider,
+		).toBe(true);
 	});
 });
 

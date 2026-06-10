@@ -19,7 +19,7 @@ import {
 	resolveCompositeStyle,
 } from "./components/composites/CompositeWrapper";
 import { compositeDefaults } from "./components/composites/presets";
-import { resolveDivider } from "./components/patterns/shared/divider";
+import { resolveDividerContract } from "./components/patterns/shared/divider";
 import { regionStackDefaults, resolveRegionStackProps } from "./components/regions/RegionStack";
 
 /**
@@ -43,8 +43,12 @@ export type PrimitiveTarget = {
 	primitive: PrimitiveTargetName;
 	/** primitive에 그대로 전달할 props (node/metadata 배관 제외, 직렬화 가능한 값만). */
 	props: Record<string, unknown>;
-	/** primitive가 표현하지 못해 생략한 prop 이름 (예: divider) — export warning 1줄용. */
+	/** primitive가 표현하지 못해 생략한 prop 이름 — export warning 1줄용. */
 	droppedProps?: string[];
+	/** divider:"contents" — 자식 행 사이 <Divider type="contents" /> 삽입 의미(경계는 호출자가 계산). */
+	rowDivider?: true;
+	/** divider:"section"(레거시 sectionDivider 포함) — primitive 뒤 형제로 <Divider type="section" />. */
+	trailingSectionDivider?: true;
 };
 
 type TargetResolver = (props: Record<string, unknown>) => PrimitiveTarget;
@@ -82,21 +86,19 @@ function compositeTarget(
 	};
 }
 
-// --- page-stack 패밀리: AreaPageStackFrame → PageStack. divider는 primitive 미지원이라 생략 ---
+// --- page-stack 패밀리: AreaPageStackFrame → PageStack. divider 의미는 계약 필드로 노출 ---
 
 function pageStackTarget(
 	props: Record<string, unknown>,
 	defaults: AreaPageStackDefaults,
 ): PrimitiveTarget {
-	const droppedProps: string[] = [];
-	const divider = resolveDivider(props.divider, defaults.divider);
-	if (divider === "contents" || divider === "section") droppedProps.push("divider");
-	if (props.sectionDivider === true) droppedProps.push("sectionDivider");
+	const { rows, trailingSection } = resolveDividerContract(props, defaults);
 
 	return {
 		primitive: "PageStack",
 		props: compactProps(resolveAreaPageStackProps(props, defaults)),
-		...(droppedProps.length > 0 ? { droppedProps } : {}),
+		...(rows ? { rowDivider: true as const } : {}),
+		...(trailingSection ? { trailingSectionDivider: true as const } : {}),
 	};
 }
 
