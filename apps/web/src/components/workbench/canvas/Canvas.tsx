@@ -7,6 +7,7 @@ import type { NavigatorTab } from "@/model/workbench-view-model";
 import { RenderedScreen } from "../../screen/RenderedScreen";
 import { CanvasToolbar, type SaveState } from "./CanvasToolbar";
 import { ExportToolbar } from "./ExportToolbar";
+import { RenderErrorBoundary } from "./RenderErrorBoundary";
 
 type CanvasProps = {
 	activeTab: NavigatorTab;
@@ -91,19 +92,21 @@ export function Canvas({
 						: "items-center justify-center overflow-hidden bg-secondary/50 p-6"
 				}
 			>
-				{loadState.status !== "ready" ? (
-					<CanvasLoadState message={loadState.message} status={loadState.status} />
-				) : isNewScreenTab && newScreenPreviewNode ? (
-					<RenderedScreen node={newScreenPreviewNode} />
-				) : isNewScreenTab ? (
-					<NewScreenEmptyPreview />
-				) : renderPuckPreview ? (
-					<div className="flex h-211 w-98 max-w-full shrink-0 overflow-hidden rounded-3xl border bg-background shadow-xl [&_[class*='PuckPreview']]:h-full [&_[class*='PuckPreview']]:w-full">
-						<Puck.Preview />
-					</div>
-				) : (
-					<RenderedScreen node={selectedScreen?.renderTree} />
-				)}
+				<RenderErrorBoundary key={`${selectedScreen?.id ?? "none"}:${activeTab}`}>
+					{loadState.status !== "ready" ? (
+						<CanvasLoadState message={loadState.message} status={loadState.status} />
+					) : isNewScreenTab && newScreenPreviewNode ? (
+						<RenderedScreen node={newScreenPreviewNode} />
+					) : isNewScreenTab ? (
+						<NewScreenEmptyPreview />
+					) : renderPuckPreview ? (
+						<div className="flex h-211 w-98 max-w-full shrink-0 overflow-hidden rounded-3xl border bg-background shadow-xl [&_[class*='PuckPreview']]:h-full [&_[class*='PuckPreview']]:w-full">
+							<Puck.Preview />
+						</div>
+					) : (
+						<RenderedScreen node={selectedScreen?.renderTree} />
+					)}
+				</RenderErrorBoundary>
 			</SidebarContent>
 		</SidebarInset>
 	);
