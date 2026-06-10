@@ -27,7 +27,7 @@ export function NewScreenReviewSummary({ review }: NewScreenReviewSummaryProps) 
 	const quality = review.quality;
 
 	return (
-		<div className="grid gap-3 p-3">
+		<div className="grid gap-2">
 			<ReviewBlock
 				description={readValidationDescription(validation)}
 				state={validation?.ok ? "ok" : validation ? "issue" : "pending"}
@@ -39,18 +39,15 @@ export function NewScreenReviewSummary({ review }: NewScreenReviewSummaryProps) 
 				title="Quality"
 			/>
 			{quality?.findings?.length ? (
-				<div className="grid gap-2">
-					<p className="text-xs font-semibold text-muted-foreground">Issue highlights</p>
-					<div className="grid gap-1.5">
-						{quality.findings.slice(0, 4).map((finding) => (
-							<p
-								className="rounded-md border border-sidebar-border px-2 py-1.5 text-xs leading-5 text-sidebar-foreground"
-								key={`${finding.code}:${finding.message}`}
-							>
-								{finding.message}
-							</p>
-						))}
-					</div>
+				<div className="grid gap-1.5">
+					{quality.findings.slice(0, 4).map((finding) => (
+						<p
+							className="border-b px-3 py-2 text-xs leading-5 text-sidebar-foreground"
+							key={`${finding.code}:${finding.message}`}
+						>
+							{finding.message}
+						</p>
+					))}
 				</div>
 			) : null}
 			<TsxExportButton status={review.status} />
@@ -65,7 +62,7 @@ function TsxExportButton({ status }: { status?: ScreenInferenceRunStatus }) {
 	if (!isExportReady) {
 		return (
 			<Button
-				className="h-8 justify-center gap-1 text-xs"
+				className="h-8 justify-center text-xs"
 				disabled
 				size="sm"
 				type="button"
@@ -97,9 +94,9 @@ function ReviewBlock({
 	title: string;
 }) {
 	return (
-		<div className="grid gap-1 rounded-md border border-sidebar-border p-3" data-state={state}>
-			<p className="truncate text-sm font-semibold">{title}</p>
-			<p className="text-xs leading-5 text-muted-foreground">{description}</p>
+		<div className="flex justify-between gap-1 border-b border-sidebar-border p-3" data-state={state}>
+			<p className="text-xs font-semibold">{title}</p>
+			<p className="text-xs  text-muted-foreground">{description}</p>
 		</div>
 	);
 }
