@@ -1,4 +1,5 @@
 import { RENDER_TREE_NODE_TYPE_GROUPS } from "@cx/schema";
+import type { LayoutPatternPropContract } from "./catalog-types";
 
 /**
  * 노드 type 어휘의 정본은 @cx/schema다. layout은 자신이 다루는 구조 그룹
@@ -11,70 +12,51 @@ export const LAYOUT_NODE_TYPES = {
 } as const;
 
 /**
- * layout/region 노드가 받는 prop의 형태 계약이다. 노드 prop의 정본은 위 타입들이
- * 소유하므로, 그 계약을 런타임에 검사 가능한 형태로 노출하는 이 테이블도 같은 곳에 둔다.
- * (검증 자체는 @cx/validation이 이 테이블을 소비해 수행한다.)
+ * primitive/chrome 레이아웃 노드 타입이 받는 prop의 계약이다. 노드 type 어휘의 정본은
+ * 위 타입들이 소유하므로 그 계약도 같은 곳에 둔다. 모양은 catalog entry의 props 계약
+ * (LayoutPatternPropContract)과 동일 — external/패턴/노드타입이 단일 prop-contract 모양을
+ * 공유하고, @cx/validation이 resolver를 통해 이 테이블을 소비해 검증한다.
  */
-export type LayoutPropContract = {
-	booleanProps: readonly string[];
-	enumProps: Record<string, readonly string[]>;
-	numberProps: readonly string[];
-	requiredProps: readonly string[];
-	stringProps: readonly string[];
-};
-
-export type LayoutPropContractType =
+export type LayoutNodePropContractType =
 	| (typeof LAYOUT_NODE_TYPES.layout)[number]
 	| (typeof LAYOUT_NODE_TYPES.screenRegion)[number];
 
-export const LAYOUT_PROP_CONTRACTS = {
+export const LAYOUT_NODE_TYPE_PROP_CONTRACTS: Record<
+	LayoutNodePropContractType,
+	Record<string, LayoutPatternPropContract>
+> = {
 	"Layout.Flex": {
-		booleanProps: [],
-		enumProps: {
-			align: ["start", "center", "end", "stretch"],
-			direction: ["row", "column"],
-			justify: ["start", "center", "end", "between"],
-		},
-		numberProps: ["gap", "paddingX", "paddingY"],
-		requiredProps: ["direction"],
-		stringProps: [],
+		direction: { type: "enum", values: ["row", "column"], required: true },
+		align: { type: "enum", values: ["start", "center", "end", "stretch"] },
+		justify: { type: "enum", values: ["start", "center", "end", "between"] },
+		gap: { type: "number" },
+		paddingX: { type: "number" },
+		paddingY: { type: "number" },
 	},
 	"Layout.Grid": {
-		booleanProps: [],
-		enumProps: {
-			align: ["start", "center", "end", "stretch"],
-			justify: ["start", "center", "end", "stretch"],
-		},
-		numberProps: ["gap", "paddingX", "paddingY"],
-		requiredProps: [],
-		stringProps: ["columns", "rows"],
+		columns: { type: "string" },
+		rows: { type: "string" },
+		align: { type: "enum", values: ["start", "center", "end", "stretch"] },
+		justify: { type: "enum", values: ["start", "center", "end", "stretch"] },
+		gap: { type: "number" },
+		paddingX: { type: "number" },
+		paddingY: { type: "number" },
 	},
 	"Screen.Header": {
-		booleanProps: [],
-		enumProps: {
-			position: ["fixed", "sticky", "static"],
-		},
-		numberProps: ["height", "zIndex"],
-		requiredProps: [],
-		stringProps: [],
+		position: { type: "enum", values: ["fixed", "sticky", "static"] },
+		height: { type: "number" },
+		zIndex: { type: "number" },
 	},
 	"Screen.Contents": {
-		booleanProps: ["scroll"],
-		enumProps: {},
-		numberProps: [],
-		requiredProps: [],
-		stringProps: [],
+		scroll: { type: "boolean" },
 	},
 	"Screen.Bottom": {
-		booleanProps: ["safeArea"],
-		enumProps: {
-			position: ["fixed", "sticky", "static"],
-		},
-		numberProps: ["height", "zIndex"],
-		requiredProps: [],
-		stringProps: [],
+		safeArea: { type: "boolean" },
+		position: { type: "enum", values: ["fixed", "sticky", "static"] },
+		height: { type: "number" },
+		zIndex: { type: "number" },
 	},
-} as const satisfies Record<LayoutPropContractType, LayoutPropContract>;
+};
 
 export type FlexLayoutProps = {
 	direction: "row" | "column";

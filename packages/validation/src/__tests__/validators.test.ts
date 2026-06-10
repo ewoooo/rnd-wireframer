@@ -457,7 +457,7 @@ describe("@cx/validation validators", () => {
 		);
 		expect(report.issues).toContainEqual(
 			expect.objectContaining({
-				code: "invalid-layout-prop",
+				code: "invalid-prop-type",
 				path: ["props", "gap"],
 			}),
 		);
