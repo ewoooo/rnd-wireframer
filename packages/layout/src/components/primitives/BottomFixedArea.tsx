@@ -26,8 +26,6 @@ export function BottomFixedArea({
 		<VStack
 			as={as}
 			gap={gap}
-			paddingBottom={resolvedPaddingBottom}
-			paddingTop={hasAsymmetricPadding ? resolvedPaddingTop : undefined}
 			style={{
 				bottom: 0,
 				paddingBottom: formatBottomPadding(resolvedPaddingBottom, safeArea),
