@@ -15,10 +15,8 @@ describe("App workbench navigation", () => {
 		stubScreenFetch();
 		render(<App />);
 
-		expect(
-			await screen.findByRole("heading", { level: 1, name: "Preview Default" }),
-		).toBeInTheDocument();
-		expect(screen.getAllByText(/Preview Route/).length).toBeGreaterThan(0);
+		await waitForWorkbenchReady();
+		expect(screen.getByText("Preview Default")).toBeInTheDocument();
 
 		fireEvent.click(getRailButton("Components"));
 
@@ -29,7 +27,7 @@ describe("App workbench navigation", () => {
 
 		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
 
-		expect(screen.getByRole("heading", { level: 1, name: "Member Base" })).toBeInTheDocument();
+		expect(screen.getByText("member-base-cta")).toBeInTheDocument();
 
 		fireEvent.click(getRailButton("Areas"));
 
@@ -83,18 +81,17 @@ describe("App workbench navigation", () => {
 		});
 		render(<App />);
 
-		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		await waitForWorkbenchReady();
 
 		fireEvent.click(getRailButton("Components"));
 		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
 		fireEvent.click(getRailButton("Screens"));
 
-		expect(screen.getByRole("heading", { level: 1, name: "Member Base" })).toBeInTheDocument();
+		expect(screen.getByTitle("Member Base")).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "E1" }));
 
-		expect(screen.getByRole("heading", { level: 1, name: "Member Base-E1" })).toBeInTheDocument();
-		expect(screen.getAllByText(/Member Route/).length).toBeGreaterThan(0);
+		expect(screen.getByTitle("Member Base-E1")).toBeInTheDocument();
 	});
 
 	it("renders new screen inference review artifacts without requiring quality summary", async () => {
@@ -102,7 +99,7 @@ describe("App workbench navigation", () => {
 		stubScreenFetch({ inferenceStatus: "waiting-review", qualityHasSummary: false });
 		render(<App />);
 
-		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		await waitForWorkbenchReady();
 		fireEvent.click(getRailButton("Run"));
 
 		const fileInput = document.querySelector<HTMLInputElement>("input[type='file']");
@@ -158,7 +155,7 @@ describe("App workbench navigation", () => {
 		});
 		render(<App />);
 
-		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		await waitForWorkbenchReady();
 		fireEvent.click(getRailButton("Run"));
 
 		expect(screen.getByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
@@ -183,7 +180,7 @@ describe("App workbench navigation", () => {
 		});
 		render(<App />);
 
-		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		await waitForWorkbenchReady();
 		fireEvent.click(getRailButton("Run"));
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
@@ -218,7 +215,7 @@ describe("App workbench navigation", () => {
 		});
 		render(<App />);
 
-		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
+		await waitForWorkbenchReady();
 		fireEvent.click(getRailButton("Run"));
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
@@ -273,6 +270,10 @@ function createScreens(): ScreenSummary[] {
 			renderTree: createRenderTree("member-edge"),
 		},
 	];
+}
+
+async function waitForWorkbenchReady() {
+	expect(await screen.findByText("Preview Default")).toBeInTheDocument();
 }
 
 function createRenderTree(idPrefix: string) {

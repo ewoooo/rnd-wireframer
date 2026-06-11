@@ -40,6 +40,13 @@ describe("new-screen-workbench-storage", () => {
 		const current = [{ ...baseRun, id: "source:a.md", runId: undefined }];
 		const server = [{ ...baseRun }];
 		const merged = mergeNewScreenRuns(current, server);
-		expect(merged.map((run) => run.id)).toEqual(["job-1", "source:a.md"]);
+		expect(merged.map((run) => run.id)).toEqual(["job-1"]);
+	});
+
+	it("keeps pending uploads that do not have a server run yet", () => {
+		const current = [{ ...baseRun, id: "source:b.md", runId: undefined, sourcePath: "b.md" }];
+		const server = [{ ...baseRun }];
+		const merged = mergeNewScreenRuns(current, server);
+		expect(merged.map((run) => run.id)).toEqual(["job-1", "source:b.md"]);
 	});
 });

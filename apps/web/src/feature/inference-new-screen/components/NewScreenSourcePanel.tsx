@@ -187,23 +187,59 @@ function RunListPanel({
 	runs: NewScreenRunItem[];
 	selectedRunId: string | undefined;
 }) {
+	const runItems = runs.filter((run) => run.runId);
+	const sourceItems = runs.filter((run) => !run.runId);
+
 	return (
 		<div className="min-h-0 flex-1 overflow-y-auto py-1">
 			{runs.length ? (
 				<div className="flex flex-col">
-					{runs.map((run) => (
-						<RunListItem
-							isSelected={run.id === selectedRunId}
-							key={run.id}
-							onSelect={() => actions.onSelectSource(run.id)}
-							run={run}
-						/>
-					))}
+					<RunListSection
+						actions={actions}
+						runs={runItems}
+						selectedRunId={selectedRunId}
+						title="생성 큐"
+					/>
+					<RunListSection
+						actions={actions}
+						runs={sourceItems}
+						selectedRunId={selectedRunId}
+						title="원본 소스"
+					/>
 				</div>
 			) : (
 				<div className="px-3 py-4 text-sm text-muted-foreground">업로드된 screenId가 없습니다.</div>
 			)}
 		</div>
+	);
+}
+
+function RunListSection({
+	actions,
+	runs,
+	selectedRunId,
+	title,
+}: {
+	actions: Pick<SourcePanelActions, "onSelectSource">;
+	runs: NewScreenRunItem[];
+	selectedRunId: string | undefined;
+	title: string;
+}) {
+	if (runs.length === 0) return null;
+	return (
+		<section className="flex flex-col">
+			<div className="border-t border-sidebar-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground first:border-t-0">
+				{title}
+			</div>
+			{runs.map((run) => (
+				<RunListItem
+					isSelected={run.id === selectedRunId}
+					key={run.id}
+					onSelect={() => actions.onSelectSource(run.id)}
+					run={run}
+				/>
+			))}
+		</section>
 	);
 }
 

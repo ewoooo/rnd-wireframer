@@ -7,11 +7,16 @@ export function mergeNewScreenRuns(
 	serverRuns: NewScreenRunItem[],
 ): NewScreenRunItem[] {
 	const mergedById = new Map<string, NewScreenRunItem>();
+	const serverSourcePaths = new Set(
+		serverRuns.map((run) => run.sourcePath).filter((path): path is string => Boolean(path)),
+	);
 	for (const run of serverRuns) {
 		mergedById.set(run.id, run);
 	}
 	for (const run of currentRuns) {
-		if (!run.runId) mergedById.set(run.id, run);
+		if (!run.runId && (!run.sourcePath || !serverSourcePaths.has(run.sourcePath))) {
+			mergedById.set(run.id, run);
+		}
 	}
 	return Array.from(mergedById.values());
 }

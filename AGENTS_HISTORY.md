@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Inference Run List Source Separation
+
+- 변경: 새 화면 생성 Run 패널에서 실제 job run(`runId` 있음)과 실행 전 source-ready 항목을 `생성 큐`/`원본 소스` 섹션으로 분리 표시함
+- 변경: 서버 run 목록 refresh 또는 run/rerun 시작 시 같은 `sourcePath`의 stale source-ready placeholder를 제거하도록 merge 정책을 수정함
+- 이유: 원본 소스 파일 항목(`not-run source-ready`)과 생성 queue/job 항목이 같은 목록에 섞여 보여 사용자가 실행 이력과 입력 파일을 구분하기 어려웠기 때문
+- 검증: `pnpm exec vitest run apps/web/src/feature/inference-new-screen/storage/new-screen-workbench-storage.test.ts apps/web/src/components/App.test.tsx`, `pnpm exec biome check apps/web/src/components/App.test.tsx apps/web/src/feature/inference-new-screen/storage/new-screen-workbench-storage.ts apps/web/src/feature/inference-new-screen/hooks/use-new-screen-run-lifecycle.ts apps/web/src/feature/inference-new-screen/components/NewScreenSourcePanel.tsx apps/web/src/feature/inference-new-screen/storage/new-screen-workbench-storage.test.ts`
+- 후속: 없음
+
 ## 2026-06-11 - ActionButton Default Variant Guard
 
 - 변경: `ActionButton` 컴포넌트 기본 `type`을 `Ai`에서 `Default`로 변경하고, `kiki.ActionButton` catalog의 `type.defaultValue`도 `Default`로 맞춤

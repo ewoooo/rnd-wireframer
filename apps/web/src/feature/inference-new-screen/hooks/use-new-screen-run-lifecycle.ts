@@ -192,7 +192,9 @@ export function useNewScreenRunLifecycle({
 			const nextRunItem = runStatusToItem(nextRun.status, source);
 			setRuns((current) => [
 				nextRunItem,
-				...current.filter((item) => item.id !== nextRunItem.id),
+				...current.filter(
+					(item) => item.id !== nextRunItem.id && item.sourcePath !== nextRunItem.sourcePath,
+				),
 			]);
 			setSelectedRunId(nextRunItem.id);
 		} catch (caughtError) {
@@ -215,7 +217,9 @@ export function useNewScreenRunLifecycle({
 			const nextRunItem = runStatusToItem(nextRun.status, source);
 			setRuns((current) => [
 				nextRunItem,
-				...current.filter((item) => item.id !== nextRunItem.id),
+				...current.filter(
+					(item) => item.id !== nextRunItem.id && item.sourcePath !== nextRunItem.sourcePath,
+				),
 			]);
 			setSelectedRunId(nextRunItem.id);
 		} catch (caughtError) {

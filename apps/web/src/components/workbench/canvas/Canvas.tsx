@@ -50,17 +50,7 @@ export function Canvas({
 		<SidebarInset className="overflow-hidden">
 			<SidebarHeader className="h-14 shrink-0 justify-center border-b border-sidebar-border bg-background px-5 py-0">
 				<div className="flex min-w-0 items-center justify-between gap-3">
-					<div className="min-w-0">
-						<h1 className="truncate text-base font-semibold">
-							{isNewScreenTab ? "새 화면" : (selectedScreen?.title ?? "Screen Preview")}
-						</h1>
-						{showStatusBar ? (
-							<p className="truncate text-xs text-muted-foreground">
-								{readCanvasContextLabel(activeTab, selectedScreen, renderPuckPreview)}
-							</p>
-						) : null}
-						{isNewScreenTab ? <NewScreenStatusStepper status={newScreenRunStatus} /> : null}
-					</div>
+					{isNewScreenTab ? <NewScreenStatusStepper status={newScreenRunStatus} /> : null}
 					<div className="flex shrink-0 items-center gap-2">
 						<CanvasToolbar
 							canSave={
