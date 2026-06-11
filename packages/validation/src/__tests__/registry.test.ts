@@ -53,7 +53,8 @@ function listRuleFiles(): string[] {
 
 describe("registry ⇔ rules drift guard", () => {
 	it("registers exactly the codes whose owners include 'rule'", () => {
-		const ruleCodes = QUALITY_RULES.map((rule) => rule.code).sort();
+		// 같은 코드가 target별 변형 rule을 가질 수 있으므로 코드 단위로 dedup해 비교한다.
+		const ruleCodes = [...new Set(QUALITY_RULES.map((rule) => rule.code))].sort();
 		const registryRuleCodes = Object.entries(VALIDATION_CODE_REGISTRY)
 			.filter(([, meta]) => meta.owners.includes("rule"))
 			.map(([code]) => code)
@@ -63,7 +64,8 @@ describe("registry ⇔ rules drift guard", () => {
 
 	it("keeps a 1:1 mapping between rule files and rule test files", () => {
 		const ruleFiles = listRuleFiles();
-		expect(ruleFiles.length).toBe(QUALITY_RULES.length);
+		const uniqueRuleCodes = new Set(QUALITY_RULES.map((rule) => rule.code));
+		expect(ruleFiles.length).toBe(uniqueRuleCodes.size);
 		for (const ruleFile of ruleFiles) {
 			const testPath = join(RULES_DIR, "__tests__", `${ruleFile}.test.ts`);
 			expect(existsSync(testPath), `missing test for rule: ${ruleFile}`).toBe(true);

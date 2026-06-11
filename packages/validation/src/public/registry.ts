@@ -99,7 +99,7 @@ export const VALIDATION_CODE_REGISTRY = {
 	"source-ref-not-materialized": {
 		layer: "quality",
 		severity: "warning",
-		owners: ["engine", "rule"],
+		owners: ["rule"],
 		description:
 			"SourceSpec/CompositionPlan의 ref가 생성 산출물 어디에도 보이지 않는다 (누락 의심).",
 	},

@@ -23,7 +23,6 @@ import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type { RuleContext } from "../rules/define-rule";
 import { QUALITY_RULES } from "../rules/index";
-import { collectSourceRefLabelIndex, refIsMaterialized } from "../rules/source-spec";
 import { VALIDATION_CODE_REGISTRY } from "./registry";
 import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
 
@@ -292,12 +291,6 @@ export function validateCompositionPlan(
 	const value = parseJsonLikeInput(input, issues);
 	if (!isRecord(value)) return buildReport("composition-plan", issues);
 
-	validateCompositionPlanMaterialization(
-		value,
-		options.generatedArtifact,
-		options.sourceSpec,
-		issues,
-	);
 	runQualityRules(
 		"composition-plan",
 		{
@@ -374,33 +367,6 @@ export function validateComponentProposal(
 	});
 
 	return buildReport("component-proposal", issues);
-}
-
-function validateCompositionPlanMaterialization(
-	input: Record<string, unknown>,
-	generatedArtifact: unknown,
-	sourceSpec: SourceSpec | undefined,
-	issues: ValidationIssue[],
-) {
-	if (generatedArtifact === undefined) return;
-	const generatedText = JSON.stringify(generatedArtifact);
-	const labelIndex = sourceSpec
-		? collectSourceRefLabelIndex(sourceSpec)
-		: new Map<string, string[]>();
-	const sections = Array.isArray(input.sections) ? input.sections : [];
-
-	sections.forEach((section, sectionIndex) => {
-		if (!isRecord(section) || !Array.isArray(section.sourceRefs)) return;
-		section.sourceRefs.forEach((sourceRef, sourceRefIndex) => {
-			if (typeof sourceRef !== "string" || sourceRef.length === 0) return;
-			if (refIsMaterialized(sourceRef, generatedText, labelIndex)) return;
-			addIssue(issues, {
-				code: "source-ref-not-materialized",
-				message: `CompositionPlan sourceRef is not visible in generated artifact: ${sourceRef}.`,
-				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
-			});
-		});
-	});
 }
 
 function validateLayoutCandidateCoverage(
