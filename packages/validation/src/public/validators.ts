@@ -24,7 +24,6 @@ import Ajv2020 from "ajv/dist/2020";
 import type { RuleContext } from "../rules/define-rule";
 import { QUALITY_RULES } from "../rules/index";
 import {
-	collectMaterializationSourceRefs,
 	collectSourceRefLabelIndex,
 	collectSourceSpecRefs,
 	refIsMaterialized,
@@ -230,7 +229,6 @@ export function validateRenderTree(
 	}
 
 	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
-	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	runQualityRules(
 		"render-tree",
@@ -425,26 +423,6 @@ function validateCompositionPlanMaterialization(
 				message: `CompositionPlan sourceRef is not visible in generated artifact: ${sourceRef}.`,
 				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
 			});
-		});
-	});
-}
-
-function validateSourceRefCoverage(
-	sourceSpec: SourceSpec | undefined,
-	generatedArtifact: unknown,
-	issues: ValidationIssue[],
-) {
-	if (!sourceSpec) return;
-	const generatedText = JSON.stringify(generatedArtifact);
-	const labelIndex = collectSourceRefLabelIndex(sourceSpec);
-	const sourceRefs = collectMaterializationSourceRefs(sourceSpec);
-
-	sourceRefs.forEach((sourceRef) => {
-		if (refIsMaterialized(sourceRef, generatedText, labelIndex)) return;
-		addIssue(issues, {
-			code: "source-ref-not-materialized",
-			message: `SourceSpec ref is not visible in generated artifact: ${sourceRef}.`,
-			path: [],
 		});
 	});
 }

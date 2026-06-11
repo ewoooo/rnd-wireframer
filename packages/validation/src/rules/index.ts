@@ -2,6 +2,7 @@ import { bottomCtaStateUngatedRule } from "./bottom-cta-state-ungated";
 import type { QualityRule } from "./define-rule";
 import { singleSectionDividerRule } from "./single-section-divider";
 import { sourcePropMismatchRule } from "./source-prop-mismatch";
+import { sourceRefNotMaterializedRule } from "./source-ref-not-materialized";
 
 export type { QualityRule, RuleContext } from "./define-rule";
 export { defineRule } from "./define-rule";
@@ -11,4 +12,5 @@ export const QUALITY_RULES: readonly QualityRule[] = [
 	bottomCtaStateUngatedRule,
 	singleSectionDividerRule,
 	sourcePropMismatchRule,
+	sourceRefNotMaterializedRule,
 ];
