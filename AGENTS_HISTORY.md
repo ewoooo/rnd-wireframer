@@ -36,6 +36,22 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Completion Result Summary Area Reference
+
+- 변경: Figma SOT nodes `10090:58795`, `10090:58800` 기반 `area-completion-result-summary` Area Reference를 추가함
+- 변경: 완료 headline만 있는 `area-completion-hero`와 완료 headline + 결과 요약 card가 결합된 `area-completion-result-summary`를 분리하고, `area-completion-hero` Avoid에 분기 기준을 추가함
+- 이유: 개통 완료/요금제 변경 완료처럼 완료 결과값을 확인해야 하는 화면을 hero-only completion과 섞으면 `ContentsSlot` hidden 규칙과 summary card 사용 조건이 충돌하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 결과 summary card의 내부 row가 반복적으로 쓰이면 별도 card-level reference 분리 검토
+
+## 2026-06-11 - Status Notice Area References
+
+- 변경: Figma SOT nodes `10095:23490`, `10090:58820` 기반 `area-prerequisite-status`, `area-completion-hero` Area Reference를 추가함
+- 변경: 낮은 위계의 진행 중 선행 조건 통보(`TitleSection` + `ListText`)와 완료 화면 상단의 결과 hero(`TitleMain` Complete variant)를 별도 reference로 분리함
+- 이유: 둘 다 상태 통보지만 사용 페이지 맥락과 컴포넌트 위계가 달라 하나의 `area-notice`로 묶으면 생성기가 `TitleMain`과 `ListText` 사용 조건을 혼동할 수 있기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: progress 화면의 진행률/처리중 status area가 필요하면 별도 `area-progress-status`로 분리 검토
+
 ## 2026-06-11 - Form Entry Reference SOT Alignment
 
 - 변경: `screen-form-entry` reference의 `Structure Example`과 source sketch를 Figma SOT node `10095:23484`의 실제 5개 `Pagestack` 구조에 맞게 보정함

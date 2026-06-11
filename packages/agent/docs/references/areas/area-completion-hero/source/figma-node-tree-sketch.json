@@ -1,0 +1,76 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-completion-hero",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58820"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Completion Hero Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-completion-result-hero",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "INSTANCE",
+				"role": "completion-title-group",
+				"children": [
+					{
+						"name": "TitleMain",
+						"nodeType": "INSTANCE",
+						"role": "complete-title-main",
+						"variantHint": {
+							"Type": "Complete"
+						},
+						"children": [
+							{
+								"name": "TitleText",
+								"nodeType": "TEXT",
+								"role": "completion-fact",
+								"textHint": "해지가 완료되었어요"
+							},
+							{
+								"name": "TitleText",
+								"nodeType": "TEXT",
+								"role": "completion-follow-up",
+								"textHint": "다음에 다시 만나요!"
+							}
+						]
+					},
+					{
+						"name": "SubText Row",
+						"nodeType": "INSTANCE",
+						"role": "completion-meta-row",
+						"children": [
+							{
+								"name": "SubText Label",
+								"nodeType": "TEXT",
+								"role": "meta-label",
+								"textHint": "구독 종료일"
+							},
+							{
+								"name": "Divider",
+								"nodeType": "TEXT",
+								"role": "meta-separator",
+								"textHint": "|"
+							},
+							{
+								"name": "SubText Value",
+								"nodeType": "TEXT",
+								"role": "meta-value",
+								"textHint": "2026.05.06"
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "INSTANCE",
+				"role": "hidden-unused-slot",
+				"visible": false
+			}
+		]
+	}
+}

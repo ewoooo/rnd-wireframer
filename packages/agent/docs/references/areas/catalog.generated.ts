@@ -3,6 +3,32 @@ import type { ReferenceCatalogEntry } from "@cx/schema";
 
 export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 	{
+		id: "area-completion-hero",
+		situation:
+			"사용자가 신청, 변경, 해지, 제출 같은 주요 업무를 완료했고 결과 상태를 화면 상단에서 강하게 확인해야 한다",
+		tags: [
+			"area-pattern",
+			"completion-result",
+			"high-emphasis-status",
+			"title-main-complete",
+			"result-hero",
+		],
+		sourceRef: "../docs/references/areas/area-completion-hero/README.md",
+	},
+	{
+		id: "area-completion-result-summary",
+		situation:
+			"사용자가 개통, 요금제 변경, 신청 처리 같은 주요 업무를 완료했고 결과 headline과 핵심 결과값을 같은 area에서 확인해야 한다",
+		tags: [
+			"area-pattern",
+			"completion-result",
+			"result-summary",
+			"title-main-complete",
+			"summary-card",
+		],
+		sourceRef: "../docs/references/areas/area-completion-result-summary/README.md",
+	},
+	{
 		id: "area-form-address",
 		situation: "사용자가 주소를 입력하거나 조회된 주소를 확인한 뒤 상세 주소를 보강한다",
 		tags: [
@@ -13,5 +39,18 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 			"field-local-action",
 		],
 		sourceRef: "../docs/references/areas/area-form-address/README.md",
+	},
+	{
+		id: "area-prerequisite-status",
+		situation:
+			"사용자가 다음 입력 단계로 진행하기 전에 이미 충족된 선행 조건이나 확인 상태를 짧게 인지해야 한다",
+		tags: [
+			"area-pattern",
+			"prerequisite-status",
+			"in-flow-status",
+			"auth-completion",
+			"readonly-status",
+		],
+		sourceRef: "../docs/references/areas/area-prerequisite-status/README.md",
 	},
 ];
