@@ -31,6 +31,8 @@ describe("screen-intent.v0.2 JSON Schema", () => {
 		).toBe(true);
 	});
 	it("제거된 screenPurpose는 additionalProperties:false로 거부한다", () => {
-		expect(validateSchemaArtifact("screen-intent", { ...valid, screenPurpose: "x" }).ok).toBe(false);
+		expect(validateSchemaArtifact("screen-intent", { ...valid, screenPurpose: "x" }).ok).toBe(
+			false,
+		);
 	});
 });
