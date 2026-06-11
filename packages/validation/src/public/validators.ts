@@ -23,11 +23,7 @@ import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type { RuleContext } from "../rules/define-rule";
 import { QUALITY_RULES } from "../rules/index";
-import {
-	collectSourceRefLabelIndex,
-	collectSourceSpecRefs,
-	refIsMaterialized,
-} from "../rules/source-spec";
+import { collectSourceRefLabelIndex, refIsMaterialized } from "../rules/source-spec";
 import { VALIDATION_CODE_REGISTRY } from "./registry";
 import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
 
@@ -296,11 +292,19 @@ export function validateCompositionPlan(
 	const value = parseJsonLikeInput(input, issues);
 	if (!isRecord(value)) return buildReport("composition-plan", issues);
 
-	validateCompositionPlanSourceRefs(value, options.sourceSpec, issues);
 	validateCompositionPlanMaterialization(
 		value,
 		options.generatedArtifact,
 		options.sourceSpec,
+		issues,
+	);
+	runQualityRules(
+		"composition-plan",
+		{
+			artifact: options.generatedArtifact,
+			sourceSpec: options.sourceSpec,
+			tree: value,
+		},
 		issues,
 	);
 
@@ -370,32 +374,6 @@ export function validateComponentProposal(
 	});
 
 	return buildReport("component-proposal", issues);
-}
-
-function validateCompositionPlanSourceRefs(
-	input: Record<string, unknown>,
-	sourceSpec: SourceSpec | undefined,
-	issues: ValidationIssue[],
-) {
-	if (!sourceSpec) return;
-	const availableRefs = collectSourceSpecRefs(sourceSpec);
-	const sections = Array.isArray(input.sections) ? input.sections : [];
-
-	sections.forEach((section, sectionIndex) => {
-		if (!isRecord(section) || !Array.isArray(section.sourceRefs)) return;
-		section.sourceRefs.forEach((sourceRef, sourceRefIndex) => {
-			if (typeof sourceRef !== "string" || sourceRef.length === 0) return;
-			if (availableRefs.has(sourceRef)) return;
-			addIssue(issues, {
-				code: "unknown-source-ref",
-				message: `CompositionPlan sourceRef does not exist in SourceSpec: ${sourceRef}.`,
-				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
-				// sourceRef는 plan의 추적 메타데이터일 뿐 RenderTree 정합성이 아니다.
-				// 형식 변덕(짧은 ID ↔ JSONPath)으로 완성된 화면을 hard-fail시키지 않도록
-				// source-ref-not-materialized와 동일하게 warning으로 표시한다.
-			});
-		});
-	});
 }
 
 function validateCompositionPlanMaterialization(

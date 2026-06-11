@@ -126,7 +126,7 @@ export const VALIDATION_CODE_REGISTRY = {
 	"unknown-source-ref": {
 		layer: "quality",
 		severity: "warning",
-		owners: ["engine"],
+		owners: ["rule"],
 		description: "CompositionPlan의 sourceRef가 SourceSpec에 존재하지 않는다.",
 	},
 	"unknown-layout-ref": {

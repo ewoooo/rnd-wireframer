@@ -4,6 +4,7 @@ import { singleSectionDividerRule } from "./single-section-divider";
 import { sourcePropMismatchRule } from "./source-prop-mismatch";
 import { sourceRefNotMaterializedRule } from "./source-ref-not-materialized";
 import { stateCoverageMissingRule } from "./state-coverage-missing";
+import { unknownSourceRefRule } from "./unknown-source-ref";
 
 export type { QualityRule, RuleContext } from "./define-rule";
 export { defineRule } from "./define-rule";
@@ -15,4 +16,5 @@ export const QUALITY_RULES: readonly QualityRule[] = [
 	sourcePropMismatchRule,
 	sourceRefNotMaterializedRule,
 	stateCoverageMissingRule,
+	unknownSourceRefRule,
 ];
