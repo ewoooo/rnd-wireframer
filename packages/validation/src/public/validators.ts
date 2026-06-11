@@ -21,7 +21,9 @@ import {
 } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
+import type { RuleContext } from "../rules/define-rule";
 import { collectRenderNodesByMetadataId } from "../rules/helpers";
+import { QUALITY_RULES } from "../rules/index";
 import {
 	collectMaterializationSourceRefs,
 	collectSourceComponentsByRenderRef,
@@ -234,35 +236,31 @@ export function validateRenderTree(
 	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateSourcePropPreservation(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
-	validateSingleSectionDivider(input, [], issues);
 	validateBottomCtaStateGating(input, [], false, issues);
+	runQualityRules(
+		"render-tree",
+		{
+			artifact: options.generatedArtifact ?? input,
+			sourceSpec: options.sourceSpec,
+			tree: input,
+		},
+		issues,
+	);
 
 	return buildReport("render-tree", issues);
 }
 
-function validateSingleSectionDivider(
-	node: unknown,
-	path: Array<string | number>,
+function runQualityRules(
+	target: ValidationTarget,
+	ctx: Omit<RuleContext, "report">,
 	issues: ValidationIssue[],
 ) {
-	if (!isRecord(node)) return;
-	if (node.type === "Screen.Contents" && Array.isArray(node.children)) {
-		const areaChildren = node.children.filter(isRecord);
-		if (areaChildren.length === 1) {
-			const area = areaChildren[0];
-			if (isRecord(area?.props) && area.props.divider === "section") {
-				addIssue(issues, {
-					code: "single-section-divider",
-					message:
-						'Screen.Contents has a single section, so props.divider="section" is over-applied. Omit divider or use "none"; section dividers are only for boundaries between multiple contents sections.',
-					path: [...path, "children", 0, "props", "divider"],
-				});
-			}
-		}
-	}
-	if (Array.isArray(node.children)) {
-		node.children.forEach((child, index) => {
-			validateSingleSectionDivider(child, [...path, "children", index], issues);
+	for (const rule of QUALITY_RULES) {
+		if (rule.target !== target) continue;
+		if (rule.requires?.includes("sourceSpec") && !ctx.sourceSpec) continue;
+		rule.check({
+			...ctx,
+			report: (issue) => addIssue(issues, { code: rule.code, ...issue }),
 		});
 	}
 }
