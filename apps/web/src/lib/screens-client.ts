@@ -1,15 +1,9 @@
 import type { PuckCatalogItem } from "@cx/adapters/puck";
-import type { RenderTreeScreenNode } from "@cx/renderer";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
 type ScreensApiResponse = {
 	error?: string;
 	screens?: ScreenSummary[];
-};
-
-type ScreenTreeApiResponse = {
-	error?: string;
-	node?: RenderTreeScreenNode;
 };
 
 export type PuckCatalogScope = "area" | "screen-region";
@@ -20,28 +14,15 @@ type PuckCatalogApiResponse = {
 };
 
 export async function fetchScreensFromApi(): Promise<ScreenSummary[]> {
-	const summariesResponse = await fetch("/api/screens");
-	if (!summariesResponse.ok) {
-		throw new Error(`화면 목록 요청 실패 ${summariesResponse.status}`);
+	// 목록 + 전 화면 트리를 bulk 엔드포인트 1회로 받는다.
+	// (기존: /api/screens 1회 + 화면 수만큼 /tree 직렬 호출 → 워터폴 폭발)
+	const response = await fetch("/api/screens/trees");
+	if (!response.ok) {
+		throw new Error(`화면 목록 요청 실패 ${response.status}`);
 	}
-	const summariesBody = (await summariesResponse.json()) as ScreensApiResponse;
-	if (summariesBody.error) throw new Error(summariesBody.error);
-	const summaries = summariesBody.screens ?? [];
-
-	return Promise.all(
-		summaries.map(async (summary) => {
-			const treeResponse = await fetch(`/api/screens/${encodeURIComponent(summary.id)}/tree`);
-			if (!treeResponse.ok) {
-				throw new Error(`화면 트리 요청 실패 ${summary.id}: ${treeResponse.status}`);
-			}
-			const treeBody = (await treeResponse.json()) as ScreenTreeApiResponse;
-			if (treeBody.error) throw new Error(treeBody.error);
-			return {
-				...summary,
-				renderTree: treeBody.node,
-			};
-		}),
-	);
+	const body = (await response.json()) as ScreensApiResponse;
+	if (body.error) throw new Error(body.error);
+	return body.screens ?? [];
 }
 
 export async function fetchPuckCatalogItemsFromApi(

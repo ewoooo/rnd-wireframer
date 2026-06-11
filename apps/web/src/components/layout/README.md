@@ -4,6 +4,11 @@
 캔버스 *안*에 렌더되는 폰 와이어프레임의 레이아웃은 별개다
 (그건 `@cx/components` / `packages/agent`의 `LAYOUT_SPACING_CONTRACT.md` 소관 — 혼동 금지).
 
+> **참고 기준(reference):** UI는 커밋 `d75e8d2`(PR #7, "render_* 스키마 이전·Run 페이지 추가", main 복원 시점)의
+> `components/layout/*` · `ui/resizable.tsx`를 레퍼런스로 참고해 현재 main 방언으로 재구현했다.
+> 이 커밋은 main 히스토리의 **영구 앵커**다(임시 워크트리·스냅샷 브랜치에 의존하지 않음).
+> 아래 "good-ui"라는 표현은 모두 이 커밋 시점의 UI를 가리킨다.
+
 ## 전체 구조 (모든 페이지 공통)
 
 Screen / Area / Component / Run 등 **모든 페이지가 동일한 구조를 공유한다.**
@@ -50,6 +55,21 @@ body  (flex, 수평)
 - **DoubleBorder** = 레이아웃 *칼럼* 간 경계(rail↔main, aside↔canvas). 강한 분리, 고정.
 - **Divider** = aside *내부* 패널 간 분리. 드래그로 비율 조절(`ResizableHandle`, 중앙 알약선).
   `ResizablePanelGroup`(vertical) 안에서 `ResizablePanel` 사이에 `ResizableHandle`로 구현.
+
+## 위치별 패널 성격 (4 패널 규칙)
+
+두 aside가 각각 divider로 2분할 → **총 4개 패널.** 현재 페이지가 다루는 대상을 `x`라 하자
+(**`x = screen | area | component`**, Rail의 탭으로 결정). 각 위치의 역할:
+
+| 위치 | 패널 | 성격 | 비고 |
+|---|---|---|---|
+| **좌상단** | LeftAside 상단 | **편집할 `x` 선택** | `x=screen`이면 예외적으로 domain/route까지 선택(예외처리는 나중) |
+| **좌하단** | LeftAside 하단 | **레이어 패널** (Adobe/Figma의 그것과 동일) | 지금은 *순서·계층*만. 드래그/복제/삭제/추가는 나중 |
+| **우상단** | RightAside 상단 | **선택 요소(children)의 props/text 관리** | canvas에서 선택한 요소의 prop 변경 등. 현재 Puck `Puck.Fields` 기본 UI로 잘 됨 |
+| **우하단** | RightAside 하단 | **children 불러오기**(드로어) | 현재 Puck `Puck.Components` 기본 UI로 잘 됨 — 안 건드려도 됨 |
+
+요약: **좌측 = 내 계층(무엇을 편집할지 + 그 안의 레이어), 우측 = 선택한 자식의 편집(속성 + 추가).**
+좌측은 우리가 구현, 우측은 Puck 기본 UI 활용.
 
 ## 컴포넌트
 

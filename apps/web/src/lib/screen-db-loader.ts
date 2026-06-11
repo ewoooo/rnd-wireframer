@@ -186,6 +186,66 @@ export async function loadScreenTree(screenId: string): Promise<MaterializeRende
 	});
 }
 
+/**
+ * 전 화면 행을 한 번에(테이블별 1쿼리, 전부 병렬) 읽는다.
+ * 화면별 `loadScreenRows`의 7단계 직렬 워터폴 × N화면(N+1) 대신,
+ * 테이블 7개를 병렬로 통째 받아 메모리에서 화면별 트리를 조립한다.
+ */
+export async function loadAllScreenRows(): Promise<RenderReadModelRows> {
+	const [
+		screens,
+		screenRegions,
+		screenRegionChildren,
+		areas,
+		areaChildren,
+		components,
+		componentChildren,
+	] = await Promise.all([
+		readScreenDbRows<RenderScreenRow>(SCREEN_DB_TABLES.screens, {
+			order: "order_index.asc,id.asc",
+			select: "id,screen_variant_id,version,type,layout_id,order_index,name,description,author",
+		}),
+		readScreenDbRows<RenderScreenRegionRow>(SCREEN_DB_TABLES.screenRegions, {
+			select: "id,screen_id,type,layout_id",
+		}),
+		readScreenDbRows<RenderScreenRegionChildRow>(SCREEN_DB_TABLES.screenRegionChildren, {
+			select: "id,screen_region_id,area_id,order_index",
+		}),
+		readScreenDbRows<RenderAreaRow>(SCREEN_DB_TABLES.areas, {
+			select: "id,type,version,layout_id,name,description,author,props",
+		}),
+		readScreenDbRows<RenderAreaChildRow>(SCREEN_DB_TABLES.areaChildren, {
+			select: "id,area_id,component_id,order_index",
+		}),
+		readScreenDbRows<RenderComponentRow>(SCREEN_DB_TABLES.components, {
+			select: "id,type,version,layout_id,name,description,author,display,hooks",
+		}),
+		readScreenDbRows<RenderComponentChildRow>(SCREEN_DB_TABLES.componentChildren, {
+			select: "id,component_id,order_index,catalog_component_type,variant,props",
+		}),
+	]);
+
+	return {
+		areaChildren,
+		areas,
+		componentChildren,
+		components,
+		screenRegionChildren,
+		screenRegions,
+		screens,
+	};
+}
+
+/** bulk 행 1회 fetch 후, 화면별 트리를 메모리에서 조립(I/O 0)한다. */
+export async function loadAllScreenTrees(): Promise<Map<string, MaterializeRenderScreenResult>> {
+	const rows = await loadAllScreenRows();
+	const trees = new Map<string, MaterializeRenderScreenResult>();
+	for (const screen of rows.screens) {
+		trees.set(screen.id, materializeRenderScreenFromRows({ rows, screenId: screen.id }));
+	}
+	return trees;
+}
+
 function compareScreenSummaryRows(left: ScreenSummaryRow, right: ScreenSummaryRow) {
 	return (
 		getScreenModuleSortOrder(left.moduleId) - getScreenModuleSortOrder(right.moduleId) ||

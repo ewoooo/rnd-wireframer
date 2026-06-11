@@ -13,22 +13,29 @@ export function ScreenVariantCard({
 	variant,
 }: ScreenVariantCardProps) {
 	const isSelected = variant.options.some((option) => option.screen.id === selectedScreenId);
-	const primaryOption = variant.options[0];
+	// 블록(카드)을 누르면 특정 옵션이 아니라 항상 [기본] 옵션으로 전환한다.
+	const defaultOption =
+		variant.options.find((option) => option.label === "기본") ?? variant.options[0];
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
+			onClick={() => {
+				if (defaultOption) onSelectScreen(defaultOption.screen.id);
+			}}
+			onKeyDown={(event) => {
+				if ((event.key === "Enter" || event.key === " ") && defaultOption) {
+					event.preventDefault();
+					onSelectScreen(defaultOption.screen.id);
+				}
+			}}
 			className={cn(
 				"py-1 gap-1 flex flex-col min-w-0 cursor-pointer border-t border-sidebar-border bg-sidebar transition-colors first:border-t-0 hover:bg-sidebar-accent",
 				isSelected && "bg-primary/10 hover:bg-primary/10",
 			)}
 		>
-			<button
-				type="button"
-				className="flex min-w-0 items-center gap-1 px-2 text-left"
-				onClick={() => {
-					if (primaryOption) onSelectScreen(primaryOption.screen.id);
-				}}
-			>
+			<div className="flex min-w-0 items-center gap-1 px-2 text-left">
 				<span
 					className={cn("shrink-0 text-xs", isSelected ? "text-primary" : "text-muted-foreground")}
 				>
@@ -42,7 +49,7 @@ export function ScreenVariantCard({
 				>
 					{variant.name}
 				</span>
-			</button>
+			</div>
 			<div className="flex flex-wrap content-start gap-1 px-2 py-2">
 				{variant.options.map((option) => (
 					<button

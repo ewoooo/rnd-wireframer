@@ -1,8 +1,8 @@
-import { Box, Boxes, Layers3, Route } from "lucide-react";
 import type { ReactNode } from "react";
+import { ICONS } from "@/components/icons";
+import { Aside, Panel } from "@/components/layout/Aside";
 import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
+import { Sidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
 import { NewScreenSourcePanel } from "@/feature/inference-new-screen/components/NewScreenSourcePanel";
 import type { NewScreenRunItem } from "@/feature/inference-new-screen/types";
@@ -12,6 +12,9 @@ import type {
 	ScreenModuleGroup,
 	ScreenRouteGroup,
 } from "@/model/workbench-view-model";
+
+// 도메인/루트 선택 패널: UI를 재설계할 예정이라 잠시 숨긴다(핸들러·데이터 로직은 유지 → 플래그만 켜면 복구).
+const SHOW_DOMAINS = false;
 
 type NavigationRoutesProps = {
 	activeRouteId?: string;
@@ -37,6 +40,12 @@ type NavigationRoutesProps = {
 	isUploadingNewScreenSource?: boolean;
 };
 
+/**
+ * LeftAside — 모든 페이지(scn/ogn/comp)가 동일한 2패널 구조를 공유한다.
+ *   좌상단: 편집할 x 선택 (탭별 내용만 교체 — 슬롯)
+ *   좌하단: 레이어 패널 (순서·계층, 현재는 placeholder)
+ * 패널 위치/chrome은 고정이고, 안에 들어가는 내용만 탭에 따라 꽂힌다.
+ */
 export function NavigationRoutes({
 	activeRouteId,
 	activeTab,
@@ -60,9 +69,10 @@ export function NavigationRoutes({
 	selectedScreenId,
 	isUploadingNewScreenSource = false,
 }: NavigationRoutesProps) {
-	return (
-		<Sidebar side="left">
-			{activeTab === "agent" ? (
+	// Run 탭은 별도 패널(4패널 규칙 밖) — 현행 유지.
+	if (activeTab === "agent") {
+		return (
+			<Sidebar side="left">
 				<NewScreenSourcePanel
 					errorMessage={newScreenSourceError}
 					isUploading={isUploadingNewScreenSource}
@@ -73,109 +83,128 @@ export function NavigationRoutes({
 					runs={newScreenSources}
 					selectedRunId={selectedNewScreenRunId}
 				/>
-			) : activeTab === "scn" ? (
-				<ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1 overflow-hidden">
-					<ResizablePanel defaultSize={35} minSize={15}>
-						<div className="flex h-full min-h-0 flex-col overflow-hidden">
-							<PanelTitle
-								count={screenModules.length}
-								icon={<Layers3 className="size-3.5" data-icon="inline-start" />}
-								title="Domains"
-							/>
-							<div className="min-h-0 flex-1 overflow-y-auto py-1">
-								{screenModules.map((module) => (
-									<ScreenModuleGroupView
-										key={module.id}
-										activeRouteId={activeRouteId}
-										module={module}
-										onSelectRoute={onSelectRoute}
-									/>
-								))}
-							</div>
-						</div>
-					</ResizablePanel>
-					<ResizableHandle />
-					<ResizablePanel defaultSize={65} minSize={20}>
-						<div className="flex h-full min-h-0 flex-col overflow-hidden">
-							<PanelTitle
-								count={screenRoute?.variants.length ?? 0}
-								icon={<Route className="size-3.5" data-icon="inline-start" />}
-								title={screenRoute?.name ?? "Screens"}
-							/>
-							<div className="min-h-0 flex-1 overflow-y-auto [&>*:first-child]:border-t-0">
-								{screenRoute?.variants.map((variant) => (
-									<ScreenVariantCard
-										key={variant.id}
-										onSelectScreen={onSelectScreen}
-										selectedScreenId={selectedScreenId}
-										variant={variant}
-									/>
-								))}
-							</div>
-						</div>
-					</ResizablePanel>
-				</ResizablePanelGroup>
+			</Sidebar>
+		);
+	}
+
+	return (
+		<Aside side="left">
+			{/* (숨김) 도메인/루트 선택 — 플래그 복구 시 좌상단 위에 추가됨 */}
+			{SHOW_DOMAINS ? (
+				<Panel
+					title="Domains"
+					icon={<ICONS.domain className="size-3.5" data-icon="inline-start" />}
+					count={screenModules.length}
+					defaultSize={30}
+					minSize={15}
+				>
+					{screenModules.map((module) => (
+						<ScreenModuleGroupView
+							key={module.id}
+							activeRouteId={activeRouteId}
+							module={module}
+							onSelectRoute={onSelectRoute}
+						/>
+					))}
+				</Panel>
+			) : null}
+
+			{/* 좌상단: 편집할 x 선택 */}
+			{activeTab === "scn" ? (
+				<Panel
+					title="Screens"
+					icon={<ICONS.screen className="size-3.5" data-icon="inline-start" />}
+					count={screenRoute?.variants.length ?? 0}
+					defaultSize={62}
+					minSize={20}
+					bodyClassName="py-0 [&>*:first-child]:border-t-0"
+				>
+					{screenRoute?.variants.map((variant) => (
+						<ScreenVariantCard
+							key={variant.id}
+							onSelectScreen={onSelectScreen}
+							selectedScreenId={selectedScreenId}
+							variant={variant}
+						/>
+					))}
+				</Panel>
 			) : activeTab === "ogn" ? (
-				<NavigationNodeList
-					emptyMessage="등록된 Area가 없습니다."
-					icon={<Boxes className="size-3.5" data-icon="inline-start" />}
-					items={areas}
-					onSelect={onSelectArea}
-					selectedId={selectedAreaId}
+				<Panel
 					title="Areas"
-				/>
+					icon={<ICONS.area className="size-3.5" data-icon="inline-start" />}
+					count={areas.length}
+					defaultSize={62}
+					minSize={20}
+				>
+					<NodeListBody
+						emptyMessage="등록된 Area가 없습니다."
+						items={areas}
+						onSelect={onSelectArea}
+						selectedId={selectedAreaId}
+					/>
+				</Panel>
 			) : activeTab === "comp" ? (
-				<NavigationNodeList
-					emptyMessage="등록된 Component가 없습니다."
-					icon={<Box className="size-3.5" data-icon="inline-start" />}
-					items={components}
-					onSelect={onSelectComponent}
-					selectedId={selectedComponentId}
+				<Panel
 					title="Components"
-				/>
+					icon={<ICONS.component className="size-3.5" data-icon="inline-start" />}
+					count={components.length}
+					defaultSize={62}
+					minSize={20}
+				>
+					<NodeListBody
+						emptyMessage="등록된 Component가 없습니다."
+						items={components}
+						onSelect={onSelectComponent}
+						selectedId={selectedComponentId}
+					/>
+				</Panel>
 			) : (
-				<SidebarContent className="p-2 text-sm text-muted-foreground">
-					이 탭은 예전 사이드바 UI만 복구된 상태입니다. 데이터 연결은 Screen 탭부터 사용합니다.
-				</SidebarContent>
+				<Panel title="Screen" defaultSize={62} minSize={20}>
+					<div className="px-3 py-2 text-sm text-muted-foreground">
+						이 탭은 예전 사이드바 UI만 복구된 상태입니다.
+					</div>
+				</Panel>
 			)}
-		</Sidebar>
+
+			{/* 좌하단: 레이어 패널 (순서·계층 — 준비 중) */}
+			<Panel
+				title="Layer"
+				icon={<ICONS.layers className="size-3.5" data-icon="inline-start" />}
+				defaultSize={38}
+				minSize={15}
+			>
+				<div className="px-3 py-3 text-xs leading-5 text-muted-foreground">
+					레이어 패널 — 순서·계층 (준비 중)
+				</div>
+			</Panel>
+		</Aside>
 	);
 }
 
-function NavigationNodeList({
+function NodeListBody({
 	emptyMessage,
-	icon,
 	items,
 	onSelect,
 	selectedId,
-	title,
 }: {
 	emptyMessage: string;
-	icon: ReactNode;
 	items: NavigationNodeItem[];
 	onSelect: (id: string) => void;
 	selectedId?: string;
-	title: string;
 }) {
+	if (!items.length) {
+		return <div className="px-3 py-4 text-sm text-muted-foreground">{emptyMessage}</div>;
+	}
 	return (
-		<div className="flex h-full min-h-0 flex-col overflow-hidden">
-			<PanelTitle count={items.length} icon={icon} title={title} />
-			<div className="min-h-0 flex-1 overflow-y-auto py-1">
-				{items.length ? (
-					<div className="flex flex-col">
-						{items.map((item) => (
-							<NavigationNodeListItem
-								isSelected={item.id === selectedId}
-								item={item}
-								key={item.id}
-								onSelect={onSelect}
-							/>
-						))}
-					</div>
-				) : (
-					<div className="px-3 py-4 text-sm text-muted-foreground">{emptyMessage}</div>
-				)}
-			</div>
+		<div className="flex flex-col">
+			{items.map((item) => (
+				<NavigationNodeListItem
+					isSelected={item.id === selectedId}
+					item={item}
+					key={item.id}
+					onSelect={onSelect}
+				/>
+			))}
 		</div>
 	);
 }
@@ -213,20 +242,6 @@ function NavigationNodeListItem({
 				<span className="truncate">{item.layout ?? item.type}</span>
 			</div>
 		</button>
-	);
-}
-
-function PanelTitle({ count, icon, title }: { count: number; icon: ReactNode; title: string }) {
-	return (
-		<div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
-			<div className="flex min-w-0 items-center gap-1.5">
-				{icon}
-				<p className="truncate text-xs font-semibold text-sidebar-foreground">{title}</p>
-			</div>
-			<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-				{count}
-			</span>
-		</div>
 	);
 }
 
