@@ -52,6 +52,8 @@ export function Aside({
  */
 export function Panel({
 	title,
+	icon,
+	count,
 	footer,
 	defaultSize,
 	minSize,
@@ -59,6 +61,10 @@ export function Panel({
 	children,
 }: {
 	title?: ReactNode;
+	/** 제목 앞 아이콘(선택). */
+	icon?: ReactNode;
+	/** 제목 우측 카운트 배지(선택). */
+	count?: number;
 	footer?: ReactNode;
 	defaultSize?: number;
 	minSize?: number;
@@ -67,19 +73,28 @@ export function Panel({
 }) {
 	return (
 		<ResizablePanel defaultSize={defaultSize} minSize={minSize}>
-			<div className="flex h-full min-h-0 flex-col overflow-hidden">
-				{title ? (
-					<div className="flex h-9 shrink-0 items-center border-b px-3">
-						{typeof title === "string" ? (
-							<span className="truncate text-xs font-semibold text-sidebar-foreground">
-								{title}
+			{/* 모든 패널 공통 chrome: 동일 헤더 · 배경(bg-sidebar) · 스크롤 body */}
+			<div className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar">
+				{title !== undefined ? (
+					<div className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3">
+						<div className="flex min-w-0 items-center gap-1.5">
+							{icon}
+							{typeof title === "string" ? (
+								<span className="truncate text-xs font-semibold text-sidebar-foreground">
+									{title}
+								</span>
+							) : (
+								title
+							)}
+						</div>
+						{count !== undefined ? (
+							<span className="shrink-0 rounded-full bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+								{count}
 							</span>
-						) : (
-							title
-						)}
+						) : null}
 					</div>
 				) : null}
-				<div className={cn("min-h-0 flex-1 overflow-y-auto", bodyClassName)}>{children}</div>
+				<div className={cn("min-h-0 flex-1 overflow-y-auto py-1", bodyClassName)}>{children}</div>
 				{footer ? <div className="shrink-0">{footer}</div> : null}
 			</div>
 		</ResizablePanel>
