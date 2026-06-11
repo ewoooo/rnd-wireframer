@@ -15,6 +15,8 @@ tags:
 - Figma file: `SKT GenUI Test 0514`
 - Figma node: `10095:23484`
 - Capture: `source/screen-form-entry.png`
+- Figma node tree sketch: `source/figma-node-tree-sketch.json`
+- RenderTree sketch: `source/render-tree-sketch.json`
 
 ## Screen Pattern
 
@@ -22,15 +24,47 @@ SourceSpec에 사용자 입력 field가 여러 개 있고, 입력값들이 서�
 
 이 pattern은 정보를 최종 확인하는 화면이 아니라, 다음 단계 진행에 필요한 정보를 수집하거나 보강하는 화면이다. 따라서 summary-first confirmation 구조보다 field group을 읽기 쉽게 나누는 구조를 우선한다.
 
+## Structure Example
+
+- Screen
+  - Header: `StatusBar` + `AppBar`(`가입자 정보 입력`)
+  - Contents
+    - `Pagestack`: 기기변경 휴대폰 번호
+      - disabled `TextField`: 기준 휴대폰 번호
+    - `Divider`: section
+    - `Pagestack`: 본인인증 완료
+      - `ListText`: 인증 완료 상태 문장
+    - `Divider`: section
+    - `Pagestack`: 가입자 주소
+      - disabled `TextField` + field-local `Button`: 우편번호/주소 찾기
+      - disabled `TextField`: 조회된 기본 주소
+      - typed `TextField`: 상세 주소
+    - `Divider`: section
+    - `Pagestack`: 주 생활지역
+      - `ListSelected`: 가입자 정보와 동일
+      - disabled `TextField` + field-local `Button`: 우편번호/주소 찾기
+      - disabled `TextField`: 조회된 기본 주소
+      - helper text: 5G 가용지역 확인 동의 안내
+    - `Divider`: section
+    - `Pagestack`: 이메일
+      - typed `TextField`: 이메일 주소
+  - Bottom: primary `ActionButton`(`다음`)
+
+SOT의 핵심은 "입력 field가 많은 화면"이 아니라, 기준 정보, 인증 완료 상태, 주소 보강, 동일 정보 재사용, 이메일 입력을 각각 독립 section으로 분리하는 것이다.
+
+`source/*-sketch.json`은 구조 판단용 예제다. literal label, node id, 수치를 그대로 복사하지 말고 hierarchy와 role만 참고한다.
+
 ## Structure Rules
 
 - `Header`는 `StatusBar` + `AppBar` 구조를 쓴다.
 - `Contents`는 `Pagestack` section 반복을 기본 골격으로 쓴다.
 - `Bottom`은 고정 `ActionButton` 하나로 screen-level progression을 담당한다.
-- section 사이에는 full-width `4px` divider를 둔다.
+- section 사이에는 full-width `4px` divider를 둔다. SOT는 5개 `Pagestack` 사이에 section divider를 둔다.
 - 모든 field를 하나의 긴 area에 몰지 않고, 의미 단위가 바뀌면 section을 나눈다.
 - field group이 3개 이상이면 section divider로 스캔 경계를 만든다.
 - 각 section은 제목을 가져야 한다. 제목 없이 field만 반복하지 않는다.
+- 모든 section이 입력 section일 필요는 없다. 기준 휴대폰 번호처럼 disabled field만 있는 section, 본인인증 완료처럼 `ListText` 상태만 있는 section도 독립 `Pagestack`으로 둔다.
+- 동일 정보 재사용 row는 주소 field stack 앞에 두고, bottom CTA로 승격하지 않는다.
 
 ## SourceSpec Additions
 
@@ -51,6 +85,8 @@ SourceSpec이 직접 component를 명시하지 않아도, 입력 흐름을 이�
 - action slot이 있는 `TextField`
 - `ListText`
 - `ListSelected`
+- area reference 후보: `area-auth-completion-status`
+- area reference 후보: `area-form-address`
 - checkbox-like row
 - helper text
 - bottom `ActionButton`

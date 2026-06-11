@@ -176,6 +176,8 @@ reference는 markdown + frontmatter가 SSOT이고, 카탈로그 TS는 **생성�
 2. `pnpm sync:reference` 실행 → `catalog.generated.ts` 재생성. **생성 파일을 직접 수정하지 말 것**
 3. 새 카테고리가 필요하면 `src/reference-catalog/categories.ts`에 디렉터리 매핑 추가
 
+reference 원천 보조 자료는 `{reference-id}/source/`에 둔다. 캡처 이미지, `figma-node-tree-sketch.json`, `render-tree-sketch.json`처럼 검증/확장용 sketch를 둘 수 있지만, inference가 직접 읽는 것은 README 본문이다. 구조 판단에 필요한 핵심 계층은 README에 짧게 요약한다.
+
 step에서의 사용 모드 두 가지:
 - `knowledge("reference-screen-index")` — 메타데이터만 (02 screen-intent가 매칭용으로 사용)
 - `knowledge("reference-screen-catalog")` — 본문 포함 (03 composition이 사용)

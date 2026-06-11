@@ -1,0 +1,35 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-form-address",
+	"note": "Minimal RenderTree-oriented area sketch. This describes the area internals, not the whole screen.",
+	"tree": {
+		"type": "PageStack",
+		"role": "address-input-section",
+		"children": [
+			{ "type": "TitleSection", "role": "address-section-title" },
+			{
+				"type": "TextField",
+				"role": "postal-code-or-address-lookup",
+				"propsHint": {
+					"readonly": false,
+					"inlineAction": "주소 찾기"
+				}
+			},
+			{
+				"type": "TextField",
+				"role": "base-address-lookup-result",
+				"propsHint": {
+					"readonly": true
+				}
+			},
+			{
+				"type": "TextField",
+				"role": "detail-address-input",
+				"propsHint": {
+					"readonly": false
+				}
+			},
+			{ "type": "Text", "role": "short-helper-text" }
+		]
+	}
+}

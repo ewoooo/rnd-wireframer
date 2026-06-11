@@ -1,6 +1,21 @@
-# fix-component-contract-violation
+---
+id: fix-component-contract-violation
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: component-contract-fix
+priority: required
+whenToUse: "Use when a generated component uses unsupported props, variants, or child structure."
+tags:
+  - component-contract
+  - catalog
+  - revision
+---
 
-Use when a generated component uses unsupported props, variants, or child structure.
+# fix-component-contract-violation
 
 ## Revision Target
 

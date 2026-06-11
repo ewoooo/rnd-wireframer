@@ -10,6 +10,12 @@ tags:
 sotNodeRef: 10161:49136
 ---
 
+## Related References
+
+- Figma node: `10161:49136`
+- Figma node tree sketch: `source/figma-node-tree-sketch.json`
+- RenderTree sketch: `source/render-tree-sketch.json`
+
 ## 상황
 
 `결제하기` 화면(`checkout-payment-screen`)은 옵션과 배송 정보를 모으는 이전 단계와 달리, 결제라는 비가역 액션을 바로 앞에 둔 최종 확정 화면이다. 사용자는 여기서 주문자 정보, 상품 정보, T 플러스 포인트, 구독 방식, 결제 수단, 현금영수증, 결제 금액, 그리고 결제 약관 동의까지 모든 판단을 한 번에 내려야 한다. 결제는 되돌리기 어렵기 때문에, 단순히 "다음으로 넘어가는" 입력 화면이 아니라 모든 변수를 검토 가능한 상태로 노출한 뒤 사용자가 의식적으로 확정하게 만드는 무게를 가진다. 하단 CTA가 `다음`이 아니라 `약관 동의하고 결제하기`인 것도 이 비가역성의 비용을 문구로 드러내려는 선택이다.
@@ -24,6 +30,17 @@ SOT에서 실제로 쓰인 조합은 다음과 같다.
 - 결제 정보는 일반 list가 아니라 ledger다. `ListText` rows + `4px`/`16px` spacing + `1px` internal divider로 항목명과 금액을 정렬하고, 최종 결제 금액만 brand color·semi-bold로 위계를 끌어올려 분리한다.
 - 결제 수단은 `PaymentList`/`ListSelected` 선택 row와 추천 `BannerHorizontalSmall`로 구성한다.
 - `Bottom`은 고정 `ActionButton` 하나로, 약관 동의 상태와 결제 실행을 함께 표현한다.
+
+## Structure Example
+
+- `Screen.Header`: `StatusBar` + `AppBar`
+- `Screen.Contents`: 판단 단위별 `PageStack` 반복
+- `PageStack`: `TitleSection` + summary row/list/composite
+- payment ledger `PageStack`: 금액 row 반복 + 최종 결제 금액 emphasis
+- agreement `PageStack`: 필수 약관 동의 row
+- `Screen.Bottom`: 약관 동의와 결제 실행이 묶인 fixed `ActionButton`
+
+`source/*-sketch.json`은 구조 판단용 예제다. literal label, node id, 수치를 그대로 복사하지 말고 hierarchy와 role만 참고한다.
 
 ## 그 구조를 쓴 이유 (판단)
 

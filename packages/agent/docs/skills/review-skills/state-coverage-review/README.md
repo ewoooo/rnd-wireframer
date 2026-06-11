@@ -1,12 +1,20 @@
 ---
 id: state-coverage-review
-stage: understand
-task: screen-intent
+kind: skill
+family: review
+stages:
+  - understand
+  - review
+tasks:
+  - screen-intent
+  - quality-review
 role: state-hinting
 priority: recommended
+whenToUse: "Use when checking whether required UI states are represented for forms, selections, overlays, or completion flows."
 tags:
   - state-coverage
   - intent
+  - quality-review
 ---
 
 # state-coverage-review

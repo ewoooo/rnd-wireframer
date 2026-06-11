@@ -1,0 +1,78 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "screen-form-entry",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Screen",
+		"children": [
+			{
+				"type": "Screen.Header",
+				"role": "navigation",
+				"children": [
+					{ "type": "StatusBar", "role": "system-status" },
+					{ "type": "AppBar", "role": "screen-title-and-back" }
+				]
+			},
+			{
+				"type": "Screen.Contents",
+				"role": "sectioned-input-scroll",
+				"children": [
+					{
+						"type": "PageStack",
+						"role": "device-change-phone-number",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "TextField", "role": "disabled-phone-number" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "auth-completion-status",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListText", "role": "completed-prerequisite-state" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "subscriber-address",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "TextField", "role": "postal-code-with-address-lookup" },
+							{ "type": "TextField", "role": "readonly-base-address" },
+							{ "type": "TextField", "role": "typed-detail-address" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "primary-living-area",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListSelected", "role": "same-as-subscriber-info" },
+							{ "type": "TextField", "role": "postal-code-with-address-lookup" },
+							{ "type": "TextField", "role": "readonly-base-address" },
+							{ "type": "Text", "role": "coverage-consent-helper" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "email-input",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "TextField", "role": "typed-email" }
+						]
+					}
+				]
+			},
+			{
+				"type": "Screen.Bottom",
+				"role": "fixed-progression",
+				"children": [{ "type": "ActionButton", "role": "screen-primary-cta" }]
+			}
+		]
+	}
+}

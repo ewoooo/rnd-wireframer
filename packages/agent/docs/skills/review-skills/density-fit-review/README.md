@@ -1,3 +1,20 @@
+---
+id: density-fit-review
+kind: skill
+family: review
+stages:
+  - review
+tasks:
+  - quality-review
+role: density-fit
+priority: recommended
+whenToUse: "Use when checking whether screen density fits the source complexity and selected pattern."
+tags:
+  - density
+  - grouping
+  - quality-review
+---
+
 # density-fit-review
 
 Checks whether screen density matches source complexity and selected pattern.

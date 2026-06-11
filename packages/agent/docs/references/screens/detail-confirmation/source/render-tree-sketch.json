@@ -1,0 +1,65 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "detail-confirmation",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and decision roles, not the literal labels.",
+	"tree": {
+		"type": "Screen",
+		"children": [
+			{
+				"type": "Screen.Header",
+				"role": "navigation",
+				"children": [
+					{ "type": "StatusBar", "role": "system-status" },
+					{ "type": "AppBar", "role": "screen-title-and-back" }
+				]
+			},
+			{
+				"type": "Screen.Contents",
+				"role": "summary-first-review-scroll",
+				"children": [
+					{
+						"type": "PageStack",
+						"role": "identity-or-orderer-summary",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListText", "role": "summary-row" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "product-summary",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "PayProductListItem", "role": "product-and-price-detail" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "payment-ledger",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListText", "role": "ledger-row" },
+							{ "type": "ListText", "role": "final-pay-amount-emphasis" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "agreement-gate",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListSelected", "role": "required-agreement-row" }
+						]
+					}
+				]
+			},
+			{
+				"type": "Screen.Bottom",
+				"role": "fixed-irreversible-execution",
+				"children": [{ "type": "ActionButton", "role": "agreement-bound-primary-cta" }]
+			}
+		]
+	}
+}

@@ -15,10 +15,24 @@ tags:
 - Figma file: `SKT GenUI Test 0514`
 - Figma node: `10095:23492`
 - Capture: `source/area-form-address.png`
+- Figma node tree sketch: `source/figma-node-tree-sketch.json`
+- RenderTree sketch: `source/render-tree-sketch.json`
 
 ## Area Pattern
 
 주소 입력은 단일 `TextField`가 아니라 lookup과 보강이 결합된 field group으로 본다. SOT에서는 `Pagestack` section 안에 주소 관련 field를 묶고, 우편번호 조회 action과 조회된 주소, 사용자가 직접 보강하는 상세 주소를 같은 area 안에서 순서대로 제공한다.
+
+## Structure Example
+
+- Area
+  - `Pagestack`: 주소 입력 section wrapper
+    - `TitleSection`: 주소의 업무 의미를 드러내는 section title
+    - `TextField`: 우편번호/주소 검색 entry + field-local lookup action
+    - readonly `TextField`: 조회된 기본 주소
+    - editable `TextField`: 사용자가 보강하는 상세 주소
+    - helper text: 입력 목적이나 조회 결과 보조 설명
+
+`source/*-sketch.json`은 구조 판단용 예제다. literal label, node id, 수치를 그대로 복사하지 말고 hierarchy와 role만 참고한다.
 
 ## Structure Rules
 

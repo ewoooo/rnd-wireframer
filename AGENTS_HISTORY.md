@@ -36,6 +36,20 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Form Entry Reference SOT Alignment
+
+- 변경: `screen-form-entry` reference의 `Structure Example`과 source sketch를 Figma SOT node `10095:23484`의 실제 5개 `Pagestack` 구조에 맞게 보정함
+- 이유: 기존 문서가 SOT의 `기기변경 휴대폰 번호 / 본인인증 완료 / 가입자 주소 / 주 생활지역 / 이메일` section 순서와 역할을 과하게 일반화했기 때문
+- 검증: JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: `area-auth-completion-status`, 주 생활지역/동일 정보 재사용 area reference를 별도 등록 검토
+
+## 2026-06-11 - Reference Source Structure Sketches
+
+- 변경: 현재 screen/area reference에 `source/figma-node-tree-sketch.json`과 `source/render-tree-sketch.json`을 추가하고, README에 추론용 `Structure Example` 요약을 작성함
+- 이유: 캡처 이미지만으로는 composing 단계에서 계층 판단이 약하고, raw Figma tree를 그대로 쓰면 잡음이 크므로 정제된 구조 sketch와 본문 요약을 분리하기 위함
+- 검증: JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 새 reference를 추가할 때도 source sketch는 복붙용이 아니라 hierarchy/role 판단용으로 유지
+
 ## 2026-06-11 - Reference Skill Naming Alignment
 
 - 변경: inference reference 루트를 `skills/references`에서 `skills/reference-skills`로 변경하고, 디자인 정본 디렉토리를 `design`에서 `fundamentals`로 변경함

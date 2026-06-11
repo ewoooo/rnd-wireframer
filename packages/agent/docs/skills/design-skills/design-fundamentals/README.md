@@ -1,9 +1,24 @@
 ---
 id: design-fundamentals
-stage: understand-compose-generate-review
-task: design
+kind: skill
+family: design
+stages:
+  - understand
+  - compose
+  - generate
+  - review
+tasks:
+  - screen-intent
+  - composition-planning
+  - screen-generation
+  - quality-review
 role: design-foundation
 priority: required
+whenToUse: "Use when a step must decide screen type, hierarchy, component role, action priority, state treatment, or visual grouping."
+tags:
+  - design-foundation
+  - semantic-hierarchy
+  - component-role
 ---
 
 # design-fundamentals
@@ -11,8 +26,6 @@ priority: required
 RenderNode 기반 screen generation 전반에서 사용하는 공통 디자인 판단 규칙이다. Figma 실측값이나 구버전 component 이름을 그대로 강제하지 않고, source evidence를 screen, area, component role로 번역하는 의미론적 기준만 소유한다.
 
 ## Applies To
-
-Use this skill whenever a step must decide screen type, area hierarchy, component role, action hierarchy, state treatment, or visual grouping.
 
 This skill applies to:
 

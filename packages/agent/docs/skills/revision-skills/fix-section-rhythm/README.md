@@ -1,6 +1,21 @@
-# fix-section-rhythm
+---
+id: fix-section-rhythm
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: section-rhythm-fix
+priority: recommended
+whenToUse: "Use when generated sections have inconsistent, monotonous, or source-inappropriate rhythm."
+tags:
+  - section-rhythm
+  - divider
+  - revision
+---
 
-Use when generated sections have inconsistent, monotonous, or source-inappropriate rhythm.
+# fix-section-rhythm
 
 ## Revision Target
 

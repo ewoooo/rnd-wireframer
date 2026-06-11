@@ -1,16 +1,23 @@
 ---
 id: pagestack-section-unit
-stage: compose
-task: composition-planning
+kind: skill
+family: compose
+stages:
+  - compose
+tasks:
+  - composition-planning
 role: area-layout-selection
 priority: required
+whenToUse: "Use when contents need to be split into semantic PageStack area sections."
+tags:
+  - pagestack
+  - area-layout
+  - section-structure
 ---
 
 # pagestack-section-unit
 
 Contents 영역의 각 섹션은 PageStack 패밀리 area 레이아웃을 기본 단위로 쓴다.
-
-Use this skill when `Contents` contains a titled decision unit, input group, notice group, repeated row group, agreement group, or any source-backed section that should be represented as one semantic area.
 
 ## Rule
 

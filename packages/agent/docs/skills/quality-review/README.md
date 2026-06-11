@@ -1,3 +1,20 @@
+---
+id: quality-review
+kind: skill
+family: task
+stages:
+  - review
+tasks:
+  - quality-review
+role: quality-gate
+priority: required
+whenToUse: "Use when evaluating a generated RenderTree for source fidelity, hierarchy, action clarity, density, and pattern fit."
+tags:
+  - quality-review
+  - validation
+  - findings
+---
+
 # Quality Review Checklist
 
 P0 finding은 revision 후보가 될 수 있는 결함이다. P1 finding은 human review나 warning 후보로 남길 수 있는 결함이다.

@@ -1,3 +1,20 @@
+---
+id: anti-slop-review
+kind: skill
+family: review
+stages:
+  - review
+tasks:
+  - quality-review
+role: anti-slop
+priority: recommended
+whenToUse: "Use when checking for generic, ungrounded, or decorative AI-design artifacts."
+tags:
+  - anti-slop
+  - source-grounding
+  - quality-review
+---
+
 # anti-slop-review
 
 Checks for generic AI-design artifacts that reduce screen quality.

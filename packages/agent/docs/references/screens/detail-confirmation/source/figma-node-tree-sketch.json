@@ -1,0 +1,41 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "detail-confirmation",
+	"source": {
+		"figmaNode": "10161:49136"
+	},
+	"note": "SOT structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Detail Confirmation Screen",
+		"nodeType": "FRAME",
+		"role": "screen",
+		"children": [
+			{ "name": "StatusBar", "nodeType": "INSTANCE", "role": "system-status" },
+			{ "name": "AppBar", "nodeType": "INSTANCE", "role": "navigation" },
+			{
+				"name": "Contents",
+				"nodeType": "FRAME",
+				"role": "scroll-contents",
+				"children": [
+					{ "name": "Orderer Information", "nodeType": "INSTANCE", "role": "summary-section" },
+					{ "name": "Product Information", "nodeType": "INSTANCE", "role": "summary-section" },
+					{ "name": "Payment Method", "nodeType": "INSTANCE", "role": "selection-summary-section" },
+					{ "name": "Payment Ledger", "nodeType": "INSTANCE", "role": "amount-ledger-section" },
+					{ "name": "Terms Agreement", "nodeType": "INSTANCE", "role": "agreement-gate-section" }
+				]
+			},
+			{
+				"name": "Bottom",
+				"nodeType": "FRAME",
+				"role": "fixed-bottom",
+				"children": [
+					{
+						"name": "ActionButton",
+						"nodeType": "INSTANCE",
+						"role": "agreement-bound-execution-cta"
+					}
+				]
+			}
+		]
+	}
+}

@@ -41,7 +41,7 @@ function readSkillsetDocument(document: {
 		priority: readPriority(frontmatter.priority),
 		role: readString(frontmatter.role),
 		sourceRef: document.sourceRef,
-		task: readString(frontmatter.task) ?? document.task,
+		task: readSkillTask(frontmatter, document.task),
 	};
 }
 
@@ -52,6 +52,19 @@ function inferIdFromSourceRef(sourceRef: string): string {
 
 function readString(value: unknown): string | undefined {
 	return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function readStringList(value: unknown): string[] {
+	return Array.isArray(value)
+		? value.filter((item): item is string => typeof item === "string" && item.length > 0)
+		: [];
+}
+
+function readSkillTask(frontmatter: Record<string, unknown>, currentTask: string): string {
+	const task = readString(frontmatter.task);
+	if (task) return task;
+	const tasks = readStringList(frontmatter.tasks);
+	return tasks.includes(currentTask) ? currentTask : (tasks[0] ?? currentTask);
 }
 
 function readPriority(value: unknown): SkillsetDocument["priority"] | undefined {

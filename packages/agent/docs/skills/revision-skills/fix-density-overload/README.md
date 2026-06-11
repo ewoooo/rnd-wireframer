@@ -1,6 +1,21 @@
-# fix-density-overload
+---
+id: fix-density-overload
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: density-overload-fix
+priority: recommended
+whenToUse: "Use when the screen contains too many equally weighted components or overly dense content."
+tags:
+  - density
+  - grouping
+  - revision
+---
 
-Use when the screen contains too many equally weighted components or overly dense content.
+# fix-density-overload
 
 ## Revision Target
 
