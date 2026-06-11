@@ -3,6 +3,19 @@ import type { ReferenceCatalogEntry } from "@cx/schema";
 
 export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 	{
+		id: "area-compensation-application",
+		situation:
+			"사용자가 사용하던 휴대폰 반납 보상 조건을 확인하고 기기 검색 후 바로보상을 신청한다",
+		tags: [
+			"area-pattern",
+			"compensation",
+			"device-search",
+			"field-local-action",
+			"informational-callout",
+		],
+		sourceRef: "../docs/references/areas/area-compensation-application/README.md",
+	},
+	{
 		id: "area-completion-hero",
 		situation:
 			"사용자가 신청, 변경, 해지, 제출 같은 주요 업무를 완료했고 결과 상태를 화면 상단에서 강하게 확인해야 한다",
@@ -54,6 +67,19 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-linked-address-field/README.md",
 	},
 	{
+		id: "area-linked-recipient-address-field",
+		situation:
+			"사용자가 배송지나 수령 정보를 기존 가입자 정보와 동일하게 재사용하거나, 수령자 연락처와 주소를 보강한다",
+		tags: [
+			"area-pattern",
+			"linked-recipient-address",
+			"reuse-existing-info",
+			"recipient-fields",
+			"address-lookup",
+		],
+		sourceRef: "../docs/references/areas/area-linked-recipient-address-field/README.md",
+	},
+	{
 		id: "area-prerequisite-status",
 		situation:
 			"사용자가 다음 입력 단계로 진행하기 전에 이미 충족된 선행 조건이나 확인 상태를 짧게 인지해야 한다",
@@ -65,6 +91,25 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 			"readonly-status",
 		],
 		sourceRef: "../docs/references/areas/area-prerequisite-status/README.md",
+	},
+	{
+		id: "area-product-summary-sheet",
+		situation:
+			"사용자가 이후 옵션을 선택하기 전에 현재 선택한 상품과 월 납부금액을 상단에서 확인한다",
+		tags: ["area-pattern", "product-summary", "price-summary", "sheet", "option-context"],
+		sourceRef: "../docs/references/areas/area-product-summary-sheet/README.md",
+	},
+	{
+		id: "area-radio-option-group",
+		situation: "사용자가 하나의 업무 질문에 대해 여러 상호 배타적인 선택지 중 하나를 고른다",
+		tags: [
+			"area-pattern",
+			"radio-option-group",
+			"single-choice",
+			"list-selected",
+			"optional-callout",
+		],
+		sourceRef: "../docs/references/areas/area-radio-option-group/README.md",
 	},
 	{
 		id: "area-readonly-identity-field",
