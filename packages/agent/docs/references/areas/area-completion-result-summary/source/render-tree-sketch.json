@@ -1,0 +1,43 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-completion-result-summary",
+	"note": "Minimal RenderTree-oriented area sketch. This describes the area internals, not the whole screen.",
+	"tree": {
+		"type": "PageStack",
+		"role": "completion-result-summary",
+		"children": [
+			{
+				"type": "ContentsTitle",
+				"role": "completion-title-group",
+				"children": [
+					{
+						"type": "TitleMain",
+						"role": "high-emphasis-complete-title",
+						"propsHint": {
+							"type": "Complete",
+							"optionalContext": "대상 기기/상품명",
+							"titleLines": ["완료 사실", "결과 보강 문장"],
+							"subText": "완료 후 사용 가능 상태나 결과 의미"
+						}
+					}
+				]
+			},
+			{
+				"type": "ContentsSlot",
+				"role": "result-summary-card-slot",
+				"children": [
+					{
+						"type": "CardContentsFilled",
+						"role": "result-summary-card",
+						"children": [
+							{ "type": "TitleContents", "role": "summary-card-title" },
+							{ "type": "ListText", "role": "result-key-value-row" },
+							{ "type": "ListText", "role": "result-key-value-row" },
+							{ "type": "ListText", "role": "result-key-value-row-or-detail-link" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

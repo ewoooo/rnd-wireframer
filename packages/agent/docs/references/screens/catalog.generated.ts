@@ -23,4 +23,17 @@ export const referenceScreenCatalog: ReferenceCatalogEntry[] = [
 		tags: ["screen-pattern", "form-entry", "input-heavy", "sectioned-input", "progression-cta"],
 		sourceRef: "../docs/references/screens/screen-form-entry/README.md",
 	},
+	{
+		id: "screen-option-configuration",
+		situation:
+			"사용자가 선택한 상품을 기준으로 할인, USIM/eSIM, 배송 방법, 보상, 배송지 같은 추가 옵션을 섹션별로 선택하거나 보강해 다음 단계로 진행한다",
+		tags: [
+			"screen-pattern",
+			"option-configuration",
+			"product-summary",
+			"multi-section-selection",
+			"progression-cta",
+		],
+		sourceRef: "../docs/references/screens/screen-option-configuration/README.md",
+	},
 ];

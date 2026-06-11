@@ -1,0 +1,42 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-prerequisite-status",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23490"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Prerequisite Status Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-slot",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "prerequisite-status-title",
+						"text": "본인인증 완료"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "FRAME",
+				"role": "section-content-slot",
+				"children": [
+					{
+						"name": "ListText",
+						"nodeType": "INSTANCE",
+						"role": "completed-prerequisite-message",
+						"text": "조현호 고객님의 본인인증이 완료되었습니다."
+					}
+				]
+			}
+		]
+	}
+}

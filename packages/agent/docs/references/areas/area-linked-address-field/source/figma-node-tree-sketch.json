@@ -1,0 +1,66 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-linked-address-field",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23494"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Linked Address Field Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-linked-address-field",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-slot",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "linked-address-title",
+						"text": "주 생활지역"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "linked-address-content-slot",
+				"children": [
+					{
+						"name": "ListSelected",
+						"nodeType": "INSTANCE",
+						"role": "reuse-existing-info-row",
+						"text": "가입자 정보와 동일"
+					},
+					{
+						"name": "Spacing",
+						"nodeType": "FRAME",
+						"role": "row-to-field-gap"
+					},
+					{
+						"name": "TextFieldDisabled + Button",
+						"nodeType": "INSTANCE",
+						"role": "postal-code-address-lookup",
+						"text": "01155",
+						"action": "주소 찾기"
+					},
+					{
+						"name": "TextFieldDisabled",
+						"nodeType": "INSTANCE",
+						"role": "readonly-base-address",
+						"text": "서울 강북구 오현로 45,"
+					},
+					{
+						"name": "Help Text",
+						"nodeType": "TEXT",
+						"role": "address-purpose-helper",
+						"text": "5G 가용지역 확인 동의를 위한 정보"
+					}
+				]
+			}
+		]
+	}
+}

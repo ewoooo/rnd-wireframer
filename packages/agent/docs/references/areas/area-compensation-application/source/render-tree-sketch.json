@@ -1,0 +1,50 @@
+{
+	"referenceId": "area-compensation-application",
+	"purpose": "RenderTree-oriented structure sketch for a compensation application section. This is not a strict schema fixture.",
+	"tree": {
+		"type": "area",
+		"id": "area-compensation-application-example",
+		"role": "area-compensation-application",
+		"children": [
+			{
+				"type": "component",
+				"component": "kiki.TitleSection",
+				"role": "section-title-with-info"
+			},
+			{
+				"type": "component",
+				"component": "kiki.ListText",
+				"role": "compensation-summary"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "device-search-with-button"
+			},
+			{
+				"type": "text",
+				"role": "search-helper-text"
+			},
+			{
+				"type": "component",
+				"component": "kiki.ListText",
+				"role": "compensation-amount"
+			},
+			{
+				"type": "component",
+				"component": "kiki.Button",
+				"role": "section-apply-action"
+			},
+			{
+				"type": "component",
+				"component": "kiki.Callout",
+				"role": "compensation-explanation"
+			}
+		],
+		"wrapper": {
+			"type": "area-wrapper",
+			"component": "Pagestack",
+			"slot": "ContentsSlot"
+		}
+	}
+}

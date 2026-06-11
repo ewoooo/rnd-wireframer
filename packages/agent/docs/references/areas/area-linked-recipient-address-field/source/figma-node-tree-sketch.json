@@ -1,0 +1,72 @@
+{
+	"referenceId": "area-linked-recipient-address-field",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNodes": ["10095:23511", "10095:23515"]
+	},
+	"purpose": "Figma SOT hierarchy sketch for recipient/contact/address sections that can reuse subscriber information. Use hierarchy and roles only; do not copy literal sizing.",
+	"examples": [
+		{
+			"id": "10095:23511",
+			"name": "배송지",
+			"role": "Pagestack.linked-recipient-address",
+			"children": [
+				{
+					"role": "TitleSection",
+					"text": "배송지"
+				},
+				{
+					"role": "ListSelected.same-as-subscriber"
+				},
+				{
+					"role": "TextField.recipient-name"
+				},
+				{
+					"role": "TextField.phone-number"
+				},
+				{
+					"role": "TextField.address-lookup-with-button"
+				},
+				{
+					"role": "TextField.readonly-base-address"
+				},
+				{
+					"role": "TextField.address-detail"
+				}
+			]
+		},
+		{
+			"id": "10095:23515",
+			"name": "T기프트 배송 정보",
+			"role": "Pagestack.linked-recipient-address",
+			"children": [
+				{
+					"role": "TitleSection",
+					"text": "T기프트 배송 정보"
+				},
+				{
+					"role": "Badge",
+					"text": "배송"
+				},
+				{
+					"role": "ListSelected.same-as-subscriber"
+				},
+				{
+					"role": "TextField.recipient-name"
+				},
+				{
+					"role": "TextField.phone-number"
+				},
+				{
+					"role": "TextField.address-lookup-with-button"
+				},
+				{
+					"role": "TextField.readonly-base-address"
+				},
+				{
+					"role": "TextField.address-detail"
+				}
+			]
+		}
+	]
+}

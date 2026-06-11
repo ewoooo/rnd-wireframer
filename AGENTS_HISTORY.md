@@ -36,6 +36,55 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Option Configuration Remaining Area References
+
+- 변경: `screen-option-configuration`의 남은 후보를 정리해 `area-product-summary-sheet`, `area-linked-recipient-address-field`, `area-compensation-application` Area Reference를 추가함
+- 변경: `area-linked-delivery-address-field`는 별도 reference로 만들지 않고 `area-linked-recipient-address-field`의 T기프트 배송 정보 variant로 흡수함
+- 변경: `screen-option-configuration`의 Area 목록을 실제 생성된 reference 기준으로 갱신하고 reference catalog를 재생성함
+- 이유: 상품 summary, 배송/수령자 정보, 바로보상 신청은 각각 다른 생성 판단이 필요하지만, 일반 배송지와 T기프트 배송 정보는 title/badge만 다른 동일 field stack이므로 분리하면 후보가 불필요하게 늘어나기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 이 화면의 하위 area reference는 현재 `area-product-summary-sheet`, `area-radio-option-group`, `area-linked-recipient-address-field`, `area-compensation-application`으로 정리 완료
+
+## 2026-06-11 - Radio Option Group Area Reference
+
+- 변경: Figma SOT nodes `10095:23505`, `10095:23507`, `10095:23509` 기반 `area-radio-option-group` Area Reference를 추가함
+- 변경: `screen-option-configuration`에서 `area-radio-option-group-with-callout` 후보를 제거하고 `Callout`을 `area-radio-option-group`의 optional child로 정리함
+- 이유: 세 SOT 모두 `Pagestack` + `TitleSection` + `ListSelected` 반복 구조이며, 선택지 개수와 `Callout` 유무만 달라 별도 area type으로 나누면 inference 후보가 불필요하게 분산되기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: product summary sheet, recipient/delivery address, compensation application area를 별도 reference로 순차 분리 검토
+
+## 2026-06-11 - Option Configuration Screen Reference
+
+- 변경: Figma SOT node `10095:23501` 기반 `screen-option-configuration` Screen Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 reference catalog를 재생성함
+- 이유: 선택 상품 summary와 결합 할인, USIM/eSIM, 배송 방법, 배송지, 보상, T기프트 배송 정보가 결합된 화면은 `screen-form-entry`나 `detail-confirmation`과 다른 screen-level 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 하위 area reference는 후속 엔트리에서 `area-product-summary-sheet`, `area-radio-option-group`, `area-linked-recipient-address-field`, `area-compensation-application`으로 정리함
+
+## 2026-06-11 - Form Entry Supporting Area References
+
+- 변경: Figma SOT nodes `10095:23488`, `10095:23494` 기반 `area-readonly-identity-field`, `area-linked-address-field` Area Reference를 추가함
+- 변경: `screen-form-entry` 후보 area 목록에 readonly 기준값, prerequisite status, 기본 주소 입력, linked address field reference를 정렬해 연결함
+- 이유: form-entry 안에서도 기준값 표시와 기존 정보 재사용 주소 field는 일반 editable input이나 기본 주소 입력과 다른 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 단일 editable field(`10095:23496`)는 별도 reference로 만들지 않고 screen-level structure example에 유지
+
+## 2026-06-11 - Completion Result Summary Area Reference
+
+- 변경: Figma SOT nodes `10090:58795`, `10090:58800` 기반 `area-completion-result-summary` Area Reference를 추가함
+- 변경: 완료 headline만 있는 `area-completion-hero`와 완료 headline + 결과 요약 card가 결합된 `area-completion-result-summary`를 분리하고, `area-completion-hero` Avoid에 분기 기준을 추가함
+- 이유: 개통 완료/요금제 변경 완료처럼 완료 결과값을 확인해야 하는 화면을 hero-only completion과 섞으면 `ContentsSlot` hidden 규칙과 summary card 사용 조건이 충돌하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 결과 summary card의 내부 row가 반복적으로 쓰이면 별도 card-level reference 분리 검토
+
+## 2026-06-11 - Status Notice Area References
+
+- 변경: Figma SOT nodes `10095:23490`, `10090:58820` 기반 `area-prerequisite-status`, `area-completion-hero` Area Reference를 추가함
+- 변경: 낮은 위계의 진행 중 선행 조건 통보(`TitleSection` + `ListText`)와 완료 화면 상단의 결과 hero(`TitleMain` Complete variant)를 별도 reference로 분리함
+- 이유: 둘 다 상태 통보지만 사용 페이지 맥락과 컴포넌트 위계가 달라 하나의 `area-notice`로 묶으면 생성기가 `TitleMain`과 `ListText` 사용 조건을 혼동할 수 있기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: progress 화면의 진행률/처리중 status area가 필요하면 별도 `area-progress-status`로 분리 검토
+
 ## 2026-06-11 - Form Entry Reference SOT Alignment
 
 - 변경: `screen-form-entry` reference의 `Structure Example`과 source sketch를 Figma SOT node `10095:23484`의 실제 5개 `Pagestack` 구조에 맞게 보정함

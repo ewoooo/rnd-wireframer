@@ -1,0 +1,39 @@
+{
+	"referenceId": "area-radio-option-group",
+	"purpose": "RenderTree-oriented structure sketch for a single-choice option group. This is not a strict schema fixture.",
+	"tree": {
+		"type": "area",
+		"id": "area-radio-option-group-example",
+		"role": "area-radio-option-group",
+		"children": [
+			{
+				"type": "component",
+				"component": "kiki.TitleSection",
+				"role": "section-title"
+			},
+			{
+				"type": "component",
+				"component": "kiki.ListSelected",
+				"role": "radio-option",
+				"repeat": "2..n"
+			},
+			{
+				"type": "component",
+				"component": "kiki.Spacing",
+				"role": "optional-callout-gap",
+				"optional": true
+			},
+			{
+				"type": "component",
+				"component": "kiki.Callout",
+				"role": "optional-option-help",
+				"optional": true
+			}
+		],
+		"wrapper": {
+			"type": "area-wrapper",
+			"component": "Pagestack",
+			"slot": "ContentsSlot"
+		}
+	}
+}

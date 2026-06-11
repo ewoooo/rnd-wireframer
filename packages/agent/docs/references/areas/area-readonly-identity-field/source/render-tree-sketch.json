@@ -1,0 +1,21 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-readonly-identity-field",
+	"note": "Minimal RenderTree-oriented area sketch. This describes the area internals, not the whole screen.",
+	"tree": {
+		"type": "PageStack",
+		"role": "readonly-identity-field-section",
+		"children": [
+			{ "type": "TitleSection", "role": "identity-field-title" },
+			{
+				"type": "TextField",
+				"role": "readonly-identity-value",
+				"propsHint": {
+					"readonly": true,
+					"disabled": true,
+					"valueSource": "source reference value"
+				}
+			}
+		]
+	}
+}

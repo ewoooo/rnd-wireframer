@@ -1,0 +1,125 @@
+{
+	"referenceId": "screen-option-configuration",
+	"purpose": "RenderTree-oriented structure sketch for an option configuration screen. This is not a strict schema fixture.",
+	"tree": {
+		"type": "screen",
+		"id": "screen-option-configuration-example",
+		"role": "Screen",
+		"children": [
+			{
+				"type": "region",
+				"role": "Screen.Header",
+				"children": [
+					{
+						"type": "component",
+						"component": "kiki.StatusBar"
+					},
+					{
+						"type": "component",
+						"component": "kiki.AppBar",
+						"props": {
+							"title": "추가 정보 입력"
+						}
+					}
+				]
+			},
+			{
+				"type": "region",
+				"role": "Screen.Contents",
+				"children": [
+					{
+						"type": "area",
+						"role": "area-product-summary-sheet",
+						"components": ["kiki.Sheet"]
+					},
+					{
+						"type": "area",
+						"role": "area-radio-option-group",
+						"title": "결합 할인",
+						"components": ["kiki.TitleSection", "kiki.ListSelected"]
+					},
+					{
+						"type": "component",
+						"component": "kiki.Divider"
+					},
+					{
+						"type": "area",
+						"role": "area-radio-option-group",
+						"title": "USIMㆍ이심(eSIM)",
+						"components": ["kiki.TitleSection", "kiki.ListSelected", "kiki.Callout"]
+					},
+					{
+						"type": "component",
+						"component": "kiki.Divider"
+					},
+					{
+						"type": "area",
+						"role": "area-radio-option-group",
+						"title": "휴대폰 배송 방법",
+						"components": ["kiki.TitleSection", "kiki.ListSelected"]
+					},
+					{
+						"type": "component",
+						"component": "kiki.Divider"
+					},
+					{
+						"type": "area",
+						"role": "area-linked-recipient-address-field",
+						"title": "배송지/수령 정보",
+						"components": [
+							"kiki.TitleSection",
+							"kiki.ListSelected",
+							"kiki.TextField",
+							"kiki.Button"
+						]
+					},
+					{
+						"type": "component",
+						"component": "kiki.Divider"
+					},
+					{
+						"type": "area",
+						"role": "area-compensation-application",
+						"title": "바로보상 안내",
+						"components": [
+							"kiki.TitleSection",
+							"kiki.ListText",
+							"kiki.TextField",
+							"kiki.Button",
+							"kiki.Callout"
+						]
+					},
+					{
+						"type": "component",
+						"component": "kiki.Divider"
+					},
+					{
+						"type": "area",
+						"role": "area-linked-recipient-address-field",
+						"title": "T기프트 배송 정보",
+						"components": [
+							"kiki.TitleSection",
+							"kiki.ListSelected",
+							"kiki.TextField",
+							"kiki.Button"
+						]
+					}
+				]
+			},
+			{
+				"type": "region",
+				"role": "Screen.Bottom",
+				"children": [
+					{
+						"type": "component",
+						"component": "kiki.ActionButton",
+						"props": {
+							"label": "다음",
+							"priority": "primary"
+						}
+					}
+				]
+			}
+		]
+	}
+}

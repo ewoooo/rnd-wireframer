@@ -1,0 +1,91 @@
+{
+	"referenceId": "area-radio-option-group",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNodes": ["10095:23505", "10095:23507", "10095:23509"]
+	},
+	"purpose": "Figma SOT hierarchy sketch for the shared radio option group area. Use hierarchy and roles only; do not copy literal sizing.",
+	"examples": [
+		{
+			"id": "10095:23505",
+			"name": "결합 할인",
+			"role": "Pagestack.radio-option-group",
+			"children": [
+				{
+					"role": "TitleSection",
+					"text": "결합 할인"
+				},
+				{
+					"role": "ContentsSlot",
+					"children": [
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "10095:23507",
+			"name": "USIMㆍ이심(eSIM)",
+			"role": "Pagestack.radio-option-group-with-callout",
+			"children": [
+				{
+					"role": "TitleSection",
+					"text": "USIMㆍ이심(eSIM)"
+				},
+				{
+					"role": "ContentsSlot",
+					"children": [
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "Spacing"
+						},
+						{
+							"role": "Callout.option-help"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "10095:23509",
+			"name": "휴대폰 배송 방법",
+			"role": "Pagestack.radio-option-group",
+			"children": [
+				{
+					"role": "TitleSection",
+					"text": "휴대폰 배송 방법"
+				},
+				{
+					"role": "ContentsSlot",
+					"children": [
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						},
+						{
+							"role": "ListSelected.radio-option"
+						}
+					]
+				}
+			]
+		}
+	]
+}

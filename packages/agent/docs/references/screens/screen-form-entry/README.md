@@ -85,8 +85,10 @@ SourceSpec이 직접 component를 명시하지 않아도, 입력 흐름을 이�
 - action slot이 있는 `TextField`
 - `ListText`
 - `ListSelected`
-- area reference 후보: `area-auth-completion-status`
+- area reference 후보: `area-readonly-identity-field`
+- area reference 후보: `area-prerequisite-status`
 - area reference 후보: `area-form-address`
+- area reference 후보: `area-linked-address-field`
 - checkbox-like row
 - helper text
 - bottom `ActionButton`
