@@ -51,6 +51,6 @@ Source docs: `packages/agent/docs/skills/design-skills/design-fundamentals/sourc
 
 ## Boundaries
 
-- pattern id는 `context.patternSelection` 또는 `context.layerCandidates`에서만. layout id를 발명하지 않는다.
+- layout id는 `context.references.layoutCatalog`, `compositionPlan`, 또는 mounted selected reference 문서에서 확인된 값만 사용한다. layout id를 발명하지 않는다.
 - 후보 집합이 좁아도 새 screen/region/area/composite 패턴을 발명하지 않는다.
 - 신규 component가 필요하면 확정하지 말고 component-proposal 아티팩트로 제안한다.

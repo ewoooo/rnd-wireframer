@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Screen Generation Skill Prompt Alignment
+
+- 변경: `screen-generation` skill README에서 구 `tableGenerationResult`, `targetArtifact`, `intermediateArtifact`, `patternSelection`, `layerCandidates` 계약 문구를 제거하고 현재 `render-tree` output contract, `context.jsonSchema`, `componentCatalog`/`layoutCatalog`, selected reference mount 기준으로 정리함
+- 변경: `layout-composition` design-context의 layout id boundary를 현재 `context.references.layoutCatalog`, `compositionPlan`, mounted selected reference 기준으로 갱신함
+- 이유: Claude prompt assembly가 skill 문서를 본문에 주입하므로, 구 pipeline 용어가 남아 있으면 RenderTree 단일 산출 및 selective design SOT mount 흐름과 충돌하기 때문
+- 검증: 구 용어 검색 0건(`screen-generation` prompt/skill 및 `layout-composition` 대상), `pnpm exec vitest run packages/inference/src/__tests__/claude-engine.test.ts packages/inference/src/__tests__/screen-generation-v1.test.ts packages/agent/src/skillset-catalog/__tests__/catalog-generated.test.ts`
+- 후속: `component-proposal` 문서의 `componentContractCatalog` 표현은 별도 후보 제안 task 맥락에서 current context 명칭과 맞춰 정리할지 후속 검토
+
 ## 2026-06-11 - Option Configuration Remaining Area References
 
 - 변경: `screen-option-configuration`의 남은 후보를 정리해 `area-product-summary-sheet`, `area-linked-recipient-address-field`, `area-compensation-application` Area Reference를 추가함

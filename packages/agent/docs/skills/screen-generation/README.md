@@ -5,15 +5,15 @@ P0 items must pass before returning.
 ## P0
 
 - Output is one JSON object only.
-- Output contains both `tableGenerationResult` and `renderTree`.
+- Output is the RenderTree object for the current `render-tree` output contract.
 - No HTML, CSS, Markdown fence, or explanatory prose is included.
 - `SourceSpec`의 핵심 의도와 source ref를 유지한다.
 - `SourceSpec`, `screenIntent`, `compositionPlan`에 없는 metric, 수치, 상품명, 혜택, action label을 사실처럼 발명하지 않는다.
 - Placeholder copy, filler label, generic sample content, source와 무관한 장식 component를 넣지 않는다.
-- RenderTree uses the schema version requested by `context.targetArtifact.schemaVersion`.
-- Table generation result uses the schema version requested by `context.intermediateArtifact.schemaVersion`.
-- Screen, region, area, and component layout ids come from `context.patternSelection` or `context.layerCandidates`.
-- Component type, props, variant, layout role은 `context.componentContractCatalog`, SourceSpec raw data, selected pattern evidence 안에서만 선택한다.
+- RenderTree uses the version required by `context.jsonSchema`.
+- Screen, region, area, and component layout ids come from `context.references.layoutCatalog` or selected reference documents.
+- Component type, props, variant, and layout role are selected only from `context.references.componentCatalog`, SourceSpec raw data, `compositionPlan`, and selected reference evidence.
+- When `context.references.selectedScreenReferences` or `context.references.selectedAreaReferences` are mounted, apply their structure rules and avoid rules without copying literal sketch labels, node ids, or unsupported measurements.
 - Source regions remain mapped to Screen Header, Contents, and Bottom.
 - Source areas remain grouped unless the validation contract requires a structural wrapper.
 - Source나 upstream artifact가 화면 유형을 분명히 암시하면 그 유형의 핵심 완료 조건을 지킨다.
@@ -41,20 +41,21 @@ P0 items must pass before returning.
 
 ## Output Contract
 
-`screen-generation`의 현재 목표 출력은 다음 두 artifact를 함께 포함하는 payload다.
+`screen-generation`의 현재 목표 출력은 `@cx/schema`의 `render-tree` output contract와 일치하는 RenderTree JSON 객체다.
 
 ```json
 {
-  "tableGenerationResult": {},
-  "renderTree": {}
+  "version": "render-tree.v0.1",
+  "metadata": { "id": "screen-id" },
+  "children": []
 }
 ```
 
 규칙:
 
-- `tableGenerationResult`는 layout id provenance가 남는 중간 산출물이다.
 - `renderTree`는 preview 가능한 materialized 산출물이다.
-- 최종 schema 버전과 DTO 정본은 `@cx/schema`를 따른다.
+- `context.jsonSchema`가 generation-time output shape을 제공하고, 최종 검증은 `@cx/schema`의 원본 output contract가 담당한다.
+- schema 밖 wrapper(`renderTree`, `payload`, `result`)나 병행 artifact를 추가하지 않는다.
 
 ## RenderTree Rules
 
@@ -66,9 +67,3 @@ P0 items must pass before returning.
 - Put `Screen.Header`, `Screen.Contents`, and `Screen.Bottom` under the Screen root when the source has matching regions.
 - Use `node.layout` for layout pattern selection, shaped as `layout.<target>.<PatternName>`.
 - Component values belong in `node.props`.
-
-## Table Generation Result Rules
-
-- Use the schema version requested by `context.intermediateArtifact`.
-- Every screen, region, area, and component record must include a layout id from selected candidates or layer candidates.
-- Layout ids are shaped as `layout.<target>.<PatternName>`.
