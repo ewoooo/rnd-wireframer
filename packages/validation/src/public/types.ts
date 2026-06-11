@@ -1,4 +1,12 @@
 import type { validationBoundary } from "./contract";
+import type { ValidationIssueCode, ValidationSeverity } from "./registry";
+
+export type {
+	ValidationCodeMeta,
+	ValidationIssueCode,
+	ValidationLayer,
+	ValidationSeverity,
+} from "./registry";
 
 export type ValidationBoundary = typeof validationBoundary;
 export type ValidationBoundaryName = ValidationBoundary["name"];
@@ -16,35 +24,6 @@ export type ValidationTarget =
 	| "render-tree"
 	| "schema-artifact"
 	| "table-generation-result";
-
-export type ValidationSeverity = "error" | "warning";
-
-export type ValidationIssueCode =
-	| "json-invalid"
-	| "schema-invalid"
-	| "required-field-missing"
-	| "duplicate-id"
-	| "unknown-component-type"
-	| "unknown-prop"
-	| "invalid-prop-type"
-	| "invalid-enum-value"
-	| "readonly-prop-written"
-	| "invalid-render-node"
-	| "invalid-layout-prop"
-	| "internal-visible-title"
-	| "list-text-dot-subtext-missing"
-	| "source-ref-not-materialized"
-	| "source-prop-mismatch"
-	| "single-section-divider"
-	| "state-coverage-missing"
-	| "unknown-source-ref"
-	| "unknown-layout-ref"
-	| "layout-ref-outside-candidates"
-	| "proposal-source-evidence-missing"
-	| "proposal-nearest-match-unknown"
-	| "proposal-limit-exceeded"
-	| "bottom-cta-state-ungated"
-	| "uses-candidate-component";
 
 export type ValidationIssue = {
 	code: ValidationIssueCode;

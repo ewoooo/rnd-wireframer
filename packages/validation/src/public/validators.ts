@@ -21,12 +21,8 @@ import {
 } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
-import type {
-	ValidationIssue,
-	ValidationReport,
-	ValidationSeverity,
-	ValidationTarget,
-} from "./types";
+import { VALIDATION_CODE_REGISTRY } from "./registry";
+import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
 
 export type ValidationOptions = {
 	allowedLayoutIds?: string[];
@@ -46,9 +42,7 @@ export type ComponentUsageInput = {
 };
 
 type Path = Array<string | number>;
-type IssueInput = Omit<ValidationIssue, "severity"> & {
-	severity?: ValidationSeverity;
-};
+type IssueInput = Omit<ValidationIssue, "severity">;
 
 const STRUCTURAL_NODE_TYPES = new Set<string>([
 	...RENDER_TREE_NODE_TYPE_GROUPS.screenRoot,
@@ -482,7 +476,6 @@ export function validateComponentProposal(
 				code: "proposal-nearest-match-unknown",
 				message: `Component proposal nearestCatalogMatch is not a catalog component type: ${proposal.nearestCatalogMatch}.`,
 				path: ["proposals", proposalIndex, "nearestCatalogMatch"],
-				severity: "warning",
 			});
 		}
 	});
@@ -511,7 +504,6 @@ function validateCompositionPlanSourceRefs(
 				// sourceRef는 plan의 추적 메타데이터일 뿐 RenderTree 정합성이 아니다.
 				// 형식 변덕(짧은 ID ↔ JSONPath)으로 완성된 화면을 hard-fail시키지 않도록
 				// source-ref-not-materialized와 동일하게 warning으로 표시한다.
-				severity: "warning",
 			});
 		});
 	});
@@ -539,7 +531,6 @@ function validateCompositionPlanMaterialization(
 				code: "source-ref-not-materialized",
 				message: `CompositionPlan sourceRef is not visible in generated artifact: ${sourceRef}.`,
 				path: ["sections", sectionIndex, "sourceRefs", sourceRefIndex],
-				severity: "warning",
 			});
 		});
 	});
@@ -623,7 +614,6 @@ function validateSourceRefCoverage(
 			code: "source-ref-not-materialized",
 			message: `SourceSpec ref is not visible in generated artifact: ${sourceRef}.`,
 			path: [],
-			severity: "warning",
 		});
 	});
 }
@@ -666,7 +656,6 @@ function validateStateCoverage(
 		message:
 			"SourceSpec implies a stateful surface, but generated artifact does not expose loading, empty, error, disabled, or validation state coverage.",
 		path: [],
-		severity: "warning",
 	});
 }
 
@@ -721,7 +710,6 @@ function validateLayoutCandidateCoverage(
 			code: "layout-ref-outside-candidates",
 			message: `Layout ref is outside selected pattern candidates: ${layoutRef.layout}.`,
 			path: layoutRef.path,
-			severity: "warning",
 		});
 	});
 }
@@ -850,7 +838,6 @@ function validateNode(
 			code: "uses-candidate-component",
 			message: `Component '${input.type}' is a catalog candidate, not yet promoted to stable.`,
 			path: [...path, "type"],
-			severity: "warning",
 		});
 	}
 
@@ -1032,7 +1019,6 @@ function validateNodeMetadata(
 			code: "internal-visible-title",
 			message: `Render node metadata.title looks like an internal source name: ${title}.`,
 			path: [...path, "metadata", "title"],
-			severity: "warning",
 		});
 	}
 
@@ -1116,7 +1102,6 @@ function validatePropsAgainstContract(
 				code: "unknown-prop",
 				message: `${label}.${propName} is not declared in the catalog.`,
 				path: [...path, propName],
-				severity: "warning",
 			});
 			continue;
 		}
@@ -1324,7 +1309,7 @@ function isSafeDefaultValue(input: unknown) {
 }
 function addIssue(issues: ValidationIssue[], issue: IssueInput) {
 	issues.push({
-		severity: "error",
+		severity: VALIDATION_CODE_REGISTRY[issue.code].severity,
 		...issue,
 	});
 }
