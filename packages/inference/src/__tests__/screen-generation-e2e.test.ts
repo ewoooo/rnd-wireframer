@@ -189,7 +189,9 @@ describe("screen-generation@v1 end-to-end", () => {
 				{
 					id: "design-fundamentals",
 					sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md",
-					task: "design",
+					// 076b5517 frontmatter 정규화 이후 task는 family가 아니라
+					// "이 문서가 투입된 현재 task"를 가리킨다 (catalog.ts readSkillTask).
+					task: "screen-intent",
 				},
 				{
 					id: "source-fidelity-review",
