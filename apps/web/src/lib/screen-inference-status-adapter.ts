@@ -17,6 +17,8 @@ const stageByStepId = {
 	"06-revision": "review-quality",
 	"07-validation-after-revision": "validate-render-tree",
 	"08-quality": "review-quality",
+	"09-design-revision": "review-quality",
+	"10-validation-after-design-revision": "validate-render-tree",
 } as const satisfies Record<string, PipelineStageId>;
 
 export function toScreenInferenceStatus(input: {

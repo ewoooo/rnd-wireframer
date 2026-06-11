@@ -15,7 +15,7 @@ The output must be JSON only and match `composition-plan.v0.1`.
 
 ## Instructions
 
-1. Create a composition plan before pattern selection and RenderTree generation.
+1. Create a composition plan before RenderTree generation.
 2. Preserve upstream `screenIntent` when present.
 3. Use available layout candidates as the allowed layout vocabulary; do not invent unavailable layout ids.
 4. Use selected design skill guidance when present, but keep `SourceSpec`, schema, catalogs, and upstream decisions higher priority.
@@ -33,4 +33,7 @@ The output must be JSON only and match `composition-plan.v0.1`.
 16. Do not put reference ids in `sections[].sourceRefs`; `sourceRefs` must stay limited to SourceSpec/source-reference ids. Mention reference ids only in `strategy`, `patternRationale`, `rejectedPatterns`, or `compositionProposal.recommendedAreas`.
 17. Set `currentFitAssessment.supportsJudgment` and `currentFitAssessment.problems` by judging whether the source's given area arrangement supports `screenIntent.coreJudgment`.
 18. Set `compositionProposal.shouldChangeAreaComposite` and `compositionProposal.recommendedAreas` for a better Area/Composite arrangement, grounded in the matched screen and area references.
-19. Return one JSON object only and match the provided output JSON Schema.
+19. Fill `designTrace.usedReferenceIds` with every screen and area reference id this plan actually adopted. It must be the union of the ids cited in `strategy`, `patternRationale`, and `compositionProposal.recommendedAreas` — downstream generation mounts exactly these reference bodies, so an id missing here is invisible to later steps. Leave it empty only when nothing matched.
+20. Fill `designTrace.usedSkillIds` with the mounted skill document ids that influenced this plan.
+21. When a source item is grouped, split, summarized, or turned into a bound prop rather than placed one-to-one, record it in `designTrace.transformedSourceRefs` with the transformation and reason. Transformations must never change source item cardinality: grouping two checkboxes still keeps two checkboxes.
+22. Return one JSON object only and match the provided output JSON Schema.

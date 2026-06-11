@@ -11,7 +11,7 @@
 ## Instructions
 
 1. Review the generated screen candidate for design quality after schema and semantic validation.
-2. Use `SourceSpec`, `screenIntent`, `compositionPlan`, pattern selection, and validation report as bounded evidence.
+2. Use `SourceSpec`, `screenIntent`, `compositionPlan`, and validation report as bounded evidence.
 3. Check source fidelity, composition alignment, visual hierarchy, action clarity, density fit, pattern fit, and obvious accessibility risks.
 4. Use design-context bundle bodies, especially quality-review gates, as the bounded rule set when present.
 5. Use selected design skill quality gates as additional bounded gates when present.
@@ -20,4 +20,13 @@
 8. Set `findings[].layer` to `understand`, `compose`, or `revise` when the likely source of the issue is clear.
 9. Return bounded findings only. Do not mutate files, approve artifacts, or invent schema fields.
 10. Use findings with code, severity, message, optional layer, optional path, and optional suggestion.
-11. Return one JSON object only and match the provided output JSON Schema.
+11. For every `severity: "error"` finding that a structure, component, layout, or rhythm change can mechanically fix, also emit a `revisionDirectives[]` entry. Each directive triggers an automated design-revision pass, so it must be self-contained:
+    - `findingCode`: the matching `findings[].code`.
+    - `action`: one of `change-structure`, `change-component`, `change-layout`, `adjust-rhythm`.
+    - `path`: the RenderTree path to the node(s) to change. A directive without a precise path is useless — omit the directive instead.
+    - `mustPreserveSourceRefs`: every source ref that must stay materialized around the change.
+    - `suggestedChange`: one bounded, concrete change description.
+    - `evidence`: the reference ids, skill ids, or source refs that justify the change.
+12. Never emit a directive that adds, removes, or merges SourceSpec items. Source item cardinality is inviolable — directives may only restructure how the same items are composed.
+13. Leave `revisionDirectives` absent when no error finding is mechanically fixable; warnings and info findings never produce directives.
+14. Return one JSON object only and match the provided output JSON Schema.

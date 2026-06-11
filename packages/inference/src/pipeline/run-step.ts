@@ -1,5 +1,11 @@
 import { validateJsonSchema } from "@cx/validation";
-import type { InferenceStepDefinition, StepExecution, StepRunContext } from "../contracts";
+import type {
+	InferenceStepDefinition,
+	KnowledgeRef,
+	KnowledgeValue,
+	StepExecution,
+	StepRunContext,
+} from "../contracts";
 import { evaluateStepOutputPolicy } from "../policies/inference-policy";
 
 const MAX_ATTEMPTS = 2; // initial attempt + one retry
@@ -155,7 +161,42 @@ async function resolveReferences(step: InferenceStepDefinition, context: StepRun
 		resolved.skillset = await context.resolveReference({ source: "skillset", id: step.task });
 	}
 	for (const [name, ref] of Object.entries(step.references ?? {})) {
-		resolved[name] = await context.resolveReference(ref);
+		const value = await context.resolveReference(ref);
+		resolved[name] = ref.selectFromContext
+			? await selectReferenceDocuments(value, ref.selectFromContext, context)
+			: value;
 	}
 	return resolved;
+}
+
+/** Narrow a reference catalog to the documents whose ids the upstream context adopted. */
+async function selectReferenceDocuments(
+	value: KnowledgeValue | KnowledgeValue[],
+	selector: NonNullable<KnowledgeRef["selectFromContext"]>,
+	context: StepRunContext,
+): Promise<KnowledgeValue | KnowledgeValue[]> {
+	if (Array.isArray(value) || value.kind !== "reference-catalog") return value;
+	const contextValue = await context.resolveInput({
+		kind: "context",
+		key: selector.contextKey,
+	});
+	const ids = readStringArray(contextValue, selector.path);
+	return {
+		...value,
+		data: {
+			...value.data,
+			documents: value.data.documents.filter((document) => ids.has(document.id)),
+		},
+	};
+}
+
+function readStringArray(value: unknown, path: string[]): Set<string> {
+	const target = path.reduce<unknown>((current, key) => {
+		if (current && typeof current === "object" && key in current) {
+			return (current as Record<string, unknown>)[key];
+		}
+		return undefined;
+	}, value);
+	if (!Array.isArray(target)) return new Set();
+	return new Set(target.filter((item): item is string => typeof item === "string"));
 }

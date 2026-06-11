@@ -84,6 +84,7 @@ const payloadByTaskKind: Record<string, unknown> = {
 		screenLayout: "layout.screen.Default",
 		currentFitAssessment: { supportsJudgment: true, problems: [] },
 		compositionProposal: { shouldChangeAreaComposite: false, recommendedAreas: [] },
+		designTrace: { usedReferenceIds: ["area-radio-option-group"], usedSkillIds: [] },
 		layoutStrategy: "x",
 		sections: [
 			{ targetRegion: "contents", role: "content", priority: 1, sourceRefs: ["T"], strategy: "x" },
@@ -205,6 +206,85 @@ describe("screen-generation@v1 end-to-end", () => {
 				},
 			],
 		});
+	});
+
+	it("runs one design revision when quality review emits revision directives", async () => {
+		const dataRoot = mkdtempSync(path.join(tmpdir(), "cx-e2e-"));
+		const calls: string[] = [];
+		const runner: AgentRunner = async (request) => {
+			calls.push(request.taskKind);
+			if (request.taskKind === "quality-review") {
+				return {
+					taskKind: request.taskKind,
+					session: { mode: "new" },
+					payload: {
+						schemaVersion: SCHEMA_VERSION.qualityInspection,
+						inspection: {
+							compositionAligned: true,
+							sourceFaithful: true,
+							visualHierarchyClear: false,
+						},
+						findings: [
+							{
+								code: "visual-hierarchy-flat",
+								severity: "error",
+								message: "Primary judgment is buried under uniform rows.",
+							},
+						],
+						revisionDirectives: [
+							{
+								findingCode: "visual-hierarchy-flat",
+								action: "change-structure",
+								path: ["children", 0, "children", 1],
+								mustPreserveSourceRefs: ["T"],
+								suggestedChange: "Lift the summary area above the option rows.",
+							},
+						],
+						summary: { errorCount: 1, warningCount: 0 },
+					},
+				};
+			}
+			return {
+				taskKind: request.taskKind,
+				session: { mode: "new" },
+				payload: payloadByTaskKind[request.taskKind],
+			};
+		};
+		const runtime = createInferenceRuntime({
+			dataRoot,
+			pipelines: [screenGenerationPipelineV1],
+			functions: { "source-spec-mvp": () => sourceSpec },
+			claudeRunner: runner,
+		});
+
+		const job = await runtime.jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "T" },
+		});
+		await runInferenceJob(runtime, job.jobId);
+
+		await expect(runtime.jobStore.getJob(job.jobId)).resolves.toMatchObject({
+			status: "succeeded",
+		});
+		// 05 통과 → 06 계약 revision은 건너뛰고, quality directive로 09만 실행된다.
+		expect(calls.filter((task) => task === "screen-revision")).toHaveLength(1);
+		await expect(
+			runtime.artifactStore.exists(job.jobId, "steps/06-revision/step.json"),
+		).resolves.toBe(false);
+		await expect(
+			runtime.artifactStore.exists(job.jobId, "steps/09-design-revision/step.json"),
+		).resolves.toBe(true);
+		await expect(
+			runtime.artifactStore.exists(
+				job.jobId,
+				"steps/10-validation-after-design-revision/step.json",
+			),
+		).resolves.toBe(true);
+		// design revision 결과도 deterministic 재검증을 통과해야 성공으로 남는다.
+		await expect(
+			runtime.artifactStore.readJson(job.jobId, "context/validation-report.json"),
+		).resolves.toMatchObject({ summary: { errorCount: 0 } });
 	});
 
 	it("runs one revision and validates again when deterministic validation has errors", async () => {

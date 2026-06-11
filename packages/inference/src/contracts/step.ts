@@ -12,6 +12,12 @@ export type KnowledgeRef = {
 		| "token-catalog"
 		| `reference-${string}`;
 	id?: string;
+	/**
+	 * Narrow a resolved reference catalog to the documents whose ids appear in
+	 * a context value at run time (e.g. composition-plan designTrace.usedReferenceIds).
+	 * The context key must already be written by an upstream step.
+	 */
+	selectFromContext?: { contextKey: string; path: string[] };
 };
 
 export type OutputContractRef = {
@@ -36,7 +42,7 @@ export type OutputContractValue = OutputContractObject;
 
 export type StepRunCondition = {
 	contextKey: string;
-	kind: "context-validation-report-has-errors";
+	kind: "context-quality-has-revision-directives" | "context-validation-report-has-errors";
 };
 
 /**

@@ -28,6 +28,19 @@ export const referenceCatalog = (category: string): KnowledgeRef => ({
 	source: `reference-${category}-catalog`,
 });
 
+/**
+ * Reference catalog narrowed at run time to the ids an upstream step adopted,
+ * e.g. referenceSelection("area", "composition-plan", ["designTrace", "usedReferenceIds"]).
+ */
+export const referenceSelection = (
+	category: string,
+	contextKey: string,
+	path: string[],
+): KnowledgeRef => ({
+	source: `reference-${category}-catalog`,
+	selectFromContext: { contextKey, path },
+});
+
 export const outputContractRef = (id: string): OutputContractRef => ({
 	source: "output-contract",
 	id,
@@ -36,6 +49,11 @@ export const outputContractRef = (id: string): OutputContractRef => ({
 export const onValidationReportErrors = (contextKey: string): StepRunCondition => ({
 	contextKey,
 	kind: "context-validation-report-has-errors",
+});
+
+export const onQualityRevisionDirectives = (contextKey: string): StepRunCondition => ({
+	contextKey,
+	kind: "context-quality-has-revision-directives",
 });
 
 export const failOnValidationReportErrors: StepOutputFailurePolicy = {

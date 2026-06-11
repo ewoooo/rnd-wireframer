@@ -70,6 +70,7 @@ export {
 } from "./inference-reference";
 export type { JsonSchemaDocument } from "./json-schema-registry";
 export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-registry";
+export { toStructuredOutputJsonSchema } from "./structured-output";
 export type { PreviewContract } from "./preview";
 export type {
 	QualityInspectionContract,

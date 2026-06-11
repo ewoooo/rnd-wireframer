@@ -23,7 +23,6 @@ packages/agent/docs/
   prompts/
     screen-intent.md
     composition-planning.md
-    pattern-selection.md
     screen-generation.md
     quality-review.md
     screen-revision.md

@@ -25,9 +25,27 @@ export type CompositionProposal = {
 	shouldChangeAreaComposite: boolean;
 };
 
+export type CompositionTransformedSourceRef = {
+	reason: string;
+	sourceRef: string;
+	transformation: "bound-prop" | "grouped" | "split" | "summarized";
+};
+
+/**
+ * 어떤 디자인 SOT를 근거로 구조를 결정했는지의 기계적 추적.
+ * usedReferenceIds는 downstream step의 selective reference mount 키로 쓰인다 —
+ * 채택한 screen/area reference id의 합집합이어야 한다(recommendedAreas 포함).
+ */
+export type CompositionDesignTrace = {
+	transformedSourceRefs?: CompositionTransformedSourceRef[];
+	usedReferenceIds: string[];
+	usedSkillIds: string[];
+};
+
 export type CompositionPlanContract = {
 	compositionProposal: CompositionProposal;
 	currentFitAssessment: CompositionCurrentFit;
+	designTrace: CompositionDesignTrace;
 	density: CompositionPlanDensity;
 	layoutStrategy: string;
 	patternRationale: string;

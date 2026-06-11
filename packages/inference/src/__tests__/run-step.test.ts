@@ -179,6 +179,67 @@ describe("runStep", () => {
 		expect(result.status).toBe("succeeded");
 	});
 
+	it("narrows a selectFromContext reference catalog to the ids the upstream context adopted", async () => {
+		const referenceCatalog = {
+			kind: "reference-catalog",
+			id: "area.catalog",
+			owner: "@cx/agent",
+			sourceRef: "ref",
+			schemaVersion: "ssot-object.v1",
+			data: {
+				category: "area",
+				mode: "catalog",
+				documents: [
+					{ id: "area-radio-option-group", situation: "s", tags: [], sourceRef: "a", body: "A" },
+					{ id: "area-form-address", situation: "s", tags: [], sourceRef: "b", body: "B" },
+				],
+			},
+		};
+		let capturedReferences: Record<string, unknown> | undefined;
+		const step: InferenceStepDefinition = {
+			id: "04-render-tree",
+			task: "screen-generation",
+			references: {
+				selectedAreaReferences: {
+					source: "reference-area-catalog",
+					selectFromContext: {
+						contextKey: "composition-plan",
+						path: ["designTrace", "usedReferenceIds"],
+					},
+				},
+			},
+			output: { contractRef: { source: "output-contract", id: "source-spec" } },
+		};
+		const execution = await runStep(step, {
+			engines: {
+				claude: {
+					async execute(request) {
+						capturedReferences = request.references;
+						return { raw: validSourceSpec };
+					},
+				},
+				function: {
+					async execute() {
+						return { raw: {} };
+					},
+				},
+			},
+			resolveInput: async (ref) => {
+				expect(ref).toEqual({ kind: "context", key: "composition-plan" });
+				return { designTrace: { usedReferenceIds: ["area-radio-option-group"] } };
+			},
+			resolveReference: async (ref) =>
+				(ref.source === "skillset" ? { kind: "skillset" } : referenceCatalog) as never,
+			resolveOutputContract: (ref) => createInferenceKnowledgeBase().resolveOutputContract(ref),
+		});
+
+		expect(execution.status).toBe("succeeded");
+		const selected = capturedReferences?.selectedAreaReferences as typeof referenceCatalog;
+		expect(selected.data.documents.map((document) => document.id)).toEqual([
+			"area-radio-option-group",
+		]);
+	});
+
 	it("writes context under the contract id by default and skips when writeToContext is false", async () => {
 		const engine: Engine = {
 			async execute() {

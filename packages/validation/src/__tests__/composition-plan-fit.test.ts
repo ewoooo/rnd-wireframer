@@ -20,6 +20,7 @@ const base = {
 		shouldChangeAreaComposite: true,
 		recommendedAreas: ["summary", "options"],
 	},
+	designTrace: { usedReferenceIds: [], usedSkillIds: [] },
 };
 
 describe("composition-plan JSON Schema — currentFit/proposal", () => {

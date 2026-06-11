@@ -18,7 +18,16 @@ export async function shouldRunInferenceStep(
 		const report = await context.readJson<unknown>(runWhen.contextKey);
 		return hasValidationReportErrors(report);
 	}
+	if (runWhen.kind === "context-quality-has-revision-directives") {
+		const inspection = await context.readJson<unknown>(runWhen.contextKey);
+		return hasQualityRevisionDirectives(inspection);
+	}
 	return true;
+}
+
+export function hasQualityRevisionDirectives(input: unknown): boolean {
+	const directives = readRecord(input)?.revisionDirectives;
+	return Array.isArray(directives) && directives.length > 0;
 }
 
 export function evaluateStepOutputPolicy(

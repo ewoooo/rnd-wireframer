@@ -336,6 +336,28 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 				},
 			},
 			density: { enum: ["low", "medium", "high"] },
+			designTrace: {
+				type: "object",
+				additionalProperties: false,
+				required: ["usedReferenceIds", "usedSkillIds"],
+				properties: {
+					transformedSourceRefs: {
+						type: "array",
+						items: {
+							type: "object",
+							additionalProperties: false,
+							required: ["sourceRef", "transformation", "reason"],
+							properties: {
+								reason: { type: "string", minLength: 1 },
+								sourceRef: { type: "string", minLength: 1 },
+								transformation: { enum: ["bound-prop", "grouped", "split", "summarized"] },
+							},
+						},
+					},
+					usedReferenceIds: { type: "array", items: { type: "string", minLength: 1 } },
+					usedSkillIds: { type: "array", items: { type: "string", minLength: 1 } },
+				},
+			},
 			layoutStrategy: { type: "string", minLength: 1 },
 			patternRationale: { type: "string", minLength: 1 },
 			primaryUserAction: { type: "string", minLength: 1 },
@@ -367,6 +389,7 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 			"rejectedPatterns",
 			"currentFitAssessment",
 			"compositionProposal",
+			"designTrace",
 		],
 		title: "composition-plan",
 		type: "object",
@@ -442,6 +465,10 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 					separation: { type: "integer", minimum: 0, maximum: 5 },
 				},
 			},
+			revisionDirectives: {
+				type: "array",
+				items: { $ref: "#/$defs/revisionDirective" },
+			},
 			schemaVersion: { const: SCHEMA_VERSION.qualityInspection },
 			summary: {
 				type: "object",
@@ -457,6 +484,37 @@ function createQualityInspectionJsonSchema(): JsonSchemaDocument {
 		title: "quality-inspection",
 		type: "object",
 		$defs: {
+			revisionDirective: {
+				type: "object",
+				additionalProperties: false,
+				required: ["findingCode", "action", "path", "mustPreserveSourceRefs", "suggestedChange"],
+				properties: {
+					action: {
+						enum: ["adjust-rhythm", "change-component", "change-layout", "change-structure"],
+					},
+					evidence: {
+						type: "object",
+						additionalProperties: false,
+						properties: {
+							referenceIds: { type: "array", items: { type: "string", minLength: 1 } },
+							skillIds: { type: "array", items: { type: "string", minLength: 1 } },
+							sourceRefs: { type: "array", items: { type: "string", minLength: 1 } },
+						},
+					},
+					findingCode: { type: "string", minLength: 1 },
+					mustPreserveSourceRefs: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+					path: {
+						type: "array",
+						items: {
+							anyOf: [{ type: "string" }, { type: "integer" }],
+						},
+					},
+					suggestedChange: { type: "string", minLength: 1 },
+				},
+			},
 			finding: {
 				type: "object",
 				additionalProperties: false,

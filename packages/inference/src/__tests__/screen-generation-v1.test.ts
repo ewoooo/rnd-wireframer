@@ -15,12 +15,26 @@ describe("screenGenerationPipelineV1", () => {
 			["06-revision", "screen-revision"],
 			["07-validation-after-revision", "deterministic-validation"],
 			["08-quality", "quality-review"],
+			["09-design-revision", "screen-revision"],
+			["10-validation-after-design-revision", "deterministic-validation"],
 		]);
 		expect(screenGenerationPipelineV1.steps[5]?.runWhen).toEqual({
 			contextKey: "validation-report",
 			kind: "context-validation-report-has-errors",
 		});
 		expect(screenGenerationPipelineV1.steps[6]?.output.failWhen).toEqual({
+			kind: "validation-report-has-errors",
+		});
+		// Design loop: quality error findings가 directive로 남을 때만 1회 수정한다.
+		expect(screenGenerationPipelineV1.steps[8]?.runWhen).toEqual({
+			contextKey: "quality-inspection",
+			kind: "context-quality-has-revision-directives",
+		});
+		expect(screenGenerationPipelineV1.steps[9]?.runWhen).toEqual({
+			contextKey: "quality-inspection",
+			kind: "context-quality-has-revision-directives",
+		});
+		expect(screenGenerationPipelineV1.steps[9]?.output.failWhen).toEqual({
 			kind: "validation-report-has-errors",
 		});
 	});
@@ -33,6 +47,7 @@ describe("screenGenerationPipelineV1", () => {
 			"screen-generation",
 			"screen-revision",
 			"quality-review",
+			"screen-revision",
 		]);
 		// No step re-declares its own skillset — runStep injects it from the task name.
 		for (const step of screenGenerationPipelineV1.steps) {
@@ -52,19 +67,47 @@ describe("screenGenerationPipelineV1", () => {
 			referenceAreaCatalog: { source: "reference-area-catalog" },
 			referenceCatalog: { source: "reference-screen-catalog" },
 		});
+		// Render-tree and revision also mount only the reference bodies the
+		// composition plan adopted (designTrace.usedReferenceIds) — the design
+		// SOT reaches generation without injecting the whole catalog.
+		const selectedReferenceMounts = {
+			selectedAreaReferences: {
+				source: "reference-area-catalog",
+				selectFromContext: {
+					contextKey: "composition-plan",
+					path: ["designTrace", "usedReferenceIds"],
+				},
+			},
+			selectedScreenReferences: {
+				source: "reference-screen-catalog",
+				selectFromContext: {
+					contextKey: "composition-plan",
+					path: ["designTrace", "usedReferenceIds"],
+				},
+			},
+		};
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
+			...selectedReferenceMounts,
 		});
 		expect(screenGenerationPipelineV1.steps[5]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
+			...selectedReferenceMounts,
 		});
 		// Quality review needs only its own skillset (implicit).
 		expect(screenGenerationPipelineV1.steps[7]?.references).toBeUndefined();
+		// Design revision uses the same knowledge as contract revision.
+		expect(screenGenerationPipelineV1.steps[8]?.references).toEqual({
+			componentCatalog,
+			layoutCatalog,
+			...selectedReferenceMounts,
+		});
 		// Function steps carry no knowledge references.
 		expect(screenGenerationPipelineV1.steps[4]?.references).toBeUndefined();
 		expect(screenGenerationPipelineV1.steps[6]?.references).toBeUndefined();
+		expect(screenGenerationPipelineV1.steps[9]?.references).toBeUndefined();
 	});
 
 	it("writes every step output to context under the contract id by default", () => {

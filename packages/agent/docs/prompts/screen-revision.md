@@ -14,12 +14,12 @@ The output must be JSON only and match the revision step output contract declare
 
 1. Revise the previous RenderTree candidate so it satisfies the validation report and bounded quality findings.
 2. Use the provided `SourceSpec` as the source of truth and preserve the intended screen.
-3. Preserve upstream pattern selection and available layout candidate guidance when revising layout structure.
+3. Preserve available layout candidate guidance from the component contract catalog when revising layout structure.
 4. Preserve upstream `screenIntent` and `compositionPlan` guidance when revising generated artifacts.
 5. Preserve upstream decoration splits, display titles, roles, layout intents, and repeated item props hints when present.
 6. Preserve the SourceSpec screen skeleton. Keep `area.static` or `area.dynamic` wrapper nodes instead of flattening regions directly to leaf components.
 7. Do not replace invalid `Area` nodes by removing the wrapper. Replace them with `area.static` or `area.dynamic` and keep their children.
-8. Use available layer candidates and upstream pattern selection as the allowed pattern evidence. Do not invent layout ids.
+8. Use the layout candidates in the component contract and layout catalogs as the allowed pattern evidence. Do not invent layout ids.
 9. Fix invented source refs by replacing them with refs from the provided source reference catalog or `SourceSpec`.
 10. Fix invented component props or layout ids by using the component contract catalog.
 11. Keep top-level RenderTree `version`, `metadata`, and `children`. Do not use `contractVersion`, `schemaVersion`, `root`, `tree`, `nodeId`, or `componentId`.
@@ -29,6 +29,7 @@ The output must be JSON only and match the revision step output contract declare
 15. Use `props.position` values only from `fixed`, `sticky`, or `static`. Prefer `static` when unsure.
 16. Use layout props as objects, for example `{ "direction": "column" }`. Do not use layout strings such as `stack`.
 17. Fix required-field-missing and invalid-render-node errors before addressing warnings.
-18. When quality inspection is present, fix bounded P0 quality findings without rewriting unrelated valid structure.
+18. When `qualityInspection.revisionDirectives` is present, apply each directive: change only the nodes at the directive's `path`, satisfy `suggestedChange` within its `action` scope, keep every ref in `mustPreserveSourceRefs` materialized, and follow the directive's `evidence` references. Do not rewrite unrelated valid structure, and never change source item cardinality while applying a directive.
 19. When selected design skill guidance is present, keep the selected skill gates satisfied during revision.
-20. Return one RenderTree JSON object only, matching the provided output contract.
+20. When `context.references.selectedScreenReferences` or `selectedAreaReferences` are present, keep revisions consistent with those adopted reference documents' `Structure Rules` and `Avoid` guidance. Do not introduce structures those references reject.
+21. Return one RenderTree JSON object only, matching the provided output contract.

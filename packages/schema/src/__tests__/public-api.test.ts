@@ -110,6 +110,7 @@ describe("@cx/schema public API", () => {
 				"rejectedPatterns",
 				"currentFitAssessment",
 				"compositionProposal",
+				"designTrace",
 			],
 		});
 		expect(getJsonSchema("decoration-plan")).toMatchObject({
@@ -247,7 +248,9 @@ describe("@cx/schema public API", () => {
 		const bundleRef: DesignContextBundleRef = {
 			id: "layout-composition",
 			reason: "screen composition guidance",
-			sourceDocs: ["packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md"],
+			sourceDocs: [
+				"packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md",
+			],
 			version: "2026-05-29",
 		};
 
@@ -307,6 +310,17 @@ describe("@cx/schema public API", () => {
 				supportsJudgment: true,
 			},
 			density: "medium",
+			designTrace: {
+				transformedSourceRefs: [
+					{
+						reason: "Two source notice lines are grouped into one callout area.",
+						sourceRef: "area-1",
+						transformation: "grouped",
+					},
+				],
+				usedReferenceIds: ["detail-confirmation"],
+				usedSkillIds: ["design-fundamentals"],
+			},
 			layoutStrategy: "Use a detail screen with a stable content rail.",
 			patternRationale: "Detail composition keeps the primary facts ahead of the action slot.",
 			primaryUserAction: "confirm-selection",

@@ -593,6 +593,7 @@ it("flags unknown composition plan source refs as a non-blocking warning", () =>
 		{
 			density: "medium",
 			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			designTrace: { usedReferenceIds: [], usedSkillIds: [] },
 			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",
@@ -635,6 +636,7 @@ it("accepts composition plan source refs from SourceSpec source ids and role ali
 		{
 			density: "medium",
 			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			designTrace: { usedReferenceIds: [], usedSkillIds: [] },
 			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",
@@ -666,6 +668,7 @@ it("warns when composition plan source refs are not visible in generated artifac
 		{
 			density: "medium",
 			compositionProposal: { recommendedAreas: [], shouldChangeAreaComposite: false },
+			designTrace: { usedReferenceIds: [], usedSkillIds: [] },
 			currentFitAssessment: { problems: [], supportsJudgment: true },
 			layoutStrategy: "Keep source order.",
 			patternRationale: "Use detail composition because the source has one content area.",

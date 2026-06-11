@@ -38,6 +38,39 @@ describe("step policies", () => {
 			}),
 		).resolves.toBe(true);
 	});
+
+	it("runs design revision only when quality inspection carries revision directives", async () => {
+		const condition = {
+			contextKey: "quality-inspection",
+			kind: "context-quality-has-revision-directives",
+		} as const;
+		await expect(
+			shouldRunInferenceStep(condition, {
+				readJson: async <T>() =>
+					({
+						revisionDirectives: [
+							{
+								findingCode: "density-overload",
+								action: "change-structure",
+								path: ["children", 0],
+								mustPreserveSourceRefs: ["CB-1", "CB-2"],
+								suggestedChange: "Split the agreement stack into its own section.",
+							},
+						],
+					}) as T,
+			}),
+		).resolves.toBe(true);
+		await expect(
+			shouldRunInferenceStep(condition, {
+				readJson: async <T>() => ({ revisionDirectives: [] }) as T,
+			}),
+		).resolves.toBe(false);
+		await expect(
+			shouldRunInferenceStep(condition, {
+				readJson: async <T>() => ({ summary: { errorCount: 2 } }) as T,
+			}),
+		).resolves.toBe(false);
+	});
 });
 
 function createStep(
