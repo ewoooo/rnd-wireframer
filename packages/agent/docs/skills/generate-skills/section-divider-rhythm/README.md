@@ -1,9 +1,18 @@
 ---
 id: section-divider-rhythm
-stage: compose
-task: screen-generation
+kind: skill
+family: generate
+stages:
+  - generate
+tasks:
+  - screen-generation
 role: divider-rhythm
 priority: required
+whenToUse: "Use when rendering PageStack section boundaries and rhythm between multiple contents sections."
+tags:
+  - divider
+  - pagestack
+  - section-rhythm
 ---
 
 # section-divider-rhythm

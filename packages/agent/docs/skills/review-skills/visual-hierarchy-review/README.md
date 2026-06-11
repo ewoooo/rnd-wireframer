@@ -1,3 +1,22 @@
+---
+id: visual-hierarchy-review
+kind: skill
+family: review
+stages:
+  - compose
+  - review
+tasks:
+  - composition-planning
+  - quality-review
+role: visual-hierarchy
+priority: recommended
+whenToUse: "Use when checking whether content, decision context, and primary action have clear priority."
+tags:
+  - visual-hierarchy
+  - composition
+  - quality-review
+---
+
 # visual-hierarchy-review
 
 Checks whether the rendered structure has a clear priority order for title, decision context, primary content, and primary action.

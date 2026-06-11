@@ -1,8 +1,9 @@
 ---
 documents:
+  - prompt ../docs/prompts/composition-planning.md
+  - skill ../docs/skills/design-skills/design-fundamentals/README.md
   - skill ../docs/skills/generate-skills/divider-usage-rules/README.md
   - skill ../docs/skills/compose-skills/pagestack-section-unit/README.md
-  - skill ../docs/skills/references/areas/ref-area-pagestack-section.md
   - skill ../docs/skills/review-skills/pattern-fit-review/README.md
   - skill ../docs/skills/review-skills/visual-hierarchy-review/README.md
 ---

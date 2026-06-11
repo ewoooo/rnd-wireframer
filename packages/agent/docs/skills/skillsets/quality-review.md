@@ -1,6 +1,8 @@
 ---
 documents:
-  - skill ../docs/skills/quality-review/checklist.md
+  - prompt ../docs/prompts/quality-review.md
+  - skill ../docs/skills/quality-review/README.md
+  - skill ../docs/skills/design-skills/design-fundamentals/README.md
   - skill ../docs/skills/review-skills/visual-hierarchy-review/README.md
   - skill ../docs/skills/review-skills/source-fidelity-review/README.md
   - skill ../docs/skills/review-skills/pattern-fit-review/README.md

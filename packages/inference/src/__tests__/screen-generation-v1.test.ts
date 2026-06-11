@@ -42,12 +42,14 @@ describe("screenGenerationPipelineV1", () => {
 		const layoutCatalog = { source: "layout-catalog", id: undefined };
 		const componentCatalog = { source: "component-catalog", id: undefined };
 		expect(screenGenerationPipelineV1.steps[1]?.references).toEqual({
+			referenceAreaIndex: { source: "reference-area-index" },
 			referenceIndex: { source: "reference-screen-index" },
 		});
 		// Composition gets the layout catalog; render-tree and revision also get the
 		// component catalog so claude builds nodes from real layout/component ids.
 		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({
 			layoutCatalog,
+			referenceAreaCatalog: { source: "reference-area-catalog" },
 			referenceCatalog: { source: "reference-screen-catalog" },
 		});
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({

@@ -106,7 +106,7 @@ SourceSpec
 
 **위치 (category별 디렉토리, 각자 생성 카탈로그 보유):**
 ```
-packages/agent/docs/skills/references/
+packages/agent/docs/references/
   screens/
     {screenID}.md             ← 수기 SSOT (frontmatter + 본문)
     catalog.generated.ts      ← screens/*.md 의 {id, frontmatter, sourceRef} 자동 취합 (생성물, body 제외)
@@ -147,12 +147,12 @@ knowledge kind 이름에 category를 박되(`reference-{category}-{index|catalog
 ```ts
 // @cx/agent — category 추가 = 여기 한 줄
 export const REFERENCE_CATEGORIES = {
-  screen: "../docs/skills/references/screens",
-  // area: "../docs/skills/references/areas",   ← 나중에
+  screen: "../docs/references/screens",
+  // area: "../docs/references/areas",   ← 나중에
 } as const;
 ```
 
-resolver와 sync 스크립트가 **이 레지스트리 하나만** 본다. 기존 `references/design/`은 레지스트리에
+resolver와 sync 스크립트가 **이 레지스트리 하나만** 본다. `design-skills/design-fundamentals/source/`는 reference catalog 레지스트리에
 없으므로 건드리지 않는다.
 
 ### 제네릭 리졸버 (메소드 1개)
@@ -221,7 +221,7 @@ compose가 전체 본문을 받는다(매칭분만이 아님). 시드 5~10개일
 ### category 추가 비용 (나중에 areas)
 
 1. `references/areas/*.md` 정답지 작성
-2. `REFERENCE_CATEGORIES`에 `area: "../docs/skills/references/areas"` **한 줄**
+2. `REFERENCE_CATEGORIES`에 `area: "../docs/references/areas"` **한 줄**
 3. `pnpm sync:reference` → `areas/catalog.generated.ts` 자동 생성
 
 → `step.ts`·`knowledge-base.ts`·리졸버 **안 건드림, 새 메소드 0개.** 호출부만

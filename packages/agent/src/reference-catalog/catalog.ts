@@ -1,7 +1,7 @@
 import type { ReferenceCatalogEntry, ReferenceCatalogObject } from "@cx/schema";
 import { SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
-import { referenceAreaCatalog } from "../../docs/skills/references/areas/catalog.generated";
-import { referenceScreenCatalog } from "../../docs/skills/references/screens/catalog.generated";
+import { referenceAreaCatalog } from "../../docs/references/areas/catalog.generated";
+import { referenceScreenCatalog } from "../../docs/references/screens/catalog.generated";
 import { readAgentMarkdownDocument } from "../docs/package-markdown";
 import { isReferenceCategory, REFERENCE_CATEGORIES, type ReferenceCategory } from "./categories";
 

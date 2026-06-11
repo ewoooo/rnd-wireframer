@@ -1,6 +1,21 @@
-# fix-bottom-cta-gating
+---
+id: fix-bottom-cta-gating
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: bottom-cta-gating-fix
+priority: recommended
+whenToUse: "Use when primary CTA behavior is unclear, incorrectly enabled, or detached from required user input."
+tags:
+  - bottom-cta
+  - gating
+  - revision
+---
 
-Use when primary CTA behavior is unclear, incorrectly enabled, or detached from required user input.
+# fix-bottom-cta-gating
 
 ## Revision Target
 

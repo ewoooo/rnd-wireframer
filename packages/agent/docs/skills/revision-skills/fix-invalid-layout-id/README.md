@@ -1,6 +1,21 @@
-# fix-invalid-layout-id
+---
+id: fix-invalid-layout-id
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: invalid-layout-fix
+priority: required
+whenToUse: "Use when a generated layout id is not available in the @cx/layout catalog."
+tags:
+  - layout-catalog
+  - invalid-id
+  - revision
+---
 
-Use when a generated layout id is not available in the `@cx/layout` catalog.
+# fix-invalid-layout-id
 
 ## Revision Target
 

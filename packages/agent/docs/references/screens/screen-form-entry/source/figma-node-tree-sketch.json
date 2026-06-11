@@ -1,0 +1,182 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "screen-form-entry",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23484"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Form Entry Screen",
+		"nodeType": "FRAME",
+		"role": "screen",
+		"children": [
+			{
+				"name": "StatusBar",
+				"nodeType": "INSTANCE",
+				"role": "system-status"
+			},
+			{
+				"name": "AppBar",
+				"nodeType": "INSTANCE",
+				"role": "navigation"
+			},
+			{
+				"name": "Contents",
+				"nodeType": "FRAME",
+				"role": "scroll-contents",
+				"children": [
+					{
+						"name": "기기변경 휴대폰 번호",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10095:23488",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title"
+							},
+							{
+								"name": "TextFieldDisabled",
+								"nodeType": "INSTANCE",
+								"role": "readonly-phone-number"
+							}
+						]
+					},
+					{
+						"name": "Section Divider",
+						"nodeType": "RECTANGLE",
+						"role": "section-boundary"
+					},
+					{
+						"name": "본인인증 완료",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10095:23490",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title"
+							},
+							{
+								"name": "ListText",
+								"nodeType": "INSTANCE",
+								"role": "auth-completion-status"
+							}
+						]
+					},
+					{
+						"name": "Section Divider",
+						"nodeType": "RECTANGLE",
+						"role": "section-boundary"
+					},
+					{
+						"name": "가입자 주소",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10095:23492",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title"
+							},
+							{
+								"name": "Address TextField Stack",
+								"nodeType": "INSTANCE_SET",
+								"role": "address-field-group",
+								"children": [
+									{
+										"name": "Postal Code Field + Button",
+										"nodeType": "INSTANCE",
+										"role": "address-lookup"
+									},
+									{
+										"name": "Base Address Field",
+										"nodeType": "INSTANCE",
+										"role": "readonly-address"
+									},
+									{
+										"name": "Detail Address Field",
+										"nodeType": "INSTANCE",
+										"role": "typed-detail-address"
+									}
+								]
+							}
+						]
+					},
+					{
+						"name": "Section Divider",
+						"nodeType": "RECTANGLE",
+						"role": "section-boundary"
+					},
+					{
+						"name": "주 생활지역",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10095:23494",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title"
+							},
+							{
+								"name": "ListSelected",
+								"nodeType": "INSTANCE",
+								"role": "reuse-subscriber-info"
+							},
+							{
+								"name": "Address TextField Stack",
+								"nodeType": "INSTANCE_SET",
+								"role": "living-area-field-group"
+							},
+							{
+								"name": "Help Text",
+								"nodeType": "TEXT",
+								"role": "coverage-consent-helper"
+							}
+						]
+					},
+					{
+						"name": "Section Divider",
+						"nodeType": "RECTANGLE",
+						"role": "section-boundary"
+					},
+					{
+						"name": "이메일",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10095:23496",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title"
+							},
+							{
+								"name": "TextFieldTyped",
+								"nodeType": "INSTANCE",
+								"role": "typed-email"
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "Bottom",
+				"nodeType": "FRAME",
+				"role": "fixed-bottom",
+				"children": [
+					{
+						"name": "ActionButton",
+						"nodeType": "INSTANCE",
+						"role": "progression-cta"
+					}
+				]
+			}
+		]
+	}
+}

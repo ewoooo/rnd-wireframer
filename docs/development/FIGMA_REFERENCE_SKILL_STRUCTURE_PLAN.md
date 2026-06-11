@@ -124,7 +124,7 @@ packages/agent/docs/
 ### 4.3 Domain design skills
 
 ```text
-packages/agent/docs/design-skills/
+packages/agent/docs/skills/design-skills/
   detail-confirmation-screen.md
   form-entry-screen.md
   list-selection-screen.md

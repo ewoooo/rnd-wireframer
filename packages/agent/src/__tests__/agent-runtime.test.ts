@@ -63,6 +63,7 @@ describe("@cx/agent runtime", () => {
 		});
 		expect(skillset.data.documents.map((document) => document.id)).toEqual([
 			"screen-intent",
+			"design-fundamentals",
 			"source-fidelity-review",
 			"state-coverage-review",
 		]);

@@ -7,6 +7,7 @@ Each skill lives in its own folder:
 ```text
 design-skills/<skill-id>/
   README.md
+  source/      # optional: source fundamentals or supporting source docs owned by this skill
   references/
     README.md
 ```
@@ -23,20 +24,9 @@ Each skill `README.md` should define:
 - `Quality Gates`
 - `Revision Hints`
 
-The first implementation set is deliberately small:
+Current design skills:
 
+- `design-fundamentals` — common semantic design rules with source fundamentals in `design-fundamentals/source/`
 - `detail-confirmation-screen`
 - `form-entry-screen`
 - `list-selection-screen`
-
-Scaffolded follow-up skill folders:
-
-- `account-status-alert`
-- `bottom-sheet-decision`
-- `comparison-choice-screen`
-- `completion-feedback-screen`
-- `data-summary-card-screen`
-- `empty-state-guidance`
-- `generic-composition`
-- `main-task-screen`
-- `multi-step-progress-screen`

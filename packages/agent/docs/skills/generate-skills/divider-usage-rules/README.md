@@ -1,9 +1,20 @@
 ---
 id: divider-usage-rules
-stage: compose
-task: screen-generation
+kind: skill
+family: generate
+stages:
+  - compose
+  - generate
+tasks:
+  - composition-planning
+  - screen-generation
 role: divider-usage
 priority: required
+whenToUse: "Use when deciding whether a section, contents, or row divider is semantically justified."
+tags:
+  - divider
+  - section-boundary
+  - visual-rhythm
 ---
 
 # divider-usage-rules

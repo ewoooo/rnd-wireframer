@@ -1,9 +1,18 @@
 ---
 id: text-field-states
-stage: compose
-task: screen-generation
+kind: skill
+family: generate
+stages:
+  - generate
+tasks:
+  - screen-generation
 role: field-state
 priority: recommended
+whenToUse: "Use when a form screen must distinguish editable, readonly, disabled, validation, or helper states."
+tags:
+  - text-field
+  - form-state
+  - validation
 ---
 
 # text-field-states

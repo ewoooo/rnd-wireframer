@@ -16,6 +16,33 @@ function sourceRefOf(categoryDir: string, file: string): string {
 	return `../${categoryDir}/${file}`;
 }
 
+function collectReferenceFiles(categoryDir: string): string[] {
+	const abs = join(AGENT, categoryDir);
+	const files: string[] = [];
+
+	function walk(dir: string, prefix = "") {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			if (entry.name.startsWith(".")) continue;
+			const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+			if (entry.isDirectory()) {
+				walk(join(dir, entry.name), rel);
+				continue;
+			}
+			if (!entry.isFile()) continue;
+			if (prefix === "" && entry.name.endsWith(".md")) {
+				files.push(rel);
+				continue;
+			}
+			if (entry.name === "README.md") {
+				files.push(rel);
+			}
+		}
+	}
+
+	walk(abs);
+	return files.sort();
+}
+
 // 의도적 포크: 런타임 헬퍼 packages/agent/src/docs/package-markdown.ts의 parseMarkdownFrontmatter와
 // 별개 사본이다(빌드 스크립트가 published 패키지 내부를 import하는 의존 방향을 피하려고). 단,
 // 이쪽만 인라인 배열(`tags: [a, b]`)을 배열로 파싱한다 — 런타임 버전은 그걸 문자열로 둔다.
@@ -60,9 +87,7 @@ function parseFrontmatter(body: string): Record<string, unknown> {
 
 function collect(categoryDir: string): ReferenceCatalogEntry[] {
 	const abs = join(AGENT, categoryDir);
-	const files = readdirSync(abs)
-		.filter((f) => f.endsWith(".md"))
-		.sort();
+	const files = collectReferenceFiles(categoryDir);
 	const seen = new Set<string>();
 	return files.map((file) => {
 		const fm = parseFrontmatter(readFileSync(join(abs, file), "utf8"));

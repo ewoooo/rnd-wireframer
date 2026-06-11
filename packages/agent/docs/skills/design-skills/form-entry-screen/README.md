@@ -6,13 +6,13 @@ Use this skill when the screen contains editable fields, required agreements, ve
 
 ## Required Design Docs
 
-- `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`
-- `packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md`
-- `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/SECTION_PATTERNS.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/LAYOUT_SPACING_CONTRACT.md`
 
 ## Required SOT References
 
-- TBD
+- None registered yet.
 
 ## Composition Rules
 

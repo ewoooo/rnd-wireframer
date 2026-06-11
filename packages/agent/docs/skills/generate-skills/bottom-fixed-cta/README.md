@@ -1,9 +1,18 @@
 ---
 id: bottom-fixed-cta
-stage: compose
-task: screen-generation
+kind: skill
+family: generate
+stages:
+  - generate
+tasks:
+  - screen-generation
 role: bottom-action
 priority: required
+whenToUse: "Use when a screen has one primary action that completes or advances the flow."
+tags:
+  - bottom-cta
+  - primary-action
+  - action-gating
 ---
 
 # bottom-fixed-cta

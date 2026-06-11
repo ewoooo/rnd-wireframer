@@ -1,12 +1,20 @@
 ---
 id: source-fidelity-review
-stage: understand
-task: screen-intent
+kind: skill
+family: review
+stages:
+  - understand
+  - review
+tasks:
+  - screen-intent
+  - quality-review
 role: source-grounding
 priority: required
+whenToUse: "Use when checking whether generated decisions preserve source intent, facts, actions, and SOT evidence."
 tags:
   - source-fidelity
   - intent
+  - quality-review
 ---
 
 # source-fidelity-review

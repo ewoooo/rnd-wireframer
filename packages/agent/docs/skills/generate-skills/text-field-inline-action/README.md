@@ -1,9 +1,18 @@
 ---
 id: text-field-inline-action
-stage: compose
-task: screen-generation
+kind: skill
+family: generate
+stages:
+  - generate
+tasks:
+  - screen-generation
 role: inline-action-slot
 priority: recommended
+whenToUse: "Use when a text field has a field-local action such as verification, duplicate check, or address lookup."
+tags:
+  - text-field
+  - inline-action
+  - node-slot
 ---
 
 # text-field-inline-action

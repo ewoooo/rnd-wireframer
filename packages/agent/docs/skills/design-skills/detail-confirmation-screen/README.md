@@ -6,13 +6,13 @@ Use this skill when the screen presents a summary or detail body and asks the us
 
 ## Required Design Docs
 
-- `packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md`
-- `packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md`
-- `packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/SCREEN_PATTERN_SUMMARY.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md`
 
 ## Required SOT References
 
-- TBD
+- None registered yet.
 
 ## Composition Rules
 

@@ -6,7 +6,7 @@
 
 아키텍처, 데이터, 에이전트 역할의 최신 기준은 `PACKAGE_MAP.md`, `AGENTS.md`와 세부 책임 문서를 참조한다.
 
-`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 개발/데이터 문서는 `docs/` 아래에 두고, agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/references/design/` 아래에 둔다.
+`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 루트 전역 문서로 유지한다. 세부 개발/데이터 문서는 `docs/` 아래에 두고, agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/design-skills/design-fundamentals/source/` 아래에 둔다.
 
 | 주제          | 기준 문서                                                                        |
 | ------------- | -------------------------------------------------------------------------------- |
@@ -36,9 +36,60 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Form Entry Reference SOT Alignment
+
+- 변경: `screen-form-entry` reference의 `Structure Example`과 source sketch를 Figma SOT node `10095:23484`의 실제 5개 `Pagestack` 구조에 맞게 보정함
+- 이유: 기존 문서가 SOT의 `기기변경 휴대폰 번호 / 본인인증 완료 / 가입자 주소 / 주 생활지역 / 이메일` section 순서와 역할을 과하게 일반화했기 때문
+- 검증: JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: `area-auth-completion-status`, 주 생활지역/동일 정보 재사용 area reference를 별도 등록 검토
+
+## 2026-06-11 - Reference Source Structure Sketches
+
+- 변경: 현재 screen/area reference에 `source/figma-node-tree-sketch.json`과 `source/render-tree-sketch.json`을 추가하고, README에 추론용 `Structure Example` 요약을 작성함
+- 이유: 캡처 이미지만으로는 composing 단계에서 계층 판단이 약하고, raw Figma tree를 그대로 쓰면 잡음이 크므로 정제된 구조 sketch와 본문 요약을 분리하기 위함
+- 검증: JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 새 reference를 추가할 때도 source sketch는 복붙용이 아니라 hierarchy/role 판단용으로 유지
+
+## 2026-06-11 - Reference Skill Naming Alignment
+
+- 변경: inference reference 루트를 `skills/references`에서 `skills/reference-skills`로 변경하고, 디자인 정본 디렉토리를 `design`에서 `fundamentals`로 변경함
+- 변경: nested reference skill entry 파일명을 `skill.md`에서 `README.md`로 변경하고 `sync-reference-catalog`가 nested `README.md`를 수집하도록 갱신함
+- 이유: reference skill 표준 스캐폴딩 명칭을 명확히 하고, 일반 skill 디렉토리 관례인 `README.md`와 맞추기 위함
+- 검증: `pnpm sync:reference`, `pnpm vitest run packages/agent/src/reference-catalog packages/inference/src/knowledge/__tests__/reference-resolve.test.ts`
+- 후속: 기존 flat reference도 필요 시 nested `README.md` scaffold로 이관
+
+## 2026-06-11 - Legacy SOT Reference Skills Removal
+
+- 변경: 폐기된 `packages/agent/docs/skills/reference-skills/sot/*` scaffold와 `reference-skills` 디렉토리를 제거함
+- 이유: SOT 기반 reference를 `skills/reference-skills/{screens|areas}/{reference-id}/README.md`와 `source/` 구조에서 직접 관리하기로 결정했기 때문
+- 검증: `rg "reference-skills/sot|reference-skills|cx-sot-reference" packages/agent/docs packages/agent/src scripts docs AGENTS.md AGENTS_HISTORY.md`
+- 후속: 남은 flat reference도 필요 시 nested scaffold로 이관
+
+## 2026-06-11 - Reference Skill Nested Scaffold
+
+- 변경: `skills/reference-skills/{screens|areas}` 아래 reference skill 구조를 `{figma-node}/{reference-id}/README.md` + `source/` asset 형태로 확장함. `sync-reference-catalog`가 직속 `.md`와 nested `README.md`를 함께 수집하도록 변경하고, `ref-screen-form-entry`, `area-form-address`를 새 구조로 이동함
+- 변경: `source/ref-screen-form-entry.png`, `source/area-form-address.png` 캡처 파일을 추가하고 각 `README.md`에 `Related References` 섹션으로 연결함
+- 이유: 폐기 예정인 `reference-skills/sot/*` 대신 inference가 직접 조회하는 reference category 내부에서 skill 문서와 원천 이미지를 함께 관리하기 위함
+- 검증: `pnpm sync:reference`, `pnpm vitest run packages/agent/src/reference-catalog packages/inference/src/knowledge/__tests__/reference-resolve.test.ts`
+- 후속: 기존 flat reference도 필요 시 같은 nested scaffold로 이관
+
+## 2026-06-11 - Address Form Area Reference
+
+- 변경: Figma SOT node `10095:23492` 기반 `area-form-address` Area Reference를 추가해 주소성 field group의 lookup action, readonly 기본 주소, editable 상세 주소 보강 힌트를 정리함
+- 이유: screen-level `form-entry` 힌트와 분리해 주소 입력 area 내부 조합 규칙을 area reference가 담당하도록 하기 위함
+- 검증: `pnpm sync:reference`, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 생활지역/동일 정보 재사용 address area는 별도 `area-form-linked-address` 계열 reference로 분리 검토
+
+## 2026-06-11 - Form Entry Screen Reference
+
+- 변경: Figma SOT node `10095:23484` 기반 `ref-screen-form-entry` Screen Reference를 추가해 사용자 입력 field가 많은 화면의 pattern, structure rule, SourceSpec 외 허용 보강, 후보 area/component, 회피 기준을 정리함
+- 이유: screen generation 중 SourceSpec에 입력 field가 많을 때 section divider, 선행 상태 표시, field-local action 같은 SOT 기반 보강 힌트를 제공하기 위함
+- 검증: `pnpm sync:reference`, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 관련 area-level reference를 별도 작성해 TextField group, 주소 찾기, 동일 정보 선택의 내부 조합 규칙을 분리 관리
+
 ## 2026-06-11 - Area Reference Lookup Scaffold
 
-- 변경: `packages/agent/docs/skills/references/areas/`를 추가하고 `ref-area-pagestack-section` seed reference를 작성함. `composition-planning` skillset에 area reference 문서를 포함하고 `pnpm sync:skillset`으로 generated catalog를 갱신함
+- 변경: `packages/agent/docs/skills/reference-skills/areas/`를 추가하고 `area-pagestack` seed reference를 작성함. `composition-planning` skillset에 area reference 문서를 포함하고 `pnpm sync:skillset`으로 generated catalog를 갱신함
 - 변경: reference catalog category에 `area`를 추가해 `reference-area-index`/`reference-area-catalog` 조회가 가능하도록 하고, `pnpm sync:reference`로 `referenceAreaCatalog`를 생성함
 - 이유: Figma SOT 기반 Screen Reference와 Area Reference를 분리 등록하기 전에, area reference가 skillset 지식과 inference knowledge resolver 양쪽에서 조회 가능한 구조를 먼저 열기 위함
 - 검증: `pnpm sync:reference`, `pnpm sync:skillset`, `pnpm vitest run packages/agent/src/reference-catalog packages/agent/src/skillset-catalog packages/inference/src/knowledge/__tests__/reference-resolve.test.ts`
@@ -192,10 +243,10 @@
 
 ## 2026-06-08 - Agent Design Reference Move
 
-- 변경: 기존 `docs/design/` 디자인 정본 8개 문서를 `packages/agent/docs/skills/references/design/`으로 이동하고, agent design reference README를 추가함
+- 변경: 기존 `docs/design/` 디자인 정본 8개 문서를 `packages/agent/docs/skills/reference-skills/fundamentals/`으로 이동하고, agent design reference README를 추가함
 - 변경: `AGENTS.md`, 개발 문서, agent design-context/skill 문서, legacy inference planning 참조의 디자인 정본 경로를 새 위치로 갱신함
 - 이유: 디자인 패턴 문서를 agent가 직접 참조하는 문서 자산으로 운영하고, `@cx/agent`의 prompt/skill/context 참조 구조 안에 모으기 위함
-- 검증: `find packages/agent/docs/skills/references/design -maxdepth 1 -type f`, `test ! -e docs/design`, `rg -n "(^|[^/])docs/design/" . -S -g '!database/ai-imports/**' -g '!database/generated-decks/**' -g '!AGENTS_HISTORY.md'`
+- 검증: `find packages/agent/docs/skills/reference-skills/fundamentals -maxdepth 1 -type f`, `test ! -e docs/design`, `rg -n "(^|[^/])docs/design/" . -S -g '!database/ai-imports/**' -g '!database/generated-decks/**' -g '!AGENTS_HISTORY.md'`
 
 ## 2026-06-08 - Agent Prompt Catalog Scaffold
 
@@ -1033,6 +1084,14 @@
 ### 2026-05-26
 
 - **Filter Sorting Component Surface** — `@cx/components`에 `FilterSorting` 실제 render component를 추가하고 public export, component catalog, renderer shared kind(`filter-sorting`)에 연결함
+- **Design Fundamentals Skill** — `packages/agent/docs/skills/design-skills/design-fundamentals/README.md`를 추가하고 screen-intent, composition-planning, screen-generation, quality-review skillset에 공통 디자인 판단 스킬로 연결함
+- **Design Fundamentals Source Move** — 기존 `packages/agent/docs/skills/reference-skills/fundamentals/` 원천 문서를 `packages/agent/docs/skills/design-skills/design-fundamentals/source/`로 이동해 공통 디자인 스킬의 source로 소유권을 정리함
+- **Design Skill Placeholder Cleanup** — `packages/agent/docs/skills/design-skills/`에서 본문이 TBD인 scaffold skill 폴더를 제거하고 README를 실제 운영 중인 design skill 목록만 남기도록 정리함
+- **Screen Reference Id Cleanup** — screen reference를 nested 구조로 통일하고 `ref-screen-form-entry`를 `screen-form-entry`, flat `ref-detail-confirmation.md`를 `detail-confirmation/README.md`로 정리함
+- **Skills Directory Shape Cleanup** — `packages/agent/docs/skills`에서 구형 `checklist.md`/`output-contract.md` task 폴더를 `README.md` 단일 문서 구조로 합치고 `.DS_Store`를 제거함
+- **Reference Catalog Directory Split** — inference reference catalog 문서를 `packages/agent/docs/skills/reference-skills/`에서 `packages/agent/docs/references/`로 분리하고, `area-pagestack`은 reference가 아닌 `compose-skills/area-pagestack`으로 이동함
+- **PageStack Compose Skill Merge** — 중복되던 `compose-skills/area-pagestack` 내용을 `compose-skills/pagestack-section-unit`으로 통합하고 composition-planning skillset 참조를 단일 PageStack skill로 정리함
+- **Skillset Prompt Consistency** — 모든 Claude task skillset의 첫 document가 해당 task prompt가 되도록 `composition-planning`, `screen-generation`, `screen-revision`, `quality-review` manifest에 prompt를 추가하고 drift guard 테스트를 보강함
 - **Product List Card Component Surface** — `@cx/components`에 `ListProductHorizontal`, `ListProductRow` 실제 render component를 추가하고 public export, component catalog, renderer shared kind(`product-card`)에 연결함
 - **Figma Product Detail Subtype Pattern QA** — Figma `SKT GenUI Test 0514` `Page (상세-상품)` section(node `10069:97828`)의 구독상품/기프티콘/혜택브랜드/단말기 variants를 region/area/composite subtype별 pattern-store metadata로 보강함
 - **Figma Card List Pattern Scaffold QA** — Figma `SKT GenUI Test 0514` `Page (리스트-카드)` section(node `9896:91122`)의 요금제/단말기/구독상품/혜택/부가서비스/인터넷 variants를 screen/region/area/composite layer별 pattern-store metadata로 보강함

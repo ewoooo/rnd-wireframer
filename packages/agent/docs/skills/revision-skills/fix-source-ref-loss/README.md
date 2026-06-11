@@ -1,6 +1,21 @@
-# fix-source-ref-loss
+---
+id: fix-source-ref-loss
+kind: skill
+family: revision
+stages:
+  - revise
+tasks:
+  - screen-revision
+role: source-ref-fix
+priority: required
+whenToUse: "Use when generated content loses required source references or invents source facts."
+tags:
+  - source-fidelity
+  - source-ref
+  - revision
+---
 
-Use when generated content loses required source references or invents source facts.
+# fix-source-ref-loss
 
 ## Revision Target
 

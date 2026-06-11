@@ -8,17 +8,27 @@ function stepById(id: string) {
 }
 
 describe("screen-generation-v1 reference refs", () => {
-	it("02-screen-intent가 reference-screen-index를 참조한다", () => {
+	it("02-screen-intent가 screen/area reference index를 참조한다", () => {
 		expect(stepById("02-screen-intent").references?.referenceIndex).toEqual({
 			source: "reference-screen-index",
 			id: undefined,
 			version: undefined,
 		});
+		expect(stepById("02-screen-intent").references?.referenceAreaIndex).toEqual({
+			source: "reference-area-index",
+			id: undefined,
+			version: undefined,
+		});
 	});
 
-	it("03-composition이 reference-screen-catalog를 참조한다", () => {
+	it("03-composition이 screen/area reference catalog를 참조한다", () => {
 		expect(stepById("03-composition").references?.referenceCatalog).toEqual({
 			source: "reference-screen-catalog",
+			id: undefined,
+			version: undefined,
+		});
+		expect(stepById("03-composition").references?.referenceAreaCatalog).toEqual({
+			source: "reference-area-catalog",
 			id: undefined,
 			version: undefined,
 		});

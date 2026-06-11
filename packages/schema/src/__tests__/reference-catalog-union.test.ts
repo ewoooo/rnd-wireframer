@@ -8,7 +8,7 @@ describe("InferenceReference union", () => {
 			kind: "reference-catalog",
 			id: "screen.index",
 			owner: "@cx/agent",
-			sourceRef: "docs/skills/references/screens",
+			sourceRef: "docs/references/screens",
 			schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
 			data: { category: "screen", mode: "index", documents: [] },
 		};

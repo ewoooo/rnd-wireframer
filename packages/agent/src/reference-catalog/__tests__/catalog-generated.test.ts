@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { collect } from "../../../../../scripts/sync-reference-catalog/index";
-import { referenceAreaCatalog } from "../../../docs/skills/references/areas/catalog.generated";
-import { referenceScreenCatalog } from "../../../docs/skills/references/screens/catalog.generated";
+import { referenceAreaCatalog } from "../../../docs/references/areas/catalog.generated";
+import { referenceScreenCatalog } from "../../../docs/references/screens/catalog.generated";
 import { REFERENCE_CATEGORIES } from "../categories";
 
 describe("reference catalog.generated 무결성", () => {

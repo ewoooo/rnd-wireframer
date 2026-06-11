@@ -2,7 +2,7 @@
 
 Bundle id: `interaction-state`
 
-Source docs: `packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md`, `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`
+Source docs: `packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md`, `packages/agent/docs/skills/design-skills/design-fundamentals/source/SECTION_PATTERNS.md`
 
 이 번들은 state coverage·CTA·폼·오버레이 조합 규칙을 제공한다. 우선순위는 **source evidence ≥ schema/catalog > 이 번들 규칙**이다. 상태는 화면 surface가 암시할 때만 다루고, 단순 정적 화면에 불필요한 상태 node를 강제하지 않는다.
 
