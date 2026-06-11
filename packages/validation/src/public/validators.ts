@@ -236,7 +236,6 @@ export function validateRenderTree(
 	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateSourcePropPreservation(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
-	validateBottomCtaStateGating(input, [], false, issues);
 	runQualityRules(
 		"render-tree",
 		{
@@ -290,39 +289,6 @@ function validateSourcePropPreservation(
 				path: [...(renderNode.path ?? []), "props", propName],
 			});
 		}
-	}
-}
-
-/**
- * Screen.Bottom의 state-variant CTA가 display.when 없이 항상 렌더되어 CTA가 중복 노출되는 것을 막는다.
- * 비-base display.stateRole을 가진 ActionButton은 display.when으로 게이팅돼야 한다.
- */
-function validateBottomCtaStateGating(
-	node: unknown,
-	path: Array<string | number>,
-	insideBottom: boolean,
-	issues: ValidationIssue[],
-) {
-	if (!isRecord(node)) return;
-	const nowInsideBottom = insideBottom || node.type === "Screen.Bottom";
-
-	if (nowInsideBottom && node.type === "ActionButton") {
-		const display = isRecord(node.display) ? node.display : undefined;
-		const stateRole = display?.stateRole;
-		const hasWhen = display !== undefined && "when" in display && display.when !== undefined;
-		if (typeof stateRole === "string" && stateRole !== "base" && !hasWhen) {
-			addIssue(issues, {
-				code: "bottom-cta-state-ungated",
-				message: `Bottom ActionButton declares state '${stateRole}' without display.when, so multiple CTAs render at once. Gate state-variant CTAs with display.when or use a single CTA.`,
-				path: [...path, "display", "when"],
-			});
-		}
-	}
-
-	if (Array.isArray(node.children)) {
-		node.children.forEach((child, index) => {
-			validateBottomCtaStateGating(child, [...path, "children", index], nowInsideBottom, issues);
-		});
 	}
 }
 
