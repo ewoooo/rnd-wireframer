@@ -1,0 +1,29 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-linked-address-field",
+	"note": "Minimal RenderTree-oriented area sketch. This describes the area internals, not the whole screen.",
+	"tree": {
+		"type": "PageStack",
+		"role": "linked-address-field-section",
+		"children": [
+			{ "type": "TitleSection", "role": "linked-address-title" },
+			{ "type": "ListSelected", "role": "reuse-existing-info-row" },
+			{
+				"type": "TextField",
+				"role": "postal-code-address-lookup",
+				"propsHint": {
+					"readonly": true,
+					"inlineAction": "주소 찾기"
+				}
+			},
+			{
+				"type": "TextField",
+				"role": "readonly-base-address",
+				"propsHint": {
+					"readonly": true
+				}
+			},
+			{ "type": "Text", "role": "address-purpose-helper" }
+		]
+	}
+}

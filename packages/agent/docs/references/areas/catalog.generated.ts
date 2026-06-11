@@ -41,6 +41,19 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-form-address/README.md",
 	},
 	{
+		id: "area-linked-address-field",
+		situation:
+			"사용자가 주소나 생활지역을 직접 입력하기 전에 기존 가입자/배송지/청구지 정보와 동일하게 재사용할 수 있는 선택지를 먼저 확인해야 한다",
+		tags: [
+			"area-pattern",
+			"linked-address",
+			"reuse-existing-info",
+			"address-lookup",
+			"helper-text",
+		],
+		sourceRef: "../docs/references/areas/area-linked-address-field/README.md",
+	},
+	{
 		id: "area-prerequisite-status",
 		situation:
 			"사용자가 다음 입력 단계로 진행하기 전에 이미 충족된 선행 조건이나 확인 상태를 짧게 인지해야 한다",
@@ -52,5 +65,12 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 			"readonly-status",
 		],
 		sourceRef: "../docs/references/areas/area-prerequisite-status/README.md",
+	},
+	{
+		id: "area-readonly-identity-field",
+		situation:
+			"사용자가 입력을 계속하기 전에 기준이 되는 대상 번호, 고객명, 회선 번호 같은 확정 정보를 읽기 전용 field로 확인해야 한다",
+		tags: ["area-pattern", "readonly-identity", "reference-field", "disabled-field", "form-entry"],
+		sourceRef: "../docs/references/areas/area-readonly-identity-field/README.md",
 	},
 ];

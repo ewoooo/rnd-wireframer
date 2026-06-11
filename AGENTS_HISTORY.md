@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Form Entry Supporting Area References
+
+- 변경: Figma SOT nodes `10095:23488`, `10095:23494` 기반 `area-readonly-identity-field`, `area-linked-address-field` Area Reference를 추가함
+- 변경: `screen-form-entry` 후보 area 목록에 readonly 기준값, prerequisite status, 기본 주소 입력, linked address field reference를 정렬해 연결함
+- 이유: form-entry 안에서도 기준값 표시와 기존 정보 재사용 주소 field는 일반 editable input이나 기본 주소 입력과 다른 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`
+- 후속: 단일 editable field(`10095:23496`)는 별도 reference로 만들지 않고 screen-level structure example에 유지
+
 ## 2026-06-11 - Completion Result Summary Area Reference
 
 - 변경: Figma SOT nodes `10090:58795`, `10090:58800` 기반 `area-completion-result-summary` Area Reference를 추가함
