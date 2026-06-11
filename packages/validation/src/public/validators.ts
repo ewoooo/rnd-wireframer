@@ -22,14 +22,11 @@ import {
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
 import type { RuleContext } from "../rules/define-rule";
-import { collectRenderNodesByMetadataId } from "../rules/helpers";
 import { QUALITY_RULES } from "../rules/index";
 import {
 	collectMaterializationSourceRefs,
-	collectSourceComponentsByRenderRef,
 	collectSourceRefLabelIndex,
 	collectSourceSpecRefs,
-	isPrimitiveSourcePropValue,
 	refIsMaterialized,
 	STATE_COVERAGE_TERMS,
 	STATEFUL_SURFACE_TERMS,
@@ -234,7 +231,6 @@ export function validateRenderTree(
 
 	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
 	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
-	validateSourcePropPreservation(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	runQualityRules(
 		"render-tree",
@@ -261,34 +257,6 @@ function runQualityRules(
 			...ctx,
 			report: (issue) => addIssue(issues, { code: rule.code, ...issue }),
 		});
-	}
-}
-
-function validateSourcePropPreservation(
-	sourceSpec: SourceSpec | undefined,
-	generatedArtifact: unknown,
-	issues: ValidationIssue[],
-) {
-	if (!sourceSpec) return;
-	const sourceComponents = collectSourceComponentsByRenderRef(sourceSpec);
-	if (sourceComponents.size === 0) return;
-	const renderNodes = collectRenderNodesByMetadataId(generatedArtifact);
-
-	for (const [sourceRef, component] of sourceComponents) {
-		const renderNode = renderNodes.get(sourceRef);
-		if (!renderNode || !isRecord(renderNode.props) || !isRecord(component.props)) continue;
-		for (const [propName, sourceValue] of Object.entries(component.props)) {
-			if (!isPrimitiveSourcePropValue(sourceValue)) continue;
-			if (!(propName in renderNode.props)) continue;
-			const renderValue = renderNode.props[propName];
-			if (!isPrimitiveSourcePropValue(renderValue)) continue;
-			if (renderValue === sourceValue) continue;
-			addIssue(issues, {
-				code: "source-prop-mismatch",
-				message: `RenderTree changed SourceSpec prop ${sourceRef}.${propName}: expected ${JSON.stringify(sourceValue)}, received ${JSON.stringify(renderValue)}.`,
-				path: [...(renderNode.path ?? []), "props", propName],
-			});
-		}
 	}
 }
 
