@@ -9,6 +9,7 @@ The prompt artifact must include:
 - available layout catalog references
 - selected design skill references, when available
 - reference screen catalog (matched answer-key structures), when available
+- reference area catalog (matched section-level structures), when available
 
 The output must be JSON only and match `composition-plan.v0.1`.
 
@@ -26,7 +27,10 @@ The output must be JSON only and match `composition-plan.v0.1`.
 10. Use `visualHierarchy` for what the user should perceive first, `primaryUserAction` for the main action slot, `sectionRhythm` for section pacing and divider cadence, `density` for low/medium/high information density, `patternRationale` for selected composition reasoning, and `rejectedPatterns` for plausible alternatives intentionally not used.
 11. Ground composition decisions in layout-composition guidance linked to `COMPOSITION_LAYERS`, `SECTION_PATTERNS`, `SCREEN_PATTERN_SUMMARY`, `LAYOUT_SPACING_CONTRACT`, and `INTERACTION_PATTERNS`.
 12. Each section must identify target region, role, priority, source refs, and strategy.
-13. Read the upstream `screenIntent.referenceMatch.referenceIds`; from the reference screen catalog, use only those matched entries' structures as precedent.
-14. Set `currentFitAssessment.supportsJudgment` and `currentFitAssessment.problems` by judging whether the source's given area arrangement supports `screenIntent.coreJudgment`.
-15. Set `compositionProposal.shouldChangeAreaComposite` and `compositionProposal.recommendedAreas` for a better Area/Composite arrangement, grounded in the matched references.
-16. Return one JSON object only and match the provided output JSON Schema.
+13. Read the upstream `screenIntent.referenceMatch.referenceIds`; from the reference screen catalog, use only those matched entries' structures as screen-level precedent.
+14. Use the reference area catalog for section-level planning. When a source section matches an area reference situation, reflect the area reference id in that section's `strategy` text and include it in `compositionProposal.recommendedAreas`.
+15. Apply area reference `Structure Rules`, `Component Candidates`, and `Avoid` guidance when splitting sections, ordering fields, deciding local actions, and rejecting similar-but-wrong area patterns.
+16. Do not put reference ids in `sections[].sourceRefs`; `sourceRefs` must stay limited to SourceSpec/source-reference ids. Mention reference ids only in `strategy`, `patternRationale`, `rejectedPatterns`, or `compositionProposal.recommendedAreas`.
+17. Set `currentFitAssessment.supportsJudgment` and `currentFitAssessment.problems` by judging whether the source's given area arrangement supports `screenIntent.coreJudgment`.
+18. Set `compositionProposal.shouldChangeAreaComposite` and `compositionProposal.recommendedAreas` for a better Area/Composite arrangement, grounded in the matched screen and area references.
+19. Return one JSON object only and match the provided output JSON Schema.
