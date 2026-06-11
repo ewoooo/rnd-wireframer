@@ -5,7 +5,6 @@ import {
 	resolveClaudeAvailability,
 	resolveClaudeGenerationModel,
 } from "../claude";
-import { assertClaudeResumeAllowed } from "../claude/claude-session-policy";
 
 describe("@cx/agent Claude internals", () => {
 	it("detects local Claude availability without opening a real session", async () => {
@@ -32,20 +31,6 @@ describe("@cx/agent Claude internals", () => {
 			remote: true,
 			mode: "remote",
 		});
-	});
-
-	it("requires a session id for explicit Claude resume", () => {
-		expect(() =>
-			assertClaudeResumeAllowed({
-				taskKind: "screen-revision",
-				input: {
-					query: "이어서 수정해줘",
-				},
-				session: {
-					mode: "resume",
-				},
-			}),
-		).toThrow("Claude resume requires a session id.");
 	});
 
 	it("parses JSON fenced Claude output", () => {

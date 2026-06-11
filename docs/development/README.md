@@ -10,6 +10,7 @@
 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) | 데이터 종류, 공급 데이터, 소비 데이터 계약 |
 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) | 기술 스택, 서비스 경계, 주요 모듈 요약 |
 | [DISPLAY_PREVIEW_SCHEMA.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DISPLAY_PREVIEW_SCHEMA.md) | display preview 조회 계약 |
+| [INFERENCE_OPERATIONS_GUIDE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/INFERENCE_OPERATIONS_GUIDE.md) | inference 파이프라인 조작 가이드 — knowledge 등록, working memory, 산출물, output contract 변경 절차 |
 | [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) | 저장소 구조와 패키지 경계 |
 | [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md) | screen inference job/store/worker/runtime/pipeline architecture |
 

@@ -40,39 +40,22 @@ describe("Inference KnowledgeBase", () => {
 		});
 	});
 
-	it("resolves skill, prompt, and token refs through owner inference resolvers", async () => {
+	it("resolves skillset and token refs through owner inference resolvers", async () => {
 		const knowledgeBase = createInferenceKnowledgeBase();
 
-		const skill = await knowledgeBase.resolve({ source: "skill", id: "screen-generation" });
 		const skillset = await knowledgeBase.resolve({
-			source: "stage-skillset",
-			id: "understand.screen-intent",
-		});
-		const prompt = await knowledgeBase.resolve({
-			source: "prompt-catalog",
-			id: "screen-generation",
+			source: "skillset",
+			id: "screen-intent",
 		});
 		const tokens = await knowledgeBase.resolve({ source: "token-catalog" });
 
-		expect(skill).toMatchObject({
-			kind: "skill",
-			owner: "@cx/agent",
-			data: {
-				format: "json",
-			},
-		});
 		expect(skillset).toMatchObject({
-			kind: "stage-skillset",
-			id: "understand.screen-intent",
+			kind: "skillset",
+			id: "screen-intent",
 			owner: "@cx/agent",
 			data: {
-				stage: "understand",
 				task: "screen-intent",
 			},
-		});
-		expect(prompt).toMatchObject({
-			kind: "prompt-catalog",
-			owner: "@cx/agent",
 		});
 		expect(tokens).toMatchObject({
 			kind: "token-catalog",

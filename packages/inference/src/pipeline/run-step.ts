@@ -4,15 +4,13 @@ import { evaluateStepOutputPolicy } from "../policies/inference-policy";
 
 const MAX_ATTEMPTS = 2; // initial attempt + one retry
 
-type StepResolvedContext = Pick<
-	StepExecution,
-	"inputs" | "references" | "outputContract" | "prompt"
->;
+type StepResolvedContext = Pick<StepExecution, "inputs" | "references" | "outputContract">;
 
 type StepFailure = {
 	code: string;
 	message: string;
 	raw?: unknown;
+	prompt?: unknown;
 	contextWrites?: Record<string, unknown>;
 };
 
@@ -28,9 +26,8 @@ export async function runStep(
 	const inputs = await resolveInputs(step, context);
 	const references = await resolveReferences(step, context);
 	const outputContract = await context.resolveOutputContract(step.output.contractRef);
-	const engine = context.engines[step.engine];
-	const prompt = step.prompt;
-	const resolved = { inputs, references, outputContract, prompt };
+	const engine = context.engines[step.run ? "function" : "claude"];
+	const resolved = { inputs, references, outputContract };
 	let lastFailure: StepFailure = createInitialFailure();
 
 	for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
@@ -44,23 +41,23 @@ export async function runStep(
 
 async function runAttempt(
 	step: InferenceStepDefinition,
-	engine: StepRunContext["engines"][InferenceStepDefinition["engine"]],
+	engine: StepRunContext["engines"]["claude" | "function"],
 	resolved: StepResolvedContext,
 ): Promise<AttemptResult> {
 	try {
 		const result = await engine.execute({
-			prompt: resolved.prompt,
+			task: step.task,
 			run: step.run,
 			inputs: resolved.inputs,
 			references: resolved.references,
 			outputContract: resolved.outputContract,
 		});
-		const raw = result.raw;
+		const { raw, prompt } = result;
 		const contextWrites = createContextWrites(step, raw);
 		const contractFailure = validateOutputContract(resolved, raw);
 
 		if (contractFailure) {
-			return { kind: "retry", failure: contractFailure };
+			return { kind: "retry", failure: { ...contractFailure, prompt } };
 		}
 
 		const policyFailure = evaluateStepOutputPolicy(step, raw);
@@ -71,6 +68,7 @@ async function runAttempt(
 					code: policyFailure.code,
 					message: policyFailure.message,
 					contextWrites,
+					prompt,
 					raw,
 				}),
 			};
@@ -78,7 +76,7 @@ async function runAttempt(
 
 		return {
 			kind: "succeeded",
-			execution: createSucceededExecution(resolved, raw, contextWrites),
+			execution: { status: "succeeded", ...resolved, prompt, raw, contextWrites },
 		};
 	} catch (error: unknown) {
 		return {
@@ -101,23 +99,11 @@ function validateOutputContract(
 	};
 }
 
-function createSucceededExecution(
-	resolved: StepResolvedContext,
-	raw: unknown,
-	contextWrites: Record<string, unknown> | undefined,
-): StepExecution {
-	return {
-		status: "succeeded",
-		...resolved,
-		raw,
-		contextWrites,
-	};
-}
-
 function createFailedExecution(resolved: StepResolvedContext, failure: StepFailure): StepExecution {
 	return {
 		status: "failed",
 		...resolved,
+		prompt: failure.prompt,
 		raw: failure.raw,
 		contextWrites: failure.contextWrites,
 		error: {
@@ -131,7 +117,9 @@ function createContextWrites(
 	step: InferenceStepDefinition,
 	raw: unknown,
 ): Record<string, unknown> | undefined {
-	return step.output.writeToContext ? { [step.output.writeToContext]: raw } : undefined;
+	if (step.output.writeToContext === false) return undefined;
+	const key = step.output.writeToContext ?? step.output.contractRef.id;
+	return { [key]: raw };
 }
 
 function createInitialFailure(): StepFailure {
@@ -161,6 +149,11 @@ async function resolveInputs(step: InferenceStepDefinition, context: StepRunCont
 
 async function resolveReferences(step: InferenceStepDefinition, context: StepRunContext) {
 	const resolved: StepExecution["references"] = {};
+	// A claude step implicitly loads the skillset named after its task; an explicit
+	// references.skillset declaration overrides the convention.
+	if (step.task && !step.references?.skillset) {
+		resolved.skillset = await context.resolveReference({ source: "skillset", id: step.task });
+	}
 	for (const [name, ref] of Object.entries(step.references ?? {})) {
 		resolved[name] = await context.resolveReference(ref);
 	}

@@ -57,32 +57,31 @@ export type {
 	LayoutCatalogObject,
 	OutputContractData,
 	OutputContractObject,
-	PromptCatalogData,
-	PromptCatalogObject,
-	SkillData,
-	SkillObject,
+	SkillsetData,
+	SkillsetDocument,
+	SkillsetObject,
 	SsotObject,
-	StageSkillsetData,
-	StageSkillsetDocument,
-	StageSkillsetObject,
 	TokenCatalogData,
 	TokenCatalogObject,
 } from "./inference-reference";
-export { resolveOutputContractForInference, SSOT_OBJECT_SCHEMA_VERSION } from "./inference-reference";
+export {
+	resolveOutputContractForInference,
+	SSOT_OBJECT_SCHEMA_VERSION,
+} from "./inference-reference";
 export type { JsonSchemaDocument } from "./json-schema-registry";
 export { getJsonSchema, JSON_SCHEMA_BY_ARTIFACT_KIND } from "./json-schema-registry";
 export type { PreviewContract } from "./preview";
+export type {
+	QualityInspectionContract,
+	QualityInspectionLayer,
+	QualityInspectionScores,
+} from "./quality-inspection";
 export type {
 	ReferenceCatalogData,
 	ReferenceCatalogDocument,
 	ReferenceCatalogEntry,
 	ReferenceCatalogObject,
 } from "./reference-catalog";
-export type {
-	QualityInspectionContract,
-	QualityInspectionLayer,
-	QualityInspectionScores,
-} from "./quality-inspection";
 export type {
 	RenderTreeAreaNodeType,
 	RenderTreeContract,

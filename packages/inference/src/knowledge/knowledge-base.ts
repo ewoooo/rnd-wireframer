@@ -1,9 +1,4 @@
-import {
-	resolvePromptCatalogForInference,
-	resolveReferenceForInference,
-	resolveSkillForInference,
-	resolveStageSkillsetForInference,
-} from "@cx/agent";
+import { resolveReferenceForInference, resolveSkillsetForInference } from "@cx/agent";
 import { resolveComponentCatalogForInference } from "@cx/external/resolver";
 import { resolveLayoutCatalogForInference } from "@cx/layout/resolver";
 import { resolveOutputContractForInference } from "@cx/schema";
@@ -24,17 +19,9 @@ const KNOWLEDGE_RESOLVERS = {
 		requiresId: false,
 		resolve: () => resolveLayoutCatalogForInference(),
 	},
-	"prompt-catalog": {
+	skillset: {
 		requiresId: true,
-		resolve: (ref) => resolvePromptCatalogForInference(readRequiredKnowledgeId(ref)),
-	},
-	skill: {
-		requiresId: true,
-		resolve: (ref) => resolveSkillForInference(readRequiredKnowledgeId(ref)),
-	},
-	"stage-skillset": {
-		requiresId: true,
-		resolve: (ref) => resolveStageSkillsetForInference(readRequiredKnowledgeId(ref)),
+		resolve: (ref) => resolveSkillsetForInference(readRequiredKnowledgeId(ref)),
 	},
 	"token-catalog": {
 		requiresId: false,

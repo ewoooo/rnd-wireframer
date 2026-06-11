@@ -29,11 +29,14 @@ export async function writeStepExecutionArtifacts(input: {
 			execution.prompt,
 		);
 	}
-	await artifactStore.writeJson(
-		jobId,
-		INFERENCE_ARTIFACT_PATH.step.rawResponse(stepId),
-		execution.raw,
-	);
+	// Success raw equals output.json; persist the raw engine response only for failure debugging.
+	if (execution.status === "failed" && execution.raw !== undefined) {
+		await artifactStore.writeJson(
+			jobId,
+			INFERENCE_ARTIFACT_PATH.step.rawResponse(stepId),
+			execution.raw,
+		);
+	}
 }
 
 export async function writeStepOutputArtifact(input: {

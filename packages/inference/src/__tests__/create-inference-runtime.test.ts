@@ -25,7 +25,6 @@ describe("createInferenceRuntime", () => {
 					steps: [
 						defineStep({
 							id: "01-source-spec",
-							engine: "function",
 							inputs: { job: jobInput() },
 							run: { id: "source-spec-mvp" },
 							output: {

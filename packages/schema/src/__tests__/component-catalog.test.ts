@@ -11,7 +11,12 @@ import { isTokenRole } from "../index";
 describe("component-catalog contract", () => {
 	it("kiki source union을 받아들이고 엔트리 shape이 성립한다", () => {
 		const source: ComponentCatalogSource = "kiki-barrel";
-		const prop: ComponentPropContract = { type: "enum", role: "styleVariant", values: ["a"], required: false };
+		const prop: ComponentPropContract = {
+			type: "enum",
+			role: "styleVariant",
+			values: ["a"],
+			required: false,
+		};
 		const entry: ComponentCatalogEntry = {
 			type: "kiki.AppBar",
 			source,

@@ -16,9 +16,9 @@ import {
 	resolveOutputContractForInference,
 	SCHEMA_VERSION,
 	SCHEMA_VERSION_BY_ARTIFACT_KIND,
+	type SkillsetObject,
 	type SourceSpec,
 	SSOT_OBJECT_SCHEMA_VERSION,
-	type StageSkillsetObject,
 } from "@cx/schema";
 import { describe, expect, it } from "vitest";
 
@@ -194,15 +194,14 @@ describe("@cx/schema public API", () => {
 		});
 	});
 
-	it("exposes stage skillsets as inference references", () => {
-		const skillset: StageSkillsetObject = {
-			kind: "stage-skillset",
-			id: "understand.screen-intent",
+	it("exposes skillsets as inference references", () => {
+		const skillset: SkillsetObject = {
+			kind: "skillset",
+			id: "screen-intent",
 			owner: "@cx/agent",
-			sourceRef: "../docs/skills/stage-skillsets/understand.screen-intent",
+			sourceRef: "../docs/skills/skillsets/screen-intent.md",
 			schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
 			data: {
-				stage: "understand",
 				task: "screen-intent",
 				documents: [
 					{
@@ -212,14 +211,13 @@ describe("@cx/schema public API", () => {
 						priority: "required",
 						role: "intent-extraction",
 						sourceRef: "../docs/prompts/screen-intent.md",
-						stage: "understand",
 						task: "screen-intent",
 					},
 				],
 			},
 		};
 
-		expect(skillset.kind).toBe("stage-skillset");
+		expect(skillset.kind).toBe("skillset");
 		expect(skillset.data.documents[0]?.sourceRef).toBe("../docs/prompts/screen-intent.md");
 	});
 
@@ -261,7 +259,9 @@ describe("@cx/schema public API", () => {
 			id: "visual-foundation",
 			version: "2026-05-29",
 			reason: "test",
-			sourceDocs: ["packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md"],
+			sourceDocs: [
+				"packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md",
+			],
 			body: "rule lines",
 		};
 

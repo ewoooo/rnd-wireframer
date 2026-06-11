@@ -34,21 +34,7 @@ export type OutputContractData = {
 
 export type OutputContractObject = SsotObject<"output-contract", OutputContractData>;
 
-export type SkillDocumentData = {
-	format: "markdown";
-	body: string;
-	frontmatter?: Record<string, unknown>;
-	sourceRef: string;
-};
-
-export type SkillData = {
-	format: "json";
-	sets: Record<string, SkillDocumentData>;
-};
-
-export type SkillObject = SsotObject<"skill", SkillData>;
-
-export type StageSkillsetDocument = {
+export type SkillsetDocument = {
 	id: string;
 	body: string;
 	frontmatter?: Record<string, unknown>;
@@ -56,17 +42,15 @@ export type StageSkillsetDocument = {
 	priority?: "optional" | "recommended" | "required";
 	role?: string;
 	sourceRef: string;
-	stage: "compose" | "revise" | "understand";
 	task: string;
 };
 
-export type StageSkillsetData = {
-	documents: StageSkillsetDocument[];
-	stage: "compose" | "revise" | "understand";
+export type SkillsetData = {
+	documents: SkillsetDocument[];
 	task: string;
 };
 
-export type StageSkillsetObject = SsotObject<"stage-skillset", StageSkillsetData>;
+export type SkillsetObject = SsotObject<"skillset", SkillsetData>;
 
 export type ComponentCatalogData = {
 	entries: ComponentCatalogEntry[];
@@ -83,22 +67,12 @@ export type LayoutCatalogData = {
 
 export type LayoutCatalogObject = SsotObject<"layout-catalog", LayoutCatalogData>;
 
-export type PromptCatalogData = {
-	messages?: Array<{ role: string; content: string }>;
-	template?: string;
-	variables: Record<string, unknown>;
-};
-
-export type PromptCatalogObject = SsotObject<"prompt-catalog", PromptCatalogData>;
-
 export type InferenceReference =
 	| TokenCatalogObject
 	| OutputContractObject
-	| SkillObject
-	| StageSkillsetObject
+	| SkillsetObject
 	| ComponentCatalogObject
 	| LayoutCatalogObject
-	| PromptCatalogObject
 	| ReferenceCatalogObject;
 
 const DTO_NAME_BY_ARTIFACT_KIND: Record<GenerationArtifactKind, string> = {

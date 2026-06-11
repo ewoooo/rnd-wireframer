@@ -264,10 +264,10 @@ Folder roles:
 | `steps/*/step.json` | Current step snapshot |
 | `steps/*/inputs.json` | Resolved working-memory inputs the step read (prior outputs, context, job input) |
 | `steps/*/references.json` | Resolved Knowledge Base reads as SSOT object snapshots keyed by step-local ref name |
-| `steps/*/output-contract.json` | Resolved `@cx/schema` output contract SSOT object used to validate `raw-response.json` |
-| `steps/*/prompt.json` | Final assembled prompt/messages structure sent to the engine |
-| `steps/*/raw-response.json` | Raw execution engine result |
-| `steps/*/output.json` | Normalized step output |
+| `steps/*/output-contract.json` | Resolved `@cx/schema` output contract SSOT object used to validate the engine raw result |
+| `steps/*/prompt.json` | Claude-engine-assembled prompt artifact actually sent to the runner (claude steps only) |
+| `steps/*/raw-response.json` | Raw execution engine result — written only for **failed** steps (on success the raw result equals `output.json`) |
+| `steps/*/output.json` | Contract-valid step output — written only for **succeeded** steps |
 | `context/*.json` | Pipeline working memory read by later steps |
 
 All step artifacts are JSON. A Knowledge Base SSOT may itself be Markdown (e.g. a skill `.md`), but the inference artifact stores it as an `SsotObject` and the Markdown text lives in a JSON string field such as `data.body`. The artifact is a point-in-time **snapshot**, never the source of truth.
@@ -302,7 +302,7 @@ Engine
 
 `JobStore` and `ContextStore` must use `ArtifactStore` internally instead of touching the file system directly. This keeps path calculation in one place and lets worker tests replace file IO with memory-backed stores.
 
-`Worker` may use `ArtifactStore` directly only for generic step artifacts such as `steps/01-analyze/inputs.json`, `references.json`, `output-contract.json`, `prompt.json`, `raw-response.json`, and `output.json`. Job state and working memory must go through `JobStore` and `ContextStore`.
+`Worker` may use `ArtifactStore` directly only for generic step artifacts such as `steps/01-analyze/inputs.json`, `references.json`, `output-contract.json`, `prompt.json`, `output.json` (success), and `raw-response.json` (failure). Job state and working memory must go through `JobStore` and `ContextStore`.
 
 `JobStore` owns observable job state, step snapshots, and event logs.
 
@@ -452,7 +452,7 @@ type InferenceRuntime = WorkerDeps;
 declare function runInferenceJob(jobId: string, runtime: InferenceRuntime): Promise<void>;
 ```
 
-> **MVP implemented:** the resolution *contract* is defined in §9.1 — each Knowledge source's owner exposes a resolver API and `knowledgeBase` returns the owner `SsotObject` directly. `references.json` is already keyed by the step-local ref name, so no extra envelope wrapper is used. MVP resolver coverage is `@cx/schema.resolveOutputContractForInference`, `@cx/external/resolver.resolveComponentCatalogForInference`, `@cx/layout/resolver.resolveLayoutCatalogForInference`, `@cx/agent.resolveSkillForInference`, `@cx/agent.resolvePromptCatalogForInference`, and `@cx/tokens.resolveTokenCatalogForInference`.
+> **MVP implemented:** the resolution *contract* is defined in §9.1 — each Knowledge source's owner exposes a resolver API and `knowledgeBase` returns the owner `SsotObject` directly. `references.json` is already keyed by the step-local ref name, so no extra envelope wrapper is used. MVP resolver coverage is `@cx/schema.resolveOutputContractForInference`, `@cx/external/resolver.resolveComponentCatalogForInference`, `@cx/layout/resolver.resolveLayoutCatalogForInference`, `@cx/agent.resolveSkillsetForInference`, `@cx/agent.resolveReferenceForInference`, and `@cx/tokens.resolveTokenCatalogForInference`.
 
 MVP execution model (no queue yet — `Queue Job` in the diagram is aspirational):
 
@@ -497,12 +497,11 @@ Both are named maps (`Record<string, …>`), never unnamed arrays — the develo
 ```ts
 type InferenceStepDefinition = {
 	id: string;
-	engine: "claude" | "function";
+	task?: string;              // claude step — also names the skillset it auto-loads
+	run?: FunctionRef;          // function step (exactly one of task/run)
 	inputs?: Record<string, StepInputRef>;     // working memory (run-local)
-	references?: Record<string, KnowledgeRef>;  // Knowledge Base (long-term)
-	prompt?: PromptTemplateRef; // when engine === "claude"
-	run?: FunctionRef;          // when engine === "function"
-	output: OutputContract;
+	references?: Record<string, KnowledgeRef>;  // Knowledge Base (long-term), extras only
+	output: OutputContract;     // writeToContext defaults to contractRef.id (false to skip)
 };
 
 type StepInputRef =
@@ -513,15 +512,18 @@ type StepInputRef =
 	| { kind: "value"; value: unknown };
 
 type KnowledgeRef = {
-	source: "component-catalog" | "layout-catalog" | "skill" | "prompt-catalog" | "token-catalog";
+	source:
+		| "component-catalog"
+		| "layout-catalog"
+		| "skillset"
+		| "token-catalog"
+		| `reference-${string}`;
 	id?: string;
-	version?: string;
 };
 
 type OutputContractRef = {
 	source: "output-contract";
 	id: string;
-	version?: string;
 };
 
 type PromptTemplateRef = { id: string; version?: string };
@@ -560,17 +562,19 @@ The two resolved buckets are snapshotted to **two separate JSON files**, both ke
 ```json
 // references.json — one SSOT object (or array of SSOT objects) per declared reference name
 {
-  "patternSkill": [
+  "skillset": [
     {
-      "kind": "skill",
-      "id": "screen-composition",
+      "kind": "skillset",
+      "id": "composition-planning",
       "owner": "@cx/agent",
-      "sourceRef": "skills/screen-composition",
-      "version": "v0.1",
+      "sourceRef": "../docs/skills/skillsets/composition-planning.md",
+      "version": "v1",
       "schemaVersion": "ssot-object.v1",
       "data": {
-        "format": "markdown",
-        "body": "# Screen Composition\n…"
+        "task": "composition-planning",
+        "documents": [
+          { "kind": "skill", "id": "pagestack-section-unit", "body": "# …", "sourceRef": "…" }
+        ]
       }
     }
   ],
@@ -601,14 +605,14 @@ type SsotObject<TKind extends string, TData extends object> = {
 
 | SSOT field | Meaning |
 |---|---|
-| `kind` | Stable object kind such as `skill`, `component-catalog`, `layout-catalog`, `output-contract` |
+| `kind` | Stable object kind such as `skillset`, `component-catalog`, `layout-catalog`, `output-contract` |
 | `id` | Stable id of the referenced item within its source |
 | `owner` | The SSOT owner package, e.g. `@cx/agent`, `@cx/external` |
 | `sourceRef` | Logical ref inside the source (e.g. `skills/screen-composition`) — **not** a file path |
 | `version` | Version of the SSOT at resolution time, for later drift tracking |
 | `data` | The point-in-time **object snapshot**; Markdown lives inside data as `{ format: "markdown", body }` |
 
-**Resolution boundary.** `@cx/inference` never reads an owner's files directly (e.g. it must not open `packages/agent/**/*.md`). Each source owner exposes an inference resolver API that returns an `SsotObject` — e.g. `@cx/schema` provides `resolveOutputContractForInference(id) → { kind: "output-contract", data: { jsonSchema, dtoName }, … }` — and the Knowledge resolver returns that object directly. This keeps the SSOT in its owner package (read-only from `@cx/inference`), records exactly what each job used so old jobs stay traceable even after the SSOT changes, and makes runs replayable. Markdown SSOT is still passed as an object, e.g. `{ kind: "skill", data: { format: "markdown", body } }`.
+**Resolution boundary.** `@cx/inference` never reads an owner's files directly (e.g. it must not open `packages/agent/**/*.md`). Each source owner exposes an inference resolver API that returns an `SsotObject` — e.g. `@cx/schema` provides `resolveOutputContractForInference(id) → { kind: "output-contract", data: { jsonSchema, dtoName }, … }` — and the Knowledge resolver returns that object directly. This keeps the SSOT in its owner package (read-only from `@cx/inference`), records exactly what each job used so old jobs stay traceable even after the SSOT changes, and makes runs replayable. Markdown SSOT is still passed as an object, e.g. `{ kind: "skillset", data: { documents: [{ body, … }] } }`.
 
 Owner resolver APIs:
 
@@ -617,28 +621,31 @@ Owner resolver APIs:
 | Output Contract | `@cx/schema.resolveOutputContractForInference(id)` | `output-contract` |
 | Component Catalog | `@cx/external/resolver.resolveComponentCatalogForInference()` | `component-catalog` |
 | Layout Catalog | `@cx/layout/resolver.resolveLayoutCatalogForInference()` | `layout-catalog` |
-| Skill | `@cx/agent.resolveSkillForInference(id)` | `skill` |
-| Prompt Catalog | `@cx/agent.resolvePromptCatalogForInference(id)` | `prompt-catalog` |
+| Skillset | `@cx/agent.resolveSkillsetForInference(id)` | `skillset` |
+| Reference | `@cx/agent.resolveReferenceForInference(category, mode)` | `reference-catalog` |
 | Token Catalog | `@cx/tokens.resolveTokenCatalogForInference()` | `token-catalog` |
+
+Skillsets are authored as Markdown manifests in `packages/agent/docs/skills/skillsets/{task}.md` (frontmatter `documents` lists `<kind> <sourceRef>` lines in delivery order). `pnpm sync:skillset` regenerates `src/skillset-catalog/catalog.generated.ts`; the generated file must not be edited by hand. References follow the same pattern via `pnpm sync:reference`.
 
 **Least-context principle.** A step receives only the refs it names — never the accumulated working memory. There is deliberately no wildcard or "all context" input: every working-memory read is by explicit key, every knowledge read by explicit source. Working memory (`context/*.json`) and step outputs grow on disk for replay and audit, but what a step loads into its prompt is bounded by its declared `inputs`/`references`. The declaration is the prompt's upper bound, so disk state can accumulate while prompts stay lean.
 
-Declare the minimum a step actually needs — usually the immediately-relevant prior output plus the specific knowledge for that decision. For example, a pattern-selection step needs the previous composition output, the layout catalog, and the pattern skill — not the original source:
+Declare the minimum a step actually needs — usually the immediately-relevant prior output plus the specific knowledge for that decision. For example, a pattern-selection step needs the previous composition output, the layout catalog, and the pattern-selection skillset — not the original source:
 
 ```ts
 const selectPatternStep = defineStep({
 	id: "select-pattern",
-	engine: "claude",
+	task: "pattern-selection", // claude routing + auto-loads the pattern-selection skillset
 	inputs: {
 		composition: stepOutput("plan-composition", "result"),
 	},
 	references: {
 		layoutCatalog: { source: "layout-catalog" },
-		patternSkill: { source: "skill", id: "pattern-selection" },
 	},
 	output: { /* … */ },
 });
 ```
+
+A claude step's `task` implicitly loads the same-named skillset into `references.skillset` (an explicit `references.skillset` overrides it). The injection is convention-bound and deterministic, and the resolved skillset is still snapshotted to `references.json`, so the declaration remains the prompt's upper bound.
 
 Step definitions own only their contract and required references. They do not own persistence, queueing, API response shape, or UI state.
 
@@ -647,7 +654,7 @@ Step definitions own only their contract and required references. They do not ow
 The surface a developer actually edits is small: compose a step, order steps into a pipeline, register the pipeline.
 
 ```ts
-const analyzeStep = defineStep({ id: "analyze", engine: "claude", /* … */ });
+const analyzeStep = defineStep({ id: "analyze", task: "analyze", /* … */ });
 
 const screenGenerationPipeline = definePipeline({
 	id: "screen-generation",
@@ -704,7 +711,7 @@ interface Engine {
 type EngineRegistry = Record<"claude" | "function", Engine>;
 ```
 
-The `claude` engine delegates to `@cx/agent` (Claude Agent SDK, local-first with fallback policy). The `function` engine runs a registered deterministic function by `FunctionRef.id`. `runStep` resolves `inputs`/`references`/`output.contractRef` → assembles the `PromptPayload` → calls the engine (raw) → validates `raw` against `outputContract.data.jsonSchema` → **returns** a `StepExecution`. It does not write files; the worker persists `inputs.json`/`references.json`/`output-contract.json`/`prompt.json`/`raw-response.json`/`output.json` and applies any `writeToContext` (see §15.4).
+The `claude` engine assembles the prompt artifact from the step's `task`, resolved references, and output contract, then delegates to `@cx/agent` (Claude Agent SDK, local-first with fallback policy). The `function` engine runs a registered deterministic function by `FunctionRef.id`. `runStep` resolves `inputs`/`references` (injecting the task-named skillset)/`output.contractRef` → routes to the engine by `run` presence → validates `raw` against `outputContract.data.jsonSchema` → **returns** a `StepExecution`. It does not write files; the worker persists `inputs.json`/`references.json`/`output-contract.json`/`prompt.json`, then `output.json` (succeeded steps) or `raw-response.json` (failed steps), and applies any `writeToContext` (see §15.4).
 
 Contract validation reuses the repo's existing JSON Schema validation (`@cx/validation`) rather than a new validator. A step whose raw result fails the resolved output contract is marked `failed` and emits a failure event; it does not silently coerce.
 
@@ -762,7 +769,7 @@ The goal of the first pass is **one vertical slice**: a single fake step that le
 - New contracts, stores, context, engines, pipeline, and worker code start in `@cx/inference`.
 - Existing Web routes may call compatibility adapters during migration, but browser-facing UI still consumes only `/api/*`.
 - Claude local-first execution remains in `@cx/agent`; fallback policy is exposed as execution engine configuration.
-- `@cx/inference` resolves Knowledge only through each owner's resolver API (e.g. `@cx/agent.resolveSkillForInference(id)`); it must never read another package's source files directly (no `packages/agent/**/*.md` reads). All step artifacts are JSON, and any Markdown SSOT is snapshotted as an object (`{ kind: "skill", data: { format: "markdown", body } }`) — a snapshot, never the SSOT.
+- `@cx/inference` resolves Knowledge only through each owner's resolver API (e.g. `@cx/agent.resolveSkillsetForInference(id)`); it must never read another package's source files directly (no `packages/agent/**/*.md` reads). All step artifacts are JSON, and any Markdown SSOT is snapshotted as an object (`{ kind: "skillset", data: { documents: [{ body, … }] } }`) — a snapshot, never the SSOT.
 
 ## 14. Completion Criteria
 
@@ -871,8 +878,8 @@ type StepExecution = {
 	inputs: Record<string, unknown>; // resolved working memory → inputs.json
 	references: Record<string, InferenceReference | InferenceReference[]>; // resolved knowledge → references.json
 	outputContract: OutputContractObject; // resolved output contract → output-contract.json
-	prompt?: PromptPayload; // assembled messages → prompt.json
-	raw: unknown; // engine raw result → raw-response.json
+	prompt?: unknown; // claude-engine-assembled prompt artifact → prompt.json
+	raw: unknown; // engine raw result → output.json (success) / raw-response.json (failure)
 	output?: unknown; // normalized, contract-valid → output.json
 	contextWrites?: Record<string, unknown>; // from output.writeToContext
 	error?: { code: string; message: string };
@@ -888,7 +895,7 @@ declare function runInferenceJob(jobId: string, runtime: InferenceRuntime): Prom
 |---|---|---|
 | Scope | One step | One whole job |
 | Resolve `inputs`/`references` | Yes (via injected resolvers) | Builds the resolvers and binds them to this job's stores |
-| Render prompt, call Engine, validate against resolved `output-contract` | Yes | No |
+| Call Engine (which assembles the prompt), validate against resolved `output-contract` | Yes | No |
 | Decide step order / which step is next | No | Yes |
 | Persist artifact files (`inputs.json`, `references.json`, `output-contract.json`, `prompt.json`, `raw-response.json`, `output.json`) | No — returns them in `StepExecution` | Yes — writes via `ArtifactStore` |
 | Apply `writeToContext` | No — reports `contextWrites` | Yes — writes via `ContextStore` |

@@ -5,7 +5,6 @@ import type {
 	KnowledgeValue,
 	OutputContractRef,
 	OutputContractValue,
-	PromptTemplateRef,
 	StepInputRef,
 } from "./step";
 import type { ArtifactStore, ContextStore, JobStore } from "./stores";
@@ -41,7 +40,8 @@ export type StepExecution = {
 	inputs: Record<string, unknown>;
 	references: Record<string, KnowledgeValue | KnowledgeValue[]>;
 	outputContract: OutputContractValue;
-	prompt?: PromptTemplateRef;
+	/** Engine-assembled prompt snapshot (claude steps). */
+	prompt?: unknown;
 	raw: unknown;
 	contextWrites?: Record<string, unknown>;
 	error?: { code: string; message: string };

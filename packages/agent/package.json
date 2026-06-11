@@ -7,13 +7,9 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./adapters": "./src/adapters/index.ts",
 		"./claude": "./src/claude/index.ts",
 		"./contract": "./src/contract/index.ts",
-		"./prompt-catalog": "./src/prompt-catalog/index.ts",
-		"./skill-catalog": "./src/skill-catalog/index.ts",
-		"./skillset-catalog": "./src/skillset-catalog/index.ts",
-		"./tasks": "./src/tasks/index.ts"
+		"./skillset-catalog": "./src/skillset-catalog/index.ts"
 	},
 	"dependencies": {
 		"@cx/schema": "workspace:*"

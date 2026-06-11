@@ -1,4 +1,4 @@
-import type { AgentTaskInput, AgentTaskKind } from "./task-catalog";
+import type { AgentTaskInput } from "./task-catalog";
 import type { AgentRunner } from "./task-runner-contract";
 
 export type AgentSessionMode = "new" | "resume";
@@ -10,13 +10,13 @@ export type AgentSessionRequest = {
 };
 
 export type AgentRunRequest = {
-	taskKind: AgentTaskKind;
+	taskKind: string;
 	input: AgentTaskInput;
 	session?: AgentSessionRequest;
 };
 
 export type AgentRunResult = {
-	taskKind: AgentTaskKind;
+	taskKind: string;
 	session: {
 		mode: AgentSessionMode;
 		sessionId?: string;

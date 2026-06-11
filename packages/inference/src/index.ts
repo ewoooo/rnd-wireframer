@@ -5,13 +5,17 @@ export { runDeterministicValidation } from "./functions/deterministic-validation
 export { createInferenceKnowledgeBase } from "./knowledge/knowledge-base";
 export {
 	context,
+	contexts,
 	createPipelineRegistry,
 	definePipeline,
 	defineStep,
 	jobInput,
 	knowledge,
 	outputContractRef,
+	referenceCatalog,
+	referenceIndex,
 	runStep,
+	skillset,
 } from "./pipeline";
 export { FileArtifactStore } from "./stores/file-artifact-store";
 export { createJobStore } from "./stores/job-store";

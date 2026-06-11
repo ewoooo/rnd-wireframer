@@ -4,15 +4,14 @@ import {
 	definePipeline,
 	defineStep,
 	jobInput,
-	knowledge,
 	outputContractRef,
+	skillset,
 } from "../pipeline";
 
 const step = defineStep({
 	id: "01-analyze",
-	engine: "function",
 	inputs: { job: jobInput() },
-	references: { skill: knowledge("skill", "screen-generation") },
+	references: { extraSkillset: skillset("screen-generation") },
 	run: { id: "source-spec-mvp" },
 	output: { contractRef: outputContractRef("source-spec"), writeToContext: "source-spec" },
 });
@@ -20,16 +19,31 @@ const step = defineStep({
 describe("pipeline authoring", () => {
 	it("builds refs and step literals", () => {
 		expect(step.inputs?.job).toEqual({ kind: "job-input", path: undefined });
-		expect(step.references?.skill).toEqual({
-			source: "skill",
+		expect(step.references?.extraSkillset).toEqual({
+			source: "skillset",
 			id: "screen-generation",
-			version: undefined,
 		});
 		expect(step.output.contractRef).toEqual({
 			source: "output-contract",
 			id: "source-spec",
-			version: undefined,
 		});
+	});
+
+	it("rejects a step declaring both task and run, or neither", () => {
+		expect(() =>
+			defineStep({
+				id: "bad-both",
+				task: "screen-intent",
+				run: { id: "fake" },
+				output: { contractRef: outputContractRef("source-spec") },
+			}),
+		).toThrow(/exactly one of task/);
+		expect(() =>
+			defineStep({
+				id: "bad-neither",
+				output: { contractRef: outputContractRef("source-spec") },
+			}),
+		).toThrow(/exactly one of task/);
 	});
 
 	it("registry resolves by id@version and throws on unknown", () => {

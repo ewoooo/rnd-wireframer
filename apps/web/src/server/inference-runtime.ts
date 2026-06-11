@@ -90,9 +90,13 @@ export async function createInferenceJob(input: unknown) {
 /**
  * Re-run an existing job, optionally from a given step. Steps before
  * startFromStepId are skipped and their prior context outputs are reused
- * from disk. Throws (ENOENT) when the job does not exist.
+ * from disk. contextOverrides are written into working memory before any
+ * step runs. Throws (ENOENT) when the job does not exist.
  */
-export async function rerunInferenceJob(jobId: string, options: { startFromStepId?: string } = {}) {
+export async function rerunInferenceJob(
+	jobId: string,
+	options: { contextOverrides?: Record<string, unknown>; startFromStepId?: string } = {},
+) {
 	const job = await inferenceRuntime.jobStore.getJob(jobId);
 	void runInferenceJob(inferenceRuntime, jobId, options).catch((error) => {
 		console.error(`runInferenceJob rerun failed for job ${jobId}`, error);

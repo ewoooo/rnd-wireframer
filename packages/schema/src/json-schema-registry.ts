@@ -281,12 +281,11 @@ function createScreenIntentJsonSchema(): JsonSchemaDocument {
 			usedSkill: {
 				type: "object",
 				additionalProperties: false,
-				required: ["id", "sourceRef", "stage", "task"],
+				required: ["id", "sourceRef", "task"],
 				properties: {
 					id: { type: "string", minLength: 1 },
 					role: { type: "string", minLength: 1 },
 					sourceRef: { type: "string", minLength: 1 },
-					stage: { enum: ["compose", "revise", "understand"] },
 					task: { type: "string", minLength: 1 },
 				},
 			},
