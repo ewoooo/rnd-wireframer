@@ -18,11 +18,11 @@ describe("App workbench navigation", () => {
 		expect(
 			await screen.findByRole("heading", { level: 1, name: "Preview Default" }),
 		).toBeInTheDocument();
-		expect(screen.getAllByText("Preview Route").length).toBeGreaterThan(0);
+		expect(screen.getAllByText(/Preview Route/).length).toBeGreaterThan(0);
 
-		fireEvent.click(screen.getByRole("button", { name: "컴포넌트" }));
+		fireEvent.click(getRailButton("Components"));
 
-		expect(screen.getByText("Components")).toBeInTheDocument();
+		expect(screen.getAllByText("Components").length).toBeGreaterThan(0);
 		expect(screen.getAllByText("Preview CTA").length).toBeGreaterThan(0);
 		expect(screen.getByText("preview-cta")).toBeInTheDocument();
 		expect(screen.getByText("member-base-cta")).toBeInTheDocument();
@@ -31,16 +31,16 @@ describe("App workbench navigation", () => {
 
 		expect(screen.getByRole("heading", { level: 1, name: "Member Base" })).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "그룹" }));
+		fireEvent.click(getRailButton("Areas"));
 
-		expect(screen.getByText("Areas")).toBeInTheDocument();
+		expect(screen.getAllByText("Areas").length).toBeGreaterThan(0);
 		expect(screen.getByText("preview-area")).toBeInTheDocument();
 		expect(screen.getByText("member-base-area")).toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+		fireEvent.click(getRailButton("Run"));
 
-		expect(screen.getByRole("button", { name: "새 화면" })).toHaveAttribute("aria-pressed", "true");
-		expect(screen.getByText("Markdown 드롭")).toBeInTheDocument();
+		expect(getRailButton("Run")).toHaveAttribute("aria-pressed", "true");
+		expect(screen.getByText("Drop Here")).toBeInTheDocument();
 		expect(screen.getByText("업로드된 screenId가 없습니다.")).toBeInTheDocument();
 
 		const fileInput = document.querySelector<HTMLInputElement>("input[type='file']");
@@ -56,7 +56,7 @@ describe("App workbench navigation", () => {
 			screen.queryByText("data/client-imports/web-upload/20260604/NOVA-UPLOAD-PG-001-0.md"),
 		).not.toBeInTheDocument();
 
-		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		fireEvent.click(getCommandButton("Run"));
 		expect((await screen.findAllByText("running")).length).toBeGreaterThan(0);
 		expect(readRunRequests()).toContainEqual(
 			expect.objectContaining({
@@ -69,7 +69,7 @@ describe("App workbench navigation", () => {
 		);
 	});
 
-	it("selects the first screen when a route is selected and switches variant chips", async () => {
+	it("selects screens from node navigation and switches variant chips", async () => {
 		stubBrowserApis();
 		stubScreenFetch({
 			serverRuns: [
@@ -85,14 +85,16 @@ describe("App workbench navigation", () => {
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
 
-		fireEvent.click(screen.getByRole("button", { name: /Member Route/ }));
+		fireEvent.click(getRailButton("Components"));
+		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
+		fireEvent.click(getRailButton("Screens"));
 
 		expect(screen.getByRole("heading", { level: 1, name: "Member Base" })).toBeInTheDocument();
 
 		fireEvent.click(screen.getByRole("button", { name: "E1" }));
 
 		expect(screen.getByRole("heading", { level: 1, name: "Member Base-E1" })).toBeInTheDocument();
-		expect(screen.getAllByText("Member Route").length).toBeGreaterThan(0);
+		expect(screen.getAllByText(/Member Route/).length).toBeGreaterThan(0);
 	});
 
 	it("renders new screen inference review artifacts without requiring quality summary", async () => {
@@ -101,7 +103,7 @@ describe("App workbench navigation", () => {
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
-		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+		fireEvent.click(getRailButton("Run"));
 
 		const fileInput = document.querySelector<HTMLInputElement>("input[type='file']");
 		expect(fileInput).not.toBeNull();
@@ -112,7 +114,7 @@ describe("App workbench navigation", () => {
 		});
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
-		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		fireEvent.click(getCommandButton("Run"));
 
 		expect((await screen.findAllByText("waiting-review")).length).toBeGreaterThan(0);
 		expect(await screen.findAllByText("0 errors · 0 warnings")).toHaveLength(2);
@@ -157,7 +159,7 @@ describe("App workbench navigation", () => {
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
-		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+		fireEvent.click(getRailButton("Run"));
 
 		expect(screen.getByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		expect(screen.getByText("web-NOVA-UPLOAD-PG-001-0-20260604120000")).toBeInTheDocument();
@@ -182,7 +184,7 @@ describe("App workbench navigation", () => {
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
-		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+		fireEvent.click(getRailButton("Run"));
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		expect(screen.getByText("web-NOVA-UPLOAD-PG-001-0-20260604120000")).toBeInTheDocument();
@@ -217,7 +219,7 @@ describe("App workbench navigation", () => {
 		render(<App />);
 
 		await screen.findByRole("heading", { level: 1, name: "Preview Default" });
-		fireEvent.click(screen.getByRole("button", { name: "새 화면" }));
+		fireEvent.click(getRailButton("Run"));
 
 		expect(await screen.findByText("NOVA-UPLOAD-PG-001-0")).toBeInTheDocument();
 		expect(screen.queryByText("NOVA-MBR-PU-003-E3")).not.toBeInTheDocument();
@@ -367,7 +369,7 @@ function stubScreenFetch(
 	const screens = createScreens();
 	const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
 		const url = new URL(String(input), "http://localhost");
-		if (url.pathname === "/api/screens") {
+		if (url.pathname === "/api/screens/trees") {
 			return Response.json({ screens });
 		}
 		if (url.pathname === "/api/screens/puck-catalog") {
@@ -493,4 +495,20 @@ function stubScreenFetch(
 
 function readRunRequests(): unknown[] {
 	return ((fetch as typeof fetch & { runRequests?: unknown[] }).runRequests ?? []) as unknown[];
+}
+
+function getRailButton(name: string): HTMLButtonElement {
+	const button = screen
+		.getAllByRole("button", { name })
+		.find((candidate) => candidate.hasAttribute("aria-pressed"));
+	expect(button).toBeDefined();
+	return button as HTMLButtonElement;
+}
+
+function getCommandButton(name: string): HTMLButtonElement {
+	const button = screen
+		.getAllByRole("button", { name })
+		.find((candidate) => !candidate.hasAttribute("aria-pressed"));
+	expect(button).toBeDefined();
+	return button as HTMLButtonElement;
 }

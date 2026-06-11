@@ -36,6 +36,13 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - App Workbench Test Contract Sync
+
+- 변경: `App.test.tsx`의 화면 목록 mock을 현재 bulk endpoint인 `/api/screens/trees`로 갱신하고, Rail 라벨(`Run`, `Screens`, `Areas`, `Components`) 및 숨김 처리된 domain/route 패널 기준에 맞게 navigation 테스트 기대값을 정리함
+- 이유: 클라이언트가 `/api/screens/trees`를 호출하도록 바뀐 뒤 테스트 mock이 `/api/screens`에 남아 `Preview Default` 초기 로딩 6건이 공통 실패했기 때문
+- 검증: `pnpm vitest run apps/web/src/components/App.test.tsx --reporter verbose`, `pnpm test`, `pnpm exec biome lint apps/web/src/components/App.test.tsx`, `graphify update .`
+- 후속: 전역 `pnpm lint`는 기존 `packages/external`/navigation lint 이슈 105건으로 실패하므로 별도 정리 필요
+
 ## 2026-06-10 - SSOT Refactor Doc Sync
 
 - 변경: 최근 SSOT 리팩터 묶음을 반영해 `PACKAGE_MAP.md`, `AGENTS.md`, `docs/development/{PROJECT_STRUCTURE,DATA_MAP,DEVELOPMENT_ARCHITECTURE,SCREEN_INFERENCE_ARCHITECTURE,RENDER_TREE_TSX_EXPORT_SPEC,FIGMA_REFERENCE_SKILL_STRUCTURE_PLAN}.md`를 갱신함
