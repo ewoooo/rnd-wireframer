@@ -571,7 +571,6 @@ The two resolved buckets are snapshotted to **two separate JSON files**, both ke
       "version": "v1",
       "schemaVersion": "ssot-object.v1",
       "data": {
-        "stage": "compose",
         "task": "composition-planning",
         "documents": [
           { "kind": "skill", "id": "pagestack-section-unit", "body": "# …", "sourceRef": "…" }

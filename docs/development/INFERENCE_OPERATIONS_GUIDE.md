@@ -211,6 +211,8 @@ Working Memory = Pipeline Context. 구현은 `packages/inference/src/context/con
    { "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": { …수정본… } } }
    ```
    key는 `^[a-z0-9-]+$`만 허용(위반 시 400). 파일을 직접 고치는 방법도 여전히 동작하지만 API가 표준 경로다.
+
+   > ⚠️ **override 값은 output-contract 스키마 검증을 거치지 않는다** — step 출력과 달리 HTTP로 받은 값이 그대로 working memory에 들어간다. 이건 의도된 설계(중간값을 일부러 틀어서 하류 동작을 실험)지만, 부작용으로 게이팅 신호를 조작할 수 있다. 예: `validation-report`를 `{summary:{errorCount:0}}`로 덮으면 06-revision/07-validation의 `runWhen`이 꺼져 수정·재검증을 건너뛴 채 job이 성공으로 보고된다. 실험용으로만 쓰고, 신뢰할 수 없는 입력을 이 엔드포인트에 노출하지 말 것(현재 inference API 전체가 무인증이다).
 3. **Context는 감사 로그가 아니다**: UI/리뷰어가 봐야 할 것은 events 또는 step artifacts에 기록된다. context는 언제든 다음 step에 의해 덮일 수 있는 스크래치다.
 4. **key 추가 = 계약 추가**: 새 key를 쓰면 그 key를 읽는 step과의 암묵적 계약이 생긴다. 어떤 step이 어떤 key를 읽고 쓰는지는 파이프라인 정의 파일 한 곳에서 전부 보이므로, 변경 전 반드시 그 파일에서 사용처를 확인할 것.
 
