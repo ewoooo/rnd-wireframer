@@ -44,6 +44,7 @@ Browser-facing UI는 `/api/*` endpoint만 소비한다. Headless generation clie
 | `GET` | `/api/inference/:jobId/steps` | step snapshot 조회 | `jobId` path param | `{ steps }` |
 | `GET` | `/api/inference/:jobId/events` | `events.ndjson`를 SSE로 stream | `jobId` path param, optional `Last-Event-ID`/`after` | `text/event-stream`, SSE id는 event `seq` |
 | `GET` | `/api/inference/:jobId/artifacts/:path*` | allowed job artifact 원본 조회 | `jobId`, artifact path params | artifact body 또는 `404` |
+| `POST` | `/api/inference/:jobId/rerun` | job 재실행. `startFromStepId` 이전 step은 스킵, `contextOverrides`는 실행 전 working memory에 기록 (key는 `^[a-z0-9-]+$`, 위반 시 `400`) | `jobId` path param, optional JSON `{ startFromStepId?, contextOverrides? }` | `202` `{ job, ok, startFromStepId, overriddenContextKeys? }` |
 | `POST` | `/api/inference/:jobId/apply` | `context/render-tree.json`의 최종 RenderTree를 DB read model에 적용 | `jobId` path param | `{ ok, result, schemaVersion, appliedArtifacts? }` |
 
 Source file input MVP는 `source.path` 하나를 기준으로 한다. Web upload와 CLI 모두 `data/client-imports/**.md` 경로를 `/api/inference` job input에 전달한다. API layer는 job 생성 전 source file을 읽어 `preparedSource.sourceSpec`을 job input에 넣고, `context/source.raw.md`, `context/source-input.json`, `context/source-spec.json` artifact를 남긴다. Pipeline step은 prepared `SourceSpec`만 소비한다.

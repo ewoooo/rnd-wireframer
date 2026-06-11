@@ -62,7 +62,7 @@ REST API (전체 목록은 [API_ENDPOINTS.md](./API_ENDPOINTS.md)):
 | `POST /api/inference/runs` | job 생성 + 실행 시작 |
 | `GET /api/inference/runs` | job 목록 |
 | `GET /api/inference/{jobId}` | job 상태 |
-| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree" }` 지원 |
+| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": {…} } }` — overrides는 step 실행 전에 working memory에 기록 |
 | `GET /api/inference/{jobId}/steps` · `/events` | step 상태 · 이벤트 스트림(ndjson) |
 | `GET /api/inference/{jobId}/artifacts/{...path}` | 산출물 직접 조회 |
 | `POST /api/inference/{jobId}/apply` | 결과를 앱 DB에 적용 |
@@ -205,7 +205,12 @@ Working Memory = Pipeline Context. 구현은 `packages/inference/src/context/con
 운영 시 알아야 할 성질:
 
 1. **덮어쓰기로 최신본 유지**: 06-revision은 `render-tree` key를 다시 쓴다. 이후 step(07, 08)은 자동으로 수정본을 읽는다. "수정 결과를 별도 key로 만들고 분기"하지 말고 같은 key를 덮어쓰는 것이 이 파이프라인의 관례다.
-2. **재실행과의 상호작용**: `startFromStepId` 재개는 디스크에 남은 context를 그대로 읽는다. 따라서 **context 파일을 손으로 고친 뒤 특정 step부터 재실행**하는 것이 가장 빠른 실험 루프다. 예: `context/composition-plan.json`을 수정 → `POST /{jobId}/rerun { "startFromStepId": "04-render-tree" }`.
+2. **재실행과의 상호작용 = 실험 루프**: `startFromStepId` 재개는 디스크에 남은 context를 그대로 읽고, `contextOverrides`는 step 실행 전에 해당 key를 덮어쓴다. 즉 **API 한 번으로 "중간값을 바꿔서 그 지점부터 다시 돌리기"가 끝난다**:
+   ```json
+   POST /api/inference/{jobId}/rerun
+   { "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": { …수정본… } } }
+   ```
+   key는 `^[a-z0-9-]+$`만 허용(위반 시 400). 파일을 직접 고치는 방법도 여전히 동작하지만 API가 표준 경로다.
 3. **Context는 감사 로그가 아니다**: UI/리뷰어가 봐야 할 것은 events 또는 step artifacts에 기록된다. context는 언제든 다음 step에 의해 덮일 수 있는 스크래치다.
 4. **key 추가 = 계약 추가**: 새 key를 쓰면 그 key를 읽는 step과의 암묵적 계약이 생긴다. 어떤 step이 어떤 key를 읽고 쓰는지는 파이프라인 정의 파일 한 곳에서 전부 보이므로, 변경 전 반드시 그 파일에서 사용처를 확인할 것.
 
@@ -303,4 +308,4 @@ Output contract는 `@cx/schema`가 소유하는 **JSON Schema (Draft 2020-12)** 
 | claude step 추가 | skillset 매니페스트 + `defineStep({ task })` | ✅ (defineStep 한 블록) |
 | step 순서 변경 | `screen-generation-v1.ts` steps 배열 | ✅ |
 | 검증 규칙 추가 | `@cx/validation` + deterministic-validation | ✅ |
-| 실험 (중간값 조작 후 재실행) | `context/*.json` 수정 + rerun API | ❌ |
+| 실험 (중간값 조작 후 재실행) | rerun API `{ startFromStepId, contextOverrides }` 한 번 | ❌ |

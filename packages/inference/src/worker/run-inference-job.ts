@@ -15,16 +15,22 @@ import { writeStepExecutionArtifacts, writeStepOutputArtifact } from "./step-art
 export async function runInferenceJob(
 	runtime: InferenceRuntime,
 	jobId: string,
-	options: { startFromStepId?: string } = {},
+	options: { contextOverrides?: Record<string, unknown>; startFromStepId?: string } = {},
 ): Promise<void> {
 	try {
 		const job = await runtime.jobStore.getJob(jobId);
 		const pipeline = runtime.pipelines.get(job.pipelineId, job.pipelineVersion);
 		const contextStore = runtime.createContextStore(jobId);
 
-		const { startFromStepId } = options;
+		const { contextOverrides, startFromStepId } = options;
 		if (startFromStepId && !pipeline.steps.some((step) => step.id === startFromStepId)) {
 			throw new Error(`Unknown startFromStepId: ${startFromStepId}`);
+		}
+
+		// Overrides land in working memory before any step runs, so a rerun can
+		// patch context through the API instead of hand-editing context/*.json.
+		for (const [key, value] of Object.entries(contextOverrides ?? {})) {
+			await contextStore.writeJson(key, value);
 		}
 
 		await recordJobStarted({ jobId, runtime });

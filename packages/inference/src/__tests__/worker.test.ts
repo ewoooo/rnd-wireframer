@@ -223,4 +223,77 @@ describe("runInferenceJob", () => {
 
 		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "failed" });
 	});
+
+	it("writes contextOverrides into working memory before any step runs", async () => {
+		let time = 0;
+		let id = 0;
+		const seenInputs: unknown[] = [];
+		const artifactStore = new MemoryArtifactStore();
+		const jobStore = createJobStore(artifactStore, {
+			now: () => `t-${++time}`,
+			newId: () => `job-${++id}`,
+		});
+		const job = await jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "SAMPLE" },
+		});
+		const pipeline: PipelineDefinition = {
+			id: "screen-generation",
+			version: "v1",
+			steps: [
+				{
+					id: "01-only",
+					inputs: { prior: { kind: "context", key: "source-spec" } },
+					run: { id: "fake" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						// keep the overridden context intact — otherwise the step output
+						// would land on the same key (writeToContext defaults to contract id)
+						writeToContext: false,
+					},
+				},
+			],
+		};
+		const engine: Engine = {
+			async execute(args) {
+				seenInputs.push(args.inputs.prior);
+				return { raw: validSourceSpec };
+			},
+		};
+		const runtime: InferenceRuntime = {
+			artifactStore,
+			createContextStore: (jobId) => createContextStore(jobId, artifactStore),
+			engines: { claude: engine, function: engine },
+			jobStore,
+			knowledgeBase: createInferenceKnowledgeBase(),
+			newId: () => `runtime-${++id}`,
+			now: () => `t-${++time}`,
+			pipelines: {
+				register() {},
+				get() {
+					return pipeline;
+				},
+			},
+		};
+
+		// Without the override the context read would fail — the step's only
+		// input comes from the injected working-memory value.
+		const patched = { ...validSourceSpec, patched: true };
+		await runInferenceJob(runtime, job.jobId, {
+			contextOverrides: { "source-spec": patched },
+		});
+
+		expect(seenInputs).toEqual([patched]);
+		await expect(artifactStore.readJson(job.jobId, "context/source-spec.json")).resolves.toEqual(
+			patched,
+		);
+		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "succeeded" });
+
+		// Invalid context keys are rejected by the ContextStore key rule.
+		await runInferenceJob(runtime, job.jobId, {
+			contextOverrides: { "BAD KEY": 1 },
+		});
+		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "failed" });
+	});
 });
