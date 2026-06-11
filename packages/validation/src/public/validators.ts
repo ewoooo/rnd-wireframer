@@ -248,6 +248,7 @@ function runQualityRules(
 	for (const rule of QUALITY_RULES) {
 		if (rule.target !== target) continue;
 		if (rule.requires?.includes("sourceSpec") && !ctx.sourceSpec) continue;
+		if (rule.requires?.includes("generatedArtifact") && ctx.artifact === undefined) continue;
 		rule.check({
 			...ctx,
 			report: (issue) => addIssue(issues, { code: rule.code, ...issue }),
