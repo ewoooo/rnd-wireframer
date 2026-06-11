@@ -9,11 +9,11 @@ describe("screen inference run status", () => {
 		const status = createScreenInferenceProgressStatus({
 			now: "2026-06-04T12:00:00.000Z",
 			runId: "web-run",
-			stage: "derive-decoration-plan",
+			stage: "plan-composition",
 		});
 
 		expect(status.currentLayer).toBe("compose");
-		expect(status.currentMessage).toBe("Decorating sections…");
+		expect(status.currentMessage).toBe("Planning composition…");
 		expect(status.layers.map((layer) => [layer.layer, layer.status])).toEqual([
 			["understand", "completed"],
 			["compose", "running"],
@@ -37,15 +37,15 @@ describe("screen inference run status", () => {
 		]);
 	});
 
-	it("keeps post-validation component proposal progress in the revise layer", () => {
+	it("keeps post-quality validation progress in the revise layer", () => {
 		const status = createScreenInferenceProgressStatus({
 			now: "2026-06-04T12:00:00.000Z",
 			runId: "web-run",
-			stage: "propose-components",
+			stage: "validate-render-tree",
 		});
 
 		expect(status.currentLayer).toBe("revise");
-		expect(status.currentMessage).toBe("Checking component proposals…");
+		expect(status.currentMessage).toBe("Validating render tree…");
 		expect(status.layers.map((layer) => [layer.layer, layer.status])).toEqual([
 			["understand", "completed"],
 			["compose", "completed"],

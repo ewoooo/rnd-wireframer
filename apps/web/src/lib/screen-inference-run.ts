@@ -77,17 +77,12 @@ export type ScreenInferenceRunCreateResponse = ScreenInferenceRunResponse & {
 };
 
 const stageMeta = {
-	"derive-decoration-plan": { layer: "compose", message: "Decorating sections…" },
 	"derive-screen-intent": { layer: "understand", message: "Understanding screen intent…" },
 	"generate-render-tree": { layer: "compose", message: "Generating UI draft…" },
 	"parse-source": { layer: "understand", message: "Parsing markdown source…" },
 	"plan-composition": { layer: "compose", message: "Planning composition…" },
-	"propose-components": { layer: "revise", message: "Checking component proposals…" },
-	"read-source": { layer: "understand", message: "Reading source…" },
 	"review-quality": { layer: "revise", message: "Reviewing quality…" },
-	"select-pattern": { layer: "compose", message: "Selecting layout patterns…" },
 	"validate-render-tree": { layer: "revise", message: "Validating render tree…" },
-	"write-artifacts": { layer: "revise", message: "Writing review artifacts…" },
 } as const satisfies Record<string, { layer: ScreenGenerationLayer; message: string }>;
 
 export type PipelineStageId = keyof typeof stageMeta;
@@ -98,29 +93,18 @@ const layerDefinitions = [
 		label: "Understand",
 		layer: "understand",
 		previewArtifact: undefined,
-		stages: ["read-source", "parse-source", "derive-screen-intent"],
+		stages: ["parse-source", "derive-screen-intent"],
 	},
 	{
-		artifacts: [
-			"composition-plan.json",
-			"decoration-plan.json",
-			"pattern-selection.json",
-			"agent-result.json",
-		],
+		artifacts: ["composition-plan.json", "agent-result.json"],
 		label: "Compose",
 		layer: "compose",
 		previewArtifact: "artifacts/agent-result.json",
-		stages: [
-			"plan-composition",
-			"derive-decoration-plan",
-			"select-pattern",
-			"generate-render-tree",
-		],
+		stages: ["plan-composition", "generate-render-tree"],
 	},
 	{
 		artifacts: [
 			"validation-report.json",
-			"component-proposal.json",
 			"quality-review.json",
 			"final-result.json",
 			"pipeline-result.json",
@@ -128,7 +112,7 @@ const layerDefinitions = [
 		label: "Revise",
 		layer: "revise",
 		previewArtifact: "artifacts/final-result.json",
-		stages: ["validate-render-tree", "propose-components", "review-quality", "write-artifacts"],
+		stages: ["validate-render-tree", "review-quality"],
 	},
 ] as const;
 
