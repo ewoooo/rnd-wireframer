@@ -1,4 +1,9 @@
 export { validationBoundary } from "./public/contract";
+export {
+	getValidationCodeMeta,
+	VALIDATION_CODE_REGISTRY,
+} from "./public/registry";
+export type { ValidationCodeMeta, ValidationLayer } from "./public/registry";
 export { errorsOf, warningsOf } from "./public/report";
 export type {
 	ValidationBoundary,
