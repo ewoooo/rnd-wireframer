@@ -21,6 +21,17 @@ import {
 } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
+import { collectRenderNodesByMetadataId } from "../rules/helpers";
+import {
+	collectMaterializationSourceRefs,
+	collectSourceComponentsByRenderRef,
+	collectSourceRefLabelIndex,
+	collectSourceSpecRefs,
+	isPrimitiveSourcePropValue,
+	refIsMaterialized,
+	STATE_COVERAGE_TERMS,
+	STATEFUL_SURFACE_TERMS,
+} from "../rules/source-spec";
 import { VALIDATION_CODE_REGISTRY } from "./registry";
 import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
 
@@ -284,56 +295,6 @@ function validateSourcePropPreservation(
 	}
 }
 
-function collectSourceComponentsByRenderRef(
-	sourceSpec: SourceSpec,
-): Map<string, Record<string, unknown>> {
-	const components = new Map<string, Record<string, unknown>>();
-	for (const region of sourceSpec.sourceShape.screen.regions) {
-		for (const area of region.children) {
-			for (const component of area.children) {
-				const refs = [
-					(component as { sourceId?: unknown }).sourceId,
-					(component as { roleAlias?: unknown }).roleAlias,
-				];
-				for (const ref of refs) {
-					if (typeof ref === "string" && ref.length > 0) {
-						components.set(ref, component as unknown as Record<string, unknown>);
-					}
-				}
-			}
-		}
-	}
-	return components;
-}
-
-function collectRenderNodesByMetadataId(
-	input: unknown,
-	path: Array<string | number> = [],
-	nodes = new Map<string, Record<string, unknown> & { path?: Array<string | number> }>(),
-): Map<string, Record<string, unknown> & { path?: Array<string | number> }> {
-	if (Array.isArray(input)) {
-		input.forEach((child, index) => {
-			collectRenderNodesByMetadataId(child, [...path, index], nodes);
-		});
-		return nodes;
-	}
-	if (!isRecord(input)) return nodes;
-	const metadata = isRecord(input.metadata) ? input.metadata : undefined;
-	if (typeof metadata?.id === "string" && metadata.id.length > 0) {
-		nodes.set(metadata.id, { ...input, path });
-	}
-	if (Array.isArray(input.children)) {
-		input.children.forEach((child, index) => {
-			collectRenderNodesByMetadataId(child, [...path, "children", index], nodes);
-		});
-	}
-	return nodes;
-}
-
-function isPrimitiveSourcePropValue(value: unknown): value is boolean | number | string {
-	return typeof value === "boolean" || typeof value === "number" || typeof value === "string";
-}
-
 /**
  * Screen.Bottom의 state-variant CTA가 display.when 없이 항상 렌더되어 CTA가 중복 노출되는 것을 막는다.
  * 비-base display.stateRole을 가진 ActionButton은 display.when으로 게이팅돼야 한다.
@@ -536,68 +497,6 @@ function validateCompositionPlanMaterialization(
 	});
 }
 
-/**
- * A source ref counts as materialized when its id appears in the output, OR when a
- * visible label from that source component does (the element was folded into a parent
- * prop, e.g. a field-side action button rendered via TextField.buttonLabel).
- */
-function refIsMaterialized(
-	ref: string,
-	generatedText: string,
-	labelIndex: Map<string, string[]>,
-): boolean {
-	if (generatedText.includes(ref)) return true;
-	return (labelIndex.get(ref) ?? []).some((label) => generatedText.includes(label));
-}
-
-function collectSourceRefLabelIndex(sourceSpec: SourceSpec): Map<string, string[]> {
-	const index = new Map<string, string[]>();
-	for (const region of sourceSpec.sourceShape.screen.regions) {
-		for (const area of region.children) {
-			for (const component of area.children) {
-				const labels = collectComponentLabels(component);
-				if (labels.length === 0) continue;
-				for (const ref of [
-					(component as { sourceId?: unknown }).sourceId,
-					(component as { sourceComponentId?: unknown }).sourceComponentId,
-					(component as { roleAlias?: unknown }).roleAlias,
-				]) {
-					if (typeof ref === "string" && ref.length > 0) {
-						index.set(ref, [...(index.get(ref) ?? []), ...labels]);
-					}
-				}
-			}
-		}
-	}
-	return index;
-}
-
-function collectComponentLabels(component: unknown): string[] {
-	if (!isRecord(component) || !isRecord(component.props)) return [];
-	return Object.values(component.props).filter(
-		(value): value is string => typeof value === "string" && value.trim().length >= 2,
-	);
-}
-
-function collectSourceSpecRefs(sourceSpec: SourceSpec): Set<string> {
-	return new Set(
-		[
-			sourceSpec.sourceShape.screen.screenCode,
-			sourceSpec.sourceShape.screen.route,
-			...sourceSpec.sourceShape.screen.regions.flatMap((region) =>
-				region.children.flatMap((area) => [
-					area.sourceAreaId,
-					area.sourceAreaName,
-					...area.children.map((component) => component.sourceComponentId),
-					...area.children.map((component) => component.sourceId),
-					...area.children.map((component) => component.roleAlias),
-					...area.children.map((component) => component.componentType),
-				]),
-			),
-		].filter((ref): ref is string => Boolean(ref)),
-	);
-}
-
 function validateSourceRefCoverage(
 	sourceSpec: SourceSpec | undefined,
 	generatedArtifact: unknown,
@@ -616,29 +515,6 @@ function validateSourceRefCoverage(
 			path: [],
 		});
 	});
-}
-
-function collectMaterializationSourceRefs(sourceSpec: SourceSpec): string[] {
-	return [
-		...new Set(
-			sourceSpec.sourceShape.screen.regions.flatMap((region) =>
-				region.children.flatMap((area) => [
-					area.sourceAreaId,
-					...area.children.map((component) => component.sourceId),
-					...area.children.map((component) => component.sourceComponentId),
-				]),
-			),
-		),
-	].filter(isMaterializableRef);
-}
-
-/**
- * Structural order tokens (e.g. the "999" bottom-area sentinel or a "2"
- * sequence number) are not visible content, so they must not be checked for
- * output materialization — doing so produces phantom "ref not visible" noise.
- */
-function isMaterializableRef(ref: string | undefined): ref is string {
-	return typeof ref === "string" && ref.length > 0 && !/^\d+$/.test(ref);
 }
 
 function validateStateCoverage(
@@ -663,38 +539,6 @@ function needsStateCoverage(sourceSpec: SourceSpec): boolean {
 	const sourceText = JSON.stringify(sourceSpec).toLowerCase();
 	return STATEFUL_SURFACE_TERMS.some((term) => sourceText.includes(term));
 }
-
-const STATEFUL_SURFACE_TERMS = [
-	"async",
-	"empty",
-	"error",
-	"form",
-	"input",
-	"list",
-	"loading",
-	"search",
-	"select",
-	"validation",
-	"검색",
-	"목록",
-	"에러",
-	"오류",
-	"입력",
-	"폼",
-	"필수",
-] as const;
-
-const STATE_COVERAGE_TERMS = [
-	"disabled",
-	"empty",
-	"error",
-	"loading",
-	"stateRole",
-	"validation",
-	"오류",
-	"로딩",
-	"빈",
-] as const;
 
 function validateLayoutCandidateCoverage(
 	input: unknown,
