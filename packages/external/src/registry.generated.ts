@@ -37,7 +37,6 @@ export { CardSummary } from "./components/CardSummary/CardSummary";
 export { CardText } from "./components/CardText/CardText";
 export { CarouselProduct } from "./components/CarouselProduct/CarouselProduct";
 export { CarouselProductText } from "./components/CarouselProductText/CarouselProductText";
-// [KIKI-SHIM] catalog kiki.Checkbox 매칭 — 컴포넌트는 CheckboxText로 export됨. 생성기는 sync 레이어(task #22)에서 반영.
 export { CheckboxText as Checkbox } from "./components/Checkbox/Checkbox";
 export { Chip } from "./components/Chip/Chip";
 export { ChipImageItem } from "./components/ChipImageItem/ChipImageItem";
@@ -62,15 +61,14 @@ export { OptionListItem } from "./components/OptionListItem/OptionListItem";
 export { Pagestack } from "./components/Pagestack/Pagestack";
 export { PagestackItemCard } from "./components/PagestackItemCard/PagestackItemCard";
 export { PagestackItemDefault } from "./components/PagestackItemDefault/PagestackItemDefault";
-export { PayProductListItem } from "./components/PayProductListItem/PayProductListItem";
 export { PaymentList } from "./components/PaymentList/PaymentList";
 export { PaymentLogoItem } from "./components/PaymentLogoItem/PaymentLogoItem";
+export { PayProductListItem } from "./components/PayProductListItem/PayProductListItem";
 export { Pin } from "./components/Pin/Pin";
 export { PopupActionButton } from "./components/PopupActionButton/PopupActionButton";
 export { ProductInfo } from "./components/ProductInfo/ProductInfo";
 export { ProductInfoHorizontal } from "./components/ProductInfoHorizontal/ProductInfoHorizontal";
 export { ProductInfoVertical } from "./components/ProductInfoVertical/ProductInfoVertical";
-// [KIKI-SHIM] catalog kiki.Radio 매칭 — 컴포넌트는 RadioText로 export됨. 생성기는 sync 레이어(task #22)에서 반영.
 export { RadioText as Radio } from "./components/Radio/Radio";
 export { RightItem } from "./components/RightItem/RightItem";
 export { SearchBar } from "./components/SearchBar/SearchBar";

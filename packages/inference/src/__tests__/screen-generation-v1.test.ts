@@ -17,6 +17,7 @@ describe("screenGenerationPipelineV1", () => {
 			["08-quality", "quality-review"],
 			["09-design-revision", "screen-revision"],
 			["10-validation-after-design-revision", "deterministic-validation"],
+			["11-component-proposal", "component-proposal"],
 		]);
 		expect(screenGenerationPipelineV1.steps[5]?.runWhen).toEqual({
 			contextKey: "validation-report",
@@ -37,6 +38,11 @@ describe("screenGenerationPipelineV1", () => {
 		expect(screenGenerationPipelineV1.steps[9]?.output.failWhen).toEqual({
 			kind: "validation-report-has-errors",
 		});
+		// Component proposal은 side artifact — 실패해도 잡은 성공한다.
+		expect(screenGenerationPipelineV1.steps[10]?.optional).toBe(true);
+		for (const step of screenGenerationPipelineV1.steps.slice(0, 10)) {
+			expect(step.optional).toBeUndefined();
+		}
 	});
 
 	it("declares task names whose skillsets load implicitly; references carry only extras", () => {
@@ -48,6 +54,7 @@ describe("screenGenerationPipelineV1", () => {
 			"screen-revision",
 			"quality-review",
 			"screen-revision",
+			"component-proposal",
 		]);
 		// No step re-declares its own skillset — runStep injects it from the task name.
 		for (const step of screenGenerationPipelineV1.steps) {
@@ -104,6 +111,8 @@ describe("screenGenerationPipelineV1", () => {
 			layoutCatalog,
 			...selectedReferenceMounts,
 		});
+		// Component proposal은 nearest match 근거로 component catalog만 본다.
+		expect(screenGenerationPipelineV1.steps[10]?.references).toEqual({ componentCatalog });
 		// Function steps carry no knowledge references.
 		expect(screenGenerationPipelineV1.steps[4]?.references).toBeUndefined();
 		expect(screenGenerationPipelineV1.steps[6]?.references).toBeUndefined();

@@ -24,6 +24,7 @@ type InferenceRunListResponse = {
 
 const artifactPathByAlias = {
 	"agent-result.json": "steps/04-render-tree/output.json",
+	"component-proposal.json": "context/component-proposal.json",
 	"composition-plan.json": "context/composition-plan.json",
 	"final-result.json": "context/render-tree.json",
 	"pipeline-result.json": "job.json",

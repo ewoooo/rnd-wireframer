@@ -2,6 +2,13 @@
 import type { SkillsetCatalogEntry } from "./types";
 
 export const AGENT_SKILLSET_CATALOG = {
+	"component-proposal": {
+		documents: [
+			{ kind: "prompt", sourceRef: "../docs/prompts/component-proposal.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/component-proposal/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md" },
+		],
+	},
 	"composition-planning": {
 		documents: [
 			{ kind: "prompt", sourceRef: "../docs/prompts/composition-planning.md" },

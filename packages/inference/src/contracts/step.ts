@@ -57,5 +57,10 @@ export type InferenceStepDefinition = {
 	inputs?: Record<string, StepInputRef>;
 	references?: Record<string, KnowledgeRef>;
 	runWhen?: StepRunCondition;
+	/**
+	 * Optional step failure is recorded but does not fail the job.
+	 * Side-artifact steps(예: component-proposal)처럼 잡 성공과 무관한 산출물에 쓴다.
+	 */
+	optional?: boolean;
 	output: OutputContract;
 };

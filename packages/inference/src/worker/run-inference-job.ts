@@ -75,6 +75,8 @@ export async function runInferenceJob(
 
 			if (execution.status === "failed") {
 				await recordStepFailed({ execution, jobId, runtime, stepId: step.id });
+				// Optional step의 실패는 기록만 남기고 잡은 계속 진행한다.
+				if (step.optional) continue;
 				throw execution.error ?? new Error(`Step failed: ${step.id}`);
 			}
 

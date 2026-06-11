@@ -81,6 +81,7 @@ const stageMeta = {
 	"generate-render-tree": { layer: "compose", message: "Generating UI draft…" },
 	"parse-source": { layer: "understand", message: "Parsing markdown source…" },
 	"plan-composition": { layer: "compose", message: "Planning composition…" },
+	"propose-components": { layer: "revise", message: "Checking component proposals…" },
 	"review-quality": { layer: "revise", message: "Reviewing quality…" },
 	"validate-render-tree": { layer: "revise", message: "Validating render tree…" },
 } as const satisfies Record<string, { layer: ScreenGenerationLayer; message: string }>;
@@ -106,13 +107,14 @@ const layerDefinitions = [
 		artifacts: [
 			"validation-report.json",
 			"quality-review.json",
+			"component-proposal.json",
 			"final-result.json",
 			"pipeline-result.json",
 		],
 		label: "Revise",
 		layer: "revise",
 		previewArtifact: "artifacts/final-result.json",
-		stages: ["validate-render-tree", "review-quality"],
+		stages: ["validate-render-tree", "review-quality", "propose-components"],
 	},
 ] as const;
 

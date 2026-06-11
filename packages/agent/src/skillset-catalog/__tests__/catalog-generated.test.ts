@@ -6,6 +6,7 @@ import { AGENT_SKILLSET_CATALOG } from "../catalog.generated";
 const SKILL_FAMILIES = new Set(["compose", "design", "generate", "review", "revision", "task"]);
 const SKILL_STAGES = new Set(["understand", "compose", "generate", "review", "revise"]);
 const SKILL_TASKS = new Set([
+	"component-proposal",
 	"composition-planning",
 	"quality-review",
 	"screen-generation",

@@ -1,3 +1,19 @@
+---
+id: component-proposal
+kind: skill
+family: task
+stages:
+  - review
+tasks:
+  - component-proposal
+role: proposal-gate
+priority: required
+whenToUse: "Use when emitting non-binding component proposals for catalog gaps found after generation."
+tags:
+  - component-proposal
+  - catalog-gap
+---
+
 # Component Proposal Checklist
 
 반환 전 다음을 확인한다.
@@ -6,8 +22,8 @@
 
 - 출력은 단일 JSON object이고 `schemaVersion`은 `component-proposal.v0.1`.
 - 각 proposal은 `id`, `proposedComponentType`, `rationale`, `sourceEvidence`, `nearestCatalogMatch`를 갖는다.
-- `sourceEvidence`의 모든 ref는 `context.sourceReferenceCatalog.allowedRefs`에 존재한다.
-- `nearestCatalogMatch`는 `context.componentContractCatalog`의 component type 중 하나다.
+- `sourceEvidence`의 모든 ref는 `SourceSpec`의 source ref에 존재한다.
+- `nearestCatalogMatch`는 `context.references.componentCatalog`의 component type 중 하나다.
 - `proposals`는 5개 이하다.
 - 어떤 제안도 카탈로그/토큰/패턴을 확정·반영하지 않는다(비파괴).
 
@@ -30,8 +46,8 @@
 | `id` | O | 제안 식별자 |
 | `proposedComponentType` | O | 제안하는 신규 component/변형의 이름(type) |
 | `rationale` | O | 왜 이 화면에 필요한지 (source 근거 기반) |
-| `sourceEvidence` | O | `context.sourceReferenceCatalog.allowedRefs` 안의 ref 1개 이상 |
-| `nearestCatalogMatch` | O | 문자열. `context.componentContractCatalog` 안의 component type 하나(객체 아님) |
+| `sourceEvidence` | O | `SourceSpec`의 source ref 안의 ref 1개 이상 |
+| `nearestCatalogMatch` | O | 문자열. `context.references.componentCatalog` 안의 component type 하나(객체 아님) |
 | `suggestedProps` | X | 제안 props(객체). 카탈로그 prop 어휘를 우선 참고 |
 
 - 제안만 한다. 어떤 것도 확정·반영하지 않는다.

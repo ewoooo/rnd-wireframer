@@ -86,7 +86,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] AppBar",
 		version: "0.0.0",
-		description: "화면 상단 앱 바(헤더). 뒤로가기·타이틀·로고와 우측 액션 슬롯을 제공한다. 화면 최상단 고정 영역에 둔다.",
+		description:
+			"화면 상단 앱 바(헤더). 뒤로가기·타이틀·로고와 우측 액션 슬롯을 제공한다. 화면 최상단 고정 영역에 둔다.",
 		props: {
 			title: { type: "string", role: "title", required: false },
 			showBack: { type: "boolean", role: "visibility", required: false },
@@ -100,7 +101,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Badge",
 		version: "0.0.0",
-		description: "상태·속성을 강조하는 작은 뱃지. 짧은 텍스트 라벨을 variant 색상으로 표시한다. 제목/항목 옆 보조 표식으로 쓴다.",
+		description:
+			"상태·속성을 강조하는 작은 뱃지. 짧은 텍스트 라벨을 variant 색상으로 표시한다. 제목/항목 옆 보조 표식으로 쓴다.",
 		props: {
 			variant: { type: "string", role: "styleVariant", required: false },
 			children: { type: "string", role: "content", required: true },
@@ -167,9 +169,7 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-draft",
 		label: "[kiki/draft] BannerSearch",
 		version: "0.0.0",
-		props: {
-
-		},
+		props: {},
 	},
 	"kiki.BannerShop": {
 		type: "kiki.BannerShop",
@@ -187,7 +187,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] BottomNavigation",
 		version: "0.0.0",
-		description: "화면 하단 글로벌 내비게이션 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 주요 화면 간 전환을 제공한다.",
+		description:
+			"화면 하단 글로벌 내비게이션 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 주요 화면 간 전환을 제공한다.",
 		props: {
 			items: { type: "array", role: "data", required: true },
 			activeKey: { type: "string", role: "state", required: true },
@@ -199,7 +200,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Button",
 		version: "0.0.0",
-		description: "기본 액션 버튼. variant(primary/secondary/solid)로 강조도, size로 크기를 정하고 children 에 라벨을 넣는다. 화면의 주요 행동(확인/다음/제출)에 쓴다.",
+		description:
+			"기본 액션 버튼. variant(primary/secondary/solid)로 강조도, size로 크기를 정하고 children 에 라벨을 넣는다. 화면의 주요 행동(확인/다음/제출)에 쓴다.",
 		props: {
 			variant: { type: "string", role: "styleVariant", required: false },
 			size: { type: "string", role: "styleVariant", required: false },
@@ -298,7 +300,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Callout",
 		version: "0.0.0",
-		description: "강조 안내 박스(콜아웃). 제목과 본문으로 주의·안내·결과 메시지를 묶어 보여준다. 폼 위/아래의 안내 문구에 적합.",
+		description:
+			"강조 안내 박스(콜아웃). 제목과 본문으로 주의·안내·결과 메시지를 묶어 보여준다. 폼 위/아래의 안내 문구에 적합.",
 		props: {
 			title: { type: "string", role: "title", required: false },
 			children: { type: "string", role: "content", required: true },
@@ -464,7 +467,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Chip",
 		version: "0.0.0",
-		description: "선택 가능한 칩. 필터·토글·태그 용도로 selected 상태와 라벨(children)을 표시한다. 여러 개를 가로로 나열해 다중 선택에 쓴다.",
+		description:
+			"선택 가능한 칩. 필터·토글·태그 용도로 selected 상태와 라벨(children)을 표시한다. 여러 개를 가로로 나열해 다중 선택에 쓴다.",
 		props: {
 			selected: { type: "boolean", role: "state", required: false },
 			onClick: { type: "string", role: "event", required: false },
@@ -502,9 +506,15 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Divider",
 		version: "0.0.0",
-		description: "구분선. type=contents 는 항목 사이 얇은 선, type=section 은 영역 사이 굵은 선. 리스트·섹션 경계를 나눌 때 쓴다.",
+		description:
+			"구분선. type=contents 는 항목 사이 얇은 선, type=section 은 영역 사이 굵은 선. 리스트·섹션 경계를 나눌 때 쓴다.",
 		props: {
-			type: { type: "enum", role: "styleVariant", values: ["contents", "section"], required: false },
+			type: {
+				type: "enum",
+				role: "styleVariant",
+				values: ["contents", "section"],
+				required: false,
+			},
 		},
 	},
 	"kiki.FilterSorting": {
@@ -568,7 +578,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] InfoTextList",
 		version: "0.0.0",
-		description: "정보 텍스트 행. 제목과 카테고리·날짜·뱃지·우측 텍스트 같은 메타 정보를 한 줄에 정렬해 보여준다. 상세/요약 정보 나열에 쓴다.",
+		description:
+			"정보 텍스트 행. 제목과 카테고리·날짜·뱃지·우측 텍스트 같은 메타 정보를 한 줄에 정렬해 보여준다. 상세/요약 정보 나열에 쓴다.",
 		props: {
 			title: { type: "string", role: "title", required: false },
 			category: { type: "string", role: "data", required: false },
@@ -637,7 +648,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] ListSelected",
 		version: "0.0.0",
-		description: "선택형 리스트 항목. radio/checkbox(type)로 선택하고 라벨·가격·보조 버튼을 옵션으로 노출한다. 약관 동의·상품 선택 목록에 쓴다.",
+		description:
+			"선택형 리스트 항목. radio/checkbox(type)로 선택하고 라벨·가격·보조 버튼을 옵션으로 노출한다. 약관 동의·상품 선택 목록에 쓴다.",
 		props: {
 			type: { type: "enum", role: "styleVariant", values: ["radio", "checkbox"], required: false },
 			label: { type: "string", role: "label", required: false },
@@ -666,7 +678,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] ListText",
 		version: "0.0.0",
-		description: "텍스트 리스트 항목. 제목·보조설명·가격과 우측 이동 아이콘을 가진 목록 행. 설정·메뉴·내역 리스트의 한 줄로 쓴다.",
+		description:
+			"텍스트 리스트 항목. 제목·보조설명·가격과 우측 이동 아이콘을 가진 목록 행. 설정·메뉴·내역 리스트의 한 줄로 쓴다.",
 		props: {
 			table: { type: "string", role: "data", required: false },
 			title: { type: "string", role: "title", required: false },
@@ -924,7 +937,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] Tab",
 		version: "0.0.0",
-		description: "탭 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 같은 화면 내 콘텐츠 전환을 제공한다. 섹션 내 분류 전환에 쓴다.",
+		description:
+			"탭 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 같은 화면 내 콘텐츠 전환을 제공한다. 섹션 내 분류 전환에 쓴다.",
 		props: {
 			items: { type: "array", role: "data", required: true },
 			activeKey: { type: "string", role: "state", required: true },
@@ -952,7 +966,8 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-barrel",
 		label: "[kiki] TextField",
 		version: "0.0.0",
-		description: "텍스트 입력 필드. 라벨·플레이스홀더·도움말과 에러/상태 표시, 우측 요소 슬롯을 지원한다. 폼의 단일 입력 한 칸으로 쓴다.",
+		description:
+			"텍스트 입력 필드. 라벨·플레이스홀더·도움말과 에러/상태 표시, 우측 요소 슬롯을 지원한다. 폼의 단일 입력 한 칸으로 쓴다.",
 		props: {
 			label: { type: "string", role: "label", required: false },
 			placeholder: { type: "string", role: "description", required: false },

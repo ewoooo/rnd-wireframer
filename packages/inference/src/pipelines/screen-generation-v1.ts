@@ -156,5 +156,18 @@ export const screenGenerationPipelineV1 = definePipeline({
 				failWhen: failOnValidationReportErrors,
 			},
 		}),
+		// 카탈로그 갭을 비파괴 제안으로 남기는 side artifact. optional이라 실패해도
+		// 잡 성공에 영향 없다. 승격(External 구현→sync:catalog→rerun)은 잡 밖에서
+		// 사람이 게이트한다 — scripts/proposal-aggregation, promote-component 참조.
+		defineStep({
+			id: "11-component-proposal",
+			task: "component-proposal",
+			optional: true,
+			inputs: contexts("source-spec", "render-tree", "validation-report", "quality-inspection"),
+			references: {
+				componentCatalog: knowledge("component-catalog"),
+			},
+			output: { contractRef: outputContractRef("component-proposal") },
+		}),
 	],
 });

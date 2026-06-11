@@ -104,6 +104,18 @@ const payloadByTaskKind: Record<string, unknown> = {
 		findings: [],
 		summary: { errorCount: 0, warningCount: 0 },
 	},
+	"component-proposal": {
+		schemaVersion: SCHEMA_VERSION.componentProposal,
+		proposals: [
+			{
+				id: "p-1",
+				proposedComponentType: "TextFieldAuthTimer",
+				rationale: "Source requires a countdown next to the auth request field.",
+				sourceEvidence: ["T"],
+				nearestCatalogMatch: "kiki.TextField",
+			},
+		],
+	},
 };
 
 const fakeRunner: AgentRunner = async (request) => {
@@ -206,6 +218,59 @@ describe("screen-generation@v1 end-to-end", () => {
 				},
 			],
 		});
+	});
+
+	it("emits a component-proposal side artifact and survives its failure", async () => {
+		// 정상 산출 경로.
+		const dataRoot = mkdtempSync(path.join(tmpdir(), "cx-e2e-"));
+		const runtime = createInferenceRuntime({
+			dataRoot,
+			pipelines: [screenGenerationPipelineV1],
+			functions: { "source-spec-mvp": () => sourceSpec },
+			claudeRunner: fakeRunner,
+		});
+		const job = await runtime.jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "T" },
+		});
+		await runInferenceJob(runtime, job.jobId);
+		await expect(runtime.jobStore.getJob(job.jobId)).resolves.toMatchObject({
+			status: "succeeded",
+		});
+		await expect(
+			runtime.artifactStore.readJson(job.jobId, "context/component-proposal.json"),
+		).resolves.toMatchObject({
+			proposals: [{ proposedComponentType: "TextFieldAuthTimer" }],
+		});
+
+		// Optional step 실패 경로: proposal이 계약 위반이어도 잡은 성공한다.
+		const failingRunner: AgentRunner = async (request) => ({
+			taskKind: request.taskKind,
+			session: { mode: "new" },
+			payload:
+				request.taskKind === "component-proposal"
+					? { invalid: true }
+					: payloadByTaskKind[request.taskKind],
+		});
+		const failingRuntime = createInferenceRuntime({
+			dataRoot: mkdtempSync(path.join(tmpdir(), "cx-e2e-")),
+			pipelines: [screenGenerationPipelineV1],
+			functions: { "source-spec-mvp": () => sourceSpec },
+			claudeRunner: failingRunner,
+		});
+		const failingJob = await failingRuntime.jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "T" },
+		});
+		await runInferenceJob(failingRuntime, failingJob.jobId);
+		await expect(failingRuntime.jobStore.getJob(failingJob.jobId)).resolves.toMatchObject({
+			status: "succeeded",
+		});
+		await expect(
+			failingRuntime.artifactStore.exists(failingJob.jobId, "context/component-proposal.json"),
+		).resolves.toBe(false);
 	});
 
 	it("runs one design revision when quality review emits revision directives", async () => {
