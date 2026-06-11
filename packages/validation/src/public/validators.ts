@@ -21,7 +21,7 @@ import {
 } from "@cx/schema";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020";
-import type { RuleContext } from "../rules/define-rule";
+import type { ComponentProposalRuleOptions, RuleContext } from "../rules/define-rule";
 import { QUALITY_RULES } from "../rules/index";
 import { VALIDATION_CODE_REGISTRY } from "./registry";
 import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
@@ -304,11 +304,7 @@ export function validateCompositionPlan(
 	return buildReport("composition-plan", issues);
 }
 
-export type ComponentProposalValidationOptions = {
-	allowedRefs?: string[];
-	catalogComponentTypes?: string[];
-	maxProposals?: number;
-};
+export type ComponentProposalValidationOptions = ComponentProposalRuleOptions;
 
 /**
  * Validates a non-binding component-proposal artifact stays bounded.
@@ -323,48 +319,15 @@ export function validateComponentProposal(
 	const value = parseJsonLikeInput(input, issues);
 	if (!isRecord(value)) return buildReport("component-proposal", issues);
 
-	const proposals = Array.isArray(value.proposals) ? value.proposals : [];
-	const maxProposals = options.maxProposals ?? 5;
-	if (proposals.length > maxProposals) {
-		addIssue(issues, {
-			code: "proposal-limit-exceeded",
-			message: `component-proposal returned ${proposals.length} proposals but at most ${maxProposals} are allowed.`,
-			path: ["proposals"],
-		});
-	}
-
-	const allowedRefs = options.allowedRefs ? new Set(options.allowedRefs) : undefined;
-	const catalogTypes = options.catalogComponentTypes
-		? new Set(options.catalogComponentTypes)
-		: undefined;
-
-	proposals.forEach((proposal, proposalIndex) => {
-		if (!isRecord(proposal)) return;
-
-		if (allowedRefs) {
-			const evidence = Array.isArray(proposal.sourceEvidence) ? proposal.sourceEvidence : [];
-			evidence.forEach((ref, refIndex) => {
-				if (typeof ref !== "string" || allowedRefs.has(ref)) return;
-				addIssue(issues, {
-					code: "proposal-source-evidence-missing",
-					message: `Component proposal sourceEvidence is not in allowedRefs: ${ref}.`,
-					path: ["proposals", proposalIndex, "sourceEvidence", refIndex],
-				});
-			});
-		}
-
-		if (
-			catalogTypes &&
-			typeof proposal.nearestCatalogMatch === "string" &&
-			!catalogTypes.has(proposal.nearestCatalogMatch)
-		) {
-			addIssue(issues, {
-				code: "proposal-nearest-match-unknown",
-				message: `Component proposal nearestCatalogMatch is not a catalog component type: ${proposal.nearestCatalogMatch}.`,
-				path: ["proposals", proposalIndex, "nearestCatalogMatch"],
-			});
-		}
-	});
+	runQualityRules(
+		"component-proposal",
+		{
+			artifact: value,
+			proposalOptions: options,
+			tree: value,
+		},
+		issues,
+	);
 
 	return buildReport("component-proposal", issues);
 }

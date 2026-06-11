@@ -1,5 +1,8 @@
 import { bottomCtaStateUngatedRule } from "./bottom-cta-state-ungated";
 import type { QualityRule } from "./define-rule";
+import { proposalLimitExceededRule } from "./proposal-limit-exceeded";
+import { proposalNearestMatchUnknownRule } from "./proposal-nearest-match-unknown";
+import { proposalSourceEvidenceMissingRule } from "./proposal-source-evidence-missing";
 import { singleSectionDividerRule } from "./single-section-divider";
 import { sourcePropMismatchRule } from "./source-prop-mismatch";
 import {
@@ -16,6 +19,9 @@ export { defineRule } from "./define-rule";
 export const QUALITY_RULES: readonly QualityRule[] = [
 	bottomCtaStateUngatedRule,
 	compositionPlanSourceRefNotMaterializedRule,
+	proposalLimitExceededRule,
+	proposalNearestMatchUnknownRule,
+	proposalSourceEvidenceMissingRule,
 	singleSectionDividerRule,
 	sourcePropMismatchRule,
 	sourceRefNotMaterializedRule,

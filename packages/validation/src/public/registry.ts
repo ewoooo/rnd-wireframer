@@ -144,19 +144,19 @@ export const VALIDATION_CODE_REGISTRY = {
 	"proposal-source-evidence-missing": {
 		layer: "quality",
 		severity: "error",
-		owners: ["engine"],
+		owners: ["rule"],
 		description: "component-proposal의 sourceEvidence가 allowedRefs에 없다.",
 	},
 	"proposal-nearest-match-unknown": {
 		layer: "quality",
 		severity: "warning",
-		owners: ["engine"],
+		owners: ["rule"],
 		description: "component-proposal의 nearestCatalogMatch가 카탈로그 컴포넌트 타입이 아니다.",
 	},
 	"proposal-limit-exceeded": {
 		layer: "quality",
 		severity: "error",
-		owners: ["engine"],
+		owners: ["rule"],
 		description: "component-proposal 개수가 상한을 초과했다.",
 	},
 	"bottom-cta-state-ungated": {
