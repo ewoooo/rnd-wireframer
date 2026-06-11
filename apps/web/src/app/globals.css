@@ -3,8 +3,12 @@
 @import "@cx/tokens/variables.css";
 @import "../styles/tokens.css";
 
-* {
-	border-color: var(--color-border);
+/* 모든 요소의 기본 border 색. @layer base에 둬야 border-* 유틸리티(border-divider 등)가
+   정상적으로 이를 덮어쓴다. unlayered로 두면 유틸리티보다 우선해 색 지정이 먹지 않는다. */
+@layer base {
+	* {
+		border-color: var(--color-border);
+	}
 }
 
 html,

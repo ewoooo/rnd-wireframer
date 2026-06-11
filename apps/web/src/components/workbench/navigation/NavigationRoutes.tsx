@@ -1,9 +1,11 @@
-import type { ReactNode } from "react";
 import { ICONS } from "@/components/icons";
 import { Aside, Panel } from "@/components/layout/Aside";
 import { ScreenVariantCard } from "@/components/screen/ScreenVariantCard";
-import { Sidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
+import {
+	type NewScreenReviewData,
+	NewScreenReviewSummary,
+} from "@/feature/inference-new-screen/components/NewScreenReviewSummary";
 import { NewScreenSourcePanel } from "@/feature/inference-new-screen/components/NewScreenSourcePanel";
 import type { NewScreenRunItem } from "@/feature/inference-new-screen/types";
 import type {
@@ -19,6 +21,7 @@ const SHOW_DOMAINS = false;
 type NavigationRoutesProps = {
 	activeRouteId?: string;
 	activeTab: NavigatorTab;
+	newScreenReview?: NewScreenReviewData;
 	areas: NavigationNodeItem[];
 	components: NavigationNodeItem[];
 	onSelectRoute: (routeId: string) => void;
@@ -49,6 +52,7 @@ type NavigationRoutesProps = {
 export function NavigationRoutes({
 	activeRouteId,
 	activeTab,
+	newScreenReview,
 	areas,
 	components,
 	onSelectRoute,
@@ -69,21 +73,28 @@ export function NavigationRoutes({
 	selectedScreenId,
 	isUploadingNewScreenSource = false,
 }: NavigationRoutesProps) {
-	// Run 탭은 별도 패널(4패널 규칙 밖) — 현행 유지.
+	// Run 탭: LeftAside 안에 소스 선택 + Review 두 패널을 둔다(Aside divider 규칙).
 	if (activeTab === "agent") {
 		return (
-			<Sidebar side="left">
-				<NewScreenSourcePanel
-					errorMessage={newScreenSourceError}
-					isUploading={isUploadingNewScreenSource}
-					onRerunSelectedSource={onRerunSelectedNewScreenSource}
-					onRunSelectedSource={onRunSelectedNewScreenSource}
-					onSelectSource={onSelectNewScreenSource ?? (() => {})}
-					onUploadSource={onUploadNewScreenSource ?? (() => {})}
-					runs={newScreenSources}
-					selectedRunId={selectedNewScreenRunId}
-				/>
-			</Sidebar>
+			<Aside side="left">
+				<Panel defaultSize={62} minSize={20} bodyClassName="overflow-hidden p-0">
+					<NewScreenSourcePanel
+						errorMessage={newScreenSourceError}
+						isUploading={isUploadingNewScreenSource}
+						onRerunSelectedSource={onRerunSelectedNewScreenSource}
+						onRunSelectedSource={onRunSelectedNewScreenSource}
+						onSelectSource={onSelectNewScreenSource ?? (() => {})}
+						onUploadSource={onUploadNewScreenSource ?? (() => {})}
+						runs={newScreenSources}
+						selectedRunId={selectedNewScreenRunId}
+					/>
+				</Panel>
+				{newScreenReview ? (
+					<Panel title="Review" defaultSize={38} minSize={20} bodyClassName="p-0">
+						<NewScreenReviewSummary review={newScreenReview} />
+					</Panel>
+				) : null}
+			</Aside>
 		);
 	}
 
