@@ -31,7 +31,10 @@ export const screenGenerationPipelineV1 = definePipeline({
 			id: "02-screen-intent",
 			task: "screen-intent",
 			inputs: contexts("source-spec"),
-			references: { referenceIndex: referenceIndex("screen") },
+			references: {
+				referenceIndex: referenceIndex("screen"),
+				referenceAreaIndex: referenceIndex("area"),
+			},
 			output: { contractRef: outputContractRef("screen-intent") },
 		}),
 		defineStep({
@@ -41,13 +44,14 @@ export const screenGenerationPipelineV1 = definePipeline({
 			references: {
 				layoutCatalog: knowledge("layout-catalog"),
 				referenceCatalog: referenceCatalog("screen"),
+				referenceAreaCatalog: referenceCatalog("area"),
 			},
 			output: { contractRef: outputContractRef("composition-plan") },
 		}),
 		defineStep({
 			id: "04-render-tree",
 			task: "screen-generation",
-			inputs: contexts("composition-plan", "screen-intent"),
+			inputs: contexts("source-spec", "composition-plan", "screen-intent"),
 			references: {
 				componentCatalog: knowledge("component-catalog"),
 				layoutCatalog: knowledge("layout-catalog"),

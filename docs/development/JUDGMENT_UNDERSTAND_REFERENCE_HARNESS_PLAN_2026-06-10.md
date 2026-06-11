@@ -19,8 +19,8 @@
 - `packages/agent/src/reference-catalog/categories.ts` — `REFERENCE_CATEGORIES`(category→docs 디렉토리) 단일 레지스트리
 - `packages/agent/src/reference-catalog/catalog.ts` — `resolveReferenceForInference(category, mode)` 제네릭 리졸버 1개
 - `packages/agent/src/reference-catalog/index.ts` — 재노출
-- `packages/agent/docs/skills/references/screens/ref-*.md` — 정답지 시드(본문 SSOT)
-- `packages/agent/docs/skills/references/screens/catalog.generated.ts` — 생성물(frontmatter+경로 인덱스)
+- `packages/agent/docs/references/screens/ref-*.md` — 정답지 시드(본문 SSOT)
+- `packages/agent/docs/references/screens/catalog.generated.ts` — 생성물(frontmatter+경로 인덱스)
 - `scripts/sync-reference-catalog/index.ts` — 생성 스크립트
 - 테스트: `packages/schema/src/__tests__/screen-intent-schema.test.ts`, `packages/agent/src/reference-catalog/__tests__/{resolver,catalog-generated}.test.ts`
 
@@ -315,7 +315,7 @@ git commit -m "feat(schema): composition-plan currentFitAssessment/compositionPr
 - Create: `packages/schema/src/reference-catalog.ts`
 - Modify: `packages/schema/src/index.ts`
 - Create: `packages/agent/src/reference-catalog/categories.ts`
-- Create: `packages/agent/docs/skills/references/screens/ref-detail-confirmation.md`
+- Create: `packages/agent/docs/references/screens/detail-confirmation/README.md`
 
 - [ ] **Step 1: 정답지 entry/문서 타입 작성** — `packages/schema/src/reference-catalog.ts`
 
@@ -360,7 +360,7 @@ export type {
 // category → @cx/agent 패키지 기준 docs 디렉토리(상대). sync 스크립트와 런타임이 공유하는 단일 진실원.
 // 새 category 추가 = 여기 한 줄 + 디렉토리 생성 + 정답지 작성.
 export const REFERENCE_CATEGORIES = {
-	screen: "docs/skills/references/screens",
+	screen: "docs/references/screens",
 } as const;
 
 export type ReferenceCategory = keyof typeof REFERENCE_CATEGORIES;
@@ -372,11 +372,11 @@ export function isReferenceCategory(value: string): value is ReferenceCategory {
 
 - [ ] **Step 4: 시드 정답지 1개 작성** — `figma-sot-observations.md`와 `figma-source.md`를 읽고 "상세 확인/선택" 상황 하나를 골라 아래 템플릿을 채운다. (sotNodeRef는 `docs/design/reference/figma-source.md`에 등록된 node id를 복사. 해당 화면 node가 없으면 frontmatter에서 줄을 생략 — optional이다.)
 
-`packages/agent/docs/skills/references/screens/ref-detail-confirmation.md` (아래는 구조 모델; 본문 문장은 observations 근거로 교체):
+`packages/agent/docs/references/screens/detail-confirmation/README.md` (아래는 구조 모델; 본문 문장은 observations 근거로 교체):
 
 ```markdown
 ---
-id: ref-detail-confirmation
+id: detail-confirmation
 situation: 사용자가 선택 결과를 최종 확인하고 비가역 액션을 실행하기 직전 상태
 tags: [detail-confirmation, irreversible-action, summary-first]
 sotNodeRef: <figma-source.md에 등록된 node id, 없으면 이 줄 삭제>
@@ -401,9 +401,9 @@ import { describe, expect, it } from "vitest";
 import { readAgentMarkdownDocument } from "../../docs/package-markdown";
 
 describe("정답지 시드 frontmatter", () => {
-	it("ref-detail-confirmation는 id/situation/tags를 가진다", () => {
-		const doc = readAgentMarkdownDocument("../docs/skills/references/screens/ref-detail-confirmation.md");
-		expect(doc.frontmatter.id).toBe("ref-detail-confirmation");
+	it("detail-confirmation는 id/situation/tags를 가진다", () => {
+		const doc = readAgentMarkdownDocument("../docs/references/screens/detail-confirmation/README.md");
+		expect(doc.frontmatter.id).toBe("detail-confirmation");
 		expect(typeof doc.frontmatter.situation).toBe("string");
 		expect(Array.isArray(doc.frontmatter.tags)).toBe(true);
 		expect(doc.body.length).toBeGreaterThan(0);
@@ -419,7 +419,7 @@ Expected: PASS
 - [ ] **Step 7: 커밋**
 
 ```bash
-git add packages/schema/src/reference-catalog.ts packages/schema/src/index.ts packages/agent/src/reference-catalog/categories.ts packages/agent/docs/skills/references/screens/ref-detail-confirmation.md packages/agent/src/reference-catalog/__tests__/seed.test.ts
+git add packages/schema/src/reference-catalog.ts packages/schema/src/index.ts packages/agent/src/reference-catalog/categories.ts packages/agent/docs/references/screens/detail-confirmation/README.md packages/agent/src/reference-catalog/__tests__/seed.test.ts
 git commit -m "feat(agent): 정답지 entry 타입 + category 레지스트리 + 시드 1개"
 ```
 
@@ -443,7 +443,7 @@ describe("InferenceReference union", () => {
 			kind: "reference-catalog",
 			id: "screen.index",
 			owner: "@cx/agent",
-			sourceRef: "docs/skills/references/screens",
+			sourceRef: "docs/references/screens",
 			schemaVersion: SSOT_OBJECT_SCHEMA_VERSION,
 			data: { category: "screen", mode: "index", documents: [] },
 		};
@@ -491,7 +491,7 @@ git commit -m "feat(schema): InferenceReference에 ReferenceCatalogObject 등록
 **Files:**
 - Create: `scripts/sync-reference-catalog/index.ts`
 - Modify: `package.json:12` (scripts)
-- Create (생성물): `packages/agent/docs/skills/references/screens/catalog.generated.ts`
+- Create (생성물): `packages/agent/docs/references/screens/catalog.generated.ts`
 - Create: `packages/agent/src/reference-catalog/__tests__/catalog-generated.test.ts`
 - Modify: `packages/agent/tsconfig.json` (필요 시 include)
 
@@ -626,7 +626,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
 }
 ```
 
-> 주의: 생성물 import 경로 `"../../../../src/reference-catalog/types"`는 `packages/agent/docs/skills/references/screens/`에서 `packages/agent/src/reference-catalog/types`로 가는 4단계 상위 경로다. Step 2에서 `types.ts`를 만들어 이 경로를 실재화한다. `collect`는 위에서 `export { collect }`로 노출돼 diff-guard 테스트가 import한다.
+> 주의: 생성물 import 경로 `"../../../../src/reference-catalog/types"`는 `packages/agent/docs/references/screens/`에서 `packages/agent/src/reference-catalog/types`로 가는 4단계 상위 경로다. Step 2에서 `types.ts`를 만들어 이 경로를 실재화한다. `collect`는 위에서 `export { collect }`로 노출돼 diff-guard 테스트가 import한다.
 
 - [ ] **Step 2: 생성물이 import할 로컬 타입 alias 작성** — `packages/agent/src/reference-catalog/types.ts`
 
@@ -643,7 +643,7 @@ export type { ReferenceCatalogEntry } from "@cx/schema";
 - [ ] **Step 4: 생성 실행 → 카탈로그 산출**
 
 Run: `pnpm sync:reference`
-Expected: `packages/agent/docs/skills/references/screens/catalog.generated.ts` 생성. 내용에 `ref-detail-confirmation` 엔트리 포함, `sourceRef: "../docs/skills/references/screens/ref-detail-confirmation.md"`.
+Expected: `packages/agent/docs/references/screens/catalog.generated.ts` 생성. 내용에 `detail-confirmation` 엔트리 포함, `sourceRef: "../docs/references/screens/detail-confirmation/README.md"`.
 
 - [ ] **Step 5: tsconfig include 확인** — `packages/agent/tsconfig.json`의 include가 `docs/**/*.generated.ts`를 포함하는지 확인. `src`만 포함하면 다음을 include 배열에 추가:
 
@@ -660,7 +660,7 @@ Expected: PASS (생성물이 타입체크 대상에 포함되고 에러 없음)
 import { describe, expect, it } from "vitest";
 import { REFERENCE_CATEGORIES } from "../categories";
 import { collect } from "../../../../../scripts/sync-reference-catalog/index";
-import { referenceScreenCatalog } from "../../../docs/skills/references/screens/catalog.generated";
+import { referenceScreenCatalog } from "../../../docs/references/screens/catalog.generated";
 
 describe("reference catalog.generated 무결성", () => {
 	it("screens 카탈로그가 비어 있지 않고 id가 고유하다", () => {
@@ -688,7 +688,7 @@ Expected: PASS (3 tests)
 - [ ] **Step 8: 커밋**
 
 ```bash
-git add scripts/sync-reference-catalog package.json packages/agent/src/reference-catalog/types.ts packages/agent/docs/skills/references/screens/catalog.generated.ts packages/agent/src/reference-catalog/__tests__/catalog-generated.test.ts packages/agent/tsconfig.json
+git add scripts/sync-reference-catalog package.json packages/agent/src/reference-catalog/types.ts packages/agent/docs/references/screens/catalog.generated.ts packages/agent/src/reference-catalog/__tests__/catalog-generated.test.ts packages/agent/tsconfig.json
 git commit -m "feat(agent): sync-reference-catalog 생성 스크립트 + 카탈로그 + diff guard"
 ```
 
@@ -742,7 +742,7 @@ Expected: FAIL (`../catalog` 미존재)
 import type { ReferenceCatalogEntry, ReferenceCatalogObject } from "@cx/schema";
 import { SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
 import { readAgentMarkdownDocument } from "../docs/package-markdown";
-import { referenceScreenCatalog } from "../../docs/skills/references/screens/catalog.generated";
+import { referenceScreenCatalog } from "../../docs/references/screens/catalog.generated";
 import { isReferenceCategory, REFERENCE_CATEGORIES, type ReferenceCategory } from "./categories";
 
 // satisfies가 category 누락을 컴파일 타임에 강제한다(새 category 추가 시 여기 한 줄 필수).

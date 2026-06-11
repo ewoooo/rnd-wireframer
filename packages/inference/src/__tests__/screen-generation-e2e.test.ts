@@ -173,6 +173,7 @@ describe("screen-generation@v1 end-to-end", () => {
 		const skillset = readSkillsetFromReferences(references);
 		expect(skillset.data.documents.map((document) => document.id)).toEqual([
 			"screen-intent",
+			"design-fundamentals",
 			"source-fidelity-review",
 			"state-coverage-review",
 		]);
@@ -184,6 +185,11 @@ describe("screen-generation@v1 end-to-end", () => {
 					id: "screen-intent",
 					sourceRef: "../docs/prompts/screen-intent.md",
 					task: "screen-intent",
+				},
+				{
+					id: "design-fundamentals",
+					sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md",
+					task: "design",
 				},
 				{
 					id: "source-fidelity-review",

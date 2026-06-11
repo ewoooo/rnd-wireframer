@@ -45,4 +45,4 @@
 1. 각 Figma node를 열어 화면 구조와 컴포넌트 사용을 확인하고 [figma-sot-observations.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/reference/figma-sot-observations.md)에 누적한다.
 2. `screen-archetypes.md` 초안을 작성한다.
 3. component promotion 강화 작업과 맞춰 `component-usage.md`, `promotion-readiness.md`를 우선 작성한다.
-4. domain design skill 후보를 확정하고 `packages/agent/docs/design-skills/`의 required references를 갱신한다.
+4. domain design skill 후보를 확정하고 `packages/agent/docs/skills/design-skills/`의 required references를 갱신한다.

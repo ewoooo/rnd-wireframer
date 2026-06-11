@@ -19,6 +19,15 @@ describe("skillset catalog.generated 무결성", () => {
 		}
 	});
 
+	it("모든 skillset의 첫 document는 task prompt다", () => {
+		for (const [task, entry] of Object.entries(AGENT_SKILLSET_CATALOG)) {
+			expect(entry.documents[0]).toEqual({
+				kind: "prompt",
+				sourceRef: `../docs/prompts/${task}.md`,
+			});
+		}
+	});
+
 	it("커밋된 생성물이 소스 매니페스트 재수집 결과와 일치한다 (drift 가드)", () => {
 		// 텍스트가 아니라 파싱된 데이터를 비교 — biome 포맷 차이에 영향받지 않는다.
 		expect(AGENT_SKILLSET_CATALOG).toEqual(collect());

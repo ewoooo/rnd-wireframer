@@ -7,7 +7,7 @@
 패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. Web API route 표면과 endpoint 작성 기준은 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
 Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
 
-`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터 문서는 `docs/` 아래에 둔다. Agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/references/design/` 아래에 둔다.
+`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터 문서는 `docs/` 아래에 둔다. Agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/design-skills/design-fundamentals/source/` 아래에 둔다.
 
 ## 2. 운영 원칙
 
@@ -79,14 +79,14 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 
 | 문서 | 책임 |
 |---|---|
-| [COMPOSITION_LAYERS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md) | Component → Pattern → Area → Screen 조합 원칙 |
-| [DESIGN_FOUNDATION.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/DESIGN_FOUNDATION.md) | 정식 디자인 토큰과 foundation 원천 |
-| [LAYOUT_SPACING_CONTRACT.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md) | width rail, chrome size, spacing, measurement contract |
-| [SECTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/SECTION_PATTERNS.md) | 메인/리스트/상세/폼/완료/바텀시트/팝업 섹션별 케이스 패턴 |
-| [SCREEN_PATTERN_SUMMARY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md) | 36개 스크린 분석 요약과 8가지 화면 구성 패턴 |
-| [COMPONENT_INVENTORY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md) | 컴포넌트 사용 빈도, 중첩 패턴, 카테고리 분류 |
-| [INTERACTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md) | Accordion, CTA, Form, Overlay 상태/상호작용 규칙 |
-| [VISUAL_FOUNDATION_OBSERVATIONS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md) | Divider, typography, 핵심 설계 관찰값 |
+| [COMPOSITION_LAYERS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md) | Component → Pattern → Area → Screen 조합 원칙 |
+| [DESIGN_FOUNDATION.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/DESIGN_FOUNDATION.md) | 정식 디자인 토큰과 foundation 원천 |
+| [LAYOUT_SPACING_CONTRACT.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/LAYOUT_SPACING_CONTRACT.md) | width rail, chrome size, spacing, measurement contract |
+| [SECTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/SECTION_PATTERNS.md) | 메인/리스트/상세/폼/완료/바텀시트/팝업 섹션별 케이스 패턴 |
+| [SCREEN_PATTERN_SUMMARY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/SCREEN_PATTERN_SUMMARY.md) | 36개 스크린 분석 요약과 8가지 화면 구성 패턴 |
+| [COMPONENT_INVENTORY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPONENT_INVENTORY.md) | 컴포넌트 사용 빈도, 중첩 패턴, 카테고리 분류 |
+| [INTERACTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md) | Accordion, CTA, Form, Overlay 상태/상호작용 규칙 |
+| [VISUAL_FOUNDATION_OBSERVATIONS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/VISUAL_FOUNDATION_OBSERVATIONS.md) | Divider, typography, 핵심 설계 관찰값 |
 
 디자인 문서 운영 원칙:
 

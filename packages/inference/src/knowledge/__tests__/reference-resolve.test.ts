@@ -17,4 +17,19 @@ describe("knowledge base — reference-* dispatch", () => {
 			expect(obj.data.mode).toBe("catalog");
 		}
 	});
+
+	it("reference-area-index/catalog를 reference-catalog object로 resolve한다", async () => {
+		const indexRef = await kb.resolve({ source: "reference-area-index" });
+		const catalogRef = await kb.resolve({ source: "reference-area-catalog" });
+		const index = Array.isArray(indexRef) ? indexRef[0] : indexRef;
+		const catalog = Array.isArray(catalogRef) ? catalogRef[0] : catalogRef;
+		expect(index.kind).toBe("reference-catalog");
+		expect(catalog.kind).toBe("reference-catalog");
+		if (index.kind === "reference-catalog" && catalog.kind === "reference-catalog") {
+			expect(index.data.category).toBe("area");
+			expect(index.data.mode).toBe("index");
+			expect(catalog.data.category).toBe("area");
+			expect(catalog.data.mode).toBe("catalog");
+		}
+	});
 });

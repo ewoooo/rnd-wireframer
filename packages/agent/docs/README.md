@@ -30,35 +30,34 @@ packages/agent/docs/
     component-proposal.md
   skills/
     screen-generation/
-      checklist.md
-      output-contract.md
+      README.md
     quality-review/
-      checklist.md
-      output-contract.md
+      README.md
     component-proposal/
-      checklist.md
-      output-contract.md
+      README.md
     design-skills/
       README.md
       <design-skill-id>/
         README.md
         references/
           README.md
-    reference-skills/
-      sot/
-        <reference-id>/
-          manifest.json
-          USAGE.md
-          nodes.md
-          component-inventory.md
-          source/
-            evidence.md
     review-skills/
       <review-skill-id>/
         README.md
     revision-skills/
       <revision-skill-id>/
         README.md
+  references/
+    screens/
+      <reference-id>/
+        README.md
+        source/
+          <reference-id>.png
+    areas/
+      <reference-id>/
+        README.md
+        source/
+          <reference-id>.png
 ```
 
 운영 규칙:
@@ -66,5 +65,7 @@ packages/agent/docs/
 - 실제 Claude 호출 코드는 `src/` 아래에 둔다.
 - prompt 원문은 `docs/prompts/{prompt-id}.md`에서 관리한다.
 - skill/checklist/output 규칙은 `docs/skills/`에서 set 단위로 관리한다.
+- inference가 직접 조회하는 screen/area reference는 `docs/references/{screens|areas}/{reference-id}/README.md`에 둔다.
+- reference 원천 캡처는 같은 reference skill의 `source/` 아래에 둔다.
 - 문서 자산을 즉시 코드가 읽지 않더라도, 기준선은 먼저 이 위치에 고정한다.
 - `@cx/inference`는 필요한 경우 이 디렉토리의 문서 자산을 참조 artifact로 기록할 수 있지만, 생성/검수 규칙의 정본은 이 패키지 내부에 둔다.

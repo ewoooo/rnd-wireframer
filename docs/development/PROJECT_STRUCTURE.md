@@ -244,11 +244,9 @@ packages/agent/docs/
     ...
   skills/
     screen-generation/
-      checklist.md
-      output-contract.md
+      README.md
     quality-review/
-      checklist.md
-      output-contract.md
+      README.md
     ...
 ```
 

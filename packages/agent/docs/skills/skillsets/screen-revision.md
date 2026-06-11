@@ -1,5 +1,6 @@
 ---
 documents:
+  - prompt ../docs/prompts/screen-revision.md
   - skill ../docs/skills/revision-skills/fix-invalid-layout-id/README.md
   - skill ../docs/skills/revision-skills/fix-source-ref-loss/README.md
   - skill ../docs/skills/revision-skills/fix-state-coverage-gap/README.md

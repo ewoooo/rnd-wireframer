@@ -59,10 +59,10 @@ REST API (전체 목록은 [API_ENDPOINTS.md](./API_ENDPOINTS.md)):
 
 | 엔드포인트 | 용도 |
 | --- | --- |
-| `POST /api/inference/runs` | job 생성 + 실행 시작 |
+| `POST /api/inference` | job 생성 + 실행 시작 |
 | `GET /api/inference/runs` | job 목록 |
 | `GET /api/inference/{jobId}` | job 상태 |
-| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": {…} } }` — overrides는 step 실행 전에 working memory에 기록 |
+| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": {…} } }` — overrides는 step 실행 전에 working memory에 기록. job이 terminal(succeeded/failed) 상태일 때만 허용(진행 중이면 `409`), 모르는 step id는 `400` |
 | `GET /api/inference/{jobId}/steps` · `/events` | step 상태 · 이벤트 스트림(ndjson) |
 | `GET /api/inference/{jobId}/artifacts/{...path}` | 산출물 직접 조회 |
 | `POST /api/inference/{jobId}/apply` | 결과를 앱 DB에 적용 |
@@ -127,7 +127,7 @@ Knowledge는 **run 중 읽기 전용**이며, 전부 repo의 코드/문서로 �
 | source | 참조 방법 | 소유 패키지 / 등록 위치 |
 | --- | --- | --- |
 | `skillset` | step의 `task`가 자동 로드 (추가분은 `skillset("{task}")`) | `@cx/agent` `docs/skills/skillsets/{task}.md` + `pnpm sync:skillset` |
-| `reference-{category}-{index\|catalog}` | `referenceIndex("screen")` / `referenceCatalog("screen")` | `@cx/agent` `docs/skills/references/` + `pnpm sync:reference` |
+| `reference-{category}-{index\|catalog}` | `referenceIndex("screen")` / `referenceCatalog("screen")` | `@cx/agent` `docs/references/` + `pnpm sync:reference` |
 | `component-catalog` | `knowledge("component-catalog")` | `@cx/external/resolver` |
 | `layout-catalog` | `knowledge("layout-catalog")` | `@cx/layout/resolver` |
 | `token-catalog` | `knowledge("token-catalog")` | `@cx/tokens` |
@@ -172,7 +172,7 @@ documents:
 
 reference는 markdown + frontmatter가 SSOT이고, 카탈로그 TS는 **생성물**이다:
 
-1. `packages/agent/docs/skills/references/screens/ref-{name}.md` 작성. frontmatter에 `id`, `situation`, `tags`, (선택) `sotNodeRef`
+1. `packages/agent/docs/references/screens/{reference-id}/README.md` 작성. frontmatter에 `id`, `situation`, `tags`, (선택) `sotNodeRef`
 2. `pnpm sync:reference` 실행 → `catalog.generated.ts` 재생성. **생성 파일을 직접 수정하지 말 것**
 3. 새 카테고리가 필요하면 `src/reference-catalog/categories.ts`에 디렉터리 매핑 추가
 

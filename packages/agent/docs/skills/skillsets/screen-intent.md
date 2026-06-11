@@ -1,6 +1,7 @@
 ---
 documents:
   - prompt ../docs/prompts/screen-intent.md
+  - skill ../docs/skills/design-skills/design-fundamentals/README.md
   - skill ../docs/skills/review-skills/source-fidelity-review/README.md
   - skill ../docs/skills/review-skills/state-coverage-review/README.md
 ---

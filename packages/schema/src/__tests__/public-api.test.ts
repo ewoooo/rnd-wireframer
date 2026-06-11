@@ -247,7 +247,7 @@ describe("@cx/schema public API", () => {
 		const bundleRef: DesignContextBundleRef = {
 			id: "layout-composition",
 			reason: "screen composition guidance",
-			sourceDocs: ["packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md"],
+			sourceDocs: ["packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md"],
 			version: "2026-05-29",
 		};
 
@@ -260,7 +260,7 @@ describe("@cx/schema public API", () => {
 			version: "2026-05-29",
 			reason: "test",
 			sourceDocs: [
-				"packages/agent/docs/skills/references/design/VISUAL_FOUNDATION_OBSERVATIONS.md",
+				"packages/agent/docs/skills/design-skills/design-fundamentals/source/VISUAL_FOUNDATION_OBSERVATIONS.md",
 			],
 			body: "rule lines",
 		};
@@ -281,9 +281,9 @@ describe("@cx/schema public API", () => {
 				qualityGates: ["visual-hierarchy", "action-clarity", "pattern-fit"],
 				reason: "Summary and CTA source evidence match detail confirmation composition.",
 				requiredDesignDocs: [
-					"packages/agent/docs/skills/references/design/COMPOSITION_LAYERS.md",
-					"packages/agent/docs/skills/references/design/SCREEN_PATTERN_SUMMARY.md",
-					"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
+					"packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md",
+					"packages/agent/docs/skills/design-skills/design-fundamentals/source/SCREEN_PATTERN_SUMMARY.md",
+					"packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md",
 				],
 				version: "2026-06-01",
 			},
@@ -292,7 +292,7 @@ describe("@cx/schema public API", () => {
 		expect(selection.schemaVersion).toBe("design-skill-selection.v0.1");
 		expect(selection.selectedSkill.id).toBe("detail-confirmation-screen");
 		expect(selection.selectedSkill.requiredDesignDocs).toContain(
-			"packages/agent/docs/skills/references/design/INTERACTION_PATTERNS.md",
+			"packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md",
 		);
 	});
 

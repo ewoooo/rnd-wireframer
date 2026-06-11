@@ -119,7 +119,7 @@ apps/web/
 
 Pattern은 앱 소비 데이터가 아니라 `@cx/layout/catalog` reference로 운영한다. Layout catalog는 screen/region/area/composite의 flow, spacing, child ordering 같은 레이아웃 레시피를 소유한다. `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성은 deterministic code와 `database/tables` 계약이 담당한다. resolver/generator는 선택된 layout recipe를 `pattern.id`, `pattern.variant` 참조로 소비 데이터에 남기고, `@cx/renderer`의 `tablesToRenderTree`가 RenderTree DTO로 projection할 때 `@cx/layout` 공개 API를 통해 layout recipe를 materialize한다. React render 단계는 layout catalog JSON을 직접 읽지 않는다. `RenderTreeNode`는 저장/편집용 관리 모델이 아니라 `@cx/renderer` 입력 DTO로만 취급한다.
 
-생성 결과 검수는 `@cx/agent`의 `quality-review` task와 `@cx/inference` step artifact로 다룬다. 검수는 [packages/agent/docs/skills/references/design](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/references/design)의 책임 문서를 근거로 bounded finding을 남기며, 자유로운 RenderTree 재생성이나 직접 파일 mutation을 수행하지 않는다. 반영이 필요하면 별도 apply 단계에서 검증된 RenderTree를 screen, area, component 레이어로 분해한다.
+생성 결과 검수는 `@cx/agent`의 `quality-review` task와 `@cx/inference` step artifact로 다룬다. 검수는 [packages/agent/docs/skills/design-skills/design-fundamentals/source](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source)의 책임 문서를 근거로 bounded finding을 남기며, 자유로운 RenderTree 재생성이나 직접 파일 mutation을 수행하지 않는다. 반영이 필요하면 별도 apply 단계에서 검증된 RenderTree를 screen, area, component 레이어로 분해한다.
 
 앱 작업면은 반드시 아래 3가지 기능을 같은 작업 맥락에서 제공한다.
 

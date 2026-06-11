@@ -4,6 +4,9 @@ import type { SkillsetCatalogEntry } from "./types";
 export const AGENT_SKILLSET_CATALOG = {
 	"composition-planning": {
 		documents: [
+			{ kind: "prompt", sourceRef: "../docs/prompts/composition-planning.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/compose-skills/pagestack-section-unit/README.md",
@@ -17,7 +20,9 @@ export const AGENT_SKILLSET_CATALOG = {
 	},
 	"quality-review": {
 		documents: [
-			{ kind: "skill", sourceRef: "../docs/skills/quality-review/checklist.md" },
+			{ kind: "prompt", sourceRef: "../docs/prompts/quality-review.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/quality-review/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/review-skills/visual-hierarchy-review/README.md",
@@ -32,6 +37,9 @@ export const AGENT_SKILLSET_CATALOG = {
 	},
 	"screen-generation": {
 		documents: [
+			{ kind: "prompt", sourceRef: "../docs/prompts/screen-generation.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/generate-skills/section-divider-rhythm/README.md",
@@ -47,12 +55,14 @@ export const AGENT_SKILLSET_CATALOG = {
 	"screen-intent": {
 		documents: [
 			{ kind: "prompt", sourceRef: "../docs/prompts/screen-intent.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
 			{ kind: "skill", sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md" },
 			{ kind: "skill", sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md" },
 		],
 	},
 	"screen-revision": {
 		documents: [
+			{ kind: "prompt", sourceRef: "../docs/prompts/screen-revision.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/revision-skills/fix-invalid-layout-id/README.md",

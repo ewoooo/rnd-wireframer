@@ -4,7 +4,7 @@
 
 이 문서는 Figma 디자인 정본을 화면별로 조회하며 확인한 구조, 디자인 판단, screen inference 적용 후보를 누적한다.
 
-이 문서의 모든 기록은 추후 agent skill 생성을 쉽게 하기 위한 준비 기록이다. 이 문서는 곧바로 agent skill로 사용하지 않는다. 여러 SOT 화면에서 반복되는 판단 축이 확인되면 `packages/agent/docs/design-skills/`의 bounded skill 문서로 승격한다.
+이 문서의 모든 기록은 추후 agent skill 생성을 쉽게 하기 위한 준비 기록이다. 이 문서는 곧바로 agent skill로 사용하지 않는다. 여러 SOT 화면에서 반복되는 판단 축이 확인되면 `packages/agent/docs/skills/design-skills/`의 bounded skill 문서로 승격한다.
 
 실제 skill 문서를 만들기 직전에는 이 문서의 `Skill creation lookup plan`을 기준으로 Figma SOT를 한 번 더 조회한다. 최종 skill에는 재조회한 node, 작성할 규칙, 제외할 범위, component promotion 후보를 명시한다.
 

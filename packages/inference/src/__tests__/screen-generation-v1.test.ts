@@ -42,12 +42,14 @@ describe("screenGenerationPipelineV1", () => {
 		const layoutCatalog = { source: "layout-catalog", id: undefined };
 		const componentCatalog = { source: "component-catalog", id: undefined };
 		expect(screenGenerationPipelineV1.steps[1]?.references).toEqual({
+			referenceAreaIndex: { source: "reference-area-index" },
 			referenceIndex: { source: "reference-screen-index" },
 		});
 		// Composition gets the layout catalog; render-tree and revision also get the
 		// component catalog so claude builds nodes from real layout/component ids.
 		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({
 			layoutCatalog,
+			referenceAreaCatalog: { source: "reference-area-catalog" },
 			referenceCatalog: { source: "reference-screen-catalog" },
 		});
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
@@ -72,6 +74,14 @@ describe("screenGenerationPipelineV1", () => {
 		// 06-revision overwrites render-tree and 07 overwrites validation-report via the default.
 		expect(screenGenerationPipelineV1.steps[5]?.output.contractRef.id).toBe("render-tree");
 		expect(screenGenerationPipelineV1.steps[6]?.output.contractRef.id).toBe("validation-report");
+	});
+
+	it("passes SourceSpec through to render-tree generation", () => {
+		expect(screenGenerationPipelineV1.steps[3]?.inputs).toMatchObject({
+			compositionPlan: { kind: "context", key: "composition-plan" },
+			screenIntent: { kind: "context", key: "screen-intent" },
+			sourceSpec: { kind: "context", key: "source-spec" },
+		});
 	});
 
 	it("every step output contract resolves", () => {

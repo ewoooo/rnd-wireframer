@@ -6,13 +6,13 @@ Use this skill when the screen contains repeated rows, options, agreement lists,
 
 ## Required Design Docs
 
-- `packages/agent/docs/skills/references/design/SECTION_PATTERNS.md`
-- `packages/agent/docs/skills/references/design/COMPONENT_INVENTORY.md`
-- `packages/agent/docs/skills/references/design/LAYOUT_SPACING_CONTRACT.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/SECTION_PATTERNS.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPONENT_INVENTORY.md`
+- `packages/agent/docs/skills/design-skills/design-fundamentals/source/LAYOUT_SPACING_CONTRACT.md`
 
 ## Required SOT References
 
-- TBD
+- None registered yet.
 
 ## Composition Rules
 
