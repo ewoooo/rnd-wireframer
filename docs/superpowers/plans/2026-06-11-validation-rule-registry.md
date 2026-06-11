@@ -1692,7 +1692,7 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 
 ## 마이그레이션하지 않는 것 (의도적 보류)
 
-- **composition-plan rule들** (`unknown-source-ref`, composition-plan 쪽 `source-ref-not-materialized`): 엔진 소유로 유지. registry `owners`가 상태를 문서화하며, 나중에 `target: "composition-plan"` rule로 이동 가능 — `runQualityRules`가 이미 target 파라미터를 받으므로 추가 작업은 rule 파일 생성뿐이다.
-- **component-proposal rule들** (`proposal-*`): 동일하게 엔진 소유 유지.
+- ~~**composition-plan rule들**~~ → **후속 작업으로 완료** (Task 10~13, 2026-06-11): `unknown-source-ref`, composition-plan 쪽 `source-ref-not-materialized`(같은 코드의 target별 변형으로 같은 rule 파일에 동거), proposal 3종 전부 rule로 이동. RuleContext에 `proposalOptions`·`requires: ["generatedArtifact"]` 게이팅 추가, 드리프트 가드는 코드 단위 dedup으로 보강.
 - **node 단위 품질 체크** (`internal-visible-title`, `list-text-dot-subtext-missing`): `validateNode` 단일 순회에 박혀 있어 분리 시 순회가 중복된다. registry에 `layer: "quality", owners: ["engine"]`으로 정직하게 기록.
+- **layout-ref-outside-candidates**: render-tree와 table-generation-result 두 target에 걸치고 allowedLayoutIds 옵션이 필요해 엔진 소유 유지.
 - **docRef 미지정 코드들**: `single-section-divider`만 docRef를 가진다. 다른 rule의 근거 skill 문서가 생기면 registry 항목에 추가하면 된다 (드리프트 가드가 경로 존재를 검증).
