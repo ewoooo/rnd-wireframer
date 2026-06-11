@@ -43,6 +43,12 @@
 	--color-input: hsl(214.3 31.8% 91.4%);
 	--color-ring: hsl(245 75% 45%);
 
+	/* divider 계열(ResizableHandle·DoubleBorder) 전용 색.
+	   일반 border(--color-border)와 분리해 이 둘만 따로 조절한다.
+	   일반 border보다 진하게(중간 회색) — 패널/칼럼 분리를 또렷하게.
+	   → bg-divider / border-divider 유틸리티로 사용. */
+	--color-divider: hsl(214.3 31.8% 81.4%);
+
 	/* ── Color · sidebar / rail ─────────────────── */
 	--color-sidebar: hsl(0 0% 98%);
 	--color-sidebar-foreground: hsl(240 5.3% 26.1%);

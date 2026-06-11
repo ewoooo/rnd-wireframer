@@ -3,16 +3,11 @@
 import { Puck } from "@puckeditor/core";
 import { ICONS } from "@/components/icons";
 import { Aside, Panel } from "@/components/layout/Aside";
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import {
-	type NewScreenReviewData,
-	NewScreenReviewSummary,
-} from "@/feature/inference-new-screen/components/NewScreenReviewSummary";
+import { NewScreenSourceMarkdownPanel } from "@/feature/inference-new-screen/components/NewScreenSourceMarkdownPanel";
 import type { EditScope } from "@/model/puck-edit-scope";
-import { EditSidebarHeader } from "./EditSidebarHeader";
 
 type EditSidebarProps = {
-	newScreenReview?: NewScreenReviewData;
+	newScreenSource?: { runId?: string };
 	scope?: EditScope;
 };
 
@@ -21,16 +16,20 @@ type EditSidebarProps = {
  *   우상단: Properties (선택 요소 props/text — Puck.Fields)
  *   우하단: Blocks (children 불러오기 — Puck.Components)
  */
-export function EditSidebar({ newScreenReview, scope }: EditSidebarProps) {
-	// Run 탭 리뷰 요약: 현행 유지(4패널 규칙 밖).
-	if (newScreenReview) {
+export function EditSidebar({ newScreenSource, scope }: EditSidebarProps) {
+	// Run(agent) 탭: 우측 패널에 선택한 화면의 입력 md 원문을 그대로 보여준다(4패널 규칙 밖).
+	// fill=true → 부모 ResizablePanel(가로 드래그) 폭을 가득 채운다.
+	if (newScreenSource) {
 		return (
-			<Sidebar side="right">
-				<EditSidebarHeader title="Review" />
-				<SidebarContent className="gap-0 overflow-hidden p-0">
-					<NewScreenReviewSummary review={newScreenReview} />
-				</SidebarContent>
-			</Sidebar>
+			<Aside fill side="right">
+				<Panel
+					title="Source MD"
+					icon={<ICONS.rawValue className="size-3.5" data-icon="inline-start" />}
+					bodyClassName="p-0"
+				>
+					<NewScreenSourceMarkdownPanel runId={newScreenSource.runId} />
+				</Panel>
+			</Aside>
 		);
 	}
 

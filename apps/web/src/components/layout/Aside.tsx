@@ -23,15 +23,18 @@ import { cn } from "@/components/utils";
  */
 export function Aside({
 	side,
+	fill,
 	children,
 }: {
 	side: "left" | "right";
+	/** true면 고정 폭 대신 부모 폭을 가득 채운다(ResizablePanel 안에서 드래그 리사이즈용). */
+	fill?: boolean;
 	children: ReactNode;
 }) {
 	const panels = Children.toArray(children).filter(isValidElement);
 
 	return (
-		<Sidebar side={side}>
+		<Sidebar side={side} className={fill ? "h-full w-full" : undefined}>
 			<ResizablePanelGroup orientation="vertical" className="h-full">
 				{panels.map((panel, index) => (
 					<Fragment key={index}>

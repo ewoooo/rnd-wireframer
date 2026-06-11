@@ -23,6 +23,7 @@ export function useNewScreenInference(
 
 	return {
 		sources: runs.runs,
+		selectedRun: runs.selectedRun,
 		selectedRunId: runs.selectedRunId,
 		error: runs.error,
 		runStatus: lifecycle.runStatus,

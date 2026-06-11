@@ -20,8 +20,8 @@ export function DoubleBorder({
 			className={cn(
 				"shrink-0 bg-sidebar",
 				orientation === "vertical"
-					? "h-full w-[6px] border-x border-sidebar-border"
-					: "h-[6px] w-full border-y border-sidebar-border",
+					? "h-full w-[6px] border-x border-divider"
+					: "h-[6px] w-full border-y border-divider",
 				className,
 			)}
 		/>
