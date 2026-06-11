@@ -27,8 +27,6 @@ import {
 	collectSourceRefLabelIndex,
 	collectSourceSpecRefs,
 	refIsMaterialized,
-	STATE_COVERAGE_TERMS,
-	STATEFUL_SURFACE_TERMS,
 } from "../rules/source-spec";
 import { VALIDATION_CODE_REGISTRY } from "./registry";
 import type { ValidationIssue, ValidationReport, ValidationTarget } from "./types";
@@ -229,7 +227,6 @@ export function validateRenderTree(
 	}
 
 	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
-	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	runQualityRules(
 		"render-tree",
 		{
@@ -425,29 +422,6 @@ function validateCompositionPlanMaterialization(
 			});
 		});
 	});
-}
-
-function validateStateCoverage(
-	sourceSpec: SourceSpec | undefined,
-	generatedArtifact: unknown,
-	issues: ValidationIssue[],
-) {
-	if (!sourceSpec || !needsStateCoverage(sourceSpec)) return;
-	const generatedText = JSON.stringify(generatedArtifact).toLowerCase();
-	const hasStateRole = STATE_COVERAGE_TERMS.some((term) => generatedText.includes(term));
-	if (hasStateRole) return;
-
-	addIssue(issues, {
-		code: "state-coverage-missing",
-		message:
-			"SourceSpec implies a stateful surface, but generated artifact does not expose loading, empty, error, disabled, or validation state coverage.",
-		path: [],
-	});
-}
-
-function needsStateCoverage(sourceSpec: SourceSpec): boolean {
-	const sourceText = JSON.stringify(sourceSpec).toLowerCase();
-	return STATEFUL_SURFACE_TERMS.some((term) => sourceText.includes(term));
 }
 
 function validateLayoutCandidateCoverage(
