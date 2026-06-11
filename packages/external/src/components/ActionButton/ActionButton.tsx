@@ -269,7 +269,7 @@ function Gift1({
 
 /* ── 컴포넌트 (type × button 분기) ───────────────────────────────────────── */
 export function ActionButton({
-	type = "Ai",
+	type = "Default",
 	button = "2",
 	disabled = false,
 	...rest

@@ -1313,3 +1313,50 @@ describe("validateRenderTree bottom CTA state gating", () => {
 		expect(report.issues.some((issue) => issue.code === "bottom-cta-state-ungated")).toBe(false);
 	});
 });
+
+describe("validateRenderTree ActionButton variant intent", () => {
+	it("errors when a TwoButton CTA has primary/secondary text but omits Default type", () => {
+		const tree = {
+			version: "render-tree.v0.1",
+			metadata: { id: "tree" },
+			children: [
+				{
+					type: "Screen",
+					componentVersion: "0.1.0",
+					metadata: { id: "screen", title: "Screen" },
+					children: [
+						{
+							type: "Screen.Bottom",
+							componentVersion: "0.1.0",
+							metadata: { id: "bottom", title: "Bottom" },
+							children: [
+								{
+									type: "kiki.ActionButton",
+									componentVersion: "0.0.0",
+									metadata: { id: "ActionButtonHome", title: "후속 동선 CTA" },
+									props: {
+										button: "2",
+										text: "홈으로",
+										left: 0,
+										primaryText: "홈으로",
+										secondaryText: "내 정보로",
+									},
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+
+		const report = validateRenderTree(tree, { componentCatalog });
+
+		expect(report.issues).toContainEqual(
+			expect.objectContaining({
+				code: "action-button-default-type-missing",
+				path: ["children", 0, "children", 0, "children", 0, "props", "type"],
+				severity: "error",
+			}),
+		);
+	});
+});

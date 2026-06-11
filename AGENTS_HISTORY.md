@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - ActionButton Default Variant Guard
+
+- 변경: `ActionButton` 컴포넌트 기본 `type`을 `Ai`에서 `Default`로 변경하고, `kiki.ActionButton` catalog의 `type.defaultValue`도 `Default`로 맞춤
+- 변경: `button:"2"`와 `primaryText`/`secondaryText`를 쓰는 `ActionButton`이 `type:"Default"`를 명시하지 않으면 `action-button-default-type-missing` validation error를 내는 rule을 추가함
+- 이유: 가입 완료 화면에서 `type` 누락으로 `ActionButton`이 `Ai/2` 기본 분기로 렌더되어 하단 CTA가 `텍스트 | 텍스트`로 표시되는 문제를 방지하기 위함
+- 검증: `pnpm exec vitest run packages/external/src/__tests__/action-button.test.tsx packages/external/src/__tests__/resolver.test.ts packages/renderer/src/__tests__/build-component-props.test.ts packages/validation/src/rules/__tests__/action-button-default-type-missing.test.ts packages/validation/src/__tests__/validators.test.ts packages/validation/src/__tests__/registry.test.ts`, `pnpm exec biome check ...`(generated catalog 제외)
+- 후속: `catalog.generated.ts`는 기존 파일 전체가 Biome 포맷 대상과 맞지 않아 값 변경만 유지함
+
 ## 2026-06-11 - Screen Generation Skill Prompt Alignment
 
 - 변경: `screen-generation` skill README에서 구 `tableGenerationResult`, `targetArtifact`, `intermediateArtifact`, `patternSelection`, `layerCandidates` 계약 문구를 제거하고 현재 `render-tree` output contract, `context.jsonSchema`, `componentCatalog`/`layoutCatalog`, selected reference mount 기준으로 정리함

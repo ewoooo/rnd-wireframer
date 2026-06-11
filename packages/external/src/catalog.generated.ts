@@ -56,7 +56,12 @@ export const externalCatalog: ComponentCatalog = {
 			text: { type: "string", required: true },
 			left: { type: "number", required: true },
 			tailAlign: { type: "enum", values: ["start", "center"], required: false },
-			type: { type: "enum", values: ["Default", "Ai", "Gift"], required: false },
+			type: {
+				type: "enum",
+				values: ["Default", "Ai", "Gift"],
+				required: false,
+				defaultValue: "Default",
+			},
 			button: { type: "enum", values: ["1", "2"], required: false },
 			showText: { type: "boolean", role: "visibility", required: false, defaultValue: false },
 			showTooltip: { type: "boolean", required: false },

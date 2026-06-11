@@ -29,6 +29,14 @@ describe("ActionButton", () => {
 		expect(screen.queryByText("7,900원")).not.toBeInTheDocument();
 	});
 
+	it("type을 생략한 TwoButton CTA는 Default/2로 렌더한다", () => {
+		render(<ActionButton button="2" primaryText="홈으로" secondaryText="내 정보로" />);
+
+		expect(screen.getByRole("button", { name: "홈으로" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "내 정보로" })).toBeInTheDocument();
+		expect(screen.queryByText("텍스트")).not.toBeInTheDocument();
+	});
+
 	it("Default/2는 showText와 가격 props가 명시되면 가격 row를 렌더한다", () => {
 		render(
 			<ActionButton

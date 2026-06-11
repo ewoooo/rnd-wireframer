@@ -10,7 +10,7 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 			fullWidth: true,
 		});
 
-		expect(out).toEqual({ primaryText: "계속하기", showText: false });
+		expect(out).toEqual({ primaryText: "계속하기", showText: false, type: "Default" });
 	});
 
 	it("ActionButton canonical props는 catalog 계약대로 유지한다", () => {
@@ -23,6 +23,22 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 		expect(out).toEqual({
 			button: "1",
 			primaryText: "계속하기",
+			showText: false,
+			type: "Default",
+		});
+	});
+
+	it("ActionButton type 누락 시 catalog default인 Default를 주입한다", () => {
+		const out = buildComponentProps("ActionButton", {
+			button: "2",
+			primaryText: "홈으로",
+			secondaryText: "내 정보로",
+		});
+
+		expect(out).toEqual({
+			button: "2",
+			primaryText: "홈으로",
+			secondaryText: "내 정보로",
 			showText: false,
 			type: "Default",
 		});

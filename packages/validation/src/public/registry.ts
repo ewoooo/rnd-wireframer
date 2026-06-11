@@ -166,6 +166,13 @@ export const VALIDATION_CODE_REGISTRY = {
 		description:
 			"Screen.Bottom의 state-variant ActionButton이 display.when 게이팅 없이 항상 렌더된다.",
 	},
+	"action-button-default-type-missing": {
+		layer: "quality",
+		severity: "error",
+		owners: ["rule"],
+		description:
+			"ActionButton TwoButton CTA가 primaryText/secondaryText를 쓰면서 type='Default'를 명시하지 않았다.",
+	},
 	"uses-candidate-component": {
 		layer: "quality",
 		severity: "warning",
