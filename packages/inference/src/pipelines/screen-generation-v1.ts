@@ -47,7 +47,7 @@ export const screenGenerationPipelineV1 = definePipeline({
 		defineStep({
 			id: "04-render-tree",
 			task: "screen-generation",
-			inputs: contexts("composition-plan", "screen-intent"),
+			inputs: contexts("source-spec", "composition-plan", "screen-intent"),
 			references: {
 				componentCatalog: knowledge("component-catalog"),
 				layoutCatalog: knowledge("layout-catalog"),

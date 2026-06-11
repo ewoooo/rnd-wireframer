@@ -18,6 +18,36 @@ describe("ActionButton", () => {
 		expect(screen.getByRole("button", { name: "적용" })).toBeInTheDocument();
 	});
 
+	it("Default/2는 가격 props가 명시되지 않으면 가격 row를 숨긴다", () => {
+		render(
+			<ActionButton type="Default" button="2" primaryText="홈으로" secondaryText="내 정보로" />,
+		);
+
+		expect(screen.getByRole("button", { name: "홈으로" })).toBeInTheDocument();
+		expect(screen.getByRole("button", { name: "내 정보로" })).toBeInTheDocument();
+		expect(screen.queryByText("이용 금액")).not.toBeInTheDocument();
+		expect(screen.queryByText("7,900원")).not.toBeInTheDocument();
+	});
+
+	it("Default/2는 showText와 가격 props가 명시되면 가격 row를 렌더한다", () => {
+		render(
+			<ActionButton
+				type="Default"
+				button="2"
+				showText
+				priceLabel="월 이용금액"
+				period="1개월/"
+				price="9,900원"
+				primaryText="확인"
+				secondaryText="취소"
+			/>,
+		);
+
+		expect(screen.getByText("월 이용금액")).toBeInTheDocument();
+		expect(screen.getByText("1개월/")).toBeInTheDocument();
+		expect(screen.getByText("9,900원")).toBeInTheDocument();
+	});
+
 	it("disabled=false(기본)면 primary 클릭 핸들러를 호출한다", () => {
 		let clicked = 0;
 		render(

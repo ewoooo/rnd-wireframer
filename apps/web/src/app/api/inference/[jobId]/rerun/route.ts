@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { readErrorMessage } from "@/lib/api-error";
-import { rerunInferenceJob } from "@/server/inference-runtime";
+import {
+	RerunConflictError,
+	rerunInferenceJob,
+	UnknownRerunStepError,
+} from "@/server/inference-runtime";
 
 export const runtime = "nodejs";
 
@@ -75,6 +79,8 @@ class InvalidRerunRequestError extends Error {}
 
 function readErrorStatus(error: unknown): number {
 	if (error instanceof InvalidRerunRequestError) return 400;
+	if (error instanceof UnknownRerunStepError) return 400;
+	if (error instanceof RerunConflictError) return 409;
 	if (isNodeError(error) && error.code === "ENOENT") return 404;
 	return 500;
 }

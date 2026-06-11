@@ -4,10 +4,12 @@ import type { SkillsetCatalogEntry } from "./types";
 export const AGENT_SKILLSET_CATALOG = {
 	"composition-planning": {
 		documents: [
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/compose-skills/pagestack-section-unit/README.md",
 			},
+			{ kind: "skill", sourceRef: "../docs/skills/references/areas/ref-area-pagestack-section.md" },
 			{ kind: "skill", sourceRef: "../docs/skills/review-skills/pattern-fit-review/README.md" },
 			{
 				kind: "skill",
@@ -32,6 +34,7 @@ export const AGENT_SKILLSET_CATALOG = {
 	},
 	"screen-generation": {
 		documents: [
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
 			{
 				kind: "skill",
 				sourceRef: "../docs/skills/generate-skills/section-divider-rhythm/README.md",

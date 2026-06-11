@@ -1,11 +1,13 @@
 import type { ReferenceCatalogEntry, ReferenceCatalogObject } from "@cx/schema";
 import { SSOT_OBJECT_SCHEMA_VERSION } from "@cx/schema";
+import { referenceAreaCatalog } from "../../docs/skills/references/areas/catalog.generated";
 import { referenceScreenCatalog } from "../../docs/skills/references/screens/catalog.generated";
 import { readAgentMarkdownDocument } from "../docs/package-markdown";
 import { isReferenceCategory, REFERENCE_CATEGORIES, type ReferenceCategory } from "./categories";
 
 // satisfies가 category 누락을 컴파일 타임에 강제한다(새 category 추가 시 여기 한 줄 필수).
 const ENTRIES_BY_CATEGORY = {
+	area: referenceAreaCatalog,
 	screen: referenceScreenCatalog,
 } satisfies Record<ReferenceCategory, ReferenceCatalogEntry[]>;
 

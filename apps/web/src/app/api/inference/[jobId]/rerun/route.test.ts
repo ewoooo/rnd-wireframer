@@ -1,8 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const rerunInferenceJob = vi.fn();
+const { rerunInferenceJob, RerunConflictError, UnknownRerunStepError } = vi.hoisted(() => {
+	class RerunConflictError extends Error {}
+	class UnknownRerunStepError extends Error {}
+	return { rerunInferenceJob: vi.fn(), RerunConflictError, UnknownRerunStepError };
+});
 vi.mock("@/server/inference-runtime", () => ({
+	RerunConflictError,
 	rerunInferenceJob: (...args: unknown[]) => rerunInferenceJob(...args),
+	UnknownRerunStepError,
 }));
 
 import { POST } from "./route";
@@ -60,6 +66,24 @@ describe("POST /api/inference/[jobId]/rerun", () => {
 		expect(res.status).toBe(202);
 		expect(rerunInferenceJob).toHaveBeenCalledWith("job-1", {});
 		await expect(res.json()).resolves.not.toHaveProperty("overriddenContextKeys");
+	});
+
+	it("returns 409 when the job is still running", async () => {
+		rerunInferenceJob.mockRejectedValue(new RerunConflictError("Job job-1 is running"));
+		const res = await POST(postRequest({}), ctx);
+		expect(res.status).toBe(409);
+		await expect(res.json()).resolves.toMatchObject({ error: "Job job-1 is running" });
+	});
+
+	it("returns 400 when startFromStepId is not a pipeline step", async () => {
+		rerunInferenceJob.mockRejectedValue(
+			new UnknownRerunStepError("Unknown startFromStepId: 99-nope"),
+		);
+		const res = await POST(postRequest({ startFromStepId: "99-nope" }), ctx);
+		expect(res.status).toBe(400);
+		await expect(res.json()).resolves.toMatchObject({
+			error: "Unknown startFromStepId: 99-nope",
+		});
 	});
 
 	it("reruns from scratch when no body is provided", async () => {

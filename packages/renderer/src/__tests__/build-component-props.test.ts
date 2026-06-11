@@ -10,7 +10,7 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 			fullWidth: true,
 		});
 
-		expect(out).toEqual({ primaryText: "계속하기" });
+		expect(out).toEqual({ primaryText: "계속하기", showText: false });
 	});
 
 	it("ActionButton canonical props는 catalog 계약대로 유지한다", () => {
@@ -23,6 +23,7 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 		expect(out).toEqual({
 			button: "1",
 			primaryText: "계속하기",
+			showText: false,
 			type: "Default",
 		});
 	});

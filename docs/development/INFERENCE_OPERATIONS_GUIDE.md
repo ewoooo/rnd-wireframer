@@ -59,10 +59,10 @@ REST API (전체 목록은 [API_ENDPOINTS.md](./API_ENDPOINTS.md)):
 
 | 엔드포인트 | 용도 |
 | --- | --- |
-| `POST /api/inference/runs` | job 생성 + 실행 시작 |
+| `POST /api/inference` | job 생성 + 실행 시작 |
 | `GET /api/inference/runs` | job 목록 |
 | `GET /api/inference/{jobId}` | job 상태 |
-| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": {…} } }` — overrides는 step 실행 전에 working memory에 기록 |
+| `POST /api/inference/{jobId}/rerun` | 재실행. body `{ "startFromStepId": "04-render-tree", "contextOverrides": { "composition-plan": {…} } }` — overrides는 step 실행 전에 working memory에 기록. job이 terminal(succeeded/failed) 상태일 때만 허용(진행 중이면 `409`), 모르는 step id는 `400` |
 | `GET /api/inference/{jobId}/steps` · `/events` | step 상태 · 이벤트 스트림(ndjson) |
 | `GET /api/inference/{jobId}/artifacts/{...path}` | 산출물 직접 조회 |
 | `POST /api/inference/{jobId}/apply` | 결과를 앱 DB에 적용 |

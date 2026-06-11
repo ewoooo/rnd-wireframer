@@ -15,6 +15,7 @@ Contents 영역의 각 섹션은 PageStack 패밀리 area 레이아웃을 기본
 - `targetRegion: "contents"`의 각 section은 PageStack 패밀리 area 레이아웃을 strategy로 지정한다.
 - `layout.area.areaVertical`은 **last-resort fallback**이다. usedFor가 매칭되는 PageStack area가 하나도 없을 때만 쓴다. catalog description이 명시한다: "다른 area pattern이 매칭 안 됐을 때 fallback".
 - area를 고를 때는 catalog의 `usedFor` intent를 먼저 매칭한다. 매칭되면 그 area를 strategy에 id로 적고 어떤 usedFor에 근거했는지 한 줄로 남긴다.
+- Contents section이 1개뿐이면 section rhythm에 `4px section divider`를 적지 않는다. 단독 section은 PageStack 자체 spacing으로 끝난다.
 
 ## Area selection guide (usedFor 매칭)
 
@@ -29,6 +30,7 @@ Contents 영역의 각 섹션은 PageStack 패밀리 area 레이아웃을 기본
 
 - **errorPolicy '영역 전체 숨김'을 근거로 `areaVertical`을 고르지 않는다.** PageStack area(fieldStack/listStack)도 단일 dynamic area라 통째로 토글된다. errorPolicy whole-area hide는 fallback을 요구하지 않는다.
 - 매칭되는 PageStack area가 있는데 generic `areaVertical`로 떨어지면 품질 회귀다. SOT 위반으로 본다.
+- 단독 PageStack area 뒤에 `divider: "section"`을 붙여 region 경계를 흉내내지 않는다. section divider는 같은 region 안의 section 간 경계 전용이다.
 
 ## Output obligation
 

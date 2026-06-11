@@ -18,6 +18,7 @@ priority: required
   - `"contents"` = 행 사이 `1px` hairline (리스트 row 구분)
   - `"none"` = gap만으로 분리
 - 같은 area layout이 이미 divider default를 가지면(catalog default가 의도와 일치하면) `props.divider`를 재명시하지 않는다.
+- Contents region에 section이 1개뿐이면 `props.divider: "section"`을 쓰지 않는다. section divider는 같은 region 안의 여러 PageStack area 사이에만 쓴다.
 
 ## Rhythm (SOT 기준)
 
@@ -29,4 +30,5 @@ priority: required
 
 - 행 구분을 위해 `Divider` leaf component를 area children에 삽입하지 않는다. divider는 area stack prop이다.
 - 카드 내부에 섹션 divider를 남발하지 않는다. divider는 의미 덩어리 경계에만.
+- 단독 message stack, 단독 fieldStack, 완료/결과 화면의 단일 contents section 뒤에 section divider를 붙이지 않는다.
 - 모든 섹션을 동일 간격으로 평평하게 두지 않는다 — 의미 단위가 다르면 rhythm으로 위계를 만든다.

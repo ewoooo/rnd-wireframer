@@ -227,10 +227,117 @@ export function validateRenderTree(
 
 	validateLayoutCandidateCoverage(input, [], options.allowedLayoutIds, issues);
 	validateSourceRefCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
+	validateSourcePropPreservation(options.sourceSpec, options.generatedArtifact ?? input, issues);
 	validateStateCoverage(options.sourceSpec, options.generatedArtifact ?? input, issues);
+	validateSingleSectionDivider(input, [], issues);
 	validateBottomCtaStateGating(input, [], false, issues);
 
 	return buildReport("render-tree", issues);
+}
+
+function validateSingleSectionDivider(
+	node: unknown,
+	path: Array<string | number>,
+	issues: ValidationIssue[],
+) {
+	if (!isRecord(node)) return;
+	if (node.type === "Screen.Contents" && Array.isArray(node.children)) {
+		const areaChildren = node.children.filter(isRecord);
+		if (areaChildren.length === 1) {
+			const area = areaChildren[0];
+			if (isRecord(area?.props) && area.props.divider === "section") {
+				addIssue(issues, {
+					code: "single-section-divider",
+					message:
+						'Screen.Contents has a single section, so props.divider="section" is over-applied. Omit divider or use "none"; section dividers are only for boundaries between multiple contents sections.',
+					path: [...path, "children", 0, "props", "divider"],
+				});
+			}
+		}
+	}
+	if (Array.isArray(node.children)) {
+		node.children.forEach((child, index) => {
+			validateSingleSectionDivider(child, [...path, "children", index], issues);
+		});
+	}
+}
+
+function validateSourcePropPreservation(
+	sourceSpec: SourceSpec | undefined,
+	generatedArtifact: unknown,
+	issues: ValidationIssue[],
+) {
+	if (!sourceSpec) return;
+	const sourceComponents = collectSourceComponentsByRenderRef(sourceSpec);
+	if (sourceComponents.size === 0) return;
+	const renderNodes = collectRenderNodesByMetadataId(generatedArtifact);
+
+	for (const [sourceRef, component] of sourceComponents) {
+		const renderNode = renderNodes.get(sourceRef);
+		if (!renderNode || !isRecord(renderNode.props) || !isRecord(component.props)) continue;
+		for (const [propName, sourceValue] of Object.entries(component.props)) {
+			if (!isPrimitiveSourcePropValue(sourceValue)) continue;
+			if (!(propName in renderNode.props)) continue;
+			const renderValue = renderNode.props[propName];
+			if (!isPrimitiveSourcePropValue(renderValue)) continue;
+			if (renderValue === sourceValue) continue;
+			addIssue(issues, {
+				code: "source-prop-mismatch",
+				message: `RenderTree changed SourceSpec prop ${sourceRef}.${propName}: expected ${JSON.stringify(sourceValue)}, received ${JSON.stringify(renderValue)}.`,
+				path: [...(renderNode.path ?? []), "props", propName],
+			});
+		}
+	}
+}
+
+function collectSourceComponentsByRenderRef(
+	sourceSpec: SourceSpec,
+): Map<string, Record<string, unknown>> {
+	const components = new Map<string, Record<string, unknown>>();
+	for (const region of sourceSpec.sourceShape.screen.regions) {
+		for (const area of region.children) {
+			for (const component of area.children) {
+				const refs = [
+					(component as { sourceId?: unknown }).sourceId,
+					(component as { roleAlias?: unknown }).roleAlias,
+				];
+				for (const ref of refs) {
+					if (typeof ref === "string" && ref.length > 0) {
+						components.set(ref, component as unknown as Record<string, unknown>);
+					}
+				}
+			}
+		}
+	}
+	return components;
+}
+
+function collectRenderNodesByMetadataId(
+	input: unknown,
+	path: Array<string | number> = [],
+	nodes = new Map<string, Record<string, unknown> & { path?: Array<string | number> }>(),
+): Map<string, Record<string, unknown> & { path?: Array<string | number> }> {
+	if (Array.isArray(input)) {
+		input.forEach((child, index) => {
+			collectRenderNodesByMetadataId(child, [...path, index], nodes);
+		});
+		return nodes;
+	}
+	if (!isRecord(input)) return nodes;
+	const metadata = isRecord(input.metadata) ? input.metadata : undefined;
+	if (typeof metadata?.id === "string" && metadata.id.length > 0) {
+		nodes.set(metadata.id, { ...input, path });
+	}
+	if (Array.isArray(input.children)) {
+		input.children.forEach((child, index) => {
+			collectRenderNodesByMetadataId(child, [...path, "children", index], nodes);
+		});
+	}
+	return nodes;
+}
+
+function isPrimitiveSourcePropValue(value: unknown): value is boolean | number | string {
+	return typeof value === "boolean" || typeof value === "number" || typeof value === "string";
 }
 
 /**

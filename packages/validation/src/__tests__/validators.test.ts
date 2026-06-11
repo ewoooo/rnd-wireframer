@@ -732,6 +732,88 @@ it("warns when SourceSpec refs are not visible in a generated RenderTree", () =>
 	);
 });
 
+it("errors when RenderTree changes primitive SourceSpec props", () => {
+	const sourceSpec = validSourceSpec();
+	sourceSpec.sourceShape.screen.regions = [
+		{
+			children: [
+				{
+					children: [
+						{
+							kind: "component",
+							label: "가입 완료 상단 앱 바",
+							props: {
+								showBack: false,
+								showLogo: true,
+								title: "가입 완료",
+							},
+							roleAlias: "AppBarHeader",
+							sourceComponentId: "component-appbar",
+							sourceId: "AppBarHeader",
+						},
+					],
+					kind: "area",
+					sourceAreaId: "area-header",
+				},
+			],
+			slot: "header",
+		},
+	];
+	const tree = appBarOnlyRenderTree({
+		showBack: false,
+		showLogo: false,
+		title: "가입 완료",
+	});
+
+	const report = validateRenderTree(tree, {
+		componentCatalog,
+		generatedArtifact: tree,
+		sourceSpec,
+	});
+
+	expect(report.ok).toBe(false);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "source-prop-mismatch",
+			path: ["children", 0, "children", 0, "children", 0, "props", "showLogo"],
+			severity: "error",
+		}),
+	);
+});
+
+it("errors when a single contents section uses a section divider", () => {
+	const tree = singleContentsSectionRenderTree({ divider: "section" });
+
+	const report = validateRenderTree(tree, { componentCatalog });
+
+	expect(report.ok).toBe(false);
+	expect(report.issues).toContainEqual(
+		expect.objectContaining({
+			code: "single-section-divider",
+			path: ["children", 0, "children", 1, "children", 0, "props", "divider"],
+			severity: "error",
+		}),
+	);
+});
+
+it("allows section dividers when contents has multiple sections", () => {
+	const tree = singleContentsSectionRenderTree({ divider: "section" });
+	const contents = tree.children[0]?.children?.[1];
+	if (!contents) throw new Error("contents node missing");
+	contents.children.push({
+		type: "area.static",
+		componentVersion: "1.0.0",
+		metadata: { id: "secondary-section", title: "보조 섹션" },
+		layout: "layout.area.fieldStack",
+		props: { divider: "none" },
+		children: [],
+	});
+
+	const report = validateRenderTree(tree, { componentCatalog });
+
+	expect(report.issues.some((issue) => issue.code === "single-section-divider")).toBe(false);
+});
+
 it("does not warn for purely numeric source refs (structural order sentinels)", () => {
 	const sourceSpec = validSourceSpec();
 	sourceSpec.sourceShape.screen.regions[0].children[0].sourceAreaId = "999";
@@ -937,6 +1019,73 @@ function validSourceSpec(): SourceSpec {
 				screenCode: "SAMPLE",
 			},
 		},
+	};
+}
+
+function appBarOnlyRenderTree(props: Record<string, unknown>) {
+	return {
+		version: "render-tree.v0.1",
+		metadata: { id: "tree" },
+		children: [
+			{
+				type: "Screen",
+				componentVersion: "0.1.0",
+				metadata: { id: "screen", title: "Screen" },
+				layout: "layout.screen.mobileScreen",
+				children: [
+					{
+						...screenRegion("Screen.Header", "header"),
+						children: [
+							{
+								type: "kiki.AppBar",
+								componentVersion: "1.0.0",
+								metadata: { id: "AppBarHeader", title: "가입 완료 상단 앱 바" },
+								layout: "layout.composite.componentAppBar",
+								props,
+							},
+						],
+					},
+					screenRegion("Screen.Contents", "contents"),
+					screenRegion("Screen.Bottom", "bottom"),
+				],
+			},
+		],
+	};
+}
+
+function singleContentsSectionRenderTree(props: Record<string, unknown>) {
+	return {
+		version: "render-tree.v0.1",
+		metadata: { id: "tree" },
+		children: [
+			{
+				type: "Screen",
+				componentVersion: "0.1.0",
+				metadata: { id: "screen", title: "Screen" },
+				layout: "layout.screen.mobileScreen",
+				children: [
+					screenRegion("Screen.Header", "header"),
+					{
+						type: "Screen.Contents",
+						componentVersion: "0.1.0",
+						metadata: { id: "contents", title: "Contents" },
+						layout: "layout.region.contents",
+						props: { scroll: true },
+						children: [
+							{
+								type: "area.static",
+								componentVersion: "1.0.0",
+								metadata: { id: "primary-section", title: "주요 섹션" },
+								layout: "layout.area.fieldStack",
+								props,
+								children: [],
+							},
+						],
+					},
+					screenRegion("Screen.Bottom", "bottom"),
+				],
+			},
+		],
 	};
 }
 

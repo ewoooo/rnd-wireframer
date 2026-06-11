@@ -74,6 +74,14 @@ describe("screenGenerationPipelineV1", () => {
 		expect(screenGenerationPipelineV1.steps[6]?.output.contractRef.id).toBe("validation-report");
 	});
 
+	it("passes SourceSpec through to render-tree generation", () => {
+		expect(screenGenerationPipelineV1.steps[3]?.inputs).toMatchObject({
+			compositionPlan: { kind: "context", key: "composition-plan" },
+			screenIntent: { kind: "context", key: "screen-intent" },
+			sourceSpec: { kind: "context", key: "source-spec" },
+		});
+	});
+
 	it("every step output contract resolves", () => {
 		for (const step of screenGenerationPipelineV1.steps) {
 			expect(() => resolveOutputContractForInference(step.output.contractRef.id)).not.toThrow();

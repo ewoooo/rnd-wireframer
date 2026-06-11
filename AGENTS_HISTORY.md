@@ -36,6 +36,29 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-11 - Area Reference Lookup Scaffold
+
+- 변경: `packages/agent/docs/skills/references/areas/`를 추가하고 `ref-area-pagestack-section` seed reference를 작성함. `composition-planning` skillset에 area reference 문서를 포함하고 `pnpm sync:skillset`으로 generated catalog를 갱신함
+- 변경: reference catalog category에 `area`를 추가해 `reference-area-index`/`reference-area-catalog` 조회가 가능하도록 하고, `pnpm sync:reference`로 `referenceAreaCatalog`를 생성함
+- 이유: Figma SOT 기반 Screen Reference와 Area Reference를 분리 등록하기 전에, area reference가 skillset 지식과 inference knowledge resolver 양쪽에서 조회 가능한 구조를 먼저 열기 위함
+- 검증: `pnpm sync:reference`, `pnpm sync:skillset`, `pnpm vitest run packages/agent/src/reference-catalog packages/agent/src/skillset-catalog packages/inference/src/knowledge/__tests__/reference-resolve.test.ts`
+- 후속: Figma SOT node별 실제 Screen Reference/Area Reference 본문을 추가하고, 필요 시 pipeline의 composition references에 `reference-area-catalog`를 명시 주입할지 결정
+
+## 2026-06-11 - RenderTree Divider And Source Prop Guard
+
+- 변경: `divider-usage-rules` 생성 스킬을 추가하고 composition/screen-generation skillset에 포함함. 단독 Contents section의 `divider:"section"` 사용을 금지하도록 divider 관련 생성/compose/revision 스킬을 보강함
+- 변경: 04-render-tree 입력에 `source-spec`을 포함하고, deterministic RenderTree validation에 `single-section-divider`, `source-prop-mismatch` error를 추가해 단독 section divider 과적용과 SourceSpec primitive prop 변경을 차단함
+- 이유: `job-mq8rur2i`에서 단독 가입 완료 contents 뒤에 section divider가 붙고, SourceSpec의 `showLogo:true`가 04-render-tree에서 `false`로 바뀐 뒤 검증 단계에서 잡히지 않았기 때문
+- 검증: `pnpm sync:skillset`, `pnpm vitest run packages/validation/src/__tests__/validators.test.ts packages/inference/src/__tests__/screen-generation-v1.test.ts`, `pnpm exec biome check packages/validation/src/public/validators.ts packages/validation/src/public/types.ts packages/validation/src/__tests__/validators.test.ts packages/inference/src/pipelines/screen-generation-v1.ts packages/inference/src/__tests__/screen-generation-v1.test.ts packages/agent/docs/skills/generate-skills/divider-usage-rules/README.md packages/agent/docs/skills/skillsets/screen-generation.md packages/agent/docs/skills/skillsets/composition-planning.md packages/agent/docs/skills/generate-skills/section-divider-rhythm/README.md packages/agent/docs/skills/compose-skills/pagestack-section-unit/README.md packages/agent/docs/skills/revision-skills/fix-section-rhythm/README.md`
+- 후속: 없음
+
+## 2026-06-11 - External Component Default Content Guard
+
+- 변경: `TitleMain` Complete variant가 `deviceName`이 명시될 때만 기기명/chip row를 렌더하도록 변경하고, `ActionButton` Default/2 가격 row 기본 표시를 `showText=false`로 변경함. `kiki.ActionButton` catalog 계약에도 `showText.defaultValue=false`를 명시하고 관련 회귀 테스트를 추가함
+- 이유: 가입 완료 화면 생성 결과에서 원본과 무관한 `갤럭시 S29 · SM-S942NV`, `이용 금액 1개월/7,900원`이 Kiki 컴포넌트 샘플 기본값으로 렌더링되는 문제를 막기 위함
+- 검증: `pnpm vitest run packages/external/src/__tests__/action-button.test.tsx packages/external/src/__tests__/title-main.test.tsx packages/renderer/src/__tests__/build-component-props.test.ts`, `pnpm exec biome check packages/external/src/components/TitleMain/TitleMain.tsx packages/external/src/components/ActionButton/ActionButton.tsx packages/external/src/__tests__/action-button.test.tsx packages/external/src/__tests__/title-main.test.tsx packages/renderer/src/__tests__/build-component-props.test.ts`, `graphify update .`
+- 후속: 전체 `pnpm exec tsc --noEmit --pretty false`는 기존 `packages/external` StaticImageData import 타입 오류와 `scripts/sync-layout-catalog/schema.ts` template-literal id 타입 오류로 계속 실패함
+
 ## 2026-06-11 - App Workbench Test Contract Sync
 
 - 변경: `App.test.tsx`의 화면 목록 mock을 현재 bulk endpoint인 `/api/screens/trees`로 갱신하고, Rail 라벨(`Run`, `Screens`, `Areas`, `Components`) 및 숨김 처리된 domain/route 패널 기준에 맞게 navigation 테스트 기대값을 정리함
