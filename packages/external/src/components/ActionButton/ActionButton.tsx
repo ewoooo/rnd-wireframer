@@ -204,10 +204,10 @@ function Default1({ primaryText = "버튼", onPrimaryClick }: ActionButtonProps)
 }
 
 function Default2({
-	showText = true,
-	priceLabel = "이용 금액",
-	period = "1개월/",
-	price = "7,900원",
+	showText = false,
+	priceLabel,
+	period,
+	price,
 	secondaryText = "버튼",
 	primaryText = "버튼",
 	onSecondaryClick,

@@ -1,4 +1,4 @@
-import type { InferenceRuntime } from "../contracts";
+import { INFERENCE_ARTIFACT_PATH, type InferenceRuntime } from "../contracts";
 import { runStep } from "../pipeline/run-step";
 import { shouldRunInferenceStep } from "../policies/inference-policy";
 import {
@@ -23,9 +23,15 @@ export async function runInferenceJob(
 		const contextStore = runtime.createContextStore(jobId);
 
 		const { contextOverrides, startFromStepId } = options;
-		if (startFromStepId && !pipeline.steps.some((step) => step.id === startFromStepId)) {
+		const startIndex = startFromStepId
+			? pipeline.steps.findIndex((step) => step.id === startFromStepId)
+			: 0;
+		if (startIndex < 0) {
 			throw new Error(`Unknown startFromStepId: ${startFromStepId}`);
 		}
+		// Steps before startFromStepId are skipped; their context outputs from a prior
+		// run stay on disk under the same jobId, so downstream context reads still resolve.
+		const stepsToRun = pipeline.steps.slice(startIndex);
 
 		// Overrides land in working memory before any step runs, so a rerun can
 		// patch context through the API instead of hand-editing context/*.json.
@@ -33,16 +39,19 @@ export async function runInferenceJob(
 			await contextStore.writeJson(key, value);
 		}
 
+		// Reset leftover snapshots in the run range so a rerun never presents a
+		// prior attempt's succeeded/failed as this run's result — without this,
+		// steps whose runWhen turns false would keep their stale snapshot forever.
+		// Steps that never ran have no snapshot and stay that way (first-run contract).
+		for (const step of stepsToRun) {
+			if (await runtime.artifactStore.exists(jobId, INFERENCE_ARTIFACT_PATH.step.state(step.id))) {
+				await runtime.jobStore.createStep(jobId, step.id);
+			}
+		}
+
 		await recordJobStarted({ jobId, runtime });
 
-		// Steps before startFromStepId are skipped; their context outputs from a prior
-		// run stay on disk under the same jobId, so downstream context reads still resolve.
-		let reached = !startFromStepId;
-		for (const step of pipeline.steps) {
-			if (!reached) {
-				if (step.id !== startFromStepId) continue;
-				reached = true;
-			}
+		for (const step of stepsToRun) {
 			if (!(await shouldRunInferenceStep(step.runWhen, contextStore))) continue;
 
 			await recordStepStarted({ jobId, runtime, stepId: step.id });

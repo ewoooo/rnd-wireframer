@@ -87,19 +87,47 @@ export async function createInferenceJob(input: unknown) {
 	return job;
 }
 
+/** Rerun was requested while the job is still queued/running. */
+export class RerunConflictError extends Error {}
+
+/** startFromStepId does not exist in the job's pipeline. */
+export class UnknownRerunStepError extends Error {}
+
+const TERMINAL_JOB_STATUSES = new Set(["succeeded", "failed"]);
+
 /**
  * Re-run an existing job, optionally from a given step. Steps before
  * startFromStepId are skipped and their prior context outputs are reused
  * from disk. contextOverrides are written into working memory before any
- * step runs. Throws (ENOENT) when the job does not exist.
+ * step runs. Throws (ENOENT) when the job does not exist,
+ * RerunConflictError while the job is still queued/running, and
+ * UnknownRerunStepError for a step id outside the pipeline.
  */
 export async function rerunInferenceJob(
 	jobId: string,
 	options: { contextOverrides?: Record<string, unknown>; startFromStepId?: string } = {},
 ) {
 	const job = await inferenceRuntime.jobStore.getJob(jobId);
+	if (!TERMINAL_JOB_STATUSES.has(job.status)) {
+		throw new RerunConflictError(
+			`Job ${jobId} is ${job.status}; rerun is only allowed after it finishes.`,
+		);
+	}
+	const pipeline = inferenceRuntime.pipelines.get(job.pipelineId, job.pipelineVersion);
+	if (options.startFromStepId && !pipeline.steps.some((s) => s.id === options.startFromStepId)) {
+		throw new UnknownRerunStepError(`Unknown startFromStepId: ${options.startFromStepId}`);
+	}
+	// Claim the job before the fire-and-forget run so a second rerun request
+	// sees a non-terminal status instead of racing the worker on the same
+	// artifact/context files. Clearing error drops the stale failure from the
+	// previous attempt.
+	await inferenceRuntime.jobStore.updateJob(jobId, {
+		status: "queued",
+		currentStepId: undefined,
+		error: undefined,
+	});
 	void runInferenceJob(inferenceRuntime, jobId, options).catch((error) => {
 		console.error(`runInferenceJob rerun failed for job ${jobId}`, error);
 	});
-	return job;
+	return inferenceRuntime.jobStore.getJob(jobId);
 }

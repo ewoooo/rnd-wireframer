@@ -170,6 +170,86 @@ describe("runInferenceJob", () => {
 		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "succeeded" });
 	});
 
+	it("resets step snapshots in the run range so a rerun does not keep stale results", async () => {
+		let time = 0;
+		let id = 0;
+		const artifactStore = new MemoryArtifactStore();
+		const jobStore = createJobStore(artifactStore, {
+			now: () => `t-${++time}`,
+			newId: () => `job-${++id}`,
+		});
+		const job = await jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "SAMPLE" },
+		});
+		const pipeline: PipelineDefinition = {
+			id: "screen-generation",
+			version: "v1",
+			steps: [
+				{
+					id: "01-first",
+					inputs: { job: { kind: "job-input" } },
+					run: { id: "fake" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: "source-spec",
+					},
+				},
+				{
+					id: "02-revise",
+					inputs: { prior: { kind: "context", key: "source-spec" } },
+					run: { id: "fake" },
+					runWhen: { kind: "context-validation-report-has-errors", contextKey: "report" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: "revised",
+					},
+				},
+			],
+		};
+		const engine: Engine = {
+			async execute() {
+				return { raw: validSourceSpec };
+			},
+		};
+		const runtime: InferenceRuntime = {
+			artifactStore,
+			createContextStore: (jobId) => createContextStore(jobId, artifactStore),
+			engines: { claude: engine, function: engine },
+			jobStore,
+			knowledgeBase: createInferenceKnowledgeBase(),
+			newId: () => `runtime-${++id}`,
+			now: () => `t-${++time}`,
+			pipelines: {
+				register() {},
+				get() {
+					return pipeline;
+				},
+			},
+		};
+
+		// First run: the report has errors, so 02-revise runs and succeeds.
+		await runInferenceJob(runtime, job.jobId, {
+			contextOverrides: { report: { summary: { errorCount: 1 } } },
+		});
+		await expect(
+			artifactStore.readJson(job.jobId, "steps/02-revise/step.json"),
+		).resolves.toMatchObject({ status: "succeeded" });
+
+		// Rerun with a clean report: runWhen turns false, and the prior succeeded
+		// snapshot must not survive as if it were this run's result.
+		await runInferenceJob(runtime, job.jobId, {
+			contextOverrides: { report: { summary: { errorCount: 0 } } },
+		});
+
+		await expect(artifactStore.readJson(job.jobId, "steps/02-revise/step.json")).resolves.toEqual({
+			stepId: "02-revise",
+			status: "pending",
+		});
+		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "succeeded" });
+	});
+
 	it("fails the job when startFromStepId is unknown", async () => {
 		let time = 0;
 		let id = 0;

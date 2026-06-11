@@ -34,6 +34,8 @@ export type ValidationIssueCode =
 	| "internal-visible-title"
 	| "list-text-dot-subtext-missing"
 	| "source-ref-not-materialized"
+	| "source-prop-mismatch"
+	| "single-section-divider"
 	| "state-coverage-missing"
 	| "unknown-source-ref"
 	| "unknown-layout-ref"
