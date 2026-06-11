@@ -1,4 +1,5 @@
-import { Box, Boxes, Smartphone, Table2 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { ICONS } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/utils";
 import type { NavigatorTab } from "@/model/workbench-view-model";
@@ -9,7 +10,7 @@ interface RailProps {
 }
 
 type NavItem = {
-	icon: typeof Smartphone;
+	icon: LucideIcon;
 	label: string;
 	description: string;
 	value: NavigatorTab;
@@ -17,7 +18,7 @@ type NavItem = {
 
 const runItems: NavItem[] = [
 	{
-		icon: Table2,
+		icon: ICONS.run,
 		label: "Run",
 		description: "새 화면 생성 실행 및 결과 탐색",
 		value: "agent",
@@ -26,19 +27,19 @@ const runItems: NavItem[] = [
 
 const primaryItems: NavItem[] = [
 	{
-		icon: Smartphone,
+		icon: ICONS.screen,
 		label: "Screens",
 		description: "화면 목록 및 라우트별 변형 탐색",
 		value: "scn",
 	},
 	{
-		icon: Boxes,
+		icon: ICONS.area,
 		label: "Areas",
 		description: "재사용 가능한 영역 단위 구성",
 		value: "ogn",
 	},
 	{
-		icon: Box,
+		icon: ICONS.component,
 		label: "Components",
 		description: "영역을 구성하는 컴포넌트",
 		value: "comp",
