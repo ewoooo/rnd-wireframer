@@ -24,7 +24,6 @@ const validSourceSpec = {
 function makeStep(): InferenceStepDefinition {
 	return {
 		id: "analyze",
-		engine: "function",
 		inputs: {
 			source: { kind: "context", key: "source" },
 		},
@@ -132,24 +131,28 @@ describe("runStep", () => {
 		expect(calls).toBe(2);
 	});
 
-	it("passes the step.prompt ref through to the engine unchanged", async () => {
-		let captured: unknown;
+	it("routes task steps to claude, auto-loads the same-named skillset, and snapshots the prompt", async () => {
+		let capturedTask: unknown;
+		const resolvedRefs: unknown[] = [];
 		const step = {
 			id: "02-screen-intent",
-			engine: "claude" as const,
+			task: "screen-intent",
 			inputs: { sourceSpec: { kind: "context" as const, key: "source-spec" } },
-			prompt: { id: "screen-intent" },
 			output: { contractRef: { source: "output-contract" as const, id: "screen-intent" } },
 		};
 		const context = {
 			resolveInput: async () => ({ a: 1 }),
-			resolveReference: async () => ({}) as never,
+			resolveReference: async (ref: unknown) => {
+				resolvedRefs.push(ref);
+				return { kind: "skillset" } as never;
+			},
 			resolveOutputContract: async () => resolveOutputContractForInference("screen-intent"),
 			engines: {
 				claude: {
-					async execute(request: { prompt?: unknown }) {
-						captured = request.prompt;
+					async execute(request: { task?: string }) {
+						capturedTask = request.task;
 						return {
+							prompt: { system: "s", user: "u" },
 							raw: {
 								schemaVersion: SCHEMA_VERSION.screenIntent,
 								coreJudgment: "x",
@@ -169,7 +172,51 @@ describe("runStep", () => {
 			},
 		};
 		const result = await runStep(step, context as never);
-		expect(captured).toEqual({ id: "screen-intent" });
+		expect(capturedTask).toBe("screen-intent");
+		expect(resolvedRefs).toEqual([{ source: "skillset", id: "screen-intent" }]);
+		expect(result.references.skillset).toEqual({ kind: "skillset" });
+		expect(result.prompt).toEqual({ system: "s", user: "u" });
 		expect(result.status).toBe("succeeded");
+	});
+
+	it("writes context under the contract id by default and skips when writeToContext is false", async () => {
+		const engine: Engine = {
+			async execute() {
+				return { raw: validSourceSpec };
+			},
+		};
+		const knowledgeBase = createInferenceKnowledgeBase();
+		const baseContext = {
+			engines: { claude: engine, function: engine },
+			resolveInput: async () => ({}),
+			resolveReference: async () => {
+				throw new Error("no references expected");
+			},
+			resolveOutputContract: (ref: Parameters<typeof knowledgeBase.resolveOutputContract>[0]) =>
+				knowledgeBase.resolveOutputContract(ref),
+		};
+
+		const defaulted = await runStep(
+			{
+				id: "analyze",
+				run: { id: "fake" },
+				output: { contractRef: { source: "output-contract", id: "source-spec" } },
+			},
+			baseContext,
+		);
+		expect(defaulted.contextWrites).toEqual({ "source-spec": validSourceSpec });
+
+		const skipped = await runStep(
+			{
+				id: "analyze",
+				run: { id: "fake" },
+				output: {
+					contractRef: { source: "output-contract", id: "source-spec" },
+					writeToContext: false,
+				},
+			},
+			baseContext,
+		);
+		expect(skipped.contextWrites).toBeUndefined();
 	});
 });

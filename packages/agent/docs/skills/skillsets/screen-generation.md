@@ -1,0 +1,11 @@
+---
+documents:
+  - skill ../docs/skills/generate-skills/section-divider-rhythm/README.md
+  - skill ../docs/skills/generate-skills/bottom-fixed-cta/README.md
+  - skill ../docs/skills/generate-skills/text-field-states/README.md
+  - skill ../docs/skills/generate-skills/text-field-inline-action/README.md
+---
+
+# screen-generation
+
+composition-plan을 받아 render-tree를 생성하는 04-render-tree step의 지식 묶음.

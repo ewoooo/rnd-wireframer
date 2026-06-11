@@ -5,10 +5,5 @@ export type {
 	AgentSessionMode,
 	AgentSessionRequest,
 } from "./runtime-contract";
-export type {
-	AgentPromptArtifact,
-	AgentTaskDefinition,
-	AgentTaskInput,
-	AgentTaskKind,
-} from "./task-catalog";
+export type { AgentPromptArtifact, AgentTaskInput } from "./task-catalog";
 export type { AgentRunner, AgentRunnerRequest } from "./task-runner-contract";

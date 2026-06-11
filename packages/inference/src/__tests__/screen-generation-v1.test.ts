@@ -6,15 +6,15 @@ describe("screenGenerationPipelineV1", () => {
 	it("declares ordered validation and one-shot revision steps", () => {
 		expect(screenGenerationPipelineV1.id).toBe("screen-generation");
 		expect(screenGenerationPipelineV1.version).toBe("v1");
-		expect(screenGenerationPipelineV1.steps.map((s) => [s.id, s.engine])).toEqual([
-			["01-source-spec", "function"],
-			["02-screen-intent", "claude"],
-			["03-composition", "claude"],
-			["04-render-tree", "claude"],
-			["05-validation", "function"],
-			["06-revision", "claude"],
-			["07-validation-after-revision", "function"],
-			["08-quality", "claude"],
+		expect(screenGenerationPipelineV1.steps.map((s) => [s.id, s.task ?? s.run?.id])).toEqual([
+			["01-source-spec", "source-spec-mvp"],
+			["02-screen-intent", "screen-intent"],
+			["03-composition", "composition-planning"],
+			["04-render-tree", "screen-generation"],
+			["05-validation", "deterministic-validation"],
+			["06-revision", "screen-revision"],
+			["07-validation-after-revision", "deterministic-validation"],
+			["08-quality", "quality-review"],
 		]);
 		expect(screenGenerationPipelineV1.steps[5]?.runWhen).toEqual({
 			contextKey: "validation-report",
@@ -25,74 +25,53 @@ describe("screenGenerationPipelineV1", () => {
 		});
 	});
 
-	it("uses prompt.id as the taskKind for every claude step", () => {
-		const claudeSteps = screenGenerationPipelineV1.steps.filter((s) => s.engine === "claude");
-		expect(claudeSteps.map((s) => s.prompt?.id)).toEqual([
+	it("declares task names whose skillsets load implicitly; references carry only extras", () => {
+		const claudeSteps = screenGenerationPipelineV1.steps.filter((s) => s.task);
+		expect(claudeSteps.map((s) => s.task)).toEqual([
 			"screen-intent",
 			"composition-planning",
 			"screen-generation",
 			"screen-revision",
 			"quality-review",
 		]);
+		// No step re-declares its own skillset — runStep injects it from the task name.
+		for (const step of screenGenerationPipelineV1.steps) {
+			expect(step.references?.skillset).toBeUndefined();
+		}
+
+		const layoutCatalog = { source: "layout-catalog", id: undefined };
+		const componentCatalog = { source: "component-catalog", id: undefined };
 		expect(screenGenerationPipelineV1.steps[1]?.references).toEqual({
-			referenceIndex: {
-				source: "reference-screen-index",
-				id: undefined,
-				version: undefined,
-			},
-			skillset: {
-				source: "stage-skillset",
-				id: "understand.screen-intent",
-				version: undefined,
-			},
+			referenceIndex: { source: "reference-screen-index" },
 		});
 		// Composition gets the layout catalog; render-tree and revision also get the
 		// component catalog so claude builds nodes from real layout/component ids.
-		const layoutCatalog = { source: "layout-catalog", id: undefined, version: undefined };
-		const componentCatalog = { source: "component-catalog", id: undefined, version: undefined };
-		// Composition gets the layout catalog plus the compose-stage skillset.
 		expect(screenGenerationPipelineV1.steps[2]?.references).toEqual({
-			referenceCatalog: {
-				source: "reference-screen-catalog",
-				id: undefined,
-				version: undefined,
-			},
 			layoutCatalog,
-			skillset: {
-				source: "stage-skillset",
-				id: "compose.composition-planning",
-				version: undefined,
-			},
+			referenceCatalog: { source: "reference-screen-catalog" },
 		});
 		expect(screenGenerationPipelineV1.steps[3]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
-			skillset: {
-				source: "stage-skillset",
-				id: "compose.screen-generation",
-				version: undefined,
-			},
 		});
 		expect(screenGenerationPipelineV1.steps[5]?.references).toEqual({
 			componentCatalog,
 			layoutCatalog,
-			skillset: {
-				source: "stage-skillset",
-				id: "revise.screen-revision",
-				version: undefined,
-			},
 		});
-		// Quality review pulls the review skillset (checklist + per-axis review skills).
-		expect(screenGenerationPipelineV1.steps[7]?.references).toEqual({
-			skillset: {
-				source: "stage-skillset",
-				id: "revise.quality-review",
-				version: undefined,
-			},
-		});
+		// Quality review needs only its own skillset (implicit).
+		expect(screenGenerationPipelineV1.steps[7]?.references).toBeUndefined();
 		// Function steps carry no knowledge references.
 		expect(screenGenerationPipelineV1.steps[4]?.references).toBeUndefined();
 		expect(screenGenerationPipelineV1.steps[6]?.references).toBeUndefined();
+	});
+
+	it("writes every step output to context under the contract id by default", () => {
+		for (const step of screenGenerationPipelineV1.steps) {
+			expect(step.output.writeToContext).toBeUndefined();
+		}
+		// 06-revision overwrites render-tree and 07 overwrites validation-report via the default.
+		expect(screenGenerationPipelineV1.steps[5]?.output.contractRef.id).toBe("render-tree");
+		expect(screenGenerationPipelineV1.steps[6]?.output.contractRef.id).toBe("validation-report");
 	});
 
 	it("every step output contract resolves", () => {

@@ -44,7 +44,6 @@ function createStep(
 	output: Partial<InferenceStepDefinition["output"]> = {},
 ): InferenceStepDefinition {
 	return {
-		engine: "function",
 		id: "validate",
 		output: {
 			contractRef: { id: "validation-report", source: "output-contract" },

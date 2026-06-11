@@ -8,22 +8,17 @@ export type KnowledgeRef = {
 	source:
 		| "component-catalog"
 		| "layout-catalog"
-		| "prompt-catalog"
-		| "skill"
-		| "stage-skillset"
+		| "skillset"
 		| "token-catalog"
 		| `reference-${string}`;
 	id?: string;
-	version?: string;
 };
 
 export type OutputContractRef = {
 	source: "output-contract";
 	id: string;
-	version?: string;
 };
 
-export type PromptTemplateRef = { id: string; version?: string };
 export type FunctionRef = { id: string };
 
 export type StepOutputFailurePolicy = {
@@ -33,7 +28,8 @@ export type StepOutputFailurePolicy = {
 export type OutputContract = {
 	contractRef: OutputContractRef;
 	failWhen?: StepOutputFailurePolicy;
-	writeToContext?: string;
+	/** Context key for the step output. Defaults to contractRef.id; pass false to skip the write. */
+	writeToContext?: string | false;
 };
 
 export type OutputContractValue = OutputContractObject;
@@ -43,13 +39,17 @@ export type StepRunCondition = {
 	kind: "context-validation-report-has-errors";
 };
 
+/**
+ * Exactly one of `task` (claude step) or `run` (function step) must be set.
+ * A claude step automatically loads the skillset named after its task;
+ * `references` adds knowledge on top of that.
+ */
 export type InferenceStepDefinition = {
 	id: string;
-	engine: "claude" | "function";
+	task?: string;
+	run?: FunctionRef;
 	inputs?: Record<string, StepInputRef>;
 	references?: Record<string, KnowledgeRef>;
-	prompt?: PromptTemplateRef;
-	run?: FunctionRef;
 	runWhen?: StepRunCondition;
 	output: OutputContract;
 };

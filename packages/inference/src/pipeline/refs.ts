@@ -9,20 +9,28 @@ import type {
 export const jobInput = (path?: string): StepInputRef => ({ kind: "job-input", path });
 export const context = (key: string): StepInputRef => ({ kind: "context", key });
 
-export const knowledge = (
-	source: KnowledgeRef["source"],
-	id?: string,
-	version?: string,
-): KnowledgeRef => ({
+/** camelCase(key) → context(key) for each key, e.g. contexts("source-spec") → { sourceSpec: … }. */
+export const contexts = (...keys: string[]): Record<string, StepInputRef> =>
+	Object.fromEntries(keys.map((key) => [camelCase(key), context(key)]));
+
+export const knowledge = (source: KnowledgeRef["source"], id?: string): KnowledgeRef => ({
 	source,
 	id,
-	version,
 });
 
-export const outputContractRef = (id: string, version?: string): OutputContractRef => ({
+export const skillset = (task: string): KnowledgeRef => ({ source: "skillset", id: task });
+
+export const referenceIndex = (category: string): KnowledgeRef => ({
+	source: `reference-${category}-index`,
+});
+
+export const referenceCatalog = (category: string): KnowledgeRef => ({
+	source: `reference-${category}-catalog`,
+});
+
+export const outputContractRef = (id: string): OutputContractRef => ({
 	source: "output-contract",
 	id,
-	version,
 });
 
 export const onValidationReportErrors = (contextKey: string): StepRunCondition => ({
@@ -33,3 +41,7 @@ export const onValidationReportErrors = (contextKey: string): StepRunCondition =
 export const failOnValidationReportErrors: StepOutputFailurePolicy = {
 	kind: "validation-report-has-errors",
 };
+
+function camelCase(key: string): string {
+	return key.replace(/-([a-z0-9])/g, (_, ch: string) => ch.toUpperCase());
+}

@@ -1,15 +1,32 @@
 export const TOKEN_ROLES = [
-	"spacing", "radius", "elevation",
-	"size.icon", "size.avatar",
-	"color.surface", "color.surface.brand", "color.surface.inverse",
-	"color.surface.elevated", "color.surface.muted",
-	"color.text", "color.text.brand", "color.text.inverse",
-	"color.text.muted", "color.text.error",
-	"color.border", "color.border.subtle", "color.border.strong",
-	"color.icon", "color.icon.brand", "color.icon.muted",
-	"typography.title", "typography.subtitle", "typography.body",
-	"typography.caption", "typography.label",
-	"motion.duration", "motion.easing",
+	"spacing",
+	"radius",
+	"elevation",
+	"size.icon",
+	"size.avatar",
+	"color.surface",
+	"color.surface.brand",
+	"color.surface.inverse",
+	"color.surface.elevated",
+	"color.surface.muted",
+	"color.text",
+	"color.text.brand",
+	"color.text.inverse",
+	"color.text.muted",
+	"color.text.error",
+	"color.border",
+	"color.border.subtle",
+	"color.border.strong",
+	"color.icon",
+	"color.icon.brand",
+	"color.icon.muted",
+	"typography.title",
+	"typography.subtitle",
+	"typography.body",
+	"typography.caption",
+	"typography.label",
+	"motion.duration",
+	"motion.easing",
 ] as const;
 
 export type TokenRole = (typeof TOKEN_ROLES)[number];
@@ -24,8 +41,18 @@ export function isTokenRole(value: string): value is TokenRole {
 export type ComponentPropType = "array" | "boolean" | "enum" | "node" | "number" | "string";
 
 export type ComponentPropRole =
-	| "content" | "data" | "description" | "event" | "label" | "layout"
-	| "slot" | "state" | "styleVariant" | "title" | "value" | "visibility";
+	| "content"
+	| "data"
+	| "description"
+	| "event"
+	| "label"
+	| "layout"
+	| "slot"
+	| "state"
+	| "styleVariant"
+	| "title"
+	| "value"
+	| "visibility";
 
 export type ComponentPropContract = {
 	type: ComponentPropType;

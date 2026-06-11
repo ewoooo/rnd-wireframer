@@ -124,7 +124,6 @@ const fakeRunner: AgentRunner = async (request) => {
 				id: document.id,
 				role: document.role,
 				sourceRef: document.sourceRef,
-				stage: document.stage,
 				task: document.task,
 			})),
 		},
@@ -164,10 +163,11 @@ describe("screen-generation@v1 end-to-end", () => {
 			job.jobId,
 			"steps/02-screen-intent/references.json",
 		);
+		// The skillset reference is auto-injected from the step's task name.
 		expect(references).toMatchObject({
 			skillset: {
-				kind: "stage-skillset",
-				id: "understand.screen-intent",
+				kind: "skillset",
+				id: "screen-intent",
 			},
 		});
 		const skillset = readSkillsetFromReferences(references);
@@ -183,19 +183,16 @@ describe("screen-generation@v1 end-to-end", () => {
 				{
 					id: "screen-intent",
 					sourceRef: "../docs/prompts/screen-intent.md",
-					stage: "understand",
 					task: "screen-intent",
 				},
 				{
 					id: "source-fidelity-review",
 					sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md",
-					stage: "understand",
 					task: "screen-intent",
 				},
 				{
 					id: "state-coverage-review",
 					sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md",
-					stage: "understand",
 					task: "screen-intent",
 				},
 			],
@@ -260,7 +257,7 @@ function readSkillsetReference(context: unknown) {
 	}
 	const skillset = context.references.skillset;
 	if (
-		skillset.kind !== "stage-skillset" ||
+		skillset.kind !== "skillset" ||
 		!isRecord(skillset.data) ||
 		!Array.isArray(skillset.data.documents)
 	) {
@@ -272,7 +269,6 @@ function readSkillsetReference(context: unknown) {
 				id: string;
 				role?: string;
 				sourceRef: string;
-				stage: "compose" | "revise" | "understand";
 				task: string;
 			}>;
 		};

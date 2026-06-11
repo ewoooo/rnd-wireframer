@@ -32,7 +32,6 @@ async function runDemo() {
 			steps: [
 				defineStep({
 					id: "01-analyze",
-					engine: "function",
 					inputs: { job: jobInput() },
 					run: { id: "fake" },
 					output: { contractRef: outputContractRef("source-spec"), writeToContext: "source-spec" },

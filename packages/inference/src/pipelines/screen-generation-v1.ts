@@ -1,5 +1,5 @@
 import {
-	context,
+	contexts,
 	definePipeline,
 	defineStep,
 	failOnValidationReportErrors,
@@ -7,12 +7,15 @@ import {
 	knowledge,
 	onValidationReportErrors,
 	outputContractRef,
+	referenceCatalog,
+	referenceIndex,
 } from "../pipeline";
 
 /**
  * screen-generation@v1 — declarative only.
- * prompt.id is the @cx/agent AgentTaskKind; output.contractRef is the @cx/schema id.
- * claude steps carry no references: @cx/agent's task definitions own prompts/skills.
+ * A step's `task` names both the claude work and the skillset it auto-loads
+ * (docs/skills/skillsets/{task}.md). `output.contractRef` is the @cx/schema id;
+ * the step output lands in context under the contract id unless overridden.
  */
 export const screenGenerationPipelineV1 = definePipeline({
 	id: "screen-generation",
@@ -20,134 +23,77 @@ export const screenGenerationPipelineV1 = definePipeline({
 	steps: [
 		defineStep({
 			id: "01-source-spec",
-			engine: "function",
-			inputs: { job: jobInput() },
 			run: { id: "source-spec-mvp" },
-			output: {
-				contractRef: outputContractRef("source-spec"),
-				writeToContext: "source-spec",
-			},
+			inputs: { job: jobInput() },
+			output: { contractRef: outputContractRef("source-spec") },
 		}),
 		defineStep({
 			id: "02-screen-intent",
-			engine: "claude",
-			inputs: { sourceSpec: context("source-spec") },
-			references: {
-				skillset: knowledge("stage-skillset", "understand.screen-intent"),
-				referenceIndex: knowledge("reference-screen-index"),
-			},
-			prompt: { id: "screen-intent" },
-			output: {
-				contractRef: outputContractRef("screen-intent"),
-				writeToContext: "screen-intent",
-			},
+			task: "screen-intent",
+			inputs: contexts("source-spec"),
+			references: { referenceIndex: referenceIndex("screen") },
+			output: { contractRef: outputContractRef("screen-intent") },
 		}),
 		defineStep({
 			id: "03-composition",
-			engine: "claude",
-			inputs: {
-				sourceSpec: context("source-spec"),
-				screenIntent: context("screen-intent"),
-			},
+			task: "composition-planning",
+			inputs: contexts("source-spec", "screen-intent"),
 			references: {
 				layoutCatalog: knowledge("layout-catalog"),
-				skillset: knowledge("stage-skillset", "compose.composition-planning"),
-				referenceCatalog: knowledge("reference-screen-catalog"),
+				referenceCatalog: referenceCatalog("screen"),
 			},
-			prompt: { id: "composition-planning" },
-			output: {
-				contractRef: outputContractRef("composition-plan"),
-				writeToContext: "composition-plan",
-			},
+			output: { contractRef: outputContractRef("composition-plan") },
 		}),
 		defineStep({
 			id: "04-render-tree",
-			engine: "claude",
-			inputs: {
-				compositionPlan: context("composition-plan"),
-				screenIntent: context("screen-intent"),
-			},
+			task: "screen-generation",
+			inputs: contexts("composition-plan", "screen-intent"),
 			references: {
 				componentCatalog: knowledge("component-catalog"),
 				layoutCatalog: knowledge("layout-catalog"),
-				skillset: knowledge("stage-skillset", "compose.screen-generation"),
 			},
-			prompt: { id: "screen-generation" },
-			output: {
-				contractRef: outputContractRef("render-tree"),
-				writeToContext: "render-tree",
-			},
+			output: { contractRef: outputContractRef("render-tree") },
 		}),
 		defineStep({
 			id: "05-validation",
-			engine: "function",
-			inputs: {
-				compositionPlan: context("composition-plan"),
-				renderTree: context("render-tree"),
-				screenIntent: context("screen-intent"),
-				sourceSpec: context("source-spec"),
-			},
 			run: { id: "deterministic-validation" },
-			output: {
-				contractRef: outputContractRef("validation-report"),
-				writeToContext: "validation-report",
-			},
+			inputs: contexts("composition-plan", "render-tree", "screen-intent", "source-spec"),
+			output: { contractRef: outputContractRef("validation-report") },
 		}),
 		defineStep({
 			id: "06-revision",
-			engine: "claude",
-			inputs: {
-				compositionPlan: context("composition-plan"),
-				renderTree: context("render-tree"),
-				screenIntent: context("screen-intent"),
-				sourceSpec: context("source-spec"),
-				validationReport: context("validation-report"),
-			},
+			task: "screen-revision",
+			inputs: contexts(
+				"composition-plan",
+				"render-tree",
+				"screen-intent",
+				"source-spec",
+				"validation-report",
+			),
 			references: {
 				componentCatalog: knowledge("component-catalog"),
 				layoutCatalog: knowledge("layout-catalog"),
-				skillset: knowledge("stage-skillset", "revise.screen-revision"),
 			},
-			prompt: { id: "screen-revision" },
 			runWhen: onValidationReportErrors("validation-report"),
 			output: {
 				contractRef: outputContractRef("render-tree"),
-				writeToContext: "render-tree",
 			},
 		}),
 		defineStep({
 			id: "07-validation-after-revision",
-			engine: "function",
-			inputs: {
-				compositionPlan: context("composition-plan"),
-				renderTree: context("render-tree"),
-				screenIntent: context("screen-intent"),
-				sourceSpec: context("source-spec"),
-			},
 			run: { id: "deterministic-validation" },
+			inputs: contexts("composition-plan", "render-tree", "screen-intent", "source-spec"),
 			runWhen: onValidationReportErrors("validation-report"),
 			output: {
 				contractRef: outputContractRef("validation-report"),
 				failWhen: failOnValidationReportErrors,
-				writeToContext: "validation-report",
 			},
 		}),
 		defineStep({
 			id: "08-quality",
-			engine: "claude",
-			inputs: {
-				compositionPlan: context("composition-plan"),
-				renderTree: context("render-tree"),
-				validationReport: context("validation-report"),
-			},
-			references: {
-				skillset: knowledge("stage-skillset", "revise.quality-review"),
-			},
-			prompt: { id: "quality-review" },
-			output: {
-				contractRef: outputContractRef("quality-inspection"),
-				writeToContext: "quality-inspection",
-			},
+			task: "quality-review",
+			inputs: contexts("composition-plan", "render-tree", "validation-report"),
+			output: { contractRef: outputContractRef("quality-inspection") },
 		}),
 	],
 });

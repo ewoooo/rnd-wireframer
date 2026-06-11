@@ -48,7 +48,6 @@ describe("runInferenceJob", () => {
 			steps: [
 				{
 					id: "01-analyze",
-					engine: "function",
 					inputs: { job: { kind: "job-input" } },
 					run: { id: "fake" },
 					output: {
@@ -116,7 +115,6 @@ describe("runInferenceJob", () => {
 			steps: [
 				{
 					id: "01-first",
-					engine: "function",
 					inputs: { job: { kind: "job-input" } },
 					run: { id: "fake" },
 					output: {
@@ -126,7 +124,6 @@ describe("runInferenceJob", () => {
 				},
 				{
 					id: "02-second",
-					engine: "function",
 					inputs: { prior: { kind: "context", key: "source-spec" } },
 					run: { id: "fake" },
 					output: {
@@ -192,7 +189,6 @@ describe("runInferenceJob", () => {
 			steps: [
 				{
 					id: "01-first",
-					engine: "function",
 					inputs: { job: { kind: "job-input" } },
 					run: { id: "fake" },
 					output: {
