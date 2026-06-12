@@ -1,4 +1,4 @@
-import type { InferenceRuntime, StepExecution } from "../contracts";
+import type { InferenceRuntime, StepExecution, StepUsage } from "../contracts";
 
 export async function recordJobStarted(input: {
 	jobId: string;
@@ -66,8 +66,9 @@ export async function recordStepSucceeded(input: {
 	jobId: string;
 	runtime: InferenceRuntime;
 	stepId: string;
+	usage?: StepUsage;
 }): Promise<void> {
-	const { jobId, runtime, stepId } = input;
+	const { jobId, runtime, stepId, usage } = input;
 	await runtime.jobStore.updateStep(jobId, stepId, {
 		status: "succeeded",
 		completedAt: runtime.now(),
@@ -77,6 +78,7 @@ export async function recordStepSucceeded(input: {
 		stepId,
 		type: "step_completed",
 		timestamp: runtime.now(),
+		...(usage ? { payload: { usage } } : {}),
 	});
 }
 

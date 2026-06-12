@@ -8,10 +8,24 @@ export type EngineRequest = {
 	outputContract: OutputContractValue;
 };
 
+/**
+ * LLM 호출 사용량 메타(@cx/agent AgentUsage와 같은 모양 — 구조적 호환).
+ * claude step만 채우고 function step은 undefined.
+ */
+export type StepUsage = {
+	inputTokens?: number;
+	outputTokens?: number;
+	cacheCreationInputTokens?: number;
+	cacheReadInputTokens?: number;
+	totalCostUsd?: number;
+	durationMs?: number;
+};
+
 export type EngineResult = {
 	raw: unknown;
 	/** Engine-assembled prompt, persisted to steps/{stepId}/prompt.json when present. */
 	prompt?: unknown;
+	usage?: StepUsage;
 };
 
 export interface Engine {

@@ -377,6 +377,68 @@ describe("runInferenceJob", () => {
 		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "failed" });
 	});
 
+	it("persists engine usage as usage.json and step_completed payload", async () => {
+		let time = 0;
+		let id = 0;
+		const artifactStore = new MemoryArtifactStore();
+		const jobStore = createJobStore(artifactStore, {
+			now: () => `t-${++time}`,
+			newId: () => `job-${++id}`,
+		});
+		const job = await jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "SAMPLE" },
+		});
+		const usage = { inputTokens: 1200, outputTokens: 340, totalCostUsd: 0.0123, durationMs: 41000 };
+		const pipeline: PipelineDefinition = {
+			id: "screen-generation",
+			version: "v1",
+			steps: [
+				{
+					id: "01-analyze",
+					inputs: { job: { kind: "job-input" } },
+					run: { id: "fake" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: "source-spec",
+					},
+				},
+			],
+		};
+		const engine: Engine = {
+			async execute() {
+				return { raw: validSourceSpec, usage };
+			},
+		};
+		const runtime: InferenceRuntime = {
+			artifactStore,
+			createContextStore: (jobId) => createContextStore(jobId, artifactStore),
+			engines: { claude: engine, function: engine },
+			jobStore,
+			knowledgeBase: createInferenceKnowledgeBase(),
+			newId: () => `runtime-${++id}`,
+			now: () => `t-${++time}`,
+			pipelines: {
+				register() {},
+				get() {
+					return pipeline;
+				},
+			},
+		};
+
+		await runInferenceJob(runtime, job.jobId);
+
+		await expect(
+			artifactStore.readJson(job.jobId, "steps/01-analyze/usage.json"),
+		).resolves.toEqual(usage);
+		const events = await jobStore.listEvents(job.jobId, 0);
+		const completed = events.find(
+			(event) => event.type === "step_completed" && event.stepId === "01-analyze",
+		);
+		expect(completed?.payload).toEqual({ usage });
+	});
+
 	it("runs background steps after the job is recorded succeeded", async () => {
 		let time = 0;
 		let id = 0;

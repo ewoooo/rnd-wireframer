@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-import type { AgentRunner } from "../contract";
+import type { AgentRunner, AgentUsage } from "../contract";
 import { resolveClaudeGenerationModel } from "./claude-model";
 import { parseClaudeJsonResult } from "./claude-result-parser";
 
@@ -53,13 +53,21 @@ export function createClaudeAgentSdkRunner(
 		};
 
 		const parseEnvelope = (stdout: string) =>
-			JSON.parse(stdout) as { result?: unknown; structured_output?: unknown };
+			JSON.parse(stdout) as {
+				result?: unknown;
+				structured_output?: unknown;
+				usage?: Record<string, unknown>;
+				total_cost_usd?: unknown;
+				duration_ms?: unknown;
+			};
 
 		let payload: unknown;
+		let usage: AgentUsage | undefined;
 		if (schema) {
 			try {
 				const stdout = await runClaude(true);
 				const envelope = parseEnvelope(stdout);
+				usage = readEnvelopeUsage(envelope);
 				// structured_output is the schema-constrained object (preferred). On the
 				// rare "accepted but not extracted" case it's null → fall back to result text.
 				payload =
@@ -72,6 +80,7 @@ export function createClaudeAgentSdkRunner(
 				// JSON. Re-run WITHOUT --json-schema and text-parse, exactly as before.
 				const stdout = await runClaude(false);
 				const envelope = parseEnvelope(stdout);
+				usage = readEnvelopeUsage(envelope);
 				payload = parseClaudeJsonResult(
 					typeof envelope.result === "string" ? envelope.result : stdout,
 				).payload;
@@ -79,6 +88,7 @@ export function createClaudeAgentSdkRunner(
 		} else {
 			const stdout = await runClaude(false);
 			const envelope = parseEnvelope(stdout);
+			usage = readEnvelopeUsage(envelope);
 			payload = parseClaudeJsonResult(
 				typeof envelope.result === "string" ? envelope.result : stdout,
 			).payload;
@@ -91,8 +101,28 @@ export function createClaudeAgentSdkRunner(
 				sessionId: request.session?.sessionId,
 			},
 			taskKind: request.taskKind,
+			...(usage ? { usage } : {}),
 		};
 	};
+}
+
+/** envelope의 usage/total_cost_usd/duration_ms를 숫자만 골라 camelCase로 정규화한다. */
+function readEnvelopeUsage(envelope: {
+	usage?: Record<string, unknown>;
+	total_cost_usd?: unknown;
+	duration_ms?: unknown;
+}): AgentUsage | undefined {
+	const num = (value: unknown): number | undefined =>
+		typeof value === "number" && Number.isFinite(value) ? value : undefined;
+	const usage: AgentUsage = {
+		inputTokens: num(envelope.usage?.input_tokens),
+		outputTokens: num(envelope.usage?.output_tokens),
+		cacheCreationInputTokens: num(envelope.usage?.cache_creation_input_tokens),
+		cacheReadInputTokens: num(envelope.usage?.cache_read_input_tokens),
+		totalCostUsd: num(envelope.total_cost_usd),
+		durationMs: num(envelope.duration_ms),
+	};
+	return Object.values(usage).some((value) => value !== undefined) ? usage : undefined;
 }
 
 function extractOutputSchema(input: { context?: unknown }): Record<string, unknown> | undefined {

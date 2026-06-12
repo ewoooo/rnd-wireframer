@@ -84,7 +84,7 @@ export async function runInferenceJob(
 				jobId,
 				stepId: step.id,
 			});
-			await recordStepSucceeded({ jobId, runtime, stepId: step.id });
+			await recordStepSucceeded({ jobId, runtime, stepId: step.id, usage: execution.usage });
 		};
 
 		const foregroundSteps = stepsToRun.filter((step) => !step.background);
