@@ -46,6 +46,7 @@ export const AGENT_SKILLSET_CATALOG = {
 		documents: [
 			{ kind: "prompt", sourceRef: "../docs/prompts/screen-generation.md" },
 			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/component-layout-ref/README.md" },
 			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
 			{
 				kind: "skill",
