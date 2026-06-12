@@ -123,9 +123,17 @@ function createContextWrites(
 	step: InferenceStepDefinition,
 	raw: unknown,
 ): Record<string, unknown> | undefined {
-	if (step.output.writeToContext === false) return undefined;
-	const key = step.output.writeToContext ?? step.output.contractRef.id;
-	return { [key]: raw };
+	const writes: Record<string, unknown> = {};
+	if (step.output.writeToContext !== false) {
+		const key = step.output.writeToContext ?? step.output.contractRef.id;
+		writes[key] = raw;
+	}
+	if (step.output.spread && raw && typeof raw === "object") {
+		for (const [field, contextKey] of Object.entries(step.output.spread)) {
+			if (field in raw) writes[contextKey] = (raw as Record<string, unknown>)[field];
+		}
+	}
+	return Object.keys(writes).length > 0 ? writes : undefined;
 }
 
 function createInitialFailure(): StepFailure {

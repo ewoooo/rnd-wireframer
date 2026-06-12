@@ -6,6 +6,7 @@ stages:
   - compose
   - generate
 tasks:
+  - intent-composition
   - composition-planning
   - screen-generation
 role: divider-usage

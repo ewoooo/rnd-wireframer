@@ -25,6 +25,24 @@ export const AGENT_SKILLSET_CATALOG = {
 			},
 		],
 	},
+	"intent-composition": {
+		documents: [
+			{ kind: "prompt", sourceRef: "../docs/prompts/intent-composition.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md" },
+			{ kind: "skill", sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md" },
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/compose-skills/pagestack-section-unit/README.md",
+			},
+			{ kind: "skill", sourceRef: "../docs/skills/review-skills/pattern-fit-review/README.md" },
+			{
+				kind: "skill",
+				sourceRef: "../docs/skills/review-skills/visual-hierarchy-review/README.md",
+			},
+		],
+	},
 	"quality-review": {
 		documents: [
 			{ kind: "prompt", sourceRef: "../docs/prompts/quality-review.md" },

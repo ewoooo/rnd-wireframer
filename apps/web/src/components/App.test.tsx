@@ -434,8 +434,7 @@ function stubScreenFetch(
 			return Response.json({
 				steps: [
 					{ stepId: "01-source-spec", status: "succeeded" },
-					{ stepId: "02-screen-intent", status: "succeeded" },
-					{ stepId: "03-composition", status: "succeeded" },
+					{ stepId: "02-intent-composition", status: "succeeded" },
 					{
 						stepId: "04-render-tree",
 						status: inferenceStatus === "running" ? "running" : "succeeded",

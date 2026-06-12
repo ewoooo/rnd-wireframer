@@ -10,6 +10,9 @@ import {
 
 const stageByStepId = {
 	"01-source-spec": "parse-source",
+	// 02-intent-composition은 intent 판단과 구성 계획을 한 호출로 내는 통합 step.
+	// 옛 잡 아티팩트의 02-screen-intent/03-composition 매핑은 읽기 호환으로 남긴다.
+	"02-intent-composition": "plan-composition",
 	"02-screen-intent": "derive-screen-intent",
 	"03-composition": "plan-composition",
 	"04-render-tree": "generate-render-tree",

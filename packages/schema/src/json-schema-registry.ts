@@ -25,6 +25,7 @@ export const JSON_SCHEMA_BY_ARTIFACT_KIND = {
 	"component-proposal": createComponentProposalJsonSchema(),
 	"composition-plan": createCompositionPlanJsonSchema(),
 	"decoration-plan": createDecorationPlanJsonSchema(),
+	"intent-composition": createIntentCompositionJsonSchema(),
 	"quality-inspection": createQualityInspectionJsonSchema(),
 	"render-tree": createRenderTreeJsonSchema(),
 	"screen-intent": createScreenIntentJsonSchema(),
@@ -421,6 +422,48 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 					targetRegion: { enum: ["bottom", "contents", "header"] },
 				},
 			},
+		},
+	};
+}
+
+/**
+ * 02-intent-composition 통합 step의 출력 — screen-intent와 composition-plan을
+ * 한 번의 생성으로 받는다. 두 contract의 스키마를 그대로 품으며, 내부
+ * `#/$defs/*` ref는 루트 기준이므로 양쪽 $defs를 루트로 합친다. $defs 키가
+ * 충돌하면 한쪽 정의가 덮여 다른 쪽 ref가 오염되므로 충돌 시 즉시 던진다.
+ */
+function createIntentCompositionJsonSchema(): JsonSchemaDocument {
+	const screenIntent = createScreenIntentJsonSchema();
+	const compositionPlan = createCompositionPlanJsonSchema();
+	const embed = (schema: JsonSchemaDocument) => {
+		const { $schema, $id, title, $defs, ...rest } = schema;
+		void $schema;
+		void $id;
+		void title;
+		void $defs;
+		return rest;
+	};
+	const collisions = Object.keys(screenIntent.$defs ?? {}).filter(
+		(key) => key in ((compositionPlan.$defs ?? {}) as Record<string, unknown>),
+	);
+	if (collisions.length > 0) {
+		throw new Error(`intent-composition $defs collision: ${collisions.join(", ")}`);
+	}
+	return {
+		$schema: "https://json-schema.org/draft/2020-12/schema",
+		$id: SCHEMA_VERSION.intentComposition,
+		additionalProperties: false,
+		required: ["schemaVersion", "screenIntent", "compositionPlan"],
+		title: "intent-composition",
+		type: "object",
+		properties: {
+			schemaVersion: { const: SCHEMA_VERSION.intentComposition },
+			screenIntent: embed(screenIntent),
+			compositionPlan: embed(compositionPlan),
+		},
+		$defs: {
+			...(screenIntent.$defs as Record<string, unknown>),
+			...(compositionPlan.$defs as Record<string, unknown>),
 		},
 	};
 }

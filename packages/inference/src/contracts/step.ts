@@ -36,6 +36,12 @@ export type OutputContract = {
 	failWhen?: StepOutputFailurePolicy;
 	/** Context key for the step output. Defaults to contractRef.id; pass false to skip the write. */
 	writeToContext?: string | false;
+	/**
+	 * 통합 step의 출력 필드를 개별 context 키로 펼친다(출력 필드명 → context 키).
+	 * 하류 step은 기존 키를 그대로 읽으므로 통합 여부를 모른다. 필드 존재는
+	 * output contract의 required가 보장한다.
+	 */
+	spread?: Record<string, string>;
 };
 
 export type OutputContractValue = OutputContractObject;

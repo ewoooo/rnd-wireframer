@@ -9,6 +9,7 @@ export type GenerationArtifactKind =
 	| "decoration-plan"
 	| "draft-candidate"
 	| "generation-context"
+	| "intent-composition"
 	| "preview"
 	| "quality-inspection"
 	| "render-tree"
@@ -26,6 +27,7 @@ export const SCHEMA_VERSION_BY_ARTIFACT_KIND = {
 	"decoration-plan": SCHEMA_VERSION.decorationPlan,
 	"draft-candidate": SCHEMA_VERSION.draftCandidate,
 	"generation-context": SCHEMA_VERSION.generationContext,
+	"intent-composition": SCHEMA_VERSION.intentComposition,
 	preview: SCHEMA_VERSION.preview,
 	"quality-inspection": SCHEMA_VERSION.qualityInspection,
 	"render-tree": SCHEMA_VERSION.renderTree,

@@ -49,6 +49,7 @@ export type {
 export type { DraftCandidateContract } from "./draft-candidate";
 export type { GenerationContext } from "./generation-context";
 export { isRecord } from "./guards";
+export type { IntentCompositionContract } from "./intent-composition";
 export type {
 	ComponentCatalogData,
 	ComponentCatalogObject,

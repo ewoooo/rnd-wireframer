@@ -5,6 +5,7 @@ family: compose
 stages:
   - compose
 tasks:
+  - intent-composition
   - composition-planning
 role: area-layout-selection
 priority: required
