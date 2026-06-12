@@ -120,9 +120,12 @@ export function NavigationRoutes({
 				</Panel>
 			) : null}
 
-			{/* 좌상단: 편집할 x 선택 */}
+			{/* 좌상단: 편집할 x 선택.
+			    key={activeTab}: 탭마다 다른 목록(스크린/area/카탈로그)을 같은 slot에 그리므로,
+			    탭 전환 시 React가 이전 목록 DOM을 재사용하다 orphan을 남기지 않도록 강제 remount. */}
 			{activeTab === "scn" ? (
 				<Panel
+					key="scn"
 					title="Screens"
 					icon={<ICONS.screen className="size-3.5" data-icon="inline-start" />}
 					count={screenRoute?.variants.length ?? 0}
@@ -141,6 +144,7 @@ export function NavigationRoutes({
 				</Panel>
 			) : activeTab === "ogn" ? (
 				<Panel
+					key="ogn"
 					title="Areas"
 					icon={<ICONS.area className="size-3.5" data-icon="inline-start" />}
 					count={areas.length}
@@ -156,13 +160,14 @@ export function NavigationRoutes({
 				</Panel>
 			) : activeTab === "comp" ? (
 				<Panel
+					key="comp"
 					title="Components"
 					icon={<ICONS.component className="size-3.5" data-icon="inline-start" />}
 					count={components.length}
 					defaultSize={62}
 					minSize={20}
 				>
-					<NodeListBody
+					<ComponentListBody
 						emptyMessage="등록된 Component가 없습니다."
 						items={components}
 						onSelect={onSelectComponent}
@@ -170,7 +175,7 @@ export function NavigationRoutes({
 					/>
 				</Panel>
 			) : (
-				<Panel title="Screen" defaultSize={62} minSize={20}>
+				<Panel key="other" title="Screen" defaultSize={62} minSize={20}>
 					<div className="px-3 py-2 text-sm text-muted-foreground">
 						이 탭은 예전 사이드바 UI만 복구된 상태입니다.
 					</div>
@@ -216,6 +221,60 @@ function NodeListBody({
 					onSelect={onSelect}
 				/>
 			))}
+		</div>
+	);
+}
+
+// cmp 탭 전용: 카탈로그 항목은 제목만 보여준다(공용 NavigationNodeListItem 비재사용).
+function ComponentListBody({
+	emptyMessage,
+	items,
+	onSelect,
+	selectedId,
+}: {
+	emptyMessage: string;
+	items: NavigationNodeItem[];
+	onSelect: (id: string) => void;
+	selectedId?: string;
+}) {
+	if (!items.length) {
+		return <div className="px-3 py-4 text-sm text-muted-foreground">{emptyMessage}</div>;
+	}
+	return (
+		<div className="flex flex-col">
+			{items.map((item) => {
+				const isSelected = item.id === selectedId;
+				// 라벨("[kiki/draft] Name" | "[kiki] Name") → 이름 + draft 여부로 분리.
+				// 이름은 type("kiki.Name")에서 접두 제거, draft는 라벨에 표기됨.
+				const name = item.type.startsWith("kiki.") ? item.type.slice("kiki.".length) : item.title;
+				const isDraft = /draft/i.test(item.title);
+				return (
+					<button
+						key={item.id}
+						type="button"
+						className={cn(
+							"flex min-h-9 min-w-0 cursor-pointer items-center gap-1.5 border-t border-sidebar-border px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-sidebar-accent",
+							isSelected && "bg-primary/[0.08] text-primary hover:bg-primary/[0.08]",
+						)}
+						onClick={() => onSelect(item.id)}
+						title={item.title}
+					>
+						<span
+							className={cn(
+								"min-w-0 truncate text-[13px]",
+								isSelected ? "font-semibold" : "font-medium",
+							)}
+						>
+							{name}
+						</span>
+						{isDraft ? (
+							<span className="shrink-0 rounded bg-sidebar-accent px-1 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+								draft
+							</span>
+						) : null}
+					</button>
+				);
+			})}
 		</div>
 	);
 }
