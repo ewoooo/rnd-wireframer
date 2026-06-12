@@ -40,10 +40,10 @@ tags:
 
 ## Required props
 
-component catalog 엔트리에서 `required: true`인 prop은 전부 채운다. 자주 빠지는 계약:
+component catalog 엔트리에서 `required: true`인 prop은 전부 채운다. 자주 틀리는 계약:
 
-- `kiki.ActionButton`: `text`(string)와 `left`(number, 보통 `0`)가 둘 다 required.
-- catalog에 `type: "node"`로 선언된 prop(예: `kiki.Button.children`)은 string이 아니라 render node 객체를 받는다. 라벨 텍스트만 필요하면 string children을 받는 leaf component node로 감싼다.
+- `kiki.ActionButton`: CTA 라벨은 `primaryText` 계열이다. 단일 CTA는 `{ "button": "1", "primaryText": "<라벨>" }`, 2버튼 CTA는 `{ "button": "2", "secondaryText": "<좌측>", "primaryText": "<우측>", "type": "Default" }`. `text`/`left`는 버튼 라벨이 아니라 내부 툴팁 표면이므로 라벨 용도로 쓰지 않는다. `button` 생략 시 "2"로 렌더되어 라벨 없는 "버튼 | 버튼"이 된다.
+- catalog에 `type: "node"`로 선언된 prop(예: `kiki.Button.children`)은 render node 객체 또는 라벨 string을 받는다. 단순 라벨이면 string을 그대로 쓰고, 구조가 필요할 때만 node를 넣는다.
 
 ## Preflight checklist
 
@@ -52,4 +52,4 @@ component catalog 엔트리에서 `required: true`인 prop은 전부 채운다. 
 1. 트리 자리의 모든 `kiki.*` node에 `layout`이 있는가?
 2. 모든 `layout` 값이 catalog에 존재하는 `layout.composite.*` id인가?
 3. 각 component의 `required: true` prop이 전부 채워졌는가?
-4. `type: "node"` prop에 string을 넣지 않았는가?
+4. `kiki.ActionButton`에 변형이 요구하는 라벨 prop(`primaryText`/`secondaryText`)이 있는가?

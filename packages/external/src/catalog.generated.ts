@@ -51,10 +51,20 @@ export const externalCatalog: ComponentCatalog = {
 		source: "kiki-draft",
 		label: "[kiki/draft] ActionButton",
 		version: "0.0.0",
+		description:
+			"하단 고정 CTA 버튼 영역. 단일 CTA는 button '1' + primaryText, 2버튼 CTA는 button '2' + secondaryText(좌, 회색)/primaryText(우, 파랑). text/left는 버튼 라벨이 아니라 내부 툴팁 표면이다.",
 		props: {
 			disabled: { type: "boolean", role: "state", required: false },
-			text: { type: "string", required: true },
-			left: { type: "number", required: true },
+			text: {
+				type: "string",
+				required: false,
+				description: "툴팁 말풍선 텍스트. 버튼 라벨이 아니다 — CTA 라벨은 primaryText 계열을 쓴다.",
+			},
+			left: {
+				type: "number",
+				required: false,
+				description: "툴팁 left 오프셋(px). showTooltip을 쓸 때만 의미가 있다.",
+			},
 			tailAlign: { type: "enum", values: ["start", "center"], required: false },
 			type: {
 				type: "enum",
@@ -62,15 +72,33 @@ export const externalCatalog: ComponentCatalog = {
 				required: false,
 				defaultValue: "Default",
 			},
-			button: { type: "enum", values: ["1", "2"], required: false },
+			button: {
+				type: "enum",
+				values: ["1", "2"],
+				required: false,
+				defaultValue: "2",
+				description:
+					"'1'=단일 CTA(primaryText), '2'=좌우 2버튼(secondaryText+primaryText). 생략 시 '2'.",
+			},
 			showText: { type: "boolean", role: "visibility", required: false, defaultValue: false },
 			showTooltip: { type: "boolean", required: false },
 			topText: { type: "string", required: false },
 			leftText: { type: "string", required: false },
 			rightText: { type: "string", required: false },
-			buttonText: { type: "string", required: false },
-			primaryText: { type: "string", required: false },
-			secondaryText: { type: "string", required: false },
+			buttonText: { type: "string", required: false, description: "Ai+1 변형의 버튼 라벨." },
+			primaryText: {
+				type: "string",
+				role: "label",
+				required: false,
+				description:
+					"Default 변형의 주 CTA 라벨(단일 버튼 또는 2버튼의 우측 파란 버튼). 누락 시 '버튼'으로 렌더된다.",
+			},
+			secondaryText: {
+				type: "string",
+				role: "label",
+				required: false,
+				description: "Default+2 변형의 좌측 회색 버튼 라벨. 누락 시 '버튼'으로 렌더된다.",
+			},
 			priceLabel: { type: "string", role: "label", required: false },
 			period: { type: "string", role: "data", required: false },
 			price: { type: "string", role: "value", required: false },

@@ -32,6 +32,7 @@ describe("VALIDATION_CODE_REGISTRY", () => {
 			"layout-ref-outside-candidates",
 			"proposal-nearest-match-unknown",
 			"source-ref-not-materialized",
+			"source-text-reworded",
 			"state-coverage-missing",
 			"unknown-prop",
 			"unknown-source-ref",

@@ -58,7 +58,10 @@ const COMPONENT_PROP_TYPE_CHECKS = {
 	array: Array.isArray,
 	boolean: (value: unknown) => typeof value === "boolean",
 	enum: (value: unknown) => typeof value === "string",
-	node: (value: unknown) => isRecord(value) || Array.isArray(value) || value === null,
+	// ReactNode 의미론: node slot은 텍스트도 받는다. 렌더러는 render-node shape이
+	// 아닌 값을 그대로 React children으로 통과시킨다(build-component-props coercer).
+	node: (value: unknown) =>
+		isRecord(value) || Array.isArray(value) || value === null || typeof value === "string",
 	number: (value: unknown) => typeof value === "number" && Number.isFinite(value),
 	string: (value: unknown) => typeof value === "string",
 } as const satisfies Record<ComponentPropType, (value: unknown) => boolean>;
