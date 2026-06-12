@@ -1,7 +1,7 @@
 import type { RenderTreeNode } from "@cx/renderer";
-import { RENDER_TREE_NODE_TYPE } from "@cx/schema";
 import { getScreenModuleName, getScreenModuleSortOrder } from "@/lib/screen-module";
 import type { ScreenSummary } from "@/lib/screen-sources";
+import { buildExternalComponentCatalog } from "@/model/external-palette";
 
 export type NavigatorTab = "agent" | "comp" | "ogn" | "puck" | "scn";
 
@@ -40,8 +40,8 @@ export type NavigationNodeItem = {
 	childCount: number;
 	id: string;
 	layout?: string;
-	screenId: string;
-	screenTitle: string;
+	screenId?: string;
+	screenTitle?: string;
 	title: string;
 	type: string;
 };
@@ -68,10 +68,6 @@ export function collectScreenAreas(screen?: ScreenSummary): RenderTreeNode[] {
 	return screen?.renderTree ? collectNodesByTypePrefix(screen.renderTree, "area.") : [];
 }
 
-export function collectScreenComponents(screen?: ScreenSummary): RenderTreeNode[] {
-	return screen?.renderTree ? collectLeafComponents(screen.renderTree) : [];
-}
-
 export function collectWorkbenchAreas(screens: ScreenSummary[]): NavigationNodeEntry[] {
 	return screens.flatMap((screen) =>
 		collectScreenAreas(screen).map((node) => ({
@@ -81,13 +77,22 @@ export function collectWorkbenchAreas(screens: ScreenSummary[]): NavigationNodeE
 	);
 }
 
-export function collectWorkbenchComponents(screens: ScreenSummary[]): NavigationNodeEntry[] {
-	return screens.flatMap((screen) =>
-		collectScreenComponents(screen).map((node) => ({
-			node,
-			screen,
-		})),
-	);
+// cmp 탭은 스크린 트리의 인스턴스가 아니라 로컬 @cx/external 카탈로그를 보여준다.
+// (sync:catalog 산출물이라 정적 → import 시 1회 변환.)
+const externalComponentNodes = Array.from(buildExternalComponentCatalog().values());
+
+export function listExternalComponents(): RenderTreeNode[] {
+	return externalComponentNodes;
+}
+
+export function toCatalogNavigationItems(nodes: RenderTreeNode[]): NavigationNodeItem[] {
+	return nodes.map((node) => ({
+		childCount: node.children?.length ?? 0,
+		id: node.metadata.id,
+		layout: node.layout,
+		title: node.metadata.title,
+		type: node.type,
+	}));
 }
 
 export function toNavigationNodeItems(entries: NavigationNodeEntry[]): NavigationNodeItem[] {
@@ -193,20 +198,4 @@ function collectNodesByTypePrefix(node: RenderTreeNode, prefix: string): RenderT
 	const current = node.type.startsWith(prefix) ? [node] : [];
 	const children = node.children?.flatMap((child) => collectNodesByTypePrefix(child, prefix)) ?? [];
 	return [...current, ...children];
-}
-
-function collectLeafComponents(node: RenderTreeNode): RenderTreeNode[] {
-	if (!node.children?.length && isComponentNavigationNode(node)) {
-		return [node];
-	}
-	return node.children?.flatMap((child) => collectLeafComponents(child)) ?? [];
-}
-
-function isComponentNavigationNode(node: RenderTreeNode) {
-	return (
-		node.type !== RENDER_TREE_NODE_TYPE.screen &&
-		!node.type.startsWith("Screen.") &&
-		!node.type.startsWith("area.") &&
-		!node.type.startsWith("Layout.")
-	);
 }
