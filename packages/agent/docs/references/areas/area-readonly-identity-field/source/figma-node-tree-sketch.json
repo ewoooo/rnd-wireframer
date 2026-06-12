@@ -1,0 +1,42 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-readonly-identity-field",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23488"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Readonly Identity Field Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-readonly-reference-field",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-slot",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "identity-field-title",
+						"text": "기기변경 휴대폰 번호"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "readonly-field-slot",
+				"children": [
+					{
+						"name": "TextFieldDisabled",
+						"nodeType": "INSTANCE",
+						"role": "readonly-identity-value",
+						"text": "010-1234-5678"
+					}
+				]
+			}
+		]
+	}
+}

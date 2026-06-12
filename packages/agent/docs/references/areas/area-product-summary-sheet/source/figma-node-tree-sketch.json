@@ -1,0 +1,40 @@
+{
+	"referenceId": "area-product-summary-sheet",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23519"
+	},
+	"purpose": "Figma SOT hierarchy sketch for a compact product and monthly price summary sheet. Use hierarchy and roles only; do not copy literal sizing.",
+	"tree": {
+		"id": "10095:23519",
+		"name": "Sheet",
+		"role": "Sheet.product-summary",
+		"children": [
+			{
+				"role": "LeftItem",
+				"children": [
+					{
+						"role": "thumbnail"
+					},
+					{
+						"role": "product-and-price-text",
+						"children": [
+							{
+								"role": "product-title"
+							},
+							{
+								"role": "monthly-price"
+							},
+							{
+								"role": "price-qualifier"
+							}
+						]
+					}
+				]
+			},
+			{
+				"role": "RightItem.trailing-action"
+			}
+		]
+	}
+}

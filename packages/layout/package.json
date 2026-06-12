@@ -5,11 +5,20 @@
 	"type": "module",
 	"exports": {
 		".": "./src/index.ts",
-		"./chrome": "./src/chrome/index.ts",
-		"./primitives": "./src/primitives/index.ts"
+		"./catalog": "./src/catalog.generated.ts",
+		"./registry": "./src/registry.generated.ts",
+		"./resolver": "./src/resolver.ts",
+		"./canonicalize": "./src/canonicalize-catalog.ts",
+		"./primitive-target": "./src/primitive-target.ts",
+		"./primitives": "./src/components/primitives/index.ts",
+		"./chrome": "./src/components/chromes/index.ts",
+		"./style": "./src/internal/style.ts",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
-		"@cx/types": "workspace:*"
+		"@cx/external": "workspace:*",
+		"@cx/schema": "workspace:*",
+		"zod": "^4.4.3"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

@@ -1,0 +1,183 @@
+{
+	"referenceId": "screen-option-configuration",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23501"
+	},
+	"purpose": "Figma SOT hierarchy sketch for choosing the screen-level option-configuration reference. Use hierarchy and roles only; do not copy literal sizing.",
+	"tree": {
+		"id": "10095:23501",
+		"name": "상세_정보체크",
+		"type": "FRAME",
+		"role": "Screen",
+		"children": [
+			{
+				"name": "Header",
+				"role": "Screen.Header",
+				"children": [
+					{
+						"name": "StatusBar",
+						"role": "system-status"
+					},
+					{
+						"name": "AppBar",
+						"role": "screen-title",
+						"text": "추가 정보 입력"
+					}
+				]
+			},
+			{
+				"name": "Contents",
+				"role": "Screen.Contents",
+				"children": [
+					{
+						"name": "상품 요약",
+						"role": "Sheet",
+						"children": [
+							{
+								"role": "product-title"
+							},
+							{
+								"role": "monthly-price-summary"
+							}
+						]
+					},
+					{
+						"id": "10095:23505",
+						"name": "결합 할인",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListSelected.radio-option-group"
+							}
+						]
+					},
+					{
+						"role": "Divider"
+					},
+					{
+						"id": "10095:23507",
+						"name": "USIMㆍ이심(eSIM)",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListSelected.radio-option-group"
+							},
+							{
+								"role": "Callout"
+							}
+						]
+					},
+					{
+						"role": "Divider"
+					},
+					{
+						"id": "10095:23509",
+						"name": "휴대폰 배송 방법",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListSelected.radio-option-group"
+							}
+						]
+					},
+					{
+						"role": "Divider"
+					},
+					{
+						"id": "10095:23511",
+						"name": "배송지/수령 정보",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListSelected.same-as-subscriber"
+							},
+							{
+								"role": "TextField.recipient-name"
+							},
+							{
+								"role": "TextField.phone-number"
+							},
+							{
+								"role": "TextField.address-lookup-with-button"
+							},
+							{
+								"role": "TextField.address-detail"
+							}
+						]
+					},
+					{
+						"role": "Divider"
+					},
+					{
+						"id": "10095:23513",
+						"name": "바로보상 안내",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListText.compensation-summary"
+							},
+							{
+								"role": "TextField.compensation-input"
+							},
+							{
+								"role": "Button.compensation-apply"
+							},
+							{
+								"role": "Callout"
+							}
+						]
+					},
+					{
+						"role": "Divider"
+					},
+					{
+						"id": "10095:23515",
+						"name": "T기프트 배송 정보",
+						"role": "Pagestack",
+						"children": [
+							{
+								"role": "TitleSection"
+							},
+							{
+								"role": "ListSelected.same-as-subscriber"
+							},
+							{
+								"role": "TextField.delivery-fields"
+							},
+							{
+								"role": "TextField.address-lookup-with-button"
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "Bottom",
+				"role": "Screen.Bottom",
+				"children": [
+					{
+						"name": "ActionButton",
+						"role": "primary-progression-cta",
+						"text": "다음"
+					}
+				]
+			}
+		]
+	}
+}

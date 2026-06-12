@@ -1,0 +1,23 @@
+{
+	"referenceId": "area-product-summary-sheet",
+	"purpose": "RenderTree-oriented structure sketch for a compact product summary sheet. This is not a strict schema fixture.",
+	"tree": {
+		"type": "area",
+		"id": "area-product-summary-sheet-example",
+		"role": "area-product-summary-sheet",
+		"children": [
+			{
+				"type": "component",
+				"component": "kiki.Sheet",
+				"role": "product-summary",
+				"slots": [
+					"thumbnail",
+					"product-title",
+					"monthly-price",
+					"price-qualifier",
+					"trailing-action"
+				]
+			}
+		]
+	}
+}

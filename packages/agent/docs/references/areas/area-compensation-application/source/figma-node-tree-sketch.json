@@ -1,0 +1,43 @@
+{
+	"referenceId": "area-compensation-application",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23513"
+	},
+	"purpose": "Figma SOT hierarchy sketch for a compensation application section. Use hierarchy and roles only; do not copy literal sizing.",
+	"tree": {
+		"id": "10095:23513",
+		"name": "Pagestack",
+		"role": "Pagestack.compensation-application",
+		"children": [
+			{
+				"role": "TitleSection",
+				"text": "바로 보상 안내",
+				"children": [
+					{
+						"role": "info-icon"
+					}
+				]
+			},
+			{
+				"role": "ListText.compensation-summary"
+			},
+			{
+				"role": "TextField.device-search-with-button"
+			},
+			{
+				"role": "helper-text.search-example"
+			},
+			{
+				"role": "ListText.compensation-amount"
+			},
+			{
+				"role": "Button.section-action",
+				"text": "바로보상 신청"
+			},
+			{
+				"role": "Callout.compensation-explanation"
+			}
+		]
+	}
+}

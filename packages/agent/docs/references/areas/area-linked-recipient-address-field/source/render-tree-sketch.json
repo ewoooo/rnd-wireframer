@@ -1,0 +1,57 @@
+{
+	"referenceId": "area-linked-recipient-address-field",
+	"purpose": "RenderTree-oriented structure sketch for recipient/contact/address sections. This is not a strict schema fixture.",
+	"tree": {
+		"type": "area",
+		"id": "area-linked-recipient-address-field-example",
+		"role": "area-linked-recipient-address-field",
+		"children": [
+			{
+				"type": "component",
+				"component": "kiki.TitleSection",
+				"role": "section-title"
+			},
+			{
+				"type": "component",
+				"component": "kiki.Badge",
+				"role": "optional-title-badge",
+				"optional": true
+			},
+			{
+				"type": "component",
+				"component": "kiki.ListSelected",
+				"role": "same-as-subscriber"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "recipient-name"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "phone-number"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "address-lookup-with-button"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "readonly-base-address"
+			},
+			{
+				"type": "component",
+				"component": "kiki.TextField",
+				"role": "address-detail"
+			}
+		],
+		"wrapper": {
+			"type": "area-wrapper",
+			"component": "Pagestack",
+			"slot": "ContentsSlot"
+		}
+	}
+}

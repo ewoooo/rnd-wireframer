@@ -56,10 +56,10 @@ const emptyVisual = () => ({ cornerRadius: 0, fill: null, stroke: null, shadow: 
 
 let nodeSeq = 0;
 function idFor(node) {
-	const id = node.metadata && node.metadata.id;
+	const id = node.metadata?.id;
 	if (id) return id;
 	nodeSeq += 1;
-	return (node.type || "node") + "-" + nodeSeq;
+	return `${node.type || "node"}-${nodeSeq}`;
 }
 
 // Convert a RenderTree node → component-spec child node.
@@ -81,21 +81,21 @@ function convert(node, isRoot) {
 }
 
 // Root must be the Screen node (rt.children[0]).
-const screenNode = (rt.children && rt.children[0]) || rt;
+const screenNode = rt.children?.[0] || rt;
 const rootGroup = convert(screenNode, true);
 
 const COMPONENT_SPEC = {
 	$schema: "component-spec-v1",
-	name: "page/" + String((rt.metadata && rt.metadata.id) || "screen").toLowerCase(),
+	name: `page/${String(rt.metadata?.id || "screen").toLowerCase()}`,
 	category: "page",
-	description: (rt.metadata && rt.metadata.title) || "RenderTree export",
+	description: rt.metadata?.title || "RenderTree export",
 	base: { layout: rootGroup.layout, visual: rootGroup.visual, children: rootGroup.children },
 };
 
 const DS_TOKENS = { foundation: { dimension: { size: { "screen-content-width": { value: 375 } } } } };
 
 const out = [
-	"// AUTO-GENERATED from RenderTree (" + String((rt.metadata && rt.metadata.id) || "?") + ") — paste into bridge plugin (JSON → Figma) and Run.",
+	`// AUTO-GENERATED from RenderTree (${String(rt.metadata?.id || "?")}) — paste into bridge plugin (JSON → Figma) and Run.`,
 	`const DS_TOKENS = ${JSON.stringify(DS_TOKENS, null, 2)};`,
 	`const COMPONENT_SPEC = ${JSON.stringify(COMPONENT_SPEC, null, 2)};`,
 	"",
@@ -115,4 +115,4 @@ const out = [
 
 const dest = new URL("./figma-export-screen.generated.js", import.meta.url);
 writeFileSync(dest, out, "utf8");
-console.log("written:", dest.pathname, "(" + out.length + " bytes) from screen", (rt.metadata && rt.metadata.id));
+console.log("written:", dest.pathname, `(${out.length} bytes) from screen`, rt.metadata?.id);

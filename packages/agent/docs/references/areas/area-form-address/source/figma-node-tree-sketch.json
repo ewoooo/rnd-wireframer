@@ -1,0 +1,53 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-form-address",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10095:23492"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Address Form Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-section",
+		"children": [
+			{
+				"name": "TitleSection",
+				"nodeType": "INSTANCE",
+				"role": "section-title"
+			},
+			{
+				"name": "Postal Code Field",
+				"nodeType": "INSTANCE",
+				"role": "lookup-entry",
+				"children": [
+					{
+						"name": "TextField",
+						"nodeType": "INSTANCE",
+						"role": "postal-code-or-search"
+					},
+					{
+						"name": "Field Local Button",
+						"nodeType": "INSTANCE",
+						"role": "address-lookup-action"
+					}
+				]
+			},
+			{
+				"name": "Base Address Field",
+				"nodeType": "INSTANCE",
+				"role": "readonly-lookup-result"
+			},
+			{
+				"name": "Detail Address Field",
+				"nodeType": "INSTANCE",
+				"role": "editable-user-completion"
+			},
+			{
+				"name": "Helper Text",
+				"nodeType": "TEXT",
+				"role": "input-guidance"
+			}
+		]
+	}
+}

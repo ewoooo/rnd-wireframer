@@ -1,8 +1,8 @@
-import { Box, Boxes, Smartphone, Table2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type { LucideIcon } from "lucide-react";
+import { ICONS } from "@/components/icons";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/utils";
-import type { NavigatorTab } from "@/model/store";
+import type { NavigatorTab } from "@/model/workbench-view-model";
 
 interface RailProps {
 	activeTab: NavigatorTab;
@@ -10,70 +10,73 @@ interface RailProps {
 }
 
 type NavItem = {
-	icon: typeof Smartphone;
+	icon: LucideIcon;
 	label: string;
-	name: string;
 	description: string;
 	value: NavigatorTab;
 };
 
 const runItems: NavItem[] = [
 	{
-		icon: Table2,
-		label: "RUN",
-		name: "Run",
-		description: "스크린 생성 실행 및 결과 탐색",
-		value: "run",
+		icon: ICONS.run,
+		label: "Run",
+		description: "새 화면 생성 실행 및 결과 탐색",
+		value: "agent",
 	},
 ];
 
 const primaryItems: NavItem[] = [
 	{
-		icon: Smartphone,
-		label: "SCN",
-		name: "Screen",
+		icon: ICONS.screen,
+		label: "Screens",
 		description: "화면 목록 및 라우트별 변형 탐색",
 		value: "scn",
 	},
 	{
-		icon: Boxes,
-		label: "ARE",
-		name: "Area",
-		description: "재사용 가능한 섹션 단위 컴포넌트 목록",
+		icon: ICONS.area,
+		label: "Areas",
+		description: "재사용 가능한 영역 단위 구성",
 		value: "ogn",
 	},
 	{
-		icon: Box,
-		label: "CMP",
-		name: "Component",
-		description: "오가니즘을 구성하는 컴포지트 목록",
+		icon: ICONS.component,
+		label: "Components",
+		description: "영역을 구성하는 컴포넌트",
 		value: "comp",
 	},
 ];
 
-function NavButton({ item, isActive, onSelectTab }: { item: NavItem; isActive: boolean; onSelectTab: (tab: NavigatorTab) => void }) {
+function NavButton({
+	item,
+	isActive,
+	onSelectTab,
+}: {
+	item: NavItem;
+	isActive: boolean;
+	onSelectTab: (tab: NavigatorTab) => void;
+}) {
 	const Icon = item.icon;
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
-				<Button
+				<button
 					type="button"
-					size="icon"
-					variant={isActive ? "secondary" : "ghost"}
 					aria-label={item.label}
 					aria-pressed={isActive}
-					className={cn(
-						"size-10 rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer",
-						isActive && "bg-sidebar-accent text-sidebar-accent-foreground shadow-none",
-					)}
 					onClick={() => onSelectTab(item.value)}
+					className={cn(
+						"group relative flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2.5 transition-colors",
+						"text-sidebar-foreground/70 hover:bg-primary/10 hover:text-primary",
+						isActive &&
+							"bg-primary font-semibold text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+					)}
 				>
-					<Icon className="size-4" data-icon="inline-start" />
-				</Button>
+					<Icon className="size-4 shrink-0" />
+					<span className="truncate text-button">{item.label}</span>
+				</button>
 			</TooltipTrigger>
 			<TooltipContent side="right">
-				<p className="font-semibold">{item.name}<span className="text-muted-foreground font-normal ml-1">({item.label})</span></p>
-				<p className="text-muted-foreground mt-0.5">{item.description}</p>
+				<p className="text-muted-foreground">{item.description}</p>
 			</TooltipContent>
 		</Tooltip>
 	);
@@ -84,16 +87,26 @@ export function Rail({ activeTab, onSelectTab }: RailProps) {
 		<TooltipProvider delayDuration={400}>
 			<nav
 				aria-label="Workbench navigation"
-				className="flex w-14 shrink-0 flex-col items-center gap-1 bg-sidebar p-2"
+				className="flex w-44 shrink-0 flex-col gap-1 bg-sidebar p-2"
 			>
 				{runItems.map((item) => (
-					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
+					<NavButton
+						key={item.value}
+						item={item}
+						isActive={activeTab === item.value}
+						onSelectTab={onSelectTab}
+					/>
 				))}
 
-				<div className="my-1 w-6 border-t border-sidebar-border" />
+				<div className="my-1 h-px w-full bg-sidebar-border" />
 
 				{primaryItems.map((item) => (
-					<NavButton key={item.value} item={item} isActive={activeTab === item.value} onSelectTab={onSelectTab} />
+					<NavButton
+						key={item.value}
+						item={item}
+						isActive={activeTab === item.value}
+						onSelectTab={onSelectTab}
+					/>
 				))}
 			</nav>
 		</TooltipProvider>

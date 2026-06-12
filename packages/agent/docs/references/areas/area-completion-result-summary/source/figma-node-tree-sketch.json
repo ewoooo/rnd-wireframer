@@ -1,0 +1,88 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-completion-result-summary",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNodes": ["10090:58795", "10090:58800"]
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Completion Result Summary Area",
+		"nodeType": "INSTANCE",
+		"role": "pagestack-completion-result-summary",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "completion-title-group",
+				"children": [
+					{
+						"name": "TitleMain",
+						"nodeType": "INSTANCE",
+						"role": "complete-title-main",
+						"variantHint": {
+							"Type": "Complete"
+						},
+						"children": [
+							{
+								"name": "TitleSubText",
+								"nodeType": "INSTANCE",
+								"role": "optional-result-context",
+								"example": "갤럭시 S29 ∙ SM-S942NV"
+							},
+							{
+								"name": "TitleText",
+								"nodeType": "TEXT",
+								"role": "completion-result-headline",
+								"examples": [
+									"축하드려요 은진님, 개통이 완료되었어요",
+									"0 청년 109로 요금제가 변경 됐어요"
+								]
+							},
+							{
+								"name": "SubText",
+								"nodeType": "TEXT",
+								"role": "completion-result-meaning",
+								"examples": [
+									"지금부터 새로운 휴대폰 사용이 가능해요.",
+									"이제 지훈님은 매달 31,760원의 가치를 더 돌려 받을 수 있어요."
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "summary-card-slot",
+				"children": [
+					{
+						"name": "CardContentsFilled",
+						"nodeType": "INSTANCE",
+						"role": "result-summary-card",
+						"children": [
+							{
+								"name": "TitleContents",
+								"nodeType": "INSTANCE",
+								"role": "summary-card-title",
+								"examples": ["개통 정보", "요금제 정보"]
+							},
+							{
+								"name": "ListText Rows",
+								"nodeType": "INSTANCE_SET",
+								"role": "result-key-value-rows",
+								"examples": [
+									"휴대폰 | 갤럭시 S29",
+									"요금제 | 6G 인피니티",
+									"납부금액 | 월 99,700원",
+									"적용일 | 다음 결제일부터"
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

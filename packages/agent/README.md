@@ -1,126 +1,294 @@
 # @cx/agent
 
-`@cx/agent`는 AI 실행 전후의 deterministic 처리와 Agent SDK 실행 adapter를 담는 패키지다.
+`@cx/agent`는 Claude Agent SDK 기반의 AI 실행 adapter 패키지다.
 
-이 패키지는 화면을 직접 렌더링하지 않는다. 렌더 가능한 JSON 계약과 validation은 `@cx/renderer`가 소유하고, `@cx/agent`는 AI import NodeTree, read model, 생성/검수 runner가 사용할 중간 처리만 담당한다.
+이 패키지는 화면 생성 결과의 최종 타입 계약, RenderTree 변환, DB 저장, workflow orchestration을 소유하지 않는다. 출력 DTO/schema 계약은 `@cx/schema`가 관리하고, `@cx/agent`는 해당 계약을 만족하는 결과를 Claude 실행으로 얻어오는 책임만 가진다.
 
-## 공개 import
+Screen inference에서의 실행 엔진 위치는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다. 생성/검수 prompt checklist와 출력 규약은 [`docs/`](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs) 아래에서 패키지 내부 자산으로 관리한다.
 
-패키지 루트에서는 브라우저 번들에서도 안전한 deterministic 기능만 import할 수 있다.
+## 책임
+
+- 사용자 쿼리를 agent task로 분류해 실행한다.
+- task별 prompt artifact를 구성한다.
+- Claude Agent SDK를 local-first로 호출한다.
+- 기본 생성은 새 세션으로 실행하고, 명시적 재시도/이어쓰기 흐름에서만 resume 정책을 적용한다.
+- Claude 응답을 agent 실행 결과로 정규화한다.
+- web 서버/API route와 CLI 스크립트가 같은 입력 형태로 실행할 수 있는 adapter를 제공한다.
+- 생성/검수용 prompt contract, checklist, output 규약 문서를 패키지 내부에서 독립 관리한다.
+
+## 패키지 책임 경계
+
+`@cx/agent`는 AI 실행 패키지다. 외부 caller가 요청한 task를 Claude 실행 요청으로 바꾸고, Claude 응답을 agent 실행 결과로 되돌려준다.
+
+```text
+caller
+  -> @cx/agent/adapters
+  -> @cx/agent runtime
+  -> task catalog
+  -> task prompt artifact + Claude session policy
+  -> Claude Agent SDK runner
+```
+
+caller는 web API route, server action, CLI script가 될 수 있다. 브라우저 client component는 이 패키지를 직접 import하지 않는다.
+
+## 외부 사용 방법
+
+### 권장 entrypoint
 
 ```ts
-import {
-	applyDesignReview,
-	composeAssetContents,
-	decorateRegisteredAssets,
-	materializeDecoratedAssetsToNodeTree,
-	registerAssets,
-	reviewDesignTree,
-} from "@cx/agent";
+import { createAgentRuntime } from "@cx/agent";
+import { runAgentQuery } from "@cx/agent/adapters";
+import { createClaudeRunner } from "@cx/agent/claude";
 ```
 
-Agent SDK처럼 Node.js 런타임 전용 의존성을 가진 기능은 반드시 서버/API 코드에서 subpath로 import한다. 패키지 루트에서 export하지 않는다.
+외부 caller는 `createAgentRuntime`으로 runtime을 만들고, `runAgentQuery`에 task kind와 사용자 query를 넘긴다.
+`createClaudeRunner`는 caller가 `model`을 넘기면 그 값을 사용하고, 없으면 `CLAUDE_GENERATION_MODEL`, 그것도 없으면 agent 패키지 기본 모델 `claude-opus-4-7`을 Claude CLI `--model`로 전달한다.
 
 ```ts
-import { createCxTextAgent } from "@cx/agent/agent-sdk-runtime";
-import { generateAssetsWithLocalClaude } from "@cx/agent/claude-asset-generator";
-import { composeAssetContents } from "@cx/agent/compose-assets";
-import { decorateRegisteredAssets } from "@cx/agent/decorate-assets";
-import { applyDesignReview, reviewDesignTree } from "@cx/agent/design-review";
-import { materializeDecoratedAssetsToNodeTree } from "@cx/agent/register-assets-to-database-tables";
-import { registerAssets } from "@cx/agent/register-assets";
-import type { GeneratedNodeTree } from "@cx/agent/types";
+const runtime = createAgentRuntime({
+	runner: createClaudeRunner({
+		localFirst: true,
+	}),
+});
+
+const result = await runAgentQuery(runtime, {
+	taskKind: "screen-generation",
+	query: "가입 완료 화면을 생성해줘",
+	context: {
+		screenCode: "mbr-join-complete",
+	},
+});
 ```
 
-## 현재 기능
+`createClaudeRunner`의 실제 local session 연결은 `src/claude/claude-agent-sdk-runner.ts`에서 관리한다.
 
-| 경로 | 책임 |
-|---|---|
-| `src/runtime/agent-sdk-runtime.ts` | `@openai/agents` 기반 text agent 생성/실행 adapter |
-| `src/register/claude-asset-generator.ts` | Claude Agent SDK local session 기반 `GeneratedNodeTree` 생성. screen case는 개별 screen으로 materialize하고 화면 설명은 `screen.description`에 둠 |
-| `src/register/register-assets.ts` | **Register** — `GeneratedNodeTree`를 `RegisteredNodeTree`로 정렬/정규화하고 raw를 보존 |
-| `src/compose/compose-assets.ts` | **Composer** — `RegisteredNodeTree`를 flat `ComposedNodeTree`로 풀고 `component.raw`를 `props`/`hooks`로 승격. `raw`와 pending placeholder는 산출물에 남기지 않음 |
-| `src/compose/compose-assets-ai.ts` | Composer의 빈 props/gap을 Agent SDK/Claude로 보강하는 서버 전용 단계 |
-| `src/decorate/decorate-assets.ts` | **Decorator** — `ComposedNodeTree`에 콘텐츠/OGN layout pattern 메타를 붙여 `DecoratedNodeTree`를 만든다. screen shell은 deterministic code가 담당함 |
-| `src/design-review/design-review-contracts.ts` | **Design Review contracts** — deterministic review rule, synthetic region area, stage/version/reference path 같은 판단 테이블 |
-| `src/design-review/design-review-schema.ts` | **Design Review schema** — 디자인 품질 검수 patch와 `moveComponent`, `updatePattern`, `createNewPattern`, `createComponent`, `createComposite`, `setDisplay`, `updateComponentProps` operation 계약 |
-| `src/design-review/review-design-tree.ts` | **Design Review reviewer** — `docs/design/` 근거를 참조해 CTA 승격 같은 보수적 deterministic 디자인 검수 proposal 생성 |
-| `src/design-review/apply-design-review.ts` | **Design Review apply** — schema를 통과한 patch만 `DecoratedNodeTree`에 적용해 reviewed tree를 생성 |
-| `src/pattern/pattern-schema.ts` | `@cx/types` pattern schema 호환 re-export |
-| `src/pattern/pattern-store.ts` | `@cx/pattern-store` 호환 re-export |
-| `src/pattern/pattern-resolver.ts` | `@cx/pattern-store` catalog에서 children layout preset을 고르는 agent 전용 resolver |
-| `src/database/register-assets-to-database-tables.ts` | **DB transformer** — reviewed `DecoratedNodeTree`를 `MaterializedNodeTree` row shape로 materialize한다. screen region shell은 코드 계약으로 생성 |
-| `src/types.ts` | agent NodeTree, pattern, hook, table row 타입 |
-| `src/index.ts` | 패키지 공개 export 집약 |
-| `src/__tests__/` | 패키지 단위 동작 검증 |
+### Web에서 사용할 때
 
-## 기본 흐름
+web 버튼은 `@cx/agent`를 직접 import하지 않는다. 버튼은 Next.js API route 또는 server action을 호출하고, 서버 쪽 코드가 `@cx/agent/adapters`를 사용한다.
 
-파이프라인은 책임이 분리된 5단계로 구성한다. 각 단계의 한 줄 정의:
+```ts
+// apps/web/src/app/api/agent/route.ts 같은 서버 전용 경계
+import { createAgentRuntime } from "@cx/agent";
+import { runAgentQuery } from "@cx/agent/adapters";
+import { createClaudeRunner } from "@cx/agent/claude";
 
-- **Register**: Parse user input into canonical `RegisteredNodeTree`. (구조 추출)
-- **Composer**: Place props, hooks and data binding candidates into `ComposedNodeTree`. (콘텐츠 채움)
-- **Decorator**: Match content layout patterns from pattern-store into `DecoratedNodeTree`. (콘텐츠/OGN 배치)
-- **Design Review**: Review decorated tree with `docs/design/` references and apply limited patch operations. (디자인 품질 보정)
-- **DB transformer**: Materialize reviewed decorator decisions and content into `database/tables` row shape.
+const runtime = createAgentRuntime({
+	runner: createClaudeRunner({ localFirst: true }),
+});
+
+export async function POST(request: Request) {
+	const body = await request.json();
+	const result = await runAgentQuery(runtime, {
+		taskKind: body.taskKind,
+		query: body.query,
+		context: body.context,
+		sessionId: body.sessionId,
+		resume: body.resume,
+	});
+
+	return Response.json(result);
+}
+```
+
+### CLI script에서 사용할 때
+
+CLI script도 web 서버와 같은 `runAgentQuery` adapter를 사용한다.
+
+```ts
+import { createAgentRuntime } from "@cx/agent";
+import { runAgentQuery } from "@cx/agent/adapters";
+import { createClaudeRunner } from "@cx/agent/claude";
+
+const runtime = createAgentRuntime({
+	runner: createClaudeRunner({ localFirst: true }),
+});
+
+const result = await runAgentQuery(runtime, {
+	taskKind: "quality-review",
+	query: "이 생성 후보가 디자인 패턴 문서를 지키는지 검수해줘",
+	context: {
+		candidatePath: "path/to/generated.json",
+	},
+});
+
+console.log(JSON.stringify(result, null, 2));
+```
+
+### Public subpaths
+
+| Subpath | 외부 사용처 | 책임 |
+|---|---|---|
+| `@cx/agent` | 서버/API/CLI | runtime 생성, task 실행의 root API |
+| `@cx/agent/adapters` | 서버/API/CLI 권장 진입점 | web과 script가 공유하는 `runAgentQuery` 요청 shape |
+| `@cx/agent/claude` | 서버/API/CLI | Claude runner 생성과 Claude 내부 판정 helper |
+| `@cx/agent/contract` | 타입 참조 | agent 실행 계약 타입 |
+| `@cx/agent/prompt-catalog` | inference knowledge resolver | prompt catalog SSOT object resolver |
+| `@cx/agent/skill-catalog` | inference knowledge resolver | skill set SSOT object resolver |
+| `@cx/agent/tasks` | 테스트/진단 | task catalog와 task definition 확인 |
+
+`src/runtime`, `src/claude`, `src/errors` 내부 파일은 직접 import하지 않는다. 필요한 외부 표면은 위 subpath를 통해서만 공개한다.
+
+## 두지 않는 책임
+
+- Codex 기반 검수 runner
+- OpenAI/Codex provider
+- RenderTree 생성 또는 React render
+- `database/tables` 저장/반영
+- 제품 workflow orchestration
+- 최종 출력 타입 SSOT
+
+## 디렉토리 구조
 
 ```text
-md (client-imports) 또는 read model
--> Register  : generateAssetsWithLocalClaude + registerAssets
-               GeneratedNodeTree 생성, raw 셀 보존, 골격 정규화
--> Composer  : composeAssetContents
-               RegisteredNodeTree → ComposedNodeTree, routes/variants/screens flat children 구조화,
-               component.raw → component.props/hooks
--> Decorator : decorateRegisteredAssets
-               ComposedNodeTree → DecoratedNodeTree, pattern-store 조회 후 layout pattern 메타 부착
--> DesignReview
-               reviewDesignTree 또는 AI review patch → applyDesignReview,
-               docs/design 근거가 있는 제한 operation만 적용
--> DB        : materializeDecoratedAssetsToNodeTree
-               ReviewedDecoratedNodeTree → MaterializedNodeTree, screen shell과 database/tables row 생성
+packages/agent/
+  package.json
+  src/
+    index.ts
+
+    contract/
+      task-catalog.ts
+      task-runner-contract.ts
+      runtime-contract.ts
+
+    tasks/
+      screen-generation/
+        index.ts
+        prompt.ts
+      screen-revision/
+        index.ts
+        prompt.ts
+      quality-review/
+        index.ts
+        prompt.ts
+
+    runtime/
+      create-agent-runtime.ts
+      run-agent-task.ts
+      resolve-task-runner.ts
+
+    claude/
+      claude-agent-sdk-runner.ts
+      claude-session-policy.ts
+      claude-availability.ts
+      claude-result-parser.ts
+
+    prompt-catalog/
+      catalog.ts
+
+    skill-catalog/
+      catalog.ts
+
+    errors/
+      agent-error.ts
+
+    adapters/
+      index.ts
+      run-agent-query.ts
+
+    __tests__/
 ```
 
-**단계 내부는 두 패스로 구성**: (1) deterministic 매핑 → (2) Agent SDK AI 검수. (1)이 비용 0의 안전한 기본값을 만들고, (2)가 빈 곳/의심 케이스를 보강한다. Decorator의 (2)는 marketplace(Vendor↔Consumer) 협상으로 진행할 예정 (설계 진행 중).
+## 디렉토리 책임
 
-**외부 의존 경계**: markdown 파싱은 오직 Register에서만. Composer/Decorator/Design Review/DB는 이전 단계 산출물, `component-catalog`, `@cx/component-pattern-store`, `@cx/pattern-store` 카탈로그, `docs/design/` 근거 문서만 참조한다. `deck/*` 산출물은 LLM prompt packaging과 감사/재현 snapshot이며, validator의 기본 기준은 SSOT를 직접 조회하는 `ValidatorContext`다. Design Review의 판단값은 `design-review-contracts.ts`와 `@cx/pattern-store`가 소유하고, reviewer/apply 함수 안에 component id, CTA label, region area pattern 같은 값을 직접 박지 않는다.
+### `src/contract`
 
-Claude 생성은 로컬 Claude 실행 파일을 우선 사용한다. 각 생성 요청은 기본적으로 새 세션에서 실행하며, 이전 대화를 이어야 하는 명시적 검수/재시도 흐름에서만 `continueSession: true`를 전달한다.
+Agent 패키지 내부 실행 계약을 둔다.
+
+최종 산출물의 제품 DTO/schema 계약은 `@cx/schema`가 소유한다. 이 디렉토리는 `AgentTaskKind`, `AgentTaskDefinition`, `AgentRunner`, `AgentRunResult`처럼 agent 실행 흐름 자체에 필요한 타입만 관리한다.
+
+### `src/tasks`
+
+사용자 쿼리 종류별 task를 둔다.
+
+- `screen-generation`: 사용자 쿼리와 생성 컨텍스트를 받아 신규 화면 후보를 생성한다.
+- `screen-revision`: 기존 후보와 피드백을 받아 수정 후보를 생성한다.
+- `quality-review`: 생성 후보를 기준 문서와 계약에 따라 검수하고 hierarchy/separation/fidelity 점수를 매긴다.
+- `component-proposal`: 카탈로그 밖 component/변형 후보를 비파괴 제안 아티팩트로 산출한다(확정·반영은 사람의 카탈로그 mutation으로만).
+
+생성/검수/제안 prompt가 참조하는 design-context bundle 규칙 정본은 `docs/design-context/`에 있고, prompt 원문은 `docs/prompts/`, skill/checklist/output 규칙은 `docs/skills/`의 set 단위 참조 자산이다.
+
+각 task는 task definition 객체와 `createPrompt`만 가진다. 세션 정책과 Claude 응답 해석은 `src/claude`가 담당한다. 런타임은 문자열 `switch`/`if` 분기 대신 task catalog를 조회해 실행한다.
+
+### `src/runtime`
+
+공통 실행 순서를 관리한다.
 
 ```text
-uploaded markdown files
--> generateAssetsWithLocalClaude
--> GeneratedNodeTree
--> registerAssets
--> RegisteredNodeTree
--> composeAssetContents
--> ComposedNodeTree
--> decorateRegisteredAssets
--> DecoratedNodeTree
--> reviewDesignTree/applyDesignReview
--> ReviewedDecoratedNodeTree
--> materializeDecoratedAssetsToNodeTree
--> MaterializedNodeTree
+task catalog 조회
+-> prompt artifact 구성
+-> Claude session 정책 결정
+-> Claude runner 호출
+-> Claude 응답 payload 반환
 ```
 
-`database/ai-imports`의 Claude/AI 보정 흐름은 `agent-assets.json`, `agent-assets.registered.json`, `agent-assets.composed.json`, `agent-assets.decorated.json`, `agent-assets.design-review.json`, `agent-assets.reviewed.json`, `agent-assets.materialized.json`을 남긴다. `agent-assets.design-review.json`은 patch/report이고, `agent-assets.reviewed.json`은 patch가 적용된 materialize 직전 tree다.
+`runtime`은 특정 task의 세부 의미를 몰라야 한다. task별 차이는 `tasks`와 `contract`의 catalog에 둔다.
 
-`generateAssetsWithLocalClaude(input, { debug: true })`를 사용하면 서버 콘솔에 입력 파일 요약, prompt 길이, Claude SDK message 타입, 경과 시간, message count, 파싱 결과 카운트가 출력된다. 원문 markdown과 전체 raw result는 기본 로그에 출력하지 않는다.
+### `src/claude`
 
-OpenAI Agent SDK 실행은 별도 흐름이다.
+Claude Agent SDK와 직접 맞닿는 adapter를 둔다.
+
+로컬 Claude 사용 가능 여부 확인, Claude Agent SDK 호출, Claude session 옵션 변환, Claude 응답 envelope 해석이 이 디렉토리의 책임이다. 다른 AI provider를 일반화하기 위한 `providers` 계층은 현재 두지 않는다.
+
+### `src/prompt-catalog`
+
+`packages/agent/docs/prompts`의 prompt markdown 정본을 inference에서 참조할 수 있는 `prompt-catalog` SSOT object로 내보낸다. `@cx/agent` root와 `@cx/agent/prompt-catalog` subpath가 같은 resolver를 공개한다.
+
+### `src/skill-catalog`
+
+`packages/agent/docs/skills`의 skill/checklist/output-contract set을 inference에서 참조할 수 있는 `skill` SSOT object로 내보낸다. 스킬은 prompt catalog와 같은 방식으로 공개하되, 세트 단위 JSON 객체 형태를 가진다.
+
+### `src/errors`
+
+Agent 실행 오류 타입을 둔다.
+
+예: task catalog 누락, Claude 실행 불가, session resume 실패, 출력 parse 실패.
+
+### `src/adapters`
+
+패키지 외부에서 호출하기 위한 얇은 adapter를 둔다.
+
+web 버튼은 브라우저 클라이언트에서 `@cx/agent`를 직접 호출하지 않는다. Next.js API route나 server action이 `@cx/agent/adapters`를 호출하고, 버튼은 해당 route/action을 호출한다.
+
+CLI 스크립트도 같은 adapter를 사용한다. 이렇게 하면 web과 script가 서로 다른 요청 shape를 만들지 않는다.
+
+## Public Surface
+
+```ts
+import { createAgentRuntime, runAgentTask } from "@cx/agent";
+import { runAgentQuery } from "@cx/agent/adapters";
+```
+
+`runAgentQuery`는 web 서버/API route와 CLI 스크립트가 공유하는 외부 진입점이다.
+
+## 호출 경계
 
 ```text
-createCxTextAgent
--> runCxTextAgent
--> finalOutput 검사
--> deterministic validation 또는 table conversion
+Web Button
+  -> Next.js API route 또는 server action
+  -> @cx/agent/adapters runAgentQuery
+  -> @cx/agent runtime
+  -> Claude Agent SDK
+
+CLI Script
+  -> @cx/agent/adapters runAgentQuery
+  -> @cx/agent runtime
+  -> Claude Agent SDK
 ```
 
-## 아직 없는 것
+## 현재 구현 메모
 
-- Claude 생성 agent의 role-specific instructions
-- Codex 검수 agent의 local-first runner와 guardrail 확장
-- local-first Claude/Codex runner
-- 원격 API fallback 정책
-- Persistence adapter for the future operational DB/storage layer
+현재 패키지는 디렉토리와 public adapter 계약을 먼저 고정한다. Claude Agent SDK 실제 호출과 `@cx/schema` 기반 입출력 DTO는 후속 구현에서 연결한다.
 
-위 기능은 `agent-sdk-runtime` 위에 별도 파일로 추가한다.
+## 테스트 범위
+
+`src/__tests__`는 agent 패키지 내부에서 검증 가능한 단위만 다룬다.
+
+- task catalog 등록 여부
+- task prompt artifact 생성
+- session mode와 명시적 resume 정책
+- `runAgentQuery` 외부 adapter가 runtime으로 넘기는 요청 shape
+- Claude local/remote availability 판정 로직
+- Claude JSON 응답 parser
+- prompt/skill catalog root와 subpath 공개 표면
+
+실제 Claude Agent SDK 세션을 열거나 web 버튼부터 생성 결과까지 검증하는 e2e는 전역 테스트에서 다룬다.

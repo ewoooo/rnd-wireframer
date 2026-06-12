@@ -6,13 +6,17 @@
 	"scripts": {
 		"dev": "next dev apps/web",
 		"build": "next build apps/web",
-		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages",
+		"lint": "biome lint . && node scripts/check-react-hooks-policy.mjs apps packages && node scripts/check-inference-boundaries.mjs",
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
+		"sync:catalog": "tsx scripts/sync-catalog/index.ts",
+		"sync:layout": "tsx scripts/sync-layout-catalog/index.ts",
+		"sync:reference": "tsx scripts/sync-reference-catalog/index.ts",
+		"sync:skillset": "tsx scripts/sync-skillset-catalog/index.ts",
+		"promote:component": "tsx scripts/promote-component.ts",
+		"proposal:backlog": "tsx scripts/proposal-backlog/index.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"build:decks": "tsx packages/agent/src/deck/build-decks.ts",
-		"sync:catalog": "tsx scripts/sync-catalog/sync.ts",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui"
 	},
@@ -31,6 +35,10 @@
 		"vitest": "^4.1.6"
 	},
 	"dependencies": {
+		"@cx/agent": "workspace:*",
+		"@cx/external": "workspace:*",
+		"@cx/inference": "workspace:*",
+		"@cx/schema": "workspace:*",
 		"@radix-ui/react-scroll-area": "^1.2.10",
 		"@radix-ui/react-slot": "^1.2.4",
 		"@radix-ui/react-tabs": "^1.1.13",

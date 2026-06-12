@@ -9,11 +9,9 @@
 		".": "./src/index.ts"
 	},
 	"dependencies": {
-		"@cx/components": "workspace:*",
 		"@cx/external": "workspace:*",
 		"@cx/layout": "workspace:*",
-		"@cx/types": "workspace:*",
-		"zod": "^4.4.3"
+		"@cx/schema": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": "^19.2.0"

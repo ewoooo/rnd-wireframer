@@ -9,16 +9,18 @@
 		"start": "next start"
 	},
 	"dependencies": {
+		"@cx/adapters": "workspace:*",
 		"@cx/agent": "workspace:*",
-		"@cx/components": "workspace:*",
+		"@cx/export-tsx": "workspace:*",
 		"@cx/external": "workspace:*",
+		"@cx/inference": "workspace:*",
 		"@cx/layout": "workspace:*",
-		"@cx/pattern-store": "workspace:*",
 		"@cx/renderer": "workspace:*",
-		"@cx/types": "workspace:*",
-		"@measured/puck": "^0.20.2",
-		"@radix-ui/react-tooltip": "^1.2.8",
-		"@supabase/supabase-js": "^2.49.4",
+		"@cx/schema": "workspace:*",
+		"@cx/tokens": "workspace:*",
+		"@puckeditor/core": "^0.21.2",
+		"fflate": "^0.8.3",
+		"radix-ui": "^1.4.3",
 		"react-resizable-panels": "^4.11.2"
 	}
 }

@@ -1,15 +1,3 @@
-export { AppBar } from './components/AppBar';
-export { Badge } from './components/Badge';
-export { BottomNavigation } from './components/BottomNavigation';
-export type { BottomNavItem } from './components/BottomNavigation';
-export { Button } from './components/Button';
-export { Callout } from './components/Callout';
-export { Chip } from './components/Chip';
-export { Divider } from './components/Divider';
-export { InfoTextList } from './components/InfoTextList';
-export { ListSelected } from './components/ListSelected';
-export { ListText } from './components/ListText';
-export type { ListTextTable } from './components/ListText';
-export { Tab } from './components/Tab';
-export type { TabItem } from './components/Tab';
-export { TextField } from './components/TextField';
+// @cx/external 공개 표면 = KIKI-SHIM이 생성한 전체 컴포넌트 표면.
+// catalog의 모든 kiki.{name}과 1:1로 매칭되며, 손큐레이션 없이 전부 노출한다.
+export * from "./registry.generated";

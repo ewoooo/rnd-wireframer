@@ -1,0 +1,26 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-prerequisite-status",
+	"note": "Minimal RenderTree-oriented area sketch. This describes the area internals, not the whole screen.",
+	"tree": {
+		"type": "PageStack",
+		"role": "prerequisite-status-section",
+		"children": [
+			{
+				"type": "TitleSection",
+				"role": "prerequisite-status-title",
+				"propsHint": {
+					"text": "본인인증 완료"
+				}
+			},
+			{
+				"type": "ListText",
+				"role": "completed-prerequisite-message",
+				"propsHint": {
+					"text": "조현호 고객님의 본인인증이 완료되었습니다.",
+					"readonly": true
+				}
+			}
+		]
+	}
+}

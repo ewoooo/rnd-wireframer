@@ -4,9 +4,10 @@
 
 이 문서는 에이전트 역할, 작업 인계 방식, 완료 기준만 정의한다.
 
-제품 범위는 [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md), 기술 경계는 [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md), 데이터 설계는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)를 따른다.
+패키지 책임과 관계망은 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md), 저장소 구조와 패키지 경계는 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md)를 따른다. Web API route 표면과 endpoint 작성 기준은 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 따른다. 디자인 패턴 기준은 이 문서의 디자인 패턴 문서 목록을 따른다.
+Screen inference 실행 구조는 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md)를 따른다.
 
-`AGENTS.md`, `MASTER_PLAN.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터/디자인 문서는 `docs/` 아래에 둔다.
+`AGENTS.md`, `PACKAGE_MAP.md`, `AGENTS_HISTORY.md`는 프로젝트 전역 문서로 루트에 둔다. 세부 개발/데이터 문서는 `docs/` 아래에 둔다. Agent-facing 디자인 참조 정본은 `packages/agent/docs/skills/design-skills/design-fundamentals/source/` 아래에 둔다.
 
 ## 2. 운영 원칙
 
@@ -14,66 +15,57 @@
 - 수급 원본 JSON과 mock 입력 JSON은 파괴적으로 수정하지 않는다.
 - 생성 결과는 버전 있는 산출물로 취급한다.
 - 화면 table 후보 생성 AI는 Claude를 사용한다.
-- 생성 결과 검수 AI는 Codex를 사용한다.
-- AI 실행은 Agent SDK를 통해 호출한다.
+- 생성 결과 검수 AI도 Claude를 사용한다.
+- AI 실행은 Claude Agent SDK를 통해 호출한다.
 - Claude는 로컬 실행을 우선 사용하되 기본 생성 요청은 새 세션으로 실행한다. 기존 세션 재개는 명시적 재시도, 검수 반영, 이어쓰기 흐름에서만 옵션으로 사용한다.
-- Codex는 로컬 CLI/런타임 실행기를 우선 사용한다.
 - 로컬 실행이 없거나 실패할 때만 원격 API로 fallback한다.
-- 컴포넌트 라이브러리는 GitHub [`ewoooo/cx-components`](https://github.com/ewoooo/cx-components.git)를 `packages/component`의 `@cx/components` 패키지로 흡수해 사용한다.
-- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약은 `packages/renderer/src/component-catalog.ts`의 `component-catalog`에서 관리하고 compose/AI/editor가 이를 참조한다.
-- 재사용 가능한 semantic UI 조합인 componentPattern registry는 `packages/component-pattern-store`의 `@cx/component-pattern-store` 패키지에서 관리한다. `@cx/pattern-store`의 composite pattern은 componentPattern이 아니라 composite children layout recipe다.
-- spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리하고, `@cx/components/tailwind.css`는 이를 참조한다.
+- `@cx/agent`가 참조하는 생성/검수 프롬프트, 체크리스트, 출력 규약은 `packages/agent/docs/`에서 독립 관리한다.
+- 생성 관련 문장형 참조 자산은 `@cx/inference` 실행과 agent context bundle에서도 `packages/agent/docs/`의 정본을 참조한다.
+- 컴포넌트 라이브러리는 kiki(`github.com/sovorovvang-cyber/kiki`) 원본 소스를 vendoring 한 `packages/external`의 `@cx/external` 패키지로 흡수해 사용한다. (구 `ewoooo/cx-components` 기반 `@cx/components`는 은퇴하고 `@cx/external`이 컴포넌트 SSOT다.)
+- 컴포넌트별 prop, variant, AI 작성 가능 surface 계약 **타입**은 `@cx/schema`의 `component-catalog.ts`가 소유하고, 실제 catalog **값**은 `@cx/external`의 자동생성 `catalog.generated.ts`(공개 표면 `@cx/external/catalog`, key는 `kiki.X` canonical)가 소유한다. 소비자는 `catalog.generated`를 직접 import하지 않고 `@cx/external/resolver` 읽기 API로만 접근한다.
+- spacing token의 Tailwind v4 `@theme` 산출물은 `packages/token/src/generated/`에서 관리한다.
+- `@cx/tokens`의 공개 소비 표면은 `@cx/tokens`, `@cx/tokens/variables.css`, `@cx/tokens/tailwind.css`로 제한한다. `packages/token/src/generated/*`와 `packages/token/src/internal/*`는 직접 import하지 않는다.
+- 컴포넌트 토큰은 `@cx/external`의 `--skt-component-*` alias만 소유하고, foundation/semantic 값은 `@cx/tokens`를 참조한다.
 - `@cx/tokens`와 기존 `cx-layout` 기반 레이아웃 자산은 새 프로젝트의 기반 패키지로 가져온다.
 - 가져온 `cx-layout`은 새 프로젝트에서 `packages/layout`의 `@cx/layout` 패키지로 흡수한다.
-- 공유 row/pattern 계약 타입은 `packages/types`의 `@cx/types` 패키지에서 관리한다.
-- layout pattern store의 JSON 원천과 조회 helper는 `packages/pattern-store`의 `@cx/pattern-store` 패키지에서 관리한다. pattern store 타입과 runtime schema의 SSOT는 `packages/types`의 `@cx/types`가 소유한다. `@cx/renderer`는 pattern-store 패키지를 직접 import하지 않고 호출자가 주입한 `PatternStore` input만 해석한다.
-- `sdui-renderer`의 schema, binding, registry, validation, table shape -> RenderTree projection, React 렌더링 패턴은 `packages/renderer`의 `@cx/renderer` 패키지에서 관리한다.
+- 재설계 기간에는 `@cx/agent`를 Claude Agent SDK 실행 adapter로만 운영한다. `@cx/layout`은 `@cx/external`과 동일한 external-thin 스캐폴딩(자동생성 `catalog.generated`/`registry.generated` + 손작성 `catalog.alias` + `resolver` 읽기 API + `canonicalize-catalog`)으로 layout primitive, layout pattern component를 소유한다. `@cx/importer`, `@cx/workflow` 패키지는 새 설계가 확정될 때까지 운영하지 않는다.
+- `packages/schema`의 `@cx/schema` 패키지는 generation pipeline 전반의 DTO/schema 계약 SSOT로 운영한다. 외부 패키지는 root export만 사용하고 내부 파일, 공개되지 않은 subpath, JSON schema 파일을 직접 import하지 않는다. schemaVersion에는 `generation-v2` 같은 flow 이름을 넣지 않고 `source-spec.v0.1`처럼 artifact-local 버전명을 사용한다.
+- `packages/renderer`의 `@cx/renderer` 패키지는 RenderTree JSON -> React render 런타임만 관리한다. table projection, schema validation, materializer, AI 실행 책임을 두지 않는다.
+- `packages/adapters`의 `@cx/adapters/markdown` subpath는 Markdown/source 입력을 SourceSpec으로 정규화하는 순수 함수만 관리한다. 파일 읽기/쓰기, Claude 실행, RenderTree 생성, 검증 rule 판정, catalog 값 소유 책임을 두지 않는다.
+- `packages/adapters`의 `@cx/adapters/table` subpath는 table/read model을 screen 단위 `RenderTreeScreenNode`로 조립하는 순수 함수만 관리한다. 파일 IO, React render, layout 선택, pattern 추천, spacing 보정, validation rule 판정 책임을 두지 않는다.
+- `packages/validation`의 `@cx/validation` 패키지는 `@cx/schema` JSON Schema, DTO, component reference, layout pattern reference, token reference 검증을 순수 함수로 수행하고 검증 결과만 반환한다. 파일 쓰기, retry 정책, stage transition, React render 책임을 두지 않는다.
+- screen inference 실행, 상태, 이벤트, artifact, step orchestration은 `@cx/inference` 패키지가 소유한다.
 - React 코드에서 `useMemo`와 `useCallback`은 기본 금지다. 렌더 비용이나 참조 안정성이 실제 문제가 되면 먼저 컴포넌트 경계, state 위치, 데이터 변환 위치를 조정한다.
 - `useMemo`/`useCallback` 금지는 `scripts/check-react-hooks-policy.mjs`로 강제한다.
-- 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `componentCatalog`(컴포넌트 prop 계약), `pattern-store`(패턴 매칭), `componentRendererKinds`(렌더러 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
-- 원천 import는 `database/client-imports/`, AI import 후보 산출물은 `database/ai-imports/`, 승인된 소비 데이터 테이블 덤프는 [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md)의 `database/tables/*.json` 계약을 우선 따른다.
-- `database/tables`는 workbench와 renderer가 소비하는 승인 데이터만 둔다. parser, AI 생성 API, agent pipeline은 이 디렉토리를 직접 덮어쓰지 않고 `database/ai-imports/*.materialized.json` 후보를 만든 뒤 별도 promote/import 단계로 반영한다.
-- `database/generated-decks`는 LLM prompt packaging과 감사/재현을 위한 snapshot 산출물이다. 계약 검증의 기준은 deck이 아니라 `@cx/components/catalog`, `@cx/component-pattern-store`, `@cx/pattern-store`, `docs/design`, `@cx/types` 원천을 직접 조회한다.
-- AI generation 산출물 계약은 `GeneratedNodeTree -> RegisteredNodeTree -> ComposedNodeTree -> DecoratedNodeTree -> DesignReview patch -> ReviewedDecoratedNodeTree -> MaterializedNodeTree` 순서로 본다. `ComposedNodeTree` 이후에는 `raw`와 pending placeholder를 남기지 않는다. Design Review patch는 반드시 `docs/design/` 책임 문서를 근거로 제한된 operation만 제안한다.
-- component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한 뒤 compose에서 `component.hooks`로 승격한다.
+- 문자열 literal 기반 hardcoded `switch`/`if`-chain 매핑은 원천적으로 금지한다. 같은 키 도메인을 분기하는 코드가 두 군데 이상 나타나면 그건 계약(contract) 테이블이 누락됐다는 신호다. 그런 분기가 필요해지면 직접 switch를 쓰지 말고 **계약 테이블을 어디에 둘지부터 요청**한다. 예: `@cx/external/resolver`(컴포넌트 prop 계약·텍스트 prop source 키), `@cx/layout/resolver`(layout 패턴·node-type 계약), renderer-private render registry(node→element 매핑). 분기 로직은 계약 테이블 조회 + 일반 helper로 표현한다.
+- 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 관리하고, 런타임 데이터와 섞지 않는다.
+- screen generation의 최종 결과물은 `final-result.json`에 저장되는 RenderTree JSON이다. 테이블 반영은 이 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 apply 단계만 수행한다.
+- 기존 database 파일 기반 생성/반영 흐름은 새 설계가 확정될 때까지 활성 패키지 책임으로 보지 않는다.
+- component interaction은 문자열 `events`가 아니라 `hooks: NodeHook[]` 계약을 사용한다. 첨부 명세의 이벤트/액션/액션 파라미터는 `raw.hooks`로 구조화한다.
 - 기능 개발을 수행할 때는 변경된 동작, 계약, 사용법, 결정 사항을 관련 문서에 함께 반영한다.
+- Web API route를 추가, 제거, rename, response shape 변경할 때는 [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md)를 함께 갱신한다.
+- Browser-facing UI는 `/api/*` endpoint만 소비한다. DB, Claude 실행, inference orchestration은 Next API route와 `server/*` service/repo 뒤에 둔다.
 - 중요한 결정과 완료 작업은 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md)에 기록한다.
 
-## 3. RenderTree Projection 책임 분리
+## 3. 재설계 기준
 
-첨부 screen/area 명세 또는 DB read model을 `database/tables` shape와 `@cx/renderer` RenderTree 입력 DTO로 바꿀 때는 단계별 산출물과 deterministic code의 책임을 분리한다.
-
-기본 흐름은 아래 순서를 따른다.
+현재 생성 과정은 재설계 중이며, 기존 table 후보 생성/검수/반영 패키지 경계는 제거된 상태다.
 
 ```text
-원천 markdown 또는 read model
--> Register: 파서/계약 테이블이 route, variant, screen, area, component 골격과 raw를 만든다
--> Composer: raw를 component props/hooks 후보로 승격한다
--> Decorator: @cx/pattern-store의 layout pattern ref를 붙인다
--> Design Review: docs/design 근거가 있는 제한 patch만 제안/적용한다
--> Materializer: database/tables shape의 row를 만든다
--> @cx/renderer: tablesToRenderTree projection과 validation 후 React render한다
+Markdown Source
+-> @cx/adapters/markdown SourceSpec
+-> 새 생성 과정 설계
+-> RenderTree JSON
+-> @cx/renderer React render
 ```
 
-AI가 보강할 수 있는 영역:
+운영 기준:
 
-- Register 입력이 불완전할 때 누락된 설명, 이름, raw 셀 해석 후보를 제안
-- Composer 단계에서 component props 기본값, hooks 후보, data binding path 후보를 보강
-- Decorator/Design Review 단계에서 pattern 선택 보정, CTA 승격, display 상태 보정, 새 component/composite/pattern 제안을 제한 operation으로 표현
-- “약관 목록 조회” 같은 설명을 component `title`/`description`/`label` 후보로 풀기
-
-코드가 deterministic하게 처리해야 하는 영역:
-
-- `Screen` 아래 `Screen.Header`, `Screen.Contents`, `Screen.Bottom` 3영역 생성
-- PRDD 영역 번호 기반 slot 분류: `0`은 header, `999` 이상은 bottom, 그 외는 contents area
-- source area/component 순서와 sourceRef 유지
-- area id, component id, route/variant/screen id, `metadata.title`, version, schema version 생성
-- `@cx/pattern-store`의 pattern id/variant 존재 검증과 fallback report 생성
-- `@cx/renderer`의 `tablesToRenderTree` projection과 validation 실행
-- component registry 존재 확인
-- 누락 참조 리포트 생성
-
-AI가 RenderTree 전체나 `database/tables` 전체를 자유롭게 생성하는 방식을 기본으로 두지 않는다. AI는 각 단계의 제한된 산출물 또는 patch를 보강하고, 최종 후보 산출물은 `MaterializedNodeTree`와 `database/tables` shape를 거쳐 `@cx/renderer` projection/validation을 통과해야 한다. RenderTree는 저장/편집 원본이 아니라 renderer 입력 DTO다.
+- `@cx/renderer`은 RenderTree JSON을 React로 렌더링하는 책임만 가진다.
+- `@cx/adapters/markdown`는 SourceSpec 정규화만 담당하고, table projection, schema validation, workflow orchestration, AI runner 책임은 두지 않는다.
+- 재설계 예시 계약과 JSON Schema는 `@cx/schema`와 관련 테스트/문서에서 단계별로 관리한다.
+- 새 생성 과정이 확정되기 전까지 old pipeline 호환 layer를 다시 만들지 않는다.
+- table apply/projection은 최종 RenderTree를 screen, area, composite/component 레이어로 분해해 등록하는 후속 단계로만 취급한다.
 
 ## 4. 디자인 패턴 문서
 
@@ -87,13 +79,14 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 
 | 문서 | 책임 |
 |---|---|
-| [COMPOSITION_LAYERS.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/COMPOSITION_LAYERS.md) | Component → Pattern → Area → Screen 조합 원칙 |
-| [LAYOUT_SPACING_CONTRACT.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/LAYOUT_SPACING_CONTRACT.md) | width rail, chrome size, spacing, measurement contract |
-| [SECTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/SECTION_PATTERNS.md) | 메인/리스트/상세/폼/완료/바텀시트/팝업 섹션별 케이스 패턴 |
-| [SCREEN_PATTERN_SUMMARY.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/SCREEN_PATTERN_SUMMARY.md) | 36개 스크린 분석 요약과 8가지 화면 구성 패턴 |
-| [COMPONENT_INVENTORY.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/COMPONENT_INVENTORY.md) | 컴포넌트 사용 빈도, 중첩 패턴, 카테고리 분류 |
-| [INTERACTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/INTERACTION_PATTERNS.md) | Accordion, CTA, Form, Overlay 상태/상호작용 규칙 |
-| [VISUAL_FOUNDATION_OBSERVATIONS.md](/Users/plusx/Documents/rnd-screen-generator/docs/design/VISUAL_FOUNDATION_OBSERVATIONS.md) | Divider, typography, 핵심 설계 관찰값 |
+| [COMPOSITION_LAYERS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPOSITION_LAYERS.md) | Component → Pattern → Area → Screen 조합 원칙 |
+| [DESIGN_FOUNDATION.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/DESIGN_FOUNDATION.md) | 정식 디자인 토큰과 foundation 원천 |
+| [LAYOUT_SPACING_CONTRACT.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/LAYOUT_SPACING_CONTRACT.md) | width rail, chrome size, spacing, measurement contract |
+| [SECTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/SECTION_PATTERNS.md) | 메인/리스트/상세/폼/완료/바텀시트/팝업 섹션별 케이스 패턴 |
+| [SCREEN_PATTERN_SUMMARY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/SCREEN_PATTERN_SUMMARY.md) | 36개 스크린 분석 요약과 8가지 화면 구성 패턴 |
+| [COMPONENT_INVENTORY.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/COMPONENT_INVENTORY.md) | 컴포넌트 사용 빈도, 중첩 패턴, 카테고리 분류 |
+| [INTERACTION_PATTERNS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/INTERACTION_PATTERNS.md) | Accordion, CTA, Form, Overlay 상태/상호작용 규칙 |
+| [VISUAL_FOUNDATION_OBSERVATIONS.md](/Users/plusx/Documents/rnd-screen-generator/packages/agent/docs/skills/design-skills/design-fundamentals/source/VISUAL_FOUNDATION_OBSERVATIONS.md) | Divider, typography, 핵심 설계 관찰값 |
 
 디자인 문서 운영 원칙:
 
@@ -101,21 +94,21 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 - `AGENTS.md`에는 디자인 문서 목록과 운영 기준만 유지한다.
 - 레이아웃 수치나 컴포넌트 목록을 중복 기재하지 않는다.
 - 정식 디자인 토큰의 원천은 `DESIGN_FOUNDATION.md`를 따른다.
-- 구현 패키지 기준은 `@cx/tokens`, `@cx/components`, `@cx/layout`을 따른다.
+- 구현 패키지 기준은 `@cx/tokens`, `@cx/external`, `@cx/layout`을 따른다.
 
 ## 5. 에이전트 역할
 
 | 에이전트 | 책임 | 기준 문서 |
 |---|---|---|
-| Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
-| Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | [DATA_MAP.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DATA_MAP.md) |
-| Backend Agent | FastAPI 구현, 검증, 생성 오케스트레이션 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Claude Generation Agent | Claude 기반 `database/tables` shape table 후보 생성 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Codex Review Agent | Codex 기반 생성 결과 검수 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| Agent Runtime Agent | Agent SDK, 로컬 실행 우선, API fallback 관리 | [DEVELOPMENT_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/DEVELOPMENT_ARCHITECTURE.md) |
-| QA Agent | 인수 조건, 회귀 검증, 생성 결과 검증 | [MASTER_PLAN.md](/Users/plusx/Documents/rnd-screen-generator/MASTER_PLAN.md) |
+| Product Planner Agent | 제품 범위, 사용자 흐름, 마일스톤 | 현재 문서와 [PACKAGE_MAP.md](/Users/plusx/Documents/rnd-screen-generator/PACKAGE_MAP.md) |
+| Architecture Agent | 서비스 경계, API 표면, 모듈 구조 | [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
+| Data Agent | 공급 데이터, 소비 데이터, 생성 컨텍스트, 후속 DB/read model 경계 | 현재 문서와 `@cx/schema` 계약 |
+| Backend Agent | Next API route, 검증, 생성 오케스트레이션 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
+| Frontend Agent | Next.js UI, 모바일 미리보기, Puck 기반 Screen/OGN 편집, 재생성 흐름 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md), [API_ENDPOINTS.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/API_ENDPOINTS.md) |
+| Claude Generation Agent | Claude 기반 RenderTree 후보 생성 | 현재 문서와 `@cx/schema` 계약 |
+| Claude Review Agent | Claude 기반 생성 결과 검수 | 현재 문서와 `@cx/schema` 계약 |
+| Agent Runtime Agent | Claude Agent SDK, 로컬 실행 우선, API fallback 관리 | 현재 문서와 [PROJECT_STRUCTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/PROJECT_STRUCTURE.md) |
+| QA Agent | 인수 조건, 회귀 검증, 생성 결과 검증 | 현재 문서와 [SCREEN_INFERENCE_ARCHITECTURE.md](/Users/plusx/Documents/rnd-screen-generator/docs/development/SCREEN_INFERENCE_ARCHITECTURE.md) |
 | Documentation Agent | 문서 책임 분리와 변경 기록 관리 | 현재 문서와 [AGENTS_HISTORY.md](/Users/plusx/Documents/rnd-screen-generator/AGENTS_HISTORY.md) |
 | Design System Agent | SDUI 패턴, spacing, component inventory 관리 | 현재 문서의 디자인 패턴 문서 목록 |
 
@@ -152,7 +145,20 @@ SKT SDUI 디자인 패턴 문서는 책임 단위로 분리되어 있다.
 
 | 우선순위 | 담당 | 작업 |
 |---|---|---|
-| P1 | Backend Agent | 소비 데이터 계약 기준 FastAPI read model 초안 구현 |
+| P1 | Backend Agent | 소비 데이터 계약 기준 Next API read model 초안 구현 |
 | P1 | Data Agent | sample 데이터를 `sourceRef`, state, edge variant 후보까지 소비 계약 기준으로 보강 |
 | P2 | Frontend Agent | Puck 기반 Screen composition/OGN component 편집 프로토타입 구현 |
-| P2 | Agent Runtime Agent | Claude 생성/Codex 검수 local-first Agent SDK 실행 전략 구현 |
+| P2 | Agent Runtime Agent | Claude 생성/검수 local-first Agent SDK 실행 전략 구현 |
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, invoke the `skill` tool with `skill: "graphify"` before doing anything else.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

@@ -1,27 +1,14 @@
-export * from "./bindings";
-export * from "./component-catalog";
+export { buildComponentProps } from "./adapters/build-component-props";
+export * from "./interpreter";
+export { resolveHasData } from "./nodes/area/has-data";
+export { ERROR_POLICY, type ErrorPolicy } from "./nodes/area/types";
+export * from "./tree/bindings";
+export * from "./tree/path";
 export {
-	type ComponentDefinition,
-	ComponentRegistry,
-	componentRegistry,
-} from "./component-registry";
-export * from "./path";
-export { type RendererDefinition, RendererRegistry, type RenderTreeRenderer } from "./registry";
-export * from "./render-tree-projection";
-export {
-	RenderTreeNodeRenderer,
-	RenderTreeScreenRenderer,
-	rendererRegistry,
-	renderNode,
-} from "./renderer";
-export {
-	getRenderableTreeNode,
-	getRenderTreeNodeKind,
 	getScreenRegions,
-	type RenderableTreeNode,
-	type RenderTreeNodeKind,
+	type ResolvedRenderNode,
+	resolveRenderNode,
 	toBoolean,
 	toText,
-} from "./runtime";
-export * from "./schema";
-export * from "./validation";
+} from "./tree/runtime";
+export * from "./tree/types";
