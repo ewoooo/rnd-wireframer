@@ -49,10 +49,8 @@ export async function runInferenceJob(
 			}
 		}
 
-		await recordJobStarted({ jobId, runtime });
-
-		for (const step of stepsToRun) {
-			if (!(await shouldRunInferenceStep(step.runWhen, contextStore))) continue;
+		const executeStep = async (step: (typeof stepsToRun)[number]): Promise<void> => {
+			if (!(await shouldRunInferenceStep(step.runWhen, contextStore))) return;
 
 			await recordStepStarted({ jobId, runtime, stepId: step.id });
 
@@ -76,7 +74,7 @@ export async function runInferenceJob(
 			if (execution.status === "failed") {
 				await recordStepFailed({ execution, jobId, runtime, stepId: step.id });
 				// Optional step의 실패는 기록만 남기고 잡은 계속 진행한다.
-				if (step.optional) continue;
+				if (step.optional) return;
 				throw execution.error ?? new Error(`Step failed: ${step.id}`);
 			}
 
@@ -87,9 +85,32 @@ export async function runInferenceJob(
 				stepId: step.id,
 			});
 			await recordStepSucceeded({ jobId, runtime, stepId: step.id });
+		};
+
+		const foregroundSteps = stepsToRun.filter((step) => !step.background);
+		const backgroundSteps = stepsToRun.filter((step) => step.background);
+
+		await recordJobStarted({ jobId, runtime });
+
+		for (const step of foregroundSteps) {
+			await executeStep(step);
 		}
 
 		await recordJobSucceeded({ jobId, runtime });
+
+		// Background step은 잡이 succeeded로 기록된 뒤에 돈다. 이 시점부터는 어떤
+		// 실패도 잡 상태를 뒤집을 수 없다 — step 실패는 기록으로만 남고(optional 강제),
+		// IO 에러도 best-effort로 삼킨다.
+		try {
+			for (const step of backgroundSteps) {
+				await executeStep(step);
+			}
+			if (backgroundSteps.length > 0) {
+				await runtime.jobStore.updateJob(jobId, { currentStepId: undefined });
+			}
+		} catch {
+			// succeeded 잡을 failed로 되돌리지 않는다
+		}
 	} catch (error) {
 		try {
 			await recordJobFailed({ error, jobId, runtime });

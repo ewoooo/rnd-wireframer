@@ -376,4 +376,147 @@ describe("runInferenceJob", () => {
 		});
 		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "failed" });
 	});
+
+	it("runs background steps after the job is recorded succeeded", async () => {
+		let time = 0;
+		let id = 0;
+		const artifactStore = new MemoryArtifactStore();
+		const jobStore = createJobStore(artifactStore, {
+			now: () => `t-${++time}`,
+			newId: () => `job-${++id}`,
+		});
+		const job = await jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "SAMPLE" },
+		});
+		const pipeline: PipelineDefinition = {
+			id: "screen-generation",
+			version: "v1",
+			steps: [
+				{
+					id: "01-analyze",
+					inputs: { job: { kind: "job-input" } },
+					run: { id: "fake" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: "source-spec",
+					},
+				},
+				{
+					id: "99-side-artifact",
+					run: { id: "side" },
+					background: true,
+					optional: true,
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: false,
+					},
+				},
+			],
+		};
+		const engine: Engine = {
+			async execute() {
+				return { raw: validSourceSpec };
+			},
+		};
+		const runtime: InferenceRuntime = {
+			artifactStore,
+			createContextStore: (jobId) => createContextStore(jobId, artifactStore),
+			engines: { claude: engine, function: engine },
+			jobStore,
+			knowledgeBase: createInferenceKnowledgeBase(),
+			newId: () => `runtime-${++id}`,
+			now: () => `t-${++time}`,
+			pipelines: {
+				register() {},
+				get() {
+					return pipeline;
+				},
+			},
+		};
+
+		await runInferenceJob(runtime, job.jobId);
+
+		const events = await jobStore.listEvents(job.jobId, 0);
+		const seqOf = (type: string, stepId?: string) =>
+			events.find((event) => event.type === type && (!stepId || event.stepId === stepId))?.seq;
+		expect(seqOf("job_completed")).toBeLessThan(
+			seqOf("step_started", "99-side-artifact") ?? Number.NaN,
+		);
+		await expect(
+			artifactStore.readJson(job.jobId, "steps/99-side-artifact/output.json"),
+		).resolves.toEqual(validSourceSpec);
+		const finished = await jobStore.getJob(job.jobId);
+		expect(finished.status).toBe("succeeded");
+		expect(finished.currentStepId).toBeUndefined();
+	});
+
+	it("keeps the job succeeded when a background step fails", async () => {
+		let time = 0;
+		let id = 0;
+		const artifactStore = new MemoryArtifactStore();
+		const jobStore = createJobStore(artifactStore, {
+			now: () => `t-${++time}`,
+			newId: () => `job-${++id}`,
+		});
+		const job = await jobStore.createJob({
+			pipelineId: "screen-generation",
+			pipelineVersion: "v1",
+			input: { screenCode: "SAMPLE" },
+		});
+		const pipeline: PipelineDefinition = {
+			id: "screen-generation",
+			version: "v1",
+			steps: [
+				{
+					id: "01-analyze",
+					inputs: { job: { kind: "job-input" } },
+					run: { id: "fake" },
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: "source-spec",
+					},
+				},
+				{
+					id: "99-side-artifact",
+					run: { id: "side" },
+					background: true,
+					optional: true,
+					output: {
+						contractRef: { source: "output-contract", id: "source-spec" },
+						writeToContext: false,
+					},
+				},
+			],
+		};
+		const engine: Engine = {
+			async execute(request) {
+				if (request.run?.id === "side") throw new Error("side artifact blew up");
+				return { raw: validSourceSpec };
+			},
+		};
+		const runtime: InferenceRuntime = {
+			artifactStore,
+			createContextStore: (jobId) => createContextStore(jobId, artifactStore),
+			engines: { claude: engine, function: engine },
+			jobStore,
+			knowledgeBase: createInferenceKnowledgeBase(),
+			newId: () => `runtime-${++id}`,
+			now: () => `t-${++time}`,
+			pipelines: {
+				register() {},
+				get() {
+					return pipeline;
+				},
+			},
+		};
+
+		await runInferenceJob(runtime, job.jobId);
+
+		await expect(jobStore.getJob(job.jobId)).resolves.toMatchObject({ status: "succeeded" });
+		await expect(
+			artifactStore.readJson(job.jobId, "steps/99-side-artifact/step.json"),
+		).resolves.toMatchObject({ status: "failed" });
+	});
 });
