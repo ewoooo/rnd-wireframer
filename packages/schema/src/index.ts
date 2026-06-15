@@ -16,8 +16,13 @@ export type {
 	TokenSlot,
 } from "./component-catalog";
 export { isTokenRole, TOKEN_ROLES } from "./component-catalog";
-export type { ComponentProposal, ComponentProposalContract } from "./component-proposal";
 export type {
+	ComponentProposal,
+	ComponentProposalContract,
+	ComponentProposalKind,
+} from "./component-proposal";
+export type {
+	CompositionCatalogGap,
 	CompositionPlanContract,
 	CompositionPlanDensity,
 	CompositionPlanRejectedPattern,

@@ -48,8 +48,10 @@ function main() {
 	);
 	for (const entry of backlog) {
 		console.log(`\n${entry.proposedComponentType}  ×${entry.count}`);
+		console.log(`  kind: ${entry.kinds.join(", ") || "-"}`);
 		console.log(`  nearest: ${entry.nearestCatalogMatches.join(", ") || "-"}`);
-		console.log(`  evidence: ${entry.evidence.slice(0, 5).join(", ") || "-"}`);
+		console.log(`  source evidence: ${entry.evidence.slice(0, 5).join(", ") || "-"}`);
+		console.log(`  reference evidence: ${entry.referenceEvidence.slice(0, 5).join(", ") || "-"}`);
 		if (entry.rationales[0]) console.log(`  rationale: ${entry.rationales[0]}`);
 	}
 	if (backlog.length === 0) console.log("(no proposals yet — run inference jobs first)");

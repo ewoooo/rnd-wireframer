@@ -112,6 +112,7 @@ const payloadByTaskKind: Record<string, unknown> = {
 		proposals: [
 			{
 				id: "p-1",
+				kind: "source-gap",
 				proposedComponentType: "TextFieldAuthTimer",
 				rationale: "Source requires a countdown next to the auth request field.",
 				sourceEvidence: ["T"],

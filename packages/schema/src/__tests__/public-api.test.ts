@@ -355,6 +355,7 @@ describe("@cx/schema public API", () => {
 			proposals: [
 				{
 					id: "proposal-1",
+					kind: "source-gap",
 					proposedComponentType: "PriceCallout",
 					rationale: "Source emphasizes total price",
 					sourceEvidence: ["area.price"],

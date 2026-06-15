@@ -1,6 +1,10 @@
+export type ProposalKind = "source-gap" | "ux-improvement";
+
 export type ProposalEntry = {
 	proposedComponentType: string;
+	kind?: ProposalKind;
 	sourceEvidence?: string[];
+	referenceEvidence?: string[];
 	nearestCatalogMatch?: string;
 	rationale?: string;
 };
@@ -13,7 +17,10 @@ export type ProposalDocument =
 export type ProposalBacklogEntry = {
 	proposedComponentType: string;
 	count: number;
+	/** 집계된 제안들의 kind 집합. source-gap만, ux-improvement만, 혼합일 수 있다. */
+	kinds: ProposalKind[];
 	evidence: string[];
+	referenceEvidence: string[];
 	nearestCatalogMatches: string[];
 	rationales: string[];
 };
@@ -40,13 +47,21 @@ export function aggregateProposals(docs: ProposalDocument[]): ProposalBacklogEnt
 			const existing = byType.get(type) ?? {
 				proposedComponentType: type,
 				count: 0,
+				kinds: [],
 				evidence: [],
+				referenceEvidence: [],
 				nearestCatalogMatches: [],
 				rationales: [],
 			};
 			existing.count += 1;
+			if (proposal.kind && !existing.kinds.includes(proposal.kind)) {
+				existing.kinds.push(proposal.kind);
+			}
 			for (const ref of proposal.sourceEvidence ?? []) {
 				if (!existing.evidence.includes(ref)) existing.evidence.push(ref);
+			}
+			for (const ref of proposal.referenceEvidence ?? []) {
+				if (!existing.referenceEvidence.includes(ref)) existing.referenceEvidence.push(ref);
 			}
 			if (
 				proposal.nearestCatalogMatch &&

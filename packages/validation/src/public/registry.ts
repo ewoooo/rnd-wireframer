@@ -167,6 +167,13 @@ export const VALIDATION_CODE_REGISTRY = {
 		owners: ["rule"],
 		description: "component-proposal 개수가 상한을 초과했다.",
 	},
+	"proposal-evidence-kind-mismatch": {
+		layer: "quality",
+		severity: "error",
+		owners: ["rule"],
+		description:
+			"제안 kind와 evidence가 어긋났다. source-gap은 sourceEvidence, ux-improvement는 referenceEvidence를 비워둘 수 없다.",
+	},
 	"bottom-cta-state-ungated": {
 		layer: "quality",
 		severity: "error",

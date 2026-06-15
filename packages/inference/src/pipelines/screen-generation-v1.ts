@@ -164,9 +164,20 @@ export const screenGenerationPipelineV1 = definePipeline({
 			task: "component-proposal",
 			optional: true,
 			background: true,
-			inputs: contexts("source-spec", "render-tree", "validation-report", "quality-inspection"),
+			inputs: contexts(
+				"source-spec",
+				"composition-plan",
+				"render-tree",
+				"validation-report",
+				"quality-inspection",
+			),
 			references: {
 				componentCatalog: knowledge("component-catalog"),
+				// 전체 reference 카탈로그를 마운트해 composition-plan.catalogGaps가 가리키는
+				// reference id를 ux-improvement 제안의 근거(referenceEvidence)로 검증·인용한다.
+				// background step이라 큰 프롬프트가 사용자 대기에 영향을 주지 않는다.
+				referenceCatalog: referenceCatalog("screen"),
+				referenceAreaCatalog: referenceCatalog("area"),
 			},
 			output: { contractRef: outputContractRef("component-proposal") },
 		}),

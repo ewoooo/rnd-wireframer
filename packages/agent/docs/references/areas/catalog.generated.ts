@@ -80,6 +80,13 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-linked-recipient-address-field/README.md",
 	},
 	{
+		id: "area-phone-verification-code",
+		situation:
+			"사용자가 휴대폰 번호를 입력하고 인증을 요청한 뒤, 발송된 인증번호를 제한시간 안에 입력해 본인/연령을 확인한다",
+		tags: ["area-pattern", "phone-verification", "auth-code", "countdown-timer", "resend-action"],
+		sourceRef: "../docs/references/areas/area-phone-verification-code/README.md",
+	},
+	{
 		id: "area-prerequisite-status",
 		situation:
 			"사용자가 다음 입력 단계로 진행하기 전에 이미 충족된 선행 조건이나 확인 상태를 짧게 인지해야 한다",

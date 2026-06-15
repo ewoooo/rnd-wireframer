@@ -108,8 +108,13 @@ describe("screenGenerationPipelineV1", () => {
 			layoutCatalog,
 			...selectedReferenceMounts,
 		});
-		// Component proposal은 nearest match 근거로 component catalog만 본다.
-		expect(screenGenerationPipelineV1.steps[9]?.references).toEqual({ componentCatalog });
+		// Component proposal은 nearest match 근거로 component catalog를 보고,
+		// catalogGaps의 referenceEvidence를 검증하려 전체 reference 카탈로그도 마운트한다.
+		expect(screenGenerationPipelineV1.steps[9]?.references).toEqual({
+			componentCatalog,
+			referenceAreaCatalog: { source: "reference-area-catalog" },
+			referenceCatalog: { source: "reference-screen-catalog" },
+		});
 		// Function steps carry no knowledge references.
 		expect(screenGenerationPipelineV1.steps[3]?.references).toBeUndefined();
 		expect(screenGenerationPipelineV1.steps[5]?.references).toBeUndefined();
