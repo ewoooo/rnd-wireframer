@@ -4,7 +4,7 @@ import {
 	type SkillsetObject,
 	toStructuredOutputJsonSchema,
 } from "@cx/schema";
-import type { Engine, EngineRequest, KnowledgeValue } from "../contracts";
+import type { Engine, EngineRequest, KnowledgeValue, StepConstraint } from "../contracts";
 
 /**
  * Assembles the prompt artifact and runs it via @cx/agent. Owns prompt-block
@@ -14,7 +14,7 @@ import type { Engine, EngineRequest, KnowledgeValue } from "../contracts";
  */
 export function createClaudeEngine(agentRuntime: AgentRuntime): Engine {
 	return {
-		async execute({ task, inputs, references, outputContract }) {
+		async execute({ task, inputs, references, outputContract, constraint }) {
 			if (!task) throw new Error("claude engine requires step.task");
 			const { promptDocuments, skillDocuments, knowledgeReferences } = splitReferences(references);
 			const query = assembleUserPrompt({
@@ -23,6 +23,7 @@ export function createClaudeEngine(agentRuntime: AgentRuntime): Engine {
 				contractId: outputContract.id,
 				skillDocuments,
 				knowledgeReferences,
+				constraint: constraint ?? "strict",
 			});
 			const context = {
 				inputs,
@@ -47,12 +48,23 @@ export function createClaudeEngine(agentRuntime: AgentRuntime): Engine {
 	};
 }
 
-const HARD_CONSTRAINTS = [
-	"`context.inputs.sourceSpec` (when present) is the source of truth. Keep every source-specified item represented with the same cardinality: if the spec lists two checkboxes, the output keeps exactly two. Never add, drop, or merge spec items.",
+// 제약 #1만 프로필별로 다르다. 나머지(발명 금지·계약 우선·JSON only)는 공통.
+const SOURCE_FIDELITY_STRICT =
+	"`context.inputs.sourceSpec` (when present) is the source of truth. Keep every source-specified item represented with the same cardinality: if the spec lists two checkboxes, the output keeps exactly two. Never add, drop, or merge spec items.";
+
+const SOURCE_FIDELITY_FREE =
+	"`context.inputs.sourceSpec` (when present) is the source of truth — every source-specified item's INFORMATION must survive in the output. You MAY consolidate multiple source items into a single richer catalog component, but ONLY when `context.inputs.compositionPlan.catalogGaps` explicitly names that component for those `targetSourceRefs`; the consolidated node must still carry the label, value, and intent of every merged item. Outside of catalogGaps-directed consolidation, preserve item cardinality and never add, drop, or merge spec items. Never invent content not grounded in the source.";
+
+const SHARED_CONSTRAINTS = [
 	"Use only component types, props, layout ids, and source refs that exist in the mounted catalogs and inputs. Never invent identifiers or metrics.",
 	"When mounted design guidance conflicts with source evidence or schema/catalog contracts, source evidence and contracts win.",
 	"Return exactly one JSON object — no prose, no markdown fences, no fields outside the output schema.",
 ] as const;
+
+function hardConstraintsFor(constraint: StepConstraint): readonly string[] {
+	const fidelity = constraint === "free" ? SOURCE_FIDELITY_FREE : SOURCE_FIDELITY_STRICT;
+	return [fidelity, ...SHARED_CONSTRAINTS];
+}
 
 function assembleSystemPrompt(task: string, promptDocuments: SkillsetDocument[]): string {
 	const sections = [
@@ -68,13 +80,14 @@ function assembleUserPrompt(options: {
 	contractId: string;
 	skillDocuments: SkillsetDocument[];
 	knowledgeReferences: Record<string, KnowledgeValue | KnowledgeValue[]>;
+	constraint: StepConstraint;
 }): string {
 	const blocks = [
 		"## Stage Objective",
 		`Execute the "${options.task}" stage of the screen-generation pipeline. Produce ${options.dtoName} (${options.contractId}) from the provided context.`,
 		"",
 		"## Hard Constraints",
-		...HARD_CONSTRAINTS.map((constraint, index) => `${index + 1}. ${constraint}`),
+		...hardConstraintsFor(options.constraint).map((constraint, index) => `${index + 1}. ${constraint}`),
 	];
 	if (options.skillDocuments.length > 0) {
 		blocks.push("", "## Mounted Skills");

@@ -1,6 +1,9 @@
 import { resolveOutputContractForInference } from "@cx/schema";
 import { describe, expect, it } from "vitest";
-import { screenGenerationPipelineV1 } from "../pipelines/screen-generation-v1";
+import {
+	screenGenerationEnrichedPipelineV1,
+	screenGenerationPipelineV1,
+} from "../pipelines/screen-generation-v1";
 
 describe("screenGenerationPipelineV1", () => {
 	it("declares ordered validation and one-shot revision steps", () => {
@@ -151,5 +154,38 @@ describe("screenGenerationPipelineV1", () => {
 		for (const step of screenGenerationPipelineV1.steps) {
 			expect(() => resolveOutputContractForInference(step.output.contractRef.id)).not.toThrow();
 		}
+	});
+
+	it("strict pipeline carries no constraint override on any step", () => {
+		for (const step of screenGenerationPipelineV1.steps) {
+			expect(step.constraint).toBeUndefined();
+		}
+	});
+});
+
+describe("screenGenerationEnrichedPipelineV1", () => {
+	const byId = (id: string) => {
+		const step = screenGenerationEnrichedPipelineV1.steps.find((s) => s.id === id);
+		if (!step) throw new Error(`step ${id} not found`);
+		return step;
+	};
+
+	it("has the enriched id and shares the strict step sequence", () => {
+		expect(screenGenerationEnrichedPipelineV1.id).toBe("screen-generation-enriched");
+		expect(screenGenerationEnrichedPipelineV1.version).toBe("v1");
+		expect(screenGenerationEnrichedPipelineV1.steps.map((s) => s.id)).toEqual(
+			screenGenerationPipelineV1.steps.map((s) => s.id),
+		);
+	});
+
+	it("sets constraint:free only on render-tree generating/revising steps", () => {
+		// 04/06/09는 트리를 만들거나 수정하는 claude step — catalogGap 기반 merge 허용.
+		expect(byId("04-render-tree").constraint).toBe("free");
+		expect(byId("06-revision").constraint).toBe("free");
+		expect(byId("09-design-revision").constraint).toBe("free");
+		// 02(계획)·08(검수)·11(제안)은 트리를 만들지 않으므로 strict 유지.
+		expect(byId("02-intent-composition").constraint).toBeUndefined();
+		expect(byId("08-quality").constraint).toBeUndefined();
+		expect(byId("11-component-proposal").constraint).toBeUndefined();
 	});
 });

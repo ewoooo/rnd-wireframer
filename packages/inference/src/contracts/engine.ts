@@ -1,4 +1,4 @@
-import type { FunctionRef, KnowledgeValue, OutputContractValue } from "./step";
+import type { FunctionRef, KnowledgeValue, OutputContractValue, StepConstraint } from "./step";
 
 export type EngineRequest = {
 	task?: string;
@@ -6,6 +6,8 @@ export type EngineRequest = {
 	inputs: Record<string, unknown>;
 	references: Record<string, KnowledgeValue | KnowledgeValue[]>;
 	outputContract: OutputContractValue;
+	/** claude step 제약 프로필. 생략 시 "strict". */
+	constraint?: StepConstraint;
 };
 
 /**

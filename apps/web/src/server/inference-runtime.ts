@@ -6,7 +6,10 @@ import {
 	type InferenceRuntime,
 	runInferenceJob,
 } from "@cx/inference";
-import { screenGenerationPipelineV1 } from "@cx/inference/pipelines/screen-generation-v1";
+import {
+	screenGenerationEnrichedPipelineV1,
+	screenGenerationPipelineV1,
+} from "@cx/inference/pipelines/screen-generation-v1";
 import { prepareSourceFile } from "@/server/source-file";
 
 const cwd = process.cwd();
@@ -48,10 +51,17 @@ function buildSourceSpec(request: EngineRequest) {
 
 export const inferenceRuntime: InferenceRuntime = createInferenceRuntime({
 	dataRoot,
-	pipelines: [screenGenerationPipelineV1],
+	pipelines: [screenGenerationPipelineV1, screenGenerationEnrichedPipelineV1],
 	functions: { "source-spec-mvp": buildSourceSpec },
 	claudeRunner: createClaudeRunner({ localFirst: true }),
 });
+
+// 입력에 enrichment 플래그가 truthy면 ux-improvement(merge 허용) 파이프라인을 쓴다.
+// 기본은 strict — 기존 동작 보존.
+function readEnrichmentFlag(input: unknown): boolean {
+	if (!input || typeof input !== "object" || Array.isArray(input)) return false;
+	return (input as Record<string, unknown>).enrichment === true;
+}
 
 export async function createInferenceJob(input: unknown) {
 	const preparedSource = await prepareSourceFile(input);
@@ -60,7 +70,7 @@ export async function createInferenceJob(input: unknown) {
 			? { ...(input as Record<string, unknown>), preparedSource }
 			: input;
 	const job = await inferenceRuntime.jobStore.createJob({
-		pipelineId: "screen-generation",
+		pipelineId: readEnrichmentFlag(input) ? "screen-generation-enriched" : "screen-generation",
 		pipelineVersion: "v1",
 		input: jobInput,
 	});
