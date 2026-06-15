@@ -1,0 +1,26 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-bottom-action-bar",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:144413"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "ActionButton",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-bottom-action-bar",
+		"children": [
+			{
+				"name": "Button",
+				"nodeType": "INSTANCE",
+				"role": "brand-filled-combined-action",
+				"children": [
+					{ "name": "icon", "nodeType": "INSTANCE", "role": "leading-action-icon" },
+					{ "name": "ButtonText", "nodeType": "FRAME", "role": "post-completion-actions" },
+					{ "name": "Divider", "nodeType": "FRAME", "role": "action-divider" }
+				]
+			}
+		]
+	}
+}

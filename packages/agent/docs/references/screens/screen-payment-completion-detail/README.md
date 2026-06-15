@@ -112,7 +112,7 @@ SourceSpec이 결제 완료와 일부 결과값만 제공하더라도, 완료 �
 - horizontal product carousel
 - product card
 - bullet notice list
-- fixed `ActionButton`
+- area reference: `area-payment-completion-bottom-action-bar`
 - section `Divider`
 
 ## Avoid
