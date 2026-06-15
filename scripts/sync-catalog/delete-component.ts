@@ -7,7 +7,7 @@
  * sync:kiki(kiki→repo)의 역연산이며, round-trip 검증용: 삭제 후 pnpm sync:kiki 로 복원된다.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { catalogSource } from "../../packages/external/src/catalog.source";
@@ -31,6 +31,22 @@ if (!/^[A-Za-z][A-Za-z0-9]*$/.test(name)) {
 if (!catalogSource[key]) {
 	console.error(`catalog.source 에 엔트리 없음: ${key}`);
 	process.exit(1);
+}
+
+// 0) 의존성 가드 — 다른 컴포넌트가 import 중이면 삭제 시 dangling import로 빌드가 터진다.
+//    (kiki 컴포넌트끼리 형제 import: `from "../<Name>/..."`) → 차단하고 의존처를 알려준다.
+const componentsDir = join(EXTERNAL_SRC, "components");
+const importRe = new RegExp(`from\\s+["']\\.\\./${name}/`);
+const dependents = readdirSync(componentsDir, { withFileTypes: true })
+	.filter((d) => d.isDirectory() && d.name !== name)
+	.filter((d) => {
+		const tsx = join(componentsDir, d.name, `${d.name}.tsx`);
+		return existsSync(tsx) && importRe.test(readFileSync(tsx, "utf8"));
+	})
+	.map((d) => d.name);
+if (dependents.length > 0) {
+	console.error(`삭제 불가: ${name}은(는) 다음 컴포넌트가 사용 중입니다 — ${dependents.join(", ")}`);
+	process.exit(2);
 }
 
 // 1) 컴포넌트 디렉터리 삭제

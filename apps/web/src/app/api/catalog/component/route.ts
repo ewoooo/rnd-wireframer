@@ -26,8 +26,11 @@ export async function DELETE(request: Request) {
 		);
 		return NextResponse.json({ ok: true, type, output });
 	} catch (error) {
+		// 스크립트가 stderr로 남긴 메시지(예: 의존성 가드)를 그대로 전달한다.
+		const stderr = (error as { stderr?: unknown })?.stderr;
+		const detail = typeof stderr === "string" ? stderr.trim() : "";
 		return NextResponse.json(
-			{ error: readErrorMessage(error, "컴포넌트 삭제에 실패했습니다.") },
+			{ error: detail || readErrorMessage(error, "컴포넌트 삭제에 실패했습니다.") },
 			{ status: 500 },
 		);
 	}
