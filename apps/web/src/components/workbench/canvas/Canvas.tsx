@@ -110,7 +110,7 @@ function NewScreenEmptyPreview() {
 			</div>
 			<div className="grid gap-1">
 				<p className="max-w-80 text-xs leading-5 text-muted-foreground">
-					Markdown source를 업로드하세요.
+					Markdown 또는 JSON source를 업로드하세요.
 				</p>
 			</div>
 		</div>

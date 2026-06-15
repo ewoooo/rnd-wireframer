@@ -5,9 +5,10 @@ import { describe, expect, it } from "vitest";
 import {
 	createBatchId,
 	createScreenSourceTarget,
-	isMarkdownSourceFileName,
+	isSupportedSourceFileName,
 	listUploadedScreenSources,
 	readScreenIdFromFileName,
+	readSourceExtension,
 	sanitizePathPart,
 } from "./screen-inference-source";
 
@@ -21,13 +22,21 @@ describe("screen inference source helpers", () => {
 		expect(createBatchId(new Date("2026-06-04T12:00:00.000Z"))).toBe("20260604");
 	});
 
-	it("recognizes markdown source files", () => {
-		expect(isMarkdownSourceFileName("NOVA-MBR-PG-001-0.md")).toBe(true);
-		expect(isMarkdownSourceFileName("NOVA-MBR-PG-001-0.txt")).toBe(false);
+	it("recognizes markdown and json source files", () => {
+		expect(isSupportedSourceFileName("NOVA-MBR-PG-001-0.md")).toBe(true);
+		expect(isSupportedSourceFileName("NC-BIL-PU-021-0.json")).toBe(true);
+		expect(isSupportedSourceFileName("NOVA-MBR-PG-001-0.txt")).toBe(false);
 	});
 
-	it("reads screen ids from markdown file names", () => {
+	it("reads screen ids from markdown and json file names", () => {
 		expect(readScreenIdFromFileName("NOVA-MBR-PG-001-0.md")).toBe("NOVA-MBR-PG-001-0");
+		expect(readScreenIdFromFileName("NC-BIL-PU-021-0.json")).toBe("NC-BIL-PU-021-0");
+	});
+
+	it("preserves the original source extension for the upload target", () => {
+		expect(readSourceExtension("NC-BIL-PU-021-0.json")).toBe(".json");
+		expect(readSourceExtension("NOVA-MBR-PG-001-0.MD")).toBe(".md");
+		expect(readSourceExtension("no-extension")).toBe(".md");
 	});
 
 	it("builds a data/client-imports target", () => {
@@ -53,6 +62,22 @@ describe("screen inference source helpers", () => {
 				"data/client-imports/web-upload/20260604_new_screen/NOVA-MBR-PG-001-0.md",
 			),
 		);
+	});
+
+	it("builds a json target preserving the .json extension", () => {
+		const repoRoot = "/repo";
+		const target = createScreenSourceTarget({
+			batchId: "20260615",
+			clientImportRoot: path.join(repoRoot, "data/client-imports"),
+			fileName: "NC-BIL-PU-021-0.json",
+			importId: "web-upload",
+			repoRoot,
+		});
+
+		expect(target.path).toBe(
+			"data/client-imports/web-upload/20260615/NC-BIL-PU-021-0.json",
+		);
+		expect(target.screenId).toBe("NC-BIL-PU-021-0");
 	});
 
 	it("filters listed sources by import id", async () => {

@@ -17,7 +17,7 @@ describe("prepareSourceFile", () => {
 			schemaVersion: "source-spec.v0.1",
 			sourceImport: {
 				importId: "web-upload",
-				sourceKind: "prdd-markdown-bundle",
+				sourceKind: "markdown",
 			},
 		});
 	});

@@ -34,7 +34,7 @@ export function createScreenSourceTarget(input: {
 	const batchId = sanitizePathPart(input.batchId ?? fallbackBatchId) || fallbackBatchId;
 	const screenId = readScreenIdFromFileName(input.fileName);
 	const directoryPath = path.join(input.clientImportRoot, importId, batchId);
-	const absolutePath = path.join(directoryPath, `${screenId}.md`);
+	const absolutePath = path.join(directoryPath, `${screenId}${readSourceExtension(input.fileName)}`);
 
 	return {
 		absolutePath,
@@ -47,12 +47,21 @@ export function createScreenSourceTarget(input: {
 	};
 }
 
-export function isMarkdownSourceFileName(fileName: string): boolean {
-	return /\.md$/i.test(fileName);
+/** 지원 소스 확장자 — Markdown과 PRDD JSON. */
+const SOURCE_FILE_EXTENSION_PATTERN = /\.(md|json)$/i;
+
+export function isSupportedSourceFileName(fileName: string): boolean {
+	return SOURCE_FILE_EXTENSION_PATTERN.test(fileName);
+}
+
+/** 업로드 파일명에서 원본 확장자(.md/.json)를 보존한다. 미지정이면 .md로 둔다. */
+export function readSourceExtension(fileName: string): string {
+	const match = fileName.match(SOURCE_FILE_EXTENSION_PATTERN);
+	return match ? `.${match[1]?.toLowerCase()}` : ".md";
 }
 
 export function readScreenIdFromFileName(fileName: string): string {
-	const withoutExtension = fileName.replace(/\.md$/i, "");
+	const withoutExtension = fileName.replace(SOURCE_FILE_EXTENSION_PATTERN, "");
 	return sanitizePathPart(withoutExtension) || "screen-source";
 }
 
@@ -68,7 +77,7 @@ export async function listUploadedScreenSources(input: {
 }): Promise<UploadedScreenSource[]> {
 	const allowedImportIds = input.importIds ? new Set(input.importIds) : undefined;
 	const [sourceFiles, latestRunIdBySourcePath] = await Promise.all([
-		listMarkdownSourceFiles(input.clientImportRoot),
+		listSupportedSourceFiles(input.clientImportRoot),
 		readLatestRunIdBySourcePath({
 			repoRoot: input.repoRoot,
 			runRoot: input.runRoot,
@@ -100,17 +109,17 @@ function normalizePath(value: string): string {
 	return value.replaceAll(path.sep, "/");
 }
 
-async function listMarkdownSourceFiles(rootDir: string): Promise<string[]> {
+async function listSupportedSourceFiles(rootDir: string): Promise<string[]> {
 	const entries = await readDirectorySafe(rootDir);
 	const results: string[] = [];
 
 	for (const entry of entries) {
 		const entryPath = path.join(rootDir, entry.name);
 		if (entry.isDirectory()) {
-			results.push(...(await listMarkdownSourceFiles(entryPath)));
+			results.push(...(await listSupportedSourceFiles(entryPath)));
 			continue;
 		}
-		if (entry.isFile() && isMarkdownSourceFileName(entry.name)) {
+		if (entry.isFile() && isSupportedSourceFileName(entry.name)) {
 			results.push(entryPath);
 		}
 	}

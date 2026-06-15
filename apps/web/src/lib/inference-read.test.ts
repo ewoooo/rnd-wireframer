@@ -16,7 +16,7 @@ import { readArtifact, readStepSnapshots } from "./inference-read";
 
 const validSourceSpec = {
 	schemaVersion: "source-spec.v0.1",
-	sourceImport: { files: [], importId: "t", receivedAt: "2026-06-08T00:00:00.000Z", sourceKind: "prdd-markdown-bundle" },
+	sourceImport: { files: [], importId: "t", receivedAt: "2026-06-08T00:00:00.000Z", sourceKind: "markdown" },
 	sourceShape: { screen: { name: "T", regions: [], route: "/t", screenCode: "T" } },
 };
 

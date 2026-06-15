@@ -189,6 +189,11 @@ function readInitialProps(value: unknown): {
 		if (kind === "binding") {
 			const source = readString(rawValue);
 			bindings.push(source ? `${key}←${source}` : key);
+			// sample은 동적 자리에 들어갈 예시값 — 렌더 가능한 텍스트로 typed props에
+			// 노출해 동적 행이 빈 텍스트로 그려지지 않게 한다. 바인딩 소스 자체는
+			// raw.bindingSource에, 원본 전체는 raw.propsText에 그대로 보존된다.
+			const sample = entry["sample"];
+			if (sample !== undefined && sample !== null) props[key] = coerceLiteral(sample);
 			continue;
 		}
 		// kind 미지정 또는 literal — 값을 coerce해 typed props로.

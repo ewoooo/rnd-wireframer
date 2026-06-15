@@ -125,7 +125,7 @@ function SourceDropZone({
 			}}
 		>
 			<input
-				accept=".md,text/markdown,text/plain"
+				accept=".md,.json,text/markdown,application/json,text/plain"
 				className="sr-only"
 				disabled={isUploading}
 				onChange={(event) => {

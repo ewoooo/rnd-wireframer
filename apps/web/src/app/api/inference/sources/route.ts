@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { readErrorMessage } from "@/lib/api-error";
 import {
 	createScreenSourceTarget,
-	isMarkdownSourceFileName,
+	isSupportedSourceFileName,
 	listUploadedScreenSources,
 } from "@/lib/screen-inference-source";
 import { CLIENT_IMPORT_ROOT, REPO_ROOT, RUN_ROOT } from "@/lib/server-paths";
@@ -38,14 +38,14 @@ export async function POST(request: Request) {
 		if (!(file instanceof File)) {
 			return NextResponse.json({ error: "Missing file." }, { status: 400 });
 		}
-		if (!isMarkdownSourceFileName(file.name)) {
+		if (!isSupportedSourceFileName(file.name)) {
 			return NextResponse.json(
-				{ error: "MVP only accepts Markdown source files." },
+				{ error: "Source file must be a Markdown (.md) or JSON (.json) file." },
 				{ status: 400 },
 			);
 		}
 		if (file.size > MAX_SOURCE_BYTES) {
-			return NextResponse.json({ error: "Markdown source file is too large." }, { status: 413 });
+			return NextResponse.json({ error: "Source file is too large." }, { status: 413 });
 		}
 
 		const target = createScreenSourceTarget({

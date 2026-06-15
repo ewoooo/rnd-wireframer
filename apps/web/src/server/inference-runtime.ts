@@ -36,7 +36,7 @@ function buildSourceSpec(request: EngineRequest) {
 			files: [],
 			importId: String(jobInputValue.importId ?? "api-inference-mvp"),
 			receivedAt: new Date().toISOString(),
-			sourceKind: "prdd-markdown-bundle",
+			sourceKind: "markdown",
 		},
 		sourceShape: {
 			screen: {

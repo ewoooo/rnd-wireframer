@@ -91,7 +91,7 @@ describe("@cx/adapters/json", () => {
 		]);
 	});
 
-	it("keeps literal props typed and preserves bindings + state + raw props", () => {
+	it("surfaces literal values and binding samples to typed props, preserving raw fidelity", () => {
 		const result = parseJsonSourceBundle({ importId: "BIL", content: SAMPLE });
 		if (!result.ok) throw new Error("parse failed");
 		const components = result.sourceSpec.sourceShape.screen.regions.flatMap((region) =>
@@ -103,8 +103,9 @@ describe("@cx/adapters/json", () => {
 		expect(appBar?.raw?.note).toBe("state: Default");
 
 		const listText = components.find((component) => component.sourceComponentId === "ListText");
-		// binding은 typed props로 올라오지 않고 raw.bindingSource로 보존된다.
-		expect(listText?.props).toBeUndefined();
+		// binding의 sample이 렌더 가능한 텍스트로 typed props에 노출된다(동적 행 빈 텍스트 방지).
+		expect(listText?.props).toEqual({ Title: "010-1234-5678", Subtitle: "55,000원" });
+		// 바인딩 소스 자체는 raw.bindingSource로 보존된다.
 		expect(listText?.raw?.bindingSource).toBe("Title←회선명, Subtitle←청구금액");
 		// 원본 props는 2단계 복원을 위해 raw.propsText에 무손실로 직렬화된다.
 		expect(JSON.parse(listText?.raw?.propsText ?? "{}").Title.sample).toBe("010-1234-5678");
