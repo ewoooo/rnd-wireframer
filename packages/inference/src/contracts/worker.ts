@@ -1,4 +1,4 @@
-import type { EngineRegistry } from "./engine";
+import type { EngineRegistry, StepUsage } from "./engine";
 import type { PipelineRegistry } from "./pipeline";
 import type {
 	KnowledgeRef,
@@ -43,6 +43,8 @@ export type StepExecution = {
 	/** Engine-assembled prompt snapshot (claude steps). */
 	prompt?: unknown;
 	raw: unknown;
+	/** LLM 사용량 메타 (claude steps). usage.json과 step_completed payload로 노출된다. */
+	usage?: StepUsage;
 	contextWrites?: Record<string, unknown>;
 	error?: { code: string; message: string };
 };

@@ -107,7 +107,15 @@ export const VALIDATION_CODE_REGISTRY = {
 		layer: "quality",
 		severity: "error",
 		owners: ["rule"],
-		description: "RenderTree가 SourceSpec의 원시 prop 값을 변조했다 (원본 보존 위반).",
+		description:
+			"RenderTree가 SourceSpec의 비텍스트 원시 prop 값(boolean/number)을 변조했다 (동작 보존 위반). 문구 리워딩은 source-text-reworded(warning)가 담당한다.",
+	},
+	"source-text-reworded": {
+		layer: "quality",
+		severity: "warning",
+		owners: ["rule"],
+		description:
+			"RenderTree가 SourceSpec의 문구 prop(string)을 리워딩했다. UX 문구 개선은 허용되므로 warning으로만 노출한다 — 정보 누락 여부는 사람이 확인한다.",
 	},
 	"single-section-divider": {
 		layer: "quality",
@@ -172,6 +180,13 @@ export const VALIDATION_CODE_REGISTRY = {
 		owners: ["rule"],
 		description:
 			"ActionButton TwoButton CTA가 primaryText/secondaryText를 쓰면서 type='Default'를 명시하지 않았다.",
+	},
+	"action-button-label-missing": {
+		layer: "quality",
+		severity: "error",
+		owners: ["rule"],
+		description:
+			"Default 변형 ActionButton에 변형이 요구하는 라벨 prop(primaryText/secondaryText)이 없다. 런타임에서 placeholder '버튼'으로 렌더된다.",
 	},
 	"uses-candidate-component": {
 		layer: "quality",

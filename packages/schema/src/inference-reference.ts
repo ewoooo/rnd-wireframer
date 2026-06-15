@@ -84,6 +84,7 @@ const DTO_NAME_BY_ARTIFACT_KIND: Record<GenerationArtifactKind, string> = {
 	"decoration-plan": "DecorationPlanContract",
 	"draft-candidate": "DraftCandidateContract",
 	"generation-context": "GenerationContext",
+	"intent-composition": "IntentCompositionContract",
 	preview: "PreviewContract",
 	"quality-inspection": "QualityInspectionContract",
 	"render-tree": "RenderTreeContract",

@@ -29,6 +29,13 @@ export async function writeStepExecutionArtifacts(input: {
 			execution.prompt,
 		);
 	}
+	if (execution.usage) {
+		await artifactStore.writeJson(
+			jobId,
+			INFERENCE_ARTIFACT_PATH.step.usage(stepId),
+			execution.usage,
+		);
+	}
 	// Success raw equals output.json; persist the raw engine response only for failure debugging.
 	if (execution.status === "failed" && execution.raw !== undefined) {
 		await artifactStore.writeJson(

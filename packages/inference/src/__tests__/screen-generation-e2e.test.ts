@@ -71,30 +71,33 @@ const invalidRenderTree = {
 };
 
 const payloadByTaskKind: Record<string, unknown> = {
-	"screen-intent": {
-		schemaVersion: SCHEMA_VERSION.screenIntent,
-		coreJudgment: "x",
-		firstUnderstanding: "x",
-		ctaPromise: "x",
-		contentPriority: [],
-		sourceInterpretation: { defer: [], preserve: [], summarize: [] },
-	},
-	"composition-planning": {
-		schemaVersion: SCHEMA_VERSION.compositionPlan,
-		screenLayout: "layout.screen.Default",
-		currentFitAssessment: { supportsJudgment: true, problems: [] },
-		compositionProposal: { shouldChangeAreaComposite: false, recommendedAreas: [] },
-		designTrace: { usedReferenceIds: ["area-radio-option-group"], usedSkillIds: [] },
-		layoutStrategy: "x",
-		sections: [
-			{ targetRegion: "contents", role: "content", priority: 1, sourceRefs: ["T"], strategy: "x" },
-		],
-		visualHierarchy: "x",
-		primaryUserAction: "x",
-		sectionRhythm: "x",
-		density: "medium",
-		patternRationale: "x",
-		rejectedPatterns: [],
+	"intent-composition": {
+		schemaVersion: SCHEMA_VERSION.intentComposition,
+		screenIntent: {
+			schemaVersion: SCHEMA_VERSION.screenIntent,
+			coreJudgment: "x",
+			firstUnderstanding: "x",
+			ctaPromise: "x",
+			contentPriority: [],
+			sourceInterpretation: { defer: [], preserve: [], summarize: [] },
+		},
+		compositionPlan: {
+			schemaVersion: SCHEMA_VERSION.compositionPlan,
+			screenLayout: "layout.screen.Default",
+			currentFitAssessment: { supportsJudgment: true, problems: [] },
+			compositionProposal: { shouldChangeAreaComposite: false, recommendedAreas: [] },
+			designTrace: { usedReferenceIds: ["area-radio-option-group"], usedSkillIds: [] },
+			layoutStrategy: "x",
+			sections: [
+				{ targetRegion: "contents", role: "content", priority: 1, sourceRefs: ["T"], strategy: "x" },
+			],
+			visualHierarchy: "x",
+			primaryUserAction: "x",
+			sectionRhythm: "x",
+			density: "medium",
+			patternRationale: "x",
+			rejectedPatterns: [],
+		},
 	},
 	"screen-generation": validRenderTree,
 	"screen-revision": validRenderTree,
@@ -120,7 +123,7 @@ const payloadByTaskKind: Record<string, unknown> = {
 
 const fakeRunner: AgentRunner = async (request) => {
 	const payload = payloadByTaskKind[request.taskKind];
-	if (request.taskKind !== "screen-intent" || !isRecord(payload)) {
+	if (request.taskKind !== "intent-composition" || !isRecord(payload)) {
 		return {
 			taskKind: request.taskKind,
 			session: { mode: "new" },
@@ -128,17 +131,22 @@ const fakeRunner: AgentRunner = async (request) => {
 		};
 	}
 	const skillset = readSkillsetReference(request.input.context);
+	const screenIntent = payload.screenIntent;
+	if (!isRecord(screenIntent)) throw new Error("intent-composition payload needs screenIntent");
 	return {
 		taskKind: request.taskKind,
 		session: { mode: "new" },
 		payload: {
 			...payload,
-			usedSkills: skillset.data.documents.map((document) => ({
-				id: document.id,
-				role: document.role,
-				sourceRef: document.sourceRef,
-				task: document.task,
-			})),
+			screenIntent: {
+				...screenIntent,
+				usedSkills: skillset.data.documents.map((document) => ({
+					id: document.id,
+					role: document.role,
+					sourceRef: document.sourceRef,
+					task: document.task,
+				})),
+			},
 		},
 	};
 };
@@ -174,50 +182,83 @@ describe("screen-generation@v1 end-to-end", () => {
 		).resolves.toBe(false);
 		const references = await runtime.artifactStore.readJson(
 			job.jobId,
-			"steps/02-screen-intent/references.json",
+			"steps/02-intent-composition/references.json",
 		);
 		// The skillset reference is auto-injected from the step's task name.
 		expect(references).toMatchObject({
 			skillset: {
 				kind: "skillset",
-				id: "screen-intent",
+				id: "intent-composition",
 			},
 		});
 		const skillset = readSkillsetFromReferences(references);
 		expect(skillset.data.documents.map((document) => document.id)).toEqual([
-			"screen-intent",
+			"intent-composition",
 			"design-fundamentals",
 			"source-fidelity-review",
 			"state-coverage-review",
+			"divider-usage-rules",
+			"pagestack-section-unit",
+			"pattern-fit-review",
+			"visual-hierarchy-review",
 		]);
+		// 통합 출력은 spread로 기존 context 키에 펼쳐진다.
 		await expect(
 			runtime.artifactStore.readJson(job.jobId, "context/screen-intent.json"),
 		).resolves.toMatchObject({
+			schemaVersion: SCHEMA_VERSION.screenIntent,
 			usedSkills: [
 				{
-					id: "screen-intent",
-					sourceRef: "../docs/prompts/screen-intent.md",
-					task: "screen-intent",
+					id: "intent-composition",
+					sourceRef: "../docs/prompts/intent-composition.md",
+					task: "intent-composition",
 				},
 				{
 					id: "design-fundamentals",
 					sourceRef: "../docs/skills/design-skills/design-fundamentals/README.md",
 					// 076b5517 frontmatter 정규화 이후 task는 family가 아니라
 					// "이 문서가 투입된 현재 task"를 가리킨다 (catalog.ts readSkillTask).
-					task: "screen-intent",
+					task: "intent-composition",
 				},
 				{
 					id: "source-fidelity-review",
 					sourceRef: "../docs/skills/review-skills/source-fidelity-review/README.md",
-					task: "screen-intent",
+					task: "intent-composition",
 				},
 				{
 					id: "state-coverage-review",
 					sourceRef: "../docs/skills/review-skills/state-coverage-review/README.md",
-					task: "screen-intent",
+					task: "intent-composition",
+				},
+				{
+					id: "divider-usage-rules",
+					sourceRef: "../docs/skills/generate-skills/divider-usage-rules/README.md",
+					task: "intent-composition",
+				},
+				{
+					id: "pagestack-section-unit",
+					sourceRef: "../docs/skills/compose-skills/pagestack-section-unit/README.md",
+					task: "intent-composition",
+				},
+				{
+					id: "pattern-fit-review",
+					sourceRef: "../docs/skills/review-skills/pattern-fit-review/README.md",
+					task: "intent-composition",
+				},
+				{
+					id: "visual-hierarchy-review",
+					sourceRef: "../docs/skills/review-skills/visual-hierarchy-review/README.md",
+					task: "intent-composition",
 				},
 			],
 		});
+		await expect(
+			runtime.artifactStore.readJson(job.jobId, "context/composition-plan.json"),
+		).resolves.toMatchObject({ schemaVersion: SCHEMA_VERSION.compositionPlan });
+		// spread 전용 step은 자기 contract id 키를 만들지 않는다.
+		await expect(
+			runtime.artifactStore.exists(job.jobId, "context/intent-composition.json"),
+		).resolves.toBe(false);
 	});
 
 	it("emits a component-proposal side artifact and survives its failure", async () => {

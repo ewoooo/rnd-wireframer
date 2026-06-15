@@ -6,6 +6,7 @@ stages:
   - compose
   - review
 tasks:
+  - intent-composition
   - composition-planning
   - quality-review
 role: visual-hierarchy

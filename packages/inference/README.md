@@ -111,7 +111,7 @@ defineStep({
 ### 의존성(순서) 규칙
 
 `context("X")`로 읽으려면 그 step **앞에** `writeToContext: "X"` 한 step이 있어야 한다.
-순서를 바꿔 의존성이 역전되면 빈 context를 읽는다. (예: `04-render-tree`가 `context("composition-plan")`을 읽으려면 `03-composition`이 먼저 그 키를 써야 한다.)
+순서를 바꿔 의존성이 역전되면 빈 context를 읽는다. (예: `04-render-tree`가 `context("composition-plan")`을 읽으려면 `02-intent-composition`이 먼저 그 키를 써야 한다 — 통합 step은 `output.spread`로 `screen-intent`/`composition-plan` 두 키를 쓴다.)
 
 ### 새 prompt / function / contract가 필요하면
 
@@ -124,12 +124,12 @@ defineStep({
 ## 현재 등록 가능한 값 (참조표)
 
 **AgentTaskKind** (`prompt.id`로 쓸 수 있는 값, `@cx/agent`):
-`component-proposal`, `composition-planning`, `pattern-selection`, `quality-review`,
-`screen-generation`, `screen-intent`, `screen-revision`
+`component-proposal`, `composition-planning`, `intent-composition`, `pattern-selection`,
+`quality-review`, `screen-generation`, `screen-intent`, `screen-revision`
 
 **output contract id** (`outputContractRef(...)`, `@cx/schema`):
-`source-spec`, `screen-intent`, `composition-plan`, `render-tree`, `validation-report`,
-`quality-inspection`
+`source-spec`, `screen-intent`, `composition-plan`, `intent-composition`, `render-tree`,
+`validation-report`, `quality-inspection`
 
 **function id** (`run.id`, 앱 `functions` 맵 — 현재):
 `source-spec-mvp`, `deterministic-validation`
@@ -137,7 +137,7 @@ defineStep({
 **knowledge source** (`references`로 주입 가능, `src/knowledge/knowledge-base.ts`):
 `component-catalog`, `layout-catalog`, `skill`(+id), `stage-skillset`(+id), `prompt-catalog`(+id), `token-catalog`
 
-현재 `screen-generation@v1`은 `02-screen-intent`에서 `stage-skillset:understand.screen-intent`를 references로 주입한다. 이 bundle은 `@cx/agent`가 prompt/skill 문서의 `sourceRef`, frontmatter, body를 모아 만든 SSOT object이며, 실행 후 `steps/02-screen-intent/references.json`에서 확인할 수 있다. `screen-intent` output contract는 `usedSkills`를 허용하므로 Claude가 실제 사용한 문서를 output에도 기록할 수 있다.
+현재 `screen-generation@v1`은 `02-intent-composition`에서 task 이름으로 `intent-composition` 스킬셋을 자동 주입받는다. 이 bundle은 `@cx/agent`가 prompt/skill 문서의 `sourceRef`, frontmatter, body를 모아 만든 SSOT object이며, 실행 후 `steps/02-intent-composition/references.json`에서 확인할 수 있다. `screen-intent` output contract는 `usedSkills`를 허용하므로 Claude가 실제 사용한 문서를 output에도 기록할 수 있다.
 
 ## HTTP API (apps/web)
 

@@ -11,5 +11,6 @@ export const INFERENCE_ARTIFACT_PATH = {
 		rawResponse: (stepId: string) => `steps/${stepId}/raw-response.json`,
 		references: (stepId: string) => `steps/${stepId}/references.json`,
 		state: (stepId: string) => `steps/${stepId}/step.json`,
+		usage: (stepId: string) => `steps/${stepId}/usage.json`,
 	},
 } as const;

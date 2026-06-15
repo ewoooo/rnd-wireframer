@@ -38,8 +38,10 @@ export async function GET(request: Request, context: RouteContext) {
 							),
 						);
 					}
-					const last = events.at(-1);
-					if (last && isInferenceTerminalEventType(last.type)) break;
+					// Terminal 뒤에 background step 이벤트가 같은 배치로 따라올 수 있으므로
+					// 배치 전체에서 terminal을 찾는다 — 마지막 이벤트만 보면 스트림이
+					// 영원히 닫히지 않는다.
+					if (events.some((event) => isInferenceTerminalEventType(event.type))) break;
 					if (events.length === 0) controller.enqueue(encoder.encode(": keep-alive\n\n"));
 					await new Promise((resolve) => setTimeout(resolve, 200));
 				}

@@ -8,6 +8,7 @@ const SKILL_STAGES = new Set(["understand", "compose", "generate", "review", "re
 const SKILL_TASKS = new Set([
 	"component-proposal",
 	"composition-planning",
+	"intent-composition",
 	"quality-review",
 	"screen-generation",
 	"screen-intent",

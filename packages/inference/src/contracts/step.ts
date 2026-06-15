@@ -36,6 +36,12 @@ export type OutputContract = {
 	failWhen?: StepOutputFailurePolicy;
 	/** Context key for the step output. Defaults to contractRef.id; pass false to skip the write. */
 	writeToContext?: string | false;
+	/**
+	 * 통합 step의 출력 필드를 개별 context 키로 펼친다(출력 필드명 → context 키).
+	 * 하류 step은 기존 키를 그대로 읽으므로 통합 여부를 모른다. 필드 존재는
+	 * output contract의 required가 보장한다.
+	 */
+	spread?: Record<string, string>;
 };
 
 export type OutputContractValue = OutputContractObject;
@@ -62,5 +68,10 @@ export type InferenceStepDefinition = {
 	 * Side-artifact steps(예: component-proposal)처럼 잡 성공과 무관한 산출물에 쓴다.
 	 */
 	optional?: boolean;
+	/**
+	 * Background step은 잡이 succeeded로 기록된 뒤에 실행된다. 사용자 대기 경로에서
+	 * 빠지므로 잡 성공/실패에 영향을 줄 수 없고, 반드시 optional이어야 한다.
+	 */
+	background?: boolean;
 	output: OutputContract;
 };

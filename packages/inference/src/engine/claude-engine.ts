@@ -42,7 +42,7 @@ export function createClaudeEngine(agentRuntime: AgentRuntime): Engine {
 				prompt,
 				session: { mode: "new" },
 			});
-			return { raw: result.payload, prompt };
+			return { raw: result.payload, prompt, usage: result.usage };
 		},
 	};
 }

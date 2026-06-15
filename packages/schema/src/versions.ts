@@ -7,6 +7,7 @@ export const SCHEMA_VERSION = {
 	designSkillSelection: "design-skill-selection.v0.1",
 	draftCandidate: "draft-candidate.v0.1",
 	generationContext: "generation-context.v0.1",
+	intentComposition: "intent-composition.v0.1",
 	preview: "preview.v0.1",
 	qualityInspection: "quality-inspection.v0.1",
 	renderTree: "render-tree.v0.1",

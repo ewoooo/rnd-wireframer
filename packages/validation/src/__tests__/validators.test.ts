@@ -24,6 +24,10 @@ const testCatalog = {
 			variant: { type: "enum", values: ["primary", "secondary"] },
 			disabled: { type: "boolean" },
 			rightIcon: { type: "node", aiWritable: false },
+			// action-button-label-missing rule은 전역 카탈로그로 캐논화하므로
+			// 픽스처 leaf가 라벨을 갖춰야 한다 — 그 라벨 prop을 계약에 둔다.
+			button: { type: "enum", values: ["1", "2"] },
+			primaryText: { type: "string" },
 		},
 	},
 } satisfies ComponentCatalog;
@@ -52,7 +56,7 @@ describe("@cx/validation validators", () => {
 									componentVersion: "1.0.0",
 									metadata: { id: "auth-method", title: "candidate-cta" },
 									layout: "layout.composite.componentActionButton",
-									props: { text: "candidate", left: 0 },
+									props: { button: "1", primaryText: "candidate" },
 								},
 							],
 						},
@@ -180,13 +184,11 @@ describe("@cx/validation validators", () => {
 				severity: "warning",
 			}),
 		);
-		// 계약 required(text, left) 누락은 에러.
-		expect(report.issues).toContainEqual(
-			expect.objectContaining({
-				code: "required-field-missing",
-				path: [...leafPropsPath, "text"],
-				severity: "error",
-			}),
+		// text/left는 툴팁 표면이라 더이상 required가 아니다 — 누락해도 에러 없음.
+		// CTA 라벨 보장은 action-button-label-missing rule이 담당한다.
+		expect(report.issues.some((issue) => issue.code === "required-field-missing")).toBe(false);
+		expect(report.issues.some((issue) => issue.code === "action-button-label-missing")).toBe(
+			false,
 		);
 	});
 
@@ -339,6 +341,8 @@ describe("@cx/validation validators", () => {
 				props: {
 					label: "계속하기",
 					variant: "primary",
+					button: "1",
+					primaryText: "계속하기",
 				},
 			},
 		];
@@ -879,6 +883,8 @@ function validRenderTree() {
 								props: {
 									label: "가입하기",
 									variant: "primary",
+									button: "1",
+									primaryText: "가입하기",
 								},
 							},
 						],

@@ -20,7 +20,13 @@ require("node:fs").appendFileSync(process.env.ARGV_OUT, JSON.stringify(argv) + "
 const hasSchema = argv.includes("--json-schema");
 if (process.env.MODE === "reject" && hasSchema) { process.stdout.write("NOT JSON ERROR"); process.exit(0); }
 if (process.env.MODE === "reject") { process.stdout.write(JSON.stringify({ result: '{"ok":true}' })); process.exit(0); }
-process.stdout.write(JSON.stringify({ result: "ignored", structured_output: { ok: true } }));
+process.stdout.write(JSON.stringify({
+  result: "ignored",
+  structured_output: { ok: true },
+  usage: { input_tokens: 1200, output_tokens: 340, cache_read_input_tokens: 900 },
+  total_cost_usd: 0.0123,
+  duration_ms: 41000,
+}));
 `,
 	);
 	chmodSync(bin, 0o755);
@@ -54,6 +60,15 @@ describe("createClaudeAgentSdkRunner structured output", () => {
 		} as never);
 
 		expect(res.payload).toEqual({ ok: true });
+		// envelope의 usage/total_cost_usd/duration_ms가 camelCase로 정규화되어 동봉된다.
+		expect(res.usage).toEqual({
+			inputTokens: 1200,
+			outputTokens: 340,
+			cacheCreationInputTokens: undefined,
+			cacheReadInputTokens: 900,
+			totalCostUsd: 0.0123,
+			durationMs: 41000,
+		});
 
 		const calls = readArgvCalls(argvOut);
 		expect(calls).toHaveLength(1);

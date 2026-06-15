@@ -10,7 +10,8 @@ describe("buildComponentProps — bare type 캐논화(kiki. 접두사)", () => {
 			fullWidth: true,
 		});
 
-		expect(out).toEqual({ primaryText: "계속하기", showText: false, type: "Default" });
+		// button 미지정 시 catalog defaultValue "2"가 component default와 같은 값으로 채워진다.
+		expect(out).toEqual({ button: "2", primaryText: "계속하기", showText: false, type: "Default" });
 	});
 
 	it("ActionButton canonical props는 catalog 계약대로 유지한다", () => {

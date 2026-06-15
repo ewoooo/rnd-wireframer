@@ -5,6 +5,7 @@ import type {
 	KnowledgeValue,
 	StepExecution,
 	StepRunContext,
+	StepUsage,
 } from "../contracts";
 import { evaluateStepOutputPolicy } from "../policies/inference-policy";
 
@@ -17,6 +18,7 @@ type StepFailure = {
 	message: string;
 	raw?: unknown;
 	prompt?: unknown;
+	usage?: StepUsage;
 	contextWrites?: Record<string, unknown>;
 };
 
@@ -58,12 +60,12 @@ async function runAttempt(
 			references: resolved.references,
 			outputContract: resolved.outputContract,
 		});
-		const { raw, prompt } = result;
+		const { raw, prompt, usage } = result;
 		const contextWrites = createContextWrites(step, raw);
 		const contractFailure = validateOutputContract(resolved, raw);
 
 		if (contractFailure) {
-			return { kind: "retry", failure: { ...contractFailure, prompt } };
+			return { kind: "retry", failure: { ...contractFailure, prompt, usage } };
 		}
 
 		const policyFailure = evaluateStepOutputPolicy(step, raw);
@@ -76,13 +78,14 @@ async function runAttempt(
 					contextWrites,
 					prompt,
 					raw,
+					usage,
 				}),
 			};
 		}
 
 		return {
 			kind: "succeeded",
-			execution: { status: "succeeded", ...resolved, prompt, raw, contextWrites },
+			execution: { status: "succeeded", ...resolved, prompt, raw, usage, contextWrites },
 		};
 	} catch (error: unknown) {
 		return {
@@ -111,6 +114,7 @@ function createFailedExecution(resolved: StepResolvedContext, failure: StepFailu
 		...resolved,
 		prompt: failure.prompt,
 		raw: failure.raw,
+		usage: failure.usage,
 		contextWrites: failure.contextWrites,
 		error: {
 			code: failure.code,
@@ -123,9 +127,17 @@ function createContextWrites(
 	step: InferenceStepDefinition,
 	raw: unknown,
 ): Record<string, unknown> | undefined {
-	if (step.output.writeToContext === false) return undefined;
-	const key = step.output.writeToContext ?? step.output.contractRef.id;
-	return { [key]: raw };
+	const writes: Record<string, unknown> = {};
+	if (step.output.writeToContext !== false) {
+		const key = step.output.writeToContext ?? step.output.contractRef.id;
+		writes[key] = raw;
+	}
+	if (step.output.spread && raw && typeof raw === "object") {
+		for (const [field, contextKey] of Object.entries(step.output.spread)) {
+			if (field in raw) writes[contextKey] = (raw as Record<string, unknown>)[field];
+		}
+	}
+	return Object.keys(writes).length > 0 ? writes : undefined;
 }
 
 function createInitialFailure(): StepFailure {

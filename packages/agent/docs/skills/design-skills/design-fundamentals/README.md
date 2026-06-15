@@ -8,6 +8,7 @@ stages:
   - generate
   - review
 tasks:
+  - intent-composition
   - screen-intent
   - composition-planning
   - screen-generation

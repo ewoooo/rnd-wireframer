@@ -6,6 +6,7 @@ stages:
   - understand
   - review
 tasks:
+  - intent-composition
   - screen-intent
   - quality-review
 role: state-hinting
