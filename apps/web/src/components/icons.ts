@@ -1,15 +1,19 @@
 import {
+	Blocks,
+	Copy,
 	Layers,
 	LayoutTemplate,
 	type LucideIcon,
 	Map,
 	Palette,
+	Pencil,
 	RectangleHorizontal,
+	RefreshCw,
 	Route,
 	SlidersHorizontal,
 	Smartphone,
 	Table2,
-	Blocks,
+	Trash2,
 } from "lucide-react";
 
 /**
@@ -34,6 +38,11 @@ export const ICONS = {
 	// 패널 기능 아이콘
 	layers: Layers,
 	properties: SlidersHorizontal, // 확정
+	// 리스트 행 액션 (cmp 수정/복제/삭제) — 수정·복제는 추후 개발 전까지 비활성
+	edit: Pencil,
+	duplicate: Copy,
+	delete: Trash2,
+	sync: RefreshCw, // 카탈로그 동기화(kiki→@cx/external)
 	// 우하단(하위 요소 불러오기)은 현재 페이지의 *하위 타입* 아이콘을 쓴다:
 	//   screen→area, area→component, component→rawValue.
 	rawValue: Palette, // component의 하위 = raw value 층위(컴포넌트화 안 된 실제 값, 최후순위 구현)

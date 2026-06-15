@@ -10,6 +10,7 @@
 		"format": "biome format --write .",
 		"lint:hooks": "node scripts/check-react-hooks-policy.mjs apps packages",
 		"sync:catalog": "tsx scripts/sync-catalog/index.ts",
+		"sync:kiki": "tsx scripts/sync-catalog/sync.ts",
 		"sync:layout": "tsx scripts/sync-layout-catalog/index.ts",
 		"sync:reference": "tsx scripts/sync-reference-catalog/index.ts",
 		"sync:skillset": "tsx scripts/sync-skillset-catalog/index.ts",
