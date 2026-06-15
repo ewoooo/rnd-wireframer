@@ -1,0 +1,59 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-subscribed-product",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58806"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-subscribed-product",
+		"children": [
+			{
+				"name": "TitleSection",
+				"nodeType": "INSTANCE",
+				"role": "product-index-title"
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "subscribed-product-slot",
+				"children": [
+					{
+						"name": "Local_PayList",
+						"nodeType": "INSTANCE",
+						"role": "subscribed-product-list",
+						"children": [
+							{
+								"name": "Product",
+								"nodeType": "FRAME",
+								"role": "subscribed-product-summary",
+								"children": [
+									{ "name": "Title", "nodeType": "TEXT", "role": "product-title" },
+									{ "name": "Price", "nodeType": "TEXT", "role": "subscription-period-price" },
+									{ "name": "Icon", "nodeType": "INSTANCE", "role": "collapse-affordance" }
+								]
+							},
+							{
+								"name": "PayProdutListItem",
+								"nodeType": "INSTANCE",
+								"role": "included-benefit-row",
+								"children": [
+									{
+										"name": "ThumbnailItem",
+										"nodeType": "INSTANCE",
+										"role": "benefit-provider-logo"
+									},
+									{ "name": "ProviderText", "nodeType": "TEXT", "role": "benefit-provider-name" },
+									{ "name": "BenefitText", "nodeType": "TEXT", "role": "benefit-description" }
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,27 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-payment-completion-subscribed-product",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "payment-completion-subscribed-product",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "subscribed-product-section",
+				"children": [
+					{ "type": "TitleSection", "role": "product-index-title" },
+					{
+						"type": "LocalPayList",
+						"role": "subscribed-product-list",
+						"children": [
+							{ "type": "ProductSummary", "role": "subscribed-product-summary" },
+							{ "type": "ThumbnailItem", "role": "benefit-provider-logo" },
+							{ "type": "PayProductListItem", "role": "included-benefit-row" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

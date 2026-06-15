@@ -93,6 +93,19 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-payment-completion-ledger/README.md",
 	},
 	{
+		id: "area-payment-completion-subscribed-product",
+		situation:
+			"사용자가 결제를 완료한 뒤 구독된 상품의 이름, 이용 기간/가격, 포함 혜택을 한 area에서 확인한다",
+		tags: [
+			"area-pattern",
+			"payment-completion",
+			"subscribed-product",
+			"subscription-summary",
+			"benefit-list",
+		],
+		sourceRef: "../docs/references/areas/area-payment-completion-subscribed-product/README.md",
+	},
+	{
 		id: "area-phone-verification-code",
 		situation:
 			"사용자가 휴대폰 번호를 입력하고 인증을 요청한 뒤, 발송된 인증번호를 제한시간 안에 입력해 본인/연령을 확인한다",

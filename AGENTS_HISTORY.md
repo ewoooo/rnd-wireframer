@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Payment Completion Subscribed Product Area Reference
+
+- 변경: Figma SOT node `10090:58806` 기반 `area-payment-completion-subscribed-product` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-payment-completion-detail`의 area 후보에 연결함
+- 이유: 결제 완료 화면의 `상품 N` section은 이미 결제된 구독 상품의 이름, 기간/가격, 포함 혜택 row를 확인하는 post-completion 상품 요약 area로 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
 ## 2026-06-15 - Payment Completion Ledger Area Reference
 
 - 변경: Figma SOT node `10090:58803` 기반 `area-payment-completion-ledger` Area Reference를 추가함
