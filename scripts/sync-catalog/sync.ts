@@ -14,21 +14,33 @@ import {
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
+	statSync,
 	writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import { CATALOG_SOURCE, EXTERNAL_PKG_DIR, HARNESS_EXCLUDES } from "./config.ts";
-import { genCatalog } from "./gen-catalog.ts";
-import { genRegistry } from "./gen-registry.ts";
+import type { ComponentPropContract } from "../../packages/schema/src/component-catalog";
+import { catalogSource } from "../../packages/external/src/catalog.source";
+import { CATALOG_SOURCE, EXTERNAL_PKG_DIR } from "./config.ts";
+import { buildCatalogSourceModule, type CatalogSourceEntry } from "./lib.ts";
+import { parseProps } from "./parse-props.ts";
 
 const REPO_ROOT = resolve(import.meta.dirname, "..", "..");
 const CHECK_ONLY = process.argv.includes("--check");
+const VENDOR_ONLY = process.argv.includes("--vendor-only");
 const LOCAL_IDX = process.argv.indexOf("--local");
 const LOCAL_PATH = LOCAL_IDX !== -1 ? process.argv[LOCAL_IDX + 1] : undefined;
+
+/**
+ * kiki가 정본인 디렉터리 — vendor 시 이것들만 통째로 교체한다.
+ * resolver.ts·catalog.*.ts·index.ts 등 우리가 kiki 위에 얹은 wrapper 파일은
+ * src 안에 그대로 남아야 하므로, 전체 src wipe(과거 동작)는 금지.
+ */
+const VENDOR_DIRS = ["components", "assets", "styles", "tokens"] as const;
 
 function git(args: string[], cwd: string): string {
 	return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
@@ -82,25 +94,26 @@ function readBarrelExports(srcDir: string): string[] {
 	return [...names].sort();
 }
 
-/** subpath/src 를 packages/external/src 로 미러링한다 (앱/스토리 하네스 제외). */
+/** kiki 정본 디렉터리(VENDOR_DIRS)만 통째로 교체한다. wrapper 파일은 보존(전체 wipe 금지).
+ *  스토리북 하네스(.stories.*)는 제외. 복사한 파일 수를 돌려준다. */
 function vendorSource(srcDir: string, destSrc: string): number {
-	rmSync(destSrc, { recursive: true, force: true });
 	mkdirSync(destSrc, { recursive: true });
 	let copied = 0;
-	const excludes = new Set(HARNESS_EXCLUDES);
-	cpSync(srcDir, destSrc, {
-		recursive: true,
-		filter: (src) => {
-			const rel = src.slice(srcDir.length + 1);
-			if (!rel) return true;
-			const top = rel.split("/")[0];
-			if (excludes.has(top) || excludes.has(rel)) return false;
-			// storybook 하네스 파일 제외
-			if (rel.endsWith(".stories.tsx") || rel.endsWith(".stories.ts")) return false;
-			copied += 1;
-			return true;
-		},
-	});
+	for (const dir of VENDOR_DIRS) {
+		const from = join(srcDir, dir);
+		if (!existsSync(from)) continue;
+		const to = join(destSrc, dir);
+		rmSync(to, { recursive: true, force: true });
+		cpSync(from, to, {
+			recursive: true,
+			filter: (src) => {
+				// storybook 하네스 파일 제외
+				if (src.endsWith(".stories.tsx") || src.endsWith(".stories.ts")) return false;
+				if (statSync(src).isFile()) copied += 1;
+				return true;
+			},
+		});
+	}
 	return copied;
 }
 
@@ -110,6 +123,70 @@ interface LockFile {
 	syncedAt: string;
 	barrelExports: string[];
 	fileCount: number;
+}
+
+/** vendored .tsx 에서 새 컴포넌트의 catalog.source 엔트리를 기계적으로 만든다.
+ *  description/role 등 큐레이션은 비워 둔다(사람이 나중에 채움). */
+function buildSourceEntry(name: string, tsxPath: string, isBarrel: boolean): CatalogSourceEntry {
+	const props: Record<string, ComponentPropContract> = {};
+	try {
+		// 중복 prop 이름은 마지막 선언 우선 (gen-catalog와 동일 규칙)
+		for (const p of parseProps(tsxPath)) {
+			const contract: ComponentPropContract = { type: p.type };
+			if (p.values && p.values.length > 0) contract.values = p.values;
+			contract.required = p.required;
+			props[p.name] = contract;
+		}
+	} catch {
+		// 파싱 실패 시 빈 props
+	}
+	return { type: `kiki.${name}`, source: isBarrel ? "kiki-barrel" : "kiki-draft", version: "0.0.0", props };
+}
+
+/**
+ * catalog.source.ts(추론이 읽는 catalog.generated.ts의 SSOT)를 vendored components/ 에
+ * 맞춘다 — 완전 미러: 사라진 컴포넌트의 엔트리는 prune, 새 컴포넌트는 엔트리 추가.
+ * 기존 엔트리(큐레이션 포함)는 그대로 보존한다. 변경 시에만 파일을 다시 쓴다.
+ */
+function reconcileCatalogSource(destSrc: string, barrelExports: string[]): {
+	pruned: string[];
+	added: string[];
+} {
+	const componentsDir = join(destSrc, "components");
+	const dirs = readdirSync(componentsDir, { withFileTypes: true })
+		.filter((d) => d.isDirectory())
+		.map((d) => d.name);
+	const dirSet = new Set(dirs);
+	const barrelSet = new Set(barrelExports);
+
+	const next: Record<string, CatalogSourceEntry> = {};
+	const pruned: string[] = [];
+	for (const [key, entry] of Object.entries(catalogSource)) {
+		const name = key.replace(/^kiki\./, "");
+		if (dirSet.has(name)) next[key] = entry;
+		else pruned.push(key);
+	}
+
+	const added: string[] = [];
+	for (const name of dirs) {
+		const key = `kiki.${name}`;
+		if (next[key]) continue;
+		const tsxPath = join(componentsDir, name, `${name}.tsx`);
+		if (!existsSync(tsxPath)) continue; // .tsx 없는 디렉터리는 컴포넌트 아님
+		next[key] = buildSourceEntry(name, tsxPath, barrelSet.has(name));
+		added.push(key);
+	}
+
+	if (pruned.length > 0 || added.length > 0) {
+		const sorted = Object.fromEntries(Object.keys(next).sort().map((k) => [k, next[k]]));
+		const sourcePath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "catalog.source.ts");
+		writeFileSync(sourcePath, buildCatalogSourceModule(sorted));
+		execFileSync("pnpm", ["exec", "biome", "check", "--write", sourcePath], {
+			cwd: REPO_ROOT,
+			stdio: "ignore",
+		});
+	}
+	return { pruned, added };
 }
 
 function main(): void {
@@ -148,42 +225,25 @@ function main(): void {
 		};
 		writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
 
-		log(`· vendored     ${fileCount} files → ${EXTERNAL_PKG_DIR}/src`);
+		log(`· vendored     ${fileCount} files → ${EXTERNAL_PKG_DIR}/src (${VENDOR_DIRS.join(", ")})`);
 
-		// 카탈로그 생성
-		// kiki는 Vite 기반 — PNG/SVG를 string URL로 취급하도록 선언
-		const modulesDtsPath = join(destSrc, "modules.d.ts");
-		writeFileSync(
-			modulesDtsPath,
-			`// [KIKI-SHIM] 임시 — kiki 빌드 제공 시 삭제(빌드물이 .d.ts 제공). 제거 가이드: packages/external/KIKI-SHIM.md
-// AUTO-GENERATED — kiki는 Vite 기반이므로 이미지 import를 string으로 선언
-declare module "*.png" { const src: string; export default src; }
-declare module "*.jpg" { const src: string; export default src; }
-declare module "*.jpeg" { const src: string; export default src; }
-declare module "*.svg" { const src: string; export default src; }
-declare module "*.webp" { const src: string; export default src; }
-`,
-		);
-
-		const catalogPath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "catalog.ts");
-		const compCount = genCatalog({
-			externalSrcDir: destSrc,
-			barrelExports: exports,
-			outputPath: catalogPath,
-		});
-		log(`· catalog      ${compCount}개 컴포넌트 → ${EXTERNAL_PKG_DIR}/src/catalog.ts`);
-		log(`  barrel: [kiki] × ${exports.filter((e) => !e.startsWith("type ")).length}  draft: [kiki/draft] × ${compCount - exports.filter((e) => !e.startsWith("type ")).length}`);
-
-		// 렌더러용 전체 export 표면 — draft 포함 모든 컴포넌트를 렌더 가능하게 한다.
-		const registryPath = join(REPO_ROOT, EXTERNAL_PKG_DIR, "src", "registry.generated.ts");
-		const registry = genRegistry({ externalSrcDir: destSrc, outputPath: registryPath });
-		log(`· registry     ${registry.exported}개 export → ${EXTERNAL_PKG_DIR}/src/registry.generated.ts`);
-		if (registry.skipped.length > 0) {
-			log(`  ⚠ 렌더 제외(dir명과 다른 export): ${registry.skipped.join(", ")}`);
+		if (VENDOR_ONLY) {
+			log("✓ vendor-only — catalog 재생성 생략 (pnpm sync:catalog 로 별도 갱신)");
+			return;
 		}
 
+		// catalog.source.ts를 vendored components/ 에 맞춰 정리 (완전 미러)
+		const { pruned, added } = reconcileCatalogSource(destSrc, exports);
+		if (pruned.length > 0) log(`· prune        ${pruned.length}개 엔트리 제거 — ${pruned.join(", ")}`);
+		if (added.length > 0) log(`· add          ${added.length}개 엔트리 추가(큐레이션 비움) — ${added.join(", ")}`);
+		if (pruned.length === 0 && added.length === 0) log("· catalog.source  변경 없음");
+
+		// catalog.generated.ts / registry.generated.ts 재생성은 기존 파이프라인(index.ts)에 위임.
+		// 추론·렌더가 읽는 catalog가 vendored 결과와 일치하게 된다.
+		log("· regen        pnpm sync:catalog (catalog.generated.ts + registry.generated.ts)");
+		execFileSync("pnpm", ["sync:catalog"], { cwd: REPO_ROOT, stdio: "inherit" });
+
 		log(`✓ sync 완료 — @cx/external (source: ${CATALOG_SOURCE.id}@${sha.slice(0, 12)})`);
-		log("  다음 단계: AI/렌더 연결 (build-catalog-deck, component-by-type)");
 	} finally {
 		cleanup();
 	}
