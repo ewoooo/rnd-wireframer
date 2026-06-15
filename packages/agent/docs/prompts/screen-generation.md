@@ -68,7 +68,7 @@ These rules are migrated from the removed compatibility inference nodes and are 
 21. For a field-side action button such as verify, request, resend, or use-all, use catalog-supported TextField button props. Do not write renderer-owned slot objects such as `rightElement`.
 22. Use source reference catalog entries, props, description, and raw notes as source text evidence for visible labels and descriptions.
 23. Use the component contract catalog when choosing component props and composite layout candidates. Do not invent component props or layout ids outside that context.
-24. Optional catalog components may be used when they fit the source better than source-provided component refs, but unstable candidate components require clear source evidence.
+24. Optional catalog components may be used when they fit the source better than source-provided component refs, but unstable candidate components require clear source evidence. Exception: when `compositionPlan.catalogGaps` names a reference pattern (via `referenceIds`) whose matching component now exists in the catalog, that gap entry IS the required evidence — adopt the catalog component for the gap's `targetSourceRefs` instead of the flat fallback. Match the gap's `desiredPattern` and the cited reference's component candidates against catalog component descriptions to pick the component; if no catalog component matches yet, keep the flat fallback. Never invent a type not in the catalog.
 25. Respect `sourceShape.screen.regions`: each region contains area nodes, and each area contains component nodes.
 26. Map header, contents, and bottom regions to `Screen.Header`, `Screen.Contents`, and `Screen.Bottom`.
 27. RenderTree must match the provided RenderTree JSON Schema.
