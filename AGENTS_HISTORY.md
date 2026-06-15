@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Payment Completion Gift Notice List Area Reference
+
+- 변경: Figma SOT node `10090:58812` 기반 `area-payment-completion-gift-notice-list` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-payment-completion-detail`의 area 후보에 연결함
+- 이유: 결제 완료 화면의 선물 받기 안내 section은 약관 동의가 아니라 완료 후 읽기 전용 bullet notice list로 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
 ## 2026-06-15 - Payment Completion Related Product Carousel Area Reference
 
 - 변경: Figma SOT node `10090:58810` 기반 `area-payment-completion-related-product-carousel` Area Reference를 추가함

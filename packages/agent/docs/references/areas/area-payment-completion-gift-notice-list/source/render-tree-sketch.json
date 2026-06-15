@@ -1,0 +1,28 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-payment-completion-gift-notice-list",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "payment-completion-gift-notice-list",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "gift-notice-section",
+				"children": [
+					{ "type": "TitleSection", "role": "gift-notice-title" },
+					{
+						"type": "BulletList",
+						"role": "post-completion-notice-list",
+						"children": [
+							{ "type": "BulletListItem", "role": "gift-rejection-notice" },
+							{ "type": "BulletListItem", "role": "barcode-notice" },
+							{ "type": "BulletListItem", "role": "usage-limit-notice" },
+							{ "type": "BulletListItem", "role": "excluded-items-notice" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

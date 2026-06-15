@@ -1,0 +1,42 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-gift-notice-list",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58812"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-gift-notice-list",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "gift-notice-title-group",
+				"children": [
+					{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "gift-notice-title" }
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "gift-notice-slot",
+				"children": [
+					{
+						"name": "BulletList",
+						"nodeType": "TEXT",
+						"role": "post-completion-notice-list",
+						"children": [
+							{ "name": "ListItem", "nodeType": "TEXT", "role": "gift-rejection-notice" },
+							{ "name": "ListItem", "nodeType": "TEXT", "role": "barcode-notice" },
+							{ "name": "ListItem", "nodeType": "TEXT", "role": "usage-limit-notice" },
+							{ "name": "ListItem", "nodeType": "TEXT", "role": "excluded-items-notice" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

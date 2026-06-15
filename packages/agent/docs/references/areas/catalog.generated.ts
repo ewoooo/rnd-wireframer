@@ -93,6 +93,19 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-payment-completion-delivery-info/README.md",
 	},
 	{
+		id: "area-payment-completion-gift-notice-list",
+		situation:
+			"사용자가 결제를 완료한 뒤 선물 받기 조건, 거절/환불, 이용 제한 같은 안내 문구를 bullet list로 확인한다",
+		tags: [
+			"area-pattern",
+			"payment-completion",
+			"gift-notice",
+			"bullet-list",
+			"post-completion-notice",
+		],
+		sourceRef: "../docs/references/areas/area-payment-completion-gift-notice-list/README.md",
+	},
+	{
 		id: "area-payment-completion-ledger",
 		situation:
 			"사용자가 결제를 완료한 직후 완료 headline과 결제수단, 할인 내역, 최종 결제 금액을 한 area에서 확인한다",
