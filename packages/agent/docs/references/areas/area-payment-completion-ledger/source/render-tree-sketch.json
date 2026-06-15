@@ -1,0 +1,26 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-payment-completion-ledger",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "payment-completion-ledger",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "payment-completion-ledger-section",
+				"children": [
+					{ "type": "TitleMain", "role": "payment-completion-headline" },
+					{ "type": "TitleSection", "role": "payment-info-title" },
+					{ "type": "ListText", "role": "payment-method-row" },
+					{ "type": "Divider", "role": "ledger-internal-divider" },
+					{ "type": "ListText", "role": "total-price-row" },
+					{ "type": "ListText", "role": "discount-row" },
+					{ "type": "ListText", "role": "muted-discount-detail-row" },
+					{ "type": "Divider", "role": "final-amount-boundary" },
+					{ "type": "ListText", "role": "final-payment-amount-row" }
+				]
+			}
+		]
+	}
+}

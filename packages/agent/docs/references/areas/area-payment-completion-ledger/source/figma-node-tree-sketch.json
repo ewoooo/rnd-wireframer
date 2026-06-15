@@ -1,0 +1,41 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-ledger",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58803"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-ledger",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "completion-title-group",
+				"children": [
+					{ "name": "TitleText", "nodeType": "TEXT", "role": "payment-completion-headline" },
+					{ "name": "SubText", "nodeType": "TEXT", "role": "payment-completion-subtext" }
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "payment-ledger-slot",
+				"children": [
+					{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "payment-info-title" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "payment-method-row" },
+					{ "name": "Divider", "nodeType": "INSTANCE", "role": "ledger-internal-divider" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "total-price-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "subscription-discount-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "discount-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "muted-discount-detail-row" },
+					{ "name": "Divider", "nodeType": "INSTANCE", "role": "final-amount-boundary" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "final-payment-amount-row" }
+				]
+			}
+		]
+	}
+}

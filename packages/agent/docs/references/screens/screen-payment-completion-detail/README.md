@@ -96,6 +96,7 @@ SourceSpec이 결제 완료와 일부 결과값만 제공하더라도, 완료 �
 
 - `StatusBar`
 - close-only `AppBar`
+- area reference: `area-payment-completion-ledger`
 - `Pagestack` result section
 - `TitleMain` Complete variant
 - `TitleSection`
