@@ -81,6 +81,7 @@ function createComponentProposalJsonSchema(): JsonSchemaDocument {
 				additionalProperties: false,
 				required: [
 					"id",
+					"kind",
 					"proposedComponentType",
 					"rationale",
 					"sourceEvidence",
@@ -88,11 +89,15 @@ function createComponentProposalJsonSchema(): JsonSchemaDocument {
 				],
 				properties: {
 					id: { type: "string", minLength: 1 },
+					kind: { enum: ["source-gap", "ux-improvement"] },
 					proposedComponentType: { type: "string", minLength: 1 },
 					rationale: { type: "string", minLength: 1 },
 					sourceEvidence: {
 						type: "array",
-						minItems: 1,
+						items: { type: "string", minLength: 1 },
+					},
+					referenceEvidence: {
+						type: "array",
 						items: { type: "string", minLength: 1 },
 					},
 					nearestCatalogMatch: { type: "string", minLength: 1 },
@@ -318,6 +323,12 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 		$id: SCHEMA_VERSION.compositionPlan,
 		additionalProperties: false,
 		properties: {
+			// 채택하고 싶은 reference 패턴이 카탈로그에 없어 격하한 지점(optional).
+			// 트리 생성에는 영향 없고 11-component-proposal의 ux-improvement 근거가 된다.
+			catalogGaps: {
+				type: "array",
+				items: { $ref: "#/$defs/catalogGap" },
+			},
 			compositionProposal: {
 				type: "object",
 				additionalProperties: false,
@@ -395,6 +406,24 @@ function createCompositionPlanJsonSchema(): JsonSchemaDocument {
 		title: "composition-plan",
 		type: "object",
 		$defs: {
+			catalogGap: {
+				type: "object",
+				additionalProperties: false,
+				required: ["desiredPattern", "referenceIds", "targetSourceRefs", "reason"],
+				properties: {
+					desiredPattern: { type: "string", minLength: 1 },
+					referenceIds: {
+						type: "array",
+						minItems: 1,
+						items: { type: "string", minLength: 1 },
+					},
+					targetSourceRefs: {
+						type: "array",
+						items: { type: "string", minLength: 1 },
+					},
+					reason: { type: "string", minLength: 1 },
+				},
+			},
 			rejectedPattern: {
 				type: "object",
 				additionalProperties: false,

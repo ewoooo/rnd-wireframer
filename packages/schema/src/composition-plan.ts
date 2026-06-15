@@ -42,7 +42,20 @@ export type CompositionDesignTrace = {
 	usedSkillIds: string[];
 };
 
+/**
+ * 채택하고 싶은 정답지(reference) 패턴이 있으나 카탈로그에 그 컴포넌트가 없어
+ * 평면 어휘로 격하한 지점. 비파괴 추적 신호 — 트리 생성에는 영향을 주지 않고
+ * 11-component-proposal이 ux-improvement 제안의 근거(referenceEvidence)로 읽는다.
+ */
+export type CompositionCatalogGap = {
+	desiredPattern: string;
+	referenceIds: string[];
+	targetSourceRefs: string[];
+	reason: string;
+};
+
 export type CompositionPlanContract = {
+	catalogGaps?: CompositionCatalogGap[];
 	compositionProposal: CompositionProposal;
 	currentFitAssessment: CompositionCurrentFit;
 	designTrace: CompositionDesignTrace;

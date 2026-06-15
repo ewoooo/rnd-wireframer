@@ -59,6 +59,7 @@ async function runAttempt(
 			inputs: resolved.inputs,
 			references: resolved.references,
 			outputContract: resolved.outputContract,
+			constraint: step.constraint,
 		});
 		const { raw, prompt, usage } = result;
 		const contextWrites = createContextWrites(step, raw);

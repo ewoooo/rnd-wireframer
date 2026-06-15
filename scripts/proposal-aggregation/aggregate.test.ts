@@ -47,11 +47,33 @@ describe("aggregateProposals", () => {
 			{
 				proposedComponentType: "RadioGroup",
 				count: 1,
+				kinds: [],
 				evidence: [],
+				referenceEvidence: [],
 				nearestCatalogMatches: [],
 				rationales: [],
 			},
 		]);
+	});
+
+	it("collects kind and referenceEvidence for ux-improvement proposals", () => {
+		const backlog = aggregateProposals([
+			{
+				proposals: [
+					{
+						proposedComponentType: "AuthTimerField",
+						kind: "ux-improvement",
+						referenceEvidence: ["screen-age-verification"],
+						nearestCatalogMatch: "kiki.TextField",
+					},
+				],
+			},
+		]);
+		expect(backlog[0]).toMatchObject({
+			proposedComponentType: "AuthTimerField",
+			kinds: ["ux-improvement"],
+			referenceEvidence: ["screen-age-verification"],
+		});
 	});
 
 	it("ranks higher-frequency proposals first", () => {

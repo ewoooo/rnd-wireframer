@@ -2,6 +2,7 @@ import { actionButtonDefaultTypeMissingRule } from "./action-button-default-type
 import { actionButtonLabelMissingRule } from "./action-button-label-missing";
 import { bottomCtaStateUngatedRule } from "./bottom-cta-state-ungated";
 import type { QualityRule } from "./define-rule";
+import { proposalEvidenceKindMismatchRule } from "./proposal-evidence-kind-mismatch";
 import { proposalLimitExceededRule } from "./proposal-limit-exceeded";
 import { proposalNearestMatchUnknownRule } from "./proposal-nearest-match-unknown";
 import { proposalSourceEvidenceMissingRule } from "./proposal-source-evidence-missing";
@@ -24,6 +25,7 @@ export const QUALITY_RULES: readonly QualityRule[] = [
 	actionButtonLabelMissingRule,
 	bottomCtaStateUngatedRule,
 	compositionPlanSourceRefNotMaterializedRule,
+	proposalEvidenceKindMismatchRule,
 	proposalLimitExceededRule,
 	proposalNearestMatchUnknownRule,
 	proposalSourceEvidenceMissingRule,

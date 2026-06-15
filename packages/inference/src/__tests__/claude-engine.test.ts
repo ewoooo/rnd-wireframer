@@ -111,6 +111,54 @@ describe("createClaudeEngine", () => {
 		}
 	});
 
+	it("selects the strict source-fidelity constraint by default", async () => {
+		let captured: AgentRunnerRequest | undefined;
+		const engine = createClaudeEngine(
+			createAgentRuntime({
+				runner: async (request) => {
+					captured = request;
+					return { taskKind: request.taskKind, session: { mode: "new" }, payload: {} };
+				},
+			}),
+		);
+
+		await engine.execute({
+			task: "screen-generation",
+			inputs: {},
+			references: {},
+			outputContract: resolveOutputContractForInference("render-tree"),
+		});
+
+		// strict: 카디널리티 보존, merge 금지. consolidation 허용 문구는 없다.
+		expect(captured?.prompt.user).toContain("same cardinality");
+		expect(captured?.prompt.user).not.toContain("consolidate multiple source items");
+	});
+
+	it("selects the free constraint that allows catalogGap-directed consolidation", async () => {
+		let captured: AgentRunnerRequest | undefined;
+		const engine = createClaudeEngine(
+			createAgentRuntime({
+				runner: async (request) => {
+					captured = request;
+					return { taskKind: request.taskKind, session: { mode: "new" }, payload: {} };
+				},
+			}),
+		);
+
+		await engine.execute({
+			task: "screen-generation",
+			inputs: {},
+			references: {},
+			outputContract: resolveOutputContractForInference("render-tree"),
+			constraint: "free",
+		});
+
+		// free: catalogGaps 지목 시 merge 허용. 정보 보존·카탈로그 밖 발명 금지는 유지.
+		expect(captured?.prompt.user).toContain("consolidate multiple source items");
+		expect(captured?.prompt.user).toContain("catalogGaps");
+		expect(captured?.prompt.user).toContain("INFORMATION must survive");
+	});
+
 	it("throws when step.task is missing", async () => {
 		const engine = createClaudeEngine(
 			createAgentRuntime({

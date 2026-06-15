@@ -52,6 +52,15 @@ export type StepRunCondition = {
 };
 
 /**
+ * claude step의 제약 프로필.
+ * - strict(기본): source 충실, 항목 카디널리티 보존 — add/drop/merge 금지.
+ * - free: catalogGap이 명시 지목한 경우 정보 보존 전제로 여러 source 항목을
+ *   하나의 리치 컴포넌트로 통합(merge) 허용. ux-improvement 파이프라인 전용.
+ * function step에는 의미 없다.
+ */
+export type StepConstraint = "strict" | "free";
+
+/**
  * Exactly one of `task` (claude step) or `run` (function step) must be set.
  * A claude step automatically loads the skillset named after its task;
  * `references` adds knowledge on top of that.
@@ -63,6 +72,8 @@ export type InferenceStepDefinition = {
 	inputs?: Record<string, StepInputRef>;
 	references?: Record<string, KnowledgeRef>;
 	runWhen?: StepRunCondition;
+	/** claude step의 제약 프로필. 생략 시 "strict". */
+	constraint?: StepConstraint;
 	/**
 	 * Optional step failure is recorded but does not fail the job.
 	 * Side-artifact steps(예: component-proposal)처럼 잡 성공과 무관한 산출물에 쓴다.

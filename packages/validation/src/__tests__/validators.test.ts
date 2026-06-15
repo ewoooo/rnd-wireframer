@@ -1195,6 +1195,7 @@ describe("validateComponentProposal", () => {
 				proposals: [
 					{
 						id: "p1",
+						kind: "source-gap",
 						proposedComponentType: "PriceCallout",
 						rationale: "Source emphasizes total price",
 						sourceEvidence: ["area.price"],
@@ -1216,6 +1217,7 @@ describe("validateComponentProposal", () => {
 				proposals: [
 					{
 						id: "p1",
+						kind: "source-gap",
 						proposedComponentType: "t",
 						rationale: "r",
 						sourceEvidence: ["area.unknown"],
@@ -1235,6 +1237,7 @@ describe("validateComponentProposal", () => {
 	it("flags more than the allowed number of proposals", () => {
 		const proposals = Array.from({ length: 6 }, (_unused, index) => ({
 			id: `p${index}`,
+			kind: "source-gap" as const,
 			proposedComponentType: "t",
 			rationale: "r",
 			sourceEvidence: ["area.price"],
