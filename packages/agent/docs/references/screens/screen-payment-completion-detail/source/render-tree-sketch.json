@@ -1,0 +1,84 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "screen-payment-completion-detail",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Screen",
+		"children": [
+			{
+				"type": "Screen.Header",
+				"role": "close-only-navigation",
+				"children": [
+					{ "type": "StatusBar", "role": "system-status" },
+					{ "type": "AppBar", "role": "close-action" }
+				]
+			},
+			{
+				"type": "Screen.Contents",
+				"role": "payment-completion-detail-scroll",
+				"children": [
+					{
+						"type": "PageStack",
+						"role": "payment-completion-and-ledger",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleMain", "role": "payment-completion-headline" },
+							{ "type": "TitleSection", "role": "payment-info-title" },
+							{ "type": "ListText", "role": "payment-method-row" },
+							{ "type": "Divider", "role": "ledger-internal-divider" },
+							{ "type": "ListText", "role": "payment-amount-row" },
+							{ "type": "ListText", "role": "discount-row" },
+							{ "type": "ListText", "role": "final-payment-amount-row" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "subscribed-product-summary",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListText", "role": "subscribed-product-title-row" },
+							{ "type": "ListText", "role": "included-benefit-row" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "delivery-information",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "ListText", "role": "recipient-row" },
+							{ "type": "ListText", "role": "phone-row" },
+							{ "type": "ListText", "role": "address-row" },
+							{ "type": "ListText", "role": "delivery-memo-row" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "recommended-product-carousel",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "CarouselProduct", "role": "recommended-product-card" },
+							{ "type": "CarouselProduct", "role": "recommended-product-card" },
+							{ "type": "CarouselProduct", "role": "recommended-product-card" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "post-completion-notice",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "Text", "role": "bullet-notice-list" }
+						]
+					}
+				]
+			},
+			{
+				"type": "Screen.Bottom",
+				"role": "fixed-post-completion-actions",
+				"children": [{ "type": "ActionButton", "role": "explore-and-confirm-actions" }]
+			}
+		]
+	}
+}

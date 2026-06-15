@@ -1,0 +1,33 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-notice-accordion",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-notice-accordion",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "notice-and-contact-section",
+				"children": [
+					{ "type": "TitleSection", "role": "section-title" },
+					{
+						"type": "AccordionNoticeInfo",
+						"role": "expanded-notice-wrapper",
+						"children": [
+							{ "type": "Title", "role": "accordion-title-and-collapse-icon" },
+							{ "type": "ListText", "role": "notice-group-title" },
+							{ "type": "ListText", "role": "notice-bullet-body" },
+							{ "type": "Spacing", "role": "notice-group-gap" },
+							{ "type": "ListText", "role": "notice-group-title" },
+							{ "type": "ListText", "role": "notice-bullet-body" },
+							{ "type": "Spacing", "role": "notice-group-gap" },
+							{ "type": "ListText", "role": "contact-group-title" },
+							{ "type": "ListText", "role": "contact-bullet-body" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

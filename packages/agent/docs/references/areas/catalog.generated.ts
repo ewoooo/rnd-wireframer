@@ -100,6 +100,73 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-prerequisite-status/README.md",
 	},
 	{
+		id: "area-product-benefit-brand-hero",
+		situation:
+			"사용자가 혜택 상세 화면에 진입했을 때 특정 제휴 브랜드의 정체성과 혜택 유형을 첫 화면에서 인지한다",
+		tags: [
+			"area-pattern",
+			"product-benefit-brand",
+			"brand-hero",
+			"benefit-summary",
+			"visual-thumbnail",
+		],
+		sourceRef: "../docs/references/areas/area-product-benefit-brand-hero/README.md",
+	},
+	{
+		id: "area-product-benefit-coupon-card",
+		situation:
+			"사용자가 제휴 브랜드 상세 화면에서 받을 수 있거나 사용할 수 있는 쿠폰 혜택을 확인하고 card-local action을 수행한다",
+		tags: ["area-pattern", "product-benefit", "coupon", "local-action", "brand-logo-card"],
+		sourceRef: "../docs/references/areas/area-product-benefit-coupon-card/README.md",
+	},
+	{
+		id: "area-product-benefit-info-card",
+		situation:
+			"사용자가 특정 제휴 브랜드에서 제공하는 할인, 적립, 사용 같은 혜택 조건을 유형별로 확인한다",
+		tags: [
+			"area-pattern",
+			"product-benefit",
+			"benefit-info",
+			"benefit-condition-card",
+			"tier-badge-list",
+		],
+		sourceRef: "../docs/references/areas/area-product-benefit-info-card/README.md",
+	},
+	{
+		id: "area-product-benefit-nearby-store-map",
+		situation:
+			"사용자가 제휴 브랜드 혜택을 사용할 수 있는 주변 가맹점을 지도와 거리순 목록으로 확인한다",
+		tags: [
+			"area-pattern",
+			"product-benefit",
+			"nearby-store",
+			"map-preview",
+			"store-card-list",
+			"local-action",
+		],
+		sourceRef: "../docs/references/areas/area-product-benefit-nearby-store-map/README.md",
+	},
+	{
+		id: "area-product-benefit-notice-accordion",
+		situation:
+			"사용자가 제휴 브랜드 혜택의 이용 방법, 제한 조건, 문의처 같은 긴 정책성 안내를 확인한다",
+		tags: ["area-pattern", "product-benefit", "notice", "accordion", "policy-copy", "contact-info"],
+		sourceRef: "../docs/references/areas/area-product-benefit-notice-accordion/README.md",
+	},
+	{
+		id: "area-product-benefit-related-brand-list",
+		situation:
+			"사용자가 현재 보고 있는 제휴 브랜드와 비슷한 혜택을 제공하는 다른 브랜드를 탐색한다",
+		tags: [
+			"area-pattern",
+			"product-benefit",
+			"related-brand",
+			"brand-card-list",
+			"benefit-badge-list",
+		],
+		sourceRef: "../docs/references/areas/area-product-benefit-related-brand-list/README.md",
+	},
+	{
 		id: "area-product-summary-sheet",
 		situation:
 			"사용자가 이후 옵션을 선택하기 전에 현재 선택한 상품과 월 납부금액을 상단에서 확인한다",

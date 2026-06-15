@@ -1,0 +1,33 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-info-card",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-info-card",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "benefit-information-section",
+				"children": [
+					{ "type": "TitleSection", "role": "section-title" },
+					{
+						"type": "Card",
+						"role": "benefit-condition-card",
+						"children": [
+							{ "type": "TitleContents", "role": "benefit-group-title" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+							{ "type": "Divider", "role": "benefit-group-boundary" },
+							{ "type": "TitleContents", "role": "benefit-group-title" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+							{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

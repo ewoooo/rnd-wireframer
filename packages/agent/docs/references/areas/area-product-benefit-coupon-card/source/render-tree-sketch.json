@@ -1,0 +1,30 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-coupon-card",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-coupon-card",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "coupon-benefit-section",
+				"children": [
+					{ "type": "TitleSection", "role": "section-title" },
+					{
+						"type": "Card",
+						"role": "coupon-card",
+						"children": [
+							{ "type": "Thumbnail", "role": "brand-logo-thumbnail" },
+							{ "type": "Text", "role": "coupon-target-meta" },
+							{ "type": "Text", "role": "coupon-title" },
+							{ "type": "Badge", "role": "coupon-type" },
+							{ "type": "Badge", "role": "coupon-expiry" },
+							{ "type": "Button", "role": "coupon-local-action" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

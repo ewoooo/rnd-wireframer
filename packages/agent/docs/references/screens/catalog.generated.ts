@@ -36,4 +36,34 @@ export const referenceScreenCatalog: ReferenceCatalogEntry[] = [
 		],
 		sourceRef: "../docs/references/screens/screen-option-configuration/README.md",
 	},
+	{
+		id: "screen-payment-completion-detail",
+		situation:
+			"사용자가 구독/상품 결제를 완료한 뒤 결제 내역, 상품, 배송지, 추천 상품, 안내 문구를 확인하고 후속 action을 선택한다",
+		tags: [
+			"screen-pattern",
+			"payment-completion",
+			"completion-result",
+			"payment-ledger",
+			"subscription-detail",
+			"follow-up-actions",
+		],
+		sotNodeRef: "10090:58801",
+		sourceRef: "../docs/references/screens/screen-payment-completion-detail/README.md",
+	},
+	{
+		id: "screen-prooduct-benefit-brand-detail",
+		situation:
+			"사용자가 특정 제휴 브랜드의 혜택 조건, 이용 유의사항, 관련 쿠폰, 주변 매장, 유사 브랜드를 한 화면에서 탐색한다",
+		tags: [
+			"screen-pattern",
+			"benefit-brand-detail",
+			"brand-hero",
+			"benefit-information",
+			"store-discovery",
+			"related-brand-list",
+		],
+		sotNodeRef: "10069:98025",
+		sourceRef: "../docs/references/screens/screen-prooduct-benefit-brand-detail/README.md",
+	},
 ];

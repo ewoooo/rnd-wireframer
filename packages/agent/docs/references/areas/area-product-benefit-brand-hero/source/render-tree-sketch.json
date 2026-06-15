@@ -1,0 +1,29 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-brand-hero",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-brand-hero",
+		"children": [
+			{
+				"type": "Thumbnail",
+				"role": "brand-hero-wrapper",
+				"children": [
+					{ "type": "Image", "role": "brand-visual-background" },
+					{
+						"type": "Group",
+						"role": "brand-info",
+						"children": [
+							{ "type": "Text", "role": "brand-local-name" },
+							{ "type": "Text", "role": "brand-display-name" },
+							{ "type": "Text", "role": "short-brand-description" },
+							{ "type": "ListText", "role": "category-breadcrumb-and-like-count" },
+							{ "type": "Badge", "role": "benefit-capability" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

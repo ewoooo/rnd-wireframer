@@ -1,0 +1,51 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-info-card",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98053"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-info-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-wrapper",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "benefit-info-title"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "section-content",
+				"children": [
+					{
+						"name": "CardContentsLine",
+						"nodeType": "INSTANCE",
+						"role": "benefit-condition-card",
+						"children": [
+							{ "name": "TitleContents", "nodeType": "INSTANCE", "role": "benefit-group-title" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+							{ "name": "Divider", "nodeType": "RECTANGLE", "role": "benefit-group-boundary" },
+							{ "name": "TitleContents", "nodeType": "INSTANCE", "role": "benefit-group-title" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

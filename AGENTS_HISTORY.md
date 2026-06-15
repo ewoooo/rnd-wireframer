@@ -36,6 +36,70 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Payment Completion Detail Screen Reference
+
+- 변경: Figma SOT node `10090:58801` 기반 `screen-payment-completion-detail` Screen Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 reference catalog 재생성 대상으로 등록함
+- 이유: 결제 완료 후 결제 ledger, 상품, 배송지, 추천 상품 carousel, 선물 받기 안내, 하단 후속 action을 함께 제공하는 화면은 기존 `detail-confirmation`이나 completion area reference와 다른 screen-level 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 결제 완료 ledger, 배송지 정보, 추천 상품 carousel이 반복적으로 쓰이면 area reference 분리 검토
+
+## 2026-06-15 - Product Benefit Related Brand List Area Reference
+
+- 변경: Figma SOT node `10069:98105` 기반 `area-product-benefit-related-brand-list` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 비슷한 혜택 브랜드 section은 coupon card와 유사한 card shell을 쓰지만 쿠폰 action이 아니라 category, brand name, benefit badge, brand logo로 구성된 보조 탐색 목록이므로 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Nearby Store Map Area Reference
+
+- 변경: Figma SOT node `10069:98093` 기반 `area-product-benefit-nearby-store-map` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 내 주변 가맹점 section은 title right action, map preview의 numbered pins, 거리순 store cards, card-local 전화 action이 결합된 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Coupon Card Area Reference
+
+- 변경: Figma SOT node `10069:98084` 기반 `area-product-benefit-coupon-card` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 쿠폰 혜택 section은 브랜드 로고, 대상/쿠폰명, 타입/만료 badge, card-local action button이 결합된 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Notice Accordion Area Reference
+
+- 변경: Figma SOT node `10069:98078` 기반 `area-product-benefit-notice-accordion` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 유의사항 및 문의 section은 긴 정책성 copy를 `AccordionNoticeInfo` 안에서 group title, bullet body, contact rows로 정리하는 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Info Card Area Reference
+
+- 변경: Figma SOT node `10069:98053` 기반 `area-product-benefit-info-card` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 혜택 정보 section은 할인/적립 같은 benefit group title, 반복 조건 row, 등급 badge cluster, card 내부 divider가 결합된 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Brand Hero Area Reference
+
+- 변경: Figma SOT node `10069:98026` 기반 `area-product-benefit-brand-hero` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-prooduct-benefit-brand-detail`의 area 후보에 연결함
+- 이유: 혜택 브랜드 상세 화면의 상단 hero는 브랜드 visual, 브랜드명, 설명, category/like metadata, 혜택 badge를 한 area로 묶는 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Product Benefit Brand Detail Screen Reference
+
+- 변경: Figma SOT node `10069:98025` 기반 `screen-prooduct-benefit-brand-detail` Screen Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 reference catalog 재생성 대상으로 등록함
+- 이유: 브랜드 hero, 혜택 정보, 유의사항, 쿠폰, 주변 가맹점, 비슷한 혜택 브랜드가 결합된 상세 탐색 화면은 기존 `screen-form-entry`, `screen-option-configuration`, `detail-confirmation`과 다른 screen-level 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 혜택 정보 card, 쿠폰 card, 주변 매장 map/list가 반복적으로 쓰이면 area reference 분리 검토
+
 ## 2026-06-11 - Inference Run List Source Separation
 
 - 변경: 새 화면 생성 Run 패널에서 실제 job run(`runId` 있음)과 실행 전 source-ready 항목을 `생성 큐`/`원본 소스` 섹션으로 분리 표시함

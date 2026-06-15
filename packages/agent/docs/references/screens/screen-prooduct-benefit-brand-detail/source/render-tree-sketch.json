@@ -1,0 +1,96 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "screen-prooduct-benefit-brand-detail",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Screen",
+		"children": [
+			{
+				"type": "Screen.Header",
+				"role": "overlay-navigation",
+				"children": [
+					{ "type": "StatusBar", "role": "system-status" },
+					{ "type": "AppBar", "role": "back-and-utility-actions" }
+				]
+			},
+			{
+				"type": "Screen.Contents",
+				"role": "benefit-brand-detail-scroll",
+				"children": [
+					{
+						"type": "Hero",
+						"role": "brand-identity-and-summary",
+						"children": [
+							{ "type": "Image", "role": "brand-background" },
+							{ "type": "Text", "role": "brand-korean-name" },
+							{ "type": "Text", "role": "brand-display-name" },
+							{ "type": "Text", "role": "brand-description" },
+							{ "type": "ListText", "role": "category-and-like-count" },
+							{ "type": "Badge", "role": "benefit-type" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "benefit-information",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{
+								"type": "Card",
+								"role": "benefit-type-groups",
+								"children": [
+									{ "type": "TitleContents", "role": "benefit-type-title" },
+									{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" },
+									{ "type": "Divider", "role": "benefit-group-boundary" },
+									{ "type": "TitleContents", "role": "benefit-type-title" },
+									{ "type": "ListText", "role": "benefit-condition-row-with-tier-badges" }
+								]
+							}
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "notice-and-contact",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "AccordionNoticeInfo", "role": "expanded-policy-copy-and-contact" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "coupon-benefit",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "Card", "role": "coupon-card" },
+							{ "type": "Button", "role": "coupon-local-action" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "nearby-stores",
+						"divider": "section",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title-with-location-action" },
+							{ "type": "Map", "role": "store-map-preview-with-numbered-pins" },
+							{ "type": "CardInfo", "role": "nearby-store-card" },
+							{ "type": "CardInfo", "role": "nearby-store-card" },
+							{ "type": "CardInfo", "role": "nearby-store-card" }
+						]
+					},
+					{
+						"type": "PageStack",
+						"role": "related-benefit-brands",
+						"children": [
+							{ "type": "TitleSection", "role": "section-title" },
+							{ "type": "CardInfo", "role": "related-brand-card" },
+							{ "type": "CardInfo", "role": "related-brand-card" },
+							{ "type": "CardInfo", "role": "related-brand-card" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

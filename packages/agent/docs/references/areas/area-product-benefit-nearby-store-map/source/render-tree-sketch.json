@@ -1,0 +1,40 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-nearby-store-map",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-nearby-store-map",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "nearby-store-section",
+				"children": [
+					{ "type": "TitleSection", "role": "section-title-with-more-action" },
+					{
+						"type": "Map",
+						"role": "map-preview-with-numbered-pins",
+						"children": [
+							{ "type": "Image", "role": "map-image" },
+							{ "type": "Pin", "role": "numbered-map-pin" },
+							{ "type": "Pin", "role": "numbered-map-pin" },
+							{ "type": "Pin", "role": "numbered-map-pin" }
+						]
+					},
+					{
+						"type": "CardInfo",
+						"role": "nearby-store-card",
+						"children": [
+							{ "type": "Pin", "role": "store-number-pin" },
+							{ "type": "Text", "role": "distance" },
+							{ "type": "Text", "role": "store-name" },
+							{ "type": "Button", "role": "store-local-action" }
+						]
+					},
+					{ "type": "CardInfo", "role": "nearby-store-card" },
+					{ "type": "CardInfo", "role": "nearby-store-card" }
+				]
+			}
+		]
+	}
+}

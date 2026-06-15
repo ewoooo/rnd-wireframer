@@ -1,0 +1,62 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-notice-accordion",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98078"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-notice-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-wrapper",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "notice-section-title"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "section-content",
+				"children": [
+					{
+						"name": "AccordionNoticeInfo",
+						"nodeType": "INSTANCE",
+						"role": "expanded-notice-accordion",
+						"children": [
+							{
+								"name": "Title",
+								"nodeType": "FRAME",
+								"role": "accordion-title-and-collapse-icon"
+							},
+							{
+								"name": "slot",
+								"nodeType": "SLOT",
+								"role": "notice-body-groups",
+								"children": [
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "notice-group-title" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "notice-bullet-body" },
+									{ "name": "Spacing", "nodeType": "INSTANCE", "role": "notice-group-gap" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "notice-group-title" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "notice-bullet-body" },
+									{ "name": "Spacing", "nodeType": "INSTANCE", "role": "notice-group-gap" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "contact-group-title" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "contact-bullet-body" }
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

@@ -1,0 +1,123 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "screen-payment-completion-detail",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58801"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "완료_결제",
+		"nodeType": "FRAME",
+		"role": "screen",
+		"children": [
+			{
+				"name": "StatusBar",
+				"nodeType": "INSTANCE",
+				"role": "system-status"
+			},
+			{
+				"name": "AppBar",
+				"nodeType": "INSTANCE",
+				"role": "close-only-navigation"
+			},
+			{
+				"name": "Contents",
+				"nodeType": "FRAME",
+				"role": "scroll-contents",
+				"children": [
+					{
+						"name": "결제 완료 및 결제 정보",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-completion-payment-ledger",
+						"figmaNode": "10090:58803",
+						"children": [
+							{
+								"name": "TitleMain Complete",
+								"nodeType": "INSTANCE",
+								"role": "payment-completion-headline"
+							},
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "payment-info-title" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "payment-method-row" },
+							{ "name": "Divider", "nodeType": "INSTANCE", "role": "ledger-internal-divider" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "payment-amount-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "discount-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "final-payment-amount-row" }
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "상품 1",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-subscribed-product",
+						"figmaNode": "10090:58806",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "product-section-title" },
+							{
+								"name": "ListText",
+								"nodeType": "INSTANCE",
+								"role": "subscribed-product-title-row"
+							},
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "included-benefit-row" }
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "배송지 정보",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-delivery-information",
+						"figmaNode": "10090:58808",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "delivery-section-title" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "recipient-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "phone-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "address-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "delivery-memo-row" }
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "구독한 상품과 함께 많이 찾는 상품",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-recommended-product-carousel",
+						"figmaNode": "10090:58810",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "recommendation-title" },
+							{
+								"name": "CarouselProduct",
+								"nodeType": "INSTANCE",
+								"role": "recommended-product-card"
+							},
+							{
+								"name": "CarouselProduct",
+								"nodeType": "INSTANCE",
+								"role": "recommended-product-card"
+							},
+							{
+								"name": "CarouselProduct",
+								"nodeType": "INSTANCE",
+								"role": "recommended-product-card"
+							}
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "선물 받기 안내",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-post-completion-notice",
+						"figmaNode": "10090:58812",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "notice-section-title" },
+							{ "name": "BulletList", "nodeType": "TEXT", "role": "post-completion-notice-bullets" }
+						]
+					}
+				]
+			},
+			{
+				"name": "ActionButton",
+				"nodeType": "INSTANCE",
+				"role": "fixed-post-completion-actions"
+			}
+		]
+	}
+}

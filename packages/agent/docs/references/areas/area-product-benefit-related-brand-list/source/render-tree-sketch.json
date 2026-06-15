@@ -1,0 +1,30 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-product-benefit-related-brand-list",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "product-benefit-related-brand-list",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "related-brand-section",
+				"children": [
+					{ "type": "TitleSection", "role": "section-title" },
+					{
+						"type": "CardInfo",
+						"role": "related-brand-card",
+						"children": [
+							{ "type": "Text", "role": "brand-category" },
+							{ "type": "Text", "role": "brand-name" },
+							{ "type": "Badge", "role": "benefit-type" },
+							{ "type": "Thumbnail", "role": "brand-logo-thumbnail" }
+						]
+					},
+					{ "type": "CardInfo", "role": "related-brand-card" },
+					{ "type": "CardInfo", "role": "related-brand-card" }
+				]
+			}
+		]
+	}
+}

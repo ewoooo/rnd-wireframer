@@ -1,0 +1,50 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-coupon-card",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98084"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-coupon-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-wrapper",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "coupon-section-title"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "section-content",
+				"children": [
+					{
+						"name": "Coupon",
+						"nodeType": "INSTANCE",
+						"role": "coupon-card-with-local-action",
+						"children": [
+							{
+								"name": ".ThumbnailLogoItem",
+								"nodeType": "INSTANCE",
+								"role": "brand-logo-thumbnail"
+							},
+							{ "name": ".CardText", "nodeType": "INSTANCE", "role": "coupon-target-and-title" },
+							{ "name": "badge", "nodeType": "FRAME", "role": "coupon-type-and-expiry-badges" },
+							{ "name": "Button", "nodeType": "INSTANCE", "role": "coupon-local-action" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

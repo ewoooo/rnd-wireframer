@@ -1,0 +1,123 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "screen-prooduct-benefit-brand-detail",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98025"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "상세_혜택브랜드",
+		"nodeType": "FRAME",
+		"role": "screen",
+		"children": [
+			{
+				"name": "Statusbar+Header",
+				"nodeType": "FRAME",
+				"role": "overlay-header",
+				"children": [
+					{ "name": "StatusBar", "nodeType": "INSTANCE", "role": "system-status" },
+					{ "name": "AppBar", "nodeType": "INSTANCE", "role": "navigation-and-utilities" }
+				]
+			},
+			{
+				"name": "Contents",
+				"nodeType": "FRAME",
+				"role": "scroll-contents",
+				"children": [
+					{
+						"name": "Thumbnail",
+						"nodeType": "INSTANCE",
+						"role": "brand-hero",
+						"figmaNode": "10069:98026",
+						"children": [
+							{ "name": "ImageProduct", "nodeType": "INSTANCE", "role": "brand-visual-background" },
+							{
+								"name": "BrandInfo",
+								"nodeType": "FRAME",
+								"role": "brand-name-description-category-like-badges"
+							}
+						]
+					},
+					{
+						"name": "혜택 정보",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10069:98053",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "section-title" },
+							{
+								"name": "CardContentsLine",
+								"nodeType": "INSTANCE",
+								"role": "benefit-type-card",
+								"children": [
+									{ "name": "TitleContents", "nodeType": "INSTANCE", "role": "benefit-type-title" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" },
+									{ "name": "Divider", "nodeType": "RECTANGLE", "role": "benefit-group-boundary" },
+									{ "name": "ListText", "nodeType": "INSTANCE", "role": "benefit-condition-row" }
+								]
+							}
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "유의사항 및 문의",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10069:98078",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "section-title" },
+							{
+								"name": "AccordionNoticeInfo",
+								"nodeType": "INSTANCE",
+								"role": "expanded-notice-and-contact"
+							}
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "쿠폰 혜택",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10069:98084",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "section-title" },
+							{ "name": "Coupon", "nodeType": "INSTANCE", "role": "coupon-card-with-local-button" }
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "내 주변 가맹점",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10069:98093",
+						"children": [
+							{
+								"name": "TitleSection",
+								"nodeType": "INSTANCE",
+								"role": "section-title-with-location-action"
+							},
+							{ "name": "Map", "nodeType": "INSTANCE", "role": "nearby-store-map-with-pins" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "nearby-store-card" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "nearby-store-card" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "nearby-store-card" }
+						]
+					},
+					{ "name": "Section Divider", "nodeType": "INSTANCE", "role": "section-boundary" },
+					{
+						"name": "비슷한 혜택 브랜드",
+						"nodeType": "INSTANCE",
+						"role": "pagestack-section",
+						"figmaNode": "10069:98105",
+						"children": [
+							{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "section-title" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "related-brand-card" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "related-brand-card" },
+							{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "related-brand-card" }
+						]
+					}
+				]
+			}
+		]
+	}
+}

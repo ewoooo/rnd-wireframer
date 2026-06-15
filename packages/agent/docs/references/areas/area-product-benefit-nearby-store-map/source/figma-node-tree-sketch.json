@@ -1,0 +1,60 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-nearby-store-map",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98093"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-nearby-store-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-with-more-action",
+				"children": [
+					{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "nearby-store-title" },
+					{
+						"name": ".TitleSectionRightItem",
+						"nodeType": "FRAME",
+						"role": "more-stores-action"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "section-content",
+				"children": [
+					{
+						"name": "Map",
+						"nodeType": "INSTANCE",
+						"role": "map-preview-with-numbered-pins",
+						"children": [
+							{ "name": "MapImageAPI", "nodeType": "INSTANCE", "role": "map-image" },
+							{ "name": "Pin", "nodeType": "INSTANCE", "role": "numbered-map-pin" },
+							{ "name": "Pin", "nodeType": "INSTANCE", "role": "numbered-map-pin" },
+							{ "name": "Pin", "nodeType": "INSTANCE", "role": "numbered-map-pin" },
+							{ "name": "Pin", "nodeType": "INSTANCE", "role": "numbered-map-pin" }
+						]
+					},
+					{
+						"name": "CardInfo",
+						"nodeType": "INSTANCE",
+						"role": "nearby-store-card",
+						"children": [
+							{ "name": "Pin", "nodeType": "INSTANCE", "role": "store-number-pin" },
+							{ "name": ".CardText", "nodeType": "INSTANCE", "role": "distance-and-store-name" },
+							{ "name": "Button", "nodeType": "INSTANCE", "role": "store-local-action" }
+						]
+					},
+					{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "nearby-store-card" },
+					{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "nearby-store-card" }
+				]
+			}
+		]
+	}
+}

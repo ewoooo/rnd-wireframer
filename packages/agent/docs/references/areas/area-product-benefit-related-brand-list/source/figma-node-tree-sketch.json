@@ -1,0 +1,55 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-related-brand-list",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98105"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-related-brand-section",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "section-title-wrapper",
+				"children": [
+					{
+						"name": "TitleSection",
+						"nodeType": "INSTANCE",
+						"role": "related-brand-title"
+					}
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "section-content",
+				"children": [
+					{
+						"name": "CardInfo",
+						"nodeType": "INSTANCE",
+						"role": "related-brand-card",
+						"children": [
+							{
+								"name": ".CardText",
+								"nodeType": "INSTANCE",
+								"role": "category-brand-and-benefit-badges"
+							},
+							{ "name": "BadgeList", "nodeType": "FRAME", "role": "benefit-type-badges" },
+							{
+								"name": ".ThumbnailLogoItem",
+								"nodeType": "INSTANCE",
+								"role": "brand-logo-thumbnail"
+							}
+						]
+					},
+					{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "related-brand-card" },
+					{ "name": "CardInfo", "nodeType": "INSTANCE", "role": "related-brand-card" }
+				]
+			}
+		]
+	}
+}

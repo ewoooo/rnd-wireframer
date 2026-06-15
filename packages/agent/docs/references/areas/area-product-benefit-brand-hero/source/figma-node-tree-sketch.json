@@ -1,0 +1,55 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-product-benefit-brand-hero",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:98026"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Thumbnail",
+		"nodeType": "INSTANCE",
+		"role": "product-benefit-brand-hero",
+		"children": [
+			{
+				"name": "ImageProduct",
+				"nodeType": "INSTANCE",
+				"role": "brand-visual-background"
+			},
+			{
+				"name": "BrandInfo",
+				"nodeType": "FRAME",
+				"role": "brand-summary-copy-and-metadata",
+				"children": [
+					{
+						"name": "TextBrandName",
+						"nodeType": "FRAME",
+						"role": "brand-local-and-display-name"
+					},
+					{
+						"name": "Description",
+						"nodeType": "TEXT",
+						"role": "short-brand-description"
+					},
+					{
+						"name": "TextBrandInfo",
+						"nodeType": "FRAME",
+						"role": "category-like-and-benefit-badges",
+						"children": [
+							{
+								"name": "SubText",
+								"nodeType": "FRAME",
+								"role": "category-breadcrumb-and-like-count"
+							},
+							{
+								"name": "BadgeList",
+								"nodeType": "FRAME",
+								"role": "benefit-capability-badges"
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}
