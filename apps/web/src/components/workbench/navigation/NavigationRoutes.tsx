@@ -213,11 +213,12 @@ function NodeListBody({
 	}
 	return (
 		<div className="flex flex-col">
-			{items.map((item) => (
+			{items.map((item, index) => (
 				<NavigationNodeListItem
 					isSelected={item.id === selectedId}
 					item={item}
-					key={item.id}
+					// 같은 area가 여러 스크린에 중복 등장 → id만으론 key 충돌. screen+id+index로 고유화.
+					key={`${item.screenId ?? "_"}:${item.id}:${index}`}
 					onSelect={onSelect}
 				/>
 			))}

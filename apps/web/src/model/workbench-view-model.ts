@@ -68,13 +68,19 @@ export function collectScreenAreas(screen?: ScreenSummary): RenderTreeNode[] {
 	return screen?.renderTree ? collectNodesByTypePrefix(screen.renderTree, "area.") : [];
 }
 
+// 같은 area(같은 metadata.id)가 여러 스크린에 박혀 반복 표시되던 것을 1개로 합친다(첫 등장 유지).
+// 내용이 다르면 id도 다르므로 살아남는다. (이름만 같고 id 다른 중복 인스턴스 정리는 render_areas 청소 — 별건.)
 export function collectWorkbenchAreas(screens: ScreenSummary[]): NavigationNodeEntry[] {
-	return screens.flatMap((screen) =>
-		collectScreenAreas(screen).map((node) => ({
-			node,
-			screen,
-		})),
-	);
+	const seen = new Set<string>();
+	const entries: NavigationNodeEntry[] = [];
+	for (const screen of screens) {
+		for (const node of collectScreenAreas(screen)) {
+			if (seen.has(node.metadata.id)) continue;
+			seen.add(node.metadata.id);
+			entries.push({ node, screen });
+		}
+	}
+	return entries;
 }
 
 // cmp 탭은 스크린 트리의 인스턴스가 아니라 로컬 @cx/external 카탈로그를 보여준다.
