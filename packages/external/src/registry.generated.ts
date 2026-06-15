@@ -64,6 +64,7 @@ export { PagestackItemDefault } from "./components/PagestackItemDefault/Pagestac
 export { PaymentList } from "./components/PaymentList/PaymentList";
 export { PaymentLogoItem } from "./components/PaymentLogoItem/PaymentLogoItem";
 export { PayProductListItem } from "./components/PayProductListItem/PayProductListItem";
+export { PhoneVerificationCodeField } from "./components/PhoneVerificationCodeField/PhoneVerificationCodeField";
 export { Pin } from "./components/Pin/Pin";
 export { PopupActionButton } from "./components/PopupActionButton/PopupActionButton";
 export { ProductInfo } from "./components/ProductInfo/ProductInfo";
