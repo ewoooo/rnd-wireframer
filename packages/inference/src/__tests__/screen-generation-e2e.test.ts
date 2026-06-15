@@ -13,7 +13,7 @@ const sourceSpec = {
 		files: [],
 		importId: "test",
 		receivedAt: "2026-06-08T00:00:00.000Z",
-		sourceKind: "prdd-markdown-bundle",
+		sourceKind: "markdown",
 	},
 	sourceShape: {
 		screen: {

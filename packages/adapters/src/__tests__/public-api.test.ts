@@ -10,7 +10,7 @@ describe("@cx/adapters public API", () => {
 		const puckSubpath: AdapterPublicSubpath = "puck";
 
 		expect(ADAPTER_PACKAGE_NAME).toBe("@cx/adapters");
-		expect(ADAPTER_PUBLIC_SUBPATHS).toEqual(["markdown", "table", "puck"]);
+		expect(ADAPTER_PUBLIC_SUBPATHS).toEqual(["markdown", "json", "table", "puck"]);
 		expect(puckSubpath).toBe("puck");
 	});
 });

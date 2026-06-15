@@ -132,7 +132,7 @@ describe("@cx/schema public API", () => {
 				files: [],
 				importId: "sample",
 				receivedAt: "2026-05-27T00:00:00.000Z",
-				sourceKind: "prdd-markdown-bundle",
+				sourceKind: "markdown",
 			},
 			sourceShape: {
 				screen: {
@@ -154,7 +154,7 @@ describe("@cx/schema public API", () => {
 				files: [],
 				importId: "sample",
 				receivedAt: "2026-05-27T00:00:00.000Z",
-				sourceKind: "prdd-markdown-bundle",
+				sourceKind: "markdown",
 			},
 			sourceShape: {
 				screen: {

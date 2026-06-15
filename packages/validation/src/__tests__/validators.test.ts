@@ -87,7 +87,7 @@ describe("@cx/validation validators", () => {
 				files: [],
 				importId: "s",
 				receivedAt: "2026-01-01T00:00:00.000Z",
-				sourceKind: "prdd-markdown-bundle",
+				sourceKind: "markdown",
 			},
 			sourceShape: {
 				screen: {
@@ -1001,7 +1001,7 @@ function validSourceSpec(): SourceSpec {
 			files: [],
 			importId: "sample",
 			receivedAt: "2026-05-27T00:00:00.000Z",
-			sourceKind: "prdd-markdown-bundle" as const,
+			sourceKind: "markdown" as const,
 		},
 		sourceShape: {
 			screen: {

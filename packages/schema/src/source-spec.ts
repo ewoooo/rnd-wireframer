@@ -61,7 +61,7 @@ export type SourceSpec = {
 		files: SourceSpecFile[];
 		importId: string;
 		receivedAt: string;
-		sourceKind: "prdd-markdown-bundle";
+		sourceKind: "json" | "markdown";
 	};
 	sourceShape: {
 		screen: {

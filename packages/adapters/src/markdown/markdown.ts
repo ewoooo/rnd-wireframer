@@ -93,7 +93,7 @@ export function parseMarkdownSourceBundle(
 		schemaVersion: SCHEMA_VERSION.sourceSpec,
 		sourceImport: {
 			importId: input.importId,
-			sourceKind: "prdd-markdown-bundle",
+			sourceKind: "markdown",
 			receivedAt: input.receivedAt ?? "1970-01-01T00:00:00.000Z",
 			files,
 		},

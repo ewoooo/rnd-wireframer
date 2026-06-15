@@ -31,7 +31,7 @@ describe("@cx/adapters/markdown", () => {
 			schemaVersion: "source-spec.v0.1",
 			sourceImport: {
 				importId: "PRDD-2026-05-sample",
-				sourceKind: "prdd-markdown-bundle",
+				sourceKind: "markdown",
 			},
 			sourceShape: {
 				screen: {
