@@ -1,6 +1,7 @@
 "use client";
 
 import { type Data, Puck } from "@puckeditor/core";
+import { useRouter } from "next/navigation";
 import type { CSSProperties } from "react";
 import { useState } from "react";
 import { buildPuckConfigForScope } from "@/components/puck/workbench/workbench-puck";
@@ -8,6 +9,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Divider } from "@/components/layout/Aside";
 import { DoubleBorder } from "@/components/layout/DoubleBorder";
 import { Rail } from "@/components/layout/Rail";
+import { useSessionLayout } from "@/components/layout/use-session-layout";
 import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Canvas } from "@/components/workbench/canvas/Canvas";
 import { EditSidebar } from "@/components/workbench/edit-sidebar/EditSidebar";
@@ -20,8 +22,21 @@ import type { NavigatorTab } from "@/model/workbench-view-model";
 
 const ASIDE_WIDTH = "320px";
 
-export function AppShell() {
-	const [activeTab, setActiveTab] = useState<NavigatorTab>("scn");
+export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) {
+	const router = useRouter();
+	const [activeTab, setActiveTab] = useState<NavigatorTab>(initialTab);
+
+	// 탭 전환 시 ?tab= 쿼리도 갱신 → 새로고침/공유 시 같은 탭으로 복원(깜빡임 없음).
+	function handleSelectTab(tab: NavigatorTab) {
+		setActiveTab(tab);
+		const params = new URLSearchParams(window.location.search);
+		params.set("tab", tab);
+		router.replace(`?${params.toString()}`, { scroll: false });
+	}
+
+	// Run 탭 canvas↔RightAside 가로 분할 크기 유지(새로고침), 앱 새로 열면 초기화.
+	const runSplitLayout = useSessionLayout("run-split", ["run-split:0", "run-split:1"]);
+
 	const screen = useScreenWorkbench();
 	const newScreen = useNewScreenInference(activeTab, screen.setSaveState);
 	const puck = usePuckEditing({
@@ -56,12 +71,18 @@ export function AppShell() {
 	// 그 사이 수직 Divider로 RightAside 폭을 드래그 조절한다(md가 길어서).
 	const editorRegion =
 		activeTab === "agent" ? (
-			<ResizablePanelGroup className="min-w-0 flex-1" orientation="horizontal">
-				<ResizablePanel className="flex min-h-0 min-w-0" defaultSize={68} minSize={30}>
+			<ResizablePanelGroup
+				key={runSplitLayout.key}
+				className="min-w-0 flex-1"
+				orientation="horizontal"
+				defaultLayout={runSplitLayout.defaultLayout}
+				onLayoutChanged={runSplitLayout.onLayoutChanged}
+			>
+				<ResizablePanel id="run-split:0" className="flex min-h-0 min-w-0" defaultSize={68} minSize={30}>
 					{canvas}
 				</ResizablePanel>
 				<Divider orientation="vertical" />
-				<ResizablePanel className="flex min-h-0" defaultSize={32} minSize={18}>
+				<ResizablePanel id="run-split:1" className="flex min-h-0" defaultSize={32} minSize={18}>
 					<EditSidebar
 						scope={puck.editScope}
 						newScreenSource={{ runId: newScreen.selectedRun?.runId }}
@@ -102,7 +123,7 @@ export function AppShell() {
 	return (
 		<main className="flex h-svh w-screen min-w-0 overflow-hidden bg-sidebar">
 			{/* body: rail · double border · main(=SidebarProvider) 3형제 */}
-			<Rail activeTab={activeTab} onSelectTab={setActiveTab} />
+			<Rail activeTab={activeTab} onSelectTab={handleSelectTab} />
 			<DoubleBorder />
 			<SidebarProvider
 				className="min-h-0 flex-1 overflow-hidden"
