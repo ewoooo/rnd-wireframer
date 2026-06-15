@@ -1,0 +1,29 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-close-only-app-bar",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58815"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "AppBar",
+		"nodeType": "INSTANCE",
+		"role": "close-only-app-bar",
+		"children": [
+			{
+				"name": "RightItem",
+				"nodeType": "FRAME",
+				"role": "right-close-action",
+				"children": [
+					{
+						"name": "btn",
+						"nodeType": "FRAME",
+						"role": "close-icon-button",
+						"children": [{ "name": ".Ico", "nodeType": "INSTANCE", "role": "close-icon" }]
+					}
+				]
+			}
+		]
+	}
+}

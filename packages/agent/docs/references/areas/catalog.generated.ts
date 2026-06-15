@@ -3,6 +3,13 @@ import type { ReferenceCatalogEntry } from "@cx/schema";
 
 export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 	{
+		id: "area-close-only-app-bar",
+		situation:
+			"사용자가 완료/상세/모달형 화면에서 뒤로가기나 title 없이 우측 닫기 action만 제공받는다",
+		tags: ["area-pattern", "screen-chrome", "app-bar", "close-only", "header"],
+		sourceRef: "../docs/references/areas/area-close-only-app-bar/README.md",
+	},
+	{
 		id: "area-compensation-application",
 		situation:
 			"사용자가 사용하던 휴대폰 반납 보상 조건을 확인하고 기기 검색 후 바로보상을 신청한다",

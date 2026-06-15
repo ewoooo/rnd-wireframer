@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Close Only AppBar Area Reference
+
+- 변경: Figma SOT node `10090:58815` 기반 `area-close-only-app-bar` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-payment-completion-detail`의 header 후보에 연결함
+- 이유: 결제 완료 화면의 상단 chrome은 title/back/logo 없이 우측 close action만 제공하는 AppBar로, 본문 area가 아닌 header chrome 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
 ## 2026-06-15 - Payment Completion Gift Notice List Area Reference
 
 - 변경: Figma SOT node `10090:58812` 기반 `area-payment-completion-gift-notice-list` Area Reference를 추가함

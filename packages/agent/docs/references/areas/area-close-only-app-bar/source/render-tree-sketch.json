@@ -1,0 +1,16 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-close-only-app-bar",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "header-close-only-app-bar",
+		"children": [
+			{
+				"type": "AppBar",
+				"role": "close-only-navigation",
+				"children": [{ "type": "IconButton", "role": "close-action" }]
+			}
+		]
+	}
+}
