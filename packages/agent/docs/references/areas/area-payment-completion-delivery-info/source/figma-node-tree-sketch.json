@@ -1,0 +1,35 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-delivery-info",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58808"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-delivery-info",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "delivery-info-title-group",
+				"children": [
+					{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "delivery-info-title" }
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "delivery-info-slot",
+				"children": [
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "recipient-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "phone-number-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "address-row" },
+					{ "name": "ListText", "nodeType": "INSTANCE", "role": "delivery-memo-row" }
+				]
+			}
+		]
+	}
+}

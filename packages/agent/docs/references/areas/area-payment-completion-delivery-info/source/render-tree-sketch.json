@@ -1,0 +1,22 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-payment-completion-delivery-info",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "payment-completion-delivery-info",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "delivery-info-section",
+				"children": [
+					{ "type": "TitleSection", "role": "delivery-info-title" },
+					{ "type": "ListText", "role": "recipient-row" },
+					{ "type": "ListText", "role": "phone-number-row" },
+					{ "type": "ListText", "role": "address-row" },
+					{ "type": "ListText", "role": "delivery-memo-row" }
+				]
+			}
+		]
+	}
+}

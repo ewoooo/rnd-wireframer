@@ -80,6 +80,19 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-linked-recipient-address-field/README.md",
 	},
 	{
+		id: "area-payment-completion-delivery-info",
+		situation:
+			"사용자가 결제를 완료한 뒤 배송 받을 사람, 연락처, 주소, 배송 메모를 한 area에서 확인한다",
+		tags: [
+			"area-pattern",
+			"payment-completion",
+			"delivery-info",
+			"address-summary",
+			"key-value-list",
+		],
+		sourceRef: "../docs/references/areas/area-payment-completion-delivery-info/README.md",
+	},
+	{
 		id: "area-payment-completion-ledger",
 		situation:
 			"사용자가 결제를 완료한 직후 완료 headline과 결제수단, 할인 내역, 최종 결제 금액을 한 area에서 확인한다",
