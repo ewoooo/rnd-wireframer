@@ -1,6 +1,14 @@
 "use client";
 
-import { Children, Fragment, isValidElement, type ReactNode, useId } from "react";
+import {
+	Children,
+	cloneElement,
+	Fragment,
+	isValidElement,
+	type ReactElement,
+	type ReactNode,
+	useId,
+} from "react";
 import {
 	ResizableHandle,
 	ResizablePanel,
@@ -38,18 +46,29 @@ export function Aside({
 	const panels = Children.toArray(children).filter(isValidElement);
 	// 훅은 무조건 호출(rules of hooks). persistId 없으면 저장하지 않고 fallback id만 채운다.
 	const fallbackId = useId();
-	const layout = useSessionLayout(persistId ?? fallbackId);
+	// 패널에 안정적인 명시 id 부여 → 저장/복원 키가 리로드·remount에도 일치(자동 id는 매번 바뀌어 복원 실패).
+	const panelIds = persistId ? panels.map((_, index) => `${persistId}:${index}`) : undefined;
+	const layout = useSessionLayout(persistId ?? fallbackId, panelIds);
 	const persistProps = persistId
 		? { defaultLayout: layout.defaultLayout, onLayoutChanged: layout.onLayoutChanged }
 		: {};
 
 	return (
 		<Sidebar side={side} className={fill ? "h-full w-full" : undefined}>
-			<ResizablePanelGroup orientation="vertical" className="h-full" {...persistProps}>
+			<ResizablePanelGroup
+				key={persistId ? layout.key : undefined}
+				orientation="vertical"
+				className="h-full"
+				{...persistProps}
+			>
 				{panels.map((panel, index) => (
 					<Fragment key={index}>
 						{index > 0 ? <Divider /> : null}
-						{panel}
+						{persistId
+							? cloneElement(panel as ReactElement<{ id?: string }>, {
+									id: `${persistId}:${index}`,
+								})
+							: panel}
 					</Fragment>
 				))}
 			</ResizablePanelGroup>
@@ -64,6 +83,7 @@ export function Aside({
  * - body는 자동으로 세로 스크롤.
  */
 export function Panel({
+	id,
 	title,
 	icon,
 	count,
@@ -73,6 +93,8 @@ export function Panel({
 	bodyClassName,
 	children,
 }: {
+	/** 레이아웃 저장/복원용 안정 id(Aside가 persistId 사용 시 자동 주입). */
+	id?: string;
 	title?: ReactNode;
 	/** 제목 앞 아이콘(선택). */
 	icon?: ReactNode;
@@ -85,7 +107,7 @@ export function Panel({
 	children: ReactNode;
 }) {
 	return (
-		<ResizablePanel defaultSize={defaultSize} minSize={minSize}>
+		<ResizablePanel id={id} defaultSize={defaultSize} minSize={minSize}>
 			{/* 모든 패널 공통 chrome: 동일 헤더 · 배경(bg-sidebar) · 스크롤 body */}
 			<div className="flex h-full min-h-0 flex-col overflow-hidden bg-sidebar">
 				{title !== undefined ? (

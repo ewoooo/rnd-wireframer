@@ -35,7 +35,7 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 	}
 
 	// Run 탭 canvas↔RightAside 가로 분할 크기 유지(새로고침), 앱 새로 열면 초기화.
-	const runSplitLayout = useSessionLayout("run-split");
+	const runSplitLayout = useSessionLayout("run-split", ["run-split:0", "run-split:1"]);
 
 	const screen = useScreenWorkbench();
 	const newScreen = useNewScreenInference(activeTab, screen.setSaveState);
@@ -72,15 +72,17 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 	const editorRegion =
 		activeTab === "agent" ? (
 			<ResizablePanelGroup
+				key={runSplitLayout.key}
 				className="min-w-0 flex-1"
 				orientation="horizontal"
-				{...runSplitLayout}
+				defaultLayout={runSplitLayout.defaultLayout}
+				onLayoutChanged={runSplitLayout.onLayoutChanged}
 			>
-				<ResizablePanel className="flex min-h-0 min-w-0" defaultSize={68} minSize={30}>
+				<ResizablePanel id="run-split:0" className="flex min-h-0 min-w-0" defaultSize={68} minSize={30}>
 					{canvas}
 				</ResizablePanel>
 				<Divider orientation="vertical" />
-				<ResizablePanel className="flex min-h-0" defaultSize={32} minSize={18}>
+				<ResizablePanel id="run-split:1" className="flex min-h-0" defaultSize={32} minSize={18}>
 					<EditSidebar
 						scope={puck.editScope}
 						newScreenSource={{ runId: newScreen.selectedRun?.runId }}
