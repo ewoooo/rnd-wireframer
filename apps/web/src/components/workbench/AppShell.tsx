@@ -34,6 +34,24 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 		router.replace(`?${params.toString()}`, { scroll: false });
 	}
 
+	// cmp 삭제 — 로컬 @cx/external에서 컴포넌트를 제거(round-trip: 삭제→sync:kiki→복원).
+	// catalog.generated.ts가 디스크에서 바뀌면 dev 재컴파일로 목록이 갱신되므로 reload.
+	async function handleDeleteComponent(type: string) {
+		const name = type.startsWith("kiki.") ? type.slice("kiki.".length) : type;
+		if (!window.confirm(`'${name}' 컴포넌트를 로컬 카탈로그에서 삭제할까요?\n(sync:kiki로 복원 가능)`)) {
+			return;
+		}
+		const res = await fetch(`/api/catalog/component?type=${encodeURIComponent(type)}`, {
+			method: "DELETE",
+		});
+		if (!res.ok) {
+			const body = await res.json().catch(() => ({}));
+			window.alert(`삭제 실패: ${body.error ?? res.statusText}`);
+			return;
+		}
+		window.location.reload();
+	}
+
 	// Run 탭 canvas↔RightAside 가로 분할 크기 유지(새로고침), 앱 새로 열면 초기화.
 	const runSplitLayout = useSessionLayout("run-split", ["run-split:0", "run-split:1"]);
 
@@ -145,6 +163,7 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 					components={screen.visibleComponentItems}
 					onSelectArea={screen.onSelectArea}
 					onSelectComponent={screen.onSelectComponent}
+					onDeleteComponent={handleDeleteComponent}
 					onSelectNewScreenSource={newScreen.onSelectSource}
 					onSelectRoute={screen.onSelectRoute}
 					onSelectScreen={screen.onSelectScreen}

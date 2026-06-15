@@ -28,6 +28,7 @@ type NavigationRoutesProps = {
 	onSelectScreen: (screenId: string) => void;
 	onSelectArea: (areaId: string) => void;
 	onSelectComponent: (componentId: string) => void;
+	onDeleteComponent?: (type: string) => void;
 	onSelectNewScreenSource?: (id: string) => void;
 	screenModules: ScreenModuleGroup[];
 	screenRoute?: ScreenRouteGroup;
@@ -59,6 +60,7 @@ export function NavigationRoutes({
 	onSelectScreen,
 	onSelectArea,
 	onSelectComponent,
+	onDeleteComponent,
 	onSelectNewScreenSource,
 	screenModules,
 	screenRoute,
@@ -171,6 +173,7 @@ export function NavigationRoutes({
 						emptyMessage="등록된 Component가 없습니다."
 						items={components}
 						onSelect={onSelectComponent}
+						onDelete={onDeleteComponent}
 						selectedId={selectedComponentId}
 					/>
 				</Panel>
@@ -231,11 +234,13 @@ function ComponentListBody({
 	emptyMessage,
 	items,
 	onSelect,
+	onDelete,
 	selectedId,
 }: {
 	emptyMessage: string;
 	items: NavigationNodeItem[];
 	onSelect: (id: string) => void;
+	onDelete?: (type: string) => void;
 	selectedId?: string;
 }) {
 	if (!items.length) {
@@ -250,33 +255,85 @@ function ComponentListBody({
 				const name = item.type.startsWith("kiki.") ? item.type.slice("kiki.".length) : item.title;
 				const isDraft = /draft/i.test(item.title);
 				return (
-					<button
+					// 행 = 좌(선택 버튼) ↔ 우(액션 그룹) 양끝 맞춤. 행 자체는 div(버튼 중첩 금지).
+					<div
 						key={item.id}
-						type="button"
 						className={cn(
-							"flex min-h-9 min-w-0 cursor-pointer items-center gap-1.5 border-t border-sidebar-border px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-sidebar-accent",
-							isSelected && "bg-primary/[0.08] text-primary hover:bg-primary/[0.08]",
+							"flex min-h-9 min-w-0 items-center justify-between border-t border-sidebar-border pr-1 transition-colors first:border-t-0 hover:bg-sidebar-accent",
+							isSelected && "bg-primary/[0.08] hover:bg-primary/[0.08]",
 						)}
-						onClick={() => onSelect(item.id)}
-						title={item.title}
 					>
-						<span
+						<button
+							type="button"
 							className={cn(
-								"min-w-0 truncate text-[13px]",
-								isSelected ? "font-semibold" : "font-medium",
+								"flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left",
+								isSelected && "text-primary",
 							)}
+							onClick={() => onSelect(item.id)}
+							title={item.title}
 						>
-							{name}
-						</span>
-						{isDraft ? (
-							<span className="shrink-0 rounded bg-sidebar-accent px-1 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
-								draft
+							<span
+								className={cn(
+									"min-w-0 truncate text-[13px]",
+									isSelected ? "font-semibold" : "font-medium",
+								)}
+							>
+								{name}
 							</span>
+							{isDraft ? (
+								<span className="shrink-0 rounded bg-sidebar-accent px-1 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+									draft
+								</span>
+							) : null}
+						</button>
+						{isSelected ? (
+							<div className="flex shrink-0 items-center gap-0.5 pr-2">
+								<ComponentRowAction icon="edit" label="수정 (준비 중)" disabled />
+								<ComponentRowAction icon="duplicate" label="복제 (준비 중)" disabled />
+								<ComponentRowAction
+									icon="delete"
+									label={`${name} 삭제`}
+									onClick={onDelete ? () => onDelete(item.type) : undefined}
+								/>
+							</div>
 						) : null}
-					</button>
+					</div>
 				);
 			})}
 		</div>
+	);
+}
+
+/** cmp 행 우측 액션 아이콘 버튼. disabled면 평생 비활성(추후 개발 시 활성). */
+function ComponentRowAction({
+	icon,
+	label,
+	onClick,
+	disabled,
+}: {
+	icon: "edit" | "duplicate" | "delete";
+	label: string;
+	onClick?: () => void;
+	disabled?: boolean;
+}) {
+	const Icon = ICONS[icon];
+	return (
+		<button
+			type="button"
+			className={cn(
+				"flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors",
+				disabled
+					? "cursor-not-allowed opacity-40"
+					: "cursor-pointer hover:bg-sidebar-border hover:text-foreground",
+				icon === "delete" && !disabled && "hover:bg-destructive/10 hover:text-destructive",
+			)}
+			disabled={disabled || !onClick}
+			onClick={onClick}
+			title={label}
+			aria-label={label}
+		>
+			<Icon className="size-3.5" />
+		</button>
 	);
 }
 
