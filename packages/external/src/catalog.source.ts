@@ -13,10 +13,23 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			showQLabel: { type: "boolean", required: false },
-			state: { type: "enum", values: ["Close", "Open"], required: false },
-			children: { type: "node", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			showQLabel: {
+				type: "boolean",
+				required: false,
+			},
+			state: {
+				type: "enum",
+				values: ["Close", "Open"],
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.AccordionPriceInfo": {
@@ -24,14 +37,40 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			states: { type: "enum", values: ["Default", "Open"], required: false },
-			type: { type: "enum", values: ["SelectedList", "TextList"], required: false },
-			discountPercent: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceLabel: { type: "string", required: false },
-			title: { type: "string", required: false },
-			rightText: { type: "string", required: false },
-			children: { type: "node", required: false },
+			states: {
+				type: "enum",
+				values: ["Default", "Open"],
+				required: false,
+			},
+			type: {
+				type: "enum",
+				values: ["SelectedList", "TextList"],
+				required: false,
+			},
+			discountPercent: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceLabel: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			rightText: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.AccordionProductInfo": {
@@ -39,12 +78,31 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			states: { type: "enum", values: ["Default", "Open"], required: false },
-			logoSrc: { type: "string", required: false },
-			logoBg: { type: "string", required: false },
-			brandName: { type: "string", required: false },
-			productName: { type: "string", required: false },
-			children: { type: "node", required: false },
+			states: {
+				type: "enum",
+				values: ["Default", "Open"],
+				required: false,
+			},
+			logoSrc: {
+				type: "string",
+				required: false,
+			},
+			logoBg: {
+				type: "string",
+				required: false,
+			},
+			brandName: {
+				type: "string",
+				required: false,
+			},
+			productName: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.ActionButton": {
@@ -54,7 +112,11 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"하단 고정 CTA 버튼 영역. 단일 CTA는 button '1' + primaryText, 2버튼 CTA는 button '2' + secondaryText(좌, 회색)/primaryText(우, 파랑). text/left는 버튼 라벨이 아니라 내부 툴팁 표면이다.",
 		props: {
-			disabled: { type: "boolean", role: "state", required: false },
+			disabled: {
+				type: "boolean",
+				role: "state",
+				required: false,
+			},
 			text: {
 				type: "string",
 				required: false,
@@ -65,7 +127,11 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 				required: false,
 				description: "툴팁 left 오프셋(px). showTooltip을 쓸 때만 의미가 있다.",
 			},
-			tailAlign: { type: "enum", values: ["start", "center"], required: false },
+			tailAlign: {
+				type: "enum",
+				values: ["start", "center"],
+				required: false,
+			},
 			type: {
 				type: "enum",
 				values: ["Default", "Ai", "Gift"],
@@ -77,21 +143,40 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 				values: ["1", "2"],
 				required: false,
 				defaultValue: "2",
-				description:
-					"'1'=단일 CTA(primaryText), '2'=좌우 2버튼(secondaryText+primaryText). 생략 시 '2'.",
+				description: "'1'=단일 CTA(primaryText), '2'=좌우 2버튼(secondaryText+primaryText). 생략 시 '2'.",
 			},
-			showText: { type: "boolean", role: "visibility", required: false, defaultValue: false },
-			showTooltip: { type: "boolean", required: false },
-			topText: { type: "string", required: false },
-			leftText: { type: "string", required: false },
-			rightText: { type: "string", required: false },
-			buttonText: { type: "string", required: false, description: "Ai+1 변형의 버튼 라벨." },
+			showText: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+				defaultValue: false,
+			},
+			showTooltip: {
+				type: "boolean",
+				required: false,
+			},
+			topText: {
+				type: "string",
+				required: false,
+			},
+			leftText: {
+				type: "string",
+				required: false,
+			},
+			rightText: {
+				type: "string",
+				required: false,
+			},
+			buttonText: {
+				type: "string",
+				required: false,
+				description: "Ai+1 변형의 버튼 라벨.",
+			},
 			primaryText: {
 				type: "string",
 				role: "label",
 				required: false,
-				description:
-					"Default 변형의 주 CTA 라벨(단일 버튼 또는 2버튼의 우측 파란 버튼). 누락 시 '버튼'으로 렌더된다.",
+				description: "Default 변형의 주 CTA 라벨(단일 버튼 또는 2버튼의 우측 파란 버튼). 누락 시 '버튼'으로 렌더된다.",
 			},
 			secondaryText: {
 				type: "string",
@@ -99,14 +184,41 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 				required: false,
 				description: "Default+2 변형의 좌측 회색 버튼 라벨. 누락 시 '버튼'으로 렌더된다.",
 			},
-			priceLabel: { type: "string", role: "label", required: false },
-			period: { type: "string", role: "data", required: false },
-			price: { type: "string", role: "value", required: false },
-			tooltipText: { type: "string", required: false },
-			onPrimaryClick: { type: "string", required: false },
-			onSecondaryClick: { type: "string", required: false },
-			onAiClick: { type: "string", required: false },
-			onGiftClick: { type: "string", required: false },
+			priceLabel: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			period: {
+				type: "string",
+				role: "data",
+				required: false,
+			},
+			price: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
+			tooltipText: {
+				type: "string",
+				required: false,
+			},
+			onPrimaryClick: {
+				type: "string",
+				required: false,
+			},
+			onSecondaryClick: {
+				type: "string",
+				required: false,
+			},
+			onAiClick: {
+				type: "string",
+				required: false,
+			},
+			onGiftClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.AppBar": {
@@ -116,11 +228,31 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"화면 상단 앱 바(헤더). 뒤로가기·타이틀·로고와 우측 액션 슬롯을 제공한다. 화면 최상단 고정 영역에 둔다.",
 		props: {
-			title: { type: "string", role: "title", required: false },
-			showBack: { type: "boolean", role: "visibility", required: false },
-			showLogo: { type: "boolean", role: "visibility", required: false },
-			rightItem: { type: "string", role: "slot", required: false },
-			onBack: { type: "string", role: "event", required: false },
+			title: {
+				type: "string",
+				role: "title",
+				required: false,
+			},
+			showBack: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+			},
+			showLogo: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+			},
+			rightItem: {
+				type: "string",
+				role: "slot",
+				required: false,
+			},
+			onBack: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
 		},
 	},
 	"kiki.Badge": {
@@ -130,8 +262,16 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"상태·속성을 강조하는 작은 뱃지. 짧은 텍스트 라벨을 variant 색상으로 표시한다. 제목/항목 옆 보조 표식으로 쓴다.",
 		props: {
-			variant: { type: "string", role: "styleVariant", required: false },
-			children: { type: "string", role: "content", required: true },
+			variant: {
+				type: "string",
+				role: "styleVariant",
+				required: false,
+			},
+			children: {
+				type: "string",
+				role: "content",
+				required: true,
+			},
 		},
 	},
 	"kiki.BadgeHome": {
@@ -139,7 +279,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
+			label: {
+				type: "string",
+				required: true,
+			},
 		},
 	},
 	"kiki.BadgeIcon": {
@@ -147,9 +290,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			icon: { type: "node", required: true },
-			label: { type: "string", required: true },
-			subLabel: { type: "string", required: false },
+			icon: {
+				type: "node",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: true,
+			},
+			subLabel: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.BannerBenefit": {
@@ -157,7 +309,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			text: { type: "string", required: false },
+			text: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.BannerHorizontalMedium": {
@@ -165,12 +320,30 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			subtitle: { type: "string", required: false },
-			showSubtitle: { type: "boolean", required: false },
-			showIndicator: { type: "boolean", required: false },
-			totalCount: { type: "number", required: false },
-			activeIndex: { type: "number", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			showSubtitle: {
+				type: "boolean",
+				required: false,
+			},
+			showIndicator: {
+				type: "boolean",
+				required: false,
+			},
+			totalCount: {
+				type: "number",
+				required: false,
+			},
+			activeIndex: {
+				type: "number",
+				required: false,
+			},
 		},
 	},
 	"kiki.BannerHorizontalSmall": {
@@ -178,11 +351,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			subtitle: { type: "string", required: false },
-			showIndicator: { type: "boolean", required: false },
-			totalCount: { type: "number", required: false },
-			activeIndex: { type: "number", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			showIndicator: {
+				type: "boolean",
+				required: false,
+			},
+			totalCount: {
+				type: "number",
+				required: false,
+			},
+			activeIndex: {
+				type: "number",
+				required: false,
+			},
 		},
 	},
 	"kiki.BannerSearch": {
@@ -196,9 +384,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			titleLine1: { type: "string", required: false },
-			titleLine2: { type: "string", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			titleLine1: {
+				type: "string",
+				required: false,
+			},
+			titleLine2: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.BottomNavigation": {
@@ -208,9 +405,21 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"화면 하단 글로벌 내비게이션 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 주요 화면 간 전환을 제공한다.",
 		props: {
-			items: { type: "array", role: "data", required: true },
-			activeKey: { type: "string", role: "state", required: true },
-			onChange: { type: "string", role: "event", required: true },
+			items: {
+				type: "array",
+				role: "data",
+				required: true,
+			},
+			activeKey: {
+				type: "string",
+				role: "state",
+				required: true,
+			},
+			onChange: {
+				type: "string",
+				role: "event",
+				required: true,
+			},
 		},
 	},
 	"kiki.Button": {
@@ -220,11 +429,31 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"기본 액션 버튼. variant(primary/secondary/solid)로 강조도, size로 크기를 정하고 children 에 라벨을 넣는다. 화면의 주요 행동(확인/다음/제출)에 쓴다.",
 		props: {
-			variant: { type: "string", role: "styleVariant", required: false },
-			size: { type: "string", role: "styleVariant", required: false },
-			fullWidth: { type: "boolean", role: "layout", required: false },
-			rightIcon: { type: "node", role: "slot", required: false },
-			children: { type: "node", role: "content", required: true },
+			variant: {
+				type: "string",
+				role: "styleVariant",
+				required: false,
+			},
+			size: {
+				type: "string",
+				role: "styleVariant",
+				required: false,
+			},
+			fullWidth: {
+				type: "boolean",
+				role: "layout",
+				required: false,
+			},
+			rightIcon: {
+				type: "node",
+				role: "slot",
+				required: false,
+			},
+			children: {
+				type: "node",
+				role: "content",
+				required: true,
+			},
 		},
 	},
 	"kiki.ButtonCloseItem": {
@@ -232,7 +461,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			onClick: { type: "string", required: false },
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonItem": {
@@ -240,8 +472,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonListOrder": {
@@ -249,8 +487,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: true,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonMore": {
@@ -258,8 +502,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonMoreProduct": {
@@ -267,9 +517,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			logoColor: { type: "string", required: false },
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			logoColor: {
+				type: "string",
+				required: false,
+			},
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonMoreProductItem": {
@@ -277,10 +536,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
-			logo: { type: "node", required: false },
-			logoColor: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: true,
+			},
+			logo: {
+				type: "node",
+				required: false,
+			},
+			logoColor: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonSection": {
@@ -288,10 +559,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			leftIcon: { type: "string", required: false },
-			leftLabel: { type: "string", required: false },
-			rightIcon: { type: "string", required: false },
-			rightLabel: { type: "string", required: false },
+			leftIcon: {
+				type: "string",
+				required: false,
+			},
+			leftLabel: {
+				type: "string",
+				required: false,
+			},
+			rightIcon: {
+				type: "string",
+				required: false,
+			},
+			rightLabel: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ButtonTextUnderline": {
@@ -299,9 +582,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
-			color: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: true,
+			},
+			color: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Callout": {
@@ -311,8 +603,16 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"강조 안내 박스(콜아웃). 제목과 본문으로 주의·안내·결과 메시지를 묶어 보여준다. 폼 위/아래의 안내 문구에 적합.",
 		props: {
-			title: { type: "string", role: "title", required: false },
-			children: { type: "string", role: "content", required: true },
+			title: {
+				type: "string",
+				role: "title",
+				required: false,
+			},
+			children: {
+				type: "string",
+				role: "content",
+				required: true,
+			},
 		},
 	},
 	"kiki.CardContentsFilled": {
@@ -320,8 +620,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			children: { type: "node", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardContentsItem": {
@@ -329,15 +635,42 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: false },
-			imageSrc: { type: "string", required: false },
-			title: { type: "string", required: false },
-			subtitle: { type: "string", required: false },
-			daysLeft: { type: "string", required: false },
-			buttonLabel: { type: "string", required: false },
-			aiText: { type: "string", required: false },
-			barcodeNumbers: { type: "string", required: false },
-			barcodeTime: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: false,
+			},
+			imageSrc: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			daysLeft: {
+				type: "string",
+				required: false,
+			},
+			buttonLabel: {
+				type: "string",
+				required: false,
+			},
+			aiText: {
+				type: "string",
+				required: false,
+			},
+			barcodeNumbers: {
+				type: "string",
+				required: false,
+			},
+			barcodeTime: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardContentsLine": {
@@ -345,8 +678,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			children: { type: "node", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardInfo": {
@@ -354,17 +693,50 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			logoColor: { type: "string", required: false },
-			logoSrc: { type: "string", required: false },
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			badges: { type: "array", required: false },
-			pinNumber: { type: "number", required: false },
-			distance: { type: "string", required: false },
-			placeName: { type: "string", required: false },
-			actionLabel: { type: "string", required: false },
-			onAction: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			logoColor: {
+				type: "string",
+				required: false,
+			},
+			logoSrc: {
+				type: "string",
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
+			pinNumber: {
+				type: "number",
+				required: false,
+			},
+			distance: {
+				type: "string",
+				required: false,
+			},
+			placeName: {
+				type: "string",
+				required: false,
+			},
+			actionLabel: {
+				type: "string",
+				required: false,
+			},
+			onAction: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardSection": {
@@ -372,17 +744,51 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["Medium", "Large"], required: false },
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			badge: { type: "string", required: false },
-			itemTitle: { type: "string", required: false },
-			itemSubtext: { type: "string", required: false },
-			itemButtonText: { type: "string", required: false },
-			aiText: { type: "string", required: false },
-			buttonText: { type: "string", required: false },
-			movieSrc: { type: "string", required: false },
-			children: { type: "node", required: false },
+			type: {
+				type: "enum",
+				values: ["Medium", "Large"],
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			badge: {
+				type: "string",
+				required: false,
+			},
+			itemTitle: {
+				type: "string",
+				required: false,
+			},
+			itemSubtext: {
+				type: "string",
+				required: false,
+			},
+			itemButtonText: {
+				type: "string",
+				required: false,
+			},
+			aiText: {
+				type: "string",
+				required: false,
+			},
+			buttonText: {
+				type: "string",
+				required: false,
+			},
+			movieSrc: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardSectionTitle": {
@@ -390,10 +796,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			badge: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			badge: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardSummary": {
@@ -401,14 +819,39 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["Text", "Text+RightItem", "Button"], required: false },
-			subText: { type: "string", required: false },
-			mainText: { type: "string", required: false },
-			row1Title: { type: "string", required: false },
-			row1Info: { type: "string", required: false },
-			row2Title: { type: "string", required: false },
-			row2Info: { type: "string", required: false },
-			buttonText: { type: "string", required: false },
+			type: {
+				type: "enum",
+				values: ["Text", "Text+RightItem", "Button"],
+				required: false,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			mainText: {
+				type: "string",
+				required: false,
+			},
+			row1Title: {
+				type: "string",
+				required: false,
+			},
+			row1Info: {
+				type: "string",
+				required: false,
+			},
+			row2Title: {
+				type: "string",
+				required: false,
+			},
+			row2Info: {
+				type: "string",
+				required: false,
+			},
+			buttonText: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.CardText": {
@@ -416,9 +859,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			category: { type: "string", required: false },
-			name: { type: "string", required: false },
-			badges: { type: "array", required: false },
+			category: {
+				type: "string",
+				required: false,
+			},
+			name: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.CarouselProduct": {
@@ -426,14 +878,38 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			imageSrc: { type: "string", required: false },
-			subTitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			originalPrice: { type: "string", required: false },
-			discountRate: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceUnit: { type: "string", required: false },
-			badges: { type: "array", required: false },
+			imageSrc: {
+				type: "string",
+				required: false,
+			},
+			subTitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			originalPrice: {
+				type: "string",
+				required: false,
+			},
+			discountRate: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceUnit: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.CarouselProductText": {
@@ -441,11 +917,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			description: { type: "string", required: false },
-			logoSrc: { type: "string", required: false },
-			badges: { type: "array", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			description: {
+				type: "string",
+				required: false,
+			},
+			logoSrc: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.Checkbox": {
@@ -453,10 +944,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			checked: { type: "boolean", required: false },
-			disabled: { type: "boolean", required: false },
-			label: { type: "string", required: true },
-			onChange: { type: "string", required: false },
+			checked: {
+				type: "boolean",
+				required: false,
+			},
+			disabled: {
+				type: "boolean",
+				required: false,
+			},
+			label: {
+				type: "string",
+				required: true,
+			},
+			onChange: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Chip": {
@@ -466,9 +969,21 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"선택 가능한 칩. 필터·토글·태그 용도로 selected 상태와 라벨(children)을 표시한다. 여러 개를 가로로 나열해 다중 선택에 쓴다.",
 		props: {
-			selected: { type: "boolean", role: "state", required: false },
-			onClick: { type: "string", role: "event", required: false },
-			children: { type: "string", role: "content", required: true },
+			selected: {
+				type: "boolean",
+				role: "state",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
+			children: {
+				type: "string",
+				role: "content",
+				required: true,
+			},
 		},
 	},
 	"kiki.ChipImageItem": {
@@ -476,10 +991,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
-			icon: { type: "node", required: false },
-			selected: { type: "boolean", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: true,
+			},
+			icon: {
+				type: "node",
+				required: false,
+			},
+			selected: {
+				type: "boolean",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Coupon": {
@@ -487,12 +1014,30 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			logoColor: { type: "string", required: false },
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			badges: { type: "array", required: false },
-			actionLabel: { type: "string", required: false },
-			onAction: { type: "string", required: false },
+			logoColor: {
+				type: "string",
+				required: false,
+			},
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
+			actionLabel: {
+				type: "string",
+				required: false,
+			},
+			onAction: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Divider": {
@@ -515,11 +1060,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			totalCount: { type: "number", required: false },
-			sortLabel: { type: "string", required: false },
-			showDivider: { type: "boolean", required: false },
-			onSortClick: { type: "string", required: false },
-			onFilterClick: { type: "string", required: false },
+			totalCount: {
+				type: "number",
+				required: false,
+			},
+			sortLabel: {
+				type: "string",
+				required: false,
+			},
+			showDivider: {
+				type: "boolean",
+				required: false,
+			},
+			onSortClick: {
+				type: "string",
+				required: false,
+			},
+			onFilterClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Footer": {
@@ -527,7 +1087,11 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["01", "02"], required: false },
+			type: {
+				type: "enum",
+				values: ["01", "02"],
+				required: false,
+			},
 		},
 	},
 	"kiki.HomeCardCarousel": {
@@ -535,10 +1099,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			titleLine1: { type: "string", required: false },
-			titleLine2: { type: "string", required: false },
-			children: { type: "node", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			titleLine1: {
+				type: "string",
+				required: false,
+			},
+			titleLine2: {
+				type: "string",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.Icon": {
@@ -546,10 +1122,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			name: { type: "string", required: true },
-			size: { type: "string", required: false },
-			color: { type: "string", required: false },
-			className: { type: "string", required: false },
+			name: {
+				type: "string",
+				required: true,
+			},
+			size: {
+				type: "string",
+				required: false,
+			},
+			color: {
+				type: "string",
+				required: false,
+			},
+			className: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Indicator": {
@@ -557,8 +1145,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			count: { type: "number", required: false },
-			activeIndex: { type: "number", required: false },
+			count: {
+				type: "number",
+				required: false,
+			},
+			activeIndex: {
+				type: "number",
+				required: false,
+			},
 		},
 	},
 	"kiki.InfoTextList": {
@@ -568,11 +1162,31 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"정보 텍스트 행. 제목과 카테고리·날짜·뱃지·우측 텍스트 같은 메타 정보를 한 줄에 정렬해 보여준다. 상세/요약 정보 나열에 쓴다.",
 		props: {
-			title: { type: "string", role: "title", required: false },
-			category: { type: "string", role: "data", required: false },
-			date: { type: "string", role: "data", required: false },
-			badge: { type: "string", role: "label", required: false },
-			rightText: { type: "string", role: "value", required: false },
+			title: {
+				type: "string",
+				role: "title",
+				required: false,
+			},
+			category: {
+				type: "string",
+				role: "data",
+				required: false,
+			},
+			date: {
+				type: "string",
+				role: "data",
+				required: false,
+			},
+			badge: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			rightText: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
 		},
 	},
 	"kiki.LeftItem": {
@@ -580,10 +1194,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: false },
-			color: { type: "string", required: false },
-			onAiClick: { type: "string", required: false },
-			onGiftClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: false,
+			},
+			color: {
+				type: "string",
+				required: false,
+			},
+			onAiClick: {
+				type: "string",
+				required: false,
+			},
+			onGiftClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListProductHorizontal": {
@@ -591,15 +1217,42 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			category: { type: "string", required: false },
-			name: { type: "string", required: false },
-			description: { type: "string", required: false },
-			thumbSrc: { type: "string", required: false },
-			showThumb: { type: "boolean", required: false },
-			showBadges: { type: "boolean", required: false },
-			badges: { type: "array", required: false },
-			showIconBadges: { type: "boolean", required: false },
-			iconBadges: { type: "array", required: false },
+			category: {
+				type: "string",
+				required: false,
+			},
+			name: {
+				type: "string",
+				required: false,
+			},
+			description: {
+				type: "string",
+				required: false,
+			},
+			thumbSrc: {
+				type: "string",
+				required: false,
+			},
+			showThumb: {
+				type: "boolean",
+				required: false,
+			},
+			showBadges: {
+				type: "boolean",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
+			showIconBadges: {
+				type: "boolean",
+				required: false,
+			},
+			iconBadges: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListProductRow": {
@@ -607,8 +1260,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			left: { type: "string", required: false },
-			right: { type: "string", required: false },
+			left: {
+				type: "string",
+				required: false,
+			},
+			right: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListProductVertical": {
@@ -616,14 +1275,38 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			imageSrc: { type: "string", required: false },
-			subTitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			originalPrice: { type: "string", required: false },
-			discountRate: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceUnit: { type: "string", required: false },
-			badges: { type: "array", required: false },
+			imageSrc: {
+				type: "string",
+				required: false,
+			},
+			subTitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			originalPrice: {
+				type: "string",
+				required: false,
+			},
+			discountRate: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceUnit: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListSelected": {
@@ -633,15 +1316,52 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"선택형 리스트 항목. radio/checkbox(type)로 선택하고 라벨·가격·보조 버튼을 옵션으로 노출한다. 약관 동의·상품 선택 목록에 쓴다.",
 		props: {
-			type: { type: "enum", role: "styleVariant", values: ["radio", "checkbox"], required: false },
-			label: { type: "string", role: "label", required: false },
-			price: { type: "string", role: "value", required: false },
-			buttonLabel: { type: "string", role: "label", required: false },
-			checked: { type: "boolean", role: "state", required: false },
-			showPrice: { type: "boolean", role: "visibility", required: false },
-			showButton: { type: "boolean", role: "visibility", required: false },
-			onChange: { type: "string", role: "event", required: false },
-			onButtonClick: { type: "string", role: "event", required: false },
+			type: {
+				type: "enum",
+				role: "styleVariant",
+				values: ["radio", "checkbox"],
+				required: false,
+			},
+			label: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			price: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
+			buttonLabel: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			checked: {
+				type: "boolean",
+				role: "state",
+				required: false,
+			},
+			showPrice: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+			},
+			showButton: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+			},
+			onChange: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
+			onButtonClick: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListSelectedRightItem": {
@@ -649,9 +1369,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ListText": {
@@ -661,12 +1390,36 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"텍스트 리스트 항목. 제목·보조설명·가격과 우측 이동 아이콘을 가진 목록 행. 설정·메뉴·내역 리스트의 한 줄로 쓴다.",
 		props: {
-			table: { type: "string", role: "data", required: false },
-			title: { type: "string", role: "title", required: false },
-			subText: { type: "string", role: "description", required: false },
-			price: { type: "string", role: "value", required: false },
-			showRightItem: { type: "boolean", role: "visibility", required: false },
-			onClick: { type: "string", role: "event", required: false },
+			table: {
+				type: "string",
+				role: "data",
+				required: false,
+			},
+			title: {
+				type: "string",
+				role: "title",
+				required: false,
+			},
+			subText: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			price: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
+			showRightItem: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
 		},
 	},
 	"kiki.Map": {
@@ -674,7 +1427,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			pins: { type: "array", required: false },
+			pins: {
+				type: "array",
+				required: false,
+			},
 		},
 	},
 	"kiki.OptionList": {
@@ -682,10 +1438,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			options: { type: "array", required: true },
-			activeIndex: { type: "number", required: false },
-			onChange: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			options: {
+				type: "array",
+				required: true,
+			},
+			activeIndex: {
+				type: "number",
+				required: false,
+			},
+			onChange: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.OptionListItem": {
@@ -693,16 +1461,46 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: true },
-			subText: { type: "string", required: false },
-			showColorChip: { type: "boolean", required: false },
-			selected: { type: "boolean", required: false },
-			onClick: { type: "string", required: false },
-			value: { type: "string", required: true },
-			unit: { type: "string", required: true },
-			badge: { type: "string", required: false },
-			price: { type: "string", required: true },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: true,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			showColorChip: {
+				type: "boolean",
+				required: false,
+			},
+			selected: {
+				type: "boolean",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
+			value: {
+				type: "string",
+				required: true,
+			},
+			unit: {
+				type: "string",
+				required: true,
+			},
+			badge: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: true,
+			},
 		},
 	},
 	"kiki.Pagestack": {
@@ -710,9 +1508,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			showTitle: { type: "boolean", required: false },
-			children: { type: "node", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			showTitle: {
+				type: "boolean",
+				required: false,
+			},
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.PagestackItemCard": {
@@ -720,7 +1527,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			children: { type: "node", required: false },
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.PagestackItemDefault": {
@@ -728,7 +1538,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			children: { type: "node", required: false },
+			children: {
+				type: "node",
+				required: false,
+			},
 		},
 	},
 	"kiki.PayProductListItem": {
@@ -736,19 +1549,59 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["Pay", "Cart"], required: false },
-			brand: { type: "string", required: false },
-			productName: { type: "string", required: false },
-			thumbnailSrc: { type: "string", required: false },
-			showBox: { type: "boolean", required: false },
-			showChangeLink: { type: "boolean", required: false },
-			boxOption: { type: "string", required: false },
-			priceRows: { type: "array", required: false },
-			totalLabel: { type: "string", required: false },
-			totalPeriod: { type: "string", required: false },
-			totalPrice: { type: "string", required: false },
-			onClose: { type: "string", required: false },
-			onChangeClick: { type: "string", required: false },
+			type: {
+				type: "enum",
+				values: ["Pay", "Cart"],
+				required: false,
+			},
+			brand: {
+				type: "string",
+				required: false,
+			},
+			productName: {
+				type: "string",
+				required: false,
+			},
+			thumbnailSrc: {
+				type: "string",
+				required: false,
+			},
+			showBox: {
+				type: "boolean",
+				required: false,
+			},
+			showChangeLink: {
+				type: "boolean",
+				required: false,
+			},
+			boxOption: {
+				type: "string",
+				required: false,
+			},
+			priceRows: {
+				type: "array",
+				required: false,
+			},
+			totalLabel: {
+				type: "string",
+				required: false,
+			},
+			totalPeriod: {
+				type: "string",
+				required: false,
+			},
+			totalPrice: {
+				type: "string",
+				required: false,
+			},
+			onClose: {
+				type: "string",
+				required: false,
+			},
+			onChangeClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.PaymentList": {
@@ -756,15 +1609,42 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: false },
-			badge: { type: "string", required: false },
-			showLogo: { type: "boolean", required: false },
-			showCard: { type: "boolean", required: false },
-			cardTitle: { type: "string", required: false },
-			cardTitleHighlight: { type: "string", required: false },
-			cardSubText: { type: "string", required: false },
-			selected: { type: "boolean", required: false },
-			onClick: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: false,
+			},
+			badge: {
+				type: "string",
+				required: false,
+			},
+			showLogo: {
+				type: "boolean",
+				required: false,
+			},
+			showCard: {
+				type: "boolean",
+				required: false,
+			},
+			cardTitle: {
+				type: "string",
+				required: false,
+			},
+			cardTitleHighlight: {
+				type: "string",
+				required: false,
+			},
+			cardSubText: {
+				type: "string",
+				required: false,
+			},
+			selected: {
+				type: "boolean",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.PaymentLogoItem": {
@@ -772,7 +1652,81 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
+			type: {
+				type: "string",
+				required: true,
+			},
+		},
+	},
+	"kiki.PhoneVerificationCodeField": {
+		type: "kiki.PhoneVerificationCodeField",
+		source: "kiki-draft",
+		version: "0.0.0",
+		description:
+			"휴대폰 인증번호 입력 필드. 발송 상태(idle/sent/expired)에 따라 우측 액션이 인증 요청↔재요청으로 바뀌고, sent일 때 남은 제한시간 카운트다운을 노출한다. 본인·연령·법정대리인 인증 flow의 코드 입력에 쓴다.",
+		props: {
+			label: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			placeholder: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			helperText: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			value: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
+			state: {
+				type: "enum",
+				values: ["idle", "sent", "expired"],
+				role: "state",
+				required: false,
+				defaultValue: "idle",
+			},
+			remainingSeconds: {
+				type: "number",
+				role: "data",
+				required: false,
+			},
+			sentNotice: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			sendActionLabel: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			resendActionLabel: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			onChange: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
+			onRequest: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
+			onResend: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
 		},
 	},
 	"kiki.Pin": {
@@ -780,8 +1734,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			number: { type: "number", required: false },
-			color: { type: "string", required: false },
+			number: {
+				type: "number",
+				required: false,
+			},
+			color: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.PopupActionButton": {
@@ -789,10 +1749,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			primaryLabel: { type: "string", required: true },
-			secondaryLabel: { type: "string", required: false },
-			onPrimary: { type: "string", required: false },
-			onSecondary: { type: "string", required: false },
+			primaryLabel: {
+				type: "string",
+				required: true,
+			},
+			secondaryLabel: {
+				type: "string",
+				required: false,
+			},
+			onPrimary: {
+				type: "string",
+				required: false,
+			},
+			onSecondary: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ProductInfo": {
@@ -800,21 +1772,66 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			productName: { type: "string", required: false },
-			originalPrice: { type: "string", required: false },
-			discountPercent: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceUnit: { type: "string", required: false },
-			badgeText: { type: "string", required: false },
-			buttonText: { type: "string", required: false },
-			usageLabel: { type: "string", required: false },
-			usageValue: { type: "string", required: false },
-			showBadge: { type: "boolean", required: false },
-			showButton: { type: "boolean", required: false },
-			showDiscountPercentage: { type: "boolean", required: false },
-			showOriginalPrice: { type: "boolean", required: false },
-			showUsage: { type: "boolean", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			productName: {
+				type: "string",
+				required: false,
+			},
+			originalPrice: {
+				type: "string",
+				required: false,
+			},
+			discountPercent: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceUnit: {
+				type: "string",
+				required: false,
+			},
+			badgeText: {
+				type: "string",
+				required: false,
+			},
+			buttonText: {
+				type: "string",
+				required: false,
+			},
+			usageLabel: {
+				type: "string",
+				required: false,
+			},
+			usageValue: {
+				type: "string",
+				required: false,
+			},
+			showBadge: {
+				type: "boolean",
+				required: false,
+			},
+			showButton: {
+				type: "boolean",
+				required: false,
+			},
+			showDiscountPercentage: {
+				type: "boolean",
+				required: false,
+			},
+			showOriginalPrice: {
+				type: "boolean",
+				required: false,
+			},
+			showUsage: {
+				type: "boolean",
+				required: false,
+			},
 		},
 	},
 	"kiki.ProductInfoHorizontal": {
@@ -822,11 +1839,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			mainText: { type: "string", required: false },
-			subText: { type: "string", required: false },
-			discountLabel: { type: "string", required: false },
-			discountAmount: { type: "string", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			mainText: {
+				type: "string",
+				required: false,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			discountLabel: {
+				type: "string",
+				required: false,
+			},
+			discountAmount: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ProductInfoVertical": {
@@ -834,12 +1866,30 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			textSub: { type: "string", required: false },
-			textMain: { type: "string", required: false },
-			originalPrice: { type: "string", required: false },
-			discountRate: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceSuffix: { type: "string", required: false },
+			textSub: {
+				type: "string",
+				required: false,
+			},
+			textMain: {
+				type: "string",
+				required: false,
+			},
+			originalPrice: {
+				type: "string",
+				required: false,
+			},
+			discountRate: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceSuffix: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Radio": {
@@ -847,10 +1897,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			checked: { type: "boolean", required: false },
-			disabled: { type: "boolean", required: false },
-			label: { type: "string", required: true },
-			onChange: { type: "string", required: false },
+			checked: {
+				type: "boolean",
+				required: false,
+			},
+			disabled: {
+				type: "boolean",
+				required: false,
+			},
+			label: {
+				type: "string",
+				required: true,
+			},
+			onChange: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.RightItem": {
@@ -858,9 +1920,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.SearchBar": {
@@ -868,9 +1939,19 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["LLM", "search"], required: false },
-			placeholder: { type: "string", required: false },
-			onSearch: { type: "string", required: false },
+			type: {
+				type: "enum",
+				values: ["LLM", "search"],
+				required: false,
+			},
+			placeholder: {
+				type: "string",
+				required: false,
+			},
+			onSearch: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Sheet": {
@@ -878,11 +1959,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			logoSrc: { type: "string", required: false },
-			productName: { type: "string", required: false },
-			price: { type: "string", required: false },
-			priceUnit: { type: "string", required: false },
-			priceNote: { type: "string", required: false },
+			logoSrc: {
+				type: "string",
+				required: false,
+			},
+			productName: {
+				type: "string",
+				required: false,
+			},
+			price: {
+				type: "string",
+				required: false,
+			},
+			priceUnit: {
+				type: "string",
+				required: false,
+			},
+			priceNote: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Spacing": {
@@ -890,7 +1986,10 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			size: { type: "string", required: false },
+			size: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Tab": {
@@ -900,9 +1999,21 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"탭 바. 탭 항목 목록(items)과 현재 선택(activeKey)을 받아 같은 화면 내 콘텐츠 전환을 제공한다. 섹션 내 분류 전환에 쓴다.",
 		props: {
-			items: { type: "array", role: "data", required: true },
-			activeKey: { type: "string", role: "state", required: true },
-			onChange: { type: "string", role: "event", required: true },
+			items: {
+				type: "array",
+				role: "data",
+				required: true,
+			},
+			activeKey: {
+				type: "string",
+				role: "state",
+				required: true,
+			},
+			onChange: {
+				type: "string",
+				role: "event",
+				required: true,
+			},
 		},
 	},
 	"kiki.TextButton": {
@@ -910,14 +2021,38 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: true },
-			color: { type: "string", required: false },
-			onClick: { type: "string", required: false },
-			leftLabel: { type: "string", required: true },
-			rightLabel: { type: "string", required: true },
-			onLeftClick: { type: "string", required: false },
-			onRightClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: true,
+			},
+			color: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
+			leftLabel: {
+				type: "string",
+				required: true,
+			},
+			rightLabel: {
+				type: "string",
+				required: true,
+			},
+			onLeftClick: {
+				type: "string",
+				required: false,
+			},
+			onRightClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TextField": {
@@ -927,13 +2062,41 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		description:
 			"텍스트 입력 필드. 라벨·플레이스홀더·도움말과 에러/상태 표시, 우측 요소 슬롯을 지원한다. 폼의 단일 입력 한 칸으로 쓴다.",
 		props: {
-			label: { type: "string", role: "label", required: false },
-			placeholder: { type: "string", role: "description", required: false },
-			helperText: { type: "string", role: "description", required: false },
-			value: { type: "string", role: "value", required: false },
-			type: { type: "string", role: "styleVariant", required: false },
-			state: { type: "string", role: "state", required: false },
-			error: { type: "boolean", role: "state", required: false },
+			label: {
+				type: "string",
+				role: "label",
+				required: false,
+			},
+			placeholder: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			helperText: {
+				type: "string",
+				role: "description",
+				required: false,
+			},
+			value: {
+				type: "string",
+				role: "value",
+				required: false,
+			},
+			type: {
+				type: "string",
+				role: "styleVariant",
+				required: false,
+			},
+			state: {
+				type: "string",
+				role: "state",
+				required: false,
+			},
+			error: {
+				type: "boolean",
+				role: "state",
+				required: false,
+			},
 			rightElement: {
 				type: "node",
 				role: "slot",
@@ -941,7 +2104,11 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 				description:
 					"입력칸 우측 슬롯. render-node(예: kiki.Button)를 넣으면 입력칸과 같은 행 우측에 렌더된다. 휴대폰 인증요청처럼 입력과 짝이 되는 인라인 액션에 쓴다.",
 			},
-			onChange: { type: "string", role: "event", required: false },
+			onChange: {
+				type: "string",
+				role: "event",
+				required: false,
+			},
 		},
 	},
 	"kiki.Thumbnail": {
@@ -949,16 +2116,47 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["Product", "Brand"], required: false },
-			imageSrc: { type: "string", required: false },
-			brandSub: { type: "string", required: false },
-			brandName: { type: "string", required: false },
-			brandDesc: { type: "string", required: false },
-			category: { type: "string", required: false },
-			likeCount: { type: "string", required: false },
-			badges: { type: "array", required: false },
-			totalDots: { type: "number", required: false },
-			activeDotIndex: { type: "number", required: false },
+			type: {
+				type: "enum",
+				values: ["Product", "Brand"],
+				required: false,
+			},
+			imageSrc: {
+				type: "string",
+				required: false,
+			},
+			brandSub: {
+				type: "string",
+				required: false,
+			},
+			brandName: {
+				type: "string",
+				required: false,
+			},
+			brandDesc: {
+				type: "string",
+				required: false,
+			},
+			category: {
+				type: "string",
+				required: false,
+			},
+			likeCount: {
+				type: "string",
+				required: false,
+			},
+			badges: {
+				type: "array",
+				required: false,
+			},
+			totalDots: {
+				type: "number",
+				required: false,
+			},
+			activeDotIndex: {
+				type: "number",
+				required: false,
+			},
 		},
 	},
 	"kiki.ThumbnailItem": {
@@ -966,9 +2164,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			size: { type: "string", required: false },
-			src: { type: "string", required: false },
-			alt: { type: "string", required: false },
+			size: {
+				type: "string",
+				required: false,
+			},
+			src: {
+				type: "string",
+				required: false,
+			},
+			alt: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ThumbnailLogoItem": {
@@ -976,8 +2183,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			logo: { type: "node", required: false },
-			bgColor: { type: "string", required: false },
+			logo: {
+				type: "node",
+				required: false,
+			},
+			bgColor: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.ThumbnailSmall": {
@@ -985,9 +2198,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			image: { type: "node", required: false },
-			logo: { type: "node", required: false },
-			src: { type: "string", required: false },
+			image: {
+				type: "node",
+				required: false,
+			},
+			logo: {
+				type: "node",
+				required: false,
+			},
+			src: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleBottomSheet": {
@@ -995,10 +2217,22 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: true },
-			subText: { type: "string", required: false },
-			subTextHighlight: { type: "string", required: false },
-			onClose: { type: "string", required: false },
+			title: {
+				type: "string",
+				required: true,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			subTextHighlight: {
+				type: "string",
+				required: false,
+			},
+			onClose: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleContents": {
@@ -1006,9 +2240,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			title: { type: "string", required: false },
-			showButton: { type: "boolean", required: false },
-			onButtonClick: { type: "string", required: false },
+			title: {
+				type: "string",
+				required: false,
+			},
+			showButton: {
+				type: "boolean",
+				required: false,
+			},
+			onButtonClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleContentsRightItem": {
@@ -1016,9 +2259,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleMain": {
@@ -1026,13 +2278,36 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "enum", values: ["Complete", "Search"], required: false },
-			chipSrc: { type: "string", required: false },
-			deviceName: { type: "string", role: "data", required: false },
-			title: { type: "string", required: false },
-			subText: { type: "string", required: false },
-			indicatorCount: { type: "number", required: false },
-			indicatorActiveIndex: { type: "number", required: false },
+			type: {
+				type: "enum",
+				values: ["Complete", "Search"],
+				required: false,
+			},
+			chipSrc: {
+				type: "string",
+				required: false,
+			},
+			deviceName: {
+				type: "string",
+				role: "data",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			indicatorCount: {
+				type: "number",
+				required: false,
+			},
+			indicatorActiveIndex: {
+				type: "number",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleSection": {
@@ -1040,13 +2315,34 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			subtitle: { type: "string", required: false },
-			title: { type: "string", required: false },
-			count: { type: "number", required: false },
-			showSubtitle: { type: "boolean", required: false },
-			showCount: { type: "boolean", required: false },
-			showChevron: { type: "boolean", required: false },
-			onChevronClick: { type: "string", required: false },
+			subtitle: {
+				type: "string",
+				required: false,
+			},
+			title: {
+				type: "string",
+				required: false,
+			},
+			count: {
+				type: "number",
+				required: false,
+			},
+			showSubtitle: {
+				type: "boolean",
+				required: false,
+			},
+			showCount: {
+				type: "boolean",
+				required: false,
+			},
+			showChevron: {
+				type: "boolean",
+				required: false,
+			},
+			onChevronClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleSectionLeftItem": {
@@ -1054,9 +2350,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			count: { type: "string", required: false },
-			badge: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			count: {
+				type: "string",
+				required: false,
+			},
+			badge: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.TitleSectionRightItem": {
@@ -1064,11 +2369,26 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			type: { type: "string", required: true },
-			label: { type: "string", required: false },
-			subText: { type: "string", required: false },
-			highlight: { type: "string", required: false },
-			onClick: { type: "string", required: false },
+			type: {
+				type: "string",
+				required: true,
+			},
+			label: {
+				type: "string",
+				required: false,
+			},
+			subText: {
+				type: "string",
+				required: false,
+			},
+			highlight: {
+				type: "string",
+				required: false,
+			},
+			onClick: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.Tooltip": {
@@ -1076,8 +2396,14 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			label: { type: "string", required: true },
-			tailPosition: { type: "string", required: false },
+			label: {
+				type: "string",
+				required: true,
+			},
+			tailPosition: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 	"kiki.UnderlineTab": {
@@ -1085,9 +2411,18 @@ export const catalogSource: Record<string, CatalogSourceEntry> = {
 		source: "kiki-draft",
 		version: "0.0.0",
 		props: {
-			items: { type: "array", required: false },
-			activeIndex: { type: "number", required: false },
-			onChange: { type: "string", required: false },
+			items: {
+				type: "array",
+				required: false,
+			},
+			activeIndex: {
+				type: "number",
+				required: false,
+			},
+			onChange: {
+				type: "string",
+				required: false,
+			},
 		},
 	},
 };

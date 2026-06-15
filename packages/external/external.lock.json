@@ -4,8 +4,8 @@
     "repo": "https://github.com/sovorovvang-cyber/kiki.git",
     "ref": "main"
   },
-  "sha": "8748e6394880233e67adc44ff2095be8229288c2",
-  "syncedAt": "2026-06-15T08:34:16.092Z",
+  "sha": "local",
+  "syncedAt": "2026-06-08T01:56:43.965Z",
   "barrelExports": [
     "AppBar",
     "Badge",
@@ -23,5 +23,5 @@
     "TabItem",
     "TextField"
   ],
-  "fileCount": 312
+  "fileCount": 437
 }

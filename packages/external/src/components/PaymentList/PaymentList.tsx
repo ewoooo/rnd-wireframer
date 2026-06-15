@@ -1,7 +1,6 @@
 import styles from './PaymentList.module.css';
 import radioIcon from './assets/radio.svg';
 import chevronRightIcon from './assets/chevron-right.svg';
-import elevenPayLogo from '../PaymentLogoItem/assets/11pay-logo.png';
 
 /* Figma: PaymentList — node 9738:71657 */
 interface PaymentListProps {
@@ -37,7 +36,7 @@ export function PaymentList({
           <div className={styles.logoTextInner}>
             {showLogo && (
               <div className={styles.logoCircle}>
-                <img src={elevenPayLogo} alt="11pay" width={16} height={16} className={styles.logoImg} />
+                <span className={styles.logoTextMark}>11</span>
               </div>
             )}
             <span className={styles.label}>{label}</span>
