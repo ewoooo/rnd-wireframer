@@ -8,9 +8,10 @@ import type { ScreenSummary } from "@/lib/screen-sources";
 import { fetchScreensFromApi } from "@/lib/screens-client";
 import {
 	collectWorkbenchAreas,
-	collectWorkbenchComponents,
 	createWorkbenchViewModel,
 	getInitialScreen,
+	listExternalComponents,
+	toCatalogNavigationItems,
 	toNavigationNodeItems,
 } from "@/model/workbench-view-model";
 
@@ -61,17 +62,10 @@ export function useScreenWorkbench() {
 	const selectedArea = selectedAreaEntry?.node;
 	const visibleAreaItems = toNavigationNodeItems(visibleAreas);
 
-	const visibleComponents = collectWorkbenchComponents(navigationScreens);
-
-	const selectedComponentEntry =
-		visibleComponents.find(
-			(entry) =>
-				entry.node.metadata.id === selectedComponentId && entry.screen.id === visibleScreen?.id,
-		) ??
-		visibleComponents.find((entry) => entry.screen.id === visibleScreen?.id) ??
-		visibleComponents[0];
-	const selectedComponent = selectedComponentEntry?.node;
-	const visibleComponentItems = toNavigationNodeItems(visibleComponents);
+	const componentNodes = listExternalComponents();
+	const selectedComponent =
+		componentNodes.find((node) => node.metadata.id === selectedComponentId) ?? componentNodes[0];
+	const visibleComponentItems = toCatalogNavigationItems(componentNodes);
 
 	const activeRoute =
 		screenRoutes.find((route) => route.id === activeRouteId) ??
@@ -128,9 +122,7 @@ export function useScreenWorkbench() {
 	}
 
 	function handleSelectComponent(componentId: string) {
-		const nextComponent = visibleComponents.find((entry) => entry.node.metadata.id === componentId);
-		if (nextComponent?.screen.screenRouteId) setActiveRouteId(nextComponent.screen.screenRouteId);
-		if (nextComponent?.screen.id) setSelectedScreenId(nextComponent.screen.id);
+		// 카탈로그 cmp는 특정 스크린에 속하지 않으므로 선택 id만 갱신한다.
 		setSelectedComponentId(componentId);
 	}
 
