@@ -36,6 +36,14 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Payment Completion Related Product Carousel Area Reference
+
+- 변경: Figma SOT node `10090:58810` 기반 `area-payment-completion-related-product-carousel` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-payment-completion-detail`의 area 후보에 연결함
+- 이유: 결제 완료 화면의 함께 많이 찾는 상품 section은 thumbnail, category, title, price/period를 가진 horizontal product card carousel로 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
 ## 2026-06-15 - Payment Completion Delivery Info Area Reference
 
 - 변경: Figma SOT node `10090:58808` 기반 `area-payment-completion-delivery-info` Area Reference를 추가함

@@ -1,0 +1,49 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-payment-completion-related-product-carousel",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58810"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "Pagestack",
+		"nodeType": "INSTANCE",
+		"role": "payment-completion-related-product-carousel",
+		"children": [
+			{
+				"name": "ContentsTitle",
+				"nodeType": "FRAME",
+				"role": "related-product-title-group",
+				"children": [
+					{ "name": "TitleSection", "nodeType": "INSTANCE", "role": "recommendation-title" }
+				]
+			},
+			{
+				"name": "ContentsSlot",
+				"nodeType": "SLOT",
+				"role": "related-product-carousel-slot",
+				"children": [
+					{
+						"name": "CarouselProduct",
+						"nodeType": "FRAME",
+						"role": "horizontal-product-carousel",
+						"children": [
+							{
+								"name": "CarouselProduct",
+								"nodeType": "INSTANCE",
+								"role": "related-product-card",
+								"children": [
+									{ "name": ".ThumbnailItem", "nodeType": "FRAME", "role": "product-thumbnail" },
+									{ "name": ".ProductInfoVertical", "nodeType": "FRAME", "role": "product-info" },
+									{ "name": "TextInfo", "nodeType": "FRAME", "role": "category-and-title" },
+									{ "name": "TextPrice", "nodeType": "FRAME", "role": "price-and-period" }
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

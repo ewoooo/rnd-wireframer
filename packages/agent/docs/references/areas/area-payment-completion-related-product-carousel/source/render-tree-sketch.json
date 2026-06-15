@@ -1,0 +1,33 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-payment-completion-related-product-carousel",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "payment-completion-related-product-carousel",
+		"children": [
+			{
+				"type": "PageStack",
+				"role": "related-product-carousel-section",
+				"children": [
+					{ "type": "TitleSection", "role": "recommendation-title" },
+					{
+						"type": "Carousel",
+						"role": "horizontal-product-carousel",
+						"children": [
+							{
+								"type": "CarouselProduct",
+								"role": "related-product-card",
+								"children": [
+									{ "type": "ThumbnailItem", "role": "product-thumbnail" },
+									{ "type": "ProductInfoVertical", "role": "product-info" },
+									{ "type": "TextPrice", "role": "price-and-period" }
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+}

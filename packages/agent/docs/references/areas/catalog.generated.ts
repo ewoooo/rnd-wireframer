@@ -106,6 +106,20 @@ export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/areas/area-payment-completion-ledger/README.md",
 	},
 	{
+		id: "area-payment-completion-related-product-carousel",
+		situation:
+			"사용자가 결제를 완료한 뒤 구독 상품과 함께 많이 찾는 관련 상품을 가로 carousel로 탐색한다",
+		tags: [
+			"area-pattern",
+			"payment-completion",
+			"related-product",
+			"recommendation-carousel",
+			"product-card-carousel",
+		],
+		sourceRef:
+			"../docs/references/areas/area-payment-completion-related-product-carousel/README.md",
+	},
+	{
 		id: "area-payment-completion-subscribed-product",
 		situation:
 			"사용자가 결제를 완료한 뒤 구독된 상품의 이름, 이용 기간/가격, 포함 혜택을 한 area에서 확인한다",
