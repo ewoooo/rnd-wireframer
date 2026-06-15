@@ -709,11 +709,24 @@ export const externalCatalog: ComponentCatalog = {
 		description:
 			"텍스트 리스트 항목. 제목·보조설명·가격과 우측 이동 아이콘을 가진 목록 행. 설정·메뉴·내역 리스트의 한 줄로 쓴다.",
 		props: {
-			table: { type: "string", role: "data", required: false },
+			table: {
+				type: "enum",
+				role: "data",
+				values: ["off", "on", "dot", "firstTitle", "secondTitle"],
+				required: false,
+				description:
+					"행 변형. 'on'=좌측 제목+우측 보조값(subText)인 key-value 행, 'off'=제목+우측 셰브론 내비게이션 행, 'firstTitle'=큰 제목+우측 값(price), 'secondTitle'=볼드 제목+셰브론, 'dot'=불릿 행. 제목 옆에 값을 같이 보여줄 행은 'on'을 쓴다. 생략 시 subText가 있으면 'on', 없으면 'off'로 렌더된다.",
+			},
 			title: { type: "string", role: "title", required: false },
 			subText: { type: "string", role: "description", required: false },
 			price: { type: "string", role: "value", required: false },
-			showRightItem: { type: "boolean", role: "visibility", required: false },
+			showRightItem: {
+				type: "boolean",
+				role: "visibility",
+				required: false,
+				description:
+					"우측 셰브론(이동 아이콘) 노출 여부. 기본 false. 'off'/'secondTitle'/'dot' 변형에서 탭 시 다른 화면으로 이동하는 내비게이션 행일 때만 true로 둔다. 'on'의 subText와 'firstTitle'의 값은 showRightItem과 무관하게 항상 노출된다.",
+			},
 			onClick: { type: "string", role: "event", required: false },
 		},
 	},
