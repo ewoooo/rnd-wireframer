@@ -29,6 +29,8 @@ type NavigationRoutesProps = {
 	onSelectArea: (areaId: string) => void;
 	onSelectComponent: (componentId: string) => void;
 	onDeleteComponent?: (type: string) => void;
+	onSyncComponents?: () => void;
+	isSyncingComponents?: boolean;
 	onSelectNewScreenSource?: (id: string) => void;
 	screenModules: ScreenModuleGroup[];
 	screenRoute?: ScreenRouteGroup;
@@ -61,6 +63,8 @@ export function NavigationRoutes({
 	onSelectArea,
 	onSelectComponent,
 	onDeleteComponent,
+	onSyncComponents,
+	isSyncingComponents = false,
 	onSelectNewScreenSource,
 	screenModules,
 	screenRoute,
@@ -168,6 +172,12 @@ export function NavigationRoutes({
 					count={components.length}
 					defaultSize={62}
 					minSize={20}
+					fadeBottom
+					floatingBottom={
+						onSyncComponents ? (
+							<SyncCatalogButton onClick={onSyncComponents} isSyncing={isSyncingComponents} />
+						) : null
+					}
 				>
 					<ComponentListBody
 						emptyMessage="등록된 Component가 없습니다."
@@ -301,6 +311,25 @@ function ComponentListBody({
 				);
 			})}
 		</div>
+	);
+}
+
+/** cmp 카탈로그 동기화 버튼 — fog 영역에 떠서 kiki→@cx/external sync를 트리거. */
+function SyncCatalogButton({ onClick, isSyncing }: { onClick: () => void; isSyncing: boolean }) {
+	return (
+		<button
+			type="button"
+			className={cn(
+				"flex h-8 items-center gap-1.5 rounded-full border border-sidebar-border bg-sidebar px-3.5 text-xs font-semibold text-sidebar-foreground shadow-sm transition-colors",
+				isSyncing ? "cursor-wait opacity-70" : "cursor-pointer hover:bg-sidebar-accent",
+			)}
+			disabled={isSyncing}
+			onClick={onClick}
+			title="원본 디자인 시스템에서 컴포넌트 카탈로그 동기화"
+		>
+			<ICONS.sync className={cn("size-3.5", isSyncing && "animate-spin")} />
+			{isSyncing ? "동기화 중…" : "카탈로그 Sync"}
+		</button>
 	);
 }
 

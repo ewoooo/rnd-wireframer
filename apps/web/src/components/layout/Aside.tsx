@@ -91,6 +91,8 @@ export function Panel({
 	defaultSize,
 	minSize,
 	bodyClassName,
+	fadeBottom,
+	floatingBottom,
 	children,
 }: {
 	/** 레이아웃 저장/복원용 안정 id(Aside가 persistId 사용 시 자동 주입). */
@@ -104,6 +106,10 @@ export function Panel({
 	defaultSize?: number;
 	minSize?: number;
 	bodyClassName?: string;
+	/** 스크롤 body 하단에 fog(그라데이션 fade-out) 오버레이를 깐다 — 하단 액션 영역과 자연스럽게 이어준다. */
+	fadeBottom?: boolean;
+	/** 스크롤 body 위 하단에 고정(absolute)되는 액션. fog 영역에 떠 있으며 이 요소만 클릭 가능. */
+	floatingBottom?: ReactNode;
 	children: ReactNode;
 }) {
 	return (
@@ -129,7 +135,21 @@ export function Panel({
 						) : null}
 					</div>
 				) : null}
-				<div className={cn("min-h-0 flex-1 overflow-y-auto py-1", bodyClassName)}>{children}</div>
+				<div className="relative min-h-0 flex-1">
+					{/* fadeBottom이면 fog 높이(h-12)만큼 pb를 줘서 마지막 항목이 fog에 가리지 않게 한다. */}
+					<div className={cn("h-full overflow-y-auto py-1", fadeBottom && "pb-12", bodyClassName)}>
+						{children}
+					</div>
+					{fadeBottom ? (
+						<div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-sidebar to-transparent" />
+					) : null}
+					{/* 바닥 고정 액션: 래퍼는 클릭 통과(pointer-events-none), 안의 버튼만 클릭 가능. */}
+					{floatingBottom ? (
+						<div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-3 pb-2.5">
+							<div className="pointer-events-auto">{floatingBottom}</div>
+						</div>
+					) : null}
+				</div>
 				{footer ? <div className="shrink-0">{footer}</div> : null}
 			</div>
 		</ResizablePanel>

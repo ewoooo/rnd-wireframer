@@ -8,6 +8,7 @@ import {
 	Palette,
 	Pencil,
 	RectangleHorizontal,
+	RefreshCw,
 	Route,
 	SlidersHorizontal,
 	Smartphone,
@@ -41,6 +42,7 @@ export const ICONS = {
 	edit: Pencil,
 	duplicate: Copy,
 	delete: Trash2,
+	sync: RefreshCw, // 카탈로그 동기화(kiki→@cx/external)
 	// 우하단(하위 요소 불러오기)은 현재 페이지의 *하위 타입* 아이콘을 쓴다:
 	//   screen→area, area→component, component→rawValue.
 	rawValue: Palette, // component의 하위 = raw value 층위(컴포넌트화 안 된 실제 값, 최후순위 구현)

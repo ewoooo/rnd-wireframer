@@ -52,6 +52,29 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 		window.location.reload();
 	}
 
+	// 카탈로그 Sync — kiki 디자인 시스템에서 컴포넌트를 끌어와 @cx/external 재생성(pnpm sync:kiki).
+	const [isSyncingComponents, setIsSyncingComponents] = useState(false);
+	async function handleSyncComponents() {
+		if (isSyncingComponents) return;
+		const message =
+			"원본 디자인 시스템에서 최신 컴포넌트를 불러와 로컬 카탈로그를 새로 구성합니다. 기존 컴포넌트는 모두 대체되며, 원본의 상태가 그대로 반영됩니다. 이 변경은 되돌릴 수 없으니, 시작하기 전에 작업 내용을 커밋해 두세요. 계속하시겠습니까?";
+		if (!window.confirm(message)) {
+			return;
+		}
+		setIsSyncingComponents(true);
+		try {
+			const res = await fetch("/api/catalog/sync", { method: "POST" });
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}));
+				window.alert(`동기화 실패: ${body.error ?? res.statusText}`);
+				return;
+			}
+			window.location.reload();
+		} finally {
+			setIsSyncingComponents(false);
+		}
+	}
+
 	// Run 탭 canvas↔RightAside 가로 분할 크기 유지(새로고침), 앱 새로 열면 초기화.
 	const runSplitLayout = useSessionLayout("run-split", ["run-split:0", "run-split:1"]);
 
@@ -164,6 +187,8 @@ export function AppShell({ initialTab = "scn" }: { initialTab?: NavigatorTab }) 
 					onSelectArea={screen.onSelectArea}
 					onSelectComponent={screen.onSelectComponent}
 					onDeleteComponent={handleDeleteComponent}
+					onSyncComponents={handleSyncComponents}
+					isSyncingComponents={isSyncingComponents}
 					onSelectNewScreenSource={newScreen.onSelectSource}
 					onSelectRoute={screen.onSelectRoute}
 					onSelectScreen={screen.onSelectScreen}
