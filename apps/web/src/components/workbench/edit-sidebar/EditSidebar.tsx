@@ -55,7 +55,7 @@ export function EditSidebar({ newScreenSource, scope }: EditSidebarProps) {
 	const ChildIcon = childSlot.icon;
 
 	return (
-		<Aside side="right">
+		<Aside side="right" persistId="edit-right">
 			<Panel
 				title="Properties"
 				icon={<ICONS.properties className="size-3.5" data-icon="inline-start" />}

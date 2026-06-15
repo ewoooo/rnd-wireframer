@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "@/components/App";
 import type { ScreenSummary } from "@/lib/screen-sources";
 
+// AppShell이 탭 전환 시 URL을 갱신하므로 라우터를 스텁한다(jsdom엔 App Router 컨텍스트 없음).
+vi.mock("next/navigation", () => ({
+	useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+}));
+
 afterEach(() => {
 	cleanup();
 	window.localStorage.clear();
@@ -21,13 +26,12 @@ describe("App workbench navigation", () => {
 		fireEvent.click(getRailButton("Components"));
 
 		expect(screen.getAllByText("Components").length).toBeGreaterThan(0);
-		expect(screen.getAllByText("Preview CTA").length).toBeGreaterThan(0);
-		expect(screen.getByText("preview-cta")).toBeInTheDocument();
-		expect(screen.getByText("member-base-cta")).toBeInTheDocument();
+		// cmp 탭은 스크린 인스턴스가 아니라 로컬 @cx/external 카탈로그(kiki)를 보여준다.
+		expect(screen.getAllByText("AppBar").length).toBeGreaterThan(0);
 
-		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
+		fireEvent.click(screen.getAllByText("AppBar")[0].closest("button") as HTMLButtonElement);
 
-		expect(screen.getByText("member-base-cta")).toBeInTheDocument();
+		expect(screen.getAllByText("AppBar").length).toBeGreaterThan(0);
 
 		fireEvent.click(getRailButton("Areas"));
 
@@ -83,8 +87,8 @@ describe("App workbench navigation", () => {
 
 		await waitForWorkbenchReady();
 
-		fireEvent.click(getRailButton("Components"));
-		fireEvent.click(screen.getByText("member-base-cta").closest("button") as HTMLButtonElement);
+		fireEvent.click(getRailButton("Areas"));
+		fireEvent.click(screen.getByText("member-base-area").closest("button") as HTMLButtonElement);
 		fireEvent.click(getRailButton("Screens"));
 
 		expect(screen.getByTitle("Member Base")).toBeInTheDocument();

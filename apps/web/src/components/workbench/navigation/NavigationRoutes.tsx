@@ -99,7 +99,7 @@ export function NavigationRoutes({
 	}
 
 	return (
-		<Aside side="left">
+		<Aside side="left" persistId="nav-left">
 			{/* (숨김) 도메인/루트 선택 — 플래그 복구 시 좌상단 위에 추가됨 */}
 			{SHOW_DOMAINS ? (
 				<Panel

@@ -1,6 +1,6 @@
 "use client";
 
-import { Children, Fragment, isValidElement, type ReactNode } from "react";
+import { Children, Fragment, isValidElement, type ReactNode, useId } from "react";
 import {
 	ResizableHandle,
 	ResizablePanel,
@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/resizable";
 import { Sidebar } from "@/components/ui/sidebar";
 import { cn } from "@/components/utils";
+import { useSessionLayout } from "@/components/layout/use-session-layout";
 
 /**
  * 레이아웃 규칙(코드화):
@@ -24,18 +25,27 @@ import { cn } from "@/components/utils";
 export function Aside({
 	side,
 	fill,
+	persistId,
 	children,
 }: {
 	side: "left" | "right";
 	/** true면 고정 폭 대신 부모 폭을 가득 채운다(ResizablePanel 안에서 드래그 리사이즈용). */
 	fill?: boolean;
+	/** 지정 시 패널 크기를 sessionStorage에 저장(새로고침 유지, 앱 새로 열면 초기화). */
+	persistId?: string;
 	children: ReactNode;
 }) {
 	const panels = Children.toArray(children).filter(isValidElement);
+	// 훅은 무조건 호출(rules of hooks). persistId 없으면 저장하지 않고 fallback id만 채운다.
+	const fallbackId = useId();
+	const layout = useSessionLayout(persistId ?? fallbackId);
+	const persistProps = persistId
+		? { defaultLayout: layout.defaultLayout, onLayoutChanged: layout.onLayoutChanged }
+		: {};
 
 	return (
 		<Sidebar side={side} className={fill ? "h-full w-full" : undefined}>
-			<ResizablePanelGroup orientation="vertical" className="h-full">
+			<ResizablePanelGroup orientation="vertical" className="h-full" {...persistProps}>
 				{panels.map((panel, index) => (
 					<Fragment key={index}>
 						{index > 0 ? <Divider /> : null}
