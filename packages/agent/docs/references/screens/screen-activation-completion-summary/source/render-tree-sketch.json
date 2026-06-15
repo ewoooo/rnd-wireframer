@@ -1,0 +1,49 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "screen-activation-completion-summary",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Screen",
+		"children": [
+			{
+				"type": "Screen.Header",
+				"role": "close-only-navigation",
+				"children": [
+					{ "type": "StatusBar", "role": "system-status" },
+					{ "type": "AppBar", "role": "close-action" }
+				]
+			},
+			{
+				"type": "Screen.Contents",
+				"role": "activation-completion-summary-content",
+				"children": [
+					{
+						"type": "PageStack",
+						"role": "activation-completion-result-summary",
+						"children": [
+							{ "type": "TitleMain", "role": "activation-completion-headline" },
+							{
+								"type": "CardContentsFilled",
+								"role": "activation-info-card",
+								"children": [
+									{ "type": "TitleContents", "role": "activation-info-title" },
+									{ "type": "ListText", "role": "device-row" },
+									{ "type": "ListText", "role": "plan-row" },
+									{ "type": "ListText", "role": "monthly-payment-row" }
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "Screen.Bottom",
+				"role": "fixed-follow-up-actions",
+				"children": [
+					{ "type": "Text", "role": "data-transfer-helper" },
+					{ "type": "ActionButton", "role": "data-transfer-and-confirm-actions" }
+				]
+			}
+		]
+	}
+}

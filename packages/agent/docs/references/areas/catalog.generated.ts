@@ -3,6 +3,20 @@ import type { ReferenceCatalogEntry } from "@cx/schema";
 
 export const referenceAreaCatalog: ReferenceCatalogEntry[] = [
 	{
+		id: "area-activation-completion-data-transfer-action-bar",
+		situation:
+			"사용자가 휴대폰 개통을 완료한 뒤 사진, 연락처, 앱을 새 휴대폰으로 옮길지 선택하고 완료 화면을 확인한다",
+		tags: [
+			"area-pattern",
+			"activation-completion",
+			"data-transfer",
+			"bottom-action",
+			"fixed-action-bar",
+		],
+		sourceRef:
+			"../docs/references/areas/area-activation-completion-data-transfer-action-bar/README.md",
+	},
+	{
 		id: "area-close-only-app-bar",
 		situation:
 			"사용자가 완료/상세/모달형 화면에서 뒤로가기나 title 없이 우측 닫기 action만 제공받는다",

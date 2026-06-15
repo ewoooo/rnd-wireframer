@@ -1,0 +1,22 @@
+{
+	"schema": "reference-render-tree-sketch.v1",
+	"referenceId": "area-activation-completion-data-transfer-action-bar",
+	"note": "Minimal RenderTree-oriented structure sketch. Values are illustrative; preserve the hierarchy and roles, not the literal labels.",
+	"tree": {
+		"type": "Area",
+		"role": "activation-completion-data-transfer-action-bar",
+		"children": [
+			{
+				"type": "ActionButton",
+				"role": "fixed-bottom-post-activation-actions",
+				"children": [
+					{ "type": "Text", "role": "data-transfer-helper" },
+					{ "type": "Icon", "role": "leading-action-icon" },
+					{ "type": "ButtonText", "role": "data-transfer-action-label" },
+					{ "type": "Divider", "role": "action-divider" },
+					{ "type": "ButtonText", "role": "confirm-action-label" }
+				]
+			}
+		]
+	}
+}

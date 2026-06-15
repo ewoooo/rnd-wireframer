@@ -1,0 +1,63 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "screen-activation-completion-summary",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10090:58791"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "완료_개통",
+		"nodeType": "FRAME",
+		"role": "screen",
+		"children": [
+			{
+				"name": "Statusbar+Header",
+				"nodeType": "FRAME",
+				"role": "header",
+				"children": [
+					{ "name": "StatusBar", "nodeType": "INSTANCE", "role": "system-status" },
+					{ "name": "AppBar", "nodeType": "INSTANCE", "role": "close-only-navigation" }
+				]
+			},
+			{
+				"name": "Pagestack",
+				"nodeType": "INSTANCE",
+				"role": "activation-completion-result-summary",
+				"figmaNode": "10090:58795",
+				"children": [
+					{
+						"name": "TitleMain",
+						"nodeType": "INSTANCE",
+						"role": "activation-completion-headline",
+						"children": [
+							{ "name": "TitleSubText", "nodeType": "FRAME", "role": "device-context" },
+							{ "name": "TitleText", "nodeType": "TEXT", "role": "completion-headline" },
+							{ "name": "SubText", "nodeType": "TEXT", "role": "availability-subtext" }
+						]
+					},
+					{
+						"name": "CardContentsFilled",
+						"nodeType": "INSTANCE",
+						"role": "activation-info-card",
+						"children": [
+							{ "name": "TitleContents", "nodeType": "INSTANCE", "role": "activation-info-title" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "device-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "plan-row" },
+							{ "name": "ListText", "nodeType": "INSTANCE", "role": "monthly-payment-row" }
+						]
+					}
+				]
+			},
+			{
+				"name": "ActionButton",
+				"nodeType": "INSTANCE",
+				"role": "fixed-follow-up-actions",
+				"children": [
+					{ "name": "txt", "nodeType": "FRAME", "role": "data-transfer-helper" },
+					{ "name": "Button", "nodeType": "INSTANCE", "role": "data-transfer-and-confirm-actions" }
+				]
+			}
+		]
+	}
+}

@@ -36,6 +36,22 @@
 
 최근 주요 변경만 inline 유지한다.
 
+## 2026-06-15 - Activation Completion Data Transfer Action Bar Area Reference
+
+- 변경: Figma SOT node `10069:144385` 기반 `area-activation-completion-data-transfer-action-bar` Area Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 `screen-activation-completion-summary`의 area 후보에 연결함
+- 이유: 개통 완료 화면의 하단 action은 데이터 이전 helper text와 데이터 옮기기/확인 action을 제공하는 post-activation bottom bar로, 결제 완료 bottom action과 목적이 달라 별도 생성 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: 없음
+
+## 2026-06-15 - Activation Completion Summary Screen Reference
+
+- 변경: Figma SOT node `10090:58791` 기반 `screen-activation-completion-summary` Screen Reference를 추가함
+- 변경: 관련 캡처와 `figma-node-tree-sketch.json`, `render-tree-sketch.json`을 `source/`에 추가하고 reference catalog 재생성 대상으로 등록함
+- 이유: 개통 완료 화면은 결제 완료 상세가 아니라 close-only header, 개통 결과 summary card, 데이터 이전/확인 bottom action을 가진 compact completion screen으로 별도 screen-level 판단이 필요하기 때문
+- 검증: `pnpm sync:reference`, JSON parse check, `pnpm vitest run packages/agent/src/reference-catalog`, `pnpm exec biome check ...`
+- 후속: bottom 데이터 이전 action이 반복되면 별도 area reference 분리 검토
+
 ## 2026-06-15 - Payment Completion Bottom Action Bar Area Reference
 
 - 변경: Figma SOT node `10069:144413` 기반 `area-payment-completion-bottom-action-bar` Area Reference를 추가함

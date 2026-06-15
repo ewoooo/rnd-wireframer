@@ -1,0 +1,31 @@
+{
+	"schema": "reference-figma-node-tree-sketch.v1",
+	"referenceId": "area-activation-completion-data-transfer-action-bar",
+	"source": {
+		"figmaFile": "SKT GenUI Test 0514",
+		"figmaNode": "10069:144385"
+	},
+	"note": "Structure sketch for pattern reasoning. This is not a raw Figma API dump.",
+	"tree": {
+		"name": "ActionButton",
+		"nodeType": "INSTANCE",
+		"role": "activation-completion-data-transfer-action-bar",
+		"children": [
+			{
+				"name": "txt",
+				"nodeType": "FRAME",
+				"role": "data-transfer-helper"
+			},
+			{
+				"name": "Button",
+				"nodeType": "INSTANCE",
+				"role": "brand-filled-combined-action",
+				"children": [
+					{ "name": "icon", "nodeType": "INSTANCE", "role": "leading-action-icon" },
+					{ "name": "ButtonText", "nodeType": "FRAME", "role": "post-activation-actions" },
+					{ "name": "Divider", "nodeType": "FRAME", "role": "action-divider" }
+				]
+			}
+		]
+	}
+}

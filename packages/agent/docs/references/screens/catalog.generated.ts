@@ -17,6 +17,20 @@ export const referenceScreenCatalog: ReferenceCatalogEntry[] = [
 		sourceRef: "../docs/references/screens/detail-confirmation/README.md",
 	},
 	{
+		id: "screen-activation-completion-summary",
+		situation:
+			"사용자가 휴대폰 개통을 완료한 뒤 개통된 기기, 요금제, 납부금액을 확인하고 데이터 이전 또는 확인 action을 선택한다",
+		tags: [
+			"screen-pattern",
+			"activation-completion",
+			"completion-result",
+			"result-summary",
+			"follow-up-actions",
+		],
+		sotNodeRef: "10090:58791",
+		sourceRef: "../docs/references/screens/screen-activation-completion-summary/README.md",
+	},
+	{
 		id: "screen-form-entry",
 		situation:
 			"사용자가 여러 입력값을 제공하거나 확인된 선행 상태를 바탕으로 남은 정보를 입력해 다음 단계로 진행한다",
